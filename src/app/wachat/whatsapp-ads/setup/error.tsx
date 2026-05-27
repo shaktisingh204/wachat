@@ -1,8 +1,8 @@
 'use client';
 
-import { EmptyState, Button } from '@/components/zoruui';
-import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { WaPage, WaButton, EmptyState } from '@/components/wachat-ui';
 
 export default function ErrorBoundary({
   error,
@@ -11,18 +11,15 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+  useEffect(() => { console.error('[Wachat AdsSetup]', error); }, [error]);
   return (
-    <div className="flex h-[80vh] items-center justify-center p-6">
+    <WaPage>
       <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-zoru-danger" />}
-        title="Something went wrong"
+        icon={AlertTriangle}
+        title="Couldn't load the setup wizard"
         description={error.message || 'An unexpected error occurred while loading this module.'}
-        action={<Button onClick={() => reset()}>Try again</Button>}
+        action={<WaButton onClick={reset} leftIcon={RotateCcw}>Try again</WaButton>}
       />
-    </div>
+    </WaPage>
   );
 }

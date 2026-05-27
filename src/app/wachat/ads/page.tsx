@@ -1,29 +1,9 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  Badge,
-  zoruSonnerToast,
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/zoruui';
 import { useCallback, useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { m, useReducedMotion } from 'motion/react';
 import {
   AlertCircle,
   ArrowRight,
@@ -34,15 +14,26 @@ import {
   Building2,
   Megaphone,
 } from 'lucide-react';
+import { Alert, ZoruAlertDescription, ZoruAlertTitle, zoruSonnerToast } from '@/components/zoruui';
 
 import { getAdAccounts } from '@/app/actions/ad-manager.actions';
 import type { AdAccount } from '@/lib/definitions';
+
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  EmptyState,
+  StatusPill,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 const STORAGE_KEY = 'wachat:whatsapp-ads:adAccountId';
 
 export default function WachatAdAccountProvisioningPage() {
   const router = useRouter();
-  
+  const reduce = useReducedMotion();
+
   const [accounts, setAccounts] = useState<AdAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,11 +44,8 @@ export default function WachatAdAccountProvisioningPage() {
     setError(null);
     try {
       const res = await getAdAccounts();
-      if (res.error) {
-        setError(res.error);
-      } else {
-        setAccounts(res.accounts || []);
-      }
+      if (res.error) setError(res.error);
+      else setAccounts(res.accounts || []);
     } catch (e: any) {
       setError(e.message || 'Failed to fetch ad accounts');
     } finally {
@@ -65,74 +53,39 @@ export default function WachatAdAccountProvisioningPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchAccounts();
-  }, [fetchAccounts]);
+  useEffect(() => { fetchAccounts(); }, [fetchAccounts]);
 
   const handleLinkAccount = (account: AdAccount) => {
     startTransition(() => {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, account.id);
-      } catch (err) {
-        // ignore storage errors
-      }
-      
-      zoruSonnerToast.success(`Ad Account ${account.name} linked successfully.`);
+      try { window.localStorage.setItem(STORAGE_KEY, account.id); } catch { /* ignore */ }
+      zoruSonnerToast.success(`Ad account ${account.name} linked successfully.`);
       router.push('/wachat/whatsapp-ads');
     });
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 w-full max-w-6xl mx-auto">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Ads Provisioning</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <ZoruPageHeading>
-              <div className="flex items-center gap-2">
-                <Megaphone className="w-6 h-6 text-zoru-ink/70" />
-                <ZoruPageTitle>Ad Account Provisioning</ZoruPageTitle>
-              </div>
-            </ZoruPageHeading>
-            <ZoruPageDescription>
-              Connect your Meta Ad Account to run Click-to-WhatsApp Ads directly from SabNode.
-            </ZoruPageDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchAccounts()}
-              disabled={loading || isPending}
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+    <WaPage>
+      <PageHeader
+        title="Ad account provisioning"
+        description="Connect a Meta ad account so SabNode can launch click-to-WhatsApp campaigns inside this workspace."
+        kicker="Wachat · ads"
+        eyebrowIcon={Megaphone}
+        actions={
+          <>
+            <WaButton variant="outline" size="sm" onClick={fetchAccounts} disabled={loading || isPending} leftIcon={RefreshCw}>
               Refresh
-            </Button>
+            </WaButton>
             <Link href="/api/auth/meta-suite/login">
-              <Button size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Connect New
-              </Button>
+              <WaButton size="sm" leftIcon={Plus}>Connect new</WaButton>
             </Link>
-          </div>
-        </div>
-      </PageHeader>
+          </>
+        }
+      />
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="w-4 h-4" />
-          <ZoruAlertTitle>Error Loading Accounts</ZoruAlertTitle>
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertTitle>Error loading accounts</ZoruAlertTitle>
           <ZoruAlertDescription>{error}</ZoruAlertDescription>
         </Alert>
       )}
@@ -140,95 +93,82 @@ export default function WachatAdAccountProvisioningPage() {
       {!loading && !error && accounts.length === 0 && (
         <EmptyState
           icon={Building2}
-          title="No Ad Accounts Connected"
-          description="You need to connect a Meta Ad Account before you can launch campaigns."
+          title="No ad accounts connected"
+          description="You need to connect a Meta ad account before launching campaigns."
           action={
             <Link href="/api/auth/meta-suite/login">
-              <Button>
-                Connect Meta Account
-              </Button>
+              <WaButton>Connect Meta account</WaButton>
             </Link>
           }
         />
       )}
 
       {loading && accounts.length === 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="p-5 flex flex-col gap-4">
-              <Skeleton className="h-6 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <div className="flex gap-2 mt-auto pt-4">
-                <Skeleton className="h-9 w-full" />
-              </div>
-            </Card>
+            <div key={i} className="h-[240px] animate-pulse rounded-2xl border border-zinc-200 bg-white p-5" />
           ))}
         </div>
       )}
 
       {!loading && accounts.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((account) => (
-            <Card key={account.id} className="flex flex-col">
-              <div className="p-5 flex-1 flex flex-col gap-2">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-semibold text-lg line-clamp-1" title={account.name}>
-                      {account.name}
-                    </h3>
-                    <p className="text-sm text-zoru-ink-muted flex items-center gap-1.5 mt-1">
-                      <CreditCard className="w-3.5 h-3.5" />
-                      ID: {account.account_id}
-                    </p>
-                  </div>
-                  {account.account_status === 1 ? (
-                    <Badge variant="success" className="shrink-0 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> Active
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="shrink-0">
-                      Inactive
-                    </Badge>
-                  )}
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {accounts.map((account, i) => (
+            <m.li
+              key={account.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.4, delay: reduce ? 0 : i * 0.04, ease: EASE_OUT }}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white p-5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
+              style={{ boxShadow: '0 0 0 1px transparent' }}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 0 1px transparent'; }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate text-[15px] font-semibold tracking-tight text-zinc-950" title={account.name}>
+                    {account.name}
+                  </h3>
+                  <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zinc-500">
+                    <CreditCard className="h-3 w-3" strokeWidth={2.25} aria-hidden />
+                    ID {account.account_id}
+                  </p>
                 </div>
-                
-                <div className="mt-4 pt-4 border-t grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-zoru-ink-muted text-xs uppercase tracking-wider font-medium mb-1">Currency</p>
-                    <p className="font-medium">{account.currency || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-zoru-ink-muted text-xs uppercase tracking-wider font-medium mb-1">Created</p>
-                    <p className="font-medium">
-                      {account.created_time 
-                        ? new Date(account.created_time).toLocaleDateString()
-                        : 'Unknown'}
-                    </p>
-                  </div>
+                {account.account_status === 1 ? (
+                  <StatusPill tone="live"><CheckCircle2 className="h-2.5 w-2.5" strokeWidth={3} aria-hidden />Active</StatusPill>
+                ) : (
+                  <StatusPill tone="paused">Inactive</StatusPill>
+                )}
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3 border-t border-zinc-100 pt-4 text-[12.5px]">
+                <div>
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-zinc-500">Currency</p>
+                  <p className="mt-0.5 font-semibold text-zinc-900">{account.currency || '-'}</p>
+                </div>
+                <div>
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.06em] text-zinc-500">Created</p>
+                  <p className="mt-0.5 font-semibold text-zinc-900">
+                    {account.created_time ? new Date(account.created_time).toLocaleDateString('en-IN') : '-'}
+                  </p>
                 </div>
               </div>
-              
-              <div className="p-5 pt-0 mt-auto">
-                <Button 
-                  className="w-full group" 
+
+              <div className="mt-5">
+                <WaButton
                   variant="outline"
+                  className="w-full"
                   disabled={isPending || account.account_status !== 1}
                   onClick={() => handleLinkAccount(account)}
+                  rightIcon={ArrowRight}
                 >
-                  {isPending ? (
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                  ) : (
-                    <>
-                      Link to Project
-                      <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                    </>
-                  )}
-                </Button>
+                  {isPending ? 'Linking...' : 'Link to project'}
+                </WaButton>
               </div>
-            </Card>
+            </m.li>
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </WaPage>
   );
 }

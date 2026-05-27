@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Award } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { saveRecognition } from '@/app/actions/hr.actions';
-import { fields, sections } from '../_config';
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
 export default function NewRecognitionPage() {
-  return (
-    <HrFormPage
-      title="New Recognition"
-      subtitle="Send kudos or a spot award."
-      icon={Award}
-      backHref="/dashboard/hrm/hr/recognition"
-      singular="Recognition"
-      fields={fields}
-      sections={sections}
-      saveAction={saveRecognition}
-    />
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="recognition"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/recognition"
+        />
+    );
 }

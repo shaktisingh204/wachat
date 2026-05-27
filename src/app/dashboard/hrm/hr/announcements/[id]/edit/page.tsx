@@ -1,20 +1,7 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * HR Announcement — edit page.
- *
- * Server component that loads the existing announcement via
- * `getAnnouncementById` and renders <AnnouncementForm initialData={...} />
- * in edit mode. The form action redirects back to the detail page.
- */
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getAnnouncementById } from '@/app/actions/crm-announcements.actions';
+import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/app/actions/user.actions';
-
-import { AnnouncementForm } from '../../_components/announcement-form';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,19 +13,18 @@ export default async function EditAnnouncementPage({
     params: Promise<{ id: string }>;
 }) {
     const { id } = await params;
-
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const announcement = await getAnnouncementById(id);
-    if (!announcement) notFound();
+    const doc = await loadLiveDocument('announcement', id);
+    if (!doc) notFound();
 
     return (
-        <EntityListShell
-            title={`Edit · ${announcement.title}`}
-            subtitle="Update the contents, audience, or schedule of this announcement."
-        >
-            <AnnouncementForm initialData={announcement} />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="announcement"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
 }

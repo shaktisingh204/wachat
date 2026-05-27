@@ -1,5 +1,20 @@
 'use client';
 
+import * as React from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import {
+  Bot,
+  Loader,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Trash2,
+  Power,
+} from 'lucide-react';
+import { m, AnimatePresence } from 'motion/react';
+
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -9,74 +24,46 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  EmptyState,
   Input,
   Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
   Switch,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
-import {
-  Bot,
-  Loader,
-  Plus,
-  RefreshCw,
-  Send,
-  Sparkles,
-  Trash2,
-  } from 'lucide-react';
-
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  MetricTile,
+  EmptyState,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 import { useProject } from '@/context/project-context';
 import {
   deleteChatbotResponse,
   getChatbotResponses,
   saveChatbotResponse,
-  } from '@/app/actions/wachat-features.actions';
+} from '@/app/actions/wachat-features.actions';
 
 /**
- * /wachat/chatbot — Chatbot config + flow picker + test chat panel (ZoruUI).
+ * /wachat/chatbot — Chatbot config + test chat panel.
  *
- * Phase 6 visual swap. Server actions and data flow are unchanged.
+ * Server actions and matching/test logic are preserved verbatim. The
+ * visual swap pulls every surface onto wachat-ui primitives + motion.
  */
-
-import * as React from 'react';
 
 const MATCH_TYPES = [
   { value: 'contains', label: 'Contains' },
@@ -92,7 +79,7 @@ type ChatbotResponse = {
   isActive?: boolean;
 };
 
-type ChatBubble = {
+type TestBubble = {
   role: 'user' | 'bot';
   text: string;
 };
@@ -113,7 +100,7 @@ export default function ChatbotPage() {
 
   // Test chat panel
   const [testInput, setTestInput] = useState('');
-  const [testThread, setTestThread] = useState<ChatBubble[]>([]);
+  const [testThread, setTestThread] = useState<TestBubble[]>([]);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -182,7 +169,7 @@ export default function ChatbotPage() {
   const sendTest = () => {
     const t = testInput.trim();
     if (!t) return;
-    const reply = matchResponse(t) ?? 'No matching response — train me with a new rule.';
+    const reply = matchResponse(t) ?? 'No matching response. Train me with a new rule.';
     setTestThread((prev) => [
       ...prev,
       { role: 'user', text: t },
@@ -195,214 +182,191 @@ export default function ChatbotPage() {
   const activeRules = responses.filter((r) => r.isActive).length;
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Chatbot</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageTitle>Chatbot Responses</ZoruPageTitle>
-          <ZoruPageDescription>
-            Define keyword-triggered automatic replies for incoming messages.
-            Test the bot in the side panel before going live.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={load}
-            disabled={isPending}
-          >
-            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setTrainOpen(true)}
-          >
-            <Sparkles /> Train
-          </Button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus /> New response
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
+    <WaPage>
+      <PageHeader
+        title="Chatbot responses"
+        description="Define keyword-triggered automatic replies for incoming WhatsApp messages. Test the bot in the side panel before going live."
+        kicker="Wachat · chatbot"
+        backHref="/wachat"
+        eyebrowIcon={Bot}
+        actions={
+          <>
+            <WaButton
+              variant="outline"
+              size="sm"
+              leftIcon={isPending ? Loader2 : RefreshCw}
+              onClick={load}
+              disabled={isPending}
+            >
+              Refresh
+            </WaButton>
+            <WaButton variant="outline" size="sm" leftIcon={Sparkles} onClick={() => setTrainOpen(true)}>
+              Train
+            </WaButton>
+            <WaButton size="sm" leftIcon={Plus} onClick={() => setCreateOpen(true)}>
+              New response
+            </WaButton>
+          </>
+        }
+      />
 
       {/* Stats */}
-      <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
-        <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Total responses
-          </div>
-          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
-            {totalRules}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Active
-          </div>
-          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
-            {activeRules}
-          </div>
-        </Card>
-      </div>
+      <section aria-labelledby="bot-stats" className="mb-8 grid grid-cols-2 gap-3 sm:max-w-md">
+        <h2 id="bot-stats" className="sr-only">Chatbot stats</h2>
+        <MetricTile label="Total responses" value={totalRules} icon={Bot} delay={0} />
+        <MetricTile label="Active rules" value={activeRules} icon={Power} delay={0.05} />
+      </section>
 
       {/* Two-pane: responses table + test chat */}
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <Card className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[15px] text-zoru-ink">Responses</h2>
-            {isPending && (
-              <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
-            )}
-          </div>
-
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <Section
+          title="Responses"
+          description="Each row is one keyword-triggered reply. Active rules fire on incoming messages."
+          padded={false}
+          action={isPending ? <Loader className="h-4 w-4 animate-spin text-zinc-400" /> : null}
+        >
           {!isPending && responses.length === 0 ? (
-            <EmptyState
-              icon={<Bot />}
-              title="No chatbot responses configured"
-              description="Add your first keyword-triggered reply to start auto-responding."
-              action={
-                <Button size="sm" onClick={() => setCreateOpen(true)}>
-                  <Plus /> New response
-                </Button>
-              }
-            />
+            <div className="p-5">
+              <EmptyState
+                icon={Bot}
+                title="No chatbot responses configured"
+                description="Add your first keyword-triggered reply to start auto-responding."
+                action={
+                  <WaButton size="sm" leftIcon={Plus} onClick={() => setCreateOpen(true)}>
+                    New response
+                  </WaButton>
+                }
+              />
+            </div>
           ) : responses.length > 0 ? (
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Trigger</ZoruTableHead>
-                  <ZoruTableHead>Response</ZoruTableHead>
-                  <ZoruTableHead>Match</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Action</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                {responses.map((r) => (
-                  <ZoruTableRow key={r._id}>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink">
-                      {r.trigger}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[260px] truncate text-[13px] text-zoru-ink-muted">
-                      {r.response}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
-                      {r.matchType}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <Badge variant={r.isActive ? 'success' : 'secondary'}>
-                        {r.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        onClick={() => setDeleteTarget(r)}
-                        aria-label="Delete response"
-                      >
-                        <Trash2 />
-                      </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))}
-              </ZoruTableBody>
-            </Table>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-zinc-100 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
+                    <th className="px-5 py-3">Trigger</th>
+                    <th className="px-5 py-3">Response</th>
+                    <th className="px-5 py-3">Match</th>
+                    <th className="px-5 py-3">Status</th>
+                    <th className="px-5 py-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100">
+                  {responses.map((r, i) => (
+                    <m.tr
+                      key={r._id}
+                      initial={{ opacity: 0, y: 3 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, delay: i * 0.03, ease: EASE_OUT }}
+                      className="text-[13px] transition-colors duration-150 hover:bg-zinc-50/60"
+                    >
+                      <td className="px-5 py-3 font-medium text-zinc-900">{r.trigger}</td>
+                      <td className="max-w-[280px] truncate px-5 py-3 text-zinc-600">{r.response}</td>
+                      <td className="px-5 py-3 text-zinc-500">{r.matchType}</td>
+                      <td className="px-5 py-3">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.04em] ${r.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-600'}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${r.isActive ? 'bg-emerald-500' : 'bg-zinc-400'}`} aria-hidden />
+                          {r.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget(r)}
+                          aria-label={`Delete response for ${r.trigger}`}
+                          className="grid h-7 w-7 place-items-center rounded-full text-zinc-400 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-600 active:scale-[0.94]"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                        </button>
+                      </td>
+                    </m.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ) : null}
-        </Card>
+        </Section>
 
-        {/* Test chat panel */}
-        <Card className="flex h-fit flex-col p-0">
-          <div className="border-b border-zoru-line px-4 py-3">
-            <h3 className="text-[14px] text-zoru-ink leading-tight">Test chat</h3>
-            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted leading-tight">
-              Try a message — the bot replies using your active rules.
+        {/* Test chat panel — phone-frame inspired but compact for the side rail */}
+        <m.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: EASE_OUT }}
+          className="flex h-fit flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white"
+        >
+          <header className="border-b border-zinc-100 px-4 py-3">
+            <h3 className="text-[14px] font-semibold tracking-tight text-zinc-900">Test chat</h3>
+            <p className="mt-0.5 text-[11.5px] text-zinc-500">
+              Send a message and the bot replies using your active rules.
             </p>
-          </div>
-          <div className="flex h-[360px] flex-col gap-2 overflow-y-auto bg-zoru-surface px-4 py-3">
+          </header>
+          <div
+            className="flex h-[360px] flex-col gap-2 overflow-y-auto bg-[#04130d] px-3 py-3"
+            style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22%3E%3Crect fill=%22%23072018%22 width=%22120%22 height=%22120%22/%3E%3Cg opacity=%22.04%22%3E%3Cpath d=%22M0 0h60v60H0z%22 fill=%22%23fff%22/%3E%3C/g%3E%3C/svg%3E')" }}
+          >
             {testThread.length === 0 ? (
               <div className="m-auto text-center">
-                <Bot className="mx-auto h-6 w-6 text-zoru-ink-subtle" />
-                <p className="mt-2 text-[12px] text-zoru-ink-muted">
-                  Start a test conversation
-                </p>
+                <Bot className="mx-auto h-6 w-6 text-emerald-200/40" strokeWidth={1.75} aria-hidden />
+                <p className="mt-2 text-[12px] text-emerald-100/60">Start a test conversation</p>
               </div>
             ) : (
-              testThread.map((bubble, i) => (
-                <div
-                  key={i}
-                  className={cn(
-                    'flex',
-                    bubble.role === 'user' ? 'justify-end' : 'justify-start',
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'max-w-[80%] rounded-[var(--zoru-radius)] px-3 py-2 text-[13px]',
-                      bubble.role === 'user'
-                        ? 'bg-zoru-ink text-zoru-on-primary'
-                        : 'border border-zoru-line bg-zoru-bg text-zoru-ink',
-                    )}
+              <AnimatePresence initial={false}>
+                {testThread.map((bubble, i) => (
+                  <m.div
+                    key={i}
+                    initial={{ opacity: 0, y: 4, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25, ease: EASE_OUT }}
+                    className={cn('flex', bubble.role === 'user' ? 'justify-end' : 'justify-start')}
                   >
-                    {bubble.text}
-                  </div>
-                </div>
-              ))
+                    <div
+                      className={cn(
+                        'max-w-[80%] rounded-2xl px-3 py-2 text-[12.5px] leading-snug shadow-sm',
+                        bubble.role === 'user'
+                          ? 'rounded-br-sm bg-emerald-500/95 text-white'
+                          : 'rounded-bl-sm bg-white/95 text-zinc-800',
+                      )}
+                    >
+                      {bubble.text}
+                    </div>
+                  </m.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
-          <div className="flex gap-2 border-t border-zoru-line px-3 py-3">
-            <Input
+          <div className="flex items-center gap-2 border-t border-zinc-100 bg-white px-3 py-3">
+            <input
               value={testInput}
               onChange={(e) => setTestInput(e.target.value)}
-              placeholder="Type a message…"
+              placeholder="Type a message..."
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   sendTest();
                 }
               }}
+              className="h-9 flex-1 rounded-xl border border-zinc-200 bg-white px-3 text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none"
+              aria-label="Test message"
             />
-            <Button
-              size="icon"
-              onClick={sendTest}
-              disabled={!testInput.trim()}
-              aria-label="Send"
-            >
-              <Send />
-            </Button>
+            <WaButton size="sm" onClick={sendTest} disabled={!testInput.trim()} leftIcon={Send}>
+              Send
+            </WaButton>
           </div>
-        </Card>
+        </m.div>
       </div>
 
-      <div className="mt-6 flex items-center justify-between">
-        <p className="text-[12px] text-zoru-ink-muted">
-          Reset clears all chatbot responses for this project.
+      <div className="mt-8 flex items-center justify-between border-t border-zinc-200 pt-5">
+        <p className="text-[12px] text-zinc-500">
+          Reset clears every chatbot response in this project. It cannot be undone.
         </p>
-        <Button
+        <WaButton
           variant="outline"
           size="sm"
           onClick={() => setResetOpen(true)}
           disabled={!responses.length}
         >
           Reset chatbot
-        </Button>
+        </WaButton>
       </div>
 
       {/* Create-response dialog */}
@@ -436,11 +400,7 @@ export default function ChatbotPage() {
                 </Select>
               </div>
               <div className="flex items-end gap-3">
-                <Switch
-                  id="cb-active"
-                  checked={isActive}
-                  onCheckedChange={setIsActive}
-                />
+                <Switch id="cb-active" checked={isActive} onCheckedChange={setIsActive} />
                 <Label htmlFor="cb-active">Active</Label>
               </div>
             </div>
@@ -451,18 +411,14 @@ export default function ChatbotPage() {
                 name="response"
                 rows={3}
                 required
-                placeholder="Type the automatic response…"
+                placeholder="Type the automatic response..."
               />
             </div>
             <ZoruDialogFooter>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setCreateOpen(false)}
-              >
+              <WaButton variant="ghost" type="button" onClick={() => setCreateOpen(false)}>
                 Cancel
-              </Button>
-              <Button type="submit">Create</Button>
+              </WaButton>
+              <WaButton type="submit">Create</WaButton>
             </ZoruDialogFooter>
           </form>
         </ZoruDialogContent>
@@ -474,8 +430,7 @@ export default function ChatbotPage() {
           <ZoruDialogHeader>
             <ZoruDialogTitle>Train chatbot</ZoruDialogTitle>
             <ZoruDialogDescription>
-              Add a sample question and ideal answer. The bot will use this to
-              improve responses.
+              Add a sample question and ideal answer. The bot will use this to improve responses.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-3">
@@ -493,20 +448,17 @@ export default function ChatbotPage() {
             </div>
           </div>
           <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setTrainOpen(false)}>
+            <WaButton variant="ghost" onClick={() => setTrainOpen(false)}>
               Cancel
-            </Button>
-            <Button
+            </WaButton>
+            <WaButton
               onClick={() => {
-                toast({
-                  title: 'Saved',
-                  description: 'Training sample queued.',
-                });
+                toast({ title: 'Saved', description: 'Training sample queued.' });
                 setTrainOpen(false);
               }}
             >
               Save sample
-            </Button>
+            </WaButton>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
@@ -525,7 +477,7 @@ export default function ChatbotPage() {
             <ZoruAlertDialogAction
               destructive
               onClick={() => {
-                // Note: Deletes responses sequentially. 
+                // Note: Deletes responses sequentially.
                 startTransition(async () => {
                   for (const r of responses) {
                     await deleteChatbotResponse(r._id);
@@ -554,7 +506,7 @@ export default function ChatbotPage() {
             <ZoruAlertDialogTitle>Delete this response?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
               {deleteTarget?.trigger
-                ? `Trigger “${deleteTarget.trigger}” will stop responding.`
+                ? `Trigger "${deleteTarget.trigger}" will stop responding.`
                 : 'This response will be removed.'}
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
@@ -566,8 +518,6 @@ export default function ChatbotPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

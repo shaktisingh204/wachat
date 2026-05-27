@@ -1,8 +1,8 @@
 'use client';
 
-import { EmptyState, Button } from '@/components/zoruui';
-import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { WaButton, EmptyState } from '@/components/wachat-ui';
 
 export default function ErrorBoundary({
   error,
@@ -11,18 +11,13 @@ export default function ErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+  useEffect(() => { console.error('[Wachat WhatsAppPaySettings]', error); }, [error]);
   return (
-    <div className="flex h-[80vh] items-center justify-center p-6">
-      <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-zoru-danger" />}
-        title="Something went wrong"
-        description={error.message || 'An unexpected error occurred while loading this module.'}
-        action={<Button onClick={() => reset()}>Try again</Button>}
-      />
-    </div>
+    <EmptyState
+      icon={AlertTriangle}
+      title="Couldn't load payment setup"
+      description={error.message || 'An unexpected error occurred while loading this module.'}
+      action={<WaButton onClick={reset} leftIcon={RotateCcw}>Try again</WaButton>}
+    />
   );
 }

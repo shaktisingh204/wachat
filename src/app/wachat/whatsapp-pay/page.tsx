@@ -1,40 +1,18 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  DataTable,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Skeleton,
-  useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-  useTransition } from 'react';
+  useTransition,
+} from 'react';
 import type { WithId } from 'mongodb';
-import { subDays,
-  format } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import Papa from 'papaparse';
+import { m } from 'motion/react';
 import {
   IndianRupee,
   CheckCircle2,
@@ -44,25 +22,44 @@ import {
   MoreHorizontal,
   Receipt,
   FileText,
-  } from 'lucide-react';
+} from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { getProjectById } from '@/app/actions/index';
 import { getTransactionsForProject, refundTransaction } from '@/app/actions/whatsapp.actions';
-import type { Project,
-  Transaction } from '@/lib/definitions';
+import type { Project, Transaction } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
-
-/**
- * Wachat WhatsApp Pay — Transactions tab (ZoruUI).
- *
- * KPI strip + transaction chart + transaction table with refund-confirm
- * alert dialog.
- */
-
 import { fmtDate, fmtINR } from '@/lib/utils';
-import * as React from 'react';
+
+import {
+  DataTable,
+  ZoruDateRangePicker,
+  DropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  WaButton,
+  MetricTile,
+  Section,
+  EmptyState,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 type PaymentRow = {
   id: string;
@@ -72,53 +69,13 @@ type PaymentRow = {
   date: string;
 };
 
-function statusVariant(
-  status?: string,
-): 'success' | 'danger' | 'ghost' | 'warning' | 'secondary' {
-  if (!status) return 'secondary';
-  const s = status.toLowerCase();
-  if (s === 'success' || s === 'completed' || s === 'captured') return 'success';
-  if (s === 'failed' || s === 'canceled' || s === 'cancelled') return 'danger';
-  if (s === 'pending' || s === 'created') return 'warning';
-  return 'ghost';
-}
-
-/* ── Stat card ────────────────────────────────────────────────── */
-
-function StatCard({
-  label,
-  value,
-  hint,
-  icon,
-  loading,
-}: {
-  label: string;
-  value: string;
-  hint: string;
-  icon: React.ReactNode;
-  loading?: boolean;
-}) {
-  return (
-    <Card className="flex items-start gap-4 p-5">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-5">
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[12px] text-zoru-ink-muted">{label}</p>
-        {loading ? (
-          <Skeleton className="mt-1 h-7 w-24" />
-        ) : (
-          <p className="text-[22px] tabular-nums text-zoru-ink leading-tight">
-            {value}
-          </p>
-        )}
-        <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</p>
-      </div>
-    </Card>
-  );
-}
-
-/* ── Page ──────────────────────────────────────────────────────── */
+const statusTone = (status?: string): StatusTone => {
+  const s = (status ?? '').toLowerCase();
+  if (s === 'success' || s === 'completed' || s === 'captured') return 'live';
+  if (s === 'failed' || s === 'canceled' || s === 'cancelled') return 'failed';
+  if (s === 'pending' || s === 'created') return 'queued';
+  return 'draft';
+};
 
 export default function WhatsAppPayPage() {
   const { activeProject } = useProject();
@@ -145,9 +102,7 @@ export default function WhatsAppPayPage() {
         ]);
         setProject(projectData);
         setTransactions(transactionsData);
-        if (showToast) {
-          toast({ title: 'Refreshed', description: 'Payment data updated.' });
-        }
+        if (showToast) toast({ title: 'Refreshed', description: 'Payment data updated.' });
       });
     },
     [activeProjectId, toast],
@@ -199,37 +154,23 @@ export default function WhatsAppPayPage() {
     const grouped = transactions.reduce((acc: any, t) => {
       const d = format(new Date(t.createdAt), 'yyyy-MM-dd');
       if (!acc[d]) {
-        acc[d] = {
-          date: d,
-          successfulCount: 0,
-          failedCount: 0,
-          refundedCount: 0,
-          totalRevenue: 0,
-          totalRefunded: 0,
-        };
+        acc[d] = { date: d, successfulCount: 0, failedCount: 0, refundedCount: 0, totalRevenue: 0, totalRefunded: 0 };
       }
-      
       const status = t.status.toUpperCase();
-      if (status === 'SUCCESS' || status === 'COMPLETED') {
-        acc[d].successfulCount++;
-        acc[d].totalRevenue += t.amount / 100;
-      } else if (status === 'REFUNDED') {
-        acc[d].refundedCount++;
-        acc[d].totalRefunded += t.amount / 100;
-      } else {
-        acc[d].failedCount++;
-      }
+      if (status === 'SUCCESS' || status === 'COMPLETED') { acc[d].successfulCount++; acc[d].totalRevenue += t.amount / 100; }
+      else if (status === 'REFUNDED') { acc[d].refundedCount++; acc[d].totalRefunded += t.amount / 100; }
+      else { acc[d].failedCount++; }
       return acc;
     }, {});
 
     const rows = Object.values(grouped).sort((a: any, b: any) => a.date.localeCompare(b.date)).map((r: any) => ({
       Date: r.date,
-      'Successful Transactions': r.successfulCount,
-      'Failed/Pending Transactions': r.failedCount,
-      'Refunded Transactions': r.refundedCount,
-      'Total Revenue (INR)': r.totalRevenue,
-      'Total Refunded (INR)': r.totalRefunded,
-      'Net Revenue (INR)': r.totalRevenue - r.totalRefunded
+      'Successful transactions': r.successfulCount,
+      'Failed or pending transactions': r.failedCount,
+      'Refunded transactions': r.refundedCount,
+      'Total revenue (INR)': r.totalRevenue,
+      'Total refunded (INR)': r.totalRefunded,
+      'Net revenue (INR)': r.totalRevenue - r.totalRefunded,
     }));
 
     const csv = Papa.unparse(rows);
@@ -237,10 +178,10 @@ export default function WhatsAppPayPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `automated-reconciliation-report-${new Date().toISOString()}.csv`;
+    a.download = `reconciliation-${new Date().toISOString()}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    toast({ title: 'Reconciliation Generated', description: 'Your automated reconciliation report has been downloaded.' });
+    toast({ title: 'Reconciliation generated', description: 'CSV report downloaded.' });
   };
 
   const tableData: PaymentRow[] = useMemo(
@@ -260,42 +201,24 @@ export default function WhatsAppPayPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => (
-          <span className="text-[12px] text-zoru-ink-muted">
-            {format(new Date(row.original.date), 'PPp')}
-          </span>
-        ),
+        cell: ({ row }) => <span className="text-[12px] text-zinc-500">{format(new Date(row.original.date), 'PPp')}</span>,
       },
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => (
-          <span className="text-zoru-ink">{row.original.description}</span>
-        ),
+        cell: ({ row }) => <span className="text-zinc-900">{row.original.description}</span>,
       },
       {
         accessorKey: 'amount',
         header: () => <div className="text-right">Amount</div>,
-        cell: ({ row }) => {
-          const formatted = fmtINR(row.original.amount / 100);
-          return (
-            <div className="text-right tabular-nums text-zoru-ink">
-              {formatted}
-            </div>
-          );
-        },
+        cell: ({ row }) => (
+          <div className="text-right font-semibold tabular-nums text-zinc-900">{fmtINR(row.original.amount / 100)}</div>
+        ),
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        cell: ({ row }) => (
-          <Badge
-            variant={statusVariant(row.original.status)}
-            className="capitalize"
-          >
-            {row.original.status.toLowerCase()}
-          </Badge>
-        ),
+        cell: ({ row }) => <StatusPill tone={statusTone(row.original.status)}>{row.original.status.toLowerCase()}</StatusPill>,
       },
       {
         id: 'actions',
@@ -303,23 +226,20 @@ export default function WhatsAppPayPage() {
         cell: ({ row }) => (
           <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label="Open actions menu"
+              <button
+                type="button"
+                aria-label="Open actions"
+                className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
               >
-                <MoreHorizontal />
-              </Button>
+                <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={2.25} />
+              </button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
               <ZoruDropdownMenuItem
                 onSelect={() => {
                   navigator.clipboard.writeText(row.original.id);
-                  toast({
-                    title: 'Copied',
-                    description: 'Transaction ID copied to clipboard.',
-                  });
+                  toast({ title: 'Copied', description: 'Transaction ID copied to clipboard.' });
                 }}
               >
                 Copy transaction ID
@@ -342,9 +262,9 @@ export default function WhatsAppPayPage() {
   if (!activeProjectId) {
     return (
       <EmptyState
-        icon={<Receipt />}
+        icon={Receipt}
         title="No project selected"
-        description="Select a project from the home screen to manage its payments."
+        description="Pick a project from the home screen to manage its payments."
       />
     );
   }
@@ -352,130 +272,68 @@ export default function WhatsAppPayPage() {
   const statsLoading = isLoading && transactions.length === 0;
 
   return (
-    <div className="flex h-full w-full flex-col gap-6">
+    <div className="flex flex-col gap-6">
       {/* Actions strip */}
-      <div className="flex flex-wrap items-center gap-2">
-        <ZoruDateRangePicker
-          value={dateRange}
-          onChange={setDateRange}
-          className="w-[300px]"
-        />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchData(true)}
-          disabled={isLoading}
-        >
-          <RefreshCw className={isLoading ? 'animate-spin' : ''} />
+      <m.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: EASE_OUT }}
+        className="flex flex-wrap items-center gap-2"
+      >
+        <ZoruDateRangePicker value={dateRange} onChange={setDateRange} className="w-[300px]" />
+        <WaButton variant="outline" size="sm" onClick={() => fetchData(true)} disabled={isLoading} leftIcon={RefreshCw}>
           Refresh
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleExport}
-          disabled={transactions.length === 0}
-        >
-          <Download />
+        </WaButton>
+        <WaButton variant="outline" size="sm" onClick={handleExport} disabled={transactions.length === 0} leftIcon={Download}>
           Export
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleGenerateReconciliation}
-          disabled={transactions.length === 0}
-        >
-          <FileText />
-          Reconciliation Report
-        </Button>
-      </div>
+        </WaButton>
+        <WaButton variant="outline" size="sm" onClick={handleGenerateReconciliation} disabled={transactions.length === 0} leftIcon={FileText}>
+          Reconciliation
+        </WaButton>
+      </m.div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <StatCard
-          label="Total revenue"
-          value={fmtINR(stats.totalRevenue)}
-          hint="from successful transactions"
-          icon={<IndianRupee />}
-          loading={statsLoading}
-        />
-        <StatCard
-          label="Successful transactions"
-          value={stats.successfulTransactions.toLocaleString()}
-          hint="payments completed"
-          icon={<CheckCircle2 />}
-          loading={statsLoading}
-        />
-        <StatCard
-          label="Failed or pending"
-          value={(
-            transactions.length - stats.successfulTransactions
-          ).toLocaleString()}
-          hint="awaiting or failed"
-          icon={<XCircle />}
-          loading={statsLoading}
-        />
-      </div>
+      {/* KPIs */}
+      <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <MetricTile label="Total revenue" value={fmtINR(stats.totalRevenue)} icon={IndianRupee} delay={0.02} />
+        <MetricTile label="Successful payments" value={stats.successfulTransactions.toLocaleString('en-IN')} icon={CheckCircle2} delay={0.06} />
+        <MetricTile label="Failed or pending" value={(transactions.length - stats.successfulTransactions).toLocaleString('en-IN')} icon={XCircle} delay={0.1} />
+      </section>
 
       {/* Chart */}
-      <Card className="p-5">
-        <h3 className="text-[15px] text-zoru-ink">Transactions over time</h3>
-        <p className="mb-4 text-[12px] text-zoru-ink-muted">
-          Revenue curve across the selected date range.
-        </p>
+      <Section title="Transactions over time" description="Revenue curve across the selected range.">
         <TransactionChart transactions={transactions} dateRange={dateRange} />
-      </Card>
+      </Section>
 
       {/* Table */}
-      <Card className="p-5">
-        <h3 className="text-[15px] text-zoru-ink">Transaction history</h3>
-        <p className="mb-4 text-[12px] text-zoru-ink-muted">
-          A detailed log of all payments initiated from this platform.
-        </p>
+      <Section title="Transaction history" description="A detailed log of every payment from chat.">
         {statsLoading ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-10" />
+              <div key={i} className="h-10 animate-pulse rounded-xl bg-zinc-100" />
             ))}
           </div>
         ) : tableData.length === 0 ? (
           <EmptyState
-            icon={<Receipt />}
+            icon={Receipt}
             title="No transactions yet"
             description="Once customers pay through WhatsApp, the records will appear here."
           />
         ) : (
-          <DataTable
-            columns={columns}
-            data={tableData}
-            filterColumn="description"
-            filterPlaceholder="Filter transactions…"
-          />
+          <DataTable columns={columns} data={tableData} filterColumn="description" filterPlaceholder="Filter transactions..." />
         )}
-      </Card>
+      </Section>
 
-      {/* Refund-confirm alert dialog */}
-      <ZoruAlertDialog
-        open={refundTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setRefundTarget(null);
-        }}
-      >
+      {/* Refund confirm */}
+      <ZoruAlertDialog open={refundTarget !== null} onOpenChange={(open) => { if (!open) setRefundTarget(null); }}>
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Refund this payment?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This will request a refund for{' '}
-              <span className="text-zoru-ink">
-                {refundTarget ? fmtINR(refundTarget.amount / 100) : ''}
-              </span>
-              . Refunds typically settle within 5–10 business days. This action
-              cannot be undone.
+              This issues a refund for <span className="font-semibold text-zinc-900">{refundTarget ? fmtINR(refundTarget.amount / 100) : ''}</span>. Refunds typically settle within 5 to 10 business days and cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={refundPending}>
-              Cancel
-            </ZoruAlertDialogCancel>
+            <ZoruAlertDialogCancel disabled={refundPending}>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               destructive
               disabled={refundPending}
@@ -484,14 +342,13 @@ export default function WhatsAppPayPage() {
                 startRefundTransition(async () => {
                   try {
                     const idempotencyKey = crypto.randomUUID();
-                    const timeoutPromise = new Promise<{error: string}>((_, reject) => 
-                      setTimeout(() => reject(new Error('Provider API timeout')), 10000)
+                    const timeoutPromise = new Promise<{ error: string }>((_, reject) =>
+                      setTimeout(() => reject(new Error('Provider API timeout')), 10000),
                     );
-                    const res = await Promise.race([
+                    const res = (await Promise.race([
                       refundTransaction(activeProjectId, refundTarget.id, idempotencyKey),
-                      timeoutPromise
-                    ]) as { error?: string; message?: string };
-                    
+                      timeoutPromise,
+                    ])) as { error?: string; message?: string };
                     if (res.error) {
                       toast({ title: 'Refund failed', description: res.error, variant: 'destructive' });
                     } else {

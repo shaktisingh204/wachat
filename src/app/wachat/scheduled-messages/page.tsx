@@ -1,5 +1,17 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
+
+import { fmtDate } from '@/lib/utils';
+import React, { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import { m, useReducedMotion } from 'motion/react';
+import { Ban, Clock, Loader2, Pencil, Send } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getScheduledMessages,
+  scheduleMessage,
+  cancelScheduledMessage,
+  updateScheduledMessage,
+} from '@/app/actions/wachat-features.actions';
 
 import {
   useZoruToast,
@@ -12,16 +24,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
   Input,
   Label,
   Sheet,
@@ -32,63 +34,53 @@ import {
   ZoruSheetTitle,
   ZoruSheetTrigger,
   Textarea,
+  ZoruFullscreenCalendar,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-  useActionState,
-  } from 'react';
-import { Ban,
-  Clock,
-  Loader2,
-  Pencil,
-  Send } from 'lucide-react';
 
-import { useProject } from '@/context/project-context';
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  WaButton,
+  EmptyState,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 /**
- * Wachat Scheduled Messages — schedule individual future messages.
- * ZoruUI rebuild. Same handlers (getScheduledMessages, scheduleMessage,
- * cancelScheduledMessage). Edit-schedule sheet + cancel-schedule alert.
+ * Wachat scheduled messages. Same actions; wachat-ui chrome.
  */
-
-import * as React from 'react';
-
-import {
-  getScheduledMessages,
-  scheduleMessage,
-  cancelScheduledMessage,
-  updateScheduledMessage,
-} from '@/app/actions/wachat-features.actions';
-import { ZoruFullscreenCalendar, ZoruFullscreenCalendarEvent } from '@/components/zoruui';
 
 const STATUS_FILTERS = ['all', 'pending', 'sent', 'cancelled', 'failed'] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
-function statusVariant(
-  s: string,
-): 'success' | 'danger' | 'warning' | 'secondary' {
-  if (s === 'sent') return 'success';
-  if (s === 'failed') return 'danger';
-  if (s === 'pending') return 'warning';
-  return 'secondary';
+function tone(s: string): StatusTone {
+  if (s === 'sent') return 'sent';
+  if (s === 'failed') return 'failed';
+  if (s === 'pending') return 'queued';
+  if (s === 'cancelled') return 'paused';
+  return 'draft';
 }
 
-/* ── edit-schedule sheet ────────────────────────────────────────── */
-
-function EditScheduleSheet({ message, projectId, onUpdated }: { message: any, projectId: string, onUpdated: () => void }) {
+function EditScheduleSheet({
+  message,
+  projectId,
+  onUpdated,
+}: {
+  message: any;
+  projectId: string;
+  onUpdated: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const { toast } = useZoruToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => setMounted(true), []);
 
   const now = mounted ? Date.now() : 0;
   const scheduledTime = new Date(message.scheduledAt).getTime();
-  const isLocked = mounted && (scheduledTime - now < 5 * 60 * 1000);
+  const isLocked = mounted && scheduledTime - now < 5 * 60 * 1000;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -100,7 +92,6 @@ function EditScheduleSheet({ message, projectId, onUpdated }: { message: any, pr
     const formData = new FormData(e.currentTarget);
     const res = await updateScheduledMessage(message._id, projectId, formData);
     setIsUpdating(false);
-    
     if (res.error) {
       toast({ title: 'Error', description: res.error, variant: 'destructive' });
     } else {
@@ -113,21 +104,22 @@ function EditScheduleSheet({ message, projectId, onUpdated }: { message: any, pr
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <ZoruSheetTrigger asChild>
-        <Button variant="ghost" size="icon-sm" aria-label="Edit schedule" disabled={isLocked} title={isLocked ? "Editing locked 5 mins before dispatch" : "Edit schedule"}>
-          <Pencil className="h-3.5 w-3.5" />
-        </Button>
+        <button
+          type="button"
+          aria-label="Edit schedule"
+          disabled={isLocked}
+          title={isLocked ? 'Editing locked 5 mins before dispatch' : 'Edit schedule'}
+          className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.97] disabled:opacity-50"
+        >
+          <Pencil className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </button>
       </ZoruSheetTrigger>
       <ZoruSheetContent side="right" className="sm:max-w-md">
         <ZoruSheetHeader>
           <ZoruSheetTitle>Edit schedule</ZoruSheetTitle>
-          <ZoruSheetDescription>
-            Update the recipient, message, or send time before it goes out.
-          </ZoruSheetDescription>
+          <ZoruSheetDescription>Update the recipient, message, or send time before it goes out.</ZoruSheetDescription>
         </ZoruSheetHeader>
-        <form
-          onSubmit={handleSubmit}
-          className="mt-5 flex flex-col gap-4"
-        >
+        <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="es-phone">Recipient phone</Label>
             <Input
@@ -156,26 +148,19 @@ function EditScheduleSheet({ message, projectId, onUpdated }: { message: any, pr
               name="scheduledAt"
               type="datetime-local"
               defaultValue={
-                message.scheduledAt
-                  ? new Date(message.scheduledAt).toISOString().slice(0, 16)
-                  : undefined
+                message.scheduledAt ? new Date(message.scheduledAt).toISOString().slice(0, 16) : undefined
               }
               required
               disabled={isLocked || isUpdating}
             />
           </div>
           <ZoruSheetFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-              disabled={isUpdating}
-            >
+            <WaButton variant="outline" onClick={() => setOpen(false)} disabled={isUpdating}>
               Cancel
-            </Button>
-            <Button type="submit" disabled={isLocked || isUpdating}>
-              {isUpdating ? 'Saving...' : 'Save changes'}
-            </Button>
+            </WaButton>
+            <WaButton type="submit" disabled={isLocked || isUpdating}>
+              {isUpdating ? 'Saving' : 'Save changes'}
+            </WaButton>
           </ZoruSheetFooter>
         </form>
       </ZoruSheetContent>
@@ -183,12 +168,11 @@ function EditScheduleSheet({ message, projectId, onUpdated }: { message: any, pr
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
-
 export default function ScheduledMessagesPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
+  const reduce = useReducedMotion();
 
   const [messages, setMessages] = useState<any[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -199,21 +183,14 @@ export default function ScheduledMessagesPage() {
 
   useEffect(() => setMounted(true), []);
 
-  const [formState, formAction, isPending] = useActionState(
-    scheduleMessage,
-    null,
-  );
+  const [formState, formAction, isPending] = useActionState(scheduleMessage, null);
 
   const fetchMessages = useCallback(
     (pid: string) => {
       startLoading(async () => {
         const res = await getScheduledMessages(pid);
         if (res.error) {
-          toast({
-            title: 'Error',
-            description: res.error,
-            variant: 'destructive',
-          });
+          toast({ title: 'Error', description: res.error, variant: 'destructive' });
         } else {
           setMessages(res.messages || []);
         }
@@ -232,11 +209,7 @@ export default function ScheduledMessagesPage() {
       if (projectId) fetchMessages(projectId);
     }
     if (formState?.error) {
-      toast({
-        title: 'Error',
-        description: formState.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: formState.error, variant: 'destructive' });
     }
   }, [formState, toast, projectId, fetchMessages]);
 
@@ -245,244 +218,179 @@ export default function ScheduledMessagesPage() {
     const res = await cancelScheduledMessage(id);
     setCancellingId(null);
     if (res.error) {
-      toast({
-        title: 'Error',
-        description: res.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
     } else {
-      toast({
-        title: 'Cancelled',
-        description: 'Scheduled message cancelled.',
-      });
+      toast({ title: 'Cancelled', description: 'Scheduled message cancelled.' });
       if (projectId) fetchMessages(projectId);
     }
   };
 
-  const filtered = messages.filter(
-    (m) => statusFilter === 'all' || m.status === statusFilter,
-  );
+  const filtered = messages.filter((m) => statusFilter === 'all' || m.status === statusFilter);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Scheduled Messages</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Scheduled messages"
+        description="Queue individual WhatsApp messages to be sent at a future date and time."
+        kicker="Wachat / scheduled"
+        eyebrowIcon={Clock}
+        backHref="/wachat"
+      />
 
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Scheduled Messages
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Schedule WhatsApp messages to be sent at a future date and time.
-        </p>
-      </div>
+      <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
+        <Section title="Schedule a message" description="One-off send for a specific number.">
+          <form action={formAction} className="flex flex-col gap-4">
+            <input type="hidden" name="projectId" value={projectId || ''} />
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="sm-phone">Recipient phone</Label>
+              <Input id="sm-phone" name="recipientPhone" placeholder="+919876543210" required />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="sm-text">Message</Label>
+              <Textarea id="sm-text" name="messageText" rows={3} placeholder="Message text" required />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="sm-when">Scheduled at</Label>
+              <Input id="sm-when" name="scheduledAt" type="datetime-local" required />
+            </div>
+            <div>
+              <WaButton type="submit" disabled={isPending || !projectId} leftIcon={Send}>
+                {isPending ? 'Scheduling' : 'Schedule message'}
+              </WaButton>
+            </div>
+          </form>
+        </Section>
 
-      {/* Schedule form */}
-      <Card className="p-6">
-        <h2 className="mb-4 text-sm text-zoru-ink">Schedule a message</h2>
-        <form
-          action={formAction}
-          className="flex max-w-lg flex-col gap-4"
+        <Section
+          title={`Messages (${filtered.length})`}
+          action={
+            <div className="flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-50 p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors active:scale-[0.97] ${viewMode === 'list' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'}`}
+              >
+                List
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('calendar')}
+                className={`rounded-full px-3 py-1 text-[11.5px] font-semibold transition-colors active:scale-[0.97] ${viewMode === 'calendar' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'}`}
+              >
+                Calendar
+              </button>
+            </div>
+          }
+          padded={false}
         >
-          <input type="hidden" name="projectId" value={projectId || ''} />
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sm-phone">Recipient phone</Label>
-            <Input
-              id="sm-phone"
-              name="recipientPhone"
-              placeholder="+919876543210"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sm-text">Message</Label>
-            <Textarea
-              id="sm-text"
-              name="messageText"
-              rows={3}
-              placeholder="Message text…"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="sm-when">Scheduled at</Label>
-            <Input
-              id="sm-when"
-              name="scheduledAt"
-              type="datetime-local"
-              required
-            />
-          </div>
-          <div>
-            <Button type="submit" disabled={isPending || !projectId}>
-              <Send className="h-3.5 w-3.5" />
-              {isPending ? 'Scheduling…' : 'Schedule message'}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      {/* Messages table */}
-      <Card className="p-6">
-        <div className="mb-4 flex flex-wrap items-center gap-4">
-          <h2 className="text-sm text-zoru-ink font-semibold">Messages ({filtered.length})</h2>
-          
-          <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface p-1">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </Button>
-            <Button
-              variant={viewMode === 'calendar' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('calendar')}
-            >
-              Calendar
-            </Button>
-          </div>
-
-          <div className="ml-auto flex gap-1">
+          <div className="flex flex-wrap items-center gap-1.5 border-b border-zinc-100 px-5 py-3">
             {STATUS_FILTERS.map((s) => (
-              <Button
+              <button
                 key={s}
-                size="sm"
-                variant={statusFilter === s ? 'secondary' : 'ghost'}
+                type="button"
                 onClick={() => setStatusFilter(s)}
-                className="capitalize text-xs h-7 px-2"
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold capitalize transition-colors active:scale-[0.97] ${
+                  statusFilter === s
+                    ? 'bg-zinc-900 text-white'
+                    : 'border border-zinc-200 bg-white text-zinc-600 hover:border-zinc-900 hover:text-zinc-900'
+                }`}
               >
                 {s}
-              </Button>
+              </button>
             ))}
           </div>
-        </div>
 
-        {isLoading && messages.length === 0 ? (
-          <div className="flex h-20 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-          </div>
-        ) : messages.length === 0 ? (
-          <EmptyState
-            icon={<Clock />}
-            title="No scheduled messages"
-            description="Schedule your first message above."
-          />
-        ) : viewMode === 'calendar' ? (
-          <div className="h-[600px]">
-            <ZoruFullscreenCalendar
-              events={filtered.map((msg) => ({
-                id: msg._id,
-                date: new Date(msg.scheduledAt),
-                title: msg.recipientPhone,
-                meta: <Badge variant={statusVariant(msg.status)} className="scale-75 origin-left">{msg.status}</Badge>,
-              }))}
-            />
-          </div>
-        ) : (
-          <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                  <th className="px-4 py-3 font-medium">Recipient</th>
-                  <th className="px-4 py-3 font-medium">Message</th>
-                  <th className="px-4 py-3 font-medium">Scheduled time</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((msg) => {
-                  const now = mounted ? Date.now() : 0;
-                  const scheduledTime = new Date(msg.scheduledAt).getTime();
-                  const isLocked = mounted && (scheduledTime - now < 5 * 60 * 1000);
-                  return (
-                    <tr
-                      key={msg._id}
-                      className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface/50 transition-colors"
-                    >
-                      <td className="px-4 py-3 text-[13px] text-zoru-ink font-medium">
-                        {msg.recipientPhone}
-                      </td>
-                      <td className="max-w-[200px] truncate px-4 py-3 text-[13px] text-zoru-ink-muted">
-                        {msg.messageText}
-                      </td>
-                      <td className="px-4 py-3 text-[13px] text-zoru-ink-muted">
-                        {fmtDate(msg.scheduledAt)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge variant={statusVariant(msg.status)}>
-                          {msg.status}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        {msg.status === 'pending' && (
-                          <div className="inline-flex items-center gap-1">
-                            <EditScheduleSheet message={msg} projectId={projectId || ''} onUpdated={() => { if(projectId) fetchMessages(projectId); }} />
-                            <ZoruAlertDialog>
-                              <ZoruAlertDialogTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon-sm"
-                                  aria-label="Cancel schedule"
-                                  disabled={cancellingId === msg._id || isLocked}
-                                  title={isLocked ? "Cancellation locked near dispatch time" : "Cancel schedule"}
-                                  className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                                >
-                                  <Ban className="h-3.5 w-3.5" />
-                                </Button>
-                              </ZoruAlertDialogTrigger>
-                              <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                  <ZoruAlertDialogTitle>
-                                    Cancel scheduled message?
-                                  </ZoruAlertDialogTitle>
-                                  <ZoruAlertDialogDescription>
-                                    This message to {msg.recipientPhone} will not
-                                    be sent at{' '}
-                                    {fmtDate(msg.scheduledAt)}.
-                                  </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                  <ZoruAlertDialogCancel>
-                                    Keep it
-                                  </ZoruAlertDialogCancel>
-                                  <ZoruAlertDialogAction
-                                    onClick={() => handleCancel(msg._id)}
-                                    className="bg-zoru-danger hover:bg-zoru-danger/90 text-white"
-                                  >
-                                    Cancel schedule
-                                  </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                              </ZoruAlertDialogContent>
-                            </ZoruAlertDialog>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      <div className="h-6" />
-    </div>
+          {isLoading && messages.length === 0 ? (
+            <div className="flex h-32 items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="p-5">
+              <EmptyState icon={Clock} title="No scheduled messages" description="Schedule your first message on the left." />
+            </div>
+          ) : viewMode === 'calendar' ? (
+            <div className="h-[600px] p-5">
+              <ZoruFullscreenCalendar
+                events={filtered.map((msg) => ({
+                  id: msg._id,
+                  date: new Date(msg.scheduledAt),
+                  title: msg.recipientPhone,
+                  meta: (
+                    <span className="origin-left scale-75">
+                      <StatusPill tone={tone(msg.status)}>{msg.status}</StatusPill>
+                    </span>
+                  ),
+                }))}
+              />
+            </div>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {filtered.map((msg, i) => {
+                const now = mounted ? Date.now() : 0;
+                const scheduledTime = new Date(msg.scheduledAt).getTime();
+                const isLocked = mounted && scheduledTime - now < 5 * 60 * 1000;
+                return (
+                  <m.li
+                    key={msg._id}
+                    initial={reduce ? false : { opacity: 0, y: 4 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: 0.02 + Math.min(i, 20) * 0.03, ease: EASE_OUT }}
+                    className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-zinc-50"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="truncate text-[13px] font-medium text-zinc-900">{msg.recipientPhone}</span>
+                        <StatusPill tone={tone(msg.status)}>{msg.status}</StatusPill>
+                      </div>
+                      <p className="mt-0.5 truncate text-[11.5px] text-zinc-500">{msg.messageText}</p>
+                      <p className="mt-0.5 text-[11px] tabular-nums text-zinc-400">{fmtDate(msg.scheduledAt)}</p>
+                    </div>
+                    {msg.status === 'pending' && (
+                      <div className="flex shrink-0 items-center gap-1">
+                        <EditScheduleSheet
+                          message={msg}
+                          projectId={projectId || ''}
+                          onUpdated={() => {
+                            if (projectId) fetchMessages(projectId);
+                          }}
+                        />
+                        <ZoruAlertDialog>
+                          <ZoruAlertDialogTrigger asChild>
+                            <button
+                              type="button"
+                              aria-label="Cancel schedule"
+                              disabled={cancellingId === msg._id || isLocked}
+                              title={isLocked ? 'Cancellation locked near dispatch time' : 'Cancel schedule'}
+                              className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-[0.97] disabled:opacity-50"
+                            >
+                              <Ban className="h-3.5 w-3.5" strokeWidth={2.25} />
+                            </button>
+                          </ZoruAlertDialogTrigger>
+                          <ZoruAlertDialogContent>
+                            <ZoruAlertDialogHeader>
+                              <ZoruAlertDialogTitle>Cancel scheduled message?</ZoruAlertDialogTitle>
+                              <ZoruAlertDialogDescription>
+                                This message to {msg.recipientPhone} will not be sent at {fmtDate(msg.scheduledAt)}.
+                              </ZoruAlertDialogDescription>
+                            </ZoruAlertDialogHeader>
+                            <ZoruAlertDialogFooter>
+                              <ZoruAlertDialogCancel>Keep it</ZoruAlertDialogCancel>
+                              <ZoruAlertDialogAction onClick={() => handleCancel(msg._id)}>
+                                Cancel schedule
+                              </ZoruAlertDialogAction>
+                            </ZoruAlertDialogFooter>
+                          </ZoruAlertDialogContent>
+                        </ZoruAlertDialog>
+                      </div>
+                    )}
+                  </m.li>
+                );
+              })}
+            </ul>
+          )}
+        </Section>
+      </div>
+    </WaPage>
   );
 }

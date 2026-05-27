@@ -1,44 +1,7 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  EmptyState,
-  Input,
-  Label,
-  Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
+import * as React from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { WithId } from 'mongodb';
@@ -52,53 +15,69 @@ import {
   ShieldCheck,
   Trash2,
   UserRound,
-  } from 'lucide-react';
+  Plus,
+} from 'lucide-react';
+
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  Alert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  Input,
+  Label,
+  useZoruToast,
+} from '@/components/zoruui';
+
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  EmptyState,
+  WaButton,
+  MetricTile,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import { m } from 'motion/react';
 
 import { getProjectById } from '@/app/actions/project.actions';
 import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
-import type { PhoneNumber,
-  Project } from '@/lib/definitions';
+import type { PhoneNumber, Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 
 import { EditPhoneNumberDialog } from '@/app/wachat/_components/edit-phone-number-dialog';
 import { RegisterPhoneButton } from '@/app/wachat/_components/register-phone-button';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 
-/**
- * Wachat Numbers — ZoruUI migration.
- *
- * Lists every WhatsApp Business phone number on the active project:
- * verification status, quality rating, profile, and the legacy
- * actions (edit profile, flows-encryption setup, register number).
- * Same data + handlers as the previous Clay version.
- */
-
-import * as React from 'react';
-
-type Tone = 'success' | 'warning' | 'ghost' | 'danger';
-
-function statusTone(status?: string): { tone: Tone; label: string } {
+function statusTone(status?: string): { tone: StatusTone; label: string } {
   const s = (status ?? '').toLowerCase();
-  if (s.includes('verified')) return { tone: 'success', label: 'Verified' };
-  if (s.includes('pending')) return { tone: 'warning', label: 'Pending' };
-  if (!s) return { tone: 'ghost', label: 'Unknown' };
-  return { tone: 'danger', label: status!.replace(/_/g, ' ').toLowerCase() };
+  if (s.includes('verified')) return { tone: 'live', label: 'Verified' };
+  if (s.includes('pending')) return { tone: 'queued', label: 'Pending' };
+  if (!s) return { tone: 'draft', label: 'Unknown' };
+  return { tone: 'failed', label: status!.replace(/_/g, ' ').toLowerCase() };
 }
 
-function qualityTone(q?: string): { tone: Tone; label: string } {
+function qualityTone(q?: string): { tone: StatusTone; label: string } {
   const v = (q ?? '').toLowerCase();
-  if (v === 'green' || v === 'high') return { tone: 'success', label: 'Green' };
-  if (v === 'yellow' || v === 'medium') return { tone: 'warning', label: 'Yellow' };
-  if (!v || v === 'unknown') return { tone: 'ghost', label: 'Unknown' };
-  return { tone: 'danger', label: q! };
+  if (v === 'green' || v === 'high') return { tone: 'live', label: 'Green' };
+  if (v === 'yellow' || v === 'medium') return { tone: 'queued', label: 'Yellow' };
+  if (!v || v === 'unknown') return { tone: 'draft', label: 'Unknown' };
+  return { tone: 'failed', label: q! };
 }
-
-const toneToVariant: Record<Tone, 'success' | 'warning' | 'ghost' | 'danger'> = {
-  success: 'success',
-  warning: 'warning',
-  ghost: 'ghost',
-  danger: 'danger',
-};
 
 export default function NumbersPage() {
   const router = useRouter();
@@ -139,14 +118,8 @@ export default function NumbersPage() {
           }
         }
       };
-
-      if (isSilent) {
-        await fetcher();
-      } else {
-        startLoadingTransition(async () => {
-          await fetcher();
-        });
-      }
+      if (isSilent) await fetcher();
+      else startLoadingTransition(async () => { await fetcher(); });
     },
     [toast],
   );
@@ -154,21 +127,15 @@ export default function NumbersPage() {
   useEffect(() => {
     if (activeProjectId) {
       fetchProjectData(activeProjectId);
-      // Poll every 15 seconds for status updates
-      const intervalId = setInterval(() => {
-        fetchProjectData(activeProjectId, true);
-      }, 15000);
+      // Poll every 15s for status updates.
+      const intervalId = setInterval(() => fetchProjectData(activeProjectId, true), 15000);
       return () => clearInterval(intervalId);
     }
   }, [activeProjectId, fetchProjectData]);
 
   const onSync = () => {
     if (!activeProjectId) {
-      toast({
-        title: 'Error',
-        description: 'No active project selected.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'No active project selected.', variant: 'destructive' });
       return;
     }
     startSyncTransition(async () => {
@@ -176,57 +143,36 @@ export default function NumbersPage() {
         const result = await Promise.race([
           handleSyncPhoneNumbers(activeProjectId),
           new Promise<{ error?: string; message?: string }>((resolve) =>
-            setTimeout(() => resolve({ error: 'Sync is taking too long. Meta API might be slow. Please try again later.' }), 10000)
+            setTimeout(() => resolve({ error: 'Sync is taking too long. Meta API might be slow. Please try again later.' }), 10000),
           ),
         ]);
-        
         if (result.error) {
-          toast({
-            title: 'Sync failed or timed out',
-            description: result.error,
-            variant: 'destructive',
-          });
+          toast({ title: 'Sync failed', description: result.error, variant: 'destructive' });
         } else {
           toast({ title: 'Sync successful', description: result.message });
           await fetchProjectData(activeProjectId);
         }
-      } catch (err) {
-        toast({
-          title: 'Sync error',
-          description: 'An unexpected error occurred during sync.',
-          variant: 'destructive',
-        });
+      } catch {
+        toast({ title: 'Sync error', description: 'An unexpected error occurred during sync.', variant: 'destructive' });
       }
     });
   };
 
   const phoneNumbers: PhoneNumber[] = project?.phoneNumbers || [];
 
-  const stats = React.useMemo(() => {
-    const verified = phoneNumbers.filter((p) =>
-      (p.code_verification_status ?? '').toLowerCase().includes('verified'),
-    ).length;
-    const green = phoneNumbers.filter((p) =>
-      ['green', 'high'].includes((p.quality_rating ?? '').toLowerCase()),
-    ).length;
+  const stats = useMemo(() => {
+    const verified = phoneNumbers.filter((p) => (p.code_verification_status ?? '').toLowerCase().includes('verified')).length;
+    const green = phoneNumbers.filter((p) => ['green', 'high'].includes((p.quality_rating ?? '').toLowerCase())).length;
     return { verified, green };
   }, [phoneNumbers]);
 
-  const badQualityNumbers = React.useMemo(() => {
-    return phoneNumbers.filter(
-      (p) => p.quality_rating && ['yellow', 'red', 'low', 'medium'].includes(p.quality_rating.toLowerCase())
-    );
-  }, [phoneNumbers]);
-
-  const alertVariant = React.useMemo(() => {
-    if (badQualityNumbers.some(p => ['red', 'low'].includes((p.quality_rating ?? '').toLowerCase()))) {
-      return 'destructive';
-    }
-    return 'warning';
-  }, [badQualityNumbers]);
+  const badQualityNumbers = useMemo(
+    () => phoneNumbers.filter((p) => p.quality_rating && ['yellow', 'red', 'low', 'medium'].includes(p.quality_rating.toLowerCase())),
+    [phoneNumbers],
+  );
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+    <WaPage>
       {editingPhone && project && (
         <EditPhoneNumberDialog
           isOpen={!!editingPhone}
@@ -237,312 +183,221 @@ export default function NumbersPage() {
         />
       )}
 
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Numbers</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Phone numbers
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            {project
-              ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
-              : "Manage your project's WhatsApp phone numbers."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAddOpen(true)}
-            disabled={!project}
-          >
-            <Phone /> Add number
-          </Button>
-          <Button
-            size="sm"
-            onClick={onSync}
-            disabled={!project || isLoading || isSyncing}
-          >
-            <RefreshCw />
-            {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Phone numbers"
+        description={
+          project
+            ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
+            : "Manage your project's WhatsApp phone numbers."
+        }
+        kicker="Wachat · numbers"
+        backHref="/wachat"
+        eyebrowIcon={Phone}
+        actions={
+          <>
+            <WaButton variant="outline" size="sm" leftIcon={Plus} onClick={() => setAddOpen(true)} disabled={!project}>
+              Add number
+            </WaButton>
+            <WaButton size="sm" onClick={onSync} disabled={!project || isLoading || isSyncing} leftIcon={RefreshCw}>
+              {isSyncing ? 'Syncing' : 'Sync with Meta'}
+            </WaButton>
+          </>
+        }
+      />
 
       {badQualityNumbers.length > 0 && (
-        <div className="mt-6">
-          <Alert variant={alertVariant}>
+        <m.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: EASE_OUT }}
+          className="mb-6"
+        >
+          <Alert variant="destructive" className="rounded-2xl">
             <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Action Required: Low Number Quality</ZoruAlertTitle>
+            <ZoruAlertTitle>Low number quality detected</ZoruAlertTitle>
             <ZoruAlertDescription>
-              {badQualityNumbers.length === 1 
-                ? `The number ${badQualityNumbers[0].display_phone_number} has dropped to a ${badQualityNumbers[0].quality_rating} quality rating. Your messaging limits might be affected.` 
+              {badQualityNumbers.length === 1
+                ? `${badQualityNumbers[0].display_phone_number} dropped to ${badQualityNumbers[0].quality_rating} quality. Your messaging limits might be affected.`
                 : `${badQualityNumbers.length} numbers have low quality ratings. Your messaging limits might be affected.`}
             </ZoruAlertDescription>
           </Alert>
-        </div>
+        </m.div>
       )}
 
-      {/* Stats */}
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Stat
-          label="Registered numbers"
-          value={String(phoneNumbers.length)}
-          icon={<Phone className="h-4 w-4" />}
-        />
-        <Stat
-          label="Verified"
-          value={String(stats.verified)}
-          hint={
-            phoneNumbers.length > 0
-              ? `${Math.round((stats.verified / phoneNumbers.length) * 100)}% verified`
-              : 'none yet'
-          }
-          icon={<ShieldCheck className="h-4 w-4" />}
-        />
-        <Stat
-          label="Quality — Green"
-          value={String(stats.green)}
-          hint="high-quality signal"
-          icon={<Shield className="h-4 w-4" />}
-        />
-      </div>
+      <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <MetricTile label="Registered" value={phoneNumbers.length} icon={Phone} delay={0.05} />
+        <MetricTile label="Verified" value={stats.verified} icon={ShieldCheck} delay={0.1} />
+        <MetricTile label="Green quality" value={stats.green} icon={Shield} delay={0.15} />
+      </section>
 
       {!activeProjectId ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={<AlertCircle />}
-            title="No project selected"
-            description="Please select a project from the main dashboard to see its phone numbers."
-            action={
-              <Button onClick={() => router.push('/wachat')}>
-                Choose a project
-              </Button>
-            }
-          />
-        </div>
+        <EmptyState
+          icon={AlertCircle}
+          title="No project selected"
+          description="Pick a project from the Wachat home page to see its phone numbers."
+          action={<WaButton onClick={() => router.push('/wachat')}>Choose a project</WaButton>}
+        />
       ) : isLoading && !project ? (
-        <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[260px]" />
+            <div key={i} className="h-[260px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
           ))}
         </div>
       ) : phoneNumbers.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={<Phone />}
-            title="No phone numbers yet"
-            description="Sync with Meta to pull the phone numbers from your WhatsApp Business Account."
-            action={
-              <Button onClick={onSync} disabled={isSyncing}>
-                <RefreshCw /> Sync now
-              </Button>
-            }
-          />
-        </div>
+        <EmptyState
+          icon={Phone}
+          title="No phone numbers yet"
+          description="Sync with Meta to pull the phone numbers from your WhatsApp Business Account."
+          action={<WaButton onClick={onSync} disabled={isSyncing} leftIcon={RefreshCw}>Sync now</WaButton>}
+        />
       ) : (
-        <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {phoneNumbers.map((phone) => {
-            const status = statusTone(phone.code_verification_status);
-            const quality = qualityTone(phone.quality_rating);
-            return (
-              <Card key={phone.id} className="flex flex-col p-5">
-                <div className="flex items-center gap-3">
-                  <div className="shrink-0">
-                    {phone.profile?.profile_picture_url ? (
-                      <Image
-                        src={phone.profile.profile_picture_url}
-                        alt={phone.verified_name}
-                        width={56}
-                        height={56}
-                        className="rounded-full border-2 border-zoru-line"
-                      />
-                    ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                        <UserRound className="h-6 w-6" />
-                      </div>
+        <Section
+          title="Connected numbers"
+          description="Each card shows verification, quality, and shortcuts for the standard actions."
+        >
+          <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {phoneNumbers.map((phone, i) => {
+              const status = statusTone(phone.code_verification_status);
+              const quality = qualityTone(phone.quality_rating);
+              return (
+                <m.li
+                  key={phone.id}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: i * 0.03, ease: EASE_OUT }}
+                  className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="shrink-0">
+                      {phone.profile?.profile_picture_url ? (
+                        <Image
+                          src={phone.profile.profile_picture_url}
+                          alt={phone.verified_name}
+                          width={56}
+                          height={56}
+                          className="rounded-full border border-zinc-200"
+                        />
+                      ) : (
+                        <div className="grid h-14 w-14 place-items-center rounded-full bg-zinc-100">
+                          <UserRound className="h-6 w-6 text-zinc-400" strokeWidth={2} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[14px] font-semibold tracking-tight text-zinc-950">
+                        {phone.verified_name}
+                      </p>
+                      <p className="mt-0.5 font-mono text-[12px] tabular-nums text-zinc-500">
+                        {phone.display_phone_number}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-2 text-[12px]">
+                    <li className="flex items-center justify-between">
+                      <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Status</span>
+                      <StatusPill tone={status.tone}>{status.label}</StatusPill>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Quality</span>
+                      <StatusPill tone={quality.tone}>{quality.label}</StatusPill>
+                    </li>
+                    <li className="flex items-center justify-between gap-3">
+                      <span className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">About</span>
+                      <span className="max-w-[180px] truncate text-[12px] text-zinc-700" title={phone.profile?.about || 'Not set'}>
+                        {phone.profile?.about || 'Not set'}
+                      </span>
+                    </li>
+                  </ul>
+
+                  <div className="mt-auto grid grid-cols-1 gap-2">
+                    <WaButton variant="outline" size="sm" leftIcon={Pencil} onClick={() => setEditingPhone(phone)}>
+                      Edit profile and settings
+                    </WaButton>
+                    {phone.code_verification_status !== 'VERIFIED' && (
+                      <WaButton
+                        variant="outline"
+                        size="sm"
+                        leftIcon={CheckCircle2}
+                        onClick={() => { setVerifyPhone(phone); setVerifyCode(''); }}
+                      >
+                        Verify number
+                      </WaButton>
                     )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] text-zoru-ink leading-tight">
-                      {phone.verified_name}
-                    </div>
-                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-zoru-ink-muted">
-                      {phone.display_phone_number}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 flex flex-col gap-2.5">
-                  <DetailRow label="Status">
-                    <Badge variant={toneToVariant[status.tone]}>
-                      {status.label}
-                    </Badge>
-                  </DetailRow>
-                  <DetailRow label="Quality">
-                    <Badge variant={toneToVariant[quality.tone]}>
-                      {quality.label}
-                    </Badge>
-                  </DetailRow>
-                  <DetailRow label="About">
-                    <span
-                      className="max-w-[180px] truncate text-[12.5px] text-zoru-ink"
-                      title={phone.profile?.about || 'Not set'}
+                    {project ? <FlowsEncryptionDialog project={project} phone={phone} /> : null}
+                    {phone.code_verification_status === 'VERIFIED' && project ? (
+                      <RegisterPhoneButton projectId={project._id.toString()} phoneNumberId={phone.id} />
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => setRemoveTarget(phone)}
+                      className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full text-[12px] font-semibold text-rose-600 transition-colors hover:bg-rose-50 active:scale-[0.97]"
                     >
-                      {phone.profile?.about || 'Not set'}
-                    </span>
-                  </DetailRow>
-                </div>
-
-                <div className="mt-auto flex flex-col gap-2 pt-5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingPhone(phone)}
-                    block
-                  >
-                    <Pencil /> Edit profile &amp; settings
-                  </Button>
-                  {phone.code_verification_status !== 'VERIFIED' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setVerifyPhone(phone);
-                        setVerifyCode('');
-                      }}
-                      block
-                    >
-                      <CheckCircle2 /> Verify number
-                    </Button>
-                  )}
-                  {project ? (
-                    <FlowsEncryptionDialog project={project} phone={phone} />
-                  ) : null}
-                  {phone.code_verification_status === 'VERIFIED' && project ? (
-                    <RegisterPhoneButton
-                      projectId={project._id.toString()}
-                      phoneNumberId={phone.id}
-                    />
-                  ) : null}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setRemoveTarget(phone)}
-                    block
-                    className="text-zoru-danger hover:bg-zoru-danger/10"
-                  >
-                    <Trash2 /> Remove number
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                      <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
+                      Remove number
+                    </button>
+                  </div>
+                </m.li>
+              );
+            })}
+          </ul>
+        </Section>
       )}
 
-      {/* ── Add-number multi-step dialog ── */}
+      {/* Add-number multi-step dialog */}
       <Dialog
         open={addOpen}
         onOpenChange={(o) => {
           setAddOpen(o);
-          if (!o) {
-            setAddStep(1);
-            setAddPhone('');
-            setAddName('');
-          }
+          if (!o) { setAddStep(1); setAddPhone(''); setAddName(''); }
         }}
       >
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>
-              {addStep === 1 ? 'Add a number — step 1 of 2' : 'Add a number — step 2 of 2'}
+              {addStep === 1 ? 'Add a number, step 1 of 2' : 'Add a number, step 2 of 2'}
             </ZoruDialogTitle>
             <ZoruDialogDescription>
-              {addStep === 1
-                ? 'Enter the phone number you want to connect to WhatsApp Business.'
-                : 'Add a display name for the number.'}
+              {addStep === 1 ? 'Enter the phone number you want to connect.' : 'Add a display name for the number.'}
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 py-2">
             {addStep === 1 ? (
               <>
                 <Label htmlFor="add-phone">Phone number</Label>
-                <Input
-                  id="add-phone"
-                  type="tel"
-                  placeholder="+1 234 567 8900"
-                  value={addPhone}
-                  onChange={(e) => setAddPhone(e.target.value)}
-                />
+                <Input id="add-phone" type="tel" placeholder="+1 234 567 8900" value={addPhone} onChange={(e) => setAddPhone(e.target.value)} className="rounded-xl" />
               </>
             ) : (
               <>
                 <Label htmlFor="add-name">Display name</Label>
-                <Input
-                  id="add-name"
-                  placeholder="Acme Inc."
-                  value={addName}
-                  onChange={(e) => setAddName(e.target.value)}
-                />
+                <Input id="add-name" placeholder="Acme Inc." value={addName} onChange={(e) => setAddName(e.target.value)} className="rounded-xl" />
               </>
             )}
           </div>
           <ZoruDialogFooter>
             {addStep === 2 && (
-              <Button variant="ghost" onClick={() => setAddStep(1)}>
-                Back
-              </Button>
+              <WaButton variant="outline" onClick={() => setAddStep(1)}>Back</WaButton>
             )}
-            <Button
+            <WaButton
               onClick={() => {
                 if (addStep === 1) {
                   if (!addPhone.trim()) return;
                   setAddStep(2);
                 } else {
-                  toast({
-                    title: 'Number added',
-                    description: `${addName || addPhone} queued for verification.`,
-                  });
-                  setAddOpen(false);
-                  setAddStep(1);
-                  setAddPhone('');
-                  setAddName('');
+                  toast({ title: 'Number added', description: `${addName || addPhone} queued for verification.` });
+                  setAddOpen(false); setAddStep(1); setAddPhone(''); setAddName('');
                   if (activeProjectId) fetchProjectData(activeProjectId);
                 }
               }}
             >
               {addStep === 1 ? 'Continue' : 'Submit'}
-            </Button>
+            </WaButton>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
 
-      {/* ── Verify-number dialog ── */}
-      <Dialog
-        open={!!verifyPhone}
-        onOpenChange={(o) => {
-          if (!o) {
-            setVerifyPhone(null);
-            setVerifyCode('');
-          }
-        }}
-      >
+      {/* Verify-number dialog */}
+      <Dialog open={!!verifyPhone} onOpenChange={(o) => { if (!o) { setVerifyPhone(null); setVerifyCode(''); } }}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Verify number</ZoruDialogTitle>
@@ -550,7 +405,7 @@ export default function NumbersPage() {
               Enter the 6-digit code sent to {verifyPhone?.display_phone_number}.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 py-2">
             <Label htmlFor="verify-code">Verification code</Label>
             <Input
               id="verify-code"
@@ -559,47 +414,38 @@ export default function NumbersPage() {
               value={verifyCode}
               onChange={(e) => setVerifyCode(e.target.value)}
               placeholder="••••••"
+              className="rounded-xl font-mono"
             />
           </div>
           <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setVerifyPhone(null)}>
-              Cancel
-            </Button>
-            <Button
+            <WaButton variant="outline" onClick={() => setVerifyPhone(null)}>Cancel</WaButton>
+            <WaButton
               onClick={() => {
                 toast({ title: 'Verification submitted' });
-                setVerifyPhone(null);
-                setVerifyCode('');
+                setVerifyPhone(null); setVerifyCode('');
               }}
               disabled={verifyCode.length < 4}
             >
               Verify
-            </Button>
+            </WaButton>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
 
-      {/* ── Remove-number alert dialog ── */}
-      <ZoruAlertDialog
-        open={!!removeTarget}
-        onOpenChange={(o) => !o && setRemoveTarget(null)}
-      >
+      {/* Remove alert */}
+      <ZoruAlertDialog open={!!removeTarget} onOpenChange={(o) => !o && setRemoveTarget(null)}>
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Remove this number?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This unlinks {removeTarget?.display_phone_number} from your project.
-              You can re-add it later by syncing with Meta.
+              This unlinks {removeTarget?.display_phone_number} from your project. You can re-add it later by syncing with Meta.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               onClick={() => {
-                toast({
-                  title: 'Number removed',
-                  description: `${removeTarget?.display_phone_number} unlinked from project.`,
-                });
+                toast({ title: 'Number removed', description: `${removeTarget?.display_phone_number} unlinked from project.` });
                 setRemoveTarget(null);
               }}
             >
@@ -608,60 +454,6 @@ export default function NumbersPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-
-      <div className="h-6" />
-    </div>
-  );
-}
-
-function DetailRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </span>
-      {children}
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  icon,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4',
-      )}
-    >
-      <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-        {icon}
-      </div>
-      <div className="mt-3 text-[11px] uppercase tracking-wide text-zoru-ink-muted leading-none">
-        {label}
-      </div>
-      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
-        {value}
-      </div>
-      {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
-          {hint}
-        </div>
-      ) : null}
-    </div>
+    </WaPage>
   );
 }

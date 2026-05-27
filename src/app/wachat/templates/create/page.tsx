@@ -1,12 +1,6 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   ZoruCardContent,
@@ -16,72 +10,48 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  EmptyState,
-  ZoruFileInput,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  Skeleton,
-  Textarea,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import { Suspense, useState, useTransition, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 import {
-  Suspense,
-  useState,
-  useTransition,
-  useEffect,
-  } from 'react';
-import { useRouter,
-  useSearchParams } from 'next/navigation';
-import {
-  ArrowLeft,
   Send,
   Image as ImageIcon,
   Video,
   FileText,
-  Type,
-  Plus,
-  Trash2,
   RefreshCw,
   Sparkles,
-  Smartphone,
   Globe,
-  ShoppingBag,
-  LayoutGrid,
-  MessageSquare,
-  Shield,
-  Clock,
   MapPin,
   Copy,
   ExternalLink,
   Phone,
-  Hash,
   CircleAlert,
-  Wand,
   Eye,
-  } from 'lucide-react';
+  EyeOff,
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
 import { useTemplateStore } from '../template-store';
 
-/**
- * Template Creator — full-featured WhatsApp Cloud API template builder,
- * rebuilt on ZoruUI primitives.
- *
- * Same data flow as before. Submit-for-review uses Dialog confirm.
- * Live preview lives in a Card on the right pane.
- */
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  PhoneFrame,
+  ChatBubble,
+  EmptyState,
+} from '@/components/wachat-ui';
 
 import * as React from 'react';
 
@@ -93,20 +63,20 @@ import {
   LANGUAGES,
   CATEGORIES,
   TEMPLATE_TYPES,
-  HEADER_FORMATS,
-  BUTTON_TYPES,
   ButtonData,
 } from './constants';
 
-/* ── Live Phone Preview ────────────────────────── */
+/* ── Live phone preview ────────────────────────────────────────── */
 
-function PhonePreview({
+function PreviewPane({
   headerFormat,
   headerText,
   body,
   footer,
   buttons,
   templateType,
+  projectName,
+  reduceMotion,
 }: {
   headerFormat: string;
   headerText: string;
@@ -114,88 +84,114 @@ function PhonePreview({
   footer: string;
   buttons: ButtonData[];
   templateType: string;
+  projectName: string;
+  reduceMotion: boolean | null;
 }) {
+  const mediaIcon =
+    headerFormat === 'IMAGE'
+      ? ImageIcon
+      : headerFormat === 'VIDEO'
+      ? Video
+      : headerFormat === 'DOCUMENT'
+      ? FileText
+      : headerFormat === 'LOCATION'
+      ? MapPin
+      : null;
+
+  const bodyText =
+    templateType === 'AUTH'
+      ? `*123456* is your verification code.`
+      : body || 'Your message body will appear here…';
+
   return (
-    <div className="mx-auto w-[280px]">
-      <div className="rounded-[24px] border border-zoru-line-strong bg-zoru-surface-2 p-3 shadow-[var(--zoru-shadow-md)]">
-        <div className="flex items-center justify-between px-2 py-1 text-[9px] text-zoru-ink-muted">
-          <span>WhatsApp</span>
-          <span>Preview</span>
-        </div>
-
-        <div className="mt-2 max-w-[240px] rounded-lg bg-zoru-bg p-3 shadow-[var(--zoru-shadow-sm)]">
-          {headerFormat === 'IMAGE' && (
-            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-zoru-surface">
-              <ImageIcon className="h-8 w-8 text-zoru-ink-subtle" />
+    <PhoneFrame title={projectName || 'Wachat Business'} subtitle="online">
+      <AnimatePresence mode="popLayout" initial={false}>
+        {mediaIcon && (
+          <m.div
+            key={`media-${headerFormat}`}
+            layout
+            initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="flex justify-start"
+          >
+            <div className="grid h-24 w-[80%] place-items-center rounded-2xl rounded-bl-sm bg-white/95 shadow-sm">
+              {React.createElement(mediaIcon, {
+                className: 'h-7 w-7 text-emerald-700/60',
+                strokeWidth: 1.75,
+                'aria-hidden': true,
+              })}
             </div>
-          )}
-          {headerFormat === 'VIDEO' && (
-            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-zoru-surface">
-              <Video className="h-8 w-8 text-zoru-ink-subtle" />
-            </div>
-          )}
-          {headerFormat === 'DOCUMENT' && (
-            <div className="mb-2 flex items-center gap-2 rounded bg-zoru-surface p-2">
-              <FileText className="h-5 w-5 text-zoru-ink-subtle" />
-              <span className="text-[10px] text-zoru-ink-muted">Document</span>
-            </div>
-          )}
-          {headerFormat === 'LOCATION' && (
-            <div className="mb-2 flex h-[80px] items-center justify-center rounded bg-zoru-surface">
-              <MapPin className="h-6 w-6 text-zoru-ink-muted" />
-            </div>
-          )}
-          {headerFormat === 'TEXT' && headerText && (
-            <p className="mb-1 text-[12px] font-bold text-zoru-ink">
-              {headerText}
-            </p>
-          )}
+          </m.div>
+        )}
 
-          <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-zoru-ink">
-            {body || 'Your message body will appear here…'}
-          </p>
+        {headerFormat === 'TEXT' && headerText && (
+          <m.div key="header-text" layout transition={{ duration: 0.25, ease: EASE_OUT }}>
+            <ChatBubble
+              who="them"
+              text={<span className="text-[12.5px] font-semibold text-zinc-900">{headerText}</span>}
+            />
+          </m.div>
+        )}
 
-          {footer && (
-            <p className="mt-1.5 text-[9px] text-zoru-ink-muted">{footer}</p>
-          )}
-
-          <div className="mt-1 flex justify-end">
-            <span className="text-[8px] text-zoru-ink-subtle">12:00 PM</span>
-          </div>
-        </div>
+        <m.div key="body" layout transition={{ duration: 0.25, ease: EASE_OUT }}>
+          <ChatBubble
+            who="them"
+            text={
+              <div className="space-y-1">
+                <p className="whitespace-pre-wrap">{bodyText}</p>
+                {footer && <p className="pt-1 text-[10px] text-zinc-500">{footer}</p>}
+              </div>
+            }
+            time="12:00 PM"
+          />
+        </m.div>
 
         {buttons.length > 0 && (
-          <div className="mt-1 space-y-0.5">
+          <m.div
+            key="buttons"
+            layout
+            initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="space-y-1 pt-1"
+          >
             {buttons.map((btn, i) => (
               <div
                 key={i}
-                className="flex items-center justify-center rounded-lg bg-zoru-bg py-1.5 text-[11px] font-medium text-zoru-ink shadow-[var(--zoru-shadow-sm)]"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-[11.5px] font-semibold text-emerald-700 shadow-sm"
               >
-                {btn.type === 'URL' && (
-                  <ExternalLink className="mr-1 h-3 w-3" />
-                )}
-                {btn.type === 'PHONE_NUMBER' && (
-                  <Phone className="mr-1 h-3 w-3" />
-                )}
-                {btn.type === 'COPY_CODE' && <Copy className="mr-1 h-3 w-3" />}
+                {btn.type === 'URL' && <ExternalLink className="h-3 w-3" strokeWidth={2.25} />}
+                {btn.type === 'PHONE_NUMBER' && <Phone className="h-3 w-3" strokeWidth={2.25} />}
+                {btn.type === 'COPY_CODE' && <Copy className="h-3 w-3" strokeWidth={2.25} />}
                 {btn.text || `Button ${i + 1}`}
               </div>
             ))}
-          </div>
+          </m.div>
         )}
 
         {templateType === 'AUTH' && (
-          <div className="mt-1 flex items-center justify-center rounded-lg bg-zoru-bg py-1.5 text-[11px] font-medium text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
-            <Copy className="mr-1 h-3 w-3" />
-            Copy Code
-          </div>
+          <m.div
+            key="auth-copy"
+            layout
+            initial={reduceMotion ? false : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="pt-1"
+          >
+            <div className="flex items-center justify-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-[11.5px] font-semibold text-emerald-700 shadow-sm">
+              <Copy className="h-3 w-3" strokeWidth={2.25} /> Copy code
+            </div>
+          </m.div>
         )}
-      </div>
-    </div>
+      </AnimatePresence>
+    </PhoneFrame>
   );
 }
 
-/* ── Multi-Language Selector ───────────────────── */
+/* ── Multi-language selector (compact) ─────────────────────────── */
 
 function MultiLanguageSelector({
   selected,
@@ -211,30 +207,29 @@ function MultiLanguageSelector({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-zinc-600 transition-colors hover:text-zinc-900"
       >
-        <Globe className="h-3 w-3" /> Clone to multiple languages
+        <Globe className="h-3.5 w-3.5" strokeWidth={2} /> Clone to multiple languages
       </button>
     );
   }
 
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div className="space-y-3 rounded-2xl border border-zinc-200 bg-white p-4">
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold text-zoru-ink">
-          <Globe className="mr-1 inline h-3 w-3" /> Multi-language cloning
+        <p className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-900">
+          <Globe className="h-3.5 w-3.5" strokeWidth={2} /> Multi-language cloning
         </p>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
+          className="text-[11px] text-zinc-500 hover:text-zinc-900"
         >
           Close
         </button>
       </div>
-      <p className="text-[10px] text-zoru-ink-muted">
-        After creating the primary template, clones will be auto-created for
-        selected languages.
+      <p className="text-[11.5px] text-zinc-500">
+        After creating the primary template, clones will be auto-created for selected languages.
       </p>
       <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
         {LANGUAGES.map((l) => {
@@ -245,17 +240,16 @@ function MultiLanguageSelector({
               type="button"
               onClick={() =>
                 onChange(
-                  isSelected
-                    ? selected.filter((s) => s !== l.code)
-                    : [...selected, l.code],
+                  isSelected ? selected.filter((s) => s !== l.code) : [...selected, l.code],
                 )
               }
               className={cn(
-                'rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors',
+                'rounded-full border px-2.5 py-0.5 text-[10.5px] font-semibold transition-colors active:scale-[0.97]',
                 isSelected
-                  ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                  : 'border-zoru-line text-zoru-ink-muted hover:border-zoru-line-strong hover:text-zoru-ink',
+                  ? 'border-transparent text-white'
+                  : 'border-zinc-200 bg-white text-zinc-600 hover:border-zinc-900 hover:text-zinc-900',
               )}
+              style={isSelected ? { backgroundColor: 'var(--mt-accent)' } : undefined}
             >
               {l.name}
             </button>
@@ -263,7 +257,7 @@ function MultiLanguageSelector({
         })}
       </div>
       {selected.length > 0 && (
-        <p className="text-[10px] font-medium text-zoru-ink">
+        <p className="text-[11px] font-semibold" style={{ color: 'var(--mt-accent)' }}>
           {selected.length} language(s) selected for cloning
         </p>
       )}
@@ -271,7 +265,7 @@ function MultiLanguageSelector({
   );
 }
 
-/* ── Main Page ─────────────────────────────────── */
+/* ── Main page ─────────────────────────────────────────────────── */
 
 function CreateTemplateContent() {
   const router = useRouter();
@@ -280,6 +274,7 @@ function CreateTemplateContent() {
   const searchParams = useSearchParams();
   const action = searchParams.get('action');
   const [isPending, startTransition] = useTransition();
+  const reduceMotion = useReducedMotion();
 
   // Template state
   const [templateType, setTemplateType] = useState('STANDARD');
@@ -294,9 +289,7 @@ function CreateTemplateContent() {
   const [buttons, setButtons] = useState<ButtonData[]>([]);
 
   // Auth OTP state
-  const [otpType, setOtpType] = useState<
-    'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP'
-  >('COPY_CODE');
+  const [otpType, setOtpType] = useState<'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP'>('COPY_CODE');
   const [codeExpiry, setCodeExpiry] = useState('10');
 
   // LTO state
@@ -315,29 +308,23 @@ function CreateTemplateContent() {
       setCategory(templateToAction.category);
       setLanguage(templateToAction.language);
       setBody(templateToAction.body);
-      
+
       const header = templateToAction.components.find((c: any) => c.type === 'HEADER');
       if (header) {
         setHeaderFormat(header.format || 'NONE');
         if (header.text) setHeaderText(header.text);
       }
-      
+
       const footerComp = templateToAction.components.find((c: any) => c.type === 'FOOTER');
-      if (footerComp) {
-        setFooter(footerComp.text || '');
-      }
-      
+      if (footerComp) setFooter(footerComp.text || '');
+
       const btns = templateToAction.components.find((c: any) => c.type === 'BUTTONS');
-      if (btns && btns.buttons) {
-        setButtons(btns.buttons);
-      }
+      if (btns && btns.buttons) setButtons(btns.buttons);
     }
   }, [action, templateToAction]);
 
-  // Submit-for-review confirm dialog
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Derived
   const charCount = body.length;
   const varCount = (body.match(/{{\s*\d+\s*}}/g) || []).length;
 
@@ -356,15 +343,9 @@ function CreateTemplateContent() {
       formData.set('projectId', activeProject._id.toString());
       formData.set(
         'name',
-        name
-          .toLowerCase()
-          .replace(/\s+/g, '_')
-          .replace(/[^a-z0-9_]/g, ''),
+        name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
       );
-      formData.set(
-        'category',
-        templateType === 'AUTH' ? 'AUTHENTICATION' : category,
-      );
+      formData.set('category', templateType === 'AUTH' ? 'AUTHENTICATION' : category);
       formData.set('language', language);
       formData.set(
         'templateType',
@@ -375,15 +356,9 @@ function CreateTemplateContent() {
           : 'STANDARD',
       );
 
-      formData.set(
-        'headerFormat',
-        templateType === 'AUTH' ? 'NONE' : headerFormat,
-      );
+      formData.set('headerFormat', templateType === 'AUTH' ? 'NONE' : headerFormat);
       if (headerFormat === 'TEXT') formData.set('headerText', headerText);
-      if (
-        ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) &&
-        headerMediaUrl
-      ) {
+      if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && headerMediaUrl) {
         formData.set('headerMediaUrl', headerMediaUrl);
       }
 
@@ -401,17 +376,11 @@ function CreateTemplateContent() {
       if (templateType === 'AUTH') {
         formData.set(
           'buttons',
-          JSON.stringify([
-            { type: 'COPY_CODE', text: 'Copy Code', example: ['123456'] },
-          ]),
+          JSON.stringify([{ type: 'COPY_CODE', text: 'Copy Code', example: ['123456'] }]),
         );
       } else if (templateType === 'LTO') {
         const ltoButtons: ButtonData[] = [
-          {
-            type: 'COPY_CODE',
-            text: 'Get Offer',
-            example: [ltoCoupon || 'SAVE20'],
-          },
+          { type: 'COPY_CODE', text: 'Get Offer', example: [ltoCoupon || 'SAVE20'] },
         ];
         formData.set('buttons', JSON.stringify(ltoButtons));
       } else {
@@ -424,11 +393,7 @@ function CreateTemplateContent() {
       );
 
       if (result.error) {
-        toast({
-          title: 'Error',
-          description: result.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
       } else {
         toast({
           title: 'Success',
@@ -441,152 +406,108 @@ function CreateTemplateContent() {
 
   if (!activeProject) {
     return (
-      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-        <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/wachat/templates">
-                Templates
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Create</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
-        </Breadcrumb>
+      <WaPage>
+        <PageHeader
+          title={action === 'clone' ? 'Clone template' : 'Create template'}
+          description="Compose a WhatsApp Cloud API template. Submit for Meta approval when ready."
+          kicker="Wachat · templates"
+          backHref="/wachat/templates"
+        />
         <EmptyState
-          icon={<CircleAlert />}
+          icon={CircleAlert}
           title="Select a project first"
-          description="Choose a project from the dashboard to create templates."
+          description="Choose a project from the picker to create templates."
           action={
-            <Button size="sm" onClick={() => router.push('/wachat')}>
+            <WaButton href="/wachat" leftIcon={Sparkles}>
               Choose a project
-            </Button>
+            </WaButton>
           }
         />
-      </div>
+      </WaPage>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/templates">
-              Templates
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
-              {action === 'clone' ? 'Clone' : 'Create'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <button
-            type="button"
-            onClick={() => router.push('/wachat/templates')}
-            className="mb-1 flex items-center gap-1 text-[12px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
-          >
-            <ArrowLeft className="h-3 w-3" /> Back to templates
-          </button>
-          <ZoruPageTitle>
-            {action === 'clone' ? 'Clone template' : 'Create template'}
-          </ZoruPageTitle>
-          <ZoruPageDescription>
-            Compose a WhatsApp Cloud API template. Submit for Meta approval
-            once it&apos;s ready.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button
+    <WaPage>
+      <PageHeader
+        title={action === 'clone' ? 'Clone template' : 'Create template'}
+        description="Compose a WhatsApp Cloud API template. Submit for Meta approval when ready."
+        kicker={`Wachat · ${activeProject.name}`}
+        backHref="/wachat/templates"
+        actions={
+          <WaButton
             variant="outline"
             size="sm"
             onClick={() => setShowPreview(!showPreview)}
+            leftIcon={showPreview ? EyeOff : Eye}
           >
-            <Eye /> {showPreview ? 'Hide preview' : 'Show preview'}
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
+            {showPreview ? 'Hide preview' : 'Show preview'}
+          </WaButton>
+        }
+      />
 
-      {/* Template Type Selector */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        {TEMPLATE_TYPES.map((t) => {
+      {/* Template type selector */}
+      <m.div
+        initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: EASE_OUT }}
+        className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-5"
+      >
+        {TEMPLATE_TYPES.map((t, i) => {
           const Icon = t.icon;
           const isActive = templateType === t.id;
           return (
-            <button
+            <m.button
               key={t.id}
               type="button"
+              initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: 0.03 + i * 0.04, ease: EASE_OUT }}
               onClick={() => {
                 setTemplateType(t.id);
                 setButtons([]);
                 setHeaderFormat('NONE');
               }}
-              className={cn(
-                'flex flex-col items-center gap-1.5 rounded-[var(--zoru-radius-lg)] border p-3 text-center transition-colors',
-                isActive
-                  ? 'border-zoru-ink bg-zoru-surface-2'
-                  : 'border-zoru-line hover:border-zoru-line-strong',
-              )}
+              className="group relative flex flex-col items-center gap-1.5 rounded-2xl border bg-white p-4 text-center transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px] active:scale-[0.97]"
+              style={{
+                borderColor: isActive ? 'var(--mt-accent)' : '#e4e4e7',
+                boxShadow: isActive ? '0 18px 40px -22px var(--mt-accent-glow)' : 'none',
+              }}
             >
-              <Icon
-                className={cn(
-                  'h-5 w-5',
-                  isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted',
-                )}
-              />
+              <span
+                className="grid h-8 w-8 place-items-center rounded-xl"
+                style={{
+                  background: isActive ? 'var(--mt-accent-soft)' : '#fafafa',
+                  color: isActive ? 'var(--mt-accent)' : '#71717a',
+                }}
+              >
+                <Icon className="h-4 w-4" strokeWidth={2} />
+              </span>
               <span
                 className={cn(
-                  'text-[11px] font-semibold',
-                  isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted',
+                  'text-[12px] font-semibold',
+                  isActive ? 'text-zinc-950' : 'text-zinc-700',
                 )}
               >
                 {t.name}
               </span>
-              <span className="text-[9px] leading-tight text-zoru-ink-subtle">
-                {t.desc}
-              </span>
-            </button>
+              <span className="text-[10.5px] leading-tight text-zinc-500">{t.desc}</span>
+            </m.button>
           );
         })}
-      </div>
+      </m.div>
 
       <div
         className={cn(
           'grid gap-6',
-          showPreview ? 'lg:grid-cols-[1fr_320px]' : 'lg:grid-cols-1',
+          showPreview ? 'lg:grid-cols-[1fr_360px]' : 'lg:grid-cols-1',
         )}
       >
-        {/* ── Editor Column ── */}
-        <div className="space-y-5">
-          {/* Details */}
+        {/* Editor column */}
+        <div className="space-y-4">
           <Card>
             <ZoruCardContent className="space-y-4 pt-6">
-              <h3 className="text-[13px] font-semibold text-zoru-ink">
+              <h3 className="text-[13px] font-semibold tracking-tight text-zinc-900">
                 Template details
               </h3>
               <div className="grid gap-4 sm:grid-cols-3">
@@ -632,31 +553,21 @@ function CreateTemplateContent() {
             </ZoruCardContent>
           </Card>
 
-          {/* AUTH */}
           {templateType === 'AUTH' && (
             <Card>
               <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
+                <h3 className="text-[13px] font-semibold tracking-tight text-zinc-900">
                   Authentication settings
                 </h3>
                 <Field label="OTP type">
-                  <Select
-                    value={otpType}
-                    onValueChange={(v) => setOtpType(v as any)}
-                  >
+                  <Select value={otpType} onValueChange={(v) => setOtpType(v as any)}>
                     <ZoruSelectTrigger>
                       <ZoruSelectValue />
                     </ZoruSelectTrigger>
                     <ZoruSelectContent>
-                      <ZoruSelectItem value="COPY_CODE">
-                        Copy code button
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="ONE_TAP">
-                        One-tap autofill
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="ZERO_TAP">
-                        Zero-tap (auto-verify)
-                      </ZoruSelectItem>
+                      <ZoruSelectItem value="COPY_CODE">Copy code button</ZoruSelectItem>
+                      <ZoruSelectItem value="ONE_TAP">One-tap autofill</ZoruSelectItem>
+                      <ZoruSelectItem value="ZERO_TAP">Zero-tap (auto-verify)</ZoruSelectItem>
                     </ZoruSelectContent>
                   </Select>
                 </Field>
@@ -667,21 +578,21 @@ function CreateTemplateContent() {
                     placeholder="10"
                   />
                 </Field>
-                <div className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-[11px] text-zoru-ink-muted">
-                  <p className="mb-1 font-medium text-zoru-ink">
-                    Auto-generated body:
-                  </p>
+                <div
+                  className="rounded-xl p-3 text-[11.5px] text-zinc-700"
+                  style={{ background: 'var(--mt-accent-soft)' }}
+                >
+                  <p className="mb-1 font-semibold text-zinc-900">Auto-generated body:</p>
                   <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
                 </div>
               </ZoruCardContent>
             </Card>
           )}
 
-          {/* LTO */}
           {templateType === 'LTO' && (
             <Card>
               <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
+                <h3 className="text-[13px] font-semibold tracking-tight text-zinc-900">
                   Limited time offer
                 </h3>
                 <Field
@@ -705,16 +616,13 @@ function CreateTemplateContent() {
             </Card>
           )}
 
-          {/* Standard / LTO / Carousel content */}
           {(templateType === 'STANDARD' ||
             templateType === 'LTO' ||
             templateType === 'CAROUSEL') && (
             <Card>
               <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
-                  {templateType === 'CAROUSEL'
-                    ? 'Carousel introduction'
-                    : 'Message content'}
+                <h3 className="text-[13px] font-semibold tracking-tight text-zinc-900">
+                  {templateType === 'CAROUSEL' ? 'Carousel introduction' : 'Message content'}
                 </h3>
 
                 {templateType === 'STANDARD' && (
@@ -728,131 +636,95 @@ function CreateTemplateContent() {
                   />
                 )}
 
-                <BodyEditor
-                  body={body}
-                  setBody={setBody}
-                  footer={footer}
-                  setFooter={setFooter}
-                />
+                <BodyEditor body={body} setBody={setBody} footer={footer} setFooter={setFooter} />
               </ZoruCardContent>
             </Card>
           )}
 
-          {/* Buttons */}
           {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
             <Card>
               <ZoruCardContent className="space-y-3 pt-6">
-                <ButtonManager
-                  buttons={buttons}
-                  setButtons={setButtons}
-                />
+                <ButtonManager buttons={buttons} setButtons={setButtons} />
               </ZoruCardContent>
             </Card>
           )}
 
-          {/* SabNode features */}
           <Card>
             <ZoruCardContent className="space-y-3 pt-6">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-zoru-ink" />
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
+                <Sparkles className="h-4 w-4" style={{ color: 'var(--mt-accent)' }} />
+                <h3 className="text-[13px] font-semibold tracking-tight text-zinc-900">
                   SabNode features
                 </h3>
               </div>
-              <MultiLanguageSelector
-                selected={cloneLanguages}
-                onChange={setCloneLanguages}
-              />
+              <MultiLanguageSelector selected={cloneLanguages} onChange={setCloneLanguages} />
             </ZoruCardContent>
           </Card>
 
-          {/* Submit */}
-          <div className="flex items-center gap-3">
-            <Button
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <WaButton
               onClick={() => setConfirmOpen(true)}
-              disabled={
-                isPending ||
-                !name.trim() ||
-                (!body.trim() && templateType !== 'AUTH')
-              }
+              disabled={isPending || !name.trim() || (!body.trim() && templateType !== 'AUTH')}
+              leftIcon={isPending ? RefreshCw : Send}
             >
-              {isPending ? (
-                <>
-                  <RefreshCw className="animate-spin" /> Submitting…
-                </>
-              ) : (
-                <>
-                  <Send /> Submit for approval
-                </>
-              )}
-            </Button>
-            <Button
+              {isPending ? 'Submitting' : 'Submit for approval'}
+            </WaButton>
+            <WaButton
               variant="ghost"
               size="sm"
               onClick={() => router.push('/wachat/templates')}
             >
               Cancel
-            </Button>
+            </WaButton>
           </div>
         </div>
 
-        {/* Preview Column */}
+        {/* Preview column */}
         {showPreview && (
-          <div className="hidden lg:block">
+          <aside className="hidden lg:block">
             <div className="sticky top-6 space-y-4">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
-                <Smartphone className="h-3.5 w-3.5" /> Live preview
-              </div>
-              <Card variant="elevated">
-                <ZoruCardContent className="pt-6">
-                  <PhonePreview
-                    headerFormat={headerFormat}
-                    headerText={headerText}
-                    body={
-                      templateType === 'AUTH'
-                        ? `*123456* is your verification code. This code expires in ${codeExpiry} minutes.`
-                        : body
-                    }
-                    footer={footer}
-                    buttons={buttons}
-                    templateType={templateType}
-                  />
-                </ZoruCardContent>
-              </Card>
+              <PreviewPane
+                headerFormat={headerFormat}
+                headerText={headerText}
+                body={body}
+                footer={footer}
+                buttons={buttons}
+                templateType={templateType}
+                projectName={activeProject?.name ?? 'Wachat Business'}
+                reduceMotion={reduceMotion}
+              />
               <div className="space-y-1 text-center">
-                <p className="text-[10px] text-zoru-ink-muted">
+                <p className="text-[11px] tabular-nums text-zinc-500">
                   {charCount}/1024 characters
                 </p>
-                <p className="text-[10px] text-zoru-ink-muted">
-                  {varCount} variable(s) detected
+                <p className="text-[11px] tabular-nums text-zinc-500">
+                  {varCount} variable{varCount === 1 ? '' : 's'} detected
                 </p>
                 {cloneLanguages.length > 0 && (
-                  <p className="text-[10px] text-zoru-ink">
+                  <p
+                    className="text-[11px] font-semibold"
+                    style={{ color: 'var(--mt-accent)' }}
+                  >
                     {cloneLanguages.length} language clone(s)
                   </p>
                 )}
               </div>
             </div>
-          </div>
+          </aside>
         )}
       </div>
 
-      {/* Submit-for-review confirm dialog */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle>Submit for Meta approval?</ZoruDialogTitle>
             <ZoruDialogDescription>
-              Once submitted, this template will be reviewed by Meta. You will
-              not be able to edit it until approved or rejected.
+              Once submitted, this template will be reviewed by Meta. You will not be able to edit
+              it until approved or rejected.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setConfirmOpen(false)}
-              disabled={isPending}
-            >
+            <Button variant="ghost" onClick={() => setConfirmOpen(false)} disabled={isPending}>
               Cancel
             </Button>
             <Button
@@ -862,12 +734,12 @@ function CreateTemplateContent() {
               }}
               disabled={isPending}
             >
-              <Send /> Submit
+              <Send className="mr-1.5 h-3.5 w-3.5" /> Submit
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
-    </div>
+    </WaPage>
   );
 }
 
@@ -875,9 +747,18 @@ export default function CreateTemplatePage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto w-full max-w-[1320px] px-6 pt-6">
-          <Skeleton className="h-[400px] w-full" />
-        </div>
+        <WaPage>
+          <div className="h-9 w-64 animate-pulse rounded-lg bg-zinc-100" />
+          <div className="mt-4 h-3 w-80 animate-pulse rounded-full bg-zinc-100" />
+          <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-44 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+              ))}
+            </div>
+            <div className="h-[460px] animate-pulse rounded-[2.2rem] border border-zinc-200 bg-white" />
+          </div>
+        </WaPage>
       }
     >
       <CreateTemplateContent />

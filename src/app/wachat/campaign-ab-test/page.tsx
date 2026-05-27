@@ -1,5 +1,12 @@
 'use client';
 
+import React, { useEffect, useState, useTransition, useCallback } from 'react';
+import { m, useReducedMotion } from 'motion/react';
+import { ChartBar, Loader2, Send, Square, FlaskConical } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getBroadcastSegments } from '@/app/actions/wachat-features.actions';
+
 import {
   useZoruToast,
   ZoruAlertDialog,
@@ -11,15 +18,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
   Label,
   Select,
   ZoruSelectContent,
@@ -28,27 +26,19 @@ import {
   ZoruSelectValue,
   cn,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-  } from 'react';
-import { ChartBar,
-  Loader2,
-  Send,
-  Square } from 'lucide-react';
 
-import { useProject } from '@/context/project-context';
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  WaButton,
+  StatusPill,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 /**
- * Wachat Campaign A/B Test — split-test broadcast campaigns.
- * ZoruUI rebuild. Uses real broadcast segments for audience selection.
+ * Wachat campaign A/B test. Same flow; wachat-ui chrome.
  */
-
-import * as React from 'react';
-
-import { getBroadcastSegments } from '@/app/actions/wachat-features.actions';
 
 const TEMPLATES = [
   'Order Confirmation',
@@ -68,6 +58,7 @@ interface TestResult {
 export default function CampaignAbTestPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
+  const reduce = useReducedMotion();
   const [isPending, startTransition] = useTransition();
   const [segments, setSegments] = useState<any[]>([]);
   const [variantA, setVariantA] = useState(TEMPLATES[0]);
@@ -91,11 +82,7 @@ export default function CampaignAbTestPage() {
 
   const launchTest = () => {
     if (variantA === variantB) {
-      toast({
-        title: 'Error',
-        description: 'Variants must differ.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Variants must differ.', variant: 'destructive' });
       return;
     }
     setSending(true);
@@ -129,41 +116,20 @@ export default function CampaignAbTestPage() {
     toast({ title: 'Test stopped', description: 'A/B test was stopped.' });
   };
 
-  const pct = (n: number, d: number) =>
-    d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%';
+  const pct = (n: number, d: number) => (d > 0 ? `${((n / d) * 100).toFixed(1)}%` : '0%');
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Campaign A/B Test</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Campaign A/B test"
+        description="Compare two templates head to head and let the data pick the winner."
+        kicker="Wachat / A/B test"
+        eyebrowIcon={FlaskConical}
+        backHref="/wachat"
+      />
 
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Campaign A/B Test
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Compare two templates to find which performs better.
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card className="p-5">
-          <h2 className="mb-3 flex items-center gap-2 text-sm text-zoru-ink">
-            <Badge variant="info">A</Badge> Variant A
-          </h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Section title="Variant A">
           <Select value={variantA} onValueChange={setVariantA}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
@@ -176,11 +142,8 @@ export default function CampaignAbTestPage() {
               ))}
             </ZoruSelectContent>
           </Select>
-        </Card>
-        <Card className="p-5">
-          <h2 className="mb-3 flex items-center gap-2 text-sm text-zoru-ink">
-            <Badge variant="secondary">B</Badge> Variant B
-          </h2>
+        </Section>
+        <Section title="Variant B">
           <Select value={variantB} onValueChange={setVariantB}>
             <ZoruSelectTrigger>
               <ZoruSelectValue />
@@ -193,90 +156,81 @@ export default function CampaignAbTestPage() {
               ))}
             </ZoruSelectContent>
           </Select>
-        </Card>
+        </Section>
       </div>
 
-      <Card className="p-5">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label className="mb-2 block">Test split</Label>
-            <div className="flex items-center gap-3">
-              <span className="w-10 text-[12px] text-zoru-ink-muted tabular-nums">
-                A: {split}%
-              </span>
-              <input
-                type="range"
-                min={10}
-                max={90}
-                value={split}
-                onChange={(e) => setSplit(Number(e.target.value))}
-                className="flex-1 accent-zoru-ink"
-              />
-              <span className="w-12 text-right text-[12px] text-zoru-ink-muted tabular-nums">
-                B: {100 - split}%
-              </span>
+      <div className="mt-3">
+        <Section title="Split and audience">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <Label className="mb-2 block">Test split</Label>
+              <div className="flex items-center gap-3">
+                <span className="w-12 text-[12px] tabular-nums text-zinc-500">A: {split}%</span>
+                <input
+                  type="range"
+                  min={10}
+                  max={90}
+                  value={split}
+                  onChange={(e) => setSplit(Number(e.target.value))}
+                  className="flex-1"
+                  style={{ accentColor: 'var(--mt-accent)' }}
+                />
+                <span className="w-14 text-right text-[12px] tabular-nums text-zinc-500">B: {100 - split}%</span>
+              </div>
+              <div className="mt-3 flex h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+                <m.div
+                  initial={false}
+                  animate={{ width: `${split}%` }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
+                  style={{ background: 'var(--mt-accent)' }}
+                />
+                <m.div
+                  initial={false}
+                  animate={{ width: `${100 - split}%` }}
+                  transition={{ duration: 0.3, ease: EASE_OUT }}
+                  className="bg-zinc-300"
+                />
+              </div>
             </div>
-            <div className="mt-2 flex h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
-              <div
-                className="bg-zoru-ink transition-all"
-                style={{ width: `${split}%` }}
-              />
-              <div
-                className="bg-zoru-ink-muted transition-all"
-                style={{ width: `${100 - split}%` }}
-              />
+            <div>
+              <Label className="mb-2 block">Audience</Label>
+              <Select value={audience} onValueChange={setAudience}>
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="all">All contacts</ZoruSelectItem>
+                  {segments.map((s: any) => (
+                    <ZoruSelectItem key={s._id} value={s._id}>
+                      {s.name}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
+              {isPending && <span className="mt-1 inline-block text-[11px] text-zinc-500">Loading segments</span>}
             </div>
           </div>
-          <div>
-            <Label className="mb-2 block">Audience</Label>
-            <Select value={audience} onValueChange={setAudience}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All contacts</ZoruSelectItem>
-                {segments.map((s: any) => (
-                  <ZoruSelectItem key={s._id} value={s._id}>
-                    {s.name}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-            {isPending && (
-              <span className="mt-1 inline-block text-[11px] text-zoru-ink-muted">
-                Loading segments…
-              </span>
-            )}
-          </div>
-        </div>
-      </Card>
+        </Section>
+      </div>
 
-      <div className="flex items-center gap-2">
+      <div className="mt-4 flex items-center gap-2">
         <ZoruAlertDialog>
           <ZoruAlertDialogTrigger asChild>
-            <Button disabled={sending || variantA === variantB}>
-              {sending ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Send className="h-3.5 w-3.5" />
-              )}
-              {sending ? 'Running test…' : 'Launch A/B test'}
-            </Button>
+            <WaButton disabled={sending || variantA === variantB} leftIcon={sending ? Loader2 : Send}>
+              {sending ? 'Running test' : 'Launch A/B test'}
+            </WaButton>
           </ZoruAlertDialogTrigger>
           <ZoruAlertDialogContent>
             <ZoruAlertDialogHeader>
               <ZoruAlertDialogTitle>Start A/B test?</ZoruAlertDialogTitle>
               <ZoruAlertDialogDescription>
-                Variant A ({variantA}) and Variant B ({variantB}) will be sent
-                in a {split}/{100 - split} split to your selected audience.
-                Results will appear once both variants finish processing.
+                Variant A ({variantA}) and Variant B ({variantB}) will be sent in a {split}/{100 - split} split to your
+                selected audience. Results will appear once both variants finish processing.
               </ZoruAlertDialogDescription>
             </ZoruAlertDialogHeader>
             <ZoruAlertDialogFooter>
               <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-              <ZoruAlertDialogAction onClick={launchTest}>
-                Start test
-              </ZoruAlertDialogAction>
+              <ZoruAlertDialogAction onClick={launchTest}>Start test</ZoruAlertDialogAction>
             </ZoruAlertDialogFooter>
           </ZoruAlertDialogContent>
         </ZoruAlertDialog>
@@ -284,24 +238,20 @@ export default function CampaignAbTestPage() {
         {sending && (
           <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-              <Button variant="outline">
-                <Square className="h-3.5 w-3.5" />
+              <WaButton variant="outline" leftIcon={Square}>
                 Stop
-              </Button>
+              </WaButton>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
               <ZoruAlertDialogHeader>
                 <ZoruAlertDialogTitle>Stop the test?</ZoruAlertDialogTitle>
                 <ZoruAlertDialogDescription>
-                  In-flight messages cannot be unsent, but no new messages will
-                  be queued. Partial results will be discarded.
+                  In-flight messages cannot be unsent, but no new messages will be queued. Partial results will be discarded.
                 </ZoruAlertDialogDescription>
               </ZoruAlertDialogHeader>
               <ZoruAlertDialogFooter>
                 <ZoruAlertDialogCancel>Keep running</ZoruAlertDialogCancel>
-                <ZoruAlertDialogAction onClick={stopTest}>
-                  Stop test
-                </ZoruAlertDialogAction>
+                <ZoruAlertDialogAction onClick={stopTest}>Stop test</ZoruAlertDialogAction>
               </ZoruAlertDialogFooter>
             </ZoruAlertDialogContent>
           </ZoruAlertDialog>
@@ -309,68 +259,60 @@ export default function CampaignAbTestPage() {
       </div>
 
       {variantA === variantB && (
-        <p className="text-[12px] text-zoru-danger">
-          Variants A and B must use different templates.
-        </p>
+        <p className="mt-3 text-[12px] text-rose-600">Variants A and B must use different templates.</p>
       )}
 
       {results && (
-        <Card className="p-5">
-          <h2 className="mb-4 flex items-center gap-2 text-sm text-zoru-ink">
-            <ChartBar className="h-4 w-4" /> Results
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {results.map((r) => {
-              const otherR = results.find((x) => x.variant !== r.variant);
-              const isWinner = otherR
-                ? r.replied / r.sent >= otherR.replied / otherR.sent
-                : false;
-              return (
-                <div
-                  key={r.variant}
-                  className={cn(
-                    'rounded-[var(--zoru-radius)] border p-4',
-                    isWinner
-                      ? 'border-zoru-success/40 bg-zoru-success/5'
-                      : 'border-zoru-line',
-                  )}
-                >
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-sm text-zoru-ink">
-                      Variant {r.variant}:{' '}
-                      {r.variant === 'A' ? variantA : variantB}
-                    </h3>
-                    {isWinner && <Badge variant="success">Winner</Badge>}
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div>
-                      <p className="text-[18px] text-zoru-ink">{r.sent}</p>
-                      <p className="text-[11px] text-zoru-ink-muted">Sent</p>
+        <div className="mt-4">
+          <Section
+            title={
+              <span className="inline-flex items-center gap-2">
+                <ChartBar className="h-4 w-4" strokeWidth={2.25} aria-hidden /> Results
+              </span>
+            }
+          >
+            <div className="grid gap-4 sm:grid-cols-2">
+              {results.map((r) => {
+                const otherR = results.find((x) => x.variant !== r.variant);
+                const isWinner = otherR ? r.replied / r.sent >= otherR.replied / otherR.sent : false;
+                return (
+                  <m.div
+                    key={r.variant}
+                    initial={reduce ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: EASE_OUT }}
+                    className={cn(
+                      'rounded-2xl border p-4',
+                      isWinner ? 'border-emerald-200 bg-emerald-50/60' : 'border-zinc-200',
+                    )}
+                  >
+                    <div className="mb-3 flex items-center justify-between">
+                      <h3 className="text-[13.5px] font-semibold text-zinc-900">
+                        Variant {r.variant}: {r.variant === 'A' ? variantA : variantB}
+                      </h3>
+                      {isWinner && <StatusPill tone="sent">Winner</StatusPill>}
                     </div>
-                    <div>
-                      <p className="text-[18px] text-zoru-ink">
-                        {pct(r.opened, r.sent)}
-                      </p>
-                      <p className="text-[11px] text-zoru-ink-muted">
-                        Open rate
-                      </p>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-[20px] font-semibold tabular-nums text-zinc-900">{r.sent}</p>
+                        <p className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Sent</p>
+                      </div>
+                      <div>
+                        <p className="text-[20px] font-semibold tabular-nums text-zinc-900">{pct(r.opened, r.sent)}</p>
+                        <p className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Open rate</p>
+                      </div>
+                      <div>
+                        <p className="text-[20px] font-semibold tabular-nums text-zinc-900">{pct(r.replied, r.sent)}</p>
+                        <p className="text-[10.5px] uppercase tracking-[0.08em] text-zinc-500">Reply rate</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[18px] text-zoru-ink">
-                        {pct(r.replied, r.sent)}
-                      </p>
-                      <p className="text-[11px] text-zoru-ink-muted">
-                        Reply rate
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+                  </m.div>
+                );
+              })}
+            </div>
+          </Section>
+        </div>
       )}
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

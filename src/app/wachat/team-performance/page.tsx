@@ -1,53 +1,8 @@
 'use client';
 
-import {
-  useZoruToast,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuTrigger,
-  EmptyState,
-  Progress,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Skeleton,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Tooltip,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
-} from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
   AlertTriangle,
-  ChevronDown,
   Eye,
   MessageSquare,
   RefreshCw,
@@ -55,27 +10,45 @@ import {
   Timer,
   Trophy,
   Users,
-  } from 'lucide-react';
+} from 'lucide-react';
+import { m } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  MetricTile,
+  Section,
+  EmptyState,
+  Tabs,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import {
+  useZoruToast,
+  Sheet,
+  ZoruSheetContent,
+  ZoruSheetDescription,
+  ZoruSheetHeader,
+  ZoruSheetTitle,
+  Tooltip,
+  ZoruTooltipProvider,
+  ZoruTooltipTrigger,
+  ZoruTooltipContent,
+} from '@/components/zoruui';
 
 /**
- * Wachat Team Performance — ZoruUI rebuild.
- *
- * Team leaderboard + agent stat tiles + time-range dropdown
- * + per-agent drill-in sheet. Gamification and statistical significance included.
+ * Wachat Team Performance - agent leaderboard rebuilt on wachat-ui chrome.
  */
-
-import * as React from 'react';
 
 type TimeRange = '7d' | '30d' | '90d';
 
-const TIME_RANGE_LABELS: Record<TimeRange, string> = {
-  '7d': 'Last 7 days',
-  '30d': 'Last 30 days',
-  '90d': 'Last 90 days',
-};
+const RANGE_TABS = [
+  { id: '7d', label: '7 days' },
+  { id: '30d', label: '30 days' },
+  { id: '90d', label: '90 days' },
+];
 
 function formatResponseTime(ms: number | null | undefined): string {
   if (!ms) return '--';
@@ -94,6 +67,10 @@ export default function TeamPerformancePage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [drillAgent, setDrillAgent] = useState<any | null>(null);
 
+  useEffect(() => {
+    document.title = 'Team performance · Wachat';
+  }, []);
+
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
     startTransition(async () => {
@@ -103,40 +80,28 @@ export default function TeamPerformancePage() {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
       } else {
         const enhanced = (res.performance ?? []).map((a: any) => {
-          // Generate deterministic values for mock stats if not present
           const stringToHash = (str: string) => {
             let hash = 0;
-            for (let i = 0; i < str.length; i++) hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+            for (let i = 0; i < str.length; i++) hash = (Math.imul(31, hash) + str.charCodeAt(i)) | 0;
             return Math.abs(hash);
           };
           const h = stringToHash(a.agentName || 'unknown');
-          
-          // csat score 60-100
+
           const csatScore = a.csatScore ?? (60 + (h % 41));
-          // some have low sample size < 30
           const csatReviews = a.csatReviews ?? (h % 100);
-          
-          // Gamification points: 10 per message - avg_resp_in_sec
-          const responseTimeSec = Math.floor((a.avgResponseMs || 0)/1000);
-          const points = Math.max(0, ((a.messagesSent || 0) * 10) - responseTimeSec);
 
-          const badges = [];
-          if (responseTimeSec > 0 && responseTimeSec < 60) badges.push({ label: 'Speed Demon', variant: 'success' });
-          if ((a.messagesSent || 0) > 50) badges.push({ label: 'Volume King', variant: 'default' });
-          if (csatScore > 90 && csatReviews >= 30) badges.push({ label: 'Customer Favorite', variant: 'secondary' });
+          const responseTimeSec = Math.floor((a.avgResponseMs || 0) / 1000);
+          const points = Math.max(0, (a.messagesSent || 0) * 10 - responseTimeSec);
 
-          return {
-            ...a,
-            csatScore,
-            csatReviews,
-            points,
-            badges
-          };
+          const badges: { label: string; tone: 'emerald' | 'sky' | 'zinc' }[] = [];
+          if (responseTimeSec > 0 && responseTimeSec < 60) badges.push({ label: 'Speed demon', tone: 'emerald' });
+          if ((a.messagesSent || 0) > 50) badges.push({ label: 'Volume king', tone: 'sky' });
+          if (csatScore > 90 && csatReviews >= 30) badges.push({ label: 'Customer favorite', tone: 'zinc' });
+
+          return { ...a, csatScore, csatReviews, points, badges };
         });
 
-        const sorted = enhanced.sort(
-          (a: any, b: any) => (b.points ?? 0) - (a.points ?? 0),
-        );
+        const sorted = enhanced.sort((a: any, b: any) => (b.points ?? 0) - (a.points ?? 0));
         setAgents(sorted);
       }
     });
@@ -148,212 +113,178 @@ export default function TeamPerformancePage() {
 
   const maxPoints = Math.max(1, ...agents.map((a) => a.points ?? 0));
   const totalMessages = agents.reduce((s, a) => s + (a.messagesSent ?? 0), 0);
-  const avgResp = agents.length
-    ? agents.reduce((s, a) => s + (a.avgResponseMs || 0), 0) / agents.length
-    : 0;
+  const avgResp = agents.length ? agents.reduce((s, a) => s + (a.avgResponseMs || 0), 0) / agents.length : 0;
   const topAgent = agents[0];
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Team Performance</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Team Performance
-          </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
-            Agent activity — messages sent, average response time, and gamified performance.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                {TIME_RANGE_LABELS[timeRange]}
-                <ChevronDown className="opacity-60" />
-              </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuRadioGroup
-                value={timeRange}
-                onValueChange={(v) => setTimeRange(v as TimeRange)}
-              >
-                <ZoruDropdownMenuRadioItem value="7d">Last 7 days</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="30d">Last 30 days</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="90d">Last 90 days</ZoruDropdownMenuRadioItem>
-              </ZoruDropdownMenuRadioGroup>
-            </ZoruDropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={fetchData} disabled={isPending}>
-            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </Button>
-        </div>
-      </div>
+    <WaPage>
+      <PageHeader
+        title="Team performance"
+        kicker="Performance"
+        description="Agent activity, response times, and gamified leaderboard points."
+        eyebrowIcon={Trophy}
+        actions={
+          <>
+            <Tabs
+              items={RANGE_TABS}
+              active={timeRange}
+              onChange={(id) => setTimeRange(id as TimeRange)}
+              layoutId="team-range"
+            />
+            <WaButton variant="outline" size="sm" onClick={fetchData} disabled={isPending} leftIcon={RefreshCw}>
+              Refresh
+            </WaButton>
+          </>
+        }
+      />
 
       {isPending && agents.length === 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
+            <div key={i} className="h-[118px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Active Agents"
-            value={agents.length.toLocaleString()}
-            icon={<Users />}
-          />
-          <StatCard
-            label="Total Messages"
-            value={totalMessages.toLocaleString()}
-            icon={<MessageSquare />}
-          />
-          <StatCard
-            label="Avg Response"
-            value={formatResponseTime(avgResp)}
-            icon={<Timer />}
-            period="Lower is better"
-          />
-          <StatCard
-            label="Top Agent"
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <MetricTile label="Active agents" value={agents.length.toLocaleString()} icon={Users} delay={0.02} />
+          <MetricTile label="Total messages" value={totalMessages.toLocaleString()} icon={MessageSquare} delay={0.06} />
+          <MetricTile label="Avg response" value={formatResponseTime(avgResp)} icon={Timer} delay={0.1} />
+          <MetricTile
+            label="Top agent"
             value={topAgent?.agentName ?? '--'}
-            period={
+            delta={
               topAgent
-                ? `${(topAgent.points ?? 0).toLocaleString()} pts`
-                : 'No data'
+                ? { value: `${(topAgent.points ?? 0).toLocaleString()} pts`, positive: true }
+                : undefined
             }
+            icon={Trophy}
+            delay={0.14}
           />
         </div>
       )}
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Agent Leaderboard</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          {isPending && agents.length === 0 ? (
-            <div className="space-y-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-10" />
-              ))}
-            </div>
-          ) : agents.length === 0 ? (
+      <Section title="Agent leaderboard" description="Ranked by gamification points." padded={false}>
+        {isPending && agents.length === 0 ? (
+          <div className="space-y-2 p-5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-10 animate-pulse rounded-xl bg-zinc-50" />
+            ))}
+          </div>
+        ) : agents.length === 0 ? (
+          <div className="p-6">
             <EmptyState
-              icon={<Users />}
+              icon={Users}
               title="No agent activity"
-              description="Agent leaderboard will populate once your team starts sending messages."
+              description="Leaderboard populates once your team starts handling chats."
             />
-          ) : (
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead className="w-[1%]">#</ZoruTableHead>
-                  <ZoruTableHead>Agent</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Points</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Messages</ZoruTableHead>
-                  <ZoruTableHead>Avg Response</ZoruTableHead>
-                  <ZoruTableHead>CSAT</ZoruTableHead>
-                  <ZoruTableHead className="w-[25%]">Activity</ZoruTableHead>
-                  <ZoruTableHead className="w-[1%]" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12.5px]">
+              <thead>
+                <tr className="border-b border-zinc-100 text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
+                  <th className="px-5 py-2.5 text-left">#</th>
+                  <th className="px-5 py-2.5 text-left">Agent</th>
+                  <th className="px-5 py-2.5 text-right">Points</th>
+                  <th className="px-5 py-2.5 text-right">Messages</th>
+                  <th className="px-5 py-2.5 text-left">Avg response</th>
+                  <th className="px-5 py-2.5 text-left">CSAT</th>
+                  <th className="px-5 py-2.5 text-left">Activity</th>
+                  <th className="px-5 py-2.5" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
                 {agents.map((a, i) => {
-                  const value =
-                    ((a.points ?? 0) / maxPoints) * 100;
+                  const value = ((a.points ?? 0) / maxPoints) * 100;
                   const isSignificant = a.csatReviews >= 30;
                   return (
-                    <ZoruTableRow key={a._id}>
-                      <ZoruTableCell className="text-zoru-ink-muted tabular-nums">
-                        {i + 1}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-medium">
+                    <tr key={a._id} className="hover:bg-zinc-50">
+                      <td className="px-5 py-3 tabular-nums text-zinc-500">{i + 1}</td>
+                      <td className="px-5 py-3">
                         <div className="flex flex-col gap-1.5">
-                          <span className="inline-flex items-center gap-2">
+                          <span className="inline-flex items-center gap-2 font-medium text-zinc-900">
                             {a.agentName}
-                            {i === 0 && (
-                              <Trophy size={14} className="text-zoru-ink" />
-                            )}
+                            {i === 0 && <Trophy size={14} className="text-amber-500" strokeWidth={2} />}
                           </span>
-                          <div className="flex flex-wrap gap-1">
-                            {i === 0 && <Badge variant="success" className="h-[18px] text-[10px] px-1.5 font-medium">Top Agent</Badge>}
-                            {a.badges?.map((b: any, bi: number) => (
-                              <Badge key={bi} variant={b.variant} className="h-[18px] text-[10px] px-1.5 font-medium">{b.label}</Badge>
-                            ))}
-                          </div>
+                          {(i === 0 || a.badges?.length) && (
+                            <div className="flex flex-wrap gap-1">
+                              {i === 0 && (
+                                <span
+                                  className="rounded-full px-1.5 py-0.5 text-[10px] font-semibold"
+                                  style={{ background: 'var(--mt-accent-soft)', color: 'var(--mt-accent)' }}
+                                >
+                                  Top agent
+                                </span>
+                              )}
+                              {a.badges?.map((b: any, bi: number) => (
+                                <span
+                                  key={bi}
+                                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                                    b.tone === 'emerald'
+                                      ? 'bg-emerald-50 text-emerald-700'
+                                      : b.tone === 'sky'
+                                      ? 'bg-sky-50 text-sky-700'
+                                      : 'bg-zinc-100 text-zinc-700'
+                                  }`}
+                                >
+                                  {b.label}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right tabular-nums font-mono font-bold text-zoru-ink">
+                      </td>
+                      <td className="px-5 py-3 text-right font-mono font-bold tabular-nums text-zinc-950">
                         {(a.points ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right tabular-nums font-mono">
+                      </td>
+                      <td className="px-5 py-3 text-right font-mono tabular-nums text-zinc-900">
                         {(a.messagesSent ?? 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted tabular-nums">
-                        {formatResponseTime(a.avgResponseMs)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="tabular-nums">
-                        <div className="flex items-center gap-1">
-                          <span className={isSignificant ? 'text-zoru-ink' : 'text-zoru-ink-muted'}>
-                            {a.csatScore}%
-                          </span>
-                          {!isSignificant && (
+                      </td>
+                      <td className="px-5 py-3 tabular-nums text-zinc-600">{formatResponseTime(a.avgResponseMs)}</td>
+                      <td className="px-5 py-3 tabular-nums">
+                        <div className="flex items-center gap-1.5">
+                          <span className={isSignificant ? 'text-zinc-900' : 'text-zinc-500'}>{a.csatScore}%</span>
+                          {!isSignificant ? (
                             <ZoruTooltipProvider>
                               <Tooltip>
                                 <ZoruTooltipTrigger asChild>
-                                  <AlertTriangle size={14} className="text-zoru-ink cursor-help" />
+                                  <AlertTriangle size={12} className="cursor-help text-amber-500" />
                                 </ZoruTooltipTrigger>
                                 <ZoruTooltipContent>
                                   Not statistically significant (n = {a.csatReviews} &lt; 30)
                                 </ZoruTooltipContent>
                               </Tooltip>
                             </ZoruTooltipProvider>
-                          )}
-                          {isSignificant && (
-                            <span className="text-xs text-zoru-ink-muted ml-1">
-                              (n={a.csatReviews})
-                            </span>
+                          ) : (
+                            <span className="text-[11px] text-zinc-500">(n={a.csatReviews})</span>
                           )}
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        <Progress value={value} className="h-2" />
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDrillAgent(a)}
-                        >
-                          <Eye /> View
-                        </Button>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </td>
+                      <td className="px-5 py-3">
+                        <div className="h-2 w-32 overflow-hidden rounded-full bg-zinc-100">
+                          <m.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${value}%` }}
+                            transition={{ duration: 0.5, ease: EASE_OUT }}
+                            className="h-full rounded-full"
+                            style={{ background: 'var(--mt-accent)' }}
+                          />
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <WaButton variant="ghost" size="sm" onClick={() => setDrillAgent(a)} leftIcon={Eye}>
+                          View
+                        </WaButton>
+                      </td>
+                    </tr>
                   );
                 })}
-              </ZoruTableBody>
-            </Table>
-          )}
-        </ZoruCardContent>
-      </Card>
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
 
-      {/* Per-agent drill-in sheet */}
       <Sheet
         open={!!drillAgent}
         onOpenChange={(open) => {
@@ -363,44 +294,33 @@ export default function TeamPerformancePage() {
         <ZoruSheetContent side="right">
           <ZoruSheetHeader>
             <ZoruSheetTitle>{drillAgent?.agentName ?? 'Agent'}</ZoruSheetTitle>
-            <ZoruSheetDescription>
-              Detailed performance for this team member.
-            </ZoruSheetDescription>
+            <ZoruSheetDescription>Detailed performance for this team member.</ZoruSheetDescription>
           </ZoruSheetHeader>
           {drillAgent && (
             <div className="mt-6 flex flex-col gap-6">
               <div className="grid grid-cols-2 gap-3">
-                <StatCard
-                  label="Points Earned"
-                  value={(drillAgent.points ?? 0).toLocaleString()}
-                  icon={<Trophy />}
-                />
-                <StatCard
-                  label="CSAT Score"
+                <MetricTile label="Points earned" value={(drillAgent.points ?? 0).toLocaleString()} icon={Trophy} />
+                <MetricTile
+                  label="CSAT score"
                   value={`${drillAgent.csatScore}%`}
-                  icon={<Star />}
-                  period={`${drillAgent.csatReviews} reviews`}
+                  icon={Star}
+                  delta={{ value: `${drillAgent.csatReviews} reviews`, positive: true }}
                 />
-                <StatCard
-                  label="Messages Sent"
+                <MetricTile
+                  label="Messages sent"
                   value={(drillAgent.messagesSent ?? 0).toLocaleString()}
-                  icon={<MessageSquare />}
+                  icon={MessageSquare}
                 />
-                <StatCard
-                  label="Avg Response"
-                  value={formatResponseTime(drillAgent.avgResponseMs)}
-                  icon={<Timer />}
-                  period="Lower is better"
-                />
+                <MetricTile label="Avg response" value={formatResponseTime(drillAgent.avgResponseMs)} icon={Timer} />
                 {typeof drillAgent.totalConversations === 'number' && (
-                  <StatCard
+                  <MetricTile
                     label="Conversations"
                     value={drillAgent.totalConversations.toLocaleString()}
-                    icon={<Users />}
+                    icon={Users}
                   />
                 )}
-                <StatCard
-                  label="Share of Volume"
+                <MetricTile
+                  label="Share of volume"
                   value={`${Math.round(
                     ((drillAgent.messagesSent ?? 0) / Math.max(totalMessages, 1)) * 100,
                   )}%`}
@@ -408,13 +328,22 @@ export default function TeamPerformancePage() {
               </div>
 
               {drillAgent.badges && drillAgent.badges.length > 0 && (
-                <div className="rounded-lg border bg-zoru-surface text-zoru-ink shadow-sm p-4">
-                  <h3 className="font-medium mb-3">Earned Badges</h3>
+                <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+                  <h3 className="mb-3 text-[13px] font-semibold text-zinc-900">Earned badges</h3>
                   <div className="flex flex-wrap gap-2">
                     {drillAgent.badges.map((b: any, bi: number) => (
-                      <Badge key={bi} variant={b.variant} className="px-2 py-1">
+                      <span
+                        key={bi}
+                        className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${
+                          b.tone === 'emerald'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : b.tone === 'sky'
+                            ? 'bg-sky-50 text-sky-700'
+                            : 'bg-zinc-100 text-zinc-700'
+                        }`}
+                      >
                         {b.label}
-                      </Badge>
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -423,8 +352,6 @@ export default function TeamPerformancePage() {
           )}
         </ZoruSheetContent>
       </Sheet>
-
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

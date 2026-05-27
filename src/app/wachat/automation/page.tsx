@@ -9,41 +9,19 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-  EmptyState,
   Input,
   Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruRadioCard,
-  RadioGroup,
-  Separator,
   Switch,
   Textarea,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import {
   Bot,
   MessageCircle,
@@ -53,25 +31,25 @@ import {
   Sparkles,
   Terminal,
   Trash2,
-  } from 'lucide-react';
+} from 'lucide-react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import {
   getConversationalAutomation,
   handleDeleteConversationalAutomation,
   handleUpdateConversationalAutomation,
-  } from '@/app/actions/whatsapp.actions';
-
-/**
- * /wachat/automation — Conversational AI overview (ZoruUI).
- *
- * Wraps Meta's native conversational_automation API: welcome message,
- * ice-breaker prompts, slash commands. Same data + handlers as before.
- *
- * Phase 6 visual swap. Model picker / fallback rendered as ZoruRadioCard.
- */
-
-import * as React from 'react';
+} from '@/app/actions/whatsapp.actions';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  EmptyState,
+  PhoneFrame,
+  ChatBubble,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 const MODEL_OPTIONS = [
   {
@@ -90,8 +68,12 @@ export default function AutomationPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
+  const reduced = useReducedMotion();
 
   const [welcomeEnabled, setWelcomeEnabled] = useState(false);
+  const [welcomeText, setWelcomeText] = useState(
+    'Hi there! Thanks for reaching out. How can we help today?',
+  );
   const [prompts, setPrompts] = useState<string[]>([]);
   const [newPrompt, setNewPrompt] = useState('');
   const [commands, setCommands] = useState<
@@ -113,7 +95,6 @@ export default function AutomationPage() {
         selectedPhoneId,
       );
       if (result.error) {
-        // not yet configured is OK
         // eslint-disable-next-line no-console
         console.warn('Automation fetch:', result.error);
       } else if (result.automation) {
@@ -204,277 +185,316 @@ export default function AutomationPage() {
     setCommands(commands.filter((_, i) => i !== index));
   };
 
-  return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Automation</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+  const previewSubtitle = useMemo(() => {
+    return activeProject?.name ? `${activeProject.name} preview` : 'Live preview';
+  }, [activeProject?.name]);
 
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageTitle>Conversational Automation</ZoruPageTitle>
-          <ZoruPageDescription>
-            Configure Meta&apos;s native automation features: welcome messages,
-            ice breakers, and chat commands.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchAutomation}
-            disabled={isPending}
-          >
-            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setTrainOpen(true)}
-            disabled={!selectedPhoneId}
-          >
-            <Sparkles /> Train
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={isPending || !selectedPhoneId}>
-            <Save /> Save
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
+  return (
+    <WaPage>
+      <PageHeader
+        title="Conversational automation"
+        description="Configure Meta's native welcome message, ice-breaker prompts, and slash commands. Customers see them the first time they tap into your chat."
+        kicker="Wachat"
+        eyebrowIcon={Bot}
+        backHref="/wachat"
+        actions={
+          <>
+            <WaButton variant="outline" size="sm" leftIcon={RefreshCw} onClick={fetchAutomation} disabled={isPending}>
+              Refresh
+            </WaButton>
+            <WaButton variant="outline" size="sm" leftIcon={Sparkles} onClick={() => setTrainOpen(true)} disabled={!selectedPhoneId}>
+              Train
+            </WaButton>
+            <WaButton leftIcon={Save} onClick={handleSave} disabled={isPending || !selectedPhoneId}>
+              Save
+            </WaButton>
+          </>
+        }
+      />
 
       {!selectedPhoneId ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={<Bot />}
-            title="No phone number connected"
-            description="Select a project with a configured WhatsApp phone number to manage automation."
-          />
-        </div>
+        <EmptyState
+          icon={Bot}
+          title="No phone number connected"
+          description="Select a project with a configured WhatsApp number to manage conversational automation."
+        />
       ) : (
-        <>
-          {/* Model picker */}
-          <Card className="mt-6 p-5">
-            <h2 className="text-[15px] text-zoru-ink">Model</h2>
-            <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
-              Pick the engine that powers this project&apos;s automation.
-            </p>
-            <RadioGroup
-              value={model}
-              onValueChange={setModel}
-              className="mt-4 grid gap-3 sm:grid-cols-2"
-            >
-              {MODEL_OPTIONS.map((opt) => (
-                <ZoruRadioCard
-                  key={opt.value}
-                  value={opt.value}
-                  label={opt.label}
-                  description={opt.description}
-                />
-              ))}
-            </RadioGroup>
-          </Card>
-
-          {/* Welcome */}
-          <Card className="mt-6 p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-                <MessageCircle />
-              </span>
-              <div>
-                <h2 className="text-[14px] text-zoru-ink leading-tight">
-                  Welcome message
-                </h2>
-                <p className="text-[12px] text-zoru-ink-muted leading-tight">
-                  Automatically greet customers when they start a conversation.
-                </p>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+          {/* LEFT — config */}
+          <div className="flex flex-col gap-6">
+            {/* Model */}
+            <Section title="Engine" description="Pick which model powers this project's replies.">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {MODEL_OPTIONS.map((opt) => {
+                  const active = model === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setModel(opt.value)}
+                      className={`rounded-xl border p-4 text-left transition-[transform,border-color,box-shadow] duration-150 active:scale-[0.97] ${
+                        active
+                          ? 'border-transparent shadow-[0_18px_40px_-22px_var(--mt-accent-glow)]'
+                          : 'border-zinc-200 hover:border-zinc-300'
+                      }`}
+                      style={
+                        active
+                          ? {
+                              outline: '1.5px solid var(--mt-accent)',
+                              outlineOffset: '-1.5px',
+                              background: 'var(--mt-accent-soft)',
+                            }
+                          : undefined
+                      }
+                    >
+                      <p className="text-[13.5px] font-semibold tracking-tight text-zinc-950">{opt.label}</p>
+                      <p className="mt-1 text-[12px] leading-relaxed text-zinc-600">{opt.description}</p>
+                    </button>
+                  );
+                })}
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                id="welcome-enabled"
-                checked={welcomeEnabled}
-                onCheckedChange={setWelcomeEnabled}
+            </Section>
+
+            {/* Welcome */}
+            <Section
+              title="Welcome message"
+              description="Automatically greets a customer when they open the chat for the first time."
+              action={
+                <ToggleSwitch
+                  checked={welcomeEnabled}
+                  onCheckedChange={setWelcomeEnabled}
+                  reduced={!!reduced}
+                  ariaLabel="Enable welcome message"
+                />
+              }
+            >
+              <Textarea
+                value={welcomeText}
+                onChange={(e) => setWelcomeText(e.target.value)}
+                rows={3}
+                placeholder="Type the welcome message customers will see."
+                className="rounded-xl"
+                disabled={!welcomeEnabled}
               />
-              <Label htmlFor="welcome-enabled">Enable welcome message</Label>
-            </div>
-          </Card>
+            </Section>
 
-          {/* Ice breakers */}
-          <Card className="mt-6 p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-                <Sparkles />
-              </span>
-              <div>
-                <h2 className="text-[14px] text-zoru-ink leading-tight">
-                  Ice breakers
-                </h2>
-                <p className="text-[12px] text-zoru-ink-muted leading-tight">
-                  Suggested prompts shown when customers first open the chat (max 4).
-                </p>
-              </div>
-              <Badge variant="outline" className="ml-auto">
-                {prompts.length}/4
-              </Badge>
-            </div>
-
-            {prompts.length > 0 && (
-              <ul className="mb-3 space-y-2">
-                {prompts.map((prompt, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
-                  >
-                    <span className="flex-1 text-sm text-zoru-ink">{prompt}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => removePrompt(i)}
-                      aria-label="Remove prompt"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {prompts.length < 4 && (
-              <div className="flex gap-2">
-                <Input
-                  value={newPrompt}
-                  onChange={(e) => setNewPrompt(e.target.value)}
-                  placeholder="Add an ice breaker prompt…"
-                  maxLength={80}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addPrompt();
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={addPrompt}
-                  disabled={!newPrompt.trim()}
-                  aria-label="Add prompt"
-                >
-                  <Plus />
-                </Button>
-              </div>
-            )}
-          </Card>
-
-          {/* Commands */}
-          <Card className="mt-6 p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
-                <Terminal />
-              </span>
-              <div>
-                <h2 className="text-[14px] text-zoru-ink leading-tight">
-                  Chat commands
-                </h2>
-                <p className="text-[12px] text-zoru-ink-muted leading-tight">
-                  Slash commands customers can use in chat (max 30).
-                </p>
-              </div>
-              <Badge variant="outline" className="ml-auto">
-                {commands.length}/30
-              </Badge>
-            </div>
-
-            {commands.length > 0 && (
-              <ul className="mb-3 space-y-2">
-                {commands.map((cmd, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 py-2"
-                  >
-                    <span className="font-mono text-sm text-zoru-ink">
-                      /{cmd.command_name}
-                    </span>
-                    <span className="flex-1 truncate text-sm text-zoru-ink-muted">
-                      {cmd.command_description}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => removeCommand(i)}
-                      aria-label="Remove command"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {commands.length < 30 && (
-              <div className="flex gap-2">
-                <Input
-                  value={newCommandName}
-                  onChange={(e) =>
-                    setNewCommandName(
-                      e.target.value.replace(/[^a-z0-9_]/gi, '').toLowerCase(),
-                    )
-                  }
-                  placeholder="command_name"
-                  className="w-44 font-mono"
-                />
-                <Input
-                  value={newCommandDesc}
-                  onChange={(e) => setNewCommandDesc(e.target.value)}
-                  placeholder="Description of the command…"
-                  className="flex-1"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addCommand();
-                    }
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={addCommand}
-                  disabled={!newCommandName.trim() || !newCommandDesc.trim()}
-                  aria-label="Add command"
-                >
-                  <Plus />
-                </Button>
-              </div>
-            )}
-          </Card>
-
-          <Separator className="my-6" />
-
-          <div className="flex items-center justify-between">
-            <p className="text-[12px] text-zoru-ink-muted">
-              Reset clears all welcome, ice-breaker and command configuration on Meta.
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setResetOpen(true)}
-              disabled={isPending}
+            {/* Ice breakers */}
+            <Section
+              title="Ice breakers"
+              description="Up to four suggested prompts shown when a chat is empty."
+              action={
+                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-semibold tabular-nums text-zinc-600">
+                  {prompts.length}/4
+                </span>
+              }
             >
-              Reset automation
-            </Button>
+              <AnimatePresence initial={false}>
+                {prompts.length > 0 && (
+                  <ul className="mb-3 space-y-2">
+                    {prompts.map((prompt, i) => (
+                      <m.li
+                        key={prompt + i}
+                        layout
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: 12 }}
+                        transition={{ duration: 0.22, ease: EASE_OUT }}
+                        className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                      >
+                        <Sparkles className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                        <span className="flex-1 truncate text-[13px] text-zinc-800">{prompt}</span>
+                        <button
+                          type="button"
+                          onClick={() => removePrompt(i)}
+                          className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-rose-600 active:scale-[0.97]"
+                          aria-label="Remove prompt"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                        </button>
+                      </m.li>
+                    ))}
+                  </ul>
+                )}
+              </AnimatePresence>
+
+              {prompts.length < 4 && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={newPrompt}
+                    onChange={(e) => setNewPrompt(e.target.value)}
+                    placeholder="Add an ice-breaker prompt"
+                    maxLength={80}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addPrompt();
+                      }
+                    }}
+                    className="rounded-xl"
+                  />
+                  <WaButton variant="outline" size="sm" leftIcon={Plus} onClick={addPrompt} disabled={!newPrompt.trim()}>
+                    Add
+                  </WaButton>
+                </div>
+              )}
+            </Section>
+
+            {/* Commands */}
+            <Section
+              title="Chat commands"
+              description="Slash commands customers can type in chat (max 30)."
+              action={
+                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-semibold tabular-nums text-zinc-600">
+                  {commands.length}/30
+                </span>
+              }
+            >
+              <AnimatePresence initial={false}>
+                {commands.length > 0 && (
+                  <ul className="mb-3 space-y-2">
+                    {commands.map((cmd, i) => (
+                      <m.li
+                        key={cmd.command_name + i}
+                        layout
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: 12 }}
+                        transition={{ duration: 0.22, ease: EASE_OUT }}
+                        className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                      >
+                        <Terminal className="h-3.5 w-3.5 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                        <span className="font-mono text-[12.5px] font-semibold text-zinc-900">/{cmd.command_name}</span>
+                        <span className="flex-1 truncate text-[12.5px] text-zinc-500">{cmd.command_description}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeCommand(i)}
+                          className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-rose-600 active:scale-[0.97]"
+                          aria-label="Remove command"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+                        </button>
+                      </m.li>
+                    ))}
+                  </ul>
+                )}
+              </AnimatePresence>
+
+              {commands.length < 30 && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={newCommandName}
+                    onChange={(e) =>
+                      setNewCommandName(e.target.value.replace(/[^a-z0-9_]/gi, '').toLowerCase())
+                    }
+                    placeholder="command_name"
+                    className="w-44 rounded-xl font-mono"
+                  />
+                  <Input
+                    value={newCommandDesc}
+                    onChange={(e) => setNewCommandDesc(e.target.value)}
+                    placeholder="Description of the command"
+                    className="flex-1 rounded-xl"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCommand();
+                      }
+                    }}
+                  />
+                  <WaButton
+                    variant="outline"
+                    size="sm"
+                    leftIcon={Plus}
+                    onClick={addCommand}
+                    disabled={!newCommandName.trim() || !newCommandDesc.trim()}
+                  >
+                    Add
+                  </WaButton>
+                </div>
+              )}
+            </Section>
+
+            <div className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+              <p className="text-[12.5px] text-zinc-600">
+                Resetting clears every welcome, ice-breaker, and command on Meta for this number.
+              </p>
+              <WaButton variant="outline" size="sm" onClick={() => setResetOpen(true)} disabled={isPending}>
+                Reset automation
+              </WaButton>
+            </div>
           </div>
-        </>
+
+          {/* RIGHT — phone preview */}
+          <div className="lg:sticky lg:top-6 lg:self-start">
+            <PhoneFrame title={activeProject?.name ?? 'Your business'} subtitle={previewSubtitle}>
+              <AnimatePresence initial={false}>
+                {welcomeEnabled && welcomeText.trim() && (
+                  <m.div key="welcome" layout>
+                    <ChatBubble who="them" text={welcomeText} time="9:41" />
+                  </m.div>
+                )}
+                {prompts.length > 0 && (
+                  <m.div
+                    key="prompts"
+                    layout
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                    className="flex flex-wrap gap-1.5 pt-1"
+                  >
+                    {prompts.map((p, i) => (
+                      <m.span
+                        key={p + i}
+                        layout
+                        initial={{ opacity: 0, scale: 0.92 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 28, delay: i * 0.04 }}
+                        className="rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-100"
+                      >
+                        {p}
+                      </m.span>
+                    ))}
+                  </m.div>
+                )}
+                {commands.length > 0 && (
+                  <m.div
+                    key="cmds"
+                    layout
+                    className="mt-1 flex flex-wrap gap-1.5"
+                    transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                  >
+                    {commands.slice(0, 4).map((c, i) => (
+                      <m.span
+                        key={c.command_name + i}
+                        layout
+                        initial={{ opacity: 0, scale: 0.92 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.92 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 28, delay: i * 0.04 }}
+                        className="rounded-full bg-white/10 px-2 py-0.5 font-mono text-[10.5px] text-emerald-100"
+                      >
+                        /{c.command_name}
+                      </m.span>
+                    ))}
+                  </m.div>
+                )}
+                {!welcomeEnabled && prompts.length === 0 && commands.length === 0 && (
+                  <ChatBubble
+                    key="empty"
+                    who="them"
+                    text="Toggle the welcome message on the left to see it appear here."
+                    time="9:41"
+                  />
+                )}
+              </AnimatePresence>
+            </PhoneFrame>
+            <p className="mt-3 text-center text-[11.5px] text-zinc-500">
+              Preview updates as you edit. Customers see this inside WhatsApp.
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Train dialog */}
@@ -483,42 +503,33 @@ export default function AutomationPage() {
           <ZoruDialogHeader>
             <ZoruDialogTitle>Train conversational AI</ZoruDialogTitle>
             <ZoruDialogDescription>
-              Add training samples that teach the AI how to respond. Saved samples
-              will be available next time the assistant runs.
+              Add training samples that teach the AI how to respond. Saved samples become
+              available the next time the assistant runs.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="space-y-3">
             <div className="grid gap-2">
               <Label htmlFor="train-question">Sample question</Label>
-              <Input
-                id="train-question"
-                placeholder="What are your business hours?"
-              />
+              <Input id="train-question" placeholder="What are your business hours?" className="rounded-xl" />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="train-answer">Ideal answer</Label>
-              <Textarea
-                id="train-answer"
-                placeholder="We're open Mon–Fri, 9am–6pm IST."
-                rows={3}
-              />
+              <Textarea id="train-answer" placeholder="We are open Mon to Fri, 9am to 6pm IST." rows={3} className="rounded-xl" />
             </div>
           </div>
           <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setTrainOpen(false)}>
+            <WaButton variant="ghost" size="sm" onClick={() => setTrainOpen(false)}>
               Cancel
-            </Button>
-            <Button
+            </WaButton>
+            <WaButton
+              size="sm"
               onClick={() => {
-                toast({
-                  title: 'Saved',
-                  description: 'Training sample queued.',
-                });
+                toast({ title: 'Saved', description: 'Training sample queued.' });
                 setTrainOpen(false);
               }}
             >
               Save sample
-            </Button>
+            </WaButton>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
@@ -529,24 +540,52 @@ export default function AutomationPage() {
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Reset automation?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              All welcome messages, ice breakers and slash commands will be cleared
-              from Meta for this number. This cannot be undone.
+              All welcome messages, ice breakers and slash commands will be cleared from Meta for
+              this number. This cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel disabled={isPending}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              destructive
-              onClick={handleReset}
-              disabled={isPending}
-            >
-              {isPending ? 'Resetting…' : 'Yes, reset'}
+            <ZoruAlertDialogAction destructive onClick={handleReset} disabled={isPending}>
+              {isPending ? 'Resetting...' : 'Yes, reset'}
             </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
+    </WaPage>
+  );
+}
 
-      <div className="h-6" />
-    </div>
+/**
+ * Animated toggle. The dot uses a layout spring so toggling feels physical
+ * without animating the entire switch chrome.
+ */
+function ToggleSwitch({
+  checked,
+  onCheckedChange,
+  reduced,
+  ariaLabel,
+}: {
+  checked: boolean;
+  onCheckedChange: (next: boolean) => void;
+  reduced: boolean;
+  ariaLabel: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      onClick={() => onCheckedChange(!checked)}
+      className="relative inline-flex h-6 w-10 items-center rounded-full transition-colors duration-200 active:scale-[0.97]"
+      style={{ background: checked ? 'var(--mt-accent)' : '#e4e4e7' }}
+    >
+      <m.span
+        layout
+        transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 500, damping: 30 }}
+        className={`block h-5 w-5 rounded-full bg-white shadow ${checked ? 'ml-auto mr-0.5' : 'ml-0.5'}`}
+      />
+    </button>
   );
 }

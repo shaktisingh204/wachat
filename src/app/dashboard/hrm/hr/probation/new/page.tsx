@@ -1,26 +1,15 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-/**
- * New probation page — server wrapper around `<ProbationForm />`.
- */
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getSession } from '@/app/actions/user.actions';
-
-import { ProbationForm } from '../_components/probation-form';
-
-export const dynamic = 'force-dynamic';
-
-export default async function NewProbationPage() {
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
+export default function NewProbationPage() {
     return (
-        <EntityListShell
-            title="New Probation"
-            subtitle="Start a new probation period with structured evaluation criteria."
-        >
-            <ProbationForm />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="probation_letter"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/probation"
+        />
     );
 }

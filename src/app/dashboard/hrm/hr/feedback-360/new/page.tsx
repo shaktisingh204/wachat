@@ -1,24 +1,15 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Star } from 'lucide-react';
-import { HrFormPage } from '../../_components/hr-form-page';
-import { fields, sections } from '../_config';
-import { saveFeedback360 } from '@/app/actions/hr.actions';
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
 export default function NewFeedback360Page() {
-  return (
-    <HrFormPage
-      title="New 360° Feedback"
-      subtitle="Record peer, manager, or self feedback."
-      icon={Star}
-      backHref="/dashboard/hrm/hr/feedback-360"
-      singular="Feedback"
-      fields={fields}
-      sections={sections}
-      saveAction={saveFeedback360}
-    />
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="feedback_360"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/feedback-360"
+        />
+    );
 }

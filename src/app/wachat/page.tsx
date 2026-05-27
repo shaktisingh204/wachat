@@ -1,454 +1,371 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Badge,
-  ZoruEmptyState,
-  Skeleton,
-  cn,
-} from '@/components/zoruui';
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter,
-  useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
-  Plus,
-  Search,
-  ArrowRight,
-  MessageSquare,
-  Clock,
-  Sparkles,
-  Wifi,
-  WifiOff,
-  ChevronLeft,
-  ChevronRight,
-  } from 'lucide-react';
-
+    ChevronLeft,
+    ChevronRight,
+    Plus,
+    RefreshCw,
+    Search as SearchIcon,
+    ArrowRight,
+    MessageSquare,
+    Sparkles,
+} from 'lucide-react';
 import { useProject } from '@/context/project-context';
 import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
 import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
-
-/**
- * /wachat — WhatsApp project picker, rebuilt on ZoruUI primitives.
- *
- * Same project data, same select handler, same recent/health logic.
- * Visual swap only — neutral palette, no clay-* utilities.
- */
-
-import * as React from 'react';
-
-/* ── helpers ───────────────────────────────────────────────────── */
-
-function formatPhone(id?: string): string {
-  if (!id) return '';
-  const clean = id.replace(/\D/g, '');
-  if (clean.length > 10) {
-    return `+${clean.slice(0, clean.length - 10)} ${clean.slice(-10, -5)} ${clean.slice(-5)}`;
-  }
-  return id;
-}
-
-function HealthPill({ status }: { status?: string }) {
-  if (!status) return null;
-  const s = status.toLowerCase();
-  const isGreen = s === 'available' || s === 'connected';
-  const isAmber = s === 'limited' || s === 'flagged';
-  const isRed = s === 'blocked' || s === 'restricted';
-
-  let variant: 'success' | 'warning' | 'danger' | 'ghost' = 'ghost';
-  if (isGreen) variant = 'success';
-  else if (isAmber) variant = 'warning';
-  else if (isRed) variant = 'danger';
-
-  return (
-    <Badge variant={variant} className="text-[9.5px] uppercase tracking-wider">
-      <span
-        className={cn(
-          'h-1.5 w-1.5 rounded-full',
-          isGreen && 'bg-zoru-success',
-          isAmber && 'bg-zoru-warning',
-          isRed && 'bg-zoru-danger',
-          !isGreen && !isAmber && !isRed && 'bg-zoru-ink-muted',
-        )}
-      />
-      {status}
-    </Badge>
-  );
-}
-
-/* ── skeleton ──────────────────────────────────────────────────── */
-
-function ProjectsSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-[120px]" />
-      ))}
-    </div>
-  );
-}
-
-/* ── empty state ───────────────────────────────────────────────── */
-
-function EmptyState({
-  query,
-  reloadProjects,
-}: {
-  query: string;
-  reloadProjects: () => Promise<void>;
-}) {
-  if (query) {
-    return (
-      <ZoruEmptyState
-        icon={<Search />}
-        title="No projects matched"
-        description="Try a different search term or clear the filter."
-      />
-    );
-  }
-
-  return (
-    <ZoruEmptyState
-      icon={<Sparkles />}
-      title="Connect your first project"
-      description="Link your WhatsApp Business Account to start messaging, automating, and tracking performance."
-      action={
-        <div className="flex items-center gap-2.5">
-          <Link href="/wachat/setup">
-            <Button size="md">
-              <Plus />
-              Connect account
-            </Button>
-          </Link>
-          <SyncProjectsDialog onSuccess={reloadProjects} />
-        </div>
-      }
-    />
-  );
-}
-
-/* ── project row ───────────────────────────────────────────────── */
-
-function ProjectRow({
-  project,
-  isRecent,
-  onSelect,
-  healthStatus,
-}: {
-  project: any;
-  isRecent?: boolean;
-  onSelect: (id: string) => void;
-  healthStatus?: string;
-}) {
-  const connected = !!project.wabaId;
-  const phone = project.phoneNumbers?.[0]?.display_phone_number || project.wabaId;
-
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(project._id.toString())}
-      className={cn(
-        'group flex items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition',
-        'hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-sm)]',
-      )}
-    >
-      <div
-        className={cn(
-          'flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)]',
-          connected ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface text-zoru-ink-muted',
-        )}
-      >
-        <MessageSquare className="h-4 w-4" />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-[14px] text-zoru-ink">
-            {project.name || 'Untitled project'}
-          </p>
-          <HealthPill status={healthStatus} />
-          {isRecent && (
-            <Badge variant="ghost" className="text-[10px]">
-              <Clock className="h-2.5 w-2.5" /> Recent
-            </Badge>
-          )}
-        </div>
-        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-zoru-ink-muted">
-          {connected ? (
-            <>
-              <Wifi className="h-3 w-3 text-zoru-success" />
-              <span>{formatPhone(phone)}</span>
-            </>
-          ) : (
-            <>
-              <WifiOff className="h-3 w-3 text-zoru-ink-subtle" />
-              <span>Not connected</span>
-            </>
-          )}
-          {project.groupName && (
-            <>
-              <span className="text-zoru-ink-subtle">·</span>
-              <span>{project.groupName}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      <ArrowRight className="h-4 w-4 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
-    </button>
-  );
-}
-
-/* ── page ──────────────────────────────────────────────────────── */
+import {
+    WaPage,
+    PageHeader,
+    WaButton,
+    ProjectTile,
+    EmptyState,
+} from '@/components/wachat-ui';
+import { m } from 'motion/react';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 const PAGE_SIZE = 24;
 
-export default function SelectProjectPage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const {
-    projects: allProjects,
-    reloadProjects,
-    isLoadingProject,
-    setActiveProjectId,
-  } = useProject();
-  const [, startHealthTransition] = useTransition();
+type HealthFlag = 'live' | 'warning' | 'paused' | 'unconnected';
 
-  const projects = allProjects;
+/**
+ * Map the WABA `can_send_message` flag + project state into our 4-state
+ * health value. Conservative: anything we can't classify as fine becomes
+ * a soft warning rather than a hard red.
+ */
+function deriveHealth(args: { hasWaba: boolean; hasPhone: boolean; canSend?: string }): HealthFlag {
+    if (!args.hasWaba) return 'unconnected';
+    if (!args.hasPhone) return 'paused';
+    const v = (args.canSend ?? '').toUpperCase();
+    if (v === 'AVAILABLE' || v === 'CAN_SEND_MESSAGE' || v === 'GREEN' || v === 'OK') return 'live';
+    if (v === 'BLOCKED' || v === 'RED' || v === 'BANNED') return 'warning';
+    if (v === 'YELLOW' || v === 'LIMITED' || v === 'RATE_LIMITED') return 'warning';
+    if (!v) return 'live'; // assume live until health check returns
+    return 'warning';
+}
 
-  const [search, setSearch] = useState(searchParams.get('query') || '');
-  const [page, setPage] = useState(1);
+export default function WachatProjectsPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { projects, reloadProjects, isLoadingProject, setActiveProjectId } = useProject();
 
-  const [healthMap, setHealthMap] = useState<Record<string, string>>({});
+    const [, startHealthTransition] = useTransition();
+    const [search, setSearch] = useState(searchParams.get('query') || '');
+    const [page, setPage] = useState(1);
+    const [healthMap, setHealthMap] = useState<Record<string, string>>({});
+    const [recentIds, setRecentIds] = useState<string[]>([]);
 
-  const [recentIds, setRecentIds] = useState<string[]>([]);
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('recentProjects');
-      if (raw) setRecentIds(JSON.parse(raw));
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  useEffect(() => {
-    document.title = 'Projects · Wachat';
-  }, []);
-
-  useEffect(() => {
-    if (projects.length === 0) return;
-    startHealthTransition(async () => {
-      const results: Record<string, string> = {};
-      await Promise.allSettled(
-        projects.map(async (p) => {
-          if (!p.wabaId) return;
-          try {
-            const { healthStatus } = await getWabaHealthStatus(p._id.toString());
-            if (healthStatus?.can_send_message) {
-              results[p._id.toString()] = healthStatus.can_send_message;
-            }
-          } catch {
+    // Restore recent-project list from localStorage on mount.
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem('recentProjects');
+            if (raw) setRecentIds(JSON.parse(raw));
+        } catch {
             /* ignore */
-          }
-        }),
-      );
-      setHealthMap(results);
-    });
-  }, [projects]);
+        }
+    }, []);
 
-  const recentProjects = useMemo(
-    () =>
-      projects
-        .filter((p) => recentIds.includes(p._id.toString()))
-        .slice(0, 4),
-    [projects, recentIds],
-  );
+    useEffect(() => {
+        document.title = 'Projects · Wachat';
+    }, []);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return projects;
-    const q = search.toLowerCase();
-    return projects.filter(
-      (p) =>
-        p.name?.toLowerCase().includes(q) ||
-        p.wabaId?.toLowerCase().includes(q) ||
-        p.phoneNumbers?.[0]?.display_phone_number?.toLowerCase().includes(q),
+    // Pull live health for each WABA in the background. Failures are silent;
+    // we just leave the dot grey and let the user discover issues on entry.
+    useEffect(() => {
+        if (projects.length === 0) return;
+        startHealthTransition(async () => {
+            const results: Record<string, string> = {};
+            await Promise.allSettled(
+                projects.map(async (p) => {
+                    if (!p.wabaId) return;
+                    try {
+                        const { healthStatus } = await getWabaHealthStatus(p._id.toString());
+                        if (healthStatus?.can_send_message) {
+                            results[p._id.toString()] = healthStatus.can_send_message;
+                        }
+                    } catch {
+                        /* ignore */
+                    }
+                }),
+            );
+            setHealthMap(results);
+        });
+    }, [projects]);
+
+    const recentProjects = useMemo(
+        () => projects.filter((p) => recentIds.includes(p._id.toString())).slice(0, 4),
+        [projects, recentIds],
     );
-  }, [projects, search]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page],
-  );
+    const filtered = useMemo(() => {
+        if (!search.trim()) return projects;
+        const q = search.toLowerCase();
+        return projects.filter(
+            (p) =>
+                p.name?.toLowerCase().includes(q) ||
+                p.wabaId?.toLowerCase().includes(q) ||
+                p.phoneNumbers?.[0]?.display_phone_number?.toLowerCase().includes(q),
+        );
+    }, [projects, search]);
 
-  const handleSelect = (projectId: string) => {
-    const project = projects.find((p) => p._id.toString() === projectId);
-    if (!project) return;
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = useMemo(
+        () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+        [filtered, page],
+    );
 
-    if (!project.wabaId) {
-      setActiveProjectId(projectId);
-      router.push('/wachat/setup');
-      return;
-    }
+    // Counts for the metric strip — derived from the projects we already
+    // have, no extra fetch.
+    const counts = useMemo(() => {
+        let connected = 0;
+        let pending = 0;
+        let numbers = 0;
+        for (const p of projects) {
+            if (p.wabaId && (p.phoneNumbers?.length ?? 0) > 0) connected += 1;
+            else pending += 1;
+            numbers += p.phoneNumbers?.length ?? 0;
+        }
+        return { connected, pending, numbers };
+    }, [projects]);
 
-    if (!project.phoneNumbers || project.phoneNumbers.length === 0) {
-      setActiveProjectId(projectId);
-      router.push('/wachat/numbers');
-      return;
-    }
+    const handleSelect = (projectId: string) => {
+        const project = projects.find((p) => p._id.toString() === projectId);
+        if (!project) return;
 
-    const updated = [
-      projectId,
-      ...recentIds.filter((id) => id !== projectId),
-    ].slice(0, 8);
-    localStorage.setItem('recentProjects', JSON.stringify(updated));
-    setActiveProjectId(projectId);
-    router.push('/wachat/overview');
-  };
+        if (!project.wabaId) {
+            setActiveProjectId(projectId);
+            router.push('/wachat/setup');
+            return;
+        }
+        if (!project.phoneNumbers || project.phoneNumbers.length === 0) {
+            setActiveProjectId(projectId);
+            router.push('/wachat/numbers');
+            return;
+        }
 
-  return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Projects</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+        const updated = [projectId, ...recentIds.filter((id) => id !== projectId)].slice(0, 8);
+        try {
+            localStorage.setItem('recentProjects', JSON.stringify(updated));
+        } catch {
+            /* ignore */
+        }
+        setActiveProjectId(projectId);
+        router.push('/wachat/overview');
+    };
 
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-[26px] tracking-[-0.015em] text-zoru-ink leading-[1.15]">
-            Your projects
-          </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
-            {projects.length} connected account
-            {projects.length !== 1 ? 's' : ''} — select one to open.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <SyncProjectsDialog onSuccess={reloadProjects} />
-          <Link href="/wachat/setup">
-            <Button size="md">
-              <Plus />
-              Connect new
-            </Button>
-          </Link>
-        </div>
-      </div>
+    const showRecent = recentProjects.length > 0 && !search.trim();
 
-      {projects.length > 0 && (
-        <div className="mt-5 flex items-center gap-2">
-          <div className="max-w-md flex-1">
-            <Input
-              leadingSlot={<Search />}
-              placeholder="Search projects..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
+    return (
+        <WaPage>
+            <PageHeader
+                title="Your WhatsApp projects"
+                description="Pick a connected WABA to open its inbox, campaigns, templates, and reports."
+                kicker="Wachat · projects"
+                actions={
+                    <>
+                        <SyncProjectsDialog onSuccess={reloadProjects} />
+                        <WaButton href="/wachat/setup" leftIcon={Plus}>
+                            Connect new
+                        </WaButton>
+                    </>
+                }
             />
-          </div>
-        </div>
-      )}
 
-      {recentProjects.length > 0 && !search && (
-        <div className="mt-6">
-          <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
-            Recently accessed
-          </p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {recentProjects.map((p) => (
-              <ProjectRow
-                key={p._id.toString()}
-                project={p}
-                isRecent
-                onSelect={handleSelect}
-                healthStatus={healthMap[p._id.toString()]}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+            {/* Metric strip — quick at-a-glance counts */}
+            <section aria-labelledby="counts-heading" className="mb-8 grid grid-cols-3 gap-3">
+                <h2 id="counts-heading" className="sr-only">Account counts</h2>
+                <CountChip label="Connected" value={counts.connected} accentSoft={false} />
+                <CountChip label="Pending setup" value={counts.pending} accentSoft={true} />
+                <CountChip label="Phone numbers" value={counts.numbers} accentSoft={false} />
+            </section>
 
-      <div className="mt-6">
-        {recentProjects.length > 0 &&
-          !search &&
-          projects.length > recentProjects.length && (
-            <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
-              All projects
+            {/* Search */}
+            {projects.length > 0 && (
+                <m.label
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: EASE_OUT }}
+                    className="mb-6 flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400 sm:max-w-md"
+                >
+                    <SearchIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
+                    <input
+                        value={search}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setPage(1);
+                        }}
+                        placeholder="Search by name, number, or WABA ID"
+                        className="w-full bg-transparent text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+                        aria-label="Search projects"
+                    />
+                </m.label>
+            )}
+
+            {/* Recently accessed */}
+            {showRecent && (
+                <section className="mb-10">
+                    <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        Recently accessed
+                    </h2>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                        {recentProjects.map((p, i) => {
+                            const id = p._id.toString();
+                            return (
+                                <ProjectTile
+                                    key={id}
+                                    name={p.name ?? 'Untitled project'}
+                                    phone={p.phoneNumbers?.[0]?.display_phone_number}
+                                    waba={p.wabaId}
+                                    recent
+                                    health={deriveHealth({
+                                        hasWaba: !!p.wabaId,
+                                        hasPhone: (p.phoneNumbers?.length ?? 0) > 0,
+                                        canSend: healthMap[id],
+                                    })}
+                                    onSelect={() => handleSelect(id)}
+                                    delay={0.03 + i * 0.04}
+                                />
+                            );
+                        })}
+                    </div>
+                </section>
+            )}
+
+            {/* All projects */}
+            <section>
+                <div className="mb-3 flex items-baseline justify-between">
+                    <h2 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        {showRecent && projects.length > recentProjects.length ? 'All projects' : 'Projects'}
+                    </h2>
+                    <span className="text-[11px] tabular-nums text-zinc-400">
+                        {filtered.length.toLocaleString('en-IN')} {filtered.length === 1 ? 'project' : 'projects'}
+                    </span>
+                </div>
+
+                {isLoadingProject ? (
+                    <GridSkeleton />
+                ) : projects.length === 0 ? (
+                    <EmptyState
+                        icon={MessageSquare}
+                        title="No projects connected yet"
+                        description="Connect your WhatsApp Business Account to start sending templates, broadcasts, and chatbots from SabNode."
+                        action={
+                            <WaButton href="/wachat/setup" leftIcon={Sparkles}>
+                                Connect your first WABA
+                            </WaButton>
+                        }
+                    />
+                ) : filtered.length === 0 ? (
+                    <EmptyState
+                        icon={SearchIcon}
+                        title={`No projects match “${search}”`}
+                        description="Try a different name, phone number, or WABA ID."
+                        action={
+                            <WaButton variant="outline" onClick={() => { setSearch(''); setPage(1); }} leftIcon={RefreshCw}>
+                                Clear search
+                            </WaButton>
+                        }
+                    />
+                ) : (
+                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {paginated.map((p, i) => {
+                            const id = p._id.toString();
+                            return (
+                                <li key={id}>
+                                    <ProjectTile
+                                        name={p.name ?? 'Untitled project'}
+                                        phone={p.phoneNumbers?.[0]?.display_phone_number}
+                                        waba={p.wabaId}
+                                        health={deriveHealth({
+                                            hasWaba: !!p.wabaId,
+                                            hasPhone: (p.phoneNumbers?.length ?? 0) > 0,
+                                            canSend: healthMap[id],
+                                        })}
+                                        onSelect={() => handleSelect(id)}
+                                        delay={0.03 + i * 0.03}
+                                    />
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
+            </section>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <nav
+                    aria-label="Pagination"
+                    className="mt-8 flex items-center justify-between border-t border-zinc-200 pt-5"
+                >
+                    <p className="text-[12px] tabular-nums text-zinc-500">
+                        Page {page} of {totalPages}
+                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <WaButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page <= 1}
+                            leftIcon={ChevronLeft}
+                        >
+                            Previous
+                        </WaButton>
+                        <WaButton
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page >= totalPages}
+                            rightIcon={ChevronRight}
+                        >
+                            Next
+                        </WaButton>
+                    </div>
+                </nav>
+            )}
+        </WaPage>
+    );
+}
+
+// ────────── small chip used for the top counters ──────────
+function CountChip({ label, value, accentSoft }: { label: string; value: number; accentSoft: boolean }) {
+    return (
+        <m.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: EASE_OUT }}
+            className="relative overflow-hidden rounded-2xl border border-zinc-200 bg-white px-5 py-4"
+        >
+            <span
+                aria-hidden
+                className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full blur-2xl"
+                style={{ background: accentSoft ? 'rgba(251, 191, 36, 0.25)' : 'var(--mt-accent-glow)', opacity: 0.6 }}
+            />
+            <p className="relative text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">{label}</p>
+            <p className="relative mt-1.5 text-[26px] font-semibold tracking-tight text-zinc-950 tabular-nums">
+                {value.toLocaleString('en-IN')}
             </p>
-          )}
+        </m.div>
+    );
+}
 
-        {isLoadingProject ? (
-          <ProjectsSkeleton />
-        ) : projects.length === 0 ? (
-          <EmptyState query={search} reloadProjects={reloadProjects} />
-        ) : filtered.length === 0 ? (
-          <EmptyState query={search} reloadProjects={reloadProjects} />
-        ) : (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {paginated.map((p) => (
-              <ProjectRow
-                key={p._id.toString()}
-                project={p}
-                onSelect={handleSelect}
-                healthStatus={healthMap[p._id.toString()]}
-              />
+// ────────── grid skeleton ──────────
+function GridSkeleton() {
+    return (
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+                <li key={i} className="h-[164px] animate-pulse rounded-2xl border border-zinc-200 bg-white p-5">
+                    <div className="h-11 w-11 rounded-xl bg-zinc-100" />
+                    <div className="mt-4 h-3 w-32 rounded-full bg-zinc-100" />
+                    <div className="mt-2 h-2.5 w-24 rounded-full bg-zinc-100" />
+                    <div className="mt-2 h-2.5 w-28 rounded-full bg-zinc-100" />
+                    <div className="mt-6 flex items-center justify-between border-t border-zinc-100 pt-3">
+                        <div className="h-4 w-16 rounded-full bg-zinc-100" />
+                        <div className="h-3 w-10 rounded-full bg-zinc-100" />
+                    </div>
+                </li>
             ))}
-          </div>
-        )}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between border-t border-zoru-line pt-4">
-          <p className="text-[12px] text-zoru-ink-muted tabular-nums">
-            Page {page} of {totalPages} · {filtered.length} project
-            {filtered.length !== 1 ? 's' : ''}
-          </p>
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              aria-label="Previous page"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-            >
-              <ChevronLeft />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              aria-label="Next page"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-            >
-              <ChevronRight />
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+        </ul>
+    );
 }

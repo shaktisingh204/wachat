@@ -1,62 +1,30 @@
-'use client';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+export const dynamic = 'force-dynamic';
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-import { ClipboardList } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import {
-  getDocumentTemplates,
-  saveDocumentTemplate,
-} from '@/app/actions/hr.actions';
-import type { HrDocumentTemplate } from '@/lib/hr-types';
-import { fields, sections } from '../../_config';
+const BASE = '/dashboard/hrm/hr/document-templates';
 
-export default function EditDocumentTemplatePage() {
-  const params = useParams<{ id: string }>();
-  const id = params?.id;
-  const [record, setRecord] = React.useState<
-    (HrDocumentTemplate & { _id: string }) | null
-  >(null);
-  const [loading, setLoading] = React.useState(true);
+export default async function EditDocumentTemplatePage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  React.useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const list = (await getDocumentTemplates()) as (HrDocumentTemplate & {
-          _id: string;
-        })[];
-        const found = Array.isArray(list)
-          ? list.find((r) => String(r._id) === String(id)) || null
-          : null;
-        if (active) setRecord(found);
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [id]);
+    const doc = await loadLiveDocument('document_template', id);
+    if (!doc) notFound();
 
-  if (loading) {
-    return <div className="text-[13px] text-zoru-ink-muted">Loading…</div>;
-  }
-
-  return (
-    <HrFormPage
-      title="Edit Template"
-      subtitle="Update template details."
-      icon={ClipboardList}
-      backHref="/dashboard/hrm/hr/document-templates"
-      singular="Template"
-      fields={fields}
-      sections={sections}
-      saveAction={saveDocumentTemplate}
-      initial={record as unknown as Record<string, unknown>}
-    />
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="document_template"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
+    );
 }

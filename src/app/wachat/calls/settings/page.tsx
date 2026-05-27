@@ -1,12 +1,8 @@
 'use client';
 
-import { Badge, Button, Card, EmptyState, cn, useZoruToast } from '@/components/zoruui';
-import {
-  useState,
-  useEffect,
-  useTransition,
-  useCallback,
-  useMemo } from 'react';
+import * as React from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { m, useReducedMotion } from 'motion/react';
 import {
   Phone,
   AlertCircle,
@@ -15,23 +11,21 @@ import {
   RefreshCw,
   Loader2,
   Trash2,
-  } from 'lucide-react';
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { getProjectById } from '@/app/actions/index.ts';
 import type { PhoneNumber } from '@/lib/definitions';
-
 import { CallingSettingsForm } from '@/app/wachat/_components/calling-settings-form';
 import { useProject } from '@/context/project-context';
-
-/**
- * Wachat Calls — Setup tab (ZoruUI).
- *
- * Phone picker, status banner, calling settings form, and live API call
- * log tracking every fetch/save.
- */
-
-import * as React from 'react';
+import { useZoruToast } from '@/components/zoruui';
+import {
+  WaButton,
+  Section,
+  EmptyState,
+  StatusPill,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 import {
   recordApiCall,
@@ -47,9 +41,8 @@ function useApiLog() {
   return log;
 }
 
-/* ── Setup page ─────────────────────────────────────────────────── */
-
 export default function CallingSettingsPage() {
+  const reduce = useReducedMotion();
   const { activeProject, activeProjectId } = useProject();
   const { toast } = useZoruToast();
   const [isLoading, startLoadingTransition] = useTransition();
@@ -58,11 +51,7 @@ export default function CallingSettingsPage() {
 
   const selectedPhone: PhoneNumber | null = useMemo(() => {
     if (!activeProject?.phoneNumbers) return null;
-    return (
-      activeProject.phoneNumbers.find((p) => p.id === selectedPhoneId) ||
-      activeProject.phoneNumbers[0] ||
-      null
-    );
+    return activeProject.phoneNumbers.find((p) => p.id === selectedPhoneId) || activeProject.phoneNumbers[0] || null;
   }, [activeProject, selectedPhoneId]);
 
   const refreshProject = useCallback(() => {
@@ -70,20 +59,10 @@ export default function CallingSettingsPage() {
     startLoadingTransition(async () => {
       try {
         await getProjectById(activeProjectId);
-        recordApiCall({
-          method: 'GET',
-          status: 'SUCCESS',
-          summary: 'Reloaded project',
-        });
+        recordApiCall({ method: 'GET', status: 'SUCCESS', summary: 'Reloaded project' });
       } catch (err: unknown) {
-        const message =
-          err instanceof Error ? err.message : String(err);
-        recordApiCall({
-          method: 'GET',
-          status: 'ERROR',
-          summary: 'Project reload failed',
-          errorMessage: message,
-        });
+        const message = err instanceof Error ? err.message : String(err);
+        recordApiCall({ method: 'GET', status: 'ERROR', summary: 'Project reload failed', errorMessage: message });
       }
     });
   }, [activeProjectId]);
@@ -97,9 +76,9 @@ export default function CallingSettingsPage() {
   if (!activeProject) {
     return (
       <EmptyState
-        icon={<Phone />}
+        icon={Phone}
         title="No project selected"
-        description="Select a project from the home screen to configure its WhatsApp calling settings."
+        description="Pick a project from the home screen to configure WhatsApp calling settings."
       />
     );
   }
@@ -108,200 +87,134 @@ export default function CallingSettingsPage() {
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-3">
-      {/* Left column: picker + status banner + form */}
       <div className="flex flex-col gap-6 lg:col-span-2">
         {phoneNumbers.length === 0 ? (
           <EmptyState
-            icon={<Phone />}
+            icon={Phone}
             title="No phone numbers linked"
-            description="Add a WhatsApp Business phone number to the project first, then come back here to configure calling."
+            description="Add a WhatsApp Business phone number to the project first, then come back to configure calling."
             action={
-              <Button
-                onClick={() => (window.location.href = '/wachat/numbers')}
-              >
+              <WaButton onClick={() => (window.location.href = '/wachat/numbers')}>
                 Manage numbers
-              </Button>
+              </WaButton>
             }
           />
         ) : (
           <>
-            {/* Phone picker card */}
-            <Card className="p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-[16px] text-zoru-ink">Configure number</h2>
-                  <p className="mt-1 text-[12.5px] text-zoru-ink-muted">
-                    Select a phone number to view and modify its calling
-                    configuration.
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={refreshProject}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <RefreshCw />
-                  )}
+            {/* Picker */}
+            <Section
+              title="Configure number"
+              description="Select a phone number to view and modify its calling configuration."
+              action={
+                <WaButton variant="ghost" size="sm" onClick={refreshProject} disabled={isLoading} leftIcon={isLoading ? Loader2 : RefreshCw}>
                   Reload
-                </Button>
-              </div>
-
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                {phoneNumbers.map((phone) => {
+                </WaButton>
+              }
+            >
+              <div className="grid gap-2 sm:grid-cols-2">
+                {phoneNumbers.map((phone, i) => {
                   const active = phone.id === selectedPhone?.id;
-                  const callingEnabled =
-                    phone.callingSettings?.status === 'ENABLED';
+                  const callingEnabled = phone.callingSettings?.status === 'ENABLED';
                   return (
-                    <button
+                    <m.button
                       key={phone.id}
                       type="button"
                       onClick={() => setSelectedPhoneId(phone.id)}
-                      className={cn(
-                        'flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border px-4 py-3 text-left transition-colors focus-visible:outline-none',
-                        active
-                          ? 'border-zoru-ink bg-zoru-surface-2'
-                          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
-                      )}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: reduce ? 0 : 0.3, delay: reduce ? 0 : i * 0.04, ease: EASE_OUT }}
+                      className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-colors active:scale-[0.99] ${
+                        active ? 'border-zinc-900 bg-zinc-50' : 'border-zinc-200 bg-white hover:bg-zinc-50'
+                      }`}
                     >
                       <div className="min-w-0">
-                        <div className="truncate text-[13px] text-zoru-ink">
-                          {phone.display_phone_number}
-                        </div>
-                        <div className="truncate text-[11.5px] text-zoru-ink-muted">
-                          {phone.verified_name || 'Unverified'}
-                        </div>
+                        <div className="truncate text-[13px] font-semibold text-zinc-900">{phone.display_phone_number}</div>
+                        <div className="truncate text-[11.5px] text-zinc-500">{phone.verified_name || 'Unverified'}</div>
                       </div>
-                      <Badge
-                        variant={callingEnabled ? 'success' : 'ghost'}
-                      >
-                        <span
-                          className={cn(
-                            'h-1.5 w-1.5 rounded-full',
-                            callingEnabled
-                              ? 'bg-zoru-success'
-                              : 'bg-zoru-ink-subtle',
-                          )}
-                        />
-                        {callingEnabled ? 'On' : 'Off'}
-                      </Badge>
-                    </button>
+                      <StatusPill tone={callingEnabled ? 'live' : 'paused'}>{callingEnabled ? 'On' : 'Off'}</StatusPill>
+                    </m.button>
                   );
                 })}
               </div>
-            </Card>
+            </Section>
 
-            {/* Status banner */}
-            {selectedPhone ? <StatusBanner phone={selectedPhone} /> : null}
+            {selectedPhone && <StatusBanner phone={selectedPhone} />}
 
-            {/* Form */}
             {selectedPhone ? (
               <CallingSettingsForm
                 key={selectedPhone.id}
                 project={activeProject}
                 phone={selectedPhone}
                 onSuccess={() => {
-                  recordApiCall({
-                    method: 'POST',
-                    status: 'SUCCESS',
-                    summary: `Saved settings for ${selectedPhone.display_phone_number}`,
-                  });
-                  toast({
-                    title: 'Saved',
-                    description: 'Calling settings were updated in Meta.',
-                  });
+                  recordApiCall({ method: 'POST', status: 'SUCCESS', summary: `Saved settings for ${selectedPhone.display_phone_number}` });
+                  toast({ title: 'Saved', description: 'Calling settings were updated in Meta.' });
                   refreshProject();
                 }}
               />
             ) : (
-              <Card className="p-8 text-center text-[13px] text-zoru-ink-muted">
-                Select a phone number above to manage its settings.
-              </Card>
+              <Section>
+                <div className="py-6 text-center text-[13px] text-zinc-500">
+                  Select a phone number above to manage its settings.
+                </div>
+              </Section>
             )}
           </>
         )}
       </div>
 
-      {/* Right column: API log */}
-      <div className="lg:col-span-1">
-        <Card className="p-5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2">
-                <FileText className="h-4 w-4 text-zoru-ink-muted" />
-              </span>
-              <div>
-                <h3 className="text-[13.5px] text-zoru-ink">API call log</h3>
-                <p className="text-[11.5px] text-zoru-ink-muted">
-                  Fetches and saves from this page.
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Clear log"
+      {/* API log column */}
+      <div>
+        <Section
+          title={
+            <span className="inline-flex items-center gap-2">
+              <FileText className="h-4 w-4 text-zinc-500" strokeWidth={2.25} aria-hidden />
+              API call log
+            </span>
+          }
+          description="Fetches and saves from this page."
+          action={
+            <button
+              type="button"
               onClick={clearApiLog}
               disabled={log.length === 0}
+              aria-label="Clear log"
+              className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-rose-600 disabled:opacity-40"
             >
-              <Trash2 />
-            </Button>
-          </div>
-
-          <div className="mt-4 max-h-96 overflow-y-auto">
+              <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
+          }
+        >
+          <div className="max-h-96 overflow-y-auto">
             {log.length === 0 ? (
-              <p className="py-8 text-center text-[12.5px] text-zoru-ink-muted">
+              <p className="py-8 text-center text-[12.5px] text-zinc-500">
                 Nothing logged yet. Fetches and saves will appear here.
               </p>
             ) : (
-              <ul className="divide-y divide-zoru-line">
+              <ul className="divide-y divide-zinc-100">
                 {log.map((entry) => (
-                  <li key={entry.id} className="py-2.5">
+                  <li key={entry.id} className="py-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10.5px] text-zoru-ink-muted">
-                        {entry.method}
-                      </span>
-                      <Badge
-                        variant={
-                          entry.status === 'SUCCESS' ? 'success' : 'danger'
-                        }
-                      >
-                        {entry.status === 'SUCCESS' ? (
-                          <CheckCircle2 className="h-3 w-3" />
-                        ) : (
-                          <AlertCircle className="h-3 w-3" />
-                        )}
+                      <span className="font-mono text-[10.5px] text-zinc-500">{entry.method}</span>
+                      <StatusPill tone={entry.status === 'SUCCESS' ? 'live' : 'failed'}>
+                        {entry.status === 'SUCCESS' ? <CheckCircle2 className="h-2.5 w-2.5" strokeWidth={3} /> : <AlertCircle className="h-2.5 w-2.5" strokeWidth={3} />}
                         {entry.status}
-                      </Badge>
-                      <span className="ml-auto text-[10.5px] text-zoru-ink-muted">
-                        {formatDistanceToNow(entry.createdAt, {
-                          addSuffix: true,
-                        })}
-                      </span>
+                      </StatusPill>
+                      <span className="ml-auto text-[10.5px] text-zinc-500">{formatDistanceToNow(entry.createdAt, { addSuffix: true })}</span>
                     </div>
-                    <div className="mt-1 text-[12.5px] text-zoru-ink">
-                      {entry.summary}
-                    </div>
-                    {entry.status === 'ERROR' && entry.errorMessage ? (
-                      <div className="mt-1 truncate text-[11.5px] text-zoru-danger">
-                        {entry.errorMessage}
-                      </div>
-                    ) : null}
+                    <div className="mt-1 text-[12.5px] text-zinc-900">{entry.summary}</div>
+                    {entry.status === 'ERROR' && entry.errorMessage && (
+                      <div className="mt-1 truncate text-[11.5px] text-rose-600">{entry.errorMessage}</div>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
           </div>
-        </Card>
+        </Section>
       </div>
     </div>
   );
 }
-
-/* ── Status banner ──────────────────────────────────────────────── */
 
 function StatusBanner({ phone }: { phone: PhoneNumber }) {
   const s = phone.callingSettings;
@@ -310,7 +223,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
   const sipOn = s?.sip?.status === 'ENABLED';
   const hoursOn = s?.call_hours?.status === 'ENABLED';
 
-  const checklist: Array<{ label: string; ok: boolean }> = [
+  const checklist = [
     { label: 'Calling enabled', ok: enabled },
     { label: 'Callback prompt', ok: callbackOn },
     { label: 'Business hours', ok: hoursOn },
@@ -318,50 +231,26 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
   ];
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h3 className="text-[14px] text-zoru-ink">Current status</h3>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
-            Live configuration for {phone.display_phone_number}
-          </p>
-        </div>
-        <Badge variant={enabled ? 'success' : 'ghost'}>
-          <span
-            className={cn(
-              'h-2 w-2 rounded-full',
-              enabled ? 'bg-zoru-success' : 'bg-zoru-ink-subtle',
-            )}
-          />
-          {enabled ? 'Enabled' : 'Disabled'}
-        </Badge>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+    <Section
+      title="Current status"
+      description={`Live configuration for ${phone.display_phone_number}.`}
+      action={<StatusPill tone={enabled ? 'live' : 'paused'}>{enabled ? 'Enabled' : 'Disabled'}</StatusPill>}
+    >
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {checklist.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2"
-          >
+          <div key={item.label} className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2">
             <span
-              className={cn(
-                'flex h-5 w-5 items-center justify-center rounded-full',
-                item.ok
-                  ? 'bg-zoru-success/10 text-zoru-success'
-                  : 'bg-zoru-surface-2 text-zoru-ink-subtle',
-              )}
+              className="grid h-5 w-5 place-items-center rounded-full"
+              style={item.ok ? { background: 'var(--mt-accent-soft)' } : { background: '#f4f4f5' }}
             >
-              {item.ok ? (
-                <CheckCircle2 className="h-3 w-3" />
-              ) : (
-                <AlertCircle className="h-3 w-3" />
-              )}
+              {item.ok
+                ? <CheckCircle2 className="h-3 w-3" strokeWidth={3} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                : <AlertCircle className="h-3 w-3 text-zinc-400" strokeWidth={2.5} aria-hidden />}
             </span>
-            <span className="truncate text-[12px] text-zoru-ink">
-              {item.label}
-            </span>
+            <span className="truncate text-[12px] text-zinc-800">{item.label}</span>
           </div>
         ))}
       </div>
-    </Card>
+    </Section>
   );
 }

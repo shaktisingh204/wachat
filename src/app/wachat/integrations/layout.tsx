@@ -1,36 +1,8 @@
 'use client';
 
-import { ArrowLeft, Zap } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/zoruui";
-import { usePathname } from "next/navigation";
-
+// The wachat root layout already wraps every page in the new shell.
+// Children render directly so each integration page controls its own
+// header via `<PageHeader />`.
 export default function IntegrationsLayout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const isRootIntegrationsPage = pathname === '/wachat/integrations';
-
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                 {!isRootIntegrationsPage && (
-                    <Button variant="ghost" asChild className="mb-2 -ml-4">
-                        <Link href="/wachat/integrations">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to All Integrations
-                        </Link>
-                    </Button>
-                )}
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3 text-zoru-ink">
-                    <Zap className="h-8 w-8" />
-                    Integrations &amp; Tools
-                </h1>
-                <p className="text-zoru-ink-muted mt-2">
-                    Connect SabNode with your favorite tools and services.
-                </p>
-            </div>
-            <div>
-                {children}
-            </div>
-        </div>
-    );
+  return <>{children}</>;
 }

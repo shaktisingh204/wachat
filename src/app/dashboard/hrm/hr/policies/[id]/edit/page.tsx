@@ -1,17 +1,7 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * Edit policy page — server wrapper that loads the policy by id and
- * passes it as `initialData` to `<PolicyForm />`.
- */
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/app/actions/user.actions';
-import { getPolicyById } from '@/app/actions/crm-policies.actions';
-
-import { PolicyForm } from '../../_components/policy-form';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,20 +12,19 @@ export default async function EditPolicyPage({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    const { id: policyId } = await params;
-
+    const { id } = await params;
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const policy = await getPolicyById(policyId);
-    if (!policy) notFound();
+    const doc = await loadLiveDocument('policy', id);
+    if (!doc) notFound();
 
     return (
-        <EntityListShell
-            title={`Edit · ${policy.name}`}
-            subtitle="Update policy fields. Changes are revalidated immediately."
-        >
-            <PolicyForm initialData={policy} />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="policy"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
 }

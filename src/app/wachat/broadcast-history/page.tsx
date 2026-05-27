@@ -1,17 +1,15 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
+
+import { fmtDate } from '@/lib/utils';
+import React, { useEffect, useState, useTransition, useCallback } from 'react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
+import { ChevronDown, ChevronRight, Loader2, Radio, RotateCw, History } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getBroadcasts } from '@/app/actions/broadcast.actions';
 
 import {
   useZoruToast,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -19,41 +17,30 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
-  EmptyState,
-  StatCard,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback } from 'react';
-import {
-  ChevronDown,
-  ChevronRight,
-  Loader2,
-  Radio,
-  RotateCw,
-  } from 'lucide-react';
 
-import { useProject } from '@/context/project-context';
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  WaButton,
+  EmptyState,
+  StatusPill,
+  MetricTile,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 /**
- * Wachat Broadcast History — sent broadcasts log, ZoruUI rebuild.
- * Replays a previous broadcast through the existing replay dialog.
+ * Wachat broadcast history. Same actions; wachat-ui chrome.
  */
 
-import * as React from 'react';
-
-import { getBroadcasts } from '@/app/actions/broadcast.actions';
-
-function statusVariant(
-  s: string,
-): 'success' | 'danger' | 'info' | 'warning' | 'secondary' {
-  if (s === 'completed') return 'success';
-  if (s === 'failed') return 'danger';
-  if (s === 'sending' || s === 'processing') return 'info';
-  if (s === 'queued') return 'warning';
-  return 'secondary';
+function tone(s: string): StatusTone {
+  if (s === 'completed') return 'sent';
+  if (s === 'failed') return 'failed';
+  if (s === 'sending' || s === 'processing') return 'sending';
+  if (s === 'queued') return 'queued';
+  return 'draft';
 }
 
 function ReplayBroadcastDialog({
@@ -67,31 +54,30 @@ function ReplayBroadcastDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <ZoruDialogTrigger asChild>
-        <Button variant="ghost" size="sm">
-          <RotateCw className="h-3.5 w-3.5" />
+        <WaButton variant="ghost" size="sm" leftIcon={RotateCw}>
           Replay
-        </Button>
+        </WaButton>
       </ZoruDialogTrigger>
       <ZoruDialogContent>
         <ZoruDialogHeader>
           <ZoruDialogTitle>Replay this broadcast?</ZoruDialogTitle>
           <ZoruDialogDescription>
-            A new campaign will be queued reusing the same template and
-            audience as &ldquo;{broadcast.name || broadcast.templateName}&rdquo;.
+            A new campaign will be queued reusing the same template and audience as &ldquo;
+            {broadcast.name || broadcast.templateName}&rdquo;.
           </ZoruDialogDescription>
         </ZoruDialogHeader>
         <ZoruDialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+          <WaButton variant="outline" onClick={() => setOpen(false)}>
             Cancel
-          </Button>
-          <Button
+          </WaButton>
+          <WaButton
             onClick={() => {
               onConfirm(broadcast._id);
               setOpen(false);
             }}
           >
             Replay broadcast
-          </Button>
+          </WaButton>
         </ZoruDialogFooter>
       </ZoruDialogContent>
     </Dialog>
@@ -102,6 +88,7 @@ export default function BroadcastHistoryPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
+  const reduce = useReducedMotion();
 
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -114,11 +101,7 @@ export default function BroadcastHistoryPage() {
           const res = await getBroadcasts(pid, 1, 50);
           setBroadcasts(res.broadcasts || []);
         } catch {
-          toast({
-            title: 'Error',
-            description: 'Failed to load broadcasts.',
-            variant: 'destructive',
-          });
+          toast({ title: 'Error', description: 'Failed to load broadcasts.', variant: 'destructive' });
         }
       });
     },
@@ -129,20 +112,15 @@ export default function BroadcastHistoryPage() {
     if (projectId) fetchBroadcasts(projectId);
   }, [projectId, fetchBroadcasts]);
 
-  const toggle = (id: string) =>
-    setExpandedId((prev) => (prev === id ? null : id));
+  const toggle = (id: string) => setExpandedId((prev) => (prev === id ? null : id));
 
   const onReplay = (id: string) => {
-    toast({
-      title: 'Replay queued',
-      description: `Replay for broadcast ${id} has been requested.`,
-    });
+    toast({ title: 'Replay queued', description: `Replay for broadcast ${id} has been requested.` });
   };
 
   const totals = React.useMemo(() => {
     const totalMessages = broadcasts.reduce(
-      (s, b) =>
-        s + (b.totalContacts || b.total || b.successCount || 0),
+      (s, b) => s + (b.totalContacts || b.total || b.successCount || 0),
       0,
     );
     const sums = broadcasts.reduce(
@@ -153,172 +131,123 @@ export default function BroadcastHistoryPage() {
       },
       { sent: 0, total: 0 },
     );
-    const avg = sums.total
-      ? `${Math.round((sums.sent / sums.total) * 100)}%`
-      : '—';
+    const avg = sums.total ? `${Math.round((sums.sent / sums.total) * 100)}%` : '-';
     return { totalMessages, avgDelivery: avg };
   }, [broadcasts]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Broadcast History</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Broadcast History
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          View detailed history of all broadcast campaigns.
-        </p>
-      </div>
+    <WaPage>
+      <PageHeader
+        title="Broadcast history"
+        description="A log of every broadcast campaign run from this project."
+        kicker="Wachat / history"
+        eyebrowIcon={History}
+        backHref="/wachat"
+      />
 
       {broadcasts.length > 0 && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatCard
-            label="Total broadcasts"
-            value={broadcasts.length.toLocaleString()}
-          />
-          <StatCard
-            label="Total messages"
-            value={totals.totalMessages.toLocaleString()}
-          />
-          <StatCard
-            label="Avg delivery rate"
-            value={totals.avgDelivery}
-          />
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <MetricTile label="Total broadcasts" value={broadcasts.length.toLocaleString()} delay={0} />
+          <MetricTile label="Total messages" value={totals.totalMessages.toLocaleString()} delay={0.05} />
+          <MetricTile label="Avg delivery rate" value={totals.avgDelivery} delay={0.1} />
         </div>
       )}
 
       {isLoading && broadcasts.length === 0 ? (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+          <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
         </div>
       ) : broadcasts.length === 0 ? (
         <EmptyState
-          icon={<Radio />}
+          icon={Radio}
           title="No broadcasts sent yet"
           description="Past broadcasts will appear here once you start a campaign."
         />
       ) : (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="px-5 py-3 w-8" />
-                <th className="px-5 py-3">Broadcast</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Total</th>
-                <th className="px-5 py-3 text-right">Sent</th>
-                <th className="px-5 py-3 text-right">Failed</th>
-                <th className="px-5 py-3">Date</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {broadcasts.map((b) => {
-                const id = b._id;
-                const isExpanded = expandedId === id;
-                return (
-                  <React.Fragment key={id}>
-                    <tr
-                      className="cursor-pointer border-b border-zoru-line transition-colors hover:bg-zoru-surface"
-                      onClick={() => toggle(id)}
-                    >
-                      <td className="px-5 py-3">
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-zoru-ink-muted" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-zoru-ink-muted" />
-                        )}
-                      </td>
-                      <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                        {b.name || b.templateName || 'Broadcast'}
-                      </td>
-                      <td className="px-5 py-3">
-                        <Badge variant={statusVariant(b.status)}>
-                          {b.status || 'unknown'}
-                        </Badge>
-                      </td>
-                      <td className="px-5 py-3 text-right text-[13px] text-zoru-ink tabular-nums">
-                        {(b.totalContacts || b.total || 0).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3 text-right text-[13px] text-zoru-success tabular-nums">
-                        {(b.sentCount || b.sent || 0).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3 text-right text-[13px] text-zoru-danger tabular-nums">
-                        {(b.failedCount || b.failed || 0).toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3 whitespace-nowrap text-[12px] text-zoru-ink-muted">
-                        {b.createdAt
-                          ? fmtDate(b.createdAt)
-                          : '--'}
-                      </td>
-                      <td
-                        className="px-5 py-3 text-right"
-                        onClick={(e) => e.stopPropagation()}
+        <Section title="Recent campaigns" padded={false}>
+          <ul className="divide-y divide-zinc-100">
+            {broadcasts.map((b, i) => {
+              const id = b._id;
+              const isExpanded = expandedId === id;
+              const total = b.totalContacts || b.total || 0;
+              const sent = b.sentCount || b.sent || 0;
+              const failed = b.failedCount || b.failed || 0;
+              return (
+                <m.li
+                  key={id}
+                  initial={reduce ? false : { opacity: 0, y: 4 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.02 + Math.min(i, 20) * 0.03, ease: EASE_OUT }}
+                  className="transition-colors hover:bg-zinc-50"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggle(id)}
+                    className="grid w-full grid-cols-[auto_1fr_auto_auto_auto_auto_auto] items-center gap-4 px-5 py-3 text-left active:scale-[0.997]"
+                  >
+                    <span className="text-zinc-400" aria-hidden>
+                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    </span>
+                    <span className="min-w-0 truncate text-[13.5px] font-medium text-zinc-900">
+                      {b.name || b.templateName || 'Broadcast'}
+                    </span>
+                    <AnimatePresence mode="wait" initial={false}>
+                      <m.span
+                        key={b.status || 'unknown'}
+                        initial={reduce ? false : { opacity: 0, y: -2 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={reduce ? undefined : { opacity: 0, y: 2 }}
+                        transition={{ duration: 0.18, ease: EASE_OUT }}
                       >
-                        <ReplayBroadcastDialog
-                          broadcast={b}
-                          onConfirm={onReplay}
-                        />
-                      </td>
-                    </tr>
-                    {isExpanded && (
-                      <tr className="border-b border-zoru-line bg-zoru-surface">
-                        <td colSpan={8} className="px-10 py-4">
-                          <div className="grid max-w-md grid-cols-2 gap-4 text-[13px]">
-                            <div>
-                              <span className="text-zoru-ink-muted">
-                                Template:
-                              </span>{' '}
-                              <span className="font-mono text-zoru-ink">
-                                {b.templateName || '--'}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-zoru-ink-muted">
-                                Audience:
-                              </span>{' '}
-                              <span className="text-zoru-ink">
-                                {b.audience || b.segmentName || '--'}
-                              </span>
-                            </div>
-                            {b.completedAt && (
-                              <div>
-                                <span className="text-zoru-ink-muted">
-                                  Completed:
-                                </span>{' '}
-                                <span className="text-zoru-ink">
-                                  {fmtDate(b.completedAt)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
+                        <StatusPill tone={tone(b.status)}>{b.status || 'unknown'}</StatusPill>
+                      </m.span>
+                    </AnimatePresence>
+                    <span className="hidden w-16 text-right text-[12.5px] tabular-nums text-zinc-700 sm:inline">
+                      {total.toLocaleString()}
+                    </span>
+                    <span className="hidden w-16 text-right text-[12.5px] tabular-nums text-emerald-600 sm:inline">
+                      {sent.toLocaleString()}
+                    </span>
+                    <span className="hidden w-16 text-right text-[12.5px] tabular-nums text-rose-600 sm:inline">
+                      {failed.toLocaleString()}
+                    </span>
+                    <span className="whitespace-nowrap text-[11.5px] text-zinc-500">
+                      {b.createdAt ? fmtDate(b.createdAt) : '--'}
+                    </span>
+                  </button>
+                  {isExpanded && (
+                    <m.div
+                      initial={reduce ? false : { opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2, ease: EASE_OUT }}
+                      className="grid grid-cols-1 gap-3 bg-zinc-50/60 px-10 py-4 text-[12.5px] sm:grid-cols-3"
+                    >
+                      <div>
+                        <span className="text-zinc-500">Template</span>{' '}
+                        <span className="font-mono text-zinc-900">{b.templateName || '--'}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500">Audience</span>{' '}
+                        <span className="text-zinc-900">{b.audience || b.segmentName || '--'}</span>
+                      </div>
+                      {b.completedAt && (
+                        <div>
+                          <span className="text-zinc-500">Completed</span>{' '}
+                          <span className="text-zinc-900">{fmtDate(b.completedAt)}</span>
+                        </div>
+                      )}
+                      <div className="sm:col-span-3" onClick={(e) => e.stopPropagation()}>
+                        <ReplayBroadcastDialog broadcast={b} onConfirm={onReplay} />
+                      </div>
+                    </m.div>
+                  )}
+                </m.li>
+              );
+            })}
+          </ul>
+        </Section>
       )}
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

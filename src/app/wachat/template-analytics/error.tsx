@@ -1,10 +1,10 @@
 'use client';
 
-import { EmptyState, Button } from '@/components/zoruui';
-import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { AlertTriangle, ArrowLeft, RotateCcw } from 'lucide-react';
+import { WaPage, WaButton } from '@/components/wachat-ui';
 
-export default function ErrorBoundary({
+export default function TemplateAnalyticsError({
   error,
   reset,
 }: {
@@ -12,17 +12,43 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    console.error('[Wachat Template Analytics Error]', error);
   }, [error]);
 
+  const message = error.message
+    ? error.message.length > 160
+      ? `${error.message.slice(0, 160)}…`
+      : error.message
+    : 'Something on this page failed to load.';
+
   return (
-    <div className="flex h-[80vh] items-center justify-center p-6">
-      <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-zoru-danger" />}
-        title="Something went wrong"
-        description={error.message || 'An unexpected error occurred while loading this module.'}
-        action={<Button onClick={() => reset()}>Try again</Button>}
-      />
-    </div>
+    <WaPage>
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
+        <span
+          aria-hidden
+          className="grid h-14 w-14 place-items-center rounded-2xl"
+          style={{ background: 'var(--mt-accent-soft)' }}
+        >
+          <AlertTriangle className="h-6 w-6" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} />
+        </span>
+        <h1 className="mt-6 text-balance text-2xl font-semibold tracking-tight text-zinc-950">
+          Template analytics failed to load.
+        </h1>
+        <p className="mt-2 text-[14px] leading-relaxed text-zinc-600">{message}</p>
+        {error.digest && (
+          <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 font-mono text-[11px] text-zinc-600">
+            Ref {error.digest}
+          </p>
+        )}
+        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+          <WaButton onClick={reset} leftIcon={RotateCcw}>
+            Try again
+          </WaButton>
+          <WaButton href="/wachat" variant="outline" leftIcon={ArrowLeft}>
+            Back to projects
+          </WaButton>
+        </div>
+      </div>
+    </WaPage>
   );
 }

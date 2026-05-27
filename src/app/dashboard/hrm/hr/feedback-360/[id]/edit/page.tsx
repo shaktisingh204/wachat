@@ -1,63 +1,30 @@
-'use client';
+import { notFound, redirect } from 'next/navigation';
+import { getSession } from '@/app/actions/user.actions';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
-import { Skeleton } from '@/components/zoruui';
-import {
-  use,
-  useEffect,
-  useState } from 'react';
-import { Star } from 'lucide-react';
-import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields,
-  sections } from '../../_config';
-import { getFeedback360,
-  saveFeedback360 } from '@/app/actions/hr.actions';
+export const dynamic = 'force-dynamic';
 
-export default function EditFeedback360Page({
-  params,
+const BASE = '/dashboard/hrm/hr/feedback-360';
+
+export default async function EditFeedback360Page({
+    params,
 }: {
-  params: Promise<{ id: string }>;
+    params: Promise<{ id: string }>;
 }) {
-  const { id } = use(params);
-  const [initial, setInitial] = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading] = useState(true);
+    const { id } = await params;
+    const session = await getSession();
+    if (!session?.user) redirect('/login');
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const all = await getFeedback360();
-        if (!mounted) return;
-        const doc = (all as any[]).find((r) => String(r._id) === id);
-        setInitial(doc ? ({ ...doc, _id: String(doc._id) } as any) : null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [id]);
+    const doc = await loadLiveDocument('feedback_360', id);
+    if (!doc) notFound();
 
-  if (loading) {
     return (
-      <div className="flex w-full flex-col gap-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
+        <LiveDocumentEditor
+            documentType="feedback_360"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
-  }
-
-  return (
-    <HrFormPage
-      title="Edit 360° Feedback"
-      subtitle="Update feedback details."
-      icon={Star}
-      backHref="/dashboard/hrm/hr/feedback-360"
-      singular="Feedback"
-      fields={fields}
-      sections={sections}
-      saveAction={saveFeedback360}
-      initial={initial}
-    />
-  );
 }

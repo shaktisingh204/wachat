@@ -1,17 +1,15 @@
-'use client';
-
-import { Skeleton, Card } from '@/components/zoruui';
-
 export default function FlowsCreateLoading() {
   return (
-    <div className="p-6 space-y-6">
-      <Skeleton className="h-8 w-1/4" />
-      <Skeleton className="h-4 w-2/4" />
-      <Card className="p-6 space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-      </Card>
+    <div className="flex h-[calc(100vh-theme(spacing.20))] flex-col gap-3 p-6">
+      <div className="flex items-center justify-between">
+        <div className="h-9 w-48 animate-pulse rounded-lg bg-zinc-100" />
+        <div className="h-9 w-72 animate-pulse rounded-lg bg-zinc-100" />
+      </div>
+      <div className="grid flex-1 grid-cols-12 gap-3">
+        <div className="col-span-2 h-full animate-pulse rounded-xl bg-zinc-100" />
+        <div className="col-span-7 h-full animate-pulse rounded-xl bg-zinc-100" />
+        <div className="col-span-3 h-full animate-pulse rounded-xl bg-zinc-100" />
+      </div>
     </div>
   );
 }

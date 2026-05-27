@@ -1,37 +1,27 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
 
-import {
-  useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  EmptyState,
-} from '@/components/zoruui';
-import {
-  useState,
-  useTransition,
-  useCallback } from 'react';
+import * as React from 'react';
 import Link from 'next/link';
-import { Search,
-  MessageCircle,
-  Loader2 } from 'lucide-react';
+import { useState, useTransition, useCallback } from 'react';
+import { Search, MessageCircle, Loader2 } from 'lucide-react';
+import { m, AnimatePresence } from 'motion/react';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  EmptyState,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import { fmtDate } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { searchConversations } from '@/app/actions/wachat-features.actions';
 
 /**
  * /wachat/conversation-search — Full-text search across conversations,
- * rebuilt on ZoruUI primitives.
+ * rebuilt on wachat-ui primitives.
  */
-
-import * as React from 'react';
 
 export default function ConversationSearchPage() {
   const { activeProject } = useProject();
@@ -58,106 +48,107 @@ export default function ConversationSearchPage() {
   }, [query, projectId, toast]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Conversation Search</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Conversation search"
+        description="Search across every message in this project, then jump directly into the matching thread."
+        kicker="Wachat · search"
+        backHref="/wachat"
+        eyebrowIcon={Search}
+      />
 
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Conversation Search
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Search across all conversations by message content.
-        </p>
-      </div>
-
-      <div className="flex max-w-xl gap-3">
-        <div className="flex-1">
-          <Input
-            leadingSlot={<Search />}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            placeholder="Search messages..."
-          />
-        </div>
-        <Button
+      <m.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: EASE_OUT }}
+        className="mb-6 flex max-w-2xl items-center gap-2 rounded-full border border-zinc-200 bg-white p-1.5 transition-colors focus-within:border-zinc-400"
+      >
+        <span className="pl-3 text-zinc-400">
+          <Search className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+        </span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSearch();
+          }}
+          placeholder="Search messages by content..."
+          className="flex-1 bg-transparent text-[14px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+          aria-label="Search conversations"
+        />
+        <WaButton
           size="sm"
+          leftIcon={isLoading ? Loader2 : Search}
           onClick={handleSearch}
           disabled={isLoading || !query.trim()}
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
           Search
-        </Button>
-      </div>
+        </WaButton>
+      </m.div>
 
       {searched && !isLoading && (
-        <p className="text-[12.5px] text-zoru-ink-muted">
-          {results.length} result{results.length !== 1 ? 's' : ''} found
+        <p className="mb-4 text-[12.5px] tabular-nums text-zinc-500">
+          {results.length.toLocaleString('en-IN')} result{results.length !== 1 ? 's' : ''} found
         </p>
       )}
 
       {isLoading && (
         <div className="flex h-32 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+          <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
         </div>
       )}
 
       {!isLoading && results.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {results.map((r: any) => (
-            <Link
-              key={r._id}
-              href={`/wachat/chat?contactId=${r.contactId || ''}`}
-              className="block transition-transform hover:-translate-y-0.5"
-            >
-              <Card className="p-4">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[13px] text-zoru-ink">
-                    {r.contactName || r.contactId || r.from || 'Unknown'}
-                  </span>
-                  <span className="whitespace-nowrap text-[11px] text-zoru-ink-muted">
-                    {r.timestamp ? fmtDate(r.timestamp) : ''}
-                  </span>
-                </div>
-                <p className="text-[13px] leading-relaxed text-zoru-ink-muted">
-                  {r.content?.text || r.messageText || r.type || '--'}
-                </p>
-              </Card>
-            </Link>
-          ))}
-        </div>
+        <ul className="flex flex-col gap-3">
+          <AnimatePresence initial={false}>
+            {results.map((r: any, i) => (
+              <m.li
+                key={r._id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, delay: i * 0.025, ease: EASE_OUT }}
+              >
+                <Link
+                  href={`/wachat/chat?contactId=${r.contactId || ''}`}
+                  className="group block rounded-2xl border border-zinc-200 bg-white p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
+                  style={{ boxShadow: '0 0 0 1px transparent' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 14px 32px -22px var(--mt-accent-glow)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px transparent'; }}
+                >
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <span className="truncate text-[13.5px] font-semibold text-zinc-900">
+                      {r.contactName || r.contactId || r.from || 'Unknown'}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-[11px] text-zinc-400 tabular-nums">
+                      {r.timestamp ? fmtDate(r.timestamp) : ''}
+                    </span>
+                  </div>
+                  <p className="line-clamp-2 text-[13px] leading-relaxed text-zinc-600">
+                    {r.content?.text || r.messageText || r.type || '-'}
+                  </p>
+                </Link>
+              </m.li>
+            ))}
+          </AnimatePresence>
+        </ul>
       )}
 
       {!isLoading && !searched && (
         <EmptyState
-          icon={<Search />}
+          icon={Search}
           title="Start searching"
-          description="Type a query above to find messages across all conversations."
+          description="Type a query above to find messages across every conversation in this project."
         />
       )}
 
       {!isLoading && searched && results.length === 0 && (
         <EmptyState
-          icon={<MessageCircle />}
+          icon={MessageCircle}
           title="No matches"
-          description="No conversations match your search."
+          description="No conversations contain that text. Try a different query or shorter keyword."
         />
       )}
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

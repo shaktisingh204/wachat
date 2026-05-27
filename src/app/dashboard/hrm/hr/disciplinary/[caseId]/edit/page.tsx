@@ -1,44 +1,30 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
-
-/**
- * Edit disciplinary case page — server wrapper that loads the case by
- * id and passes it as `initialData` to `<DisciplinaryForm />`.
- */
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { notFound, redirect } from 'next/navigation';
 import { getSession } from '@/app/actions/user.actions';
-import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
-
-import { DisciplinaryForm } from '../../_components/disciplinary-form';
+import { loadLiveDocument, saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
 
 export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/hr/disciplinary';
 
-export default async function EditDisciplinaryCasePage({
+export default async function EditDisciplinaryPage({
     params,
 }: {
     params: Promise<{ caseId: string }>;
 }) {
     const { caseId } = await params;
-
     const session = await getSession();
     if (!session?.user) redirect('/login');
 
-    const caseDoc = await getDisciplinaryCaseById(caseId);
-    if (!caseDoc) notFound();
-
-    const employeeRef =
-        caseDoc.employeeName || caseDoc.employeeId || `Case ${caseId.slice(-8)}`;
+    const doc = await loadLiveDocument('disciplinary_letter', caseId);
+    if (!doc) notFound();
 
     return (
-        <EntityListShell
-            title={`Edit · ${employeeRef}`}
-            subtitle="Update case details, evidence and hearings."
-        >
-            <DisciplinaryForm initialData={caseDoc} />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="disciplinary_letter"
+            initialData={doc as Record<string, unknown>}
+            saveAction={saveLiveDocument}
+            backHref={BASE}
+        />
     );
 }

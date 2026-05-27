@@ -1,47 +1,44 @@
 'use client';
 
-import {
-  useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  EmptyState,
-  Badge,
-  cn,
-} from '@/components/zoruui';
+import * as React from 'react';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback,
-  useActionState } from 'react';
-import { Tag,
-  X,
-  Loader2,
-  Plus } from 'lucide-react';
+  useActionState,
+} from 'react';
+import { Tag, X, Loader2, Plus } from 'lucide-react';
+import { m, AnimatePresence } from 'motion/react';
 
+import {
+  useZoruToast,
+  Input,
+  Label,
+  cn,
+} from '@/components/zoruui';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  EmptyState,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 import { useProject } from '@/context/project-context';
-import { getChatLabels, saveChatLabel, deleteChatLabel } from '@/app/actions/wachat-features.actions';
+import {
+  getChatLabels,
+  saveChatLabel,
+  deleteChatLabel,
+} from '@/app/actions/wachat-features.actions';
 
 /**
  * /wachat/chat-labels — Manage colored labels for chat organization,
- * rebuilt on ZoruUI primitives. Color picker uses neutral swatches only.
+ * rebuilt on wachat-ui primitives. Color picker uses a neutral
+ * swatch palette so labels stay distinguishable without clashing
+ * with the emerald module accent.
  */
 
-import * as React from 'react';
-
-/**
- * Neutral palette swatches — labels still encode their accent color via
- * a small dot but the palette is restricted to greys/zoru-ink shades so
- * the surface stays palette-locked.
- */
 const PRESET_COLORS = [
   { name: 'Slate', value: '#475569' },
   { name: 'Stone', value: '#78716c' },
@@ -104,121 +101,107 @@ export default function ChatLabelsPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Chat Labels</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Chat labels"
+        description="Create reusable labels to organize and categorize WhatsApp conversations."
+        kicker="Wachat · labels"
+        backHref="/wachat"
+        eyebrowIcon={Tag}
+      />
 
-      <div className="min-w-0">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Chat Labels
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Create labels to organize and categorize your WhatsApp conversations.
-        </p>
-      </div>
-
-      <Card className="p-6">
-        <h2 className="mb-4 text-[16px] text-zoru-ink">Create a label</h2>
-        <form action={formAction} className="flex flex-col gap-4">
-          <input type="hidden" name="projectId" value={projectId || ''} />
-          <input type="hidden" name="color" value={selectedColor} />
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="label-name">Label name</Label>
-            <Input
-              id="label-name"
-              name="name"
-              placeholder="Label name"
-              required
-              className="max-w-sm"
-            />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-[13px] text-zoru-ink-muted">Color:</span>
-            {PRESET_COLORS.map((c) => (
-              <button
-                key={c.value}
-                type="button"
-                onClick={() => setSelectedColor(c.value)}
-                className={cn(
-                  'h-7 w-7 rounded-full border-2 transition-all',
-                  selectedColor === c.value
-                    ? 'scale-110 border-zoru-ink'
-                    : 'border-transparent',
-                )}
-                style={{ backgroundColor: c.value }}
-                aria-label={c.name}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <Section title="Create a label" description="Name and pick a swatch.">
+          <form action={formAction} className="flex flex-col gap-4">
+            <input type="hidden" name="projectId" value={projectId || ''} />
+            <input type="hidden" name="color" value={selectedColor} />
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="label-name">Label name</Label>
+              <Input
+                id="label-name"
+                name="name"
+                placeholder="e.g. VIP customer"
+                required
               />
-            ))}
-          </div>
-          <div>
-            <Button
-              type="submit"
-              size="md"
-              disabled={isPending || !projectId}
-            >
-              <Plus />
-              {isPending ? 'Saving...' : 'Create Label'}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
-      <Card className="p-6">
-        <h2 className="mb-4 text-[16px] text-zoru-ink">
-          Your Labels ({labels.length})
-        </h2>
-        {isLoading && labels.length === 0 ? (
-          <div className="flex h-20 items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-          </div>
-        ) : labels.length === 0 ? (
-          <EmptyState
-            icon={<Tag />}
-            title="No labels yet"
-            description="Create your first label using the form above."
-            compact
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {labels.map((label) => (
-              <span
-                key={label._id}
-                className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink"
+            </div>
+            <div>
+              <Label className="mb-2 block">Color</Label>
+              <div className="flex flex-wrap items-center gap-2">
+                {PRESET_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setSelectedColor(c.value)}
+                    className={cn(
+                      'h-8 w-8 rounded-full border-2 transition-transform duration-150 active:scale-[0.95]',
+                      selectedColor === c.value ? 'scale-110 border-zinc-900' : 'border-transparent',
+                    )}
+                    style={{ backgroundColor: c.value }}
+                    aria-label={c.name}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <WaButton
+                type="submit"
+                leftIcon={Plus}
+                disabled={isPending || !projectId}
               >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: label.color }}
-                />
-                {label.name}
-                <button
-                  type="button"
-                  onClick={() => handleDelete(label._id)}
-                  disabled={isDeletingId === label._id}
-                  className="ml-1 rounded-full p-0.5 text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink"
-                  aria-label={`Delete ${label.name}`}
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-      </Card>
+                {isPending ? 'Saving...' : 'Create label'}
+              </WaButton>
+            </div>
+          </form>
+        </Section>
 
-      <div className="h-6" />
-    </div>
+        <Section
+          title={`Your labels (${labels.length})`}
+          description="Click the close icon on any label to remove it."
+        >
+          {isLoading && labels.length === 0 ? (
+            <div className="flex h-20 items-center justify-center">
+              <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
+            </div>
+          ) : labels.length === 0 ? (
+            <EmptyState
+              icon={Tag}
+              title="No labels yet"
+              description="Create your first label using the form on the left."
+            />
+          ) : (
+            <ul className="flex flex-wrap gap-2">
+              <AnimatePresence initial={false}>
+                {labels.map((label, i) => (
+                  <m.li
+                    key={label._id}
+                    initial={{ opacity: 0, y: 4, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.94 }}
+                    transition={{ duration: 0.22, delay: i * 0.02, ease: EASE_OUT }}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[13px] font-medium text-zinc-800"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 rounded-full"
+                      style={{ backgroundColor: label.color }}
+                      aria-hidden
+                    />
+                    {label.name}
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(label._id)}
+                      disabled={isDeletingId === label._id}
+                      className="ml-1 grid h-5 w-5 place-items-center rounded-full text-zinc-400 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.92]"
+                      aria-label={`Delete ${label.name}`}
+                    >
+                      <X className="h-3 w-3" strokeWidth={2.25} />
+                    </button>
+                  </m.li>
+                ))}
+              </AnimatePresence>
+            </ul>
+          )}
+        </Section>
+      </div>
+    </WaPage>
   );
 }

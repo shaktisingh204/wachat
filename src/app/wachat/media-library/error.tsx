@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, EmptyState } from '@/components/zoruui';
-import { TriangleAlert } from 'lucide-react';
+import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { WaPage, WaButton, EmptyState } from '@/components/wachat-ui';
 
 export default function MediaLibraryError({
   error,
@@ -11,22 +11,15 @@ export default function MediaLibraryError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error('Error in MediaLibrary:', error);
-  }, [error]);
-
+  useEffect(() => { console.error('[Wachat MediaLibrary]', error); }, [error]);
   return (
-    <div className="flex h-[50vh] flex-col items-center justify-center">
+    <WaPage>
       <EmptyState
-        icon={<TriangleAlert className="h-10 w-10 text-zoru-danger" />}
-        title="Something went wrong"
-        description="We couldn't load this page. Please try again."
-        action={
-          <Button onClick={reset} variant="outline" className="mt-4">
-            Try again
-          </Button>
-        }
+        icon={AlertTriangle}
+        title="Couldn't load the media library"
+        description={error.message || "We hit an error loading your files. Try again, or come back in a moment."}
+        action={<WaButton onClick={reset} leftIcon={RotateCcw}>Try again</WaButton>}
       />
-    </div>
+    </WaPage>
   );
 }

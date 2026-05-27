@@ -1,50 +1,28 @@
-"use client";
+'use client';
 
-import { ZoruHomeShell } from '@/components/zoruui';
-import { usePathname } from "next/navigation";
+import { DashboardShell } from '@/components/dashboard-ui/shell';
+import type { ReactNode } from 'react';
 
 /**
- * WachatShell — wraps `ZoruHomeShell` with the wachat-specific
- * grouped sidebar (Inbox, Contacts, Broadcasts, Templates,
- * Automation, Reports, Growth, Calling, Engagement, Settings).
+ * WachatShell — thin wrapper around the new `DashboardShell`. The shell
+ * auto-resolves the active sidebar from the pathname (via
+ * `findAppSidebarConfig`), so /wachat/* automatically picks up the
+ * existing Wachat module menu without us re-declaring it here.
  *
- * Used by `src/app/wachat/layout.tsx`. Client-only so we can read
- * `usePathname()` to flag the active sidebar item.
+ * Kept as a wrapper so future Wachat-only banners / notices can land
+ * here without touching every page.
  */
 
-import * as React from "react";
-
-import { buildWachatSidebarGroups } from "./wachat-sidebar-config";
-
 export interface WachatShellProps {
-  user?: {
-    name?: string | null;
-    email?: string | null;
-    avatar?: string | null;
-  };
-  plan?: {
-    name?: string | null;
-    credits?: number;
-  };
-  children: React.ReactNode;
+    user?: { name?: string | null; email?: string | null; avatar?: string | null; role?: string | null };
+    plan?: { name?: string | null; credits?: number };
+    children: ReactNode;
 }
 
 export function WachatShell({ user, plan, children }: WachatShellProps) {
-  const pathname = usePathname();
-  const groups = React.useMemo(
-    () => buildWachatSidebarGroups(pathname),
-    [pathname],
-  );
-
-  return (
-    <ZoruHomeShell
-      user={user}
-      plan={plan}
-      sidebarHeading="WaChat"
-      sidebarCaption={user?.name ?? user?.email ?? "Project"}
-      sidebarGroups={groups}
-    >
-      {children}
-    </ZoruHomeShell>
-  );
+    return (
+        <DashboardShell user={user} plan={plan}>
+            {children}
+        </DashboardShell>
+    );
 }

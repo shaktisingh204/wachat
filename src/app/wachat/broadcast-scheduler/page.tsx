@@ -1,5 +1,16 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
+
+import { fmtDate } from '@/lib/utils';
+import React, { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
+import { m, useReducedMotion } from 'motion/react';
+import { CalendarClock, Loader2, Send, Users, ListChecks, CalendarDays, Check } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getScheduledBroadcasts,
+  scheduleBroadcast,
+  cancelScheduledBroadcast,
+} from '@/app/actions/wachat-features.actions';
 
 import {
   useZoruToast,
@@ -12,16 +23,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
   Input,
   Label,
   Select,
@@ -30,53 +31,39 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-  useActionState,
-  } from 'react';
-import {
-  CalendarClock,
-  Loader2,
-  Send,
-  Users,
-  ListChecks,
-  CalendarDays,
-  } from 'lucide-react';
 
-import { useProject } from '@/context/project-context';
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  WaButton,
+  EmptyState,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 /**
- * Wachat Broadcast Scheduler — schedule broadcasts for future delivery.
- *
- * Multi-step numbered stepper: Template → Audience → Schedule → Review.
- * No tab UI — the stepper is a numbered progress indicator with prev/next
- * buttons. Same data + handlers as before (getScheduledBroadcasts,
- * scheduleBroadcast, cancelScheduledBroadcast).
+ * Wachat broadcast scheduler. Same actions; wachat-ui chrome.
  */
-
-import * as React from 'react';
-
-import {
-  getScheduledBroadcasts,
-  scheduleBroadcast,
-  cancelScheduledBroadcast,
-} from '@/app/actions/wachat-features.actions';
 
 const TIMEZONES = ['UTC', 'Asia/Kolkata', 'America/New_York', 'Europe/London'];
 
 const STEPS = [
-  { value: 'template', label: '1. Template', icon: <Send className="h-3.5 w-3.5" /> },
-  { value: 'audience', label: '2. Audience', icon: <Users className="h-3.5 w-3.5" /> },
-  { value: 'schedule', label: '3. Schedule', icon: <CalendarDays className="h-3.5 w-3.5" /> },
-  { value: 'review', label: '4. Review', icon: <ListChecks className="h-3.5 w-3.5" /> },
+  { value: 'template', label: 'Template', Icon: Send },
+  { value: 'audience', label: 'Audience', Icon: Users },
+  { value: 'schedule', label: 'Schedule', Icon: CalendarDays },
+  { value: 'review', label: 'Review', Icon: ListChecks },
 ] as const;
 
 type StepValue = (typeof STEPS)[number]['value'];
 
-/* ── cancel-schedule confirmation ───────────────────────────────── */
+function tone(s: string): StatusTone {
+  if (s === 'scheduled') return 'queued';
+  if (s === 'cancelled') return 'failed';
+  if (s === 'sent' || s === 'completed') return 'sent';
+  return 'draft';
+}
 
 function CancelScheduleDialog({
   schedule,
@@ -90,46 +77,38 @@ function CancelScheduleDialog({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={disabled}>
+        <WaButton variant="ghost" size="sm" disabled={disabled}>
           Cancel
-        </Button>
+        </WaButton>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
           <ZoruAlertDialogTitle>Cancel scheduled broadcast?</ZoruAlertDialogTitle>
           <ZoruAlertDialogDescription>
             &ldquo;{schedule.name}&rdquo; will not be sent at{' '}
-            {schedule.scheduledAt
-              ? fmtDate(schedule.scheduledAt)
-              : 'its scheduled time'}
-            . This action cannot be undone.
+            {schedule.scheduledAt ? fmtDate(schedule.scheduledAt) : 'its scheduled time'}. This action cannot be undone.
           </ZoruAlertDialogDescription>
         </ZoruAlertDialogHeader>
         <ZoruAlertDialogFooter>
           <ZoruAlertDialogCancel>Keep schedule</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={() => onConfirm(schedule._id)}>
-            Cancel schedule
-          </ZoruAlertDialogAction>
+          <ZoruAlertDialogAction onClick={() => onConfirm(schedule._id)}>Cancel schedule</ZoruAlertDialogAction>
         </ZoruAlertDialogFooter>
       </ZoruAlertDialogContent>
     </ZoruAlertDialog>
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
-
 export default function BroadcastSchedulerPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
   const projectId = activeProject?._id?.toString();
+  const reduce = useReducedMotion();
 
   const [schedules, setSchedules] = useState<any[]>([]);
   const [isLoading, startLoading] = useTransition();
   const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   const [step, setStep] = useState<StepValue>('template');
-
-  // Local form state mirrors form fields, used for review preview.
   const [name, setName] = useState('');
   const [templateName, setTemplateName] = useState('');
   const [audience, setAudience] = useState('');
@@ -137,21 +116,13 @@ export default function BroadcastSchedulerPage() {
   const [scheduledAt, setScheduledAt] = useState('');
   const [recurring, setRecurring] = useState('none');
 
-  const [formState, formAction, isPending] = useActionState(
-    scheduleBroadcast,
-    null,
-  );
+  const [formState, formAction, isPending] = useActionState(scheduleBroadcast, null);
 
   const fetchSchedules = useCallback(
     (pid: string) => {
       startLoading(async () => {
         const res = await getScheduledBroadcasts(pid);
-        if (res.error)
-          toast({
-            title: 'Error',
-            description: res.error,
-            variant: 'destructive',
-          });
+        if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
         else setSchedules(res.schedules || []);
       });
     },
@@ -172,32 +143,17 @@ export default function BroadcastSchedulerPage() {
       setScheduledAt('');
       setStep('template');
     }
-    if (formState?.error)
-      toast({
-        title: 'Error',
-        description: formState.error,
-        variant: 'destructive',
-      });
+    if (formState?.error) toast({ title: 'Error', description: formState.error, variant: 'destructive' });
   }, [formState, toast, projectId, fetchSchedules]);
 
   const handleCancel = async (id: string) => {
     setCancellingId(id);
     const res = await cancelScheduledBroadcast(id);
     setCancellingId(null);
-    if (res.error)
-      toast({
-        title: 'Error',
-        description: res.error,
-        variant: 'destructive',
-      });
+    if (res.error) toast({ title: 'Error', description: res.error, variant: 'destructive' });
     else {
-      setSchedules((prev) =>
-        prev.map((s) => (s._id === id ? { ...s, status: 'cancelled' } : s)),
-      );
-      toast({
-        title: 'Cancelled',
-        description: 'Broadcast schedule cancelled.',
-      });
+      setSchedules((prev) => prev.map((s) => (s._id === id ? { ...s, status: 'cancelled' } : s)));
+      toast({ title: 'Cancelled', description: 'Broadcast schedule cancelled.' });
     }
   };
 
@@ -211,37 +167,20 @@ export default function BroadcastSchedulerPage() {
   };
 
   const isLastStep = step === 'review';
+  const stepIndex = STEPS.findIndex((s) => s.value === step);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Broadcast Scheduler</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Broadcast scheduler"
+        description="Queue broadcasts for future delivery with one-time or recurring schedules."
+        kicker="Wachat / scheduler"
+        eyebrowIcon={CalendarClock}
+        backHref="/wachat"
+      />
 
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Broadcast Scheduler
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Schedule broadcasts for future delivery.
-        </p>
-      </div>
-
-      <Card className="p-6">
-        <h2 className="text-[16px] text-zoru-ink mb-4">New Schedule</h2>
-        <form action={formAction} className="flex flex-col gap-4">
+      <Section title="New schedule" description="Step through template, audience, timing, then save.">
+        <form action={formAction} className="flex flex-col gap-5">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="name" value={name} />
           <input type="hidden" name="templateName" value={templateName} />
@@ -250,54 +189,53 @@ export default function BroadcastSchedulerPage() {
           <input type="hidden" name="scheduledAt" value={scheduledAt} />
           <input type="hidden" name="recurring" value={recurring} />
 
-          {/* Numbered stepper (no tabs) — visual progress only.
-              Step content is swapped below based on `step` state. */}
+          {/* Stepper */}
           <ol className="flex flex-wrap items-center gap-2">
             {STEPS.map((s, idx) => {
               const isActive = s.value === step;
-              const stepIndex = STEPS.findIndex((x) => x.value === step);
               const isComplete = idx < stepIndex;
+              const Icon = s.Icon;
               return (
                 <li key={s.value} className="flex items-center gap-2">
                   <div
-                    className={`flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs ${
+                    className={`flex h-8 items-center gap-1.5 rounded-full px-3 text-[11.5px] font-semibold transition-colors ${
                       isActive
-                        ? 'bg-zoru-ink text-zoru-on-primary'
+                        ? 'text-white'
                         : isComplete
-                          ? 'border border-zoru-line bg-zoru-surface text-zoru-ink'
-                          : 'border border-zoru-line bg-zoru-bg text-zoru-ink-muted'
+                          ? 'border border-zinc-200 bg-zinc-50 text-zinc-700'
+                          : 'border border-zinc-200 bg-white text-zinc-500'
                     }`}
+                    style={isActive ? { background: 'var(--mt-accent)' } : undefined}
                   >
-                    <span className="text-[11px]">{idx + 1}</span>
+                    <span className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] tabular-nums">
+                      {isComplete ? <Check className="h-3 w-3" strokeWidth={2.5} /> : idx + 1}
+                    </span>
+                    <Icon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
                     {s.label}
                   </div>
                   {idx < STEPS.length - 1 && (
-                    <span
-                      className={`h-px w-6 ${
-                        isComplete ? 'bg-zoru-ink' : 'bg-zoru-line'
-                      }`}
-                    />
+                    <span className={`h-px w-6 ${isComplete ? 'bg-zinc-900' : 'bg-zinc-200'}`} aria-hidden />
                   )}
                 </li>
               );
             })}
           </ol>
 
-          <div className="mt-5">
+          <m.div
+            key={step}
+            initial={reduce ? false : { opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: EASE_OUT }}
+            className="mt-2"
+          >
             {step === 'template' && (
-              <div className="flex flex-col gap-4 max-w-xl">
+              <div className="grid max-w-xl gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-name">Broadcast name *</Label>
-                  <Input
-                    id="bs-name"
-                    placeholder="Spring promo"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
+                  <Label htmlFor="bs-name">Broadcast name</Label>
+                  <Input id="bs-name" placeholder="Spring promo" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-template">Template name *</Label>
+                  <Label htmlFor="bs-template">Template name</Label>
                   <Input
                     id="bs-template"
                     placeholder="welcome_v3"
@@ -310,11 +248,9 @@ export default function BroadcastSchedulerPage() {
             )}
 
             {step === 'audience' && (
-              <div className="flex flex-col gap-4 max-w-xl">
+              <div className="grid max-w-xl gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-audience">
-                    Audience (default: all)
-                  </Label>
+                  <Label htmlFor="bs-audience">Audience (default: all)</Label>
                   <Input
                     id="bs-audience"
                     placeholder="segment-id or empty for all contacts"
@@ -326,7 +262,7 @@ export default function BroadcastSchedulerPage() {
             )}
 
             {step === 'schedule' && (
-              <div className="grid gap-4 max-w-xl sm:grid-cols-2">
+              <div className="grid max-w-xl gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label>Timezone</Label>
                   <Select value={timezone} onValueChange={setTimezone}>
@@ -343,7 +279,7 @@ export default function BroadcastSchedulerPage() {
                   </Select>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-when">Scheduled at *</Label>
+                  <Label htmlFor="bs-when">Scheduled at</Label>
                   <Input
                     id="bs-when"
                     type="datetime-local"
@@ -370,126 +306,88 @@ export default function BroadcastSchedulerPage() {
             )}
 
             {step === 'review' && (
-              <div className="grid grid-cols-2 gap-3 max-w-xl text-[13px]">
-                <ReviewRow label="Name" value={name || '—'} />
-                <ReviewRow label="Template" value={templateName || '—'} />
+              <div className="grid max-w-xl gap-3 text-[13px] sm:grid-cols-2">
+                <ReviewRow label="Name" value={name || '-'} />
+                <ReviewRow label="Template" value={templateName || '-'} />
                 <ReviewRow label="Audience" value={audience || 'All contacts'} />
                 <ReviewRow label="Timezone" value={timezone} />
-                <ReviewRow
-                  label="Scheduled at"
-                  value={
-                    scheduledAt
-                      ? fmtDate(scheduledAt)
-                      : '—'
-                  }
-                />
+                <ReviewRow label="Scheduled at" value={scheduledAt ? fmtDate(scheduledAt) : '-'} />
                 <ReviewRow label="Recurring" value={recurring} />
               </div>
             )}
-          </div>
+          </m.div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 border-t border-zoru-line pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={goBack}
-              disabled={step === 'template'}
-            >
+          <div className="flex items-center justify-between gap-2 border-t border-zinc-100 pt-4">
+            <WaButton variant="outline" size="sm" onClick={goBack} disabled={step === 'template'} type="button">
               Back
-            </Button>
+            </WaButton>
             {isLastStep ? (
-              <Button type="submit" disabled={isPending || !projectId}>
-                {isPending ? 'Scheduling…' : 'Save Schedule'}
-              </Button>
+              <WaButton type="submit" disabled={isPending || !projectId}>
+                {isPending ? 'Scheduling' : 'Save schedule'}
+              </WaButton>
             ) : (
-              <Button type="button" onClick={goNext}>
+              <WaButton onClick={goNext} type="button">
                 Next
-              </Button>
+              </WaButton>
             )}
           </div>
         </form>
-      </Card>
+      </Section>
 
-      {isLoading && schedules.length === 0 ? (
-        <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-        </div>
-      ) : schedules.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="px-5 py-3">Name</th>
-                <th className="px-5 py-3">Template</th>
-                <th className="px-5 py-3">Scheduled At</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {schedules.map((s) => (
-                <tr
+      <div className="mt-6">
+        {isLoading && schedules.length === 0 ? (
+          <div className="flex h-20 items-center justify-center">
+            <Loader2 className="h-5 w-5 animate-spin text-zinc-400" />
+          </div>
+        ) : schedules.length > 0 ? (
+          <Section title="Upcoming schedules" padded={false}>
+            <ul className="divide-y divide-zinc-100">
+              {schedules.map((s, i) => (
+                <m.li
                   key={s._id}
-                  className="border-b border-zoru-line last:border-0"
+                  initial={reduce ? false : { opacity: 0, y: 4 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.3, delay: 0.02 + Math.min(i, 20) * 0.03, ease: EASE_OUT }}
+                  className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-3 transition-colors hover:bg-zinc-50 sm:grid-cols-[2fr_1.4fr_1.4fr_auto_auto]"
                 >
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                    {s.name}
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
-                    {s.templateName}
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
-                    {s.scheduledAt
-                      ? fmtDate(s.scheduledAt)
-                      : '--'}
-                  </td>
-                  <td className="px-5 py-3">
-                    <Badge
-                      variant={
-                        s.status === 'scheduled'
-                          ? 'info'
-                          : s.status === 'cancelled'
-                            ? 'danger'
-                            : 'secondary'
-                      }
-                    >
-                      {s.status}
-                    </Badge>
-                  </td>
-                  <td className="px-5 py-3 text-right">
+                  <div className="min-w-0">
+                    <p className="truncate text-[13.5px] font-medium text-zinc-900">{s.name}</p>
+                    <p className="truncate text-[11.5px] text-zinc-500 sm:hidden">
+                      {s.templateName} {s.scheduledAt ? ` / ${fmtDate(s.scheduledAt)}` : ''}
+                    </p>
+                  </div>
+                  <span className="hidden truncate text-[12.5px] text-zinc-500 sm:inline">{s.templateName}</span>
+                  <span className="hidden truncate text-[12.5px] tabular-nums text-zinc-500 sm:inline">
+                    {s.scheduledAt ? fmtDate(s.scheduledAt) : '--'}
+                  </span>
+                  <StatusPill tone={tone(s.status)}>{s.status}</StatusPill>
+                  <div>
                     {s.status === 'scheduled' && (
-                      <CancelScheduleDialog
-                        schedule={s}
-                        onConfirm={handleCancel}
-                        disabled={cancellingId === s._id}
-                      />
+                      <CancelScheduleDialog schedule={s} onConfirm={handleCancel} disabled={cancellingId === s._id} />
                     )}
-                  </td>
-                </tr>
+                  </div>
+                </m.li>
               ))}
-            </tbody>
-          </table>
-        </Card>
-      ) : (
-        <EmptyState
-          icon={<CalendarClock />}
-          title="No scheduled broadcasts"
-          description="Use the form above to queue a broadcast for the future."
-        />
-      )}
-      <div className="h-6" />
-    </div>
+            </ul>
+          </Section>
+        ) : (
+          <EmptyState
+            icon={CalendarClock}
+            title="No scheduled broadcasts"
+            description="Use the form above to queue a broadcast for the future."
+          />
+        )}
+      </div>
+    </WaPage>
   );
 }
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-1 text-zoru-ink truncate">{value}</div>
+    <div className="rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3">
+      <div className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">{label}</div>
+      <div className="mt-1 truncate text-[13px] text-zinc-900">{value}</div>
     </div>
   );
 }

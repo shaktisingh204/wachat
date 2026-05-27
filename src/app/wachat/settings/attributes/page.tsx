@@ -1,94 +1,64 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
-import { CircleAlert } from 'lucide-react';
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { CircleAlert, Tag } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { UserAttributesSettingsTab } from '@/components/zoruui-domain/user-attributes-settings-tab';
-
-import * as React from 'react';
+import { WaPage, PageHeader, Section, EmptyState, WaButton } from '@/components/wachat-ui';
 
 export default function AttributesSettingsPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>User attributes</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   if (isLoadingProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <Skeleton className="h-[420px] w-full" />
-      </div>
+      <WaPage>
+        <PageHeader
+          title="User attributes"
+          description="Custom contact fields for segmentation and personalization."
+          kicker="Wachat · settings"
+          backHref="/wachat"
+          eyebrowIcon={Tag}
+        />
+        <div className="h-[420px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+      </WaPage>
     );
   }
 
   if (!activeProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
-          title="Select a project first"
-          description="Pick a project from the WaChat home page to manage user attributes."
-          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
+      <WaPage>
+        <PageHeader
+          title="User attributes"
+          description="Custom contact fields for segmentation and personalization."
+          kicker="Wachat · settings"
+          backHref="/wachat"
+          eyebrowIcon={Tag}
         />
-      </div>
+        <EmptyState
+          icon={CircleAlert}
+          title="Select a project first"
+          description="Pick a project from the Wachat home page to manage user attributes."
+          action={<WaButton onClick={() => router.push('/wachat')}>Choose a project</WaButton>}
+        />
+      </WaPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>User attributes</ZoruPageTitle>
-          <ZoruPageDescription>
-            Custom contact fields for segmentation and personalization.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <Card>
-        <ZoruCardContent>
-          <UserAttributesSettingsTab project={activeProject} />
-        </ZoruCardContent>
-      </Card>
-    </div>
+    <WaPage>
+      <PageHeader
+        title="User attributes"
+        description="Custom contact fields for segmentation and personalization."
+        kicker="Wachat · settings"
+        backHref="/wachat"
+        eyebrowIcon={Tag}
+      />
+      <Section>
+        <UserAttributesSettingsTab project={activeProject} />
+      </Section>
+    </WaPage>
   );
 }

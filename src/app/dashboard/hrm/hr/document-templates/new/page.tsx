@@ -1,35 +1,15 @@
-import { Suspense } from 'react';
-import { redirect } from 'next/navigation';
+'use client';
 
-/**
- * New document template page — server wrapper around `<DocumentTemplateForm />`.
- */
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getSession } from '@/app/actions/user.actions';
-
-import { DocumentTemplateForm } from '../_components/document-template-form';
-
-export const dynamic = 'force-dynamic';
-
-async function NewDocumentTemplatePageContainer() {
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
-    return (
-        <EntityListShell
-            title="New Document Template"
-            subtitle="Author a reusable HR document template with placeholder variables."
-        >
-            <DocumentTemplateForm />
-        </EntityListShell>
-    );
-}
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
 export default function NewDocumentTemplatePage() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <NewDocumentTemplatePageContainer  />
-    </Suspense>
-  );
+    return (
+        <LiveDocumentEditor
+            documentType="document_template"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/document-templates"
+        />
+    );
 }

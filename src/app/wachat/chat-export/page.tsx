@@ -1,15 +1,12 @@
 'use client';
 
+import * as React from 'react';
+import { useState, useTransition } from 'react';
+import { Download, Loader2, FileText, FileJson, FileSpreadsheet, FileType } from 'lucide-react';
+import { m } from 'motion/react';
+
 import {
   useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
   Input,
   Label,
   Select,
@@ -19,21 +16,20 @@ import {
   ZoruSelectValue,
 } from '@/components/zoruui';
 import {
-  useState,
-  useTransition } from 'react';
-import { Download,
-  Loader2,
-  FileText } from 'lucide-react';
-
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 import { useProject } from '@/context/project-context';
 import { exportChatHistory } from '@/app/actions/wachat-features.actions';
 
 /**
- * /wachat/chat-export — Export chat history as JSON / CSV / TXT,
- * rebuilt on ZoruUI primitives.
+ * /wachat/chat-export — Export chat history as JSON / CSV / TXT.
+ * Rebuilt on wachat-ui primitives. All export helpers + server action
+ * call preserved verbatim.
  */
-
-import * as React from 'react';
 
 function downloadFile(content: string, filename: string, type: string) {
   const blob = new Blob([content], { type });
@@ -111,84 +107,101 @@ export default function ChatExportPage() {
     });
   };
 
+  const formatIcon = format === 'json' ? FileJson : format === 'csv' ? FileSpreadsheet : FileType;
+
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Chat Export</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Chat export"
+        description="Pull a contact's full message history as JSON, CSV, or plain text."
+        kicker="Wachat · export"
+        backHref="/wachat"
+        eyebrowIcon={Download}
+      />
 
-      <div className="min-w-0">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Chat Export
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Export chat history for any contact as JSON or CSV for record-keeping.
-        </p>
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <Section title="Export settings" description="Choose a contact and a destination format.">
+          <form onSubmit={handleExport} className="flex max-w-md flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="export-contact-id">Contact ID</Label>
+              <Input
+                id="export-contact-id"
+                value={contactId}
+                onChange={(e) => setContactId(e.target.value)}
+                placeholder="Contact ID or phone number"
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="export-format">Export format</Label>
+              <Select value={format} onValueChange={setFormat}>
+                <ZoruSelectTrigger id="export-format" className="w-full">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="json">JSON</ZoruSelectItem>
+                  <ZoruSelectItem value="csv">CSV</ZoruSelectItem>
+                  <ZoruSelectItem value="txt">Plain text (TXT)</ZoruSelectItem>
+                </ZoruSelectContent>
+              </Select>
+            </div>
+            <div>
+              <WaButton
+                type="submit"
+                leftIcon={isExporting ? Loader2 : Download}
+                disabled={isExporting || !projectId || !contactId.trim()}
+              >
+                {isExporting ? 'Exporting...' : 'Export chat'}
+              </WaButton>
+            </div>
+          </form>
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-[16px] text-zoru-ink">Export settings</h2>
-        <form onSubmit={handleExport} className="flex max-w-md flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="export-contact-id">Contact ID</Label>
-            <Input
-              id="export-contact-id"
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              placeholder="Contact ID or phone number"
-              required
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="export-format">Export format</Label>
-            <Select value={format} onValueChange={setFormat}>
-              <ZoruSelectTrigger id="export-format" className="w-full">
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="json">JSON</ZoruSelectItem>
-                <ZoruSelectItem value="csv">CSV</ZoruSelectItem>
-                <ZoruSelectItem value="txt">Plain text (TXT)</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div>
-            <Button
-              type="submit"
-              size="md"
-              disabled={isExporting || !projectId || !contactId.trim()}
+          {messageCount !== null && (
+            <m.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: EASE_OUT }}
+              className="mt-5 flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50/60 px-4 py-3"
             >
-              {isExporting ? <Loader2 className="animate-spin" /> : <Download />}
-              {isExporting ? 'Exporting...' : 'Export Chat'}
-            </Button>
-          </div>
-        </form>
+              <FileText className="h-4 w-4 text-zinc-500" strokeWidth={2} aria-hidden />
+              <span className="text-[13px] text-zinc-700">
+                {messageCount === 0
+                  ? 'No messages found for this contact.'
+                  : `${messageCount.toLocaleString('en-IN')} message${messageCount !== 1 ? 's' : ''} found and exported.`}
+              </span>
+            </m.div>
+          )}
+        </Section>
 
-        {messageCount !== null && (
-          <div className="mt-6 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-            <FileText className="h-4 w-4 text-zoru-ink-muted" />
-            <span className="text-[13px] text-zoru-ink">
-              {messageCount === 0
-                ? 'No messages found for this contact.'
-                : `${messageCount} message${messageCount !== 1 ? 's' : ''} found and exported.`}
+        <Section
+          title="Selected format"
+          description="A quick preview of what you'll get."
+        >
+          <div className="flex flex-col items-center gap-3 py-3 text-center">
+            <span
+              className="grid h-14 w-14 place-items-center rounded-2xl"
+              style={{ background: 'var(--mt-accent-soft)' }}
+            >
+              {React.createElement(formatIcon, {
+                className: 'h-6 w-6',
+                strokeWidth: 2,
+                style: { color: 'var(--mt-accent)' },
+                'aria-hidden': true,
+              } as any)}
             </span>
+            <div>
+              <p className="text-sm font-semibold text-zinc-900">{format.toUpperCase()}</p>
+              <p className="mt-1 text-[12px] text-zinc-500">
+                {format === 'json'
+                  ? 'Lossless. Every field preserved as structured data.'
+                  : format === 'csv'
+                  ? 'Spreadsheet-ready. One row per message with timestamp, direction, status, content.'
+                  : 'Human-readable. Each line prefixed with timestamp and direction.'}
+              </p>
+            </div>
           </div>
-        )}
-      </Card>
-
-      <div className="h-6" />
-    </div>
+        </Section>
+      </div>
+    </WaPage>
   );
 }

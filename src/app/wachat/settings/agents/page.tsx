@@ -1,31 +1,19 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  useEffect,
-  useState } from 'react';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, Users } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getSession } from '@/app/actions/index.ts';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  EmptyState,
+} from '@/components/wachat-ui';
 import { AgentsSettingsClient } from './client-page';
-
-import * as React from 'react';
 
 export default function AgentsSettingsPage() {
   const router = useRouter();
@@ -38,65 +26,55 @@ export default function AgentsSettingsPage() {
     });
   }, []);
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>Agents & roles</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   if (isLoadingProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <Skeleton className="h-[420px] w-full" />
-      </div>
+      <WaPage>
+        <PageHeader
+          title="Agents, roles, and routing"
+          description="Invite teammates, configure role-based permissions, and manage conversation routing logic."
+          kicker="Wachat · settings"
+          backHref="/wachat"
+          eyebrowIcon={Users}
+        />
+        <div className="h-[420px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+      </WaPage>
     );
   }
 
   if (!activeProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
-          title="Select a project first"
-          description="Pick a project from the WaChat home page to manage agents."
-          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
+      <WaPage>
+        <PageHeader
+          title="Agents, roles, and routing"
+          description="Invite teammates, configure role-based permissions, and manage conversation routing logic."
+          kicker="Wachat · settings"
+          backHref="/wachat"
+          eyebrowIcon={Users}
         />
-      </div>
+        <EmptyState
+          icon={CircleAlert}
+          title="Select a project first"
+          description="Pick a project from the Wachat home page to manage agents."
+          action={<WaButton onClick={() => router.push('/wachat')}>Choose a project</WaButton>}
+        />
+      </WaPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Agents, Roles & Routing</ZoruPageTitle>
-          <ZoruPageDescription>
-            Invite teammates, configure role-based permissions, and manage conversation routing logic.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
+    <WaPage>
+      <PageHeader
+        title="Agents, roles, and routing"
+        description="Invite teammates, configure role-based permissions, and manage conversation routing logic."
+        kicker="Wachat · settings"
+        backHref="/wachat"
+        eyebrowIcon={Users}
+      />
       {user ? (
         <AgentsSettingsClient project={activeProject} />
       ) : (
-        <Skeleton className="h-40 w-full" />
+        <div className="h-40 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
       )}
-    </div>
+    </WaPage>
   );
 }

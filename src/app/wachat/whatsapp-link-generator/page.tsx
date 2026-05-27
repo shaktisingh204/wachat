@@ -1,6 +1,17 @@
 'use client';
 
+import * as React from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { m, useReducedMotion } from 'motion/react';
+import { Link as LinkIcon, Copy, Check, QrCode, ExternalLink } from 'lucide-react';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
+import { useProject } from '@/context/project-context';
+import { shortenUrlAction } from './actions';
 import {
+  Input,
+  Label,
+  Textarea,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -9,54 +20,23 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Textarea,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useMemo,
-  useState } from 'react';
-import { Link as LinkIcon,
-  Copy,
-  Check,
-  QrCode } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import { shortenUrlAction } from './actions';
+import { WaPage, PageHeader, WaButton, Section } from '@/components/wachat-ui';
 
 /**
- * Wachat WhatsApp Link Generator (ZoruUI).
- *
- * Generate wa.me links with pre-filled messages. Self-contained
- * client-side tool. Uses project phone number as default. Includes
- * copy-link confirmation alert dialog and live QR preview.
+ * WhatsApp Link Generator - produce wa.me deep links with prefilled
+ * messages. Local-only tool with optional URL shortening through
+ * `shortenUrlAction` and a live QR preview.
  */
 
-import * as React from 'react';
-
 export default function WhatsAppLinkGeneratorPage() {
+  const reduce = useReducedMotion();
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
 
   const projectPhone =
-    (activeProject as unknown as { phoneNumber?: string; whatsappNumber?: string })
-      ?.phoneNumber ||
+    (activeProject as unknown as { phoneNumber?: string; whatsappNumber?: string })?.phoneNumber ||
     (activeProject as unknown as { whatsappNumber?: string })?.whatsappNumber ||
     '';
 
@@ -67,58 +47,43 @@ export default function WhatsAppLinkGeneratorPage() {
   const [isShortening, setIsShortening] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
 
-  useEffect(() => {
-    if (projectPhone && !phone) setPhone(projectPhone);
-  }, [projectPhone, phone]);
+  useEffect(() => { if (projectPhone && !phone) setPhone(projectPhone); }, [projectPhone, phone]);
 
   const { isValid, cleanPhone, formattedPhone } = useMemo(() => {
     let p = phone.trim();
     if (!p) return { isValid: false, cleanPhone: '', formattedPhone: '' };
-    if (/^\d/.test(p)) {
-      p = '+' + p;
-    }
+    if (/^\d/.test(p)) p = '+' + p;
     const pn = parsePhoneNumberFromString(p);
     const valid = pn ? pn.isValid() : false;
-    const clean = valid ? pn!.format('E.164').replace('+', '') : '';
-    const formatted = valid ? pn!.formatInternational() : '';
-    return { isValid: valid, cleanPhone: clean, formattedPhone: formatted };
+    return {
+      isValid: valid,
+      cleanPhone: valid ? pn!.format('E.164').replace('+', '') : '',
+      formattedPhone: valid ? pn!.formatInternational() : '',
+    };
   }, [phone]);
 
   const generatedLink = useMemo(() => {
     if (!isValid || !cleanPhone) return '';
-    const encodedMsg = message.trim()
-      ? `?text=${encodeURIComponent(message.trim())}`
-      : '';
-    return `https://wa.me/${cleanPhone}${encodedMsg}`;
+    const encoded = message.trim() ? `?text=${encodeURIComponent(message.trim())}` : '';
+    return `https://wa.me/${cleanPhone}${encoded}`;
   }, [isValid, cleanPhone, message]);
 
-  useEffect(() => {
-    setShortUrl('');
-  }, [generatedLink]);
+  useEffect(() => { setShortUrl(''); }, [generatedLink]);
 
   const handleShortenLink = async () => {
     if (!generatedLink) return;
     setIsShortening(true);
     try {
       const res = await shortenUrlAction(generatedLink);
-      if (res) {
-        setShortUrl(res);
-        toast({ title: 'Success', description: 'Link shortened successfully.' });
-      } else {
-        toast({ title: 'Error', description: 'Failed to shorten link.', variant: 'destructive' });
-      }
-    } catch (error) {
-      toast({ title: 'Error', description: 'An error occurred while shortening.', variant: 'destructive' });
-    } finally {
-      setIsShortening(false);
-    }
+      if (res) { setShortUrl(res); toast({ title: 'Shortened', description: 'Compact link ready.' }); }
+      else toast({ title: 'Error', description: 'Failed to shorten link.', variant: 'destructive' });
+    } catch { toast({ title: 'Error', description: 'Could not shorten.', variant: 'destructive' }); }
+    finally { setIsShortening(false); }
   };
 
   const qrUrl = useMemo(() => {
     if (!generatedLink) return '';
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-      generatedLink,
-    )}`;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(generatedLink)}`;
   }, [generatedLink]);
 
   const linkToCopy = shortUrl || generatedLink;
@@ -132,203 +97,160 @@ export default function WhatsAppLinkGeneratorPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Link Generator</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="WhatsApp link generator"
+        description="Build wa.me links with a prefilled message. Shorten, scan, and share anywhere."
+        kicker="Wachat · tools"
+        eyebrowIcon={LinkIcon}
+      />
 
-      <PageHeader className="mt-2">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
-          <ZoruPageTitle>WhatsApp Link Generator</ZoruPageTitle>
-          <ZoruPageDescription>
-            Generate wa.me links with pre-filled messages for easy sharing.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Form column */}
-        <Card className="flex flex-col gap-4 p-6">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="link-phone">
-              Phone Number (with country code)
-            </Label>
-            <Input
-              id="link-phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="+91 98765 43210"
-              className="font-mono"
-              invalid={phone.length > 0 && !isValid}
-            />
-            <div className="flex items-start justify-between mt-0.5 min-h-[20px]">
-              <div className="text-[11px]">
-                {phone && !isValid ? (
-                  <span className="text-zoru-danger">Invalid phone number. Check country code.</span>
-                ) : phone && isValid ? (
-                  <span className="text-zoru-success">Valid: {formattedPhone}</span>
-                ) : null}
-              </div>
-              {projectPhone ? (
-                <button
-                  type="button"
-                  onClick={() => setPhone(projectPhone)}
-                  className="shrink-0 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink hover:underline ml-2"
-                >
-                  Use project number
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="link-message">
-              Pre-filled Message (optional)
-            </Label>
-            <Textarea
-              id="link-message"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              rows={4}
-              placeholder="Hi! I am interested in your services..."
-              maxLength={1024}
-            />
-            <div className="text-right text-[11px] text-zoru-ink-muted">
-              {message.length}/1024
-            </div>
-          </div>
-
-          {generatedLink ? (
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[12px] text-zoru-ink-muted">Generated Link</span>
-                {!shortUrl && (
+      <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        {/* Form */}
+        <Section title="Link details">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="link-phone">Phone number (with country code)</Label>
+              <Input
+                id="link-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="font-mono"
+                invalid={phone.length > 0 && !isValid}
+              />
+              <div className="flex min-h-[20px] items-start justify-between text-[11px]">
+                <div>
+                  {phone && !isValid ? <span className="text-rose-600">Invalid phone number. Check country code.</span> :
+                    phone && isValid ? <span className="text-emerald-600">Valid: {formattedPhone}</span> : null}
+                </div>
+                {projectPhone && (
                   <button
                     type="button"
-                    onClick={handleShortenLink}
-                    disabled={isShortening}
-                    className="text-[11px] font-medium text-zoru-ink transition-colors hover:underline disabled:opacity-50"
+                    onClick={() => setPhone(projectPhone)}
+                    className="ml-2 shrink-0 font-semibold text-zinc-500 transition-colors hover:text-zinc-900 hover:underline"
                   >
-                    {isShortening ? 'Shortening...' : 'Shorten link'}
+                    Use project number
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                <Input
-                  readOnly
-                  value={shortUrl || generatedLink}
-                  className="font-mono text-[12px]"
-                />
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  aria-label="Copy link"
-                  onClick={performCopy}
-                >
-                  {copied ? <Check /> : <Copy />}
-                </Button>
-              </div>
             </div>
-          ) : null}
 
-          <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={() => setConfirmOpen(true)}
-              disabled={!generatedLink}
-            >
-              <LinkIcon />
-              {copied ? 'Copied!' : 'Copy Link'}
-            </Button>
-            {generatedLink ? (
-              <Button
-                variant="outline"
-                onClick={() => window.open(shortUrl || generatedLink, '_blank')}
-              >
-                Test Link
-              </Button>
-            ) : null}
-          </div>
-        </Card>
-
-        {/* QR preview column */}
-        <Card className="flex flex-col items-center justify-center p-6">
-          {qrUrl ? (
-            <>
-              <div className="mb-4 text-[12px] text-zoru-ink-muted">
-                Scan to open chat
-              </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={qrUrl}
-                alt="QR Code for WhatsApp link"
-                width={200}
-                height={200}
-                className="rounded-[var(--zoru-radius)] border border-zoru-line"
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="link-message">Prefilled message (optional)</Label>
+              <Textarea
+                id="link-message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={4}
+                placeholder="Hi! I am interested in your services..."
+                maxLength={1024}
               />
-              <p className="mt-4 max-w-[260px] text-center text-[12px] text-zoru-ink-muted">
-                Share this QR code so customers can start chatting with you
-                instantly.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-3"
-                onClick={() => window.open(qrUrl, '_blank')}
-              >
-                Download QR
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <QrCode className="h-16 w-16 text-zoru-ink-subtle" />
-              <p className="text-[13px] text-zoru-ink-muted">
-                Enter a phone number to generate a QR code
-              </p>
+              <div className="text-right text-[11px] text-zinc-500 tabular-nums">{message.length}/1024</div>
             </div>
-          )}
-        </Card>
+
+            {generatedLink && (
+              <m.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduce ? 0 : 0.3 }}
+                className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4"
+              >
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Generated link</span>
+                  {!shortUrl && (
+                    <button
+                      type="button"
+                      onClick={handleShortenLink}
+                      disabled={isShortening}
+                      className="text-[11.5px] font-semibold transition-colors hover:underline disabled:opacity-50"
+                      style={{ color: 'var(--mt-accent)' }}
+                    >
+                      {isShortening ? 'Shortening...' : 'Shorten link'}
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Input readOnly value={shortUrl || generatedLink} className="font-mono text-[12px]" />
+                  <button
+                    type="button"
+                    onClick={performCopy}
+                    aria-label="Copy link"
+                    className="grid h-9 w-9 place-items-center rounded-full border border-zinc-200 bg-white text-zinc-500 transition-colors hover:border-zinc-900 hover:text-zinc-900 active:scale-[0.94]"
+                  >
+                    {copied ? <Check className="h-3.5 w-3.5" strokeWidth={2.25} /> : <Copy className="h-3.5 w-3.5" strokeWidth={2.25} />}
+                  </button>
+                </div>
+              </m.div>
+            )}
+
+            <div className="flex flex-wrap gap-2">
+              <WaButton onClick={() => setConfirmOpen(true)} disabled={!generatedLink} leftIcon={LinkIcon}>
+                {copied ? 'Copied!' : 'Copy link'}
+              </WaButton>
+              {generatedLink && (
+                <WaButton variant="outline" rightIcon={ExternalLink} onClick={() => window.open(shortUrl || generatedLink, '_blank')}>
+                  Test link
+                </WaButton>
+              )}
+            </div>
+          </div>
+        </Section>
+
+        {/* QR preview */}
+        <Section title="Scan preview" description="Customers can scan to open chat instantly.">
+          <div className="flex flex-col items-center justify-center py-3">
+            {qrUrl ? (
+              <>
+                <m.img
+                  key={qrUrl}
+                  src={qrUrl}
+                  alt="QR code"
+                  layoutId={reduce ? undefined : 'wa-link-qr'}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+                  width={240}
+                  height={240}
+                  className="rounded-2xl border border-zinc-200 shadow-[0_18px_40px_-22px_var(--mt-accent-glow)]"
+                />
+                <p className="mt-4 max-w-[260px] text-center text-[12px] text-zinc-500">
+                  Share this QR so customers open WhatsApp pre-loaded with your message.
+                </p>
+                <WaButton variant="outline" size="sm" className="mt-3" onClick={() => window.open(qrUrl, '_blank')}>
+                  Download QR
+                </WaButton>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <QrCode className="h-16 w-16 text-zinc-300" strokeWidth={1.5} aria-hidden />
+                <p className="text-[13px] text-zinc-500">Enter a phone number to generate a QR code.</p>
+              </div>
+            )}
+          </div>
+        </Section>
       </div>
 
-      {/* Copy-link confirmation */}
       <ZoruAlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Copy this link?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              Anyone with this link can open a WhatsApp chat with the configured
-              number and pre-filled message.
+              Anyone with this link can open a WhatsApp chat with the configured number and prefilled message.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 font-mono text-[12px] text-zoru-ink break-all">
+          <div className="break-all rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-[12px] text-zinc-900">
             {shortUrl || generatedLink}
           </div>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={async () => {
-                await performCopy();
-                setConfirmOpen(false);
-              }}
-            >
+            <ZoruAlertDialogAction onClick={async () => { await performCopy(); setConfirmOpen(false); }}>
               Copy link
             </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </WaPage>
   );
 }

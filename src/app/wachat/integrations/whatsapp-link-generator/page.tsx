@@ -1,37 +1,32 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition } from 'react';
-import type { WithId,
-  Project } from '@/lib/definitions';
+import * as React from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import { Link as LinkIcon, FolderX } from 'lucide-react';
+import type { WithId } from 'mongodb';
 
+import {
+  WaPage,
+  PageHeader,
+  Section,
+  PhoneFrame,
+  ChatBubble,
+  EmptyState,
+} from '@/components/wachat-ui';
 import { getProjectById } from '@/app/actions/project.actions';
+import type { Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { WhatsappLinkGenerator } from '@/components/zoruui-domain/whatsapp-link-generator';
 
 export default function WhatsappLinkGeneratorPage() {
   const { activeProject } = useProject();
   const [project, setProject] = useState<WithId<Project> | null>(null);
-  const [isLoading, startLoadingTransition] = useTransition();
+  const [isLoading, startLoading] = useTransition();
 
   useEffect(() => {
     const id = activeProject?._id?.toString();
     if (id) {
-      startLoadingTransition(async () => {
+      startLoading(async () => {
         const data = await getProjectById(id);
         setProject(data);
       });
@@ -39,41 +34,39 @@ export default function WhatsappLinkGeneratorPage() {
   }, [activeProject]);
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Link generator</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="WhatsApp link generator"
+        description="Create wa.me links with pre-filled messages and UTM parameters."
+        kicker="Wachat · integrations"
+        backHref="/wachat/integrations"
+        eyebrowIcon={LinkIcon}
+      />
 
-      <div className="mt-5 flex-1">
-        {isLoading ? (
-          <Skeleton className="h-64 w-full" />
-        ) : !project ? (
-          <Alert variant="destructive">
-            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-            <ZoruAlertDescription>
-              Please select a project from the main dashboard.
-            </ZoruAlertDescription>
-          </Alert>
-        ) : (
-          <WhatsappLinkGenerator project={project} />
-        )}
-      </div>
-    </div>
+      {isLoading ? (
+        <div className="h-64 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+      ) : !project ? (
+        <EmptyState
+          icon={FolderX}
+          title="No project selected"
+          description="Pick a project from the Wachat home page to generate links."
+        />
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          <Section title="Builder" description="Configure the link, message, and tracking.">
+            <WhatsappLinkGenerator project={project} />
+          </Section>
+
+          <Section title="Preview" description="What the customer sees after they click.">
+            <PhoneFrame title={project.name || 'Your business'} subtitle="business account">
+              <ChatBubble who="them" text="Hi, found you via the link." time="9:41" delay={0.05} />
+              <ChatBubble who="us" text="Hey! Happy to help. What can we do for you today?" time="9:41" delay={0.2} />
+              <ChatBubble who="them" text="I need help with pricing." time="9:42" delay={0.4} />
+              <ChatBubble who="us" kind="cta" text="Sure thing. Sending the link now." time="9:42" delay={0.55} />
+            </PhoneFrame>
+          </Section>
+        </div>
+      )}
+    </WaPage>
   );
 }

@@ -1,18 +1,8 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
   Input,
   Label,
-  Skeleton,
   Textarea,
   useZoruToast,
   ZoruFileUploadCard,
@@ -23,7 +13,8 @@ import {
   useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+} from 'react';
 import {
   Download,
   Loader2,
@@ -32,19 +23,25 @@ import {
   Trash2,
   Upload,
   Bot,
-  } from 'lucide-react';
+} from 'lucide-react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import {
   addToOptOut,
   getOptOutList,
   removeFromOptOut,
-  } from '@/app/actions/wachat-features.actions';
+} from '@/app/actions/wachat-features.actions';
 
-/**
- * Wachat Opt-Out / DND — ZoruUI migration.
- * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
- */
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  MetricTile,
+  EmptyState,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 import * as React from 'react';
 import { fmtDate } from '@/lib/utils';
@@ -66,17 +63,14 @@ export default function OptOutPage() {
   const [bulkText, setBulkText] = useState('');
   const [uploadItems, setUploadItems] = useState<ZoruFileUploadItem[]>([]);
   const [autoSentiment, setAutoSentiment] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getOptOutList(String(activeProject._id));
       if (res.error) {
-        toast({
-          title: 'Error',
-          description: res.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
         return;
       }
       setList((res.optOuts as OptOutItem[]) ?? []);
@@ -96,11 +90,7 @@ export default function OptOutPage() {
       reason.trim() || undefined,
     );
     if (!res.success) {
-      toast({
-        title: 'Error',
-        description: res.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: res.error, variant: 'destructive' });
       return;
     }
     toast({ title: 'Number added to opt-out list.' });
@@ -113,11 +103,7 @@ export default function OptOutPage() {
     startTransition(async () => {
       const res = await removeFromOptOut(id);
       if (!res.success) {
-        toast({
-          title: 'Error',
-          description: res.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
         return;
       }
       toast({ title: 'Removed from opt-out list.' });
@@ -134,7 +120,6 @@ export default function OptOutPage() {
     let ok = 0;
     let fail = 0;
     for (const p of phones) {
-      // Basic row-level validation
       if (!/\d/.test(p)) {
         fail++;
         continue;
@@ -147,10 +132,7 @@ export default function OptOutPage() {
         fail++;
       }
     }
-    toast({
-      title: 'Bulk add complete',
-      description: `${ok} added, ${fail} failed.`,
-    });
+    toast({ title: 'Bulk add complete', description: `${ok} added, ${fail} failed.` });
     setBulkText('');
     load();
   };
@@ -192,7 +174,6 @@ export default function OptOutPage() {
         const p = cols[0];
         const r = cols[1] || '';
 
-        // Row-level validation
         if (!p || !/\d/.test(p)) {
           failCount++;
         } else {
@@ -208,7 +189,7 @@ export default function OptOutPage() {
             failCount++;
           }
         }
-        
+
         const currentProgress = Math.round(
           ((i - startIndex + 1) / totalToProcess) * 100
         );
@@ -226,17 +207,13 @@ export default function OptOutPage() {
                 ...ui,
                 status: failCount === totalToProcess ? 'error' : 'done',
                 progress: 100,
-                errorMessage:
-                  failCount > 0 ? `${failCount} rows failed` : undefined,
+                errorMessage: failCount > 0 ? `${failCount} rows failed` : undefined,
               }
             : ui
         )
       );
 
-      toast({
-        title: 'CSV Upload Complete',
-        description: `${successCount} added, ${failCount} failed.`,
-      });
+      toast({ title: 'CSV upload complete', description: `${successCount} added, ${failCount} failed.` });
       load();
     } catch (err) {
       setUploadItems((prev) =>
@@ -272,7 +249,6 @@ export default function OptOutPage() {
     URL.revokeObjectURL(url);
   };
 
-  // Per-keyword stats from reasons
   const keywordStats = React.useMemo(() => {
     const map = new Map<string, number>();
     list.forEach((item) => {
@@ -282,38 +258,38 @@ export default function OptOutPage() {
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [list]);
 
+  const stagger = reduceMotion ? 0 : 0.025;
+
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Opt-out / DND</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Opt-out / DND"
+        description="Manage numbers that have opted out of receiving messages."
+        kicker="Wachat · contacts"
+        backHref="/wachat"
+        actions={
+          <WaButton variant="outline" onClick={handleExport} disabled={list.length === 0} leftIcon={Download}>
+            Export CSV
+          </WaButton>
+        }
+      />
 
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Opt-out / DND management
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Manage numbers that have opted out of receiving messages.
-        </p>
-      </div>
+      <section aria-labelledby="optout-metrics" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <h2 id="optout-metrics" className="sr-only">Opt-out stats</h2>
+        <MetricTile label="Total opted-out" value={list.length} icon={ShieldOff} delay={0} />
+        <MetricTile label="Unique reasons" value={keywordStats.length} delay={0.05} />
+        <MetricTile
+          label="Auto-opt-out"
+          value={autoSentiment ? 'On' : 'Off'}
+          icon={Bot}
+          delay={0.1}
+        />
+      </section>
 
-      <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
           {/* Add form */}
-          <Card className="p-5">
-            <h2 className="mb-4 text-[15px] text-zoru-ink">Add to opt-out list</h2>
+          <Section title="Add to opt-out list">
             <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="opt-phone">Phone number</Label>
@@ -323,7 +299,7 @@ export default function OptOutPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+1 234 567 8900"
                   required
-                  className="w-52"
+                  className="w-52 rounded-xl"
                 />
               </div>
               <div className="flex flex-1 flex-col gap-1.5">
@@ -333,43 +309,36 @@ export default function OptOutPage() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="e.g. User requested"
+                  className="rounded-xl"
                 />
               </div>
-              <Button type="submit" size="sm">
-                <Plus /> Add
-              </Button>
+              <WaButton type="submit" leftIcon={Plus}>Add</WaButton>
             </form>
-          </Card>
+          </Section>
 
           {/* Bulk paste */}
-          <Card className="p-5">
-            <h2 className="mb-3 text-[15px] text-zoru-ink">Bulk add</h2>
-            <p className="mb-2 text-[12px] text-zoru-ink-muted">
-              Paste multiple phone numbers separated by newlines or commas.
-            </p>
+          <Section
+            title="Bulk add"
+            description="Paste multiple phone numbers separated by newlines or commas."
+          >
             <Textarea
               rows={4}
               placeholder={'+919876543210\n+919876543211\n+919876543212'}
               value={bulkText}
               onChange={(e) => setBulkText(e.target.value)}
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={handleBulkPaste}
-              disabled={!bulkText.trim()}
-            >
-              <Upload /> Bulk add
-            </Button>
-          </Card>
-          
-          {/* CSV Upload */}
-          <Card className="p-5">
-            <h2 className="mb-3 text-[15px] text-zoru-ink">Upload CSV</h2>
-            <p className="mb-4 text-[12px] text-zoru-ink-muted">
-              Upload a CSV file containing opt-outs. Expected columns: <b>phone, reason</b> (optional).
-            </p>
+            <div className="mt-3">
+              <WaButton variant="outline" size="sm" onClick={handleBulkPaste} disabled={!bulkText.trim()} leftIcon={Upload}>
+                Bulk add
+              </WaButton>
+            </div>
+          </Section>
+
+          {/* CSV upload */}
+          <Section
+            title="Upload CSV"
+            description="Upload a CSV file containing opt-outs. Expected columns: phone, reason (optional)."
+          >
             <ZoruFileUploadCard
               accept=".csv"
               hint="CSV up to 5MB"
@@ -378,111 +347,97 @@ export default function OptOutPage() {
               items={uploadItems}
               onRemove={(id) => setUploadItems((p) => p.filter((i) => i.id !== id))}
             />
-          </Card>
+          </Section>
 
-          {/* Per-keyword stats */}
+          {/* Per-reason stats */}
           {keywordStats.length > 0 && (
-            <Card className="p-5">
-              <h2 className="mb-3 text-[15px] text-zoru-ink">Per-reason stats</h2>
+            <Section title="Per-reason stats">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                {keywordStats.slice(0, 8).map(([k, n]) => (
-                  <div
+                {keywordStats.slice(0, 8).map(([k, n], i) => (
+                  <m.div
                     key={k}
-                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2"
+                    initial={{ opacity: 0, y: 4 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * stagger, ease: EASE_OUT }}
+                    className="rounded-xl border border-zinc-200 bg-white px-3 py-2"
                   >
-                    <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                    <div className="truncate text-[11.5px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
                       {k}
                     </div>
-                    <div className="mt-0.5 text-[18px] text-zoru-ink leading-none">
-                      {n}
-                    </div>
-                  </div>
+                    <div className="mt-1 text-[20px] font-semibold tabular-nums text-zinc-950">{n}</div>
+                  </m.div>
                 ))}
               </div>
-            </Card>
+            </Section>
           )}
 
           {/* List */}
-          <Card className="p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[15px] text-zoru-ink">Opt-out numbers</h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                disabled={list.length === 0}
-              >
-                <Download /> Export CSV
-              </Button>
-            </div>
+          <Section title="Opt-out numbers" padded={false}>
             {isPending && list.length === 0 ? (
-              <div className="flex flex-col gap-2">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-              </div>
-            ) : !isPending && list.length === 0 ? (
-              <EmptyState
-                compact
-                icon={<ShieldOff />}
-                title="No opt-out numbers recorded"
-                description="Numbers added here will be skipped from outbound campaigns."
-              />
-            ) : (
-              <div className="space-y-1">
-                <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] text-zoru-ink-muted">
-                  <span>Phone</span>
-                  <span>Reason</span>
-                  <span>Opted out</span>
-                  <span />
-                </div>
-                {list.map((item) => (
-                  <div
-                    key={item._id}
-                    className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-2 text-[13px] text-zoru-ink hover:bg-zoru-surface"
-                  >
-                    <span>{item.phone}</span>
-                    <span className="text-zoru-ink-muted">
-                      {item.reason || '--'}
-                    </span>
-                    <span className="text-[12px] text-zoru-ink-muted">
-                      {item.optedOutAt
-                        ? fmtDate(item.optedOutAt)
-                        : '--'}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-zoru-ink-muted hover:text-zoru-danger"
-                      onClick={() => handleRemove(item._id)}
-                      disabled={isPending}
-                      aria-label={`Remove ${item.phone}`}
-                    >
-                      {isPending ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Trash2 />
-                      )}
-                    </Button>
+              <div className="divide-y divide-zinc-100">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 px-5 py-3">
+                    <div className="h-3 w-32 animate-pulse rounded-full bg-zinc-100" />
                   </div>
                 ))}
               </div>
+            ) : !isPending && list.length === 0 ? (
+              <div className="px-5 py-12">
+                <EmptyState
+                  icon={ShieldOff}
+                  title="No opt-out numbers recorded"
+                  description="Numbers added here will be skipped from outbound campaigns."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                <AnimatePresence initial={false}>
+                  {list.map((item, i) => (
+                    <m.li
+                      key={item._id}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25, delay: i * stagger, ease: EASE_OUT }}
+                      className="grid grid-cols-[1fr_1fr_140px_44px] items-center gap-3 px-5 py-3 text-[13px]"
+                    >
+                      <span className="truncate font-mono tabular-nums text-zinc-900">{item.phone}</span>
+                      <span className="truncate text-zinc-500">{item.reason || '-'}</span>
+                      <span className="truncate text-[12px] tabular-nums text-zinc-500">
+                        {item.optedOutAt ? fmtDate(item.optedOutAt) : '-'}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${item.phone}`}
+                        onClick={() => handleRemove(item._id)}
+                        disabled={isPending}
+                        className="grid h-8 w-8 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-[0.97]"
+                      >
+                        {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />}
+                      </button>
+                    </m.li>
+                  ))}
+                </AnimatePresence>
+              </ul>
             )}
-          </Card>
+          </Section>
         </div>
 
-        {/* Sidebar settings */}
+        {/* Sidebar */}
         <div className="flex flex-col gap-4">
-          <Card className="p-5">
-            <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium text-zoru-ink">
-              <Bot className="h-4 w-4 text-zoru-ink-muted" /> AI Settings
-            </h2>
-            <p className="mb-4 text-[12px] text-zoru-ink-muted leading-relaxed">
-              Auto-add contacts to opt-out list based on sentiment analysis of inbound messages (e.g. "stop messaging me", "unsubscribe").
-            </p>
+          <Section
+            title={
+              <span className="inline-flex items-center gap-2">
+                <Bot className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden style={{ color: 'var(--mt-accent)' }} />
+                AI settings
+              </span>
+            }
+            description="Auto-add contacts to opt-out list based on sentiment of inbound messages (e.g. &ldquo;stop messaging me&rdquo;, &ldquo;unsubscribe&rdquo;)."
+          >
             <div className="flex items-center justify-between">
               <Label htmlFor="auto-sentiment-switch" className="cursor-pointer">
-                Enable Sentiment Auto-Opt-Out
+                Enable sentiment auto-opt-out
               </Label>
               <Switch
                 id="auto-sentiment-switch"
@@ -496,11 +451,9 @@ export default function OptOutPage() {
                 }}
               />
             </div>
-          </Card>
+          </Section>
         </div>
       </div>
-
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

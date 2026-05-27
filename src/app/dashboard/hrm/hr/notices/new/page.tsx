@@ -1,23 +1,15 @@
-/**
- * HR Notices — new notice page.
- *
- * Server component that renders the shared <NoticeForm /> with no
- * `initialData`, putting it in "create" mode. The form action redirects
- * to the detail page on success.
- */
+'use client';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { NoticeForm } from '../_components/notice-form';
-
-export const dynamic = 'force-dynamic';
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
 export default function NewNoticePage() {
     return (
-        <EntityListShell
-            title="New Notice"
-            subtitle="Draft a new advisory, circular, or company-wide notice."
-        >
-            <NoticeForm />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="notice"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/notices"
+        />
     );
 }

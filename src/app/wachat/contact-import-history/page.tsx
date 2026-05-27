@@ -1,72 +1,58 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
+
+import { fmtDate } from '@/lib/utils';
 
 import {
   useZoruToast,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  EmptyState,
   Sheet,
   ZoruSheetContent,
   ZoruSheetDescription,
   ZoruSheetHeader,
   ZoruSheetTitle,
-  ZoruSheetTrigger,
-  Skeleton,
 } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+} from 'react';
 import {
   FileSpreadsheet,
   CircleCheck,
   CircleX,
   Clock,
   Eye,
-  } from 'lucide-react';
+  Users,
+} from 'lucide-react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import { useProject } from '@/context/project-context';
 import { getImportHistory } from '@/app/actions/wachat-features.actions';
 
-/**
- * Wachat Contact Import History — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  MetricTile,
+  EmptyState,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 import * as React from 'react';
 
-function StatusBadge({ status }: { status: string }) {
+function statusToTone(status: string): { tone: StatusTone; label: string; icon: React.ElementType } {
   switch (status) {
     case 'completed':
-      return (
-        <Badge variant="success">
-          <CircleCheck /> Completed
-        </Badge>
-      );
+      return { tone: 'sent', label: 'Completed', icon: CircleCheck };
     case 'failed':
-      return (
-        <Badge variant="danger">
-          <CircleX /> Failed
-        </Badge>
-      );
+      return { tone: 'failed', label: 'Failed', icon: CircleX };
     case 'processing':
-      return (
-        <Badge variant="info">
-          <Clock /> Processing
-        </Badge>
-      );
+      return { tone: 'sending', label: 'Processing', icon: Clock };
     default:
-      return <Badge variant="secondary">{status}</Badge>;
+      return { tone: 'draft', label: status, icon: Clock };
   }
 }
 
@@ -77,17 +63,14 @@ export default function ContactImportHistoryPage() {
   const [imports, setImports] = useState<any[]>([]);
   const [isLoading, startTransition] = useTransition();
   const [selected, setSelected] = useState<any | null>(null);
+  const reduceMotion = useReducedMotion();
 
   const fetchData = useCallback(() => {
     if (!projectId) return;
     startTransition(async () => {
       const res = await getImportHistory(projectId);
       if (res.error) {
-        toast({
-          title: 'Error',
-          description: res.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
         return;
       }
       setImports(res.imports ?? []);
@@ -99,179 +82,147 @@ export default function ContactImportHistoryPage() {
   }, [fetchData]);
 
   const totalImported = imports.reduce((s, i) => s + (i.success ?? 0), 0);
+  const totalFailed = imports.reduce((s, i) => s + (i.failed ?? 0), 0);
   const isLoadingInitial = isLoading && imports.length === 0;
+  const stagger = reduceMotion ? 0 : 0.03;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Import History</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Import history"
+        description="View the history of all past CSV contact imports."
+        kicker="Wachat · contacts"
+        backHref="/wachat/contacts"
+      />
 
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Contact Import History
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          View the history of all past CSV contact imports.
-        </p>
-      </div>
+      <section aria-labelledby="import-metrics" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <h2 id="import-metrics" className="sr-only">Import stats</h2>
+        <MetricTile label="Total imports" value={imports.length} icon={FileSpreadsheet} delay={0} />
+        <MetricTile label="Contacts imported" value={totalImported.toLocaleString()} icon={Users} delay={0.05} />
+        <MetricTile label="Rows failed" value={totalFailed.toLocaleString()} icon={CircleX} delay={0.1} />
+      </section>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Total Imports
+      <Section title="Imports" padded={false}>
+        {isLoadingInitial ? (
+          <div className="divide-y divide-zinc-100">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-5 py-3">
+                <div className="h-9 w-9 animate-pulse rounded-xl bg-zinc-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-48 animate-pulse rounded-full bg-zinc-100" />
+                  <div className="h-2.5 w-32 animate-pulse rounded-full bg-zinc-100" />
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
-            {imports.length}
+        ) : imports.length === 0 ? (
+          <div className="px-5 py-12">
+            <EmptyState
+              icon={FileSpreadsheet}
+              title="No import records found"
+              description="Imports performed via the Contacts page will appear here."
+            />
           </div>
-        </Card>
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Contacts Imported
-          </div>
-          <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
-            {totalImported.toLocaleString()}
-          </div>
-        </Card>
-      </div>
-
-      {isLoadingInitial ? (
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </div>
-      ) : imports.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="px-5 py-3">Filename</th>
-                <th className="px-5 py-3">Date</th>
-                <th className="px-5 py-3 text-right">Total</th>
-                <th className="px-5 py-3 text-right">Success</th>
-                <th className="px-5 py-3 text-right">Failed</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zoru-line">
-              {imports.map((imp) => (
-                <tr key={imp._id}>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
-                      {imp.filename || 'Unknown'}
+        ) : (
+          <ul className="divide-y divide-zinc-100">
+            <AnimatePresence initial={false}>
+              {imports.map((imp, i) => {
+                const s = statusToTone(imp.status || 'completed');
+                return (
+                  <m.li
+                    key={imp._id}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25, delay: i * stagger, ease: EASE_OUT }}
+                    className="flex items-center gap-3 px-5 py-3.5"
+                  >
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-zinc-100 text-zinc-600">
+                      <FileSpreadsheet className="h-4 w-4" strokeWidth={2.25} aria-hidden />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13.5px] font-medium text-zinc-900">
+                        {imp.filename || 'Unknown file'}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11.5px] text-zinc-500 tabular-nums">
+                        <span>{imp.importedAt ? fmtDate(imp.importedAt) : '-'}</span>
+                        <span>{(imp.total ?? 0).toLocaleString()} rows</span>
+                        <span className="text-emerald-600">{(imp.success ?? 0).toLocaleString()} imported</span>
+                        {(imp.failed ?? 0) > 0 && (
+                          <span className="text-rose-600">{(imp.failed ?? 0).toLocaleString()} failed</span>
+                        )}
+                      </div>
+                      <AnimatePresence>
+                        {imp.status === 'processing' && (
+                          <m.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25, ease: EASE_OUT }}
+                            className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-100"
+                          >
+                            <m.div
+                              initial={{ width: 0 }}
+                              animate={{ width: `${Math.min(100, ((imp.success ?? 0) / Math.max(1, imp.total ?? 1)) * 100)}%` }}
+                              transition={{ duration: 0.6, ease: EASE_OUT }}
+                              className="h-full"
+                              style={{ background: 'var(--mt-accent)' }}
+                            />
+                          </m.div>
+                        )}
+                      </AnimatePresence>
                     </div>
-                  </td>
-                  <td className="px-5 py-3 text-[12px] text-zoru-ink-muted whitespace-nowrap">
-                    {imp.importedAt
-                      ? fmtDate(imp.importedAt)
-                      : '—'}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-ink tabular-nums">
-                    {(imp.total ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-success tabular-nums">
-                    {(imp.success ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-danger tabular-nums">
-                    {imp.failed ?? 0}
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge status={imp.status || 'completed'} />
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelected(imp)}
-                    >
-                      <Eye /> View
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      ) : (
-        <EmptyState
-          icon={<FileSpreadsheet />}
-          title="No import records found"
-          description="Imports performed via the Contacts page will appear here."
-        />
-      )}
+                    <div className="flex shrink-0 items-center gap-2">
+                      <StatusPill tone={s.tone}>{s.label}</StatusPill>
+                      <WaButton variant="outline" size="sm" leftIcon={Eye} onClick={() => setSelected(imp)}>
+                        View
+                      </WaButton>
+                    </div>
+                  </m.li>
+                );
+              })}
+            </AnimatePresence>
+          </ul>
+        )}
+      </Section>
 
-      {/* View results sheet */}
-      <Sheet
-        open={!!selected}
-        onOpenChange={(o) => !o && setSelected(null)}
-      >
+      <Sheet open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <ZoruSheetContent side="right" className="w-full sm:max-w-md">
           <ZoruSheetHeader>
-            <ZoruSheetTitle>
-              {selected?.filename || 'Import details'}
-            </ZoruSheetTitle>
+            <ZoruSheetTitle>{selected?.filename || 'Import details'}</ZoruSheetTitle>
             <ZoruSheetDescription>
-              {selected?.importedAt
-                ? fmtDate(selected.importedAt)
-                : '—'}
+              {selected?.importedAt ? fmtDate(selected.importedAt) : '-'}
             </ZoruSheetDescription>
           </ZoruSheetHeader>
           {selected && (
-            <div className="mt-6 flex flex-col gap-3">
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Status</span>
-                <StatusBadge status={selected.status || 'completed'} />
+            <div className="mt-6 flex flex-col gap-3 text-[13px]">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Status</span>
+                <StatusPill tone={statusToTone(selected.status || 'completed').tone}>
+                  {statusToTone(selected.status || 'completed').label}
+                </StatusPill>
               </div>
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Total rows</span>
-                <span className="text-zoru-ink tabular-nums">
-                  {(selected.total ?? 0).toLocaleString()}
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Total rows</span>
+                <span className="font-mono tabular-nums text-zinc-900">{(selected.total ?? 0).toLocaleString()}</span>
               </div>
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Imported</span>
-                <span className="text-zoru-success tabular-nums">
-                  {(selected.success ?? 0).toLocaleString()}
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Imported</span>
+                <span className="font-mono tabular-nums text-emerald-600">{(selected.success ?? 0).toLocaleString()}</span>
               </div>
-              <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Failed</span>
-                <span className="text-zoru-danger tabular-nums">
-                  {selected.failed ?? 0}
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Failed</span>
+                <span className="font-mono tabular-nums text-rose-600">{(selected.failed ?? 0).toLocaleString()}</span>
               </div>
-              {selected.errorMessage ? (
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-[12px] text-zoru-ink-muted">
+              {selected.errorMessage && (
+                <div className="rounded-xl border border-rose-100 bg-rose-50/50 p-3 text-[12px] text-rose-700">
                   {selected.errorMessage}
                 </div>
-              ) : null}
+              )}
             </div>
           )}
         </ZoruSheetContent>
       </Sheet>
-
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

@@ -1,17 +1,17 @@
-'use client';
+import { WaPage } from '@/components/wachat-ui';
 
-import { Skeleton, Card } from '@/components/zoruui';
-
-export default function IntegrationsWhatsappLinkGeneratorLoading() {
+export default function LinkGenLoading() {
   return (
-    <div className="p-6 space-y-6">
-      <Skeleton className="h-8 w-1/4" />
-      <Skeleton className="h-4 w-2/4" />
-      <Card className="p-6 space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-      </Card>
-    </div>
+    <WaPage>
+      <div className="mb-8">
+        <div className="h-3 w-40 rounded-full bg-zinc-100" />
+        <div className="mt-3 h-9 w-72 rounded-lg bg-zinc-100" />
+        <div className="mt-2 h-3 w-96 rounded-full bg-zinc-100" />
+      </div>
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="h-[420px] rounded-2xl border border-zinc-200 bg-white" />
+        <div className="h-[420px] rounded-2xl border border-zinc-200 bg-white" />
+      </div>
+    </WaPage>
   );
 }

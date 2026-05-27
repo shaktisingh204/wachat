@@ -1,22 +1,29 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
 
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import {
+  CircleCheck,
+  CircleX,
+  Inbox,
+  RefreshCw,
+  Star,
+  TriangleAlert,
+} from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getChatRatings } from '@/app/actions/wachat-features.actions';
+import { fmtDate } from '@/lib/utils';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  MetricTile,
+  Section,
+  EmptyState,
+  StatusPill,
+} from '@/components/wachat-ui';
 import {
   useZoruToast,
-  ZORU_CHART_PALETTE,
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
@@ -25,36 +32,11 @@ import {
   ZoruDrawerDescription,
   ZoruDrawerHeader,
   ZoruDrawerTitle,
-  EmptyState,
-  Skeleton,
-  StatCard,
 } from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-  useMemo } from 'react';
-import {
-  CircleCheck,
-  CircleX,
-  Inbox,
-  RefreshCw,
-  Star,
-  TriangleAlert,
-  } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getChatRatings } from '@/app/actions/wachat-features.actions';
 
 /**
- * Wachat Customer Satisfaction — ZoruUI rebuild.
- *
- * NPS-style dashboard: CSAT score card + rating histogram (greyscale bars)
- * + recent low-rating drawer. Differentiation by neutral fill, no hue.
+ * Wachat Customer Satisfaction - NPS-style dashboard rebuilt on wachat-ui chrome.
  */
-
-import * as React from 'react';
 
 function Stars({ count }: { count: number }) {
   return (
@@ -62,7 +44,7 @@ function Stars({ count }: { count: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3.5 w-3.5 ${i <= count ? 'fill-zoru-ink text-zoru-ink' : 'text-zoru-line-strong'}`}
+          className={`h-3.5 w-3.5 ${i <= count ? 'fill-amber-400 text-amber-400' : 'text-zinc-300'}`}
           strokeWidth={1.75}
         />
       ))}
@@ -77,6 +59,10 @@ export default function CustomerSatisfactionPage() {
   const [ratings, setRatings] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Customer satisfaction · Wachat';
+  }, []);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -115,210 +101,144 @@ export default function CustomerSatisfactionPage() {
     [summary],
   );
 
-  const lowRatings = useMemo(
-    () => ratings.filter((r: any) => (r.rating ?? 5) <= 2),
-    [ratings],
-  );
+  const lowRatings = useMemo(() => ratings.filter((r: any) => (r.rating ?? 5) <= 2), [ratings]);
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Customer Satisfaction</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Customer Satisfaction
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Track NPS scores and customer feedback from conversations.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setDrawerOpen(true)}
-            disabled={lowRatings.length === 0}
-          >
-            <TriangleAlert /> Low ratings ({lowRatings.length})
-          </Button>
-          <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
-            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
-          </Button>
-        </div>
-      </div>
+    <WaPage>
+      <PageHeader
+        title="Customer satisfaction"
+        kicker="CSAT"
+        description="Track NPS scores and customer feedback from conversations."
+        eyebrowIcon={Star}
+        actions={
+          <>
+            <WaButton
+              variant="outline"
+              size="sm"
+              onClick={() => setDrawerOpen(true)}
+              disabled={lowRatings.length === 0}
+              leftIcon={TriangleAlert}
+            >
+              Low ratings ({lowRatings.length})
+            </WaButton>
+            <WaButton variant="outline" size="sm" onClick={load} disabled={isPending} leftIcon={RefreshCw}>
+              Refresh
+            </WaButton>
+          </>
+        }
+      />
 
       {isPending && total === 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
+            <div key={i} className="h-[118px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="NPS Score"
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <MetricTile
+            label="NPS score"
             value={total ? nps.toString() : '--'}
-            period={
+            delta={
               total
-                ? nps >= 50
-                  ? 'Excellent'
-                  : nps >= 0
-                    ? 'Good'
-                    : 'Needs work'
-                : 'No ratings yet'
+                ? {
+                    value: nps >= 50 ? 'Excellent' : nps >= 0 ? 'Good' : 'Needs work',
+                    positive: nps >= 0,
+                  }
+                : undefined
             }
+            delay={0.02}
           />
-          <StatCard
-            label="Promoters (4-5)"
-            value={`${promPct}%`}
-            icon={<CircleCheck />}
-          />
-          <StatCard
-            label="Passives (3)"
-            value={`${passPct}%`}
-            icon={<TriangleAlert />}
-          />
-          <StatCard
-            label="Detractors (1-2)"
-            value={`${detPct}%`}
-            icon={<CircleX />}
-          />
+          <MetricTile label="Promoters (4-5)" value={`${promPct}%`} icon={CircleCheck} delay={0.06} />
+          <MetricTile label="Passives (3)" value={`${passPct}%`} icon={TriangleAlert} delay={0.1} />
+          <MetricTile label="Detractors (1-2)" value={`${detPct}%`} icon={CircleX} delay={0.14} />
         </div>
       )}
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Rating Distribution</ZoruCardTitle>
-          <ZoruCardDescription>
-            Count of responses for each star rating.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+      <div className="mb-6">
+        <Section title="Rating distribution" description="Count of responses for each star rating.">
           {total === 0 ? (
             <EmptyState
-              icon={<Star />}
+              icon={Star}
               title="No ratings yet"
               description="Once customers rate their conversations, the distribution will appear here."
             />
           ) : (
             <ZoruChartContainer height={240}>
-              <ZoruChart.BarChart
-                data={histogramData}
-                margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
-              >
-                <ZoruChart.CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--zoru-line))"
-                  vertical={false}
-                />
+              <ZoruChart.BarChart data={histogramData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                <ZoruChart.CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
                 <ZoruChart.XAxis
                   dataKey="rating"
-                  tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                  tick={{ fontSize: 11, fill: '#71717a' }}
                   tickLine={false}
-                  axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
+                  axisLine={{ stroke: '#e4e4e7' }}
                 />
                 <ZoruChart.YAxis
-                  tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
+                  tick={{ fontSize: 11, fill: '#71717a' }}
                   tickLine={false}
                   axisLine={false}
                   allowDecimals={false}
                 />
                 <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
-                <ZoruChart.Bar
-                  dataKey="count"
-                  name="Responses"
-                  fill={ZORU_CHART_PALETTE[1]}
-                  radius={[4, 4, 0, 0]}
-                />
+                <ZoruChart.Bar dataKey="count" name="Responses" fill="#10b981" radius={[6, 6, 0, 0]} />
               </ZoruChart.BarChart>
             </ZoruChartContainer>
           )}
-        </ZoruCardContent>
-      </Card>
+        </Section>
+      </div>
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recent Feedback ({ratings.length})</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          {ratings.length === 0 ? (
+      <Section title={`Recent feedback (${ratings.length})`} description="Latest 20 responses." padded={false}>
+        {ratings.length === 0 ? (
+          <div className="p-6">
             <EmptyState
-              icon={<Inbox />}
+              icon={Inbox}
               title="No feedback yet"
               description="Customer feedback will show up here as it arrives."
             />
-          ) : (
-            <ul className="divide-y divide-zoru-line">
-              {ratings.slice(0, 20).map((r: any, i: number) => (
-                <li key={r._id || i} className="flex items-start gap-4 py-3">
-                  <Stars count={r.rating} />
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[11px] text-zoru-ink-subtle">
-                      {r.createdAt ? fmtDate(r.createdAt) : ''}
-                    </span>
-                    {r.feedback && (
-                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                        {r.feedback}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </ZoruCardContent>
-      </Card>
+          </div>
+        ) : (
+          <ul className="divide-y divide-zinc-100">
+            {ratings.slice(0, 20).map((r: any, i: number) => (
+              <li key={r._id || i} className="flex items-start gap-4 px-5 py-3">
+                <Stars count={r.rating} />
+                <div className="min-w-0 flex-1">
+                  <span className="text-[11px] text-zinc-500">{r.createdAt ? fmtDate(r.createdAt) : ''}</span>
+                  {r.feedback && (
+                    <p className="mt-0.5 text-[12.5px] leading-relaxed text-zinc-700">{r.feedback}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
 
       {/* Low-rating drawer */}
       <ZoruDrawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <ZoruDrawerContent>
           <ZoruDrawerHeader>
             <ZoruDrawerTitle>Low ratings ({lowRatings.length})</ZoruDrawerTitle>
-            <ZoruDrawerDescription>
-              Conversations rated 1 or 2 stars — review and follow up.
-            </ZoruDrawerDescription>
+            <ZoruDrawerDescription>Conversations rated 1 or 2 stars. Review and follow up.</ZoruDrawerDescription>
           </ZoruDrawerHeader>
           <div className="max-h-[60vh] overflow-y-auto px-4 pb-6 sm:px-6">
             {lowRatings.length === 0 ? (
               <EmptyState
-                icon={<CircleCheck />}
+                icon={CircleCheck}
                 title="No low ratings"
                 description="Nothing to follow up on right now."
-                compact
               />
             ) : (
-              <ul className="divide-y divide-zoru-line">
+              <ul className="divide-y divide-zinc-100">
                 {lowRatings.map((r: any, i: number) => (
                   <li key={r._id || i} className="flex items-start gap-4 py-3">
                     <Stars count={r.rating} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <Badge variant="danger">{r.rating} stars</Badge>
-                        <span className="text-[11px] text-zoru-ink-subtle">
-                          {r.createdAt
-                            ? fmtDate(r.createdAt)
-                            : ''}
-                        </span>
+                        <StatusPill tone="failed">{r.rating} stars</StatusPill>
+                        <span className="text-[11px] text-zinc-500">{r.createdAt ? fmtDate(r.createdAt) : ''}</span>
                       </div>
                       {r.feedback && (
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                          {r.feedback}
-                        </p>
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-700">{r.feedback}</p>
                       )}
                     </div>
                   </li>
@@ -328,8 +248,6 @@ export default function CustomerSatisfactionPage() {
           </div>
         </ZoruDrawerContent>
       </ZoruDrawer>
-
-      <div className="h-6" />
-    </div>
+    </WaPage>
   );
 }

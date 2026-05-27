@@ -1,56 +1,59 @@
 'use client';
 
-import { Button, Card } from '@/components/zoruui';
-import {
-  useEffect } from 'react';
-import { AlertTriangle,
-  RotateCcw } from 'lucide-react';
+import { useEffect } from 'react';
+import { AlertTriangle, ArrowLeft, RotateCcw } from 'lucide-react';
+import { WaPage, WaButton } from '@/components/wachat-ui';
 
 /**
  * Wachat error boundary — catches unexpected React render errors and
- * displays a user-friendly recovery screen instead of the raw
- * Next.js "Internal Server Error" page.
+ * shows a user-friendly recovery screen.
  */
 
 export default function WachatError({
-  error,
-  reset,
+    error,
+    reset,
 }: {
-  error: Error & { digest?: string };
-  reset: () => void;
+    error: Error & { digest?: string };
+    reset: () => void;
 }) {
-  useEffect(() => {
-    console.error('[WaChat Error]', error);
-  }, [error]);
+    useEffect(() => {
+        console.error('[Wachat Error]', error);
+    }, [error]);
 
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center p-6">
-      <Card className="w-full max-w-sm p-8 text-center">
-        <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-zoru-warning" />
-        <h2 className="mb-2 text-[18px] text-zoru-ink">
-          Something went wrong
-        </h2>
-        <p className="mb-6 text-[13px] text-zoru-ink-muted">
-          {error.message
-            ? error.message.length > 120
-              ? `${error.message.slice(0, 120)}…`
-              : error.message
-            : 'An unexpected error occurred loading this page.'}
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <Button onClick={reset} size="sm">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Try again
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => (window.location.href = '/wachat')}
-          >
-            Back to WaChat
-          </Button>
-        </div>
-      </Card>
-    </div>
-  );
+    const message = error.message
+        ? error.message.length > 160
+            ? `${error.message.slice(0, 160)}…`
+            : error.message
+        : 'Something on this page failed to load.';
+
+    return (
+        <WaPage>
+            <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
+                <span
+                    aria-hidden
+                    className="grid h-14 w-14 place-items-center rounded-2xl"
+                    style={{ background: 'var(--mt-accent-soft)' }}
+                >
+                    <AlertTriangle className="h-6 w-6" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} />
+                </span>
+                <h1 className="mt-6 text-balance text-2xl font-semibold tracking-tight text-zinc-950">
+                    Something went wrong loading this page.
+                </h1>
+                <p className="mt-2 text-[14px] leading-relaxed text-zinc-600">{message}</p>
+                {error.digest && (
+                    <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 font-mono text-[11px] text-zinc-600">
+                        Ref {error.digest}
+                    </p>
+                )}
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+                    <WaButton onClick={reset} leftIcon={RotateCcw}>
+                        Try again
+                    </WaButton>
+                    <WaButton href="/wachat" variant="outline" leftIcon={ArrowLeft}>
+                        Back to projects
+                    </WaButton>
+                </div>
+            </div>
+        </WaPage>
+    );
 }

@@ -1,23 +1,18 @@
-import { Skeleton } from '@/components/zoruui';
+import { WaPage } from '@/components/wachat-ui';
 
-export default function Loading() {
+export default function SetupDocsLoading() {
   return (
-    <div className="w-full p-6 space-y-6 animate-in fade-in duration-500">
-      <div className="space-y-2">
-        <Skeleton className="h-8 w-[250px]" />
-        <Skeleton className="h-4 w-[350px]" />
+    <WaPage>
+      <div className="mb-8">
+        <div className="h-3 w-24 rounded-full bg-zinc-100" />
+        <div className="mt-3 h-9 w-96 rounded-lg bg-zinc-100" />
+        <div className="mt-2 h-3 w-[28rem] max-w-full rounded-full bg-zinc-100" />
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
-        <Skeleton className="h-32 w-full rounded-xl" />
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-44 rounded-2xl border border-zinc-200 bg-white" />
+        ))}
       </div>
-      <div className="space-y-4 mt-8">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-12 w-full" />
-      </div>
-    </div>
+    </WaPage>
   );
 }

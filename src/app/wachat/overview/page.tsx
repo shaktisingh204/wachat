@@ -1,33 +1,10 @@
 'use client';
 
-import {
-  Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ZoruDropdownMenuCheckboxItem,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-  cn,
-} from '@/components/zoruui';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { m } from 'motion/react';
+import dynamic from 'next/dynamic';
 import {
   ArrowUpRight,
   BookCopy,
@@ -38,27 +15,42 @@ import {
   Eye,
   Inbox,
   MessagesSquare,
-  MoreHorizontal,
   Plus,
   RefreshCw,
   Send,
-  TrendingDown,
   TrendingUp,
   Users,
   LayoutTemplate,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 
 import { useProject } from '@/context/project-context';
-
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  MetricTile,
+  Section,
+  EmptyState,
+  StatusPill,
+  type StatusTone,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import {
+  DropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruDropdownMenuCheckboxItem,
+} from '@/components/zoruui';
 
 const OverviewChart = dynamic(() => import('./overview-chart'), {
   ssr: false,
-  loading: () => <Skeleton className="h-[300px] w-full" />,
+  loading: () => <div className="h-[300px] w-full animate-pulse rounded-xl bg-zinc-50" />,
 });
 
 /**
- * Wachat Overview — project-scoped dashboard.
+ * Wachat Overview - project-scoped dashboard rebuilt on wachat-ui chrome.
  */
 
 type Stats = {
@@ -134,20 +126,28 @@ export default function OverviewPage() {
   const [layout, setLayout] = useState<Record<WidgetKey, boolean>>(DEFAULT_LAYOUT);
 
   useEffect(() => {
+    document.title = 'Overview · Wachat';
+  }, []);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem('wachat-overview-layout');
       if (stored) {
         setLayout({ ...DEFAULT_LAYOUT, ...JSON.parse(stored) });
       }
-    } catch (err) {
-      // ignore
+    } catch {
+      /* ignore */
     }
   }, []);
 
   const toggleWidget = (key: WidgetKey) => {
     setLayout((prev) => {
       const next = { ...prev, [key]: !prev[key] };
-      localStorage.setItem('wachat-overview-layout', JSON.stringify(next));
+      try {
+        localStorage.setItem('wachat-overview-layout', JSON.stringify(next));
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   };
@@ -210,405 +210,272 @@ export default function OverviewPage() {
     URL.revokeObjectURL(url);
   };
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>Overview</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   if (!projectId) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <EmptyState
-          icon={<Inbox className="h-10 w-10" />}
-          title="Select a project to continue"
-          description="Overview stats are scoped to a single WhatsApp Business project. Pick one from the home screen."
-          action={<Button onClick={() => router.push('/dashboard')}>Go to projects</Button>}
+      <WaPage>
+        <PageHeader
+          title="Project overview"
+          description="Pick a WhatsApp project to load messaging activity."
+          kicker="Overview"
         />
-      </div>
-    );
-  }
-
-  if (loading && !stats) {
-    return (
-      <div className="flex flex-col gap-6">
-        <Skeleton className="h-3 w-52" />
-        <Skeleton className="h-9 w-64" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[118px]" />
-          ))}
-        </div>
-        <Skeleton className="h-[260px]" />
-      </div>
+        <EmptyState
+          icon={Inbox}
+          title="Select a project to continue"
+          description="Overview stats are scoped to a single WhatsApp Business project. Pick one from the projects screen."
+          action={
+            <WaButton onClick={() => router.push('/wachat')} leftIcon={ArrowUpRight}>
+              Go to projects
+            </WaButton>
+          }
+        />
+      </WaPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Project overview</ZoruPageTitle>
-            <ZoruPageDescription>
-              {activeProject?.name
-                ? `${activeProject.name} · Last 30 days of messaging activity`
-                : 'Last 30 days of messaging activity'}
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-        </PageHeader>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <LayoutTemplate className="h-3.5 w-3.5" />
-                Customize
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Widgets</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuCheckboxItem
-                checked={layout.kpi}
-                onCheckedChange={() => toggleWidget('kpi')}
-              >
-                KPI Grid
-              </ZoruDropdownMenuCheckboxItem>
-              <ZoruDropdownMenuCheckboxItem
-                checked={layout.funnel}
-                onCheckedChange={() => toggleWidget('funnel')}
-              >
-                Delivery Funnel
-              </ZoruDropdownMenuCheckboxItem>
-              <ZoruDropdownMenuCheckboxItem
-                checked={layout.actions}
-                onCheckedChange={() => toggleWidget('actions')}
-              >
-                Quick Actions
-              </ZoruDropdownMenuCheckboxItem>
-              <ZoruDropdownMenuCheckboxItem
-                checked={layout.chart}
-                onCheckedChange={() => toggleWidget('chart')}
-              >
-                Activity Chart
-              </ZoruDropdownMenuCheckboxItem>
-              <ZoruDropdownMenuCheckboxItem
-                checked={layout.campaigns}
-                onCheckedChange={() => toggleWidget('campaigns')}
-              >
-                Recent Campaigns
-              </ZoruDropdownMenuCheckboxItem>
-            </ZoruDropdownMenuContent>
-          </DropdownMenu>
-
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-3.5 w-3.5" />
-            Export
-          </Button>
-          <Button onClick={() => router.push('/wachat/broadcasts')}>
-            <Plus className="h-3.5 w-3.5" />
-            New campaign
-          </Button>
-        </div>
-      </div>
+    <WaPage>
+      <PageHeader
+        title="Project overview"
+        kicker="Overview"
+        description={
+          activeProject?.name
+            ? `${activeProject.name} · last 30 days of messaging activity.`
+            : 'Last 30 days of messaging activity.'
+        }
+        actions={
+          <>
+            <DropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <WaButton variant="outline" size="sm" leftIcon={LayoutTemplate} rightIcon={ChevronDown}>
+                  Customize
+                </WaButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuLabel>Widgets</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuCheckboxItem checked={layout.kpi} onCheckedChange={() => toggleWidget('kpi')}>
+                  KPI grid
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuCheckboxItem checked={layout.funnel} onCheckedChange={() => toggleWidget('funnel')}>
+                  Delivery funnel
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuCheckboxItem checked={layout.actions} onCheckedChange={() => toggleWidget('actions')}>
+                  Quick actions
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuCheckboxItem checked={layout.chart} onCheckedChange={() => toggleWidget('chart')}>
+                  Activity chart
+                </ZoruDropdownMenuCheckboxItem>
+                <ZoruDropdownMenuCheckboxItem checked={layout.campaigns} onCheckedChange={() => toggleWidget('campaigns')}>
+                  Recent campaigns
+                </ZoruDropdownMenuCheckboxItem>
+              </ZoruDropdownMenuContent>
+            </DropdownMenu>
+            <WaButton variant="outline" size="sm" onClick={handleRefresh} leftIcon={RefreshCw}>
+              Refresh
+            </WaButton>
+            <WaButton variant="outline" size="sm" onClick={handleExport} leftIcon={Download}>
+              Export
+            </WaButton>
+            <WaButton size="sm" onClick={() => router.push('/wachat/broadcasts')} leftIcon={Plus}>
+              New campaign
+            </WaButton>
+          </>
+        }
+      />
 
       {/* KPI grid */}
       {layout.kpi && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          <Kpi
-            icon={<Send className="h-4 w-4" />}
+        <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <MetricTile
+            icon={Send}
             label="Messages sent"
             value={compact(stats?.totalSent)}
-            hint={`${compact(stats?.totalMessages)} total`}
-            delta={derived?.trend.delta}
-            up={derived?.trend.up}
+            delta={
+              derived?.trend.delta
+                ? { value: `${Math.abs(derived.trend.delta)}%`, positive: derived.trend.up }
+                : undefined
+            }
+            delay={0.02}
           />
-          <Kpi
-            icon={<CheckCheck className="h-4 w-4" />}
+          <MetricTile
+            icon={CheckCheck}
             label="Delivery rate"
             value={`${derived?.deliveryRate ?? 0}%`}
-            hint={`${compact(stats?.totalDelivered)} delivered`}
+            delay={0.06}
           />
-          <Kpi
-            icon={<Eye className="h-4 w-4" />}
-            label="Read rate"
-            value={`${derived?.readRate ?? 0}%`}
-            hint={`${compact(stats?.totalRead)} read`}
-          />
-          <Kpi
-            icon={<CircleX className="h-4 w-4" />}
-            label="Failed"
-            value={compact(stats?.totalFailed)}
-            hint={`${derived?.failRate ?? 0}% fail rate`}
-          />
-        </div>
+          <MetricTile icon={Eye} label="Read rate" value={`${derived?.readRate ?? 0}%`} delay={0.1} />
+          <MetricTile icon={CircleX} label="Failed" value={compact(stats?.totalFailed)} delay={0.14} />
+        </section>
       )}
 
-      {/* Middle row: Funnel / Actions / Chart */}
+      {/* Middle row */}
       {(layout.funnel || layout.actions || layout.chart) && (
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="mb-6 grid grid-cols-1 gap-5 lg:grid-cols-3">
           {layout.funnel && (
-            <Card className="p-6 col-span-1">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm text-zoru-ink">Delivery funnel</div>
-                  <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
-                    How your messages moved through WhatsApp
-                  </div>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')}>
-                  <TrendingUp className="h-3 w-3" />
-                </Button>
+            <Section
+              title="Delivery funnel"
+              description="How messages move through WhatsApp"
+              action={
+                <WaButton size="sm" variant="ghost" onClick={() => router.push('/wachat/broadcasts')} leftIcon={TrendingUp}>
+                  View
+                </WaButton>
+              }
+            >
+              <div className="flex flex-col gap-3.5">
+                <FunnelBar label="Queued" count={stats?.totalMessages ?? 0} total={stats?.totalMessages ?? 0} />
+                <FunnelBar label="Sent" count={stats?.totalSent ?? 0} total={stats?.totalMessages ?? 0} />
+                <FunnelBar label="Delivered" count={stats?.totalDelivered ?? 0} total={stats?.totalMessages ?? 0} />
+                <FunnelBar label="Read" count={stats?.totalRead ?? 0} total={stats?.totalMessages ?? 0} />
+                <FunnelBar label="Failed" count={stats?.totalFailed ?? 0} total={stats?.totalMessages ?? 0} muted />
               </div>
-
-              <div className="mt-5 flex flex-col gap-3">
-                <FunnelBar
-                  label="Queued"
-                  count={stats?.totalMessages ?? 0}
-                  total={stats?.totalMessages ?? 0}
-                  tone="neutral"
-                />
-                <FunnelBar
-                  label="Sent"
-                  count={stats?.totalSent ?? 0}
-                  total={stats?.totalMessages ?? 0}
-                  tone="info"
-                />
-                <FunnelBar
-                  label="Delivered"
-                  count={stats?.totalDelivered ?? 0}
-                  total={stats?.totalMessages ?? 0}
-                  tone="success"
-                />
-                <FunnelBar
-                  label="Read"
-                  count={stats?.totalRead ?? 0}
-                  total={stats?.totalMessages ?? 0}
-                  tone="warning"
-                />
-                <FunnelBar
-                  label="Failed"
-                  count={stats?.totalFailed ?? 0}
-                  total={stats?.totalMessages ?? 0}
-                  tone="danger"
-                />
-              </div>
-            </Card>
+            </Section>
           )}
 
           {layout.chart && (
-            <Card className={cn("p-6", (!layout.funnel && !layout.actions) ? "col-span-1 lg:col-span-3" : layout.funnel && layout.actions ? "col-span-1" : "col-span-1 lg:col-span-2")}>
-              <div className="mb-4">
-                <div className="text-sm text-zoru-ink">Messaging Activity</div>
-                <div className="mt-1 text-[11.5px] text-zoru-ink-muted">
-                  Last 30 days performance
-                </div>
-              </div>
+            <Section
+              title="Messaging activity"
+              description="Last 30 days"
+              className={
+                !layout.funnel && !layout.actions
+                  ? 'lg:col-span-3'
+                  : layout.funnel && layout.actions
+                  ? 'lg:col-span-1'
+                  : 'lg:col-span-2'
+              }
+            >
               <OverviewChart data={chart} />
-            </Card>
+            </Section>
           )}
 
           {layout.actions && (
-            <div className={cn("flex flex-col gap-2", (!layout.funnel && !layout.chart) ? "col-span-1 lg:col-span-3" : "col-span-1")}>
+            <m.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: EASE_OUT, delay: 0.08 }}
+              className={`flex flex-col gap-2 ${!layout.funnel && !layout.chart ? 'lg:col-span-3' : ''}`}
+            >
               {[
-                { icon: <Inbox className="h-4 w-4" />, label: 'Open Live Chat', href: '/wachat/chat' },
-                { icon: <BookCopy className="h-4 w-4" />, label: 'Manage templates', href: '/wachat/templates' },
-                { icon: <Users className="h-4 w-4" />, label: 'Import contacts', href: '/wachat/contacts' },
-                {
-                  icon: <Send className="h-4 w-4" />,
-                  label: 'Start a broadcast',
-                  href: '/wachat/broadcasts',
-                  primary: true,
-                },
+                { icon: Inbox, label: 'Open live chat', href: '/wachat/chat' },
+                { icon: BookCopy, label: 'Manage templates', href: '/wachat/templates' },
+                { icon: Users, label: 'Import contacts', href: '/wachat/contacts' },
+                { icon: Send, label: 'Start a broadcast', href: '/wachat/broadcasts', primary: true },
               ].map((item) => (
-                <Button
+                <WaButton
                   key={item.label}
-                  block
-                  variant={item.primary ? 'default' : 'outline'}
+                  variant={item.primary ? 'solid' : 'outline'}
                   onClick={() => router.push(item.href)}
+                  leftIcon={item.icon}
+                  className="w-full justify-start"
                 >
-                  {item.icon}
                   {item.label}
-                </Button>
+                </WaButton>
               ))}
-              <Button
+              <WaButton
                 variant="ghost"
                 size="sm"
-                block
                 onClick={() => router.push('/wachat/integrations')}
+                rightIcon={ArrowUpRight}
+                className="w-full justify-start"
               >
                 Connect an integration
-                <ArrowUpRight className="h-3 w-3" />
-              </Button>
-            </div>
+              </WaButton>
+            </m.div>
           )}
         </div>
       )}
 
       {/* Recent campaigns */}
       {layout.campaigns && (
-        <div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-[22px] tracking-tight leading-none text-zoru-ink">
-                Recent campaigns
-              </h2>
-              <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-                {stats?.totalCampaigns ?? 0} campaigns all-time · {broadcasts.length} shown
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Button
-                variant="outline"
-                size="icon-sm"
-                aria-label="New campaign"
-                onClick={() => router.push('/wachat/broadcasts')}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon-sm"
-                aria-label="More"
-                onClick={() => router.push('/wachat/broadcasts')}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          <Card className="mt-5 p-6">
-            {broadcasts.length === 0 ? (
+        <Section
+          title="Recent campaigns"
+          description={`${stats?.totalCampaigns ?? 0} campaigns total · ${broadcasts.length} shown`}
+          action={
+            <WaButton size="sm" variant="outline" onClick={() => router.push('/wachat/broadcasts')} leftIcon={Plus}>
+              New
+            </WaButton>
+          }
+          padded={false}
+        >
+          {broadcasts.length === 0 ? (
+            <div className="p-6">
               <EmptyState
-                icon={<MessagesSquare className="h-10 w-10" />}
+                icon={MessagesSquare}
                 title="No campaigns yet"
                 description="Launch your first WhatsApp broadcast to reach your audience."
                 action={
-                  <Button size="sm" onClick={() => router.push('/wachat/broadcasts')}>
+                  <WaButton size="sm" onClick={() => router.push('/wachat/broadcasts')} leftIcon={Plus}>
                     Create broadcast
-                  </Button>
+                  </WaButton>
                 }
               />
-            ) : (
-              <div className="flex flex-col gap-3">
-                {broadcasts.map((b) => {
-                  const total = b.contactCount ?? 0;
-                  const delivered = b.deliveredCount ?? 0;
-                  const rate = pct(delivered, total);
-                  const s = (b.status || '').toLowerCase();
-                  const variant: 'success' | 'danger' | 'warning' =
-                    s === 'completed'
-                      ? 'success'
-                      : s === 'failed' || s === 'cancelled' || s === 'partial failure'
-                        ? 'danger'
-                        : 'warning';
-                  const createdDate = b.createdAt ? new Date(b.createdAt as any) : null;
-                  return (
-                    <div
-                      key={b._id?.toString?.()}
-                      className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-zoru-ink">
-                          {b.fileName || b.templateName || 'Untitled campaign'}
-                        </p>
-                        <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-                          {b.templateName && (
-                            <>
-                              <span className="text-zoru-ink">{b.templateName}</span>
-                              <span>·</span>
-                            </>
-                          )}
-                          <span>
-                            {createdDate
-                              ? formatDistanceToNow(createdDate, { addSuffix: true })
-                              : 'unknown time'}
-                          </span>
-                          <Badge variant={variant}>{b.status || 'unknown'}</Badge>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-end pr-1 text-[11.5px]">
-                          <div className="text-zoru-ink">{rate}%</div>
-                          <div className="text-zoru-ink-muted">
-                            {compact(delivered)}/{compact(total)}
-                          </div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label="View broadcast"
-                          onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
-                        >
-                          <ArrowUpRight className="h-3.5 w-3.5" />
-                        </Button>
+            </div>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {broadcasts.map((b, i) => {
+                const total = b.contactCount ?? 0;
+                const delivered = b.deliveredCount ?? 0;
+                const rate = pct(delivered, total);
+                const s = (b.status || '').toLowerCase();
+                const tone: StatusTone =
+                  s === 'completed'
+                    ? 'sent'
+                    : s === 'failed' || s === 'cancelled' || s === 'partial failure'
+                    ? 'failed'
+                    : s === 'sending'
+                    ? 'sending'
+                    : 'queued';
+                const createdDate = b.createdAt ? new Date(b.createdAt as any) : null;
+                return (
+                  <m.li
+                    key={b._id?.toString?.()}
+                    initial={{ opacity: 0, x: -4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.04, ease: EASE_OUT }}
+                    className="flex items-center justify-between gap-3 px-5 py-3"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13.5px] font-medium text-zinc-900">
+                        {b.fileName || b.templateName || 'Untitled campaign'}
+                      </p>
+                      <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-zinc-500">
+                        {b.templateName && (
+                          <>
+                            <span className="text-zinc-700">{b.templateName}</span>
+                            <span>·</span>
+                          </>
+                        )}
+                        <span>
+                          {createdDate
+                            ? formatDistanceToNow(createdDate, { addSuffix: true })
+                            : 'unknown time'}
+                        </span>
+                        <StatusPill tone={tone}>{b.status || 'unknown'}</StatusPill>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </Card>
-        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex flex-col items-end pr-1 text-[11.5px]">
+                        <div className="font-semibold text-zinc-900 tabular-nums">{rate}%</div>
+                        <div className="text-zinc-500 tabular-nums">
+                          {compact(delivered)}/{compact(total)}
+                        </div>
+                      </div>
+                      <WaButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
+                        rightIcon={ArrowUpRight}
+                      >
+                        View
+                      </WaButton>
+                    </div>
+                  </m.li>
+                );
+              })}
+            </ul>
+          )}
+        </Section>
       )}
-    </div>
-  );
-}
-
-function Kpi({
-  icon,
-  label,
-  value,
-  hint,
-  delta,
-  up,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  hint?: string;
-  delta?: number;
-  up?: boolean;
-}) {
-  return (
-    <Card className="p-4 transition-shadow hover:shadow-[var(--zoru-shadow-sm)]">
-      <div className="flex items-start justify-between">
-        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-          {icon}
-        </span>
-        {delta !== undefined && (
-          <Badge variant={up ? 'success' : 'danger'} className="gap-1">
-            {up ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
-            {Math.abs(delta)}%
-          </Badge>
-        )}
-      </div>
-      <div className="mt-3.5 text-[11.5px] leading-none text-zoru-ink-muted">{label}</div>
-      <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-zoru-ink">{value}</div>
-      {hint && (
-        <div className="mt-1 truncate text-[11px] leading-tight text-zoru-ink-muted">{hint}</div>
-      )}
-    </Card>
+    </WaPage>
   );
 }
 
@@ -616,33 +483,29 @@ function FunnelBar({
   label,
   count,
   total,
-  tone,
+  muted,
 }: {
   label: string;
   count: number;
   total: number;
-  tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+  muted?: boolean;
 }) {
   const width = total > 0 ? Math.min(100, Math.round((count / total) * 100)) : 0;
-  const color = {
-    neutral: 'bg-zoru-ink/70',
-    info: 'bg-zoru-info',
-    success: 'bg-zoru-success',
-    warning: 'bg-zoru-warning',
-    danger: 'bg-zoru-danger',
-  }[tone];
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span className="text-zoru-ink">{label}</span>
-        <span className="text-zoru-ink-muted">
+        <span className="font-medium text-zinc-700">{label}</span>
+        <span className="text-zinc-500 tabular-nums">
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
-        <div
-          className={cn('h-full rounded-full transition-[width]', color)}
-          style={{ width: `${width}%` }}
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+        <m.div
+          initial={{ width: 0 }}
+          animate={{ width: `${width}%` }}
+          transition={{ duration: 0.5, ease: EASE_OUT }}
+          className="h-full rounded-full"
+          style={{ background: muted ? '#d4d4d8' : 'var(--mt-accent)' }}
         />
       </div>
     </div>

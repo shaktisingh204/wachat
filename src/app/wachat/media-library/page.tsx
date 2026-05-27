@@ -1,40 +1,43 @@
 'use client';
 
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  EmptyState,
-  ZoruFilesPage,
-  Skeleton,
-  useZoruToast,
-  type ZoruFileEntity,
-} from '@/components/zoruui';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback } from 'react';
-import { Image as ImageIcon } from 'lucide-react';
+  Image as ImageIcon,
+  FileText,
+  Film,
+  Music,
+  Upload,
+  Trash2,
+  Download,
+  Pencil,
+  Search,
+  X,
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
   deleteMediaItem,
   getMediaLibrary,
   saveMediaItem,
-  } from '@/app/actions/wachat-features.actions';
+} from '@/app/actions/wachat-features.actions';
+import { useZoruToast } from '@/components/zoruui';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  EmptyState,
+  StatusPill,
+} from '@/components/wachat-ui';
+import { SabFilePickerButton } from '@/components/sabfiles';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 /**
- * Wachat Media Library — ZoruUI migration.
- * Uses the composed `ZoruFilesPage` (toolbar + grid/list + 5 dialogs:
- * preview, rename, delete, share, upload). Same data + handlers as the
- * legacy version — all wired through `wachat-features.actions`.
+ * Media Library - emerald-themed grid of every reusable asset
+ * attached to this project. Drives the same server actions as before
+ * (`getMediaLibrary`, `saveMediaItem`, `deleteMediaItem`) and uses the
+ * SabFiles picker for any URL ingestion (project policy).
  */
-
-import * as React from 'react';
 
 type MediaItem = {
   _id: string;
@@ -44,211 +47,303 @@ type MediaItem = {
   createdAt?: string;
 };
 
-const mimeFor = (type?: string): string | undefined => {
-  switch ((type ?? '').toLowerCase()) {
-    case 'image':
-      return 'image/*';
-    case 'video':
-      return 'video/*';
-    case 'audio':
-      return 'audio/*';
-    case 'document':
-      return 'application/pdf';
-    default:
-      return undefined;
-  }
-};
+type FilterKey = 'all' | 'image' | 'video' | 'audio' | 'document';
 
-const inferType = (file: File): string => {
-  if (file.type.startsWith('image/')) return 'image';
-  if (file.type.startsWith('video/')) return 'video';
-  if (file.type.startsWith('audio/')) return 'audio';
+const inferType = (mime: string | undefined, name = ''): MediaItem['type'] => {
+  const m = (mime ?? '').toLowerCase();
+  if (m.startsWith('image/')) return 'image';
+  if (m.startsWith('video/')) return 'video';
+  if (m.startsWith('audio/')) return 'audio';
+  if (m.includes('pdf') || m.includes('document') || m.includes('msword')) return 'document';
+  const ext = name.toLowerCase().split('.').pop() ?? '';
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+  if (['mp4', 'mov', 'webm', 'avi'].includes(ext)) return 'video';
+  if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
   return 'document';
 };
 
+const typeIcon = (t: string | undefined) => {
+  switch ((t ?? '').toLowerCase()) {
+    case 'image': return ImageIcon;
+    case 'video': return Film;
+    case 'audio': return Music;
+    default: return FileText;
+  }
+};
+
+const formatDate = (d?: string) => {
+  if (!d) return '';
+  try {
+    return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return ''; }
+};
+
 export default function MediaLibraryPage() {
+  const reduce = useReducedMotion();
   const { activeProject, activeProjectId } = useProject();
   const { toast } = useZoruToast();
   const [isPending, startTransition] = useTransition();
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [filter, setFilter] = useState<FilterKey>('all');
+  const [search, setSearch] = useState('');
 
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
     startTransition(async () => {
       const res = await getMediaLibrary(activeProjectId);
       if (res.error) {
-        toast({
-          title: 'Error',
-          description: res.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
       } else {
         setMedia((res.media as MediaItem[]) ?? []);
       }
     });
   }, [activeProjectId, toast]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Map MediaItem -> ZoruFileEntity for the composed component.
-  const files: ZoruFileEntity[] = React.useMemo(
-    () =>
-      media.map((m) => ({
-        id: m._id,
-        name: m.name,
-        url: m.url,
-        thumbnailUrl: (m.type ?? 'image') === 'image' ? m.url : undefined,
-        mime: mimeFor(m.type),
-        modified: m.createdAt ? new Date(m.createdAt) : undefined,
-      })),
-    [media],
-  );
+  const counts = useMemo(() => {
+    const c: Record<FilterKey, number> = { all: media.length, image: 0, video: 0, audio: 0, document: 0 };
+    for (const it of media) {
+      const t = (it.type ?? 'document') as FilterKey;
+      if (t in c) c[t] += 1;
+    }
+    return c;
+  }, [media]);
 
-  const handleUpload = (uploaded: File[]) => {
-    if (!activeProjectId) return;
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return media
+      .filter((it) => (filter === 'all' ? true : (it.type ?? 'document') === filter))
+      .filter((it) => (q ? it.name.toLowerCase().includes(q) : true));
+  }, [media, filter, search]);
+
+  const handlePickedFile = (file: { url: string; name?: string; mime?: string }) => {
+    if (!activeProjectId || !file?.url) return;
+    const name = file.name ?? file.url.split('/').pop() ?? 'untitled';
+    const type = inferType(file.mime, name) ?? 'image';
     startTransition(async () => {
-      let added = 0;
-      for (const file of uploaded) {
-        // For now use blob: URL as a stand-in — server action expects a URL.
-        // The legacy form took (name, url, type) so we keep the same contract.
-        const url = URL.createObjectURL(file);
-        const res = await saveMediaItem(
-          activeProjectId,
-          file.name,
-          url,
-          inferType(file),
-        );
-        if (!res.error) added += 1;
+      const res = await saveMediaItem(activeProjectId, name, file.url, type ?? 'image');
+      if (res.error) {
+        toast({ title: 'Failed to add', description: res.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Added', description: `${name} added to library.` });
+        fetchData();
       }
-      toast({
-        title: 'Upload complete',
-        description: `${added} of ${uploaded.length} item(s) saved.`,
-      });
-      fetchData();
     });
   };
 
-  const handleDelete = (toDelete: ZoruFileEntity[]) => {
+  const handleDelete = (item: MediaItem) => {
     startTransition(async () => {
-      let removed = 0;
-      for (const f of toDelete) {
-        const res = await deleteMediaItem(f.id);
-        if (!res.error) removed += 1;
+      const res = await deleteMediaItem(item._id);
+      if (res.error) {
+        toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Removed', description: `${item.name} removed from library.` });
+        fetchData();
       }
-      toast({
-        title: 'Deleted',
-        description: `${removed} item(s) removed from library.`,
-      });
-      fetchData();
     });
   };
 
-  const handleRename = (file: ZoruFileEntity, newName: string) => {
+  const handleRename = (item: MediaItem) => {
     if (!activeProjectId) return;
+    const next = window.prompt('Rename file', item.name);
+    if (!next || next === item.name) return;
     startTransition(async () => {
-      // Legacy server action only supports save (no rename), so we
-      // re-save the entity with the new name and remove the old one.
-      const target = media.find((m) => m._id === file.id);
-      if (!target) return;
-      const save = await saveMediaItem(
-        activeProjectId,
-        newName,
-        target.url,
-        target.type ?? 'image',
-      );
+      const save = await saveMediaItem(activeProjectId, next, item.url, item.type ?? 'image');
       if (save.error) {
-        toast({
-          title: 'Rename failed',
-          description: save.error,
-          variant: 'destructive',
-        });
+        toast({ title: 'Rename failed', description: save.error, variant: 'destructive' });
         return;
       }
-      await deleteMediaItem(target._id);
-      toast({ title: 'Renamed', description: `"${target.name}" → "${newName}"` });
+      await deleteMediaItem(item._id);
+      toast({ title: 'Renamed', description: `"${item.name}" to "${next}"` });
       fetchData();
     });
   };
 
-  const handleDownload = (file: ZoruFileEntity) => {
-    if (!file.url) return;
+  const handleDownload = (item: MediaItem) => {
     const a = document.createElement('a');
-    a.href = file.url;
-    a.download = file.name;
+    a.href = item.url;
+    a.download = item.name;
     a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
+  const filters: { id: FilterKey; label: string }[] = [
+    { id: 'all', label: 'All' },
+    { id: 'image', label: 'Images' },
+    { id: 'video', label: 'Videos' },
+    { id: 'document', label: 'Documents' },
+    { id: 'audio', label: 'Audio' },
+  ];
+
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Media library</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Media library"
+        description={`Reusable images, videos, documents, and audio for ${activeProject?.name ?? 'this project'}. Pick once, drop into any broadcast or template.`}
+        kicker="Wachat · library"
+        eyebrowIcon={ImageIcon}
+        actions={
+          <SabFilePickerButton onPick={handlePickedFile} variant="default">
+            Upload media
+          </SabFilePickerButton>
+        }
+      />
 
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Media library
-        </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
-          Store images, videos, documents, and audio for{' '}
-          {activeProject?.name || 'this project'} — reuse them across
-          broadcasts, templates, and chat.
-        </p>
-      </div>
-
-      <div className="mt-6">
-        {isPending && media.length === 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[4/3]" />
-            ))}
-          </div>
-        ) : (
-          <ZoruFilesPage
-            files={files}
-            onUpload={handleUpload}
-            onDelete={handleDelete}
-            onRename={handleRename}
-            onDownload={handleDownload}
-            shareUrlFor={(f) => f.url}
-            onCopyShareLink={(url) => {
-              navigator.clipboard?.writeText(url).catch(() => {});
-              toast({ title: 'Link copied' });
-            }}
-            onShareInvite={(file, email, access) => {
-              toast({
-                title: 'Invite sent',
-                description: `${email} now has ${access} access to ${file.name}.`,
-              });
-            }}
-            empty={
-              <EmptyState
-                icon={<ImageIcon />}
-                title="No media yet"
-                description="Upload images, videos, documents, or audio to reuse across messages."
-              />
-            }
+      {/* filter pills + search */}
+      <m.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: EASE_OUT }}
+        className="mb-6 flex flex-wrap items-center gap-3"
+      >
+        <div className="flex flex-wrap gap-1 rounded-full border border-zinc-200 bg-white p-1">
+          {filters.map((f) => {
+            const active = filter === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                className="relative rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors active:scale-[0.97]"
+              >
+                {active && (
+                  <m.span
+                    layoutId="media-filter"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: 'var(--mt-accent)' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span className={`relative z-10 inline-flex items-center gap-1.5 ${active ? 'text-white' : 'text-zinc-600'}`}>
+                  {f.label}
+                  <span className={`rounded-full px-1.5 text-[10px] font-bold tabular-nums ${active ? 'bg-white/20' : 'bg-zinc-100 text-zinc-500'}`}>
+                    {counts[f.id]}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+        <label className="flex flex-1 items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 focus-within:border-zinc-400 sm:max-w-xs">
+          <Search className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search files"
+            className="w-full bg-transparent text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
+            aria-label="Search media"
           />
-        )}
-      </div>
+          {search && (
+            <button type="button" onClick={() => setSearch('')} aria-label="Clear search">
+              <X className="h-3.5 w-3.5 text-zinc-400 hover:text-zinc-700" strokeWidth={2} />
+            </button>
+          )}
+        </label>
+      </m.div>
 
-      <div className="h-6" />
-    </div>
+      {/* grid */}
+      {isPending && media.length === 0 ? (
+        <GridSkeleton />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={ImageIcon}
+          title={media.length === 0 ? 'No media yet' : 'No files match your filter'}
+          description={
+            media.length === 0
+              ? 'Upload an image, video, document, or audio file to reuse it across broadcasts, templates, and chat.'
+              : 'Try a different filter or clear your search.'
+          }
+          action={
+            media.length === 0 ? (
+              <SabFilePickerButton onPick={handlePickedFile} variant="default">
+                Upload your first file
+              </SabFilePickerButton>
+            ) : (
+              <WaButton variant="outline" onClick={() => { setFilter('all'); setSearch(''); }}>
+                Clear filters
+              </WaButton>
+            )
+          }
+        />
+      ) : (
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((item, i) => {
+              const Icon = typeIcon(item.type);
+              const isImage = (item.type ?? '').toLowerCase() === 'image';
+              return (
+                <m.li
+                  key={item._id}
+                  layout
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: reduce ? 0 : 0.35, delay: reduce ? 0 : i * 0.04, ease: EASE_OUT }}
+                  className="group relative overflow-hidden rounded-2xl border border-zinc-200 bg-white transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
+                  style={{ boxShadow: '0 0 0 1px transparent' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 0 1px transparent'; }}
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-zinc-50">
+                    {isImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.url} alt={item.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--mt-accent-soft), white)' }}>
+                        <Icon className="h-10 w-10" strokeWidth={1.5} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+                      </div>
+                    )}
+                    <span className="absolute left-2 top-2">
+                      <StatusPill tone="live">{item.type ?? 'file'}</StatusPill>
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <p className="truncate text-[12.5px] font-semibold text-zinc-900" title={item.name}>{item.name}</p>
+                    <p className="mt-0.5 text-[11px] text-zinc-500">{formatDate(item.createdAt)}</p>
+                  </div>
+                  <div className="flex items-center justify-end gap-0.5 border-t border-zinc-100 px-2 py-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                    <IconBtn label="Rename" onClick={() => handleRename(item)}><Pencil className="h-3.5 w-3.5" strokeWidth={2.25} /></IconBtn>
+                    <IconBtn label="Download" onClick={() => handleDownload(item)}><Download className="h-3.5 w-3.5" strokeWidth={2.25} /></IconBtn>
+                    <IconBtn label="Delete" onClick={() => handleDelete(item)} danger><Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} /></IconBtn>
+                  </div>
+                </m.li>
+              );
+            })}
+          </AnimatePresence>
+        </ul>
+      )}
+    </WaPage>
+  );
+}
+
+function IconBtn({ children, onClick, label, danger }: { children: React.ReactNode; onClick: () => void; label: string; danger?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={`grid h-7 w-7 place-items-center rounded-full text-zinc-500 transition-colors duration-150 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94] ${danger ? 'hover:!text-rose-600' : ''}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function GridSkeleton() {
+  return (
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <li key={i} className="animate-pulse overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+          <div className="aspect-[4/3] bg-zinc-100" />
+          <div className="p-3">
+            <div className="h-3 w-3/4 rounded-full bg-zinc-100" />
+            <div className="mt-2 h-2.5 w-1/2 rounded-full bg-zinc-100" />
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

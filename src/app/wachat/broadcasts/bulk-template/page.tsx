@@ -1,45 +1,23 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  Suspense,
-  useEffect,
-  useState } from 'react';
-import Link from 'next/link';
-import { ChevronLeft,
-  Database,
-  AlertCircle } from 'lucide-react';
+import { Suspense, useEffect, useState } from 'react';
+import { AlertCircle, Database, FilePlus2 } from 'lucide-react';
 
 import { CreateTemplateForm } from '@/app/wachat/_components/create-template-form';
 import { getProjectById } from '@/app/actions/project.actions';
-import type { WithId,
-  Project } from '@/lib/definitions';
+import type { WithId, Project } from '@/lib/definitions';
+import { WaPage, PageHeader, EmptyState, Section } from '@/components/wachat-ui';
 
 /**
- * Wachat Bulk → Create Template — bulk-create one template across many
- * projects. Keeps existing CreateTemplateForm, only ZoruUI chrome.
+ * Wachat campaigns -> bulk template. Same form, wachat-ui chrome.
  */
-
-import * as React from 'react';
 
 function BulkTemplatePageSkeleton() {
   return (
     <div className="flex flex-col gap-6">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-24 w-full" />
-      <Skeleton className="h-96 w-full" />
+      <div className="h-8 w-48 rounded-full bg-zinc-100 animate-pulse" />
+      <div className="h-24 w-full rounded-2xl border border-zinc-200 bg-white animate-pulse" />
+      <div className="h-96 w-full rounded-2xl border border-zinc-200 bg-white animate-pulse" />
     </div>
   );
 }
@@ -50,69 +28,48 @@ function BulkTemplatePageContent() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const storedProjectIds = JSON.parse(
-      localStorage.getItem('bulkProjectIds') || '[]',
-    );
-    setProjectIds(storedProjectIds);
+    const stored = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
+    setProjectIds(stored);
 
-    async function fetchProjects() {
-      if (storedProjectIds.length > 0) {
-        const fetchedProjects = await Promise.all(
-          storedProjectIds.map((id: string) => getProjectById(id)),
-        );
-        setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
+    (async () => {
+      if (stored.length > 0) {
+        const fetched = await Promise.all(stored.map((id: string) => getProjectById(id)));
+        setProjects(fetched.filter(Boolean) as WithId<Project>[]);
       }
       setIsLoading(false);
-    }
-
-    fetchProjects();
+    })();
   }, []);
 
-  if (isLoading) {
-    return <BulkTemplatePageSkeleton />;
-  }
+  if (isLoading) return <BulkTemplatePageSkeleton />;
 
   if (projectIds.length === 0) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>No projects selected</ZoruAlertTitle>
-        <ZoruAlertDescription>
-          Go to the main dashboard to select projects for bulk template
-          creation.
-        </ZoruAlertDescription>
-      </Alert>
+      <EmptyState
+        icon={AlertCircle}
+        title="No projects selected"
+        description="Head back to the dashboard and pick projects before creating a bulk template."
+      />
     );
   }
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
-          <Link href="/wachat/broadcasts">
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Back to campaigns
-          </Link>
-        </Button>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Create Bulk Template
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          This template will be created for all {projects.length} selected
-          projects.
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {projects.map((p) => (
-          <span
-            key={p._id.toString()}
-            className="inline-flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2.5 py-1 text-[12px] text-zoru-ink"
-          >
-            <Database className="h-3.5 w-3.5 text-zoru-ink-muted" />
-            {p.name}
-          </span>
-        ))}
-      </div>
+      <Section
+        title={`Targeting ${projects.length} project${projects.length === 1 ? '' : 's'}`}
+        description="This template will be created across every selected project."
+      >
+        <div className="flex flex-wrap gap-2">
+          {projects.map((p) => (
+            <span
+              key={p._id.toString()}
+              className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-[12px] text-zinc-700"
+            >
+              <Database className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
+              {p.name}
+            </span>
+          ))}
+        </div>
+      </Section>
       <CreateTemplateForm isBulkForm bulkProjectIds={projectIds} />
     </div>
   );
@@ -120,32 +77,18 @@ function BulkTemplatePageContent() {
 
 export default function BulkTemplatePage() {
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/broadcasts">
-              Campaigns
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Template</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WaPage>
+      <PageHeader
+        title="Create a bulk template"
+        description="Author one template and ship it to every project selected in the bulk picker."
+        kicker="Wachat / campaigns / template"
+        eyebrowIcon={FilePlus2}
+        backHref="/wachat/broadcasts"
+      />
 
       <Suspense fallback={<BulkTemplatePageSkeleton />}>
         <BulkTemplatePageContent />
       </Suspense>
-    </div>
+    </WaPage>
   );
 }

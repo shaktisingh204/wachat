@@ -1,5 +1,6 @@
 'use client';
-import { fmtDate } from "@/lib/utils";
+
+import { fmtDate } from '@/lib/utils';
 
 import {
   useZoruToast,
@@ -12,9 +13,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
-  Badge,
-  Button,
-  Card,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
@@ -26,7 +24,6 @@ import {
   ZoruPopoverContent,
   ZoruPopoverTrigger,
   cn,
-  EmptyState,
 } from '@/components/zoruui';
 import {
   useEffect,
@@ -38,17 +35,21 @@ import {
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import { useDebouncedCallback } from 'use-debounce';
+import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 
 import {
   AlertCircle,
-  Search,
+  Search as SearchIcon,
   Users,
   Loader2,
   MessageSquare,
   Trash2,
   Tag as TagIcon,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Check,
+  Download,
 } from 'lucide-react';
 
 import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
@@ -58,8 +59,16 @@ import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-d
 import { SyncContactsDialog } from '@/app/wachat/_components/sync-contacts-dialog';
 import { useProject } from '@/context/project-context';
 
-import { FeatureShell } from '@/components/dashboard/feature-shell';
-import { FeatureTable } from '@/components/dashboard/feature-table';
+import {
+  WaPage,
+  PageHeader,
+  WaButton,
+  Section,
+  MetricTile,
+  StatusPill,
+  EmptyState,
+} from '@/components/wachat-ui';
+import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -98,19 +107,23 @@ function TagsFilter({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
-        <Button variant="outline" size="sm">
-          <TagIcon className="mr-2 h-4 w-4" /> {label}
-          <ChevronDown className="ml-2 h-4 w-4 opacity-60" />
-        </Button>
+        <button
+          type="button"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 text-[12px] font-semibold text-zinc-700 transition-colors hover:border-zinc-900 active:scale-[0.97]"
+        >
+          <TagIcon className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+          {label}
+          <ChevronDown className="h-3 w-3 opacity-60" strokeWidth={2.25} aria-hidden />
+        </button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[240px] p-0" align="end">
         <ZoruCommand>
-          <ZoruCommandInput placeholder="Search tags…" />
+          <ZoruCommandInput placeholder="Search tags..." />
           <ZoruCommandList>
             <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
             <ZoruCommandGroup>
               {tags.length === 0 ? (
-                <div className="px-2 py-6 text-center text-[12px] text-zoru-ink-muted">
+                <div className="px-2 py-6 text-center text-[12px] text-zinc-500">
                   No tags defined on this project yet.
                 </div>
               ) : (
@@ -126,13 +139,13 @@ function TagsFilter({
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border',
                           isSelected
-                            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                            : 'border-zoru-line',
+                            ? 'border-zinc-900 bg-zinc-900 text-white'
+                            : 'border-zinc-200',
                         )}
                       >
                         {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
                       </span>
-                      <span className="flex-1 truncate text-[13px] text-zoru-ink">
+                      <span className="flex-1 truncate text-[13px] text-zinc-900">
                         {tag.name}
                       </span>
                     </ZoruCommandItem>
@@ -176,14 +189,13 @@ function DeleteContactButton({
   return (
     <ZoruAlertDialog>
       <ZoruAlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
+        <button
+          type="button"
           aria-label="Delete contact"
-          className="text-zoru-danger hover:bg-zoru-danger/10"
+          className="grid h-8 w-8 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-[0.97]"
         >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+        </button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
@@ -211,6 +223,7 @@ export default function ContactsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const reduceMotion = useReducedMotion();
 
   const currentPage = Number(searchParams.get('page')) || 1;
   const searchQuery = searchParams.get('query') || '';
@@ -275,7 +288,6 @@ export default function ContactsPage() {
 
   const handleExportCsv = () => {
     toast({ title: 'Exporting...', description: 'CSV export will be available shortly.' });
-    // In real life, trigger rust-backend stream_csv here
   };
 
   const stats = useMemo(() => {
@@ -287,119 +299,79 @@ export default function ContactsPage() {
     return { withTags, recent };
   }, [contacts]);
 
-  const columns = [
-    {
-      header: 'Name',
-      cell: (c: WithId<Contact>) => (
-        <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink">
-            {(c.name || '?').slice(0, 2).toUpperCase()}
-          </span>
-          <span className="text-zoru-ink">{c.name}</span>
-        </div>
-      ),
-    },
-    {
-      header: 'WhatsApp ID',
-      cell: (c: WithId<Contact>) => <span className="font-mono text-[12px] text-zoru-ink-muted tabular-nums">{c.waId}</span>,
-    },
-    {
-      header: 'Email',
-      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{(c as any).email || '—'}</span>,
-    },
-    {
-      header: 'Opt-in',
-      cell: (c: WithId<Contact>) => (
-        (c as any).isOptedOut ? (
-          <Badge variant="danger"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-danger" /> Opted-out</Badge>
-        ) : (
-          <Badge variant="success"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-success" /> Opted-in</Badge>
-        )
-      ),
-    },
-    {
-      header: 'Tags',
-      cell: (c: WithId<Contact>) => (
-        <div className="flex flex-wrap gap-1">
-          {(c.tagIds || []).map((tagId) => {
-            const tag = activeProject?.tags?.find((t) => t._id === tagId.toString());
-            return tag ? (
-              <Badge key={tagId.toString()} variant="secondary">
-                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" /> {tag.name}
-              </Badge>
-            ) : null;
-          })}
-        </div>
-      ),
-    },
-    {
-      header: 'Last activity',
-      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{c.lastMessageTimestamp ? fmtDate(c.lastMessageTimestamp) : '—'}</span>,
-    },
-    {
-      header: 'Actions',
-      className: 'text-right',
-      cell: (c: WithId<Contact>) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button variant="outline" size="sm" onClick={() => handleMessageContact(c)}>
-            <MessageSquare className="mr-1 h-4 w-4" /> Message
-          </Button>
-          <DeleteContactButton contact={c} onDeleted={fetchData} />
-        </div>
-      ),
-    },
-  ];
-
   if (!activeProjectId) {
     return (
-      <FeatureShell
-        title="Contacts"
-        description="Manage your customer contact list."
-        breadcrumbs={[
-          { label: 'SabNode', href: '/dashboard' },
-          { label: 'WaChat', href: '/wachat' },
-          { label: 'Contacts' },
-        ]}
-      >
+      <WaPage>
+        <PageHeader
+          title="Contacts"
+          description="Manage your customer contact list."
+          kicker="Wachat · contacts"
+          backHref="/wachat"
+        />
         <EmptyState
-          icon={<AlertCircle />}
+          icon={AlertCircle}
           title="No project selected"
           description="Please select a project from the main dashboard to manage contacts."
+          action={
+            <WaButton href="/wachat" variant="outline">
+              Pick a project
+            </WaButton>
+          }
         />
-      </FeatureShell>
+      </WaPage>
     );
   }
 
+  const stagger = reduceMotion ? 0 : 0.03;
+
   return (
-    <FeatureShell
-      title="Contacts"
-      description={`Manage the contact list for ${activeProject?.name} · ${totalContacts.toLocaleString()} total contacts`}
-      breadcrumbs={[
-        { label: 'SabNode', href: '/dashboard' },
-        { label: 'WaChat', href: '/wachat' },
-        { label: 'Contacts' },
-      ]}
-      actions={
-        <div className="flex items-center gap-2">
-          {activeProject && <SyncContactsDialog project={activeProject} onSynced={fetchData} />}
-          {activeProject && <ImportContactsDialog project={activeProject} onImported={fetchData} />}
-          {activeProject && <AddContactDialog key={refreshKey} project={activeProject} onAdded={handleContactAdded} />}
-        </div>
-      }
-      stats={[
-        { label: 'Total contacts', value: compact(totalContacts) },
-        { label: 'With tags (this page)', value: compact(stats.withTags), hint: `${contacts.length > 0 ? Math.round((stats.withTags / contacts.length) * 100) : 0}% segmented` },
-        { label: 'Active this week', value: compact(stats.recent), hint: 'messaged in last 7 days' },
-      ]}
-    >
-      <Card className="p-6 flex flex-col gap-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="min-w-[260px] flex-1">
+    <WaPage>
+      <PageHeader
+        title="Contacts"
+        description={`Manage the contact list for ${activeProject?.name ?? 'this project'}. ${totalContacts.toLocaleString()} total.`}
+        kicker="Wachat · contacts"
+        backHref="/wachat"
+        actions={
+          <>
+            {activeProject && <SyncContactsDialog project={activeProject} onSynced={fetchData} />}
+            {activeProject && <ImportContactsDialog project={activeProject} onImported={fetchData} />}
+            {activeProject && <AddContactDialog key={refreshKey} project={activeProject} onAdded={handleContactAdded} />}
+          </>
+        }
+      />
+
+      {/* Metric strip */}
+      <section aria-labelledby="contacts-metrics" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <h2 id="contacts-metrics" className="sr-only">Contact stats</h2>
+        <MetricTile label="Total contacts" value={compact(totalContacts)} icon={Users} delay={0} />
+        <MetricTile
+          label="With tags (this page)"
+          value={compact(stats.withTags)}
+          icon={TagIcon}
+          delta={{
+            value: `${contacts.length > 0 ? Math.round((stats.withTags / contacts.length) * 100) : 0}%`,
+            positive: true,
+          }}
+          delay={0.05}
+        />
+        <MetricTile
+          label="Active this week"
+          value={compact(stats.recent)}
+          icon={MessageSquare}
+          delay={0.1}
+        />
+      </section>
+
+      {/* Filter row */}
+      <Section padded={false}>
+        <div className="flex flex-wrap items-center gap-3 p-4">
+          <div className="flex min-w-[260px] flex-1 items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
+            <SearchIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
             <Input
-              placeholder="Search by name or WhatsApp ID…"
-              leadingSlot={<Search className="h-4 w-4" />}
+              placeholder="Search by name or WhatsApp ID..."
               defaultValue={searchQuery}
               onChange={(e) => updateSearchParam('query', e.target.value)}
+              className="h-7 border-0 bg-transparent px-0 text-[13px] shadow-none focus-visible:ring-0"
             />
           </div>
           <TagsFilter
@@ -407,22 +379,124 @@ export default function ContactsPage() {
             selectedTags={selectedTags}
             onSelectionChange={(tags) => updateSearchParam('tags', tags.join(','))}
           />
+          <WaButton variant="outline" size="sm" onClick={handleExportCsv} leftIcon={Download}>
+            Export CSV
+          </WaButton>
         </div>
 
-        <FeatureTable
-          columns={columns}
-          data={contacts}
-          isLoading={isLoading && contacts.length === 0}
-          emptyIcon={<Users />}
-          emptyTitle={searchQuery || selectedTags.length > 0 ? 'No matching contacts' : 'No contacts yet'}
-          emptyDescription={searchQuery || selectedTags.length > 0 ? 'Try adjusting your search or tag filters.' : 'Import a CSV or add contacts one at a time to build your audience.'}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalContacts}
-          onPageChange={(page) => updateSearchParam('page', String(page))}
-          onExportCsv={handleExportCsv}
-        />
-      </Card>
-    </FeatureShell>
+        {isLoading && contacts.length === 0 ? (
+          <div className="divide-y divide-zinc-100">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-5 py-3">
+                <div className="h-9 w-9 animate-pulse rounded-full bg-zinc-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-32 animate-pulse rounded-full bg-zinc-100" />
+                  <div className="h-2.5 w-44 animate-pulse rounded-full bg-zinc-100" />
+                </div>
+                <div className="h-7 w-20 animate-pulse rounded-full bg-zinc-100" />
+              </div>
+            ))}
+          </div>
+        ) : contacts.length === 0 ? (
+          <div className="px-5 py-12">
+            <EmptyState
+              icon={Users}
+              title={searchQuery || selectedTags.length > 0 ? 'No matching contacts' : 'No contacts yet'}
+              description={
+                searchQuery || selectedTags.length > 0
+                  ? 'Try adjusting your search or tag filters.'
+                  : 'Import a CSV or add contacts one at a time to build your audience.'
+              }
+            />
+          </div>
+        ) : (
+          <ul className="divide-y divide-zinc-100">
+            <AnimatePresence initial={false}>
+              {contacts.map((c, i) => (
+                <m.li
+                  key={c._id.toString()}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25, delay: i * stagger, ease: EASE_OUT }}
+                  className="flex items-center gap-3 px-5 py-3"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-zinc-100 text-[11px] font-semibold text-zinc-700">
+                    {(c.name || '?').slice(0, 2).toUpperCase()}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-[13.5px] font-medium text-zinc-900">{c.name || 'Unknown'}</p>
+                      {(c as any).isOptedOut ? (
+                        <StatusPill tone="failed">Opted-out</StatusPill>
+                      ) : (
+                        <StatusPill tone="live">Opted-in</StatusPill>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11.5px] text-zinc-500">
+                      <span className="font-mono tabular-nums">{c.waId}</span>
+                      {(c as any).email && <span className="truncate">{(c as any).email}</span>}
+                      {c.lastMessageTimestamp && <span>Last activity {fmtDate(c.lastMessageTimestamp)}</span>}
+                    </div>
+                    {(c.tagIds || []).length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1">
+                        {(c.tagIds || []).map((tagId) => {
+                          const tag = activeProject?.tags?.find((t) => t._id === tagId.toString());
+                          return tag ? (
+                            <span
+                              key={tagId.toString()}
+                              className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-semibold text-zinc-600"
+                            >
+                              {tag.name}
+                            </span>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <WaButton variant="outline" size="sm" onClick={() => handleMessageContact(c)} leftIcon={MessageSquare}>
+                      Message
+                    </WaButton>
+                    <DeleteContactButton contact={c} onDeleted={fetchData} />
+                  </div>
+                </m.li>
+              ))}
+            </AnimatePresence>
+          </ul>
+        )}
+
+        {totalPages > 1 && (
+          <nav
+            aria-label="Pagination"
+            className="flex items-center justify-between border-t border-zinc-100 px-5 py-3"
+          >
+            <p className="text-[12px] tabular-nums text-zinc-500">
+              Page {currentPage} of {totalPages} · {totalContacts.toLocaleString()} contacts
+            </p>
+            <div className="flex items-center gap-1.5">
+              <WaButton
+                variant="outline"
+                size="sm"
+                onClick={() => updateSearchParam('page', String(Math.max(1, currentPage - 1)))}
+                disabled={currentPage <= 1}
+                leftIcon={ChevronLeft}
+              >
+                Previous
+              </WaButton>
+              <WaButton
+                variant="outline"
+                size="sm"
+                onClick={() => updateSearchParam('page', String(Math.min(totalPages, currentPage + 1)))}
+                disabled={currentPage >= totalPages}
+                rightIcon={ChevronRight}
+              >
+                Next
+              </WaButton>
+            </div>
+          </nav>
+        )}
+      </Section>
+    </WaPage>
   );
 }

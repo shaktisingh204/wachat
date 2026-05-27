@@ -1,30 +1,15 @@
-import { redirect } from 'next/navigation';
+'use client';
 
-/**
- * New policy page — server wrapper around `<PolicyForm />`.
- *
- * The wrapper is intentionally tiny: the form is a client component that
- * binds to the `savePolicy` server action via `useActionState`, so all we
- * do here is render the page chrome.
- */
+import React from 'react';
+import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
+import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { getSession } from '@/app/actions/user.actions';
-
-import { PolicyForm } from '../_components/policy-form';
-
-export const dynamic = 'force-dynamic';
-
-export default async function NewPolicyPage() {
-    const session = await getSession();
-    if (!session?.user) redirect('/login');
-
+export default function NewPolicyPage() {
     return (
-        <EntityListShell
-            title="New Policy"
-            subtitle="Draft a new company policy, handbook section, or versioned guideline."
-        >
-            <PolicyForm />
-        </EntityListShell>
+        <LiveDocumentEditor
+            documentType="policy"
+            saveAction={saveLiveDocument}
+            backHref="/dashboard/hrm/hr/policies"
+        />
     );
 }

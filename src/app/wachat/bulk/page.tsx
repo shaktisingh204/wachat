@@ -1,50 +1,31 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  Suspense,
-  useEffect,
-  useState,
-  useTransition,
-  useCallback } from 'react';
+import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
+import { Boxes } from 'lucide-react';
 
 import { getProjects } from '@/app/actions/project.actions';
 import { getTemplates } from '@/app/actions/template.actions';
-import type { WithId,
-  Project,
-  Template } from '@/lib/definitions';
+import type { WithId, Project, Template } from '@/lib/definitions';
+import { WaPage, PageHeader } from '@/components/wachat-ui';
 
 import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
 
 /**
- * Wachat Bulk — root bulk-send page (CSV-driven).
- *
- * Keeps the existing BulkActionsClient component (it implements the
- * underlying upload/preview/dispatch flow). ZoruUI only replaces the
- * page chrome.
+ * Wachat Bulk - root bulk-send page (CSV-driven).
+ * Same data layer as before; wachat-ui chrome.
  */
-
-import * as React from 'react';
 
 function BulkActionsSkeleton() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-9 w-64" />
-        <Skeleton className="h-9 w-32" />
+        <div className="h-9 w-64 rounded-full bg-zinc-100 animate-pulse" />
+        <div className="h-9 w-32 rounded-full bg-zinc-100 animate-pulse" />
       </div>
-      <Skeleton className="h-4 w-96" />
+      <div className="h-4 w-96 rounded-full bg-zinc-100 animate-pulse" />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-48 w-full" />
+          <div key={i} className="h-48 w-full rounded-2xl border border-zinc-200 bg-white animate-pulse" />
         ))}
       </div>
     </div>
@@ -54,9 +35,7 @@ function BulkActionsSkeleton() {
 function BulkPageContent() {
   const [allProjects, setAllProjects] = useState<WithId<Project>[]>([]);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-  const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>(
-    [],
-  );
+  const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, startTransition] = useTransition();
 
   const fetchInitialData = useCallback(() => {
@@ -75,9 +54,7 @@ function BulkPageContent() {
 
         const sourceProject = filteredProjects[0];
         if (sourceProject) {
-          const fetchedTemplates = await getTemplates(
-            sourceProject._id.toString(),
-          );
+          const fetchedTemplates = await getTemplates(sourceProject._id.toString());
           setTemplates(fetchedTemplates);
         }
       }
@@ -88,9 +65,7 @@ function BulkPageContent() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  if (isLoading) {
-    return <BulkActionsSkeleton />;
-  }
+  if (isLoading) return <BulkActionsSkeleton />;
 
   return (
     <BulkActionsClient
@@ -104,36 +79,18 @@ function BulkPageContent() {
 
 export default function BulkPage() {
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Bulk Actions</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Bulk Actions
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Send WhatsApp messages, run template imports, and orchestrate jobs
-          across multiple projects at once.
-        </p>
-      </div>
+    <WaPage>
+      <PageHeader
+        title="Bulk actions"
+        description="Send WhatsApp messages, run template imports, and orchestrate jobs across multiple projects at once."
+        kicker="Wachat / bulk"
+        eyebrowIcon={Boxes}
+        backHref="/wachat"
+      />
 
       <Suspense fallback={<BulkActionsSkeleton />}>
         <BulkPageContent />
       </Suspense>
-    </div>
+    </WaPage>
   );
 }

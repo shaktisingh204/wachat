@@ -1,10 +1,9 @@
 'use client';
 
-import { EmptyState } from '@/components/zoruui';
-import {
-  useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { WaPage, EmptyState } from '@/components/wachat-ui';
 
 export default function DeprecatedCannedMessagesPage() {
   const router = useRouter();
@@ -14,10 +13,12 @@ export default function DeprecatedCannedMessagesPage() {
   }, [router]);
 
   return (
-    <EmptyState
-      icon={<Loader2 className="h-6 w-6 animate-spin" strokeWidth={1.75} />}
-      title="This page has moved"
-      description="Redirecting you to Settings → Canned messages…"
-    />
+    <WaPage>
+      <EmptyState
+        icon={Loader2}
+        title="This page has moved"
+        description="Redirecting you to Settings > Canned messages..."
+      />
+    </WaPage>
   );
 }
