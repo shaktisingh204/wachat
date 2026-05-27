@@ -984,7 +984,6 @@ export async function sendTelegramTypingAction(input: {
 
 /* ── auto-reply rules ──────────────────────────────────────────── */
 
-    from '@/lib/rust-client/telegram-auto-reply';
 import type { RuleRow as TelegramAutoReplyRuleRowType }
     from '@/lib/rust-client/telegram-auto-reply';
 
@@ -1263,7 +1262,6 @@ export async function toggleTelegramAutoReplyRule(input: {
 
 /* ── channels ──────────────────────────────────────────────────── */
 
-    from '@/lib/rust-client/telegram-channels';
 import type { ChannelRow as TelegramChannelRowType }
     from '@/lib/rust-client/telegram-channels';
 

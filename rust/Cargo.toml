@@ -347,6 +347,14 @@ members = [
     "crates/sabbi-embeds",
     "crates/sabbi-schedules",
     "crates/sabbi-workbooks",
+    "crates/sabsheet-workbooks",
+    "crates/sabsheet-sheets",
+    "crates/sabsheet-cells",
+    "crates/sabsheet-named-ranges",
+    "crates/sabsheet-pivot-tables",
+    "crates/sabsheet-comments",
+    "crates/sabsheet-versions",
+    "crates/sabsheet-presence",
     "crates/sabbigin-config",
     "crates/sabbugs-bugs",
     "crates/sabbugs-comments",
@@ -413,7 +421,7 @@ members = [
     "crates/sabvoice-ivrs",
     "crates/sabvoice-queues",
     "crates/sabvoice-voicemail"
-, "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace", "crates/sabtables-workspaces", "crates/sabtables-bases", "crates/sabtables-tables", "crates/sabtables-records", "crates/sabtables-views", "crates/sabtables-automations", "crates/sabtables-comments"]
+, "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace", "crates/sabtables-workspaces", "crates/sabtables-bases", "crates/sabtables-tables", "crates/sabtables-records", "crates/sabtables-views", "crates/sabtables-automations", "crates/sabtables-comments", "crates/sabcreator-apps", "crates/sabcreator-forms", "crates/sabcreator-pages", "crates/sabcreator-workflows", "crates/sabcreator-roles", "crates/sabcreator-role-assignments", "crates/sabcreator-publishing", "crates/sabpractice-firms", "crates/sabpractice-clients", "crates/sabpractice-engagements", "crates/sabpractice-document-requests", "crates/sabpractice-tasks", "crates/sabpractice-time-logs", "crates/sabpractice-advisory-notes", "crates/sabpractice-deadlines", "crates/sabops-endpoints", "crates/sabops-software-inventory", "crates/sabops-hardware-inventory", "crates/sabops-patches", "crates/sabops-patch-policies", "crates/sabops-mdm-profiles", "crates/sabops-mdm-commands", "crates/sabops-ad-domains", "crates/sabops-ad-users", "crates/sabops-ad-groups", "crates/sabops-alerts", "crates/sabops-agent-tokens"]
 
 [workspace.package]
 edition = "2024"

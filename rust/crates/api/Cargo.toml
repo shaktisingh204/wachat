@@ -372,5 +372,19 @@ sabvoice-ivrs = { path = "../sabvoice-ivrs" }
 sabvoice-queues = { path = "../sabvoice-queues" }
 sabvoice-voicemail = { path = "../sabvoice-voicemail" }
 
+# SabOps — endpoint / MDM / AD / patch management
+sabops-endpoints = { path = "../sabops-endpoints" }
+sabops-software-inventory = { path = "../sabops-software-inventory" }
+sabops-hardware-inventory = { path = "../sabops-hardware-inventory" }
+sabops-patches = { path = "../sabops-patches" }
+sabops-patch-policies = { path = "../sabops-patch-policies" }
+sabops-mdm-profiles = { path = "../sabops-mdm-profiles" }
+sabops-mdm-commands = { path = "../sabops-mdm-commands" }
+sabops-ad-domains = { path = "../sabops-ad-domains" }
+sabops-ad-users = { path = "../sabops-ad-users" }
+sabops-ad-groups = { path = "../sabops-ad-groups" }
+sabops-alerts = { path = "../sabops-alerts" }
+sabops-agent-tokens = { path = "../sabops-agent-tokens" }
+
 [lints]
 workspace = true

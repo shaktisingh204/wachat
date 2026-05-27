@@ -1,0 +1,13 @@
+import React from 'react';
+import { SabworkerlyNav } from './_components/sabworkerly-nav';
+
+import '@/styles/zoruui.css';
+
+export default function SabworkerlyLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <div className="zoruui min-h-full bg-[color:var(--zoru-bg)]">
+            <SabworkerlyNav />
+            <div className="px-6 py-6">{children}</div>
+        </div>
+    );
+}

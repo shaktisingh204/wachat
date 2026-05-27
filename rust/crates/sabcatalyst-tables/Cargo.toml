@@ -1,0 +1,30 @@
+[package]
+name = "sabcatalyst-tables"
+version = "0.1.0"
+edition = "2024"
+description = "SabCatalyst Datastore — table definitions (schema rows). The records themselves live in `sabcatalyst-records`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcatalyst_tables"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3"
+futures = "0.3"
+tracing = "0.1"
+anyhow = "1"
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

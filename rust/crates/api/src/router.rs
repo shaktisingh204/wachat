@@ -107,6 +107,20 @@ pub fn build(state: AppState) -> Router {
     let sabrequests_orgcharts_r = sabrequests_orgcharts::router::<AppState>();
     let sabrequests_stage_actions_r = sabrequests_stage_actions::router::<AppState>();
 
+    // SabOps — IT operations suite (endpoints / MDM / AD / patches)
+    let sabops_endpoints_r = sabops_endpoints::router::<AppState>();
+    let sabops_software_r = sabops_software_inventory::router::<AppState>();
+    let sabops_hardware_r = sabops_hardware_inventory::router::<AppState>();
+    let sabops_patches_r = sabops_patches::router::<AppState>();
+    let sabops_patch_policies_r = sabops_patch_policies::router::<AppState>();
+    let sabops_mdm_profiles_r = sabops_mdm_profiles::router::<AppState>();
+    let sabops_mdm_commands_r = sabops_mdm_commands::router::<AppState>();
+    let sabops_ad_domains_r = sabops_ad_domains::router::<AppState>();
+    let sabops_ad_users_r = sabops_ad_users::router::<AppState>();
+    let sabops_ad_groups_r = sabops_ad_groups::router::<AppState>();
+    let sabops_alerts_r = sabops_alerts::router::<AppState>();
+    let sabops_agent_tokens_r = sabops_agent_tokens::router::<AppState>();
+
     Router::new().nest("/admin", wachat_webhook_config::router::<AppState>());
     let wachat_templates = wachat_templates_router::router::<AppState>();
     let wachat_templates_actions = wachat_templates_actions::router::<AppState>();
@@ -679,6 +693,18 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabprep/runs", sabprep_runs_r)
         .nest("/v1/sabrequests/orgcharts", sabrequests_orgcharts_r)
         .nest("/v1/sabrequests/stage-actions", sabrequests_stage_actions_r)
+        .nest("/v1/sabops/endpoints", sabops_endpoints_r)
+        .nest("/v1/sabops/software", sabops_software_r)
+        .nest("/v1/sabops/hardware", sabops_hardware_r)
+        .nest("/v1/sabops/patches", sabops_patches_r)
+        .nest("/v1/sabops/patch-policies", sabops_patch_policies_r)
+        .nest("/v1/sabops/mdm/profiles", sabops_mdm_profiles_r)
+        .nest("/v1/sabops/mdm/commands", sabops_mdm_commands_r)
+        .nest("/v1/sabops/ad/domains", sabops_ad_domains_r)
+        .nest("/v1/sabops/ad/users", sabops_ad_users_r)
+        .nest("/v1/sabops/ad/groups", sabops_ad_groups_r)
+        .nest("/v1/sabops/alerts", sabops_alerts_r)
+        .nest("/v1/sabops/agent-tokens", sabops_agent_tokens_r)
         .nest("/v1/admin", admin_router)
         .nest("/v1", v1)
         .with_state(state)
