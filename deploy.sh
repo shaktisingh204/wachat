@@ -310,6 +310,28 @@ for bin in sabnode-api broadcast-worker; do
 done
 
 # ─────────────────────────────────────────────
+# BUILD SABSMS ENGINE (standalone Rust crate)
+# ─────────────────────────────────────────────
+#
+# sabsms-engine lives outside rust/ workspace — its own Cargo.toml at
+# services/sabsms-engine/. PM2 starts it from
+# services/sabsms-engine/target/release/sabsms-engine, so build it here
+# or PM2 startup will fail with "Script not found".
+
+step "Building SabSMS engine"
+
+(
+  cd "$REPO_DIR/services/sabsms-engine"
+
+  $SUDO "$CARGO_BIN" build --release --jobs "$CPU_LIMIT"
+
+  if ! $SUDO test -x "$REPO_DIR/services/sabsms-engine/target/release/sabsms-engine"; then
+    echo "✖ Missing Rust binary: sabsms-engine"
+    exit 1
+  fi
+)
+
+# ─────────────────────────────────────────────
 # BUILD SABWA NODE
 # ─────────────────────────────────────────────
 
