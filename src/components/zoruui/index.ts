@@ -81,7 +81,21 @@ export {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 export { SabNodeSidebar } from "@/components/ui/sidebar-component";
-export { SabnodeWaterLoader } from "@/components/ui/sabnode-water-loader";
+// SabNodeWaterLoader: real export is `SabNodeWaterLoader` (capital N).
+// Alias `SabnodeWaterLoader` for the one consumer that imports the
+// lowercase-n typo, so we don't have to edit that file in this pass.
+export {
+  SabNodeWaterLoader,
+  SabNodeWaterLoader as SabnodeWaterLoader,
+  SabNodeWaterLoaderScreen,
+} from "@/components/ui/sabnode-water-loader";
+// Bare-name Tabs aliases — consumers in sabsms/* import the unprefixed
+// `TabsList` / `TabsTrigger` / `TabsContent` from this barrel.
+export {
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
 export {
   Select,
   ZoruSelectGroup,
