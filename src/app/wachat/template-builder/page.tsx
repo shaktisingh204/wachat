@@ -691,7 +691,7 @@ export default function TemplateBuilderPage() {
                   <p className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
                     <Moon className="h-2.5 w-2.5" strokeWidth={2.25} /> Dark
                   </p>
-                  <div className="[&_.bg-white\\/95]:bg-zinc-800/95 [&_.bg-white\\/95]:text-zinc-100 [&_.text-emerald-700]:text-emerald-300 [&_.text-zinc-800]:text-zinc-100 [&_.text-zinc-900]:text-zinc-50 [&_.text-zinc-500]:text-zinc-400 [&_.text-zinc-600]:text-zinc-300 [&_.text-emerald-700\\/60]:text-emerald-200/70">
+                  <div className="[&_.text-emerald-700]:text-emerald-300 [&_.text-zinc-800]:text-zinc-100 [&_.text-zinc-900]:text-zinc-50 [&_.text-zinc-500]:text-zinc-400 [&_.text-zinc-600]:text-zinc-300">
                     <PhoneFrame title={activeProject?.name ?? 'Wachat Business'} subtitle="online">
                       {renderPreviewBody}
                     </PhoneFrame>
