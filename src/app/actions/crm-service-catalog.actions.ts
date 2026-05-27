@@ -27,10 +27,10 @@ import { requireSession, serialize } from '@/lib/hr-crud';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
 
-export type CrmServiceStatus = 'active' | 'archived';
-export type CrmServiceBillableBy = 'hour' | 'fixed' | 'project';
+type CrmServiceStatus = 'active' | 'archived';
+type CrmServiceBillableBy = 'hour' | 'fixed' | 'project';
 
-export interface CrmServiceDoc {
+interface CrmServiceDoc {
     _id?: string;
     userId?: string;
     name: string;
@@ -221,7 +221,7 @@ export async function saveCrmService(
 
 /* ─── KPI + bulk actions ────────────────────────────────────────────── */
 
-export interface CrmServiceKpis {
+interface CrmServiceKpis {
     total: number;
     active: number;
     archived: number;
@@ -292,7 +292,7 @@ export async function getCrmServiceKpis(): Promise<CrmServiceKpis> {
     }
 }
 
-export type BulkServiceOp = 'archive' | 'unarchive' | 'delete';
+type BulkServiceOp = 'archive' | 'unarchive' | 'delete';
 
 export async function bulkServiceAction(
     ids: string[],

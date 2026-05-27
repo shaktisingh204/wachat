@@ -35,7 +35,7 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 import type {
     CrmStockAdjustmentFilters,
     CrmStockAdjustmentKpis,
-} from '@/app/actions/crm-inventory.actions';
+} from '@/app/actions/crm-inventory.actions.types';
 
 export type AdjustmentStatusFilter =
     | ''

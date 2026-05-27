@@ -59,7 +59,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteGrnAction } from '@/app/actions/crm/grns.actions';
-import type { GrnKpis } from '@/app/actions/crm/grns.actions';
+import type { GrnKpis } from '@/app/actions/crm/grns.actions.types';
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';
 import {
     dateStamp,

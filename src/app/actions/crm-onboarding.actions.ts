@@ -245,7 +245,7 @@ export async function deleteOnboarding(
 
 /* ─── KPI ─────────────────────────────────────────────────────────────── */
 
-export interface OnboardingKpis {
+interface OnboardingKpis {
     total: number;
     inProgress: number;
     completedThisMonth: number;

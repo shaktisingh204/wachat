@@ -27,15 +27,15 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmEstimateTemplateStatus = 'draft' | 'published' | 'archived';
+type CrmEstimateTemplateStatus = 'draft' | 'published' | 'archived';
 
-export interface CrmEstimateTemplateItem {
+interface CrmEstimateTemplateItem {
     description: string;
     quantity: number;
     rate: number;
 }
 
-export interface CrmEstimateTemplateListFilters {
+interface CrmEstimateTemplateListFilters {
     q?: string;
     status?: CrmEstimateTemplateStatus | 'all';
     category?: string;

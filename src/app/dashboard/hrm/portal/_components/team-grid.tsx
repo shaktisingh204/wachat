@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Card, Badge, Button, EmptyState } from '@/components/zoruui';
-import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions';
 import { AssignTaskDrawer } from './assign-task-drawer';
 import { ClipboardPlus, Users } from 'lucide-react';
+import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 
 interface TeamGridProps {
     members: PortalTeamMember[];

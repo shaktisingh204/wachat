@@ -29,7 +29,7 @@ import {
     duplicateBom,
     setBomStatus,
 } from '@/app/actions/crm-bom.actions';
-import type { CrmBomDoc, CrmBomKpis } from '@/app/actions/crm-bom.actions';
+import type { CrmBomDoc, CrmBomKpis } from '@/app/actions/crm-bom.actions.types';
 
 import { BomKpiStrip } from './bom-kpi-strip';
 import { BomFiltersRow, BomBulkBar, type BomStatusFilter } from './bom-filters';

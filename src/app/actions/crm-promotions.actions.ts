@@ -26,7 +26,7 @@ import { requirePermission } from '@/lib/rbac-server';
 const COLLECTION = 'crm_promotions';
 const BASE_PATH = '/dashboard/crm/sales/promotions';
 
-export type CrmPromotionStatus =
+type CrmPromotionStatus =
     | 'draft'
     | 'scheduled'
     | 'active'
@@ -34,13 +34,13 @@ export type CrmPromotionStatus =
     | 'expired'
     | 'archived';
 
-export type CrmPromotionType =
+type CrmPromotionType =
     | 'flat'
     | 'percent'
     | 'buy_x_get_y'
     | 'free_shipping';
 
-export interface CrmPromotionDoc {
+interface CrmPromotionDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -123,7 +123,7 @@ function serialize<T>(v: T): T {
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
 
-export interface PromotionListParams {
+interface PromotionListParams {
     q?: string;
     status?: CrmPromotionStatus | 'all';
     type?: CrmPromotionType | 'all';
@@ -356,7 +356,7 @@ export async function setPromotionStatus(
 
 /* ─── KPIs ───────────────────────────────────────────────────────────── */
 
-export interface PromotionKpis {
+interface PromotionKpis {
     totalActive: number;
     expiringThisWeek: number;
     totalRedemptions: number;

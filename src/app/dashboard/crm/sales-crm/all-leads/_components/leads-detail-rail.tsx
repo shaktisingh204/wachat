@@ -21,8 +21,8 @@ import {
     InlineStageEdit,
     InlineStatusEdit,
 } from './leads-inline-edits';
-import type { CrmLeadRelatedCounts } from '@/app/actions/crm-leads.actions';
 import type { CrmLead, WithId } from '@/lib/definitions';
+import type { CrmLeadRelatedCounts } from '@/app/actions/crm-leads.actions.types';
 
 export interface LeadsDetailRailProps {
     leadId: string;

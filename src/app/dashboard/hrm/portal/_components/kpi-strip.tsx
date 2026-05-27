@@ -1,8 +1,8 @@
 'use client';
 
 import { Card } from '@/components/zoruui';
-import type { PortalKpis } from '@/app/actions/hrm-portal.actions';
 import { Users, ClipboardList, CheckCircle2, FileWarning } from 'lucide-react';
+import type { PortalKpis } from '@/app/actions/hrm-portal.actions.types';
 
 interface KpiStripProps {
     kpis: PortalKpis;

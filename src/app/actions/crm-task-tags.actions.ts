@@ -27,9 +27,9 @@ function useRustCrm(): boolean {
 
 const ENTITY_KIND = 'task_tag';
 
-export type CrmTaskTagStatus = 'active' | 'archived';
+type CrmTaskTagStatus = 'active' | 'archived';
 
-export interface CrmTaskTagDoc {
+interface CrmTaskTagDoc {
     _id?: string;
     userId?: string;
     name: string;

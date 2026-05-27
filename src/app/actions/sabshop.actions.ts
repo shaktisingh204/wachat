@@ -32,8 +32,8 @@ import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 
 type ActionOk<T> = { ok: true } & T;
-export type ActionErr = { ok: false; error: string };
-export type SabshopActionResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
+type ActionErr = { ok: false; error: string };
+type SabshopActionResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
 
 const COLL = {
     storefronts: 'sabshop_storefronts',
@@ -107,7 +107,7 @@ export async function getStorefrontBySlug(slug: string): Promise<SabshopActionRe
     }
 }
 
-export interface StorefrontCreateData {
+interface StorefrontCreateData {
     slug: string;
     displayName: string;
     description?: string;

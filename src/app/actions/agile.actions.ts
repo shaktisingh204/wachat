@@ -56,7 +56,7 @@ import {
   type AgileBurndownRecordInput,
 } from '@/lib/rust-client/agile-burndown';
 
-export type ActionResult<T> =
+type ActionResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 

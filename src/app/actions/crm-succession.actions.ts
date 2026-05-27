@@ -28,16 +28,16 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export type SuccessionReadiness = 'ready' | '12mo' | '24mo' | 'long-term';
+type SuccessionReadiness = 'ready' | '12mo' | '24mo' | 'long-term';
 
-export interface SuccessionCandidate {
+interface SuccessionCandidate {
   employeeId?: string;
   name: string;
   readiness?: SuccessionReadiness;
   notes?: string;
 }
 
-export interface CrmSuccessionDoc {
+interface CrmSuccessionDoc {
   _id?: ObjectId;
   userId: ObjectId;
   role: string;

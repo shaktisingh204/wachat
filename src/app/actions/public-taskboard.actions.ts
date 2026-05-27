@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicTaskboardCard = {
+type PublicTaskboardCard = {
   _id: string;
   heading: string;
   description: string | null;
@@ -22,7 +22,7 @@ export type PublicTaskboardCard = {
   tags: string[];
 };
 
-export type PublicTaskboardColumn = {
+type PublicTaskboardColumn = {
   _id: string;
   name: string;
   color: string;
@@ -30,7 +30,7 @@ export type PublicTaskboardColumn = {
   cards: PublicTaskboardCard[];
 };
 
-export type PublicTaskboardView = {
+type PublicTaskboardView = {
   project: {
     _id: string;
     name: string;

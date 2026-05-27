@@ -15,8 +15,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getWelcomeKitById } from '@/app/actions/crm-welcome-kits.actions';
-import type { CrmWelcomeKitStatus } from '@/app/actions/crm-welcome-kits.actions';
-
+import type { CrmWelcomeKitStatus } from '@/app/actions/crm-welcome-kits.actions.types';
 export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/hr/welcome-kit';

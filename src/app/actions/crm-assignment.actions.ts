@@ -20,7 +20,7 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
-export type AssignableEntity =
+type AssignableEntity =
   | 'task'
   | 'lead'
   | 'deal'
@@ -30,7 +30,7 @@ export type AssignableEntity =
   | 'contract'
   | 'estimate';
 
-export interface Employee {
+interface Employee {
   _id: string;
   firstName: string;
   lastName: string;
@@ -40,26 +40,26 @@ export interface Employee {
   avatar?: string;
 }
 
-export interface EmployeeFilter {
+interface EmployeeFilter {
   departmentId?: string;
   activeOnly?: boolean;
 }
 
-export interface AssignmentStats {
+interface AssignmentStats {
   openTasks: number;
   openLeads: number;
   openDeals: number;
   openTickets: number;
 }
 
-export interface AssignmentResult {
+interface AssignmentResult {
   ok: boolean;
   error?: string;
 }
 
 /* ─── Entity → collection / field map ────────────────────────────────────── */
 
-export interface EntityConfig {
+interface EntityConfig {
   collection: string;
   field: string;
 }
@@ -80,7 +80,7 @@ const ENTITY_MAP: Record<AssignableEntity, EntityConfig> = {
 
 /* ─── Helpers ────────────────────────────────────────────────────────────── */
 
-export interface SessionUser {
+interface SessionUser {
   _id: string;
   email?: string | null;
 }

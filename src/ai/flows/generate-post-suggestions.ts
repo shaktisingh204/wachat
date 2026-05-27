@@ -18,14 +18,14 @@ const GeneratePostSuggestionsInputSchema = z.object({
   facebookData: z.string().describe('The Facebook data to generate post suggestions from.'),
 });
 
-export type GeneratePostSuggestionsInput = z.infer<typeof GeneratePostSuggestionsInputSchema>;
+type GeneratePostSuggestionsInput = z.infer<typeof GeneratePostSuggestionsInputSchema>;
 
 // Define the output schema
 const GeneratePostSuggestionsOutputSchema = z.object({
   postSuggestions: z.array(z.string()).describe('An array of suggested social media posts.'),
 });
 
-export type GeneratePostSuggestionsOutput = z.infer<typeof GeneratePostSuggestionsOutputSchema>;
+type GeneratePostSuggestionsOutput = z.infer<typeof GeneratePostSuggestionsOutputSchema>;
 
 // Define the flow
 const generatePostSuggestionsFlow = ai.defineFlow(

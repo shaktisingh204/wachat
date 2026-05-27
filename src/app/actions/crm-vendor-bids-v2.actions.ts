@@ -55,7 +55,7 @@ const VALID_STATUSES: ReadonlySet<CrmVendorBidStatus> =
         'withdrawn',
     ]);
 
-export interface VendorBidListResponse {
+interface VendorBidListResponse {
     items: CrmVendorBidDoc[];
     hasMore: boolean;
 }

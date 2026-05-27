@@ -343,14 +343,14 @@ export async function emailGiftCard(
  * Deep-list additions (KPIs, filtered list, bulk ops).
  * ──────────────────────────────────────────────────────────────────── */
 
-export interface CrmGiftCardKpis {
+interface CrmGiftCardKpis {
     totalIssued: number;
     active: number;
     redeemedValue: number;
     expiringSoon: number;
 }
 
-export interface CrmGiftCardListFilters {
+interface CrmGiftCardListFilters {
     search?: string;
     status?: string;
     createdAfter?: Date | string;

@@ -16,19 +16,19 @@ import { getSession } from '@/app/actions/user.actions';
 import type {
   PublicContractDetail,
   PublicContractDetailResult,
-} from '@/app/actions/public-contract.actions';
+} from '@/app/actions/public-contract.actions.types';
 import type {
   PublicEstimateDetail,
   PublicEstimateDetailResult,
-} from '@/app/actions/public-estimate.actions';
+} from '@/app/actions/public-estimate.actions.types';
 import type {
   PublicInvoiceDetail,
   PublicInvoiceDetailResult,
-} from '@/app/actions/public-invoice.actions';
+} from '@/app/actions/public-invoice.actions.types';
 import type {
   PublicProposalDetail,
   PublicProposalDetailResult,
-} from '@/app/actions/public-proposal.actions';
+} from '@/app/actions/public-proposal.actions.types';
 
 type Unauthorized = { ok: false; error: string; status: 401 | 403 | 404 };
 

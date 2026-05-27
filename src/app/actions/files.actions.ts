@@ -11,14 +11,14 @@ import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 const COLLECTION = 'user_files';
 
-export type LibraryFileTag =
+type LibraryFileTag =
   | 'image'
   | 'video'
   | 'audio'
   | 'document'
   | 'other';
 
-export interface LibraryFile {
+interface LibraryFile {
   id: string;
   name: string;
   mimeType: string;
@@ -29,7 +29,7 @@ export interface LibraryFile {
   createdAt: string;
 }
 
-export interface FileDoc {
+interface FileDoc {
   _id?: ObjectId;
   userId: string;
   name: string;
@@ -76,7 +76,7 @@ async function requireUserId(): Promise<string> {
   return String(id);
 }
 
-export interface ListFilesArgs {
+interface ListFilesArgs {
   tag?: LibraryFileTag;
   search?: string;
   limit?: number;

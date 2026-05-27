@@ -29,10 +29,7 @@ import {
   assignGroupToEmployee,
   removeGroupFromEmployee,
 } from '@/app/actions/hrm-permission-groups.actions';
-import type {
-  HrmPermissionGroup,
-} from '@/app/actions/hrm-permission-groups.actions';
-
+import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions.types';
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
 interface Employee {

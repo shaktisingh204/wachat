@@ -6,7 +6,7 @@ import {
     ShoppingCart,
     Zap,
 } from 'lucide-react';
-import type { IntegrationStatus } from '@/app/actions/crm-integrations.actions';
+import type { IntegrationStatus } from '@/app/actions/crm-integrations.actions.types';
 
 export type IntegrationStatusKey = keyof IntegrationStatus;
 

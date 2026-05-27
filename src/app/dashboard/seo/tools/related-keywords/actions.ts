@@ -3,7 +3,7 @@
 import { getKeywordDataLive } from '@/lib/seo/data-for-seo';
 import { classifyIntent } from '@/lib/seo-suite/keyword-research';
 
-export type RelatedKeywordIdea = {
+type RelatedKeywordIdea = {
   term: string;
   volume: number;
   cpc: number;

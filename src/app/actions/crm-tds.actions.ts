@@ -36,10 +36,10 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmTdsStatus = 'pending' | 'deposited' | 'filed' | 'archived';
-export type CrmTdsQuarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
+type CrmTdsStatus = 'pending' | 'deposited' | 'filed' | 'archived';
+type CrmTdsQuarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
 
-export interface CrmTdsListFilters {
+interface CrmTdsListFilters {
     q?: string;
     status?: CrmTdsStatus | 'all';
     financialYear?: string;

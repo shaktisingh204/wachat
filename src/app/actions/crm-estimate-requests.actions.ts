@@ -41,21 +41,21 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmEstimateRequestStatus =
+type CrmEstimateRequestStatus =
     | 'pending'
     | 'in_review'
     | 'quoted'
     | 'declined'
     | 'archived';
 
-export type CrmEstimateRequestSource =
+type CrmEstimateRequestSource =
     | 'web'
     | 'email'
     | 'phone'
     | 'referral'
     | 'other';
 
-export interface CrmEstimateRequestListFilters {
+interface CrmEstimateRequestListFilters {
     q?: string;
     status?: CrmEstimateRequestStatus | 'all';
     limit?: number;

@@ -29,21 +29,21 @@ const BASE_PATH = '/dashboard/hrm/hr/asset-assignments';
 const RBAC_KEY = 'crm_asset_assignment';
 const ENTITY_KIND = 'asset_assignment';
 
-export type CrmAssetAssignmentStatus =
+type CrmAssetAssignmentStatus =
     | 'assigned'
     | 'returned'
     | 'lost'
     | 'damaged'
     | 'archived';
 
-export type CrmAssetCondition =
+type CrmAssetCondition =
     | 'new'
     | 'good'
     | 'fair'
     | 'poor'
     | 'damaged';
 
-export interface CrmAssetAssignmentDoc {
+interface CrmAssetAssignmentDoc {
     _id: string;
     userId?: string;
     asset_id: string;
@@ -60,7 +60,7 @@ export interface CrmAssetAssignmentDoc {
     updatedAt?: string;
 }
 
-export interface CrmAssetAssignmentFilters {
+interface CrmAssetAssignmentFilters {
     q?: string;
     status?: CrmAssetAssignmentStatus | 'all';
     assetId?: string;
@@ -209,7 +209,7 @@ export async function getAssetAssignmentById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface AssignmentPayload {
+interface AssignmentPayload {
     asset_id: string;
     asset_name?: string;
     employee_id: string;
@@ -369,7 +369,7 @@ export async function deleteAssetAssignment(
 
 /* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
 
-export interface CrmAssetAssignmentKpis {
+interface CrmAssetAssignmentKpis {
     assigned: number;
     returned: number;
     lostOrDamaged: number;
@@ -448,9 +448,9 @@ export async function getAssetAssignmentKpis(): Promise<CrmAssetAssignmentKpis> 
     }
 }
 
-export type CrmAssetAssignmentBulkOp = 'delete' | 'archive' | 'return';
+type CrmAssetAssignmentBulkOp = 'delete' | 'archive' | 'return';
 
-export interface CrmAssetAssignmentBulkResult {
+interface CrmAssetAssignmentBulkResult {
     success: boolean;
     affected: number;
     error?: string;

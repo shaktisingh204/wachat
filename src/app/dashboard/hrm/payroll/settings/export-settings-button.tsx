@@ -2,9 +2,9 @@
 
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/zoruui';
 import { Download, FileJson, FileText, FileSpreadsheet } from 'lucide-react';
-import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
 import { useState } from 'react';
 import { useZoruToast } from '@/components/zoruui';
+import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';
 
 export function ExportSettingsButton({ settings }: { settings: PayrollSettings }) {
   const { toast } = useZoruToast();

@@ -233,7 +233,7 @@ export async function paymentAnalyticsAction(
 
 // -- Bot list (for selectors) ------------------------------------------
 
-export interface BotOption {
+interface BotOption {
     id: string;
     username: string;
     name: string;

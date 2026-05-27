@@ -614,7 +614,7 @@ export async function getTimeReport(
  *  Bulk actions — Time Logs
  * ──────────────────────────────────────────── */
 
-export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 /**
  * Bulk mark time log entries as billable or non-billable.

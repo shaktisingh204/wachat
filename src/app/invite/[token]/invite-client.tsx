@@ -16,12 +16,12 @@ import {
 
 import { Badge, Button, Card, type ZoruBadgeProps } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
-import type { InvitationView } from '@/app/actions/team.actions';
 import {
     acceptInvitation,
     declineInvitation,
     rememberPendingInviteToken,
 } from '@/app/actions/team.actions';
+import type { InvitationView } from '@/app/actions/team.actions.types';
 
 export type AuthState =
     | { kind: 'logged-out' }

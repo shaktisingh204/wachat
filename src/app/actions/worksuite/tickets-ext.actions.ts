@@ -25,7 +25,7 @@ import type {
   WsTicketActivity,
 } from '@/lib/worksuite/tickets-ext-types';
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/sabdesk';
 
@@ -71,7 +71,7 @@ async function genericSave(
 
 /* ── Settings-list KPI helper ───────────────────────────────────── */
 
-export interface SettingsKpis {
+interface SettingsKpis {
   total: number;
   inUse: number;
   unused: number;

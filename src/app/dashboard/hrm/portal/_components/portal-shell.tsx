@@ -12,16 +12,10 @@
 import { useState, useCallback, useTransition, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/components/zoruui';
-import type {
-    PortalEmployeeProfile,
-    PortalTeamMember,
-    PortalTask,
-    PortalKpis,
-} from '@/app/actions/hrm-portal.actions';
-
 import { ProfileCard } from './profile-card';
 import { KpiStrip } from './kpi-strip';
 import { Users, ClipboardList, ClipboardCheck, Loader2 } from 'lucide-react';
+import type { PortalEmployeeProfile, PortalTeamMember, PortalTask, PortalKpis } from '@/app/actions/hrm-portal.actions.types';
 
 // Lazy loaded components for better loading states
 const TeamGrid = lazy(() => import('./team-grid').then(m => ({ default: m.TeamGrid })));

@@ -62,7 +62,7 @@ function revalidateSurfaces(): void {
 
 /* ─── Shape returned to <SettingsEntityShell> ────────────────────────── */
 
-export interface CrmVendorTypeRow {
+interface CrmVendorTypeRow {
     _id: string;
     name: string;
     code?: string;

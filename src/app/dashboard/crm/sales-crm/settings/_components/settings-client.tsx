@@ -24,7 +24,7 @@ import {
   saveSalesCrmDealConfig,
   saveSalesCrmNotificationConfig,
 } from '@/app/actions/worksuite/crm-plus.actions';
-import type { SalesCrmConfig } from '@/app/actions/worksuite/crm-plus.actions';
+import type { SalesCrmConfig } from '@/app/actions/worksuite/crm-plus.actions.types';
 import type { CrmPipeline } from '@/lib/definitions';
 import type { WsLeadStatus } from '@/lib/worksuite/crm-types';
 import type { WithId } from 'mongodb';

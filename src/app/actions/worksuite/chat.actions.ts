@@ -34,7 +34,7 @@ import type {
  * / `mentioned_user_id` for the current user so it sees only its own inbox.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   chat: 'crm_user_chats',
@@ -447,7 +447,7 @@ export async function logUserActivity(
   return { message: 'Activity logged', id: res.insertedId.toString() };
 }
 
-export interface UserActivityFilter {
+interface UserActivityFilter {
   actorUserId?: string;
   action?: string;
   resourceType?: string;
@@ -491,7 +491,7 @@ export async function deleteUserActivity(id: string) {
 
 /* ═══════════════════ Notifications ═══════════════════ */
 
-export interface NotifyPayload {
+interface NotifyPayload {
   type: string;
   title: string;
   body?: string;

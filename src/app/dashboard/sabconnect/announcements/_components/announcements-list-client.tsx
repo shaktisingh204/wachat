@@ -59,8 +59,7 @@ import type {
     CrmAnnouncementDoc,
     CrmAnnouncementStatus,
 } from '@/lib/rust-client/crm-announcements';
-import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions';
-
+import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions.types';
 interface ListClientProps {
     initialItems: CrmAnnouncementDoc[];
     initialKpis: AnnouncementKpis;

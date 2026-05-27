@@ -40,7 +40,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface PayrollRunListResult {
+interface PayrollRunListResult {
   runs: CrmPayrollRunDoc[];
   page: number;
   limit: number;

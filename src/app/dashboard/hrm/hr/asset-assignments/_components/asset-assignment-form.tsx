@@ -25,11 +25,8 @@ import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import { saveAssetAssignment } from '@/app/actions/crm-asset-assignments.actions';
-import type {
-    CrmAssetAssignmentDoc,
-    CrmAssetAssignmentStatus,
-} from '@/app/actions/crm-asset-assignments.actions';
-
+import type { CrmAssetAssignmentDoc } from '@/app/actions/crm-asset-assignments.actions.types';
+import type { CrmAssetAssignmentStatus } from '@/app/actions/crm-asset-assignments.actions.types';
 const BASE = '/dashboard/hrm/hr/asset-assignments';
 
 function toDateInput(value: unknown): string {

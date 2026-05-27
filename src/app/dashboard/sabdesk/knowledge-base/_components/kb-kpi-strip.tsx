@@ -11,8 +11,7 @@ import { BookOpen, CheckCircle2, Eye, FileText, ThumbsUp } from 'lucide-react';
  */
 
 import * as React from 'react';
-
-import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
+import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions.types';
 
 export interface KbKpiCounts {
     total: number;

@@ -15,15 +15,15 @@ import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
-import type { CrmBomComponent } from '@/app/actions/crm-bom.actions';
 import { crmProductionOrdersApi } from '@/lib/rust-client/crm-production-orders';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import type { CrmBomComponent } from '@/app/actions/crm-bom.actions.types';
 
 function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export interface CrmProductionOrderDoc {
+interface CrmProductionOrderDoc {
   _id: string;
   userId: string;
   orderNo: string;
@@ -53,7 +53,7 @@ export interface CrmProductionOrderDoc {
   updatedAt?: string;
 }
 
-export interface CrmProductionOrderKpis {
+interface CrmProductionOrderKpis {
   open: number;
   inProgress: number;
   completed: number;
@@ -61,7 +61,7 @@ export interface CrmProductionOrderKpis {
   avgYieldPct: number;
 }
 
-export interface CrmProductionOrderFilters {
+interface CrmProductionOrderFilters {
   status?: string;
   bom?: string;
   dateFrom?: string;

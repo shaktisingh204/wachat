@@ -12,7 +12,7 @@ import { notifyManyTeamMembers } from '@/lib/team-notifications';
 
 const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024; // 10 MB
 
-export type TeamChannelView = Omit<WithId<TeamChannel>, '_id' | 'participants' | 'lastMessage' | 'createdAt' | 'updatedAt'> & {
+type TeamChannelView = Omit<WithId<TeamChannel>, '_id' | 'participants' | 'lastMessage' | 'createdAt' | 'updatedAt'> & {
     _id: string;
     participants: { userId: string; name: string; avatar?: string }[];
     lastMessage?: { content: string; senderId: string; createdAt: string };
@@ -258,7 +258,7 @@ export async function getChannelMessages(channelId: string): Promise<WithId<Team
     }
 }
 
-export type OutgoingAttachment = {
+type OutgoingAttachment = {
     filename: string;
     contentType: string;
     /** Base64-encoded payload. The data-URL prefix (e.g. "data:image/png;base64,…") is stripped automatically. */

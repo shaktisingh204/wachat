@@ -4,7 +4,7 @@ import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } f
 import {
   Timer } from 'lucide-react';
 
-import type { SabwaAnalyticsHistogramBin } from '@/app/actions/sabwa.actions';
+import type { SabwaAnalyticsHistogramBin } from '@/app/actions/sabwa.actions.types';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 

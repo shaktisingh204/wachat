@@ -4,7 +4,7 @@ import { cn } from '@/components/zoruui';
 import {
   Activity } from 'lucide-react';
 
-import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions';
+import type { SabwaAnalyticsHeatCell } from '@/app/actions/sabwa.actions.types';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 

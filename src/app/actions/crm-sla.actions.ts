@@ -358,7 +358,7 @@ export async function bulkUpdateSlas(
 
 /* ── SaveSlaState type (re-export for form components) ───────────── */
 
-export type SaveSlaState = { message?: string; error?: string; id?: string };
+type SaveSlaState = { message?: string; error?: string; id?: string };
 
 export async function acknowledgeSlaBreach(
   ticketId: string,

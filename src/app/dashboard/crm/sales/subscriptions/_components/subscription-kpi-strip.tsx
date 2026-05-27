@@ -21,7 +21,7 @@ import {
 
 import * as React from 'react';
 
-import type { SubscriptionKpiSnapshot } from '@/app/actions/crm/subscriptions.actions';
+import type { SubscriptionKpiSnapshot } from '@/app/actions/crm/subscriptions.actions.types';
 
 export type SubscriptionKpiKey =
   | 'active'

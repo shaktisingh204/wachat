@@ -37,7 +37,7 @@ import type {
     PosPaymentMethod,
     PosRefundDoc,
     PosRefundStatus,
-} from '@/app/actions/crm-pos.actions';
+} from '@/app/actions/crm-pos.actions.types';
 
 interface Props {
     refunds: PosRefundDoc[];

@@ -35,23 +35,23 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type ProbationStatus =
+type ProbationStatus =
     | 'in_progress'
     | 'confirmed'
     | 'extended'
     | 'terminated'
     | 'archived';
 
-export type ProbationRecommendation = 'confirm' | 'extend' | 'terminate';
+type ProbationRecommendation = 'confirm' | 'extend' | 'terminate';
 
-export interface ProbationCriterion {
+interface ProbationCriterion {
     name: string;
     target?: string;
     achieved?: string;
     score?: number;
 }
 
-export interface CrmProbationDoc {
+interface CrmProbationDoc {
     _id?: ObjectId;
     userId: ObjectId;
     employeeId?: string;
@@ -137,7 +137,7 @@ function revalidateSurfaces(id?: string): void {
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
 
-export interface ProbationListFilters {
+interface ProbationListFilters {
     q?: string;
     status?: ProbationStatus | 'all';
 }
@@ -252,7 +252,7 @@ export async function getCrmProbationById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface PayloadResult {
+interface PayloadResult {
     payload: Partial<CrmProbationDoc>;
     error?: string;
 }
@@ -421,7 +421,7 @@ export async function deleteCrmProbation(
 
 /* ─── Bulk + KPIs ────────────────────────────────────────────────────── */
 
-export interface CrmProbationKpis {
+interface CrmProbationKpis {
     total: number;
     inProgress: number;
     endingThisMonth: number;

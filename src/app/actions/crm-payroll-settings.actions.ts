@@ -12,7 +12,7 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export type PayrollSettings = {
+type PayrollSettings = {
   payFrequency: string;
   currency: string;
   taxRegime: string;

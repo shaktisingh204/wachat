@@ -54,7 +54,7 @@ import {
     getNoticeViewsForUser,
 } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsNotice, WsNoticeView } from '@/lib/worksuite/knowledge-types';
-import type { NoticeKpis } from '@/app/actions/worksuite/knowledge.actions';
+import type { NoticeKpis } from '@/app/actions/worksuite/knowledge.actions.types';
 
 import {
     NOTICES_INITIAL_FILTERS,

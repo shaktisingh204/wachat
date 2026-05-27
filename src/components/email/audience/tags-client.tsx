@@ -21,7 +21,7 @@ import {
   Skeleton,
   zoruToast,
 } from '@/components/zoruui';
-import { actionListEmailTags, } from '@/app/actions/email/audience.actions';
+import { actionListEmailTags } from '@/app/actions/email/audience.actions';
 import type { TagWithCount } from '@/lib/rust-client/email-audience';
 
 export function TagsClient() {

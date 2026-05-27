@@ -4,10 +4,10 @@ import { getCachedSession } from '@/lib/server-cache';
 import { getWorkspacesByUser, getPaginatedWorkspacesByUser, getMemberRole } from '@/lib/sabflow/workspaces/db';
 import type { WorkspaceRole as DBWorkspaceRole } from '@/lib/sabflow/workspaces/types';
 
-export type WorkspaceRole = DBWorkspaceRole;
-export type WorkspacePlan = 'free' | 'starter' | 'pro' | 'enterprise';
+type WorkspaceRole = DBWorkspaceRole;
+type WorkspacePlan = 'free' | 'starter' | 'pro' | 'enterprise';
 
-export interface Workspace {
+interface Workspace {
   id: string;
   name: string;
   plan: string;

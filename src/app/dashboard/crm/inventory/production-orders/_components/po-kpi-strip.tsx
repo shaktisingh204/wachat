@@ -9,7 +9,7 @@ import { Activity, AlertTriangle, CheckCircle2, Gauge, Pause } from 'lucide-reac
 
 import * as React from 'react';
 
-import type { CrmProductionOrderKpis } from '@/app/actions/crm-production-orders.actions';
+import type { CrmProductionOrderKpis } from '@/app/actions/crm-production-orders.actions.types';
 
 export type PoStatusFilter = 'all' | 'planned' | 'in_progress' | 'completed';
 

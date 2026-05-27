@@ -62,7 +62,7 @@ function revalidateSurfaces(billId?: string): void {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface BillListResult {
+interface BillListResult {
   bills: CrmBillDoc[];
   page: number;
   limit: number;

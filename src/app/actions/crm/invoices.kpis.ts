@@ -1,6 +1,6 @@
 import type { CrmInvoiceDoc } from '@/lib/rust-client/crm-invoices';
 
-export interface InvoiceKpiSummary {
+interface InvoiceKpiSummary {
   /** Sum of `balance` for invoices not yet fully paid / cancelled. */
   outstanding: number;
   /** Number of invoices past their due date and still unpaid. */

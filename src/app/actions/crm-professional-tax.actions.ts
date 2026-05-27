@@ -46,13 +46,13 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmProfessionalTaxStatus =
+type CrmProfessionalTaxStatus =
     | 'pending'
     | 'deposited'
     | 'filed'
     | 'archived';
 
-export interface CrmProfessionalTaxListFilters {
+interface CrmProfessionalTaxListFilters {
     q?: string;
     status?: CrmProfessionalTaxStatus | 'all';
     state?: string;
@@ -577,14 +577,14 @@ export async function deleteProfessionalTaxRecord(
 
 /* ─── Bulk Import ───────────────────────────────────────────────────── */
 
-export interface BulkImportActionInput {
+interface BulkImportActionInput {
     csv: string;
     dryRun?: boolean;
     dedup?: DedupPolicy;
     maxRows?: number;
 }
 
-export interface PTRecordDraft {
+interface PTRecordDraft {
     employeeName: string;
     employeeId?: string;
     state: string;

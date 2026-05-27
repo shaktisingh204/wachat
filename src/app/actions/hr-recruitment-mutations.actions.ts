@@ -28,7 +28,7 @@ import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { requireSession } from '@/lib/hr-crud';
 
-export type HrActionResult = { message?: string; error?: string };
+type HrActionResult = { message?: string; error?: string };
 
 const CANDIDATE_STAGES = [
   'applied',
@@ -39,7 +39,7 @@ const CANDIDATE_STAGES = [
   'rejected',
   'withdrawn',
 ] as const;
-export type CandidateStage = (typeof CANDIDATE_STAGES)[number];
+type CandidateStage = (typeof CANDIDATE_STAGES)[number];
 
 const INTERVIEW_STATUSES = [
   'scheduled',
@@ -48,7 +48,7 @@ const INTERVIEW_STATUSES = [
   'cancelled',
   'no_show',
 ] as const;
-export type InterviewStatus = (typeof INTERVIEW_STATUSES)[number];
+type InterviewStatus = (typeof INTERVIEW_STATUSES)[number];
 
 const OFFER_STATUSES = [
   'draft',
@@ -60,7 +60,7 @@ const OFFER_STATUSES = [
   'expired',
   'withdrawn',
 ] as const;
-export type OfferStatus = (typeof OFFER_STATUSES)[number];
+type OfferStatus = (typeof OFFER_STATUSES)[number];
 
 async function mutateOne(
   collection: string,

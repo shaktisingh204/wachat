@@ -655,7 +655,7 @@ export async function generatePartyTransactionReport(partyId: string, partyType:
     }
 }
 
-export type InventoryTransactionDto = {
+type InventoryTransactionDto = {
     date: Date;
     type: 'Sale' | 'Sales Return' | 'Stock Adjustment';
     itemName: string;
@@ -772,7 +772,7 @@ import { REPORT_KINDS } from '@/lib/reports/types';
 const REPORTS_PERMISSION_KEY = 'crm_reports';
 
 /** Trimmed-down doc shape persisted in `crm_report_definitions`. */
-export interface ReportDefinitionDoc {
+interface ReportDefinitionDoc {
     _id: string;
     userId: string;
     kind: ReportKind;
@@ -787,7 +787,7 @@ export interface ReportDefinitionDoc {
     updatedAt: string;
 }
 
-export interface ReportRunDoc {
+interface ReportRunDoc {
     _id: string;
     definitionId: string;
     userId: string;
@@ -1286,7 +1286,7 @@ async function dispatchDelivery(opts: {
  * ════════════════════════════════════════════════════════════════════════
  */
 
-export interface ReportsHubOverview {
+interface ReportsHubOverview {
     totalRunsThisMonth: number;
     scheduledExportsCount: number;
     topViewedReportKind: string | null;
@@ -1295,7 +1295,7 @@ export interface ReportsHubOverview {
     categoryStats: Record<string, { lastRefreshAt: string | null; runs: number }>;
 }
 
-export interface ReportsHubRecentRun {
+interface ReportsHubRecentRun {
     runId: string;
     definitionId: string;
     kind: string;
@@ -1469,7 +1469,7 @@ export async function getReportsHubRecentRuns(
  *  the report toolbar's department filter narrows the dataset.
  * ════════════════════════════════════════════════════════════════════════ */
 
-export interface HrReportDepartment {
+interface HrReportDepartment {
     id: string;
     name: string;
 }
@@ -1511,7 +1511,7 @@ async function employeeIdsForDepartment(
 
 /* ─── Agent performance (sales) ────────────────────────────────────── */
 
-export interface SalesAgentPerformanceRow {
+interface SalesAgentPerformanceRow {
     employeeId: string;
     employeeName: string;
     department: string;
@@ -1522,7 +1522,7 @@ export interface SalesAgentPerformanceRow {
     avgDealSize: number;
 }
 
-export interface SalesAgentPerformanceReport {
+interface SalesAgentPerformanceReport {
     rows: SalesAgentPerformanceRow[];
     totals: {
         totalAgents: number;
@@ -1696,7 +1696,7 @@ export async function getSalesAgentPerformance(
 
 /* ─── Attendance — daily series + KPIs ─────────────────────────────── */
 
-export interface AttendanceDailyDatum {
+interface AttendanceDailyDatum {
     date: string;
     present: number;
     absent: number;
@@ -1704,7 +1704,7 @@ export interface AttendanceDailyDatum {
     halfDay: number;
 }
 
-export interface AttendanceReportData {
+interface AttendanceReportData {
     rows: Array<{
         employeeId: string;
         employeeName: string;
@@ -1888,7 +1888,7 @@ export async function getAttendanceReportData(
 
 /* ─── Leave report — KPIs + by-type + monthly trend + rows ────────── */
 
-export interface LeaveReportDeepRow {
+interface LeaveReportDeepRow {
     employeeId: string;
     employeeName: string;
     leaveTypeName: string;
@@ -1899,7 +1899,7 @@ export interface LeaveReportDeepRow {
     department: string;
 }
 
-export interface LeaveReportDeep {
+interface LeaveReportDeep {
     rows: LeaveReportDeepRow[];
     byType: Array<{ label: string; value: number }>;
     byMonth: Array<{ period: string; days: number }>;
@@ -2077,7 +2077,7 @@ export async function getLeaveReportDeep(
 
 /* ─── Leave balance — extra KPIs + per-employee stacked ──────────── */
 
-export interface LeaveBalanceDeepRow {
+interface LeaveBalanceDeepRow {
     employeeId: string;
     employeeName: string;
     department: string;
@@ -2088,7 +2088,7 @@ export interface LeaveBalanceDeepRow {
     expiresAt: string | null;
 }
 
-export interface LeaveBalanceDeep {
+interface LeaveBalanceDeep {
     rows: LeaveBalanceDeepRow[];
     stacked: Array<Record<string, string | number>>;
     typeKeys: string[];
@@ -2242,7 +2242,7 @@ export async function getLeaveBalanceDeep(
 
 /* ─── Birthdays & anniversaries — bucketed by time window ────────── */
 
-export interface BirthdayAnnivDeepRow {
+interface BirthdayAnnivDeepRow {
     employeeId: string;
     employeeName: string;
     department: string;
@@ -2251,7 +2251,7 @@ export interface BirthdayAnnivDeepRow {
     years?: number;
 }
 
-export interface BirthdayAnnivDeep {
+interface BirthdayAnnivDeep {
     rows: BirthdayAnnivDeepRow[];
     today: BirthdayAnnivDeepRow[];
     thisWeek: BirthdayAnnivDeepRow[];
@@ -2404,11 +2404,11 @@ export async function getBirthdayAnniversaryDeep(
  *  §TP — Late Report + Project Status Report
  * ════════════════════════════════════════════════════════════════════════ */
 
-export type LateEntityKind = 'task' | 'project' | 'invoice';
-export type ProjectRag = 'on-track' | 'at-risk' | 'blocked';
+type LateEntityKind = 'task' | 'project' | 'invoice';
+type ProjectRag = 'on-track' | 'at-risk' | 'blocked';
 
-export interface TpReportProject { id: string; name: string }
-export interface TpReportOwner  { id: string; name: string }
+interface TpReportProject { id: string; name: string }
+interface TpReportOwner  { id: string; name: string }
 
 export async function getTpReportProjects(): Promise<TpReportProject[]> {
     const session = await getSession();
@@ -2447,7 +2447,7 @@ export async function getTpReportOwners(): Promise<TpReportOwner[]> {
     }
 }
 
-export interface LateReportRow {
+interface LateReportRow {
     _id: string;
     kind: LateEntityKind;
     title: string;
@@ -2459,7 +2459,7 @@ export interface LateReportRow {
     status: string;
 }
 
-export interface LateReportDeep {
+interface LateReportDeep {
     rows: LateReportRow[];
     byKind: Array<{ kind: LateEntityKind; count: number; avgDays: number }>;
     stacked: Array<{ month: string; task: number; project: number; invoice: number }>;
@@ -2577,7 +2577,7 @@ export async function getLateReportDeep(
     }
 }
 
-export interface ProjectStatusRow {
+interface ProjectStatusRow {
     _id: string;
     name: string;
     status: string;
@@ -2590,7 +2590,7 @@ export interface ProjectStatusRow {
     daysToDeadline?: number;
 }
 
-export interface ProjectStatusReport {
+interface ProjectStatusReport {
     rows: ProjectStatusRow[];
     ragDistribution: Array<{ rag: string; count: number }>;
     velocity: Array<{ month: string; completed: number }>;

@@ -5,7 +5,7 @@ import { requireClient, clientIdFilter, asNumber, asString, toIso } from '@/lib/
 import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 
-export type EstimateItem = {
+type EstimateItem = {
     _id?: string;
     description: string;
     quantity: number;

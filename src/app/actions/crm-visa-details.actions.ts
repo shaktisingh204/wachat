@@ -37,9 +37,9 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmVisaStatus = 'active' | 'expired' | 'cancelled' | 'archived';
+type CrmVisaStatus = 'active' | 'expired' | 'cancelled' | 'archived';
 
-export interface CrmVisaDetailDoc {
+interface CrmVisaDetailDoc {
     _id: string;
     userId: string;
     employeeId: string;
@@ -56,7 +56,7 @@ export interface CrmVisaDetailDoc {
     updatedAt?: string;
 }
 
-export interface CrmVisaDetailListParams {
+interface CrmVisaDetailListParams {
     employeeId?: string;
     status?: CrmVisaStatus | 'all';
     q?: string;

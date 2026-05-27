@@ -21,7 +21,7 @@ import { getAdapter } from '@/lib/bulk-import/registry';
 
 const MAX_EXPORT_ROWS = 10_000;
 
-export type EntityKindToCollection = Record<string, { coll: string; perm: string }>;
+type EntityKindToCollection = Record<string, { coll: string; perm: string }>;
 
 const ENTITY_MAP: EntityKindToCollection = {
     contact: { coll: 'crm_contacts', perm: 'crm_contact' },

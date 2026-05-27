@@ -26,9 +26,9 @@ const COLLECTION = 'crm_teams';
 const LIST_PATH = '/dashboard/hrm/payroll/employees/teams';
 const PERM_KEY = 'crm_team';
 
-export type CrmTeamStatus = 'active' | 'archived' | 'draft';
+type CrmTeamStatus = 'active' | 'archived' | 'draft';
 
-export interface CrmTeamDoc {
+interface CrmTeamDoc {
   _id: string;
   name: string;
   departmentId?: string;
@@ -41,7 +41,7 @@ export interface CrmTeamDoc {
   updatedAt?: string;
 }
 
-export interface CrmTeamCreateInput {
+interface CrmTeamCreateInput {
   name: string;
   departmentId?: string;
   leadEmployeeId?: string;
@@ -51,16 +51,16 @@ export interface CrmTeamCreateInput {
   status?: CrmTeamStatus;
 }
 
-export type CrmTeamUpdateInput = Partial<CrmTeamCreateInput>;
+type CrmTeamUpdateInput = Partial<CrmTeamCreateInput>;
 
-export interface CrmTeamListParams {
+interface CrmTeamListParams {
   q?: string;
   departmentId?: string;
   status?: CrmTeamStatus;
   limit?: number;
 }
 
-export interface CrmTeamListResult {
+interface CrmTeamListResult {
   items: CrmTeamDoc[];
   error?: string;
 }

@@ -45,11 +45,8 @@ import {
     listPayrollRuns,
     updatePayrollRunStatus,
 } from '@/app/actions/crm-payroll-runs.actions';
-import type {
-    CrmPayrollRunDoc,
-    CrmPayrollRunStatus,
-} from '@/app/actions/crm-payroll-runs.actions';
-
+import type { CrmPayrollRunDoc } from '@/app/actions/crm-payroll-runs.actions.types';
+import type { CrmPayrollRunStatus } from '@/app/actions/crm-payroll-runs.actions.types';
 const BASE = '/dashboard/hrm/payroll/payroll';
 
 const STATUS_TONE: Record<CrmPayrollRunStatus, StatusTone> = {

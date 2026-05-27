@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { revalidatePath } from 'next/cache';
 
-export interface UnifiedTemplate {
+interface UnifiedTemplate {
     _id?: string | ObjectId;
     userId: string | ObjectId;
     name: string;

@@ -16,8 +16,7 @@ import * as React from 'react';
 
 import { LeadsFunnel, type LeadsFunnelStage } from './leads-funnel';
 import type { LeadsStatusFilter } from './leads-filters';
-import type { CrmLeadKpis } from '@/app/actions/crm-leads.actions';
-
+import type { CrmLeadKpis } from '@/app/actions/crm-leads.actions.types';
 export interface LeadsKpiStripProps {
     kpis: CrmLeadKpis;
     statusFilter: LeadsStatusFilter;

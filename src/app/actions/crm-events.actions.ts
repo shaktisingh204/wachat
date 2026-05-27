@@ -32,7 +32,7 @@ import { ObjectId } from 'mongodb';
 
 const DASHBOARD_PATH = '/dashboard/hrm/hr/events';
 
-export interface GetEventsFilters {
+interface GetEventsFilters {
   q?: string;
   status?: CrmEventStatus | 'all';
   eventType?: CrmEventType | string;
@@ -43,7 +43,7 @@ export interface GetEventsFilters {
   limit?: number;
 }
 
-export type SaveEventState = {
+type SaveEventState = {
   message?: string;
   error?: string;
   id?: string;

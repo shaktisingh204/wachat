@@ -44,8 +44,8 @@ import {
     createTelegramApiCredentialAction,
     listTelegramApiCredentialsAction,
 } from '@/app/actions/telegram-api-credentials.actions';
-import type { CredentialRow } from '@/app/actions/telegram-api-credentials.actions';
 import { useProject } from '@/context/project-context';
+import type { CredentialRow } from '@/lib/rust-client/telegram-api-credentials';
 
 // Local validation mirrors the Rust regexes — see
 // `rust/crates/telegram-api-credentials/src/handlers.rs`.

@@ -27,9 +27,9 @@ function useRustCrm(): boolean {
 
 const ENTITY_KIND = 'task_category';
 
-export type CrmTaskCategoryStatus = 'active' | 'archived';
+type CrmTaskCategoryStatus = 'active' | 'archived';
 
-export interface CrmTaskCategoryDoc {
+interface CrmTaskCategoryDoc {
     _id?: string;
     userId?: string;
     name: string;

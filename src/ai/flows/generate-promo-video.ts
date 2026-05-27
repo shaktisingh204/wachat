@@ -14,12 +14,12 @@ const GeneratePromoVideoInputSchema = z.object({
   durationSeconds: z.number().optional().default(5).describe('The duration of the video in seconds (5-8).'),
   aspectRatio: z.enum(['16:9', '9:16']).optional().default('16:9').describe('The aspect ratio of the video.'),
 });
-export type GeneratePromoVideoInput = z.infer<typeof GeneratePromoVideoInputSchema>;
+type GeneratePromoVideoInput = z.infer<typeof GeneratePromoVideoInputSchema>;
 
 const GeneratePromoVideoOutputSchema = z.object({
   videoUrl: z.string().describe("The generated video as a data URI in 'video/mp4' format."),
 });
-export type GeneratePromoVideoOutput = z.infer<typeof GeneratePromoVideoOutputSchema>;
+type GeneratePromoVideoOutput = z.infer<typeof GeneratePromoVideoOutputSchema>;
 
 export async function generatePromoVideo(input: GeneratePromoVideoInput): Promise<GeneratePromoVideoOutput> {
   return generatePromoVideoFlow(input);

@@ -39,9 +39,9 @@ const PROFILE_PATH = '/dashboard/profile/2fa-setup';
 const EMAIL_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const BACKUP_CODE_ROUNDS = 10;
 
-export type TwoFactorMethod = 'email' | 'totp';
+type TwoFactorMethod = 'email' | 'totp';
 
-export interface TwoFactorStatus {
+interface TwoFactorStatus {
   enabled: boolean;
   method: TwoFactorMethod | null;
   hasBackupCodes: boolean;
@@ -50,7 +50,7 @@ export interface TwoFactorStatus {
   email: string | null;
 }
 
-export interface ActionResult<T = unknown> {
+interface ActionResult<T = unknown> {
   ok: boolean;
   error?: string;
   data?: T;
@@ -226,7 +226,7 @@ export async function disableEmail2fa(): Promise<ActionResult> {
 
 /* ────────────────────── Authenticator (TOTP) ────────────────────── */
 
-export interface AuthenticatorSetupPayload {
+interface AuthenticatorSetupPayload {
   secret: string;
   qrUrl: string;
   backupCodes: string[];
@@ -493,7 +493,7 @@ export async function verifyTwoFactorChallenge(
   return { ok: false, error: 'Invalid code.' };
 }
 
-export interface LoginAttempt {
+interface LoginAttempt {
   _id: string;
   ip: string;
   userAgent: string;

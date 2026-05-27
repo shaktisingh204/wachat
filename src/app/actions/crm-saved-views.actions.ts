@@ -31,7 +31,7 @@ function useRustCrm(): boolean {
 
 /* ─── Read ─────────────────────────────────────────────────────── */
 
-export interface ListSavedViewsParams {
+interface ListSavedViewsParams {
   entityKey: string;
   /** When omitted, returns both private (owned) and team views. */
   includeTeam?: boolean;
@@ -109,7 +109,7 @@ export async function getSavedViewById(
 
 /* ─── Write ────────────────────────────────────────────────────── */
 
-export interface SaveSavedViewInput {
+interface SaveSavedViewInput {
   /** Pass an existing id to update; omit to create. */
   id?: string;
   entityKey: string;

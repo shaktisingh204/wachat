@@ -43,12 +43,12 @@ const IMPORT_JOBS_COLLECTION = 'crm_import_jobs';
 
 /* ─── types ───────────────────────────────────────────────────────── */
 
-export interface ImportJobError {
+interface ImportJobError {
     row: number;
     message: string;
 }
 
-export interface ImportJobStatus {
+interface ImportJobStatus {
     _id: string;
     entityType: string;
     filename: string;
@@ -63,7 +63,7 @@ export interface ImportJobStatus {
     finishedAt?: Date | null;
 }
 
-export interface ParseImportFileResult {
+interface ParseImportFileResult {
     ok: boolean;
     error?: string;
     headers?: string[];
@@ -71,7 +71,7 @@ export interface ParseImportFileResult {
     totalRows?: number;
 }
 
-export interface CreateImportJobResult {
+interface CreateImportJobResult {
     ok: boolean;
     jobId?: string;
     error?: string;

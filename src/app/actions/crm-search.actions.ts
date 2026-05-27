@@ -29,7 +29,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { ENTITY_KEYS, type EntityKey } from '@/lib/lookup-registry';
 
 /** A single result row for the search page. */
-export interface SearchResult {
+interface SearchResult {
   /** Stable id — Mongo `_id` for DB-backed entities, code/name for static ones. */
   id: string;
   /** Primary label rendered as the row title. */
@@ -43,7 +43,7 @@ export interface SearchResult {
 }
 
 /** A grouped section of search results — one per entity kind. */
-export interface SearchResultGroup {
+interface SearchResultGroup {
   entityKind: EntityKey;
   /** Human-readable label, e.g. "Clients", "Invoices". */
   label: string;

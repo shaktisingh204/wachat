@@ -21,7 +21,7 @@ import type {
   WsContractType,
 } from '@/lib/worksuite/contracts-ext-types';
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const ROUTE_BASE = '/dashboard/crm/contracts';
 
@@ -57,7 +57,7 @@ async function genericSave(
 
 /* ── Settings-list KPI helper ───────────────────────────────────── */
 
-export interface ContractSettingsKpis {
+interface ContractSettingsKpis {
   total: number;
   inUse: number;
   unused: number;

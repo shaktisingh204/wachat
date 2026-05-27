@@ -28,7 +28,7 @@ function useRustCrm(): boolean {
 }
 
 /** Linked entity discriminator — closed enum the form picker depends on. */
-export type TaskLinkedKind =
+type TaskLinkedKind =
     | 'lead'
     | 'deal'
     | 'client'
@@ -118,7 +118,7 @@ const taskSchema = z.object({
 
 /* ─── Filters / KPIs ──────────────────────────────────────────────────── */
 
-export interface CrmTaskListFilters {
+interface CrmTaskListFilters {
     query?: string;
     status?: string | string[];
     priority?: string | string[];
@@ -130,7 +130,7 @@ export interface CrmTaskListFilters {
     dueBefore?: string | Date;
 }
 
-export interface CrmTaskKpis {
+interface CrmTaskKpis {
     total: number;
     open: number;
     overdue: number;

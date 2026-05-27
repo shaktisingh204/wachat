@@ -49,11 +49,8 @@ import {
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { savePayrollRun } from '@/app/actions/crm-payroll-runs.actions';
 import { generatePayrollData, getPendingLeavesForPeriod } from '@/app/actions/crm-payroll.actions';
-import type {
-  CrmPayrollRunDoc,
-  CrmPayrollRunStatus,
-} from '@/app/actions/crm-payroll-runs.actions';
-
+import type { CrmPayrollRunDoc } from '@/app/actions/crm-payroll-runs.actions.types';
+import type { CrmPayrollRunStatus } from '@/app/actions/crm-payroll-runs.actions.types';
 const BASE = '/dashboard/hrm/payroll/payroll';
 
 const MONTHS: ReadonlyArray<{ value: number; label: string }> = [

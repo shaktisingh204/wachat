@@ -13,7 +13,7 @@ import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicContractView = {
+type PublicContractView = {
   _id: string;
   name: string;
   partyFirst?: string;
@@ -33,11 +33,11 @@ export type PublicContractView = {
   }>;
 } | null;
 
-export type PublicActionResult =
+type PublicActionResult =
   | { success: true; message?: string }
   | { success: false; error: string };
 
-export type SignContractData = {
+type SignContractData = {
   fullName: string;
   email: string;
   place: string;
@@ -157,7 +157,7 @@ export async function signContract(
 // Detail loader for PDF rendering.
 // ---------------------------------------------------------------------
 
-export type PublicContractDetailCompany = {
+type PublicContractDetailCompany = {
   name?: string;
   address?: string;
   email?: string;
@@ -166,21 +166,21 @@ export type PublicContractDetailCompany = {
   logoUrl?: string | null;
 };
 
-export type PublicContractDetailClient = {
+type PublicContractDetailClient = {
   name?: string;
   email?: string;
   phone?: string;
   address?: string;
 };
 
-export type PublicContractDetailSignature = {
+type PublicContractDetailSignature = {
   fullName: string;
   signedAt: string;
   signatureDataUrl: string;
   place: string;
 } | null;
 
-export type PublicContractDetail = {
+type PublicContractDetail = {
   ok: true;
   contract: {
     _id: string;
@@ -204,7 +204,7 @@ export type PublicContractDetail = {
   };
 };
 
-export type PublicContractDetailResult = PublicContractDetail | { ok: false; error: string };
+type PublicContractDetailResult = PublicContractDetail | { ok: false; error: string };
 
 export async function getPublicContractWithDetails(
   hash: string,

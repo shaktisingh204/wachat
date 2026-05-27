@@ -252,7 +252,7 @@ export async function createTemplateFromEnvelope(envelopeId: string, name: strin
 
 // ── Bulk send ────────────────────────────────────────────────────────
 
-export interface BulkSignerRow {
+interface BulkSignerRow {
   name: string;
   email: string;
   phone?: string;

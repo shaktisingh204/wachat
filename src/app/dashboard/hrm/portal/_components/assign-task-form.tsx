@@ -15,8 +15,8 @@ import {
 } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
 import { assignTaskToEmployee } from '@/app/actions/hrm-portal.actions';
-import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions';
 import type { CrmTask } from '@/lib/definitions';
+import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 
 type Priority = CrmTask['priority'];
 const PRIORITIES: Priority[] = ['Low', 'Medium', 'High'];

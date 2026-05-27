@@ -26,7 +26,7 @@ import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 
 /* ── Public DTO (UI-safe; no secret material leaked except on create) ──── */
 
-export interface CrmWebhookRow {
+interface CrmWebhookRow {
     _id: string;
     name: string;
     targetUrl: string;
@@ -37,14 +37,14 @@ export interface CrmWebhookRow {
     failureCount: number;
 }
 
-export interface CreateWebhookSuccess {
+interface CreateWebhookSuccess {
     ok: true;
     row: CrmWebhookRow;
     /** Plain secret — shown once. */
     secret: string;
 }
 
-export interface CreateWebhookError {
+interface CreateWebhookError {
     ok: false;
     error: string;
 }
@@ -126,7 +126,7 @@ export async function getWebhookSubscription(
     }
 }
 
-export interface CreateWebhookInput {
+interface CreateWebhookInput {
     name: string;
     targetUrl: string;
     events: string[];
@@ -188,7 +188,7 @@ export async function createWebhookSubscription(
     }
 }
 
-export interface UpdateWebhookInput {
+interface UpdateWebhookInput {
     name?: string;
     targetUrl?: string;
     events?: string[];

@@ -68,7 +68,7 @@ function useRust(): boolean {
     return process.env.USE_RUST_SABREQUESTS === 'true';
 }
 
-export type RustOp = 'list' | 'get' | 'create' | 'update' | 'delete' | 'other';
+type RustOp = 'list' | 'get' | 'create' | 'update' | 'delete' | 'other';
 
 function reportRustFallback(entity: string, op: RustOp, e: unknown): void {
     console.error(`[sabrequests:${entity}.${op}] rust path failed; falling back:`, e);
@@ -846,7 +846,7 @@ export async function upsertOrgChart(
  * ANALYTICS
  * ===================================================================*/
 
-export interface RequestsAnalytics {
+interface RequestsAnalytics {
     totals: {
         pending: number;
         approved: number;

@@ -42,8 +42,7 @@ import {
     getBomPrefillForProductionOrder,
     saveProductionOrder,
 } from '@/app/actions/crm-production-orders.actions';
-import type { CrmBomComponent } from '@/app/actions/crm-bom.actions';
-
+import type { CrmBomComponent } from '@/app/actions/crm-bom.actions.types';
 const INITIAL_STATE = { message: '', error: '', id: '' };
 
 export interface PoFormInitial {

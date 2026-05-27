@@ -51,7 +51,7 @@ type ActionResult<T = void> =
     | ({ ok: true } & T)
     | { ok: false; error: string };
 
-export type FormStateResult = { message?: string; error?: string; id?: string };
+type FormStateResult = { message?: string; error?: string; id?: string };
 
 const COLL = {
     storefronts: 'crm_storefronts',
@@ -695,19 +695,19 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
 /*  Pricing rules                                                            */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export type PricingRuleKind =
+type PricingRuleKind =
     | 'percent_off'
     | 'fixed_off'
     | 'buy_x_get_y'
     | 'bundle';
 
-export interface PricingRuleCondition {
+interface PricingRuleCondition {
     field: string;
     op: 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in';
     value: unknown;
 }
 
-export interface PricingRuleAppliesTo {
+interface PricingRuleAppliesTo {
     target: 'all' | 'products' | 'categories';
     ids?: string[];
 }
@@ -874,7 +874,7 @@ export async function deletePricingRule(id: string): Promise<ActionResult> {
     }
 }
 
-export interface PricingRuleEvaluationCart {
+interface PricingRuleEvaluationCart {
     subtotal: number;
     items: Array<{
         productId?: string;
@@ -884,7 +884,7 @@ export interface PricingRuleEvaluationCart {
     }>;
 }
 
-export interface PricingRuleEvaluationResult {
+interface PricingRuleEvaluationResult {
     applied: Array<{
         id: string;
         name: string;
@@ -977,7 +977,7 @@ export async function evaluatePricingRules(
 /*  Shipping zones                                                           */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export interface ShippingMethod {
+interface ShippingMethod {
     name: string;
     kind: 'flat' | 'weight' | 'free' | 'custom';
     rate: number;
@@ -1138,7 +1138,7 @@ export async function deleteShippingZone(
     }
 }
 
-export interface ShippingCostResult {
+interface ShippingCostResult {
     method: ShippingMethod | null;
     cost: number;
     isFree: boolean;
@@ -1386,7 +1386,7 @@ export async function cancelOrder(id: string): Promise<ActionResult> {
 /*  Abandoned carts                                                          */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export interface AbandonedCartFilter {
+interface AbandonedCartFilter {
     storefrontId?: string;
     fromDate?: string;
     toDate?: string;
@@ -1564,7 +1564,7 @@ export async function dispatchRecoveryEmail(
 /*  Overview KPIs                                                            */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export interface StoreOverviewKpis {
+interface StoreOverviewKpis {
     publishedStorefronts: number;
     totalProducts: number;
     liveRules: number;

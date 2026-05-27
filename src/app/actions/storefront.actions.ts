@@ -18,8 +18,8 @@ import { getErrorMessage } from '@/lib/utils';
 import { getPaymentGateway } from '@/lib/sabshop/payment-gateway';
 
 type ActionOk<T> = { ok: true } & T;
-export type ActionErr = { ok: false; error: string };
-export type StorefrontResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
+type ActionErr = { ok: false; error: string };
+type StorefrontResult<T = Record<string, unknown>> = ActionOk<T> | ActionErr;
 
 const COLL = {
     storefronts: 'sabshop_storefronts',
@@ -42,7 +42,7 @@ function oidOrNull(id: string | undefined | null): ObjectId | null {
     return new ObjectId(id);
 }
 
-export interface StorefrontShape {
+interface StorefrontShape {
     _id: ObjectId;
     userId: ObjectId;
     slug: string;
@@ -139,7 +139,7 @@ export async function getStorefrontProduct(tenantSlug: string, productSlugOrId: 
 /*  Cart                                                                 */
 /* ──────────────────────────────────────────────────────────────────── */
 
-export interface CartLineInput {
+interface CartLineInput {
     productId: string;
     variantId?: string;
     name: string;

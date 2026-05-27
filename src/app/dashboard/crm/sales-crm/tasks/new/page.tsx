@@ -18,7 +18,7 @@ import { useSearchParams } from 'next/navigation';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { TaskForm } from '../_components/tasks-form';
 import { getSession } from '@/app/actions/user.actions';
-import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';
+import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions.types';
 
 const VALID_KINDS: TaskLinkedKind[] = [
     'lead',

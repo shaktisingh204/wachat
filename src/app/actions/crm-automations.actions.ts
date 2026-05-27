@@ -168,7 +168,7 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
 
 /* ─── getCrmAutomationKpis ───────────────────────────────────────────── */
 
-export interface CrmAutomationKpis {
+interface CrmAutomationKpis {
     total: number;
     active: number;
     paused: number;
@@ -220,14 +220,14 @@ export async function getCrmAutomationKpis(): Promise<CrmAutomationKpis> {
 
 /* ─── listCrmAutomations (full list with pagination + filters) ───────── */
 
-export type CrmAutomationStatusFilter = 'all' | 'active' | 'paused';
+type CrmAutomationStatusFilter = 'all' | 'active' | 'paused';
 
-export interface CrmAutomationListFilters {
+interface CrmAutomationListFilters {
     status?: CrmAutomationStatusFilter;
     trigger?: string;
 }
 
-export interface CrmAutomationListItem {
+interface CrmAutomationListItem {
     _id: string;
     name: string;
     trigger?: string;

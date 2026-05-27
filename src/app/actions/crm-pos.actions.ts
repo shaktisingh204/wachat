@@ -38,9 +38,9 @@ function useRustCrm(): boolean {
 
 /* ─── Shared types ───────────────────────────────────────────────────── */
 
-export type PosSessionStatus = 'open' | 'closed' | 'reconciled' | 'archived';
+type PosSessionStatus = 'open' | 'closed' | 'reconciled' | 'archived';
 
-export interface PosTerminalDoc {
+interface PosTerminalDoc {
     _id?: string;
     userId: string;
     terminalId: string;
@@ -51,7 +51,7 @@ export interface PosTerminalDoc {
     updatedAt: string;
 }
 
-export interface PosSessionDoc {
+interface PosSessionDoc {
     _id: string;
     userId: string;
     terminalId: string;
@@ -69,7 +69,7 @@ export interface PosSessionDoc {
     updatedAt: string;
 }
 
-export interface PosLineItem {
+interface PosLineItem {
     itemId?: string | null;
     sku?: string | null;
     name: string;
@@ -79,21 +79,21 @@ export interface PosLineItem {
     total: number;
 }
 
-export type PosPaymentMethod = 'cash' | 'card' | 'upi' | 'split' | 'other';
+type PosPaymentMethod = 'cash' | 'card' | 'upi' | 'split' | 'other';
 
-export interface PosPaymentSplit {
+interface PosPaymentSplit {
     method: PosPaymentMethod;
     amount: number;
     reference?: string | null;
 }
 
-export type PosTransactionStatus =
+type PosTransactionStatus =
     | 'completed'
     | 'voided'
     | 'refunded'
     | 'partially_refunded';
 
-export interface PosTransactionDoc {
+interface PosTransactionDoc {
     _id: string;
     userId: string;
     sessionId: string;
@@ -112,9 +112,9 @@ export interface PosTransactionDoc {
     updatedAt: string;
 }
 
-export type PosHoldStatus = 'held' | 'recalled' | 'discarded';
+type PosHoldStatus = 'held' | 'recalled' | 'discarded';
 
-export interface PosHoldDoc {
+interface PosHoldDoc {
     _id: string;
     userId: string;
     sessionId: string;
@@ -132,9 +132,9 @@ export interface PosHoldDoc {
     updatedAt: string;
 }
 
-export type PosRefundStatus = 'pending' | 'completed' | 'failed';
+type PosRefundStatus = 'pending' | 'completed' | 'failed';
 
-export interface PosRefundDoc {
+interface PosRefundDoc {
     _id: string;
     userId: string;
     originalTransactionId: string;
@@ -766,7 +766,7 @@ export async function getPosTransactionById(
     }
 }
 
-export interface CreatePosTransactionInput {
+interface CreatePosTransactionInput {
     sessionId: string;
     customerId?: string | null;
     customerName?: string | null;
@@ -985,7 +985,7 @@ export async function voidPosTransaction(input: {
 
 /* ─── Refunds ────────────────────────────────────────────────────────── */
 
-export interface RefundPosTransactionInput {
+interface RefundPosTransactionInput {
     originalTransactionId: string;
     reason: string;
     refundedLineItems: Array<Partial<PosLineItem>>;
@@ -1272,7 +1272,7 @@ export async function getPosHolds(filters?: {
     }
 }
 
-export interface CreatePosHoldInput {
+interface CreatePosHoldInput {
     sessionId: string;
     customerId?: string | null;
     customerName?: string | null;
@@ -1643,7 +1643,7 @@ export async function mergePosHolds(holdIds: string[]): Promise<{
 
 /* ─── KPI summary (used by the POS home/overview page) ───────────────── */
 
-export interface PosOverviewKpis {
+interface PosOverviewKpis {
     openSessions: number;
     todaysTransactions: number;
     todaysRevenue: number;
@@ -1705,7 +1705,7 @@ export async function getPosOverviewKpis(): Promise<PosOverviewKpis> {
 
 /* ─── Lightweight item search (used by the terminal grid) ────────────── */
 
-export interface PosItemRow {
+interface PosItemRow {
     _id: string;
     name: string;
     sku?: string | null;

@@ -417,7 +417,7 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
 
 /* ─── Status / archive / delete / convert ──────────────────────── */
 
-export interface ProformaKpis {
+interface ProformaKpis {
     total: number;
     issued: number;
     converted: number;
@@ -589,7 +589,7 @@ export async function deleteProformaInvoice(proformaId: string): Promise<{ succe
 
 import type { CrmProformaInvoiceDoc, CrmProformaStatus } from '@/lib/rust-client/crm-proforma-invoices';
 
-export interface ProformaListResult {
+interface ProformaListResult {
     items: CrmProformaInvoiceDoc[];
     page: number;
     limit: number;

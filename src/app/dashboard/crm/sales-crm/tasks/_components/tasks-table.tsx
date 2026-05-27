@@ -50,7 +50,7 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { EntityKey } from '@/lib/lookup-registry';
 import type { CrmTask } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';
+import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions.types';
 
 interface TasksTableProps {
     tasks: WithId<CrmTask>[];

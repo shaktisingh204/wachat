@@ -11,7 +11,7 @@ import {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export interface RoadmapTask {
+interface RoadmapTask {
   id: string;
   title: string;
   description?: string;
@@ -24,13 +24,13 @@ export interface RoadmapTask {
   completedAt?: string;
 }
 
-export interface RoadmapPhase {
+interface RoadmapPhase {
   id: string;
   name: string;
   tasks: RoadmapTask[];
 }
 
-export interface HrmRoadmap {
+interface HrmRoadmap {
   _id: string;
   userId: string;
   createdBy: string;

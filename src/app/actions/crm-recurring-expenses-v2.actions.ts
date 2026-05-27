@@ -20,10 +20,10 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type RecurringExpenseFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
-export type RecurringExpenseStatus = 'active' | 'paused' | 'completed' | 'cancelled';
+type RecurringExpenseFrequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
+type RecurringExpenseStatus = 'active' | 'paused' | 'completed' | 'cancelled';
 
-export interface RecurringExpenseDoc {
+interface RecurringExpenseDoc {
     _id: string;
     name: string;
     vendor_id?: string;

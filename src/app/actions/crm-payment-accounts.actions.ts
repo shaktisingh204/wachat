@@ -249,7 +249,7 @@ export async function deleteCrmPaymentAccount(accountId: string): Promise<{ succ
  * - lastUpdatedAt: most recent `updatedAt` across bank accounts (proxy
  *   for "last reconciled" until a dedicated reconciliation field lands)
  */
-export interface BankAccountKpis {
+interface BankAccountKpis {
     totalAccounts: number;
     totalBalance: number;
     banksCount: number;
@@ -299,7 +299,7 @@ export async function getBankAccountKpis(): Promise<BankAccountKpis> {
  *   for "unverified payout details" until a dedicated verified flag
  *   lands)
  */
-export interface EmployeeAccountKpis {
+interface EmployeeAccountKpis {
     totalEmployees: number;
     totalBalance: number;
     activeAccounts: number;

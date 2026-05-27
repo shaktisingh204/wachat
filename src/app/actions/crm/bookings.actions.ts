@@ -46,7 +46,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface BookingListResult {
+interface BookingListResult {
   bookings: CrmBookingDoc[];
   page: number;
   limit: number;
@@ -478,7 +478,7 @@ export async function rescheduleBooking(
 
 /* ─── KPIs ──────────────────────────────────────────────────────── */
 
-export interface BookingKpis {
+interface BookingKpis {
   total: number;
   confirmed: number;
   pending: number;

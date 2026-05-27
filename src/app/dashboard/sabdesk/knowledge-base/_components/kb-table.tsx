@@ -40,8 +40,7 @@ import Link from 'next/link';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
-
+import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions.types';
 const VISIBILITY_VARIANTS: Record<
     string,
     React.ComponentProps<typeof ZoruBadge>['variant']

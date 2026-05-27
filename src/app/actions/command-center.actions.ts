@@ -4,7 +4,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 
-export type CommandCenterData = {
+type CommandCenterData = {
     stats: {
         totalMessages: number;
         totalSent: number;

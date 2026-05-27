@@ -41,7 +41,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface RfqListResult {
+interface RfqListResult {
   rfqs: CrmRfqDoc[];
   page: number;
   limit: number;
@@ -455,7 +455,7 @@ export async function awardRfqAction(
   }
 }
 
-export interface BulkResult {
+interface BulkResult {
   success: boolean;
   processed: number;
   error?: string;

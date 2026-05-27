@@ -63,7 +63,7 @@ function revalidateSurfaces(invoiceId?: string): void {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface InvoiceListResult {
+interface InvoiceListResult {
   invoices: CrmInvoiceDoc[];
   page: number;
   limit: number;
@@ -563,7 +563,7 @@ export async function getCrmInvoiceRelatedCounts(
 
 /* ─── Duplicates ──────────────────────────────────────────────── */
 
-export interface InvoiceDuplicateGroup {
+interface InvoiceDuplicateGroup {
   key: string;
   members: Array<{
     _id: string;

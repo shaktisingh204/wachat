@@ -38,20 +38,20 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type Feedback360Status =
+type Feedback360Status =
     | 'draft'
     | 'in_progress'
     | 'completed'
     | 'archived';
 
-export type Feedback360ReviewerRole =
+type Feedback360ReviewerRole =
     | 'self'
     | 'manager'
     | 'peer'
     | 'direct_report'
     | 'other';
 
-export interface Feedback360ReviewerResponse {
+interface Feedback360ReviewerResponse {
     reviewerId: string;
     role: Feedback360ReviewerRole;
     scores?: Record<string, number>;
@@ -59,7 +59,7 @@ export interface Feedback360ReviewerResponse {
     submittedAt?: string;
 }
 
-export interface Feedback360Doc {
+interface Feedback360Doc {
     _id: string;
     userId?: string;
     employeeId: string;
@@ -75,7 +75,7 @@ export interface Feedback360Doc {
     updatedAt?: string;
 }
 
-export interface Feedback360ListParams {
+interface Feedback360ListParams {
     q?: string;
     status?: Feedback360Status | 'all';
     employeeId?: string;
@@ -83,14 +83,14 @@ export interface Feedback360ListParams {
     limit?: number;
 }
 
-export interface Feedback360ListResponse {
+interface Feedback360ListResponse {
     items: Feedback360Doc[];
     page: number;
     limit: number;
     hasMore: boolean;
 }
 
-export interface Feedback360CreateInput {
+interface Feedback360CreateInput {
     employeeId: string;
     employeeName?: string;
     period?: string;
@@ -102,7 +102,7 @@ export interface Feedback360CreateInput {
     completedAt?: string;
 }
 
-export type Feedback360UpdateInput = Partial<Feedback360CreateInput>;
+type Feedback360UpdateInput = Partial<Feedback360CreateInput>;
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 

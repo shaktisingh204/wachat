@@ -26,10 +26,10 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── crm_activities collection types ───────────────────────────────────── */
 
-export type CrmActivityType = 'call' | 'email' | 'meeting' | 'task' | 'note';
-export type CrmActivityStatus = 'open' | 'completed' | 'overdue';
+type CrmActivityType = 'call' | 'email' | 'meeting' | 'task' | 'note';
+type CrmActivityStatus = 'open' | 'completed' | 'overdue';
 
-export interface CrmActivityDoc {
+interface CrmActivityDoc {
   _id?: string;
   type: CrmActivityType;
   subject: string;
@@ -44,7 +44,7 @@ export interface CrmActivityDoc {
   updatedAt?: string;
 }
 
-export interface CrmActivityListFilters {
+interface CrmActivityListFilters {
   type?: CrmActivityType | string;
   status?: CrmActivityStatus | string;
   assignedUserId?: string;
@@ -55,14 +55,14 @@ export interface CrmActivityListFilters {
   pageSize?: number;
 }
 
-export interface CrmActivityListResult {
+interface CrmActivityListResult {
   items: CrmActivityDoc[];
   total: number;
   page: number;
   pageSize: number;
 }
 
-export interface CrmActivityPageKpis {
+interface CrmActivityPageKpis {
   activitiesToday: number;
   openActivities: number;
   overdueActivities: number;
@@ -231,7 +231,7 @@ export async function bulkDeleteActivities(
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export interface CrmActivityFeedFilters {
+interface CrmActivityFeedFilters {
     /** e.g. 'invoice', 'lead', 'ticket'. */
     entityKind?: string;
     /** Hex `_id` of an employee/user actor. */
@@ -246,7 +246,7 @@ export interface CrmActivityFeedFilters {
     limit?: number;
 }
 
-export interface CrmActivityRow {
+interface CrmActivityRow {
     _id: string;
     createdAt: string;
     actorId: string;
@@ -257,7 +257,7 @@ export interface CrmActivityRow {
     diff: Record<string, { before?: unknown; after?: unknown }> | null;
 }
 
-export interface CrmActivityFeedKpis {
+interface CrmActivityFeedKpis {
     /** Events with `createdAt >= startOfDay(now)`. */
     eventsToday: number;
     /** Events within the trailing 7 days. */
@@ -268,7 +268,7 @@ export interface CrmActivityFeedKpis {
     topEntityKind: string | null;
 }
 
-export interface CrmActivityFeedResult {
+interface CrmActivityFeedResult {
     items: CrmActivityRow[];
     /** ISO `createdAt` of the oldest row in this page, or null if no more. */
     nextCursor: string | null;

@@ -47,11 +47,8 @@ import {
     deleteAssetAssignment,
     getAssetAssignments,
 } from '@/app/actions/crm-asset-assignments.actions';
-import type {
-    CrmAssetAssignmentDoc,
-    CrmAssetAssignmentStatus,
-} from '@/app/actions/crm-asset-assignments.actions';
-
+import type { CrmAssetAssignmentDoc } from '@/app/actions/crm-asset-assignments.actions.types';
+import type { CrmAssetAssignmentStatus } from '@/app/actions/crm-asset-assignments.actions.types';
 const BASE = '/dashboard/hrm/hr/asset-assignments';
 
 // §1E.sweep: assetAssignmentStatus Select kept — filter uses 'assigned' slug but enum uses 'active'; resolve Rust DTO first.

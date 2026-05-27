@@ -38,9 +38,9 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmForm16Status = 'draft' | 'generated' | 'issued' | 'archived';
+type CrmForm16Status = 'draft' | 'generated' | 'issued' | 'archived';
 
-export interface CrmForm16ListFilters {
+interface CrmForm16ListFilters {
     q?: string;
     status?: CrmForm16Status | 'all';
     financialYear?: string;

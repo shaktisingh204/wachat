@@ -10,7 +10,7 @@ import { Check,
 import type { Plan } from '@/lib/definitions';
 import type {
     OnboardingState,
-  } from '@/app/actions/onboarding-flow.actions';
+  } from '@/app/actions/onboarding-flow.actions.types';
 import { skipOnboarding } from '@/app/actions/onboarding-flow.actions';
 import { cn } from '@/lib/utils';
 

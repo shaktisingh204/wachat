@@ -62,7 +62,7 @@ import type {
     WsDiscussionCategory,
     WsDiscussionReply,
 } from '@/lib/worksuite/knowledge-types';
-import type { DiscussionKpis } from '@/app/actions/worksuite/knowledge.actions';
+import type { DiscussionKpis } from '@/app/actions/worksuite/knowledge.actions.types';
 
 import {
     DISCUSSIONS_INITIAL_FILTERS,

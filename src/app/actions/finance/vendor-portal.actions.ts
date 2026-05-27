@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
-export interface Vendor {
+interface Vendor {
   _id?: string;
   userId?: string;
   createdAt?: string;

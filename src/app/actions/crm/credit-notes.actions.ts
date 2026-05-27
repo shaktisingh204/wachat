@@ -38,7 +38,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface CreditNoteListResult {
+interface CreditNoteListResult {
   creditNotes: CrmCreditNoteDoc[];
   page: number;
   limit: number;
@@ -304,7 +304,7 @@ export async function deleteCreditNoteAction(
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface CreditNoteKpis {
+interface CreditNoteKpis {
   totalCount: number;
   refundedCount: number;
   pendingRefundCount: number;

@@ -5,7 +5,7 @@ import { ObjectId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { rustClient } from '@/lib/rust-client';
 
-export type AccountHomeData = {
+type AccountHomeData = {
     stats: {
         totalMessages: number;
         totalSent: number;

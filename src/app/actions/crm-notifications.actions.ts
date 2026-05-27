@@ -34,9 +34,9 @@ import { requirePermission } from '@/lib/rbac-server';
 
 /* ─── Public types ───────────────────────────────────────────────────── */
 
-export type CrmNotificationKind = 'assignment' | 'mention' | 'due' | 'sla' | 'status_change';
+type CrmNotificationKind = 'assignment' | 'mention' | 'due' | 'sla' | 'status_change';
 
-export interface CrmNotificationRow {
+interface CrmNotificationRow {
     /** Stable identity = audit-log event id. */
     _id: string;
     auditEventId: string;
@@ -55,7 +55,7 @@ export interface CrmNotificationRow {
     read: boolean;
 }
 
-export interface CrmNotificationKpis {
+interface CrmNotificationKpis {
     unread: number;
     today: number;
     thisWeek: number;
@@ -63,7 +63,7 @@ export interface CrmNotificationKpis {
     slaAtRisk: number;
 }
 
-export interface CrmNotificationsResult {
+interface CrmNotificationsResult {
     items: CrmNotificationRow[];
     total: number;
     kpis: CrmNotificationKpis;
@@ -71,7 +71,7 @@ export interface CrmNotificationsResult {
     optedOutKinds: string[];
 }
 
-export interface GetCrmNotificationsFilters {
+interface GetCrmNotificationsFilters {
     kind?: CrmNotificationKind | 'all';
     status?: 'unread' | 'read' | 'all';
     limit?: number;
@@ -100,7 +100,7 @@ function entityHrefFor(kind: string, id: string): string | null {
 
 const DUE_RISK_KINDS = new Set(['task', 'ticket', 'deal', 'invoice']);
 
-export interface RawAuditDoc {
+interface RawAuditDoc {
     _id: ObjectId;
     userId: ObjectId;
     actorId?: ObjectId | null;

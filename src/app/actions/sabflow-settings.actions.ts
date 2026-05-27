@@ -18,33 +18,33 @@ import { z } from 'zod';
 const MODULE = 'sabflow' as const;
 const COLLECTION = 'module_settings';
 
-export type SabflowDefaults = {
+type SabflowDefaults = {
     defaultWorkspace: string;
     executionTimeout: number;
 };
 
-export type SabflowRetention = {
+type SabflowRetention = {
     keepRunHistoryDays: number;
     purgeFailedRuns: boolean;
 };
 
-export type SabflowRunLimits = {
+type SabflowRunLimits = {
     maxConcurrentRuns: number;
     maxStepsPerRun: number;
 };
 
-export type SabflowWebhooks = {
+type SabflowWebhooks = {
     url: string;
     secret: string;
     retryAttempts: number;
 };
 
-export type SabflowVariableEntry = {
+type SabflowVariableEntry = {
     key: string;
     value: string;
 };
 
-export type SabflowSettings = {
+type SabflowSettings = {
     defaults: SabflowDefaults;
     retention: SabflowRetention;
     runLimits: SabflowRunLimits;

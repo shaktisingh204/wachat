@@ -4,8 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Badge } from '@/components/zoruui';
 import { LoaderCircle } from 'lucide-react';
-import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import type { HrmTaskReport } from '@/app/actions/hrm-task-reports.actions.types';
 
 interface HistoryTableProps {
   reportsPromise: Promise<HrmTaskReport[]>;

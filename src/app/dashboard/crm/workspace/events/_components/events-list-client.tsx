@@ -24,7 +24,7 @@ import {
     deleteEvent,
 } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsEvent } from '@/lib/worksuite/knowledge-types';
-import type { EventKpis } from '@/app/actions/worksuite/knowledge.actions';
+import type { EventKpis } from '@/app/actions/worksuite/knowledge.actions.types';
 
 import { EventsKpiStrip } from './events-kpi-strip';
 import { EventsFiltersRow, type EventsTypeFilter } from './events-filters';

@@ -14,7 +14,7 @@ import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicProposalView = {
+type PublicProposalView = {
   _id: string;
   title: string;
   validTill: string | null;
@@ -30,7 +30,7 @@ export type PublicProposalView = {
   declineReason?: string | null;
 } | null;
 
-export type PublicActionResult =
+type PublicActionResult =
   | { success: true; message?: string }
   | { success: false; error: string };
 
@@ -168,7 +168,7 @@ export async function declineProposal(
 // Detail loader for PDF rendering.
 // ---------------------------------------------------------------------
 
-export type PublicProposalDetailItem = {
+type PublicProposalDetailItem = {
   name?: string;
   description?: string;
   hsnCode?: string;
@@ -177,7 +177,7 @@ export type PublicProposalDetailItem = {
   total: number;
 };
 
-export type PublicProposalDetailCompany = {
+type PublicProposalDetailCompany = {
   name?: string;
   address?: string;
   email?: string;
@@ -186,7 +186,7 @@ export type PublicProposalDetailCompany = {
   logoUrl?: string | null;
 };
 
-export type PublicProposalDetailRecipient = {
+type PublicProposalDetailRecipient = {
   name?: string;
   email?: string;
   phone?: string;
@@ -194,7 +194,7 @@ export type PublicProposalDetailRecipient = {
   company?: string;
 };
 
-export type PublicProposalDetail = {
+type PublicProposalDetail = {
   ok: true;
   proposal: {
     _id: string;
@@ -221,7 +221,7 @@ export type PublicProposalDetail = {
   items: PublicProposalDetailItem[];
 };
 
-export type PublicProposalDetailResult = PublicProposalDetail | { ok: false; error: string };
+type PublicProposalDetailResult = PublicProposalDetail | { ok: false; error: string };
 
 export async function getPublicProposalWithDetails(
   hash: string,

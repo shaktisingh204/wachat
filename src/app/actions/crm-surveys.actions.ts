@@ -38,18 +38,18 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmSurveyType =
+type CrmSurveyType =
     | 'engagement'
     | 'exit'
     | 'onboarding'
     | 'pulse'
     | 'custom';
 
-export type CrmSurveyStatus = 'draft' | 'active' | 'closed' | 'archived';
+type CrmSurveyStatus = 'draft' | 'active' | 'closed' | 'archived';
 
-export type CrmSurveyAudience = 'all' | 'department' | 'team' | 'role';
+type CrmSurveyAudience = 'all' | 'department' | 'team' | 'role';
 
-export type CrmSurveyQuestionType =
+type CrmSurveyQuestionType =
     | 'short_text'
     | 'long_text'
     | 'single_choice'
@@ -57,14 +57,14 @@ export type CrmSurveyQuestionType =
     | 'rating'
     | 'boolean';
 
-export interface CrmSurveyQuestion {
+interface CrmSurveyQuestion {
     label: string;
     type: CrmSurveyQuestionType;
     required?: boolean;
     options?: string[];
 }
 
-export interface CrmSurveyDoc {
+interface CrmSurveyDoc {
     _id: string;
     userId?: string;
     title?: string;
@@ -82,7 +82,7 @@ export interface CrmSurveyDoc {
     updatedAt?: string;
 }
 
-export interface CrmSurveyListFilters {
+interface CrmSurveyListFilters {
     q?: string;
     status?: CrmSurveyStatus;
     type?: CrmSurveyType;
@@ -304,7 +304,7 @@ export async function getSurveyById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface SavePayload {
+interface SavePayload {
     title?: string;
     description?: string;
     type?: CrmSurveyType;

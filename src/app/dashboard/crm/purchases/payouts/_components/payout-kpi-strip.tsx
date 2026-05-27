@@ -15,7 +15,7 @@ import { Banknote, CheckCircle2, XCircle, Hourglass } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { PayoutKpis } from '@/app/actions/crm/payouts.actions';
+import type { PayoutKpis } from '@/app/actions/crm/payouts.actions.types';
 
 export type PayoutKpiFilter = 'all' | 'cleared' | 'failed' | 'pending';
 

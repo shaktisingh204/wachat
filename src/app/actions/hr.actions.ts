@@ -59,7 +59,7 @@ import type { WithId } from 'mongodb';
  *   (prevState, formData) => Promise<{ message?, error? }>.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,
@@ -841,7 +841,7 @@ export async function bulkCompleteTravelRequests(ids: string[]) {
  *  client lightweight and avoids re-counting in render.
  * ══════════════════════════════════════════════════════════════════ */
 
-export interface HrWelcomeKitKpis {
+interface HrWelcomeKitKpis {
   total: number;
   pending: number;
   sent: number;
@@ -892,7 +892,7 @@ export async function getWelcomeKitKpis(): Promise<HrWelcomeKitKpis> {
   };
 }
 
-export interface HrCompensationBandKpis {
+interface HrCompensationBandKpis {
   total: number;
   distinctLevels: number;
   avgMinSalary: number;
@@ -948,7 +948,7 @@ export async function getCompensationBandKpis(): Promise<HrCompensationBandKpis>
   };
 }
 
-export interface HrExpenseClaimKpis {
+interface HrExpenseClaimKpis {
   total: number;
   pending: number;
   approvedThisMonth: number;
@@ -1004,7 +1004,7 @@ export async function getExpenseClaimKpis(): Promise<HrExpenseClaimKpis> {
   };
 }
 
-export interface HrTravelRequestKpis {
+interface HrTravelRequestKpis {
   total: number;
   pendingApproval: number;
   totalSpendMtd: number;
@@ -1057,7 +1057,7 @@ export async function getTravelRequestKpis(): Promise<HrTravelRequestKpis> {
  *  Certifications — KPIs + bulk (§1D Deep template)
  * ══════════════════════════════════════════════════════════════════ */
 
-export interface HrCertificationKpis {
+interface HrCertificationKpis {
   totalAwarded: number;
   expiring30: number;
   expired: number;
@@ -1107,7 +1107,7 @@ export async function getCertificationKpis(): Promise<HrCertificationKpis> {
  *  Careers Page — job-posting KPIs (§1D Deep template)
  * ══════════════════════════════════════════════════════════════════ */
 
-export interface HrCareersPageKpis {
+interface HrCareersPageKpis {
   publishedPosts: number;
   applicants: number;
   openPositions: number;
@@ -1211,9 +1211,9 @@ export async function getCareersPageKpis(): Promise<HrCareersPageKpis> {
  *  `{ success, affected, error? }` shape regardless of branch taken.
  * ══════════════════════════════════════════════════════════════════ */
 
-export type HrBulkOp = 'delete' | 'archive' | 'publish' | 'unpublish';
+type HrBulkOp = 'delete' | 'archive' | 'publish' | 'unpublish';
 
-export interface HrBulkResult {
+interface HrBulkResult {
   success: boolean;
   affected: number;
   error?: string;
@@ -1350,7 +1350,7 @@ export async function bulkDeleteTimesheets(ids: string[]) {
 
 /* ── Timesheet KPIs ──────────────────────────────────────────── */
 
-export interface HrTimesheetKpis {
+interface HrTimesheetKpis {
   total: number;
   submitted: number;
   approved: number;
@@ -1377,7 +1377,7 @@ export async function getTimesheetKpis(): Promise<HrTimesheetKpis> {
  *  Bulk actions + KPIs — disciplinary cases
  * ══════════════════════════════════════════════════════════════════ */
 
-export interface HrDisciplinaryCase {
+interface HrDisciplinaryCase {
   _id: string;
   caseNo?: string;
   employeeId?: string;
@@ -1427,7 +1427,7 @@ export async function bulkDeleteDisciplinaryCases(ids: string[]) {
   return r;
 }
 
-export interface HrDisciplinaryKpis {
+interface HrDisciplinaryKpis {
   total: number;
   open: number;
   resolved: number;

@@ -3,8 +3,7 @@
 import * as React from 'react';
 import { Input, Label, Textarea } from '@/components/zoruui';
 import { PermissionMatrix } from './permission-matrix';
-import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions';
-
+import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';
 interface GroupFormProps {
   name: string;
   description: string;

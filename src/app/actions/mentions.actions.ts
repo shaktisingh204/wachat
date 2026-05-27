@@ -19,7 +19,7 @@ import { getErrorMessage } from '@/lib/utils';
  * mention author (fromUserId) is recorded for the bell-popover display.
  */
 
-export type ParsedMention = {
+type ParsedMention = {
   userId: string;
   name: string;
   position: number;
@@ -41,7 +41,7 @@ export async function parseMentionsServer(text: string): Promise<ParsedMention[]
   return out;
 }
 
-export type MentionEntityType =
+type MentionEntityType =
   | 'task_comment'
   | 'discussion_reply'
   | 'project_note'

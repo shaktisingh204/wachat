@@ -10,17 +10,17 @@ import type {
   SabsmsMessageStatus,
 } from '@/lib/sabsms/types';
 
-export interface SendInput {
+interface SendInput {
   to: string;
   body: string;
   dryRun?: boolean;
 }
 
-export type SendResult =
+type SendResult =
   | { ok: true; id: string; status: SabsmsMessageStatus }
   | { ok: false; error: string };
 
-export type FetchResult =
+type FetchResult =
   | { ok: true; message: SabsmsMessage }
   | { ok: false; error: string };
 

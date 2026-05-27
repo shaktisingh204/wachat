@@ -40,19 +40,19 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmTimesheetStatus =
+type CrmTimesheetStatus =
     | 'draft'
     | 'submitted'
     | 'approved'
     | 'rejected'
     | 'archived';
 
-export interface CrmTimesheetProjectBreakdown {
+interface CrmTimesheetProjectBreakdown {
     projectId: string;
     hours: number;
 }
 
-export interface CrmTimesheetDoc {
+interface CrmTimesheetDoc {
     _id: string;
     userId: string;
     employeeId: string;
@@ -70,7 +70,7 @@ export interface CrmTimesheetDoc {
     updatedAt?: string;
 }
 
-export interface CrmTimesheetListParams {
+interface CrmTimesheetListParams {
     q?: string;
     status?: CrmTimesheetStatus | 'all';
     employeeId?: string;

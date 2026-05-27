@@ -42,7 +42,7 @@ import {
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard, fmtPct } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
-import type { TaskReportDeepResult, TaskDetailRow } from '@/app/actions/worksuite/reports.actions';
+import type { TaskReportDeepResult, TaskDetailRow } from '@/app/actions/worksuite/reports.actions.types';
 
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'secondary' | 'danger'> = {
   Completed: 'success',

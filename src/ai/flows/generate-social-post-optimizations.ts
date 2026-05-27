@@ -8,14 +8,14 @@ const InputSchema = z.object({
   platform: z.string().describe('The platform (e.g., facebook, twitter).')
 });
 
-export type GenerateSocialPostOptimizationsInput = z.infer<typeof InputSchema>;
+type GenerateSocialPostOptimizationsInput = z.infer<typeof InputSchema>;
 
 const OutputSchema = z.object({
   suggestedTags: z.array(z.string()).describe('An array of suggested hashtags or tags.'),
   optimalPostingTime: z.string().describe('The suggested optimal posting time (e.g., "Tuesday 10:00 AM" or ISO string).')
 });
 
-export type GenerateSocialPostOptimizationsOutput = z.infer<typeof OutputSchema>;
+type GenerateSocialPostOptimizationsOutput = z.infer<typeof OutputSchema>;
 
 const generateSocialPostOptimizationsFlow = ai.defineFlow(
   {

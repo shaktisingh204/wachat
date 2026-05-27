@@ -47,7 +47,7 @@ const LIST_PATH = '/dashboard/crm/sales/contracts';
  * application layer and persist as a free-string so the catalog can
  * evolve without a BFF deploy.
  */
-export type ContractStatusV2 =
+type ContractStatusV2 =
   | 'draft'
   | 'pending_signature'
   | 'active'
@@ -81,7 +81,7 @@ function revalidateContracts(id?: string): void {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface ContractListResult {
+interface ContractListResult {
   contracts: CrmContractDoc[];
   page: number;
   limit: number;
@@ -157,7 +157,7 @@ export async function getContract(
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface ContractKpisV2 {
+interface ContractKpisV2 {
   active: number;
   pendingSignature: number;
   expiringSoon: number;

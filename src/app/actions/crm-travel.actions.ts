@@ -33,7 +33,7 @@ const BASE_PATH = '/dashboard/hrm/hr/travel';
 const RBAC_KEY = 'crm_travel';
 const ENTITY_KIND = 'travel_request';
 
-export type CrmTravelStatus =
+type CrmTravelStatus =
     | 'draft'
     | 'pending'
     | 'approved'
@@ -42,7 +42,7 @@ export type CrmTravelStatus =
     | 'completed'
     | 'archived';
 
-export type CrmTravelMode =
+type CrmTravelMode =
     | 'flight'
     | 'train'
     | 'bus'
@@ -50,7 +50,7 @@ export type CrmTravelMode =
     | 'taxi'
     | 'other';
 
-export interface CrmTravelRequestDoc {
+interface CrmTravelRequestDoc {
     _id: string;
     userId?: string;
     employee_id: string;
@@ -72,7 +72,7 @@ export interface CrmTravelRequestDoc {
     updatedAt?: string;
 }
 
-export interface CrmTravelFilters {
+interface CrmTravelFilters {
     q?: string;
     status?: CrmTravelStatus | 'all';
     employeeId?: string;
@@ -233,7 +233,7 @@ export async function getTravelRequestById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface TravelPayload {
+interface TravelPayload {
     employee_id: string;
     employee_name?: string;
     purpose?: string;

@@ -26,7 +26,7 @@ import {
 import type {
   EmailInboxMessageDoc,
   EmailInboxThreadDoc,
-} from '@/app/actions/email/inbox.actions';
+} from '@/app/actions/email/inbox.actions.types';
 
 import { ReplyComposer, type ReplyComposerProps } from './reply-composer';
 

@@ -304,14 +304,14 @@ export async function updateCoupon(
  * Mongo-only — Rust BFF parity can land later without touching callers.
  * ──────────────────────────────────────────────────────────────────── */
 
-export interface CrmCouponKpis {
+interface CrmCouponKpis {
   total: number;
   active: number;
   expired: number;
   totalRedemptions: number;
 }
 
-export interface CrmCouponListFilters {
+interface CrmCouponListFilters {
   search?: string;
   status?: string;
   createdAfter?: Date | string;

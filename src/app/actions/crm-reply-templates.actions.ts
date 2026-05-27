@@ -86,7 +86,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Reads ──────────────────────────────────────────────────────── */
 
-export interface GetReplyTemplatesParams extends CrmReplyTemplateListParams {}
+interface GetReplyTemplatesParams extends CrmReplyTemplateListParams {}
 
 export async function getReplyTemplates(
   params: GetReplyTemplatesParams = {},
@@ -182,7 +182,7 @@ export async function getReplyTemplateById(
 
 /* ─── Writes ─────────────────────────────────────────────────────── */
 
-export interface SaveReplyTemplateState {
+interface SaveReplyTemplateState {
   message?: string;
   error?: string;
   id?: string;
@@ -310,7 +310,7 @@ export async function deleteReplyTemplate(
 
 /* ─── KPIs ───────────────────────────────────────────────────────── */
 
-export interface ReplyTemplateKpis {
+interface ReplyTemplateKpis {
   total: number;
   active: number;
   byCategory: Record<string, number>;
@@ -365,7 +365,7 @@ export async function getReplyTemplateKpis(): Promise<ReplyTemplateKpis> {
 
 /* ─── Bulk operations ────────────────────────────────────────────── */
 
-export interface BulkUpdateResult {
+interface BulkUpdateResult {
   updated: number;
   errors: string[];
 }
@@ -420,7 +420,7 @@ export async function bulkUpdateReplyTemplates(
   return { updated, errors };
 }
 
-export interface BulkDeleteResult {
+interface BulkDeleteResult {
   deleted: number;
   errors: string[];
 }

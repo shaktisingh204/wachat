@@ -24,7 +24,7 @@ const COLLECTION = 'hrm_task_reports';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export interface HrmTaskReport {
+interface HrmTaskReport {
   _id: string;
   userId: string;           // tenant owner
   roadmapId: string;
@@ -43,7 +43,7 @@ export interface HrmTaskReport {
 }
 
 // Shape stored in Mongo (uses ObjectId for userId/workerId/assignerId).
-export interface HrmTaskReportDoc {
+interface HrmTaskReportDoc {
   _id: ObjectId;
   userId: ObjectId;
   roadmapId: string;

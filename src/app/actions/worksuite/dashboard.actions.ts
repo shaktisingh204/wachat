@@ -35,7 +35,7 @@ import type {
  * viewer-scoped `user_id` is kept on every record for per-user state.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   widgets: 'crm_dashboard_widgets',
@@ -522,7 +522,7 @@ export async function getPinnedQuickList(
 
 /* ─── KPIs + bulk operations (used by the pinned list page) ─────── */
 
-export interface WsPinnedKpis {
+interface WsPinnedKpis {
   total: number;
   byType: Record<WsPinnedResourceType, number>;
   recentCount: number;
@@ -612,7 +612,7 @@ export async function listDashboardWidgets() {
  * Dashboard widget KPIs
  * ──────────────────────────────────────────────────────────────── */
 
-export interface DashboardWidgetKpis {
+interface DashboardWidgetKpis {
   total: number;
   by_type: Record<string, number>;
   by_owner: Array<{ user_id: string; count: number }>;

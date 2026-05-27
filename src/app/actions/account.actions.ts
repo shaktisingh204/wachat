@@ -36,7 +36,7 @@ export async function signOutEverywhere(): Promise<{ ok: true }> {
   return { ok: true };
 }
 
-export interface AccountPreferences {
+interface AccountPreferences {
   loginAlerts: boolean;
   twoFactorEnabled: boolean;
 }
@@ -67,7 +67,7 @@ export async function setLoginAlerts(enabled: boolean): Promise<{ ok: true }> {
   return { ok: true };
 }
 
-export type NotificationPrefs = Record<string, boolean>;
+type NotificationPrefs = Record<string, boolean>;
 
 export async function getNotificationPrefs(): Promise<NotificationPrefs> {
   const userId = await requireUserId();
@@ -96,7 +96,7 @@ export async function setNotificationPrefs(prefs: NotificationPrefs): Promise<{ 
   return { ok: true };
 }
 
-export interface AppearancePrefs {
+interface AppearancePrefs {
   theme: 'system' | 'light' | 'dark';
   density: 'comfortable' | 'compact';
   sidebarCollapsed: boolean;
@@ -139,7 +139,7 @@ export async function setAppearancePrefs(input: Partial<AppearancePrefs>): Promi
   return { ok: true };
 }
 
-export interface ActiveSession {
+interface ActiveSession {
   id: string;
   device: string;
   ip?: string;

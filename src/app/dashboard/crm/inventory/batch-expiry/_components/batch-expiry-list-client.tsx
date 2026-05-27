@@ -74,7 +74,7 @@ import {
 import type {
   CrmItemBatchDoc,
   CrmItemBatchStatus,
-} from '@/app/actions/crm-item-batches.actions';
+} from '@/app/actions/crm-item-batches.actions.types';
 
 /* ─── KPI types ─────────────────────────────────────────────────── */
 

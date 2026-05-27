@@ -40,7 +40,7 @@ import {
 import { runReport } from '@/lib/reports/engine';
 import type { ReportRunResult } from '@/lib/reports/types';
 
-export interface Period {
+interface Period {
     month: number;
     year: number;
 }
@@ -330,7 +330,7 @@ export async function getGstr2bImport(period: Period): Promise<{
 
 /* ─── GSTR-3B KPIs + filing history ─────────────────────────────────── */
 
-export interface Gstr3bFilingRow {
+interface Gstr3bFilingRow {
     runId: string;
     period: string;
     month: number;
@@ -344,7 +344,7 @@ export interface Gstr3bFilingRow {
     error?: string | null;
 }
 
-export interface Gstr3bKpis {
+interface Gstr3bKpis {
     /** Distinct (month, year) periods generated this financial year. */
     totalFiledFy: number;
     /** Months in the running FY without a generation yet. */

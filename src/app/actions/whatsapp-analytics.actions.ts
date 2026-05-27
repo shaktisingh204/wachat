@@ -14,9 +14,9 @@ import { getErrorMessage } from '@/lib/utils';
 
 // --- CONVERSATION ANALYTICS ---
 
-export type ConversationAnalyticsGranularity = 'HALF_HOUR' | 'DAILY' | 'MONTHLY';
+type ConversationAnalyticsGranularity = 'HALF_HOUR' | 'DAILY' | 'MONTHLY';
 
-export type ConversationAnalyticsResult = {
+type ConversationAnalyticsResult = {
     data?: {
         data_points: Array<{
             start: number;
@@ -70,7 +70,7 @@ export async function getConversationAnalytics(
 
 // --- TEMPLATE ANALYTICS ---
 
-export type TemplateAnalyticsResult = {
+type TemplateAnalyticsResult = {
     data?: {
         data_points: Array<{
             template_id: string;

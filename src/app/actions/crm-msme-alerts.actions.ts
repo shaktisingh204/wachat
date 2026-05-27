@@ -92,7 +92,7 @@ async function tenantMsmeDb(tenantUserId: string): Promise<MsmeDb> {
 
 /* ─── Read ─────────────────────────────────────────────────────── */
 
-export type GetMsmeOverdueBillsResult =
+type GetMsmeOverdueBillsResult =
     | { ok: true; data: MsmeOverdueResult }
     | { ok: false; error: string };
 
@@ -119,7 +119,7 @@ export async function getMsmeOverdueBills(): Promise<GetMsmeOverdueBillsResult> 
 
 /* ─── Dismiss ──────────────────────────────────────────────────── */
 
-export interface DismissMsmeAlertInput {
+interface DismissMsmeAlertInput {
     alertId: string;
     reason: string;
 }
@@ -193,7 +193,7 @@ export async function dismissMsmeAlert(
 
 /* ─── Bulk mark paid ────────────────────────────────────────────── */
 
-export type BulkMsmePaidResult =
+type BulkMsmePaidResult =
     | { ok: true; updated: number }
     | { ok: false; error: string };
 
@@ -258,7 +258,7 @@ export async function bulkMarkMsmePaid(
 
 /* ─── Bulk request extension ────────────────────────────────────── */
 
-export type BulkMsmeExtensionResult =
+type BulkMsmeExtensionResult =
     | { ok: true; flagged: number }
     | { ok: false; error: string };
 

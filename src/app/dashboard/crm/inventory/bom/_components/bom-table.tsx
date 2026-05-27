@@ -39,7 +39,7 @@ import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
-import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
+import type { CrmBomDoc } from '@/app/actions/crm-bom.actions.types';
 
 export interface BomTableProps {
     boms: (CrmBomDoc & { _id: string })[];

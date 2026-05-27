@@ -34,7 +34,7 @@ export async function saveCrmStockAdjustment(
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
-export interface CrmStockAdjustmentFilters {
+interface CrmStockAdjustmentFilters {
     status?: CrmStockAdjustmentStatus | '';
     warehouseId?: string;
     reason?: string;
@@ -43,7 +43,7 @@ export interface CrmStockAdjustmentFilters {
     dateTo?: string;
 }
 
-export interface CrmStockAdjustmentKpis {
+interface CrmStockAdjustmentKpis {
     pending: number;
     approved: number;
     rejected: number;
@@ -452,7 +452,7 @@ export async function bulkStockAdjustmentAction(
  * current-month txn count by type, plus the top item by absolute volume
  * and gross value across all line items.
  */
-export interface AllTransactionsDeepKpis {
+interface AllTransactionsDeepKpis {
     txnThisMonth: number;
     saleCount: number;
     returnCount: number;
@@ -590,7 +590,7 @@ export async function getAllTransactionsDeepKpis(): Promise<AllTransactionsDeepK
  * KPI tile + top-N data for the Party Transactions deep view.
  * Sums dr/cr per party across invoices and credit notes.
  */
-export interface PartyTransactionsDeepKpis {
+interface PartyTransactionsDeepKpis {
     totalParties: number;
     topParty: { name: string; volume: number } | null;
     totalDebit: number;
@@ -681,7 +681,7 @@ export async function getPartyTransactionsDeepKpis(): Promise<PartyTransactionsD
  * Marks items as "slow" when they have stock but no sales in the last
  * 90 days, "fast" when they sold ≥ 10 units in that window.
  */
-export interface StockValueDeepKpis {
+interface StockValueDeepKpis {
     totalStockValue: number;
     slowMovingValue: number;
     fastMovingValue: number;
@@ -783,7 +783,7 @@ export async function getStockValueDeepKpis(): Promise<StockValueDeepKpis> {
 /**
  * KPI tile + monthly P&L data for the Product P&L deep view.
  */
-export interface PnlDeepKpis {
+interface PnlDeepKpis {
     grossSales: number;
     totalCogs: number;
     grossMarginPct: number;

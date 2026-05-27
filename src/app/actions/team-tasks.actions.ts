@@ -11,7 +11,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { notifyTeamMember } from '@/lib/team-notifications';
 
-export type TeamTaskView = WithId<TeamTask> & {
+type TeamTaskView = WithId<TeamTask> & {
     assigneeName?: string;
     assigneeEmail?: string;
     ownerUserId: string;

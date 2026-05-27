@@ -39,9 +39,9 @@ import { audit } from '@/lib/compliance/audit-log';
 
 /* ── Types ────────────────────────────────────────────────────────── */
 
-export type EraseSubjectKind = 'contact' | 'lead' | 'employee';
-export type EraseScope = 'soft_redact' | 'hard_delete';
-export type EraseStatus =
+type EraseSubjectKind = 'contact' | 'lead' | 'employee';
+type EraseScope = 'soft_redact' | 'hard_delete';
+type EraseStatus =
     | 'pending'
     | 'approved'
     | 'rejected'
@@ -49,13 +49,13 @@ export type EraseStatus =
     | 'executed'
     | 'failed';
 
-export interface EraseDryRunRow {
+interface EraseDryRunRow {
     collection: string;
     count: number;
     sampleIds: string[];
 }
 
-export interface EraseDryRunReport {
+interface EraseDryRunReport {
     collectionsScanned: number;
     rowsAffected: EraseDryRunRow[];
     /** Pre-computed total for the UI summary. */
@@ -64,7 +64,7 @@ export interface EraseDryRunReport {
     generatedAt: string;
 }
 
-export interface CrmEraseRequest {
+interface CrmEraseRequest {
     _id?: ObjectId;
     tenantUserId: ObjectId;
     subjectKind: EraseSubjectKind;
@@ -91,7 +91,7 @@ export interface CrmEraseRequest {
 }
 
 /** Wire-friendly variant for the client. ObjectIds → hex strings, Dates → ISO. */
-export interface CrmEraseRequestDTO {
+interface CrmEraseRequestDTO {
     _id: string;
     subjectKind: EraseSubjectKind;
     subjectId: string;
@@ -115,7 +115,7 @@ export interface CrmEraseRequestDTO {
     executionMode?: 'env_gated_logged_only' | 'mutated';
 }
 
-export interface EraseRequestFilters {
+interface EraseRequestFilters {
     status?: EraseStatus | 'all';
     subjectKind?: EraseSubjectKind | 'all';
     /** Soft text search on subjectName / subjectEmail / reason. */
@@ -136,7 +136,7 @@ const COLLECTION = 'crm_erase_requests';
  * The shape is intentionally small + explicit so a reviewer can audit
  * exactly what an erase request reaches.
  */
-export interface CascadeRef {
+interface CascadeRef {
     collection: string;
     field: string;
     /** If true, the entire row is owned by the subject — eligible for hard_delete. */
@@ -324,7 +324,7 @@ export async function getEraseRequestById(
 
 /* ── State transitions ────────────────────────────────────────────── */
 
-export interface FileEraseRequestInput {
+interface FileEraseRequestInput {
     subjectKind: EraseSubjectKind;
     subjectId: string;
     subjectName?: string;
@@ -674,7 +674,7 @@ export async function dryRunEraseRequest(
 
 /* ── Execution ─────────────────────────────────────────────────────── */
 
-export interface ExecuteEraseOptions {
+interface ExecuteEraseOptions {
     confirm: true;
 }
 

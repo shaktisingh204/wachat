@@ -321,7 +321,7 @@ export async function deleteExit(
 
 /* ─── KPI ─────────────────────────────────────────────────────────────── */
 
-export interface ExitKpis {
+interface ExitKpis {
     total: number;
     pendingClearance: number;
     completedThisMonth: number;

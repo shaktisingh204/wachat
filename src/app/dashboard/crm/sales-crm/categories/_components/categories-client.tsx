@@ -30,9 +30,9 @@ import {
   deleteLeadCategory,
   bulkDeleteLeadCategories,
 } from '@/app/actions/worksuite/crm-plus.actions';
-import type { LeadCategoryKpis } from '@/app/actions/worksuite/crm-plus.actions';
 import type { WsLeadCategory } from '@/lib/worksuite/crm-types';
 import type { WithId } from 'mongodb';
+import type { LeadCategoryKpis } from '@/app/actions/worksuite/crm-plus.actions.types';
 
 type Row = WithId<WsLeadCategory> & { _id: string };
 

@@ -31,7 +31,7 @@ import type {
     DashboardWidget,
     WidgetDataSourceType,
     WidgetKind,
-} from '@/app/actions/crm-dashboards.actions';
+} from '@/app/actions/crm-dashboards.actions.types';
 
 const WIDGET_KINDS: ReadonlyArray<{ value: WidgetKind; label: string; hint: string }> = [
     { value: 'metric', label: 'Metric', hint: 'A single big number + delta vs prior period.' },

@@ -61,7 +61,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface AttendanceListResult {
+interface AttendanceListResult {
   records: CrmAttendanceDoc[];
   page: number;
   limit: number;
@@ -94,7 +94,7 @@ export async function listAttendance(
  * `/v1/crm/attendance/kpis` aggregate once tenant volumes blow past
  * the 200 ceiling.
  */
-export interface AttendanceKpiSummary {
+interface AttendanceKpiSummary {
   presentToday: number;
   absentToday: number;
   halfDayToday: number;

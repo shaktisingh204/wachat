@@ -39,15 +39,15 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmBankTransactionType = 'debit' | 'credit';
+type CrmBankTransactionType = 'debit' | 'credit';
 
-export type CrmBankTransactionStatus =
+type CrmBankTransactionStatus =
     | 'pending'
     | 'cleared'
     | 'reconciled'
     | 'archived';
 
-export interface CrmBankTransaction {
+interface CrmBankTransaction {
     _id: ObjectId;
     userId: ObjectId;
     accountId: ObjectId;
@@ -67,7 +67,7 @@ export interface CrmBankTransaction {
     updatedAt: Date;
 }
 
-export interface CrmBankTransactionRow {
+interface CrmBankTransactionRow {
     _id: string;
     accountId: string;
     accountName?: string;
@@ -85,7 +85,7 @@ export interface CrmBankTransactionRow {
     updatedAt: string;
 }
 
-export interface CrmBankTransactionFilters {
+interface CrmBankTransactionFilters {
     accountId?: string;
     status?: CrmBankTransactionStatus | 'all';
     type?: CrmBankTransactionType | 'all';
@@ -395,7 +395,7 @@ export async function getCrmBankTransactionById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface RawTransactionInput {
+interface RawTransactionInput {
     accountId: string;
     transactionDate: string | Date;
     amount: number | string;
@@ -872,7 +872,7 @@ export async function bulkUpdateBankTransactions(
 
 /* ─── KPIs (used by bank-transactions list page) ─────────────────────── */
 
-export interface CrmBankTransactionListKpis {
+interface CrmBankTransactionListKpis {
   total: number;
   totalCredits: number;
   totalDebits: number;
@@ -942,7 +942,7 @@ export async function getCrmBankTransactionListKpis(): Promise<CrmBankTransactio
 
 /* ─── KPIs (used by banking landing dashboard) ───────────────────────── */
 
-export interface CrmBankingDashboardKpis {
+interface CrmBankingDashboardKpis {
     totalAccounts: number;
     activeAccounts: number;
     bankAccounts: number;

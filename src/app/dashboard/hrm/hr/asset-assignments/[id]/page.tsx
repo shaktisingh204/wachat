@@ -8,8 +8,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getAssetAssignmentById, getAssetAssignmentsByAssetId } from '@/app/actions/crm-asset-assignments.actions';
-import type { CrmAssetAssignmentStatus } from '@/app/actions/crm-asset-assignments.actions';
 import { AssetHandoverDocument } from '../_components/asset-handover-document';
+import type { CrmAssetAssignmentStatus } from '@/app/actions/crm-asset-assignments.actions.types';
 
 export const dynamic = 'force-dynamic';
 

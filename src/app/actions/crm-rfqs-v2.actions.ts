@@ -50,7 +50,7 @@ const VALID_STATUSES: ReadonlySet<CrmRfqStatus> = new Set<CrmRfqStatus>([
     'cancelled',
 ]);
 
-export interface RfqListResponse {
+interface RfqListResponse {
     items: CrmRfqDoc[];
     hasMore: boolean;
 }

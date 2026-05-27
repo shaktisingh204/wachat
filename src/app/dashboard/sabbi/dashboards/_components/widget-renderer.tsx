@@ -16,7 +16,7 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { LoaderCircle } from 'lucide-react';
-import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions';
+import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions.types';
 
 const CHART_COLORS = ['#5b8def', '#f0a26b', '#7ec77d', '#d97cc4', '#f0d36b', '#6bccd6'];
 

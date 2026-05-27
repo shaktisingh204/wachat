@@ -51,7 +51,7 @@ import { getErrorMessage } from '@/lib/utils';
 // ─── Common result shape ────────────────────────────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type SabwaActionResult<T extends object = {}> =
+type SabwaActionResult<T extends object = {}> =
   | ({ ok: true } & T)
   | { ok: false; error: string };
 
@@ -59,7 +59,7 @@ const NOT_IMPLEMENTED = 'This feature is not available yet.';
 
 // IdLike — server actions are called from client code where ObjectId is a
 // string, but internally we treat both interchangeably.
-export type IdLike = string | ObjectId;
+type IdLike = string | ObjectId;
 
 // ─── Internal helpers ───────────────────────────────────────────────────────
 
@@ -160,7 +160,7 @@ function engineSend<T>(
 
 // ─── Shared payload shapes ──────────────────────────────────────────────────
 
-export interface SabwaSendMessagePayload {
+interface SabwaSendMessagePayload {
   type: SabwaScheduledPayload['type'];
   body?: string;
   mediaSabFileId?: string;
@@ -169,7 +169,7 @@ export interface SabwaSendMessagePayload {
   mentionJids?: string[];
 }
 
-export interface SabwaChatListFilter {
+interface SabwaChatListFilter {
   type?: SabwaChatType;
   query?: string;
   unreadOnly?: boolean;
@@ -179,7 +179,7 @@ export interface SabwaChatListFilter {
   cursor?: string;
 }
 
-export interface SabwaScheduledListFilter {
+interface SabwaScheduledListFilter {
   status?: SabwaScheduled['status'];
   jid?: string;
   from?: Date;
@@ -188,7 +188,7 @@ export interface SabwaScheduledListFilter {
   cursor?: string;
 }
 
-export interface SabwaScheduledDraft {
+interface SabwaScheduledDraft {
   kind: SabwaScheduled['kind'];
   scheduledFor: Date | string;
   cron?: string;
@@ -198,7 +198,7 @@ export interface SabwaScheduledDraft {
   status?: SabwaScheduledStatus;
 }
 
-export interface SabwaBulkCampaignDraft {
+interface SabwaBulkCampaignDraft {
   name: string;
   payload: SabwaScheduledPayload;
   recipients: string[]; // jids
@@ -207,7 +207,7 @@ export interface SabwaBulkCampaignDraft {
   variants?: SabwaScheduledPayload[];
 }
 
-export interface SabwaContactListFilter {
+interface SabwaContactListFilter {
   query?: string;
   tag?: string;
   blocked?: boolean;
@@ -215,7 +215,7 @@ export interface SabwaContactListFilter {
   cursor?: string;
 }
 
-export interface SabwaAuditListFilter {
+interface SabwaAuditListFilter {
   actorId?: IdLike;
   action?: string;
   from?: Date;
@@ -350,7 +350,7 @@ export async function listSessions(
  * anything that needs to render a fresh status badge without subscribing
  * to the live stream.
  */
-export interface SabwaSessionStatusInfo {
+interface SabwaSessionStatusInfo {
   sessionId: string;
   status: SabwaSessionStatus | 'syncing';
   phoneE164?: string;
@@ -433,7 +433,7 @@ export async function listChats(
 }
 
 /** Pagination cursor for `getChatMessages` — supports cursor OR a `before` ts. */
-export interface SabwaMessagePageCursor {
+interface SabwaMessagePageCursor {
   cursor?: string;
   before?: Date | string | number;
   limit?: number;
@@ -607,7 +607,7 @@ export async function deleteChat(
  * Update mutable chat state in one call (pin/mute/archive/labels/etc.).
  * Used by the inbox UI as a single PATCH endpoint instead of N action calls.
  */
-export interface SabwaChatStatePatch {
+interface SabwaChatStatePatch {
   pinned?: boolean;
   muted?: boolean;
   muteForSec?: number | null;
@@ -628,7 +628,7 @@ export async function updateChatState(
  * Per-message mutations (reply/react/star/forward/delete/edit). The `op`
  * field disambiguates which write the engine performs.
  */
-export type SabwaMessageOp =
+type SabwaMessageOp =
   | { op: 'react'; emoji: string | null }
   | { op: 'star'; starred: boolean }
   | { op: 'forward'; toJids: string[] }
@@ -662,7 +662,7 @@ export async function updateMessage(
 }
 
 /** Full-text search across stored messages for the current session. */
-export interface SabwaMessageSearchFilter {
+interface SabwaMessageSearchFilter {
   query: string;
   jid?: string;
   fromMe?: boolean;
@@ -931,7 +931,7 @@ export async function setGroupCategory(
 // These mirror SABWA_PLAN.md §6 (pages 6, 7, 8). They proxy to the Rust
 // engine `/v1/groups/*` routes documented in `services/sabwa-engine/src/routes/groups.rs`.
 
-export interface SabwaGroupSummary {
+interface SabwaGroupSummary {
   jid: string;
   subject: string;
   description?: string | null;
@@ -945,7 +945,7 @@ export interface SabwaGroupSummary {
   profilePicUrl?: string | null;
 }
 
-export interface SabwaGroupParticipantDto {
+interface SabwaGroupParticipantDto {
   jid: string;
   name?: string | null;
   profilePicUrl?: string | null;
@@ -955,7 +955,7 @@ export interface SabwaGroupParticipantDto {
   lastSeenAt?: string | Date | null;
 }
 
-export interface SabwaGroupDetail {
+interface SabwaGroupDetail {
   jid: string;
   subject: string;
   description?: string | null;
@@ -971,7 +971,7 @@ export interface SabwaGroupDetail {
   isCommunity?: boolean;
 }
 
-export interface SabwaGroupCategory {
+interface SabwaGroupCategory {
   id: string;
   name: string;
   color: string;
@@ -980,7 +980,7 @@ export interface SabwaGroupCategory {
   order?: number;
 }
 
-export interface SabwaGroupPatch {
+interface SabwaGroupPatch {
   subject?: string;
   description?: string;
   iconUrl?: string;
@@ -1371,7 +1371,7 @@ export async function listScheduledMessages(
 // === Contacts ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface ListContactsArgs {
+interface ListContactsArgs {
   sessionId: IdLike;
   search?: string;
   tag?: string;
@@ -1406,7 +1406,7 @@ export async function listContacts(
   }
 }
 
-export interface GetContactArgs {
+interface GetContactArgs {
   sessionId: IdLike;
   jid: string;
 }
@@ -1427,7 +1427,7 @@ export async function getContact(
   }
 }
 
-export interface UpdateContactArgs {
+interface UpdateContactArgs {
   sessionId: IdLike;
   jid: string;
   patch: Partial<
@@ -1541,7 +1541,7 @@ export async function unblockContact(
 // === Templates ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface UpsertTemplateArgs {
+interface UpsertTemplateArgs {
   id?: IdLike;
   sessionId: IdLike;
   name: string;
@@ -1624,7 +1624,7 @@ export async function deleteTemplate(
 // === Quick replies ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface UpsertQuickReplyArgs {
+interface UpsertQuickReplyArgs {
   id?: IdLike;
   sessionId: IdLike;
   shortcut: string;
@@ -1693,7 +1693,7 @@ export async function deleteQuickReply(
 // === Auto-replies ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface UpsertAutoReplyArgs {
+interface UpsertAutoReplyArgs {
   id?: IdLike;
   sessionId: IdLike;
   name: string;
@@ -1826,7 +1826,7 @@ export async function reorderAutoReplies(
 // === Labels ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface SabwaLabelRow {
+interface SabwaLabelRow {
   id: string;
   name: string;
   color: string;
@@ -1834,7 +1834,7 @@ export interface SabwaLabelRow {
   createdAt?: string;
 }
 
-export interface SabwaLabelUpsertInput {
+interface SabwaLabelUpsertInput {
   sessionId: IdLike;
   id?: string;
   name: string;
@@ -1919,7 +1919,7 @@ export async function deleteLabel(
 // === Starred messages ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface SabwaStarredEntry {
+interface SabwaStarredEntry {
   chatJid: string;
   chatName: string;
   message: SabwaMessage;
@@ -1977,16 +1977,16 @@ export async function translateMessage(
 // === Analytics ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type SabwaAnalyticsRange = '7d' | '30d' | '90d' | 'custom';
+type SabwaAnalyticsRange = '7d' | '30d' | '90d' | 'custom';
 
-export interface SabwaAnalyticsInput {
+interface SabwaAnalyticsInput {
   sessionId: IdLike;
   range: SabwaAnalyticsRange;
   from?: Date | string;
   to?: Date | string;
 }
 
-export interface SabwaAnalyticsKpis {
+interface SabwaAnalyticsKpis {
   todayIn: number;
   todayOut: number;
   medianResponseMs: number;
@@ -1995,42 +1995,42 @@ export interface SabwaAnalyticsKpis {
   banRiskScore: number; // 0..100
 }
 
-export interface SabwaAnalyticsSeriesPoint {
+interface SabwaAnalyticsSeriesPoint {
   date: string; // ISO date (yyyy-mm-dd)
   in: number;
   out: number;
 }
 
-export interface SabwaAnalyticsHistogramBin {
+interface SabwaAnalyticsHistogramBin {
   bucket: string; // e.g. "0-30s"
   count: number;
 }
 
-export interface SabwaAnalyticsTopContact {
+interface SabwaAnalyticsTopContact {
   jid: string;
   name?: string;
   count: number;
 }
 
-export interface SabwaAnalyticsHeatCell {
+interface SabwaAnalyticsHeatCell {
   day: number; // 0=Sun..6=Sat
   hour: number; // 0..23
   count: number;
 }
 
-export interface SabwaAnalyticsHourBar {
+interface SabwaAnalyticsHourBar {
   hour: number; // 0..23
   count: number;
 }
 
-export interface SabwaAnalyticsAiDay {
+interface SabwaAnalyticsAiDay {
   date: string;
   suggest: number;
   summarise: number;
   translate: number;
 }
 
-export interface SabwaAnalyticsPayload {
+interface SabwaAnalyticsPayload {
   kpis: SabwaAnalyticsKpis;
   messagesByDay: SabwaAnalyticsSeriesPoint[];
   responseHistogram: SabwaAnalyticsHistogramBin[];
@@ -2087,29 +2087,29 @@ export async function getAnalytics(
 // === Exports ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type SabwaExportFormat = 'json' | 'csv' | 'txt' | 'pdf';
-export type SabwaExportStatus =
+type SabwaExportFormat = 'json' | 'csv' | 'txt' | 'pdf';
+type SabwaExportStatus =
   | 'queued'
   | 'running'
   | 'ready'
   | 'failed'
   | 'expired';
 
-export interface SabwaExportScope {
+interface SabwaExportScope {
   kind: 'all' | 'chats' | 'date_range';
   jids?: string[];
   from?: Date | string;
   to?: Date | string;
 }
 
-export interface SabwaExportCreateInput {
+interface SabwaExportCreateInput {
   sessionId: IdLike;
   scope: SabwaExportScope;
   format: SabwaExportFormat;
   includeMedia?: boolean;
 }
 
-export interface SabwaExportRow {
+interface SabwaExportRow {
   id: string;
   format: SabwaExportFormat;
   status: SabwaExportStatus;
@@ -2182,7 +2182,7 @@ export async function getExport(
 // === Audit ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface SabwaAuditEntryRow {
+interface SabwaAuditEntryRow {
   id: string;
   ts: Date | string;
   actorEmail?: string;
@@ -2194,7 +2194,7 @@ export interface SabwaAuditEntryRow {
   metadata?: Record<string, unknown>;
 }
 
-export interface SabwaAuditQueryInput {
+interface SabwaAuditQueryInput {
   sessionId?: IdLike;
   from?: Date | string;
   to?: Date | string;
@@ -2240,7 +2240,7 @@ export async function listAuditEntries(
 // === Webhooks ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface SabwaWebhookRow {
+interface SabwaWebhookRow {
   id: string;
   projectId: string;
   sessionId?: string;
@@ -2254,7 +2254,7 @@ export interface SabwaWebhookRow {
   createdAt: Date | string;
 }
 
-export interface SabwaWebhookUpsertInput {
+interface SabwaWebhookUpsertInput {
   projectId: IdLike;
   id?: string;
   url: string;
@@ -2262,7 +2262,7 @@ export interface SabwaWebhookUpsertInput {
   sessionId?: IdLike;
 }
 
-export interface SabwaWebhookDelivery {
+interface SabwaWebhookDelivery {
   id: string;
   webhookId: string;
   event: SabwaWebhookEvent;
@@ -2393,9 +2393,9 @@ export async function listWebhookDeliveries(
 // === API keys ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type SabwaApiKeyStatus = 'active' | 'revoked' | 'expired';
+type SabwaApiKeyStatus = 'active' | 'revoked' | 'expired';
 
-export interface SabwaApiKeyRow {
+interface SabwaApiKeyRow {
   id: string;
   projectId: string;
   prefix: string; // e.g. "sk_live_AB12…"
@@ -2406,7 +2406,7 @@ export interface SabwaApiKeyRow {
   createdAt: Date | string;
 }
 
-export interface SabwaApiKeyCreateInput {
+interface SabwaApiKeyCreateInput {
   projectId: IdLike;
   scopes: string[];
   expiresAt?: Date | string;
@@ -2479,7 +2479,7 @@ export async function revokeApiKey(
 // === Settings ===
 // ═══════════════════════════════════════════════════════════════════════════
 
-export interface SabwaProfile {
+interface SabwaProfile {
   pushName?: string;
   about?: string;
   profilePicSabFileId?: string;
@@ -2607,7 +2607,7 @@ export async function setWarmupEnabled(
   }
 }
 
-export interface SabwaRateLimitSettings {
+interface SabwaRateLimitSettings {
   profile: SabwaRateLimitProfile;
   warmupEnabled: boolean;
   dailyResetTimezone: string;
@@ -2634,9 +2634,9 @@ export async function getRateLimitProfile(
 
 // ─── Privacy & security ────────────────────────────────────────────────────
 
-export type SabwaVisibility = 'everyone' | 'contacts' | 'nobody';
+type SabwaVisibility = 'everyone' | 'contacts' | 'nobody';
 
-export interface SabwaPrivacySettings {
+interface SabwaPrivacySettings {
   twoFactorEnabled: boolean;
   readReceipts: boolean;
   lastSeen: SabwaVisibility;
@@ -2714,9 +2714,9 @@ export async function rotateSessionKey(
 
 // ─── Notifications ─────────────────────────────────────────────────────────
 
-export type SabwaDigestFrequency = 'daily' | 'weekly';
+type SabwaDigestFrequency = 'daily' | 'weekly';
 
-export interface SabwaMuteWindow {
+interface SabwaMuteWindow {
   id: string;
   label?: string;
   start: string; // "HH:mm"
@@ -2724,7 +2724,7 @@ export interface SabwaMuteWindow {
   days: number[]; // 0..6 (Sun..Sat)
 }
 
-export interface SabwaNotificationPrefs {
+interface SabwaNotificationPrefs {
   desktop: { enabled: boolean; sound: string };
   email: { enabled: boolean; frequency: SabwaDigestFrequency; recipients: string[] };
   push: { enabled: boolean };
@@ -2944,7 +2944,7 @@ export async function deleteBroadcast(id: IdLike): Promise<SabwaActionResult> {
 //
 // See `addTelegramProject` for the analogous flow.
 
-export interface AddSabwaProjectResult {
+interface AddSabwaProjectResult {
   projectId: string;
   name: string;
 }

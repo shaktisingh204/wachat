@@ -1,6 +1,6 @@
 'use server';
 
-export interface SerpResult {
+interface SerpResult {
   rank: number;
   url: string;
   title: string;

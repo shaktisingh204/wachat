@@ -196,7 +196,7 @@ export async function saveExpenseCategory(
 
 /* ─── Bulk actions ────────────────────────────────────────────────────── */
 
-export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 export async function bulkDeleteExpenseCategories(ids: string[]): Promise<BulkResult> {
     const session = await getSession();

@@ -7,8 +7,7 @@
 
 import * as React from 'react';
 import { Checkbox, Badge } from '@/components/zoruui';
-import type { ModulePermission, PermissionAction } from '@/app/actions/hrm-permission-groups.actions';
-
+import type { ModulePermission, PermissionAction } from '@/app/actions/hrm-permission-groups.actions.types';
 /* ─── Config ─────────────────────────────────────────────────────────────── */
 
 export const MODULES: { key: string; label: string; category: string }[] = [

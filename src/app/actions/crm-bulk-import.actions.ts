@@ -58,7 +58,7 @@ function pickKey(
 
 /* ─── Lead adapter ─────────────────────────────────────────────── */
 
-export interface LeadDraft {
+interface LeadDraft {
   name: string;
   company?: string;
   email?: string;
@@ -127,7 +127,7 @@ const LEAD_ADAPTER: BulkImportAdapter<LeadDraft> = {
 
 /* ─── Contact adapter ──────────────────────────────────────────── */
 
-export interface ContactDraft {
+interface ContactDraft {
   firstName: string;
   lastName?: string;
   email?: string;
@@ -202,7 +202,7 @@ const CONTACT_ADAPTER: BulkImportAdapter<ContactDraft> = {
 
 /* ─── Account adapter ──────────────────────────────────────────── */
 
-export interface AccountDraft {
+interface AccountDraft {
   name: string;
   industry?: string;
   website?: string;
@@ -291,7 +291,7 @@ const ACCOUNT_ADAPTER: BulkImportAdapter<AccountDraft> = {
 
 /* ─── Item (product) adapter ───────────────────────────────────── */
 
-export interface ItemDraft {
+interface ItemDraft {
   name: string;
   sku?: string;
   description?: string;
@@ -396,7 +396,7 @@ const ITEM_ADAPTER: BulkImportAdapter<ItemDraft> = {
 
 /* ─── Vendor adapter ───────────────────────────────────────────── */
 
-export interface VendorDraft {
+interface VendorDraft {
   name: string;
   contactName?: string;
   email?: string;
@@ -492,7 +492,7 @@ const VENDOR_ADAPTER: BulkImportAdapter<VendorDraft> = {
 
 /* ─── Deal adapter ─────────────────────────────────────────────── */
 
-export interface DealDraft {
+interface DealDraft {
   name: string;
   accountName?: string;
   contactEmail?: string;
@@ -577,7 +577,7 @@ const DEAL_ADAPTER: BulkImportAdapter<DealDraft> = {
 
 /* ─── Task adapter ─────────────────────────────────────────────── */
 
-export interface TaskDraft {
+interface TaskDraft {
   title: string;
   description?: string;
   dueDate?: Date;
@@ -680,7 +680,7 @@ const TASK_ADAPTER: BulkImportAdapter<TaskDraft> = {
 
 /* ─── Ticket adapter ───────────────────────────────────────────── */
 
-export interface TicketDraft {
+interface TicketDraft {
   subject: string;
   description?: string;
   status?: string;
@@ -747,7 +747,7 @@ const TICKET_ADAPTER: BulkImportAdapter<TicketDraft> = {
 
 /* ─── Public actions ───────────────────────────────────────────── */
 
-export interface BulkImportActionInput {
+interface BulkImportActionInput {
   csv: string;
   dryRun?: boolean;
   dedup?: DedupPolicy;
@@ -846,7 +846,7 @@ import type {
   ExecuteResult,
 } from '@/lib/bulk-import/adapters/types';
 
-export interface BulkImportPreviewRow {
+interface BulkImportPreviewRow {
   rowIndex: number;
   action: 'create' | 'update' | 'skip' | 'error';
   value?: Record<string, unknown>;
@@ -854,7 +854,7 @@ export interface BulkImportPreviewRow {
   existingId?: string;
 }
 
-export interface BulkImportPreviewResult {
+interface BulkImportPreviewResult {
   entityKind: string;
   totalRows: number;
   createCount: number;
@@ -865,7 +865,7 @@ export interface BulkImportPreviewResult {
   previewCsv: string;
 }
 
-export interface WizardBulkImportArgs {
+interface WizardBulkImportArgs {
   entityKind: string;
   csv: string;
   mapping?: Record<string, string>;
@@ -873,7 +873,7 @@ export interface WizardBulkImportArgs {
   updateExisting?: boolean;
 }
 
-export interface WizardSchemaResponse {
+interface WizardSchemaResponse {
   entityKind: string;
   label: string;
   fields: Array<Pick<BulkImportField, 'field' | 'label' | 'required'>>;

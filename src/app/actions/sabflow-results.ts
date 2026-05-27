@@ -6,7 +6,7 @@ import { getSabFlowCollection } from '@/lib/sabflow/db';
 import { getSession } from '@/app/actions/user.actions';
 import { serializeForClient } from '@/lib/sabflow/serializeForClient';
 
-export type FlowSession = {
+type FlowSession = {
   _id: string;
   sessionId: string;
   flowId: string;
@@ -22,14 +22,14 @@ export type FlowSession = {
   lastMessage?: string;
 };
 
-export type FlowResultsStats = {
+type FlowResultsStats = {
   totalSessions: number;
   completedSessions: number;
   completionRate: number;
   avgMessageCount: number;
 };
 
-export type DailyCount = {
+type DailyCount = {
   date: string; // "YYYY-MM-DD"
   total: number;
   completed: number;

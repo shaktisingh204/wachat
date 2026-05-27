@@ -31,7 +31,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 
-import type { CrmProductionOrderDoc } from '@/app/actions/crm-production-orders.actions';
+import type { CrmProductionOrderDoc } from '@/app/actions/crm-production-orders.actions.types';
 
 export type PoStatusTarget =
     | 'released'

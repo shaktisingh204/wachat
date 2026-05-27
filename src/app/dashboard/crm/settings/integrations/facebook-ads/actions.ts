@@ -51,9 +51,9 @@ const DEFAULT_FB_TO_CRM: Record<string, string> = {
     job_title: 'title',
 };
 
-export type FbPageSummary = { id: string; name: string };
+type FbPageSummary = { id: string; name: string };
 
-export type AutoSetupResult =
+type AutoSetupResult =
     | { ok: true; config: LeadGenConfig | null; pickedPage: FbPageSummary; importedFormCount: number }
     | { ok: false; needsMetaConnect: true; error?: string }
     | { ok: false; needsPagePick: true; pages: FbPageSummary[] }

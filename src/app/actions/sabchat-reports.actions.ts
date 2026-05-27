@@ -19,7 +19,7 @@ import type {
     VolumeReport,
 } from '@/lib/rust-client/sabchat-reports';
 
-export type WindowQuery = { from?: string; to?: string };
+type WindowQuery = { from?: string; to?: string };
 
 export async function getLive(): Promise<LiveReport | { error: string }> {
     try {

@@ -38,9 +38,9 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmPfEsiStatus = 'pending' | 'deposited' | 'filed' | 'archived';
+type CrmPfEsiStatus = 'pending' | 'deposited' | 'filed' | 'archived';
 
-export interface CrmPfEsiListFilters {
+interface CrmPfEsiListFilters {
     q?: string;
     status?: CrmPfEsiStatus | 'all';
     month?: string; // YYYY-MM

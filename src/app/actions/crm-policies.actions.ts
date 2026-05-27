@@ -263,7 +263,7 @@ export async function deletePolicy(
 
 /* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
 
-export interface CrmPolicyKpis {
+interface CrmPolicyKpis {
     total: number;
     published: number;
     drafts: number;
@@ -330,9 +330,9 @@ export async function getPolicyKpis(): Promise<CrmPolicyKpis> {
     }
 }
 
-export type CrmPolicyBulkOp = 'delete' | 'archive' | 'publish';
+type CrmPolicyBulkOp = 'delete' | 'archive' | 'publish';
 
-export interface CrmPolicyBulkResult {
+interface CrmPolicyBulkResult {
     success: boolean;
     affected: number;
     error?: string;

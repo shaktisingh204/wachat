@@ -46,17 +46,12 @@ import { ArrowLeft,
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveFeedback360 } from '@/app/actions/crm-feedback-360.actions';
-import type {
-    Feedback360Doc,
-    Feedback360ReviewerResponse,
-    Feedback360ReviewerRole,
-    Feedback360Status,
-} from '@/app/actions/crm-feedback-360.actions';
-
+import type { Feedback360Doc, Feedback360ReviewerResponse } from '@/app/actions/crm-feedback-360.actions.types';
 import {
     REVIEWER_ROLE_OPTIONS,
     SCORE_CATEGORIES,
 } from '../_config';
+import type { Feedback360ReviewerRole, Feedback360Status } from '@/app/actions/crm-feedback-360.actions.types';
 
 const BASE = '/dashboard/hrm/hr/feedback-360';
 

@@ -21,9 +21,9 @@ import { requirePermission } from '@/lib/rbac-server';
 const COLLECTION = 'crm_contract_types';
 const BASE_PATH = '/dashboard/crm/sales/contracts/types';
 
-export type CrmContractTypeStatus = 'active' | 'archived';
+type CrmContractTypeStatus = 'active' | 'archived';
 
-export interface CrmContractTypeDoc {
+interface CrmContractTypeDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -67,7 +67,7 @@ function serialize<T>(v: T): T {
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
 
-export interface ContractTypeListParams {
+interface ContractTypeListParams {
     q?: string;
     status?: CrmContractTypeStatus | 'all';
 }

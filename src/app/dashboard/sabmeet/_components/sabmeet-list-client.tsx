@@ -18,7 +18,7 @@ import {
   ZoruPageActions,
 } from '@/components/zoruui';
 import { Calendar, Plus, Search, Video, Clock, Users } from 'lucide-react';
-import type { MeetRoom } from '@/app/actions/sabmeet.actions';
+import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 
 interface MeetingsListClientProps {
   upcoming: MeetRoom[];

@@ -37,7 +37,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface DebitNoteListResult {
+interface DebitNoteListResult {
   debitNotes: CrmDebitNoteDoc[];
   page: number;
   limit: number;
@@ -288,7 +288,7 @@ export async function deleteDebitNoteAction(
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface DebitNoteKpis {
+interface DebitNoteKpis {
   totalCount: number;
   refundedCount: number;
   pendingRefundCount: number;

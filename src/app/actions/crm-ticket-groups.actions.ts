@@ -60,7 +60,7 @@ function pickBool(formData: FormData, key: string): boolean | undefined {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface TicketGroupListResult {
+interface TicketGroupListResult {
   groups: CrmTicketGroupDoc[];
   page: number;
   limit: number;
@@ -68,7 +68,7 @@ export interface TicketGroupListResult {
   error?: string;
 }
 
-export interface GetTicketGroupsParams {
+interface GetTicketGroupsParams {
   page?: number;
   limit?: number;
   q?: string;
@@ -138,7 +138,7 @@ export async function getTicketGroupById(
 
 /* ─── Write ───────────────────────────────────────────────────── */
 
-export interface SaveTicketGroupState {
+interface SaveTicketGroupState {
   message?: string;
   error?: string;
   id?: string;

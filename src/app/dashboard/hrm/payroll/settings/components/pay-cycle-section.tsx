@@ -2,8 +2,8 @@
 
 import { Card, Input, Label } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions';
 import { memo } from 'react';
+import type { PayrollSettings } from '@/app/actions/crm-payroll-settings.actions.types';
 
 function PayCycleSectionComponent({ settings }: { settings: PayrollSettings }) {
   return (

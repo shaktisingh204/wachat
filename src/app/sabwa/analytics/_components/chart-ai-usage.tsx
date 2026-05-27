@@ -4,7 +4,7 @@ import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } f
 import {
   Sparkles } from 'lucide-react';
 
-import type { SabwaAnalyticsAiDay } from '@/app/actions/sabwa.actions';
+import type { SabwaAnalyticsAiDay } from '@/app/actions/sabwa.actions.types';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 

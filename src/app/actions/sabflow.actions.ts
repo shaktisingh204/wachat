@@ -7,7 +7,7 @@
  * we expose a no-op so the build compiles. Replace with the real
  * persistence call once the connection flow is reactivated.
  */
-export type SabFlowConnectionState = {
+type SabFlowConnectionState = {
   ok?: boolean;
   id?: string;
   message?: string | null;

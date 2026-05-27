@@ -24,7 +24,7 @@ type ActionResult<T = unknown> = {
     data?: T;
 };
 
-export type OnboardingState = NonNullable<User['onboarding']>;
+type OnboardingState = NonNullable<User['onboarding']>;
 
 async function requireUserId(): Promise<
     { ok: true; userId: ObjectId } | { ok: false; error: string }
@@ -67,7 +67,7 @@ export async function getOnboardingState(): Promise<{
 
 // --- Step 1: profile ------------------------------------------------------
 
-export type ProfileStepInput = {
+type ProfileStepInput = {
     fullName: string;
     companyName: string;
     role: string;
@@ -125,7 +125,7 @@ export async function saveOnboardingProfile(
 
 // --- Step 2: business -----------------------------------------------------
 
-export type BusinessStepInput = {
+type BusinessStepInput = {
     industry: string;
     teamSize: string;
     monthlyVolume: string;
@@ -175,7 +175,7 @@ export async function saveOnboardingBusiness(
 
 // --- Step 3: requirements -------------------------------------------------
 
-export type RequirementsStepInput = {
+type RequirementsStepInput = {
     modules: string[];
     primaryGoal: string;
     currentTools?: string;

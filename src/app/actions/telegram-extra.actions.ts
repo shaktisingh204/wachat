@@ -812,7 +812,7 @@ export async function exportTelegramStoriesCsvAction(
 }
 
 // Re-export the row type for the page module.
-export type TelegramStoryRow = StoryRow;
+type TelegramStoryRow = StoryRow;
 
 // -- Flows (legacy quick-reply shape) -----------------------------------
 //
@@ -1947,7 +1947,7 @@ export async function exportTelegramBotsCsvAction(projectId: string): Promise<st
  * `lib/rust-client/telegram-commands.ts` row types.
  */
 
-export type CommandsRowShape = {
+type CommandsRowShape = {
   _id: string;
   projectId: string;
   botId?: string | null;

@@ -5,7 +5,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 
-export interface Subscription {
+interface Subscription {
   _id?: string;
   userId?: string;
   createdAt?: string;

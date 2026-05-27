@@ -17,40 +17,40 @@ import { getSession } from '@/app/actions/user.actions';
 const MODULE = 'sabchat' as const;
 const COLLECTION = 'module_settings';
 
-export type SabchatChannelDefaults = {
+type SabchatChannelDefaults = {
     defaultSender: string;
     autoTranslate: boolean;
 };
 
-export type SabchatWorkingHours = {
+type SabchatWorkingHours = {
     timezone: string;
     start: string;
     end: string;
     days: string[];
 };
 
-export type SabchatAutoresponder = {
+type SabchatAutoresponder = {
     enabled: boolean;
     message: string;
 };
 
-export type SabchatRouting = {
+type SabchatRouting = {
     defaultAssignee: string;
     roundRobin: boolean;
 };
 
-export type SabchatWebhooks = {
+type SabchatWebhooks = {
     url: string;
     secret: string;
 };
 
-export type SabchatNotifications = {
+type SabchatNotifications = {
     newMessage: boolean;
     escalation: boolean;
     agentMention: boolean;
 };
 
-export type SabchatSettings = {
+type SabchatSettings = {
     channels: SabchatChannelDefaults;
     workingHours: SabchatWorkingHours;
     autoresponder: SabchatAutoresponder;

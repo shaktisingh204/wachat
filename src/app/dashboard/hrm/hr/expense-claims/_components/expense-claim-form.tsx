@@ -44,7 +44,7 @@ import { saveExpenseClaim } from '@/app/actions/crm-expense-claims.actions';
 import type {
     CrmExpenseClaimDoc,
     CrmExpenseClaimStatus,
-} from '@/app/actions/crm-expense-claims.actions';
+} from '@/app/actions/crm-expense-claims.actions.types';
 
 const BASE = '/dashboard/hrm/hr/expense-claims';
 

@@ -276,7 +276,7 @@ export async function deleteAsset(
 
 /* ─── KPIs ───────────────────────────────────────────────────────────── */
 
-export interface CrmAssetKpis {
+interface CrmAssetKpis {
     total: number;
     assigned: number;
     inStore: number;

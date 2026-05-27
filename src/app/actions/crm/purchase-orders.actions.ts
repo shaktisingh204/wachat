@@ -68,7 +68,7 @@ function revalidateSurfaces(orderId?: string): void {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface PurchaseOrderListResult {
+interface PurchaseOrderListResult {
   orders: CrmPurchaseOrderDoc[];
   page: number;
   limit: number;
@@ -565,7 +565,7 @@ export async function getCrmPurchaseOrderRelatedCounts(
 
 /* ─── Duplicates ──────────────────────────────────────────────── */
 
-export interface PurchaseOrderDuplicateGroup {
+interface PurchaseOrderDuplicateGroup {
   key: string;
   members: Array<{
     _id: string;

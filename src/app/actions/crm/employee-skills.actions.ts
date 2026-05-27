@@ -24,9 +24,9 @@ const COL_ASSIGNMENTS = 'crm_employee_skills';
 const SKILLS_PATH = '/dashboard/hrm/payroll/employees/skills';
 const ASSIGN_PATH = '/dashboard/hrm/payroll/employees/employee-skills';
 
-export type CrmSkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+type CrmSkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
-export interface CrmSkillDoc {
+interface CrmSkillDoc {
   _id: string;
   name: string;
   category?: string;
@@ -36,7 +36,7 @@ export interface CrmSkillDoc {
   updatedAt?: string;
 }
 
-export interface CrmEmployeeSkillDoc {
+interface CrmEmployeeSkillDoc {
   _id: string;
   employeeId: string;
   skillId: string;
@@ -141,7 +141,7 @@ function mapAssignment(
 
 /* ── Skills catalog ──────────────────────────────────────────────── */
 
-export interface SkillListParams {
+interface SkillListParams {
   q?: string;
   category?: string;
   limit?: number;
@@ -263,7 +263,7 @@ export async function deleteSkillAction(
 
 /* ── Employee-skill assignments ──────────────────────────────────── */
 
-export interface EmployeeSkillListParams {
+interface EmployeeSkillListParams {
   employeeId?: string;
   skillId?: string;
   limit?: number;

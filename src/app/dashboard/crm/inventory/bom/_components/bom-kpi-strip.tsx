@@ -9,7 +9,7 @@ import { Boxes, GitBranch, IndianRupee, Layers } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { CrmBomKpis } from '@/app/actions/crm-bom.actions';
+import type { CrmBomKpis } from '@/app/actions/crm-bom.actions.types';
 
 export interface BomKpiStripProps {
     kpis: CrmBomKpis;

@@ -67,7 +67,7 @@ import {
 
 const BASE = '/dashboard/sabconnect';
 
-export type ErrorResult = { error: string };
+type ErrorResult = { error: string };
 
 async function requireSessionUser() {
     const session = await getSession();
@@ -474,7 +474,7 @@ export async function deleteSabConnectCustomApp(
 
 /* ─── People (employee directory) ──────────────────────────────────── */
 
-export interface SabConnectPerson {
+interface SabConnectPerson {
     _id: string;
     name?: string;
     email?: string;

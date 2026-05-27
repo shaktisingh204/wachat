@@ -13,7 +13,6 @@ import {
     ZoruSelectItem,
 } from '@/components/zoruui';
 import { useZoruToast } from '@/components/zoruui';
-import type { PortalTask } from '@/app/actions/hrm-portal.actions';
 import { markTaskComplete } from '@/app/actions/hrm-portal.actions';
 import { CheckCircle2, ClipboardList, Download, FileText, Search, CheckSquare } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -94,6 +93,7 @@ function exportToPDF(data: any[], filename: string) {
 
 import { useRealtimeUpdates } from './use-realtime';
 import { fmtDate } from '@/lib/utils';
+import type { PortalTask } from '@/app/actions/hrm-portal.actions.types';
 
 // ─── My Tasks (assigned to me) ────────────────────────────────────────────────
 

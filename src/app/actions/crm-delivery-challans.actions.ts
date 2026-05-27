@@ -336,7 +336,7 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
  * KPI snapshot for the delivery list page. Multi-tenant: only counts
  * challans owned by the calling session's user.
  */
-export interface DeliveryChallanKpis {
+interface DeliveryChallanKpis {
     totalChallans: number;
     inTransit: number;
     deliveredToday: number;

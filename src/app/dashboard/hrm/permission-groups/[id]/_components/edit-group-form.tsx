@@ -5,8 +5,7 @@ import { Button, Badge, Card } from '@/components/zoruui';
 import { LoaderCircle, ShieldCheck } from 'lucide-react';
 import { GroupDetailsCard } from './group-details-card';
 import { PermissionMatrix } from '../../_components/permission-matrix';
-import type { HrmPermissionGroup, ModulePermission } from '@/app/actions/hrm-permission-groups.actions';
-
+import type { HrmPermissionGroup, ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';
 interface EditGroupFormProps {
   name: string;
   description: string;

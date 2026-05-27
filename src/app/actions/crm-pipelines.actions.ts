@@ -311,7 +311,7 @@ export async function createCrmPipeline(
  * `chance` field is mirrored from `probability` on save so existing
  * read-only callers keep working.
  */
-export interface PipelineUiStage {
+interface PipelineUiStage {
     _id?: string;
     id?: string;
     name: string;
@@ -327,7 +327,7 @@ export interface PipelineUiStage {
  * (description, color, entityKind, status, isDefault) that the form
  * captures.
  */
-export interface PipelineUiDoc {
+interface PipelineUiDoc {
     _id?: string;
     id?: string;
     name: string;
@@ -516,7 +516,7 @@ export async function savePipeline(
 
 /* ─── KPI aggregate for the all-pipelines list page ──────────────────── */
 
-export interface CrmPipelineKpis {
+interface CrmPipelineKpis {
     /** Total number of pipelines for the tenant. */
     total: number;
     /** Total value of deals currently in flight across all pipelines. */

@@ -44,7 +44,7 @@ function useRustCrm(): boolean {
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
-export interface CrmWarehouseFilters {
+interface CrmWarehouseFilters {
     type?: CrmWarehouseType | '';
     status?: CrmWarehouseStatus | '';
     managerId?: string;
@@ -55,21 +55,21 @@ export interface CrmWarehouseFilters {
     includeArchived?: boolean;
 }
 
-export interface CrmWarehouseKpis {
+interface CrmWarehouseKpis {
     total: number;
     active: number;
     climateControlled: number;
     byType: Array<{ type: string; count: number }>;
 }
 
-export interface CrmWarehouseInventorySummary {
+interface CrmWarehouseInventorySummary {
     itemsCount: number;
     totalStock: number;
     totalValue: number;
 }
 
 /** Single row for the "Stock by item" sub-table on warehouse detail. */
-export interface CrmWarehouseStockRow {
+interface CrmWarehouseStockRow {
     productId: string;
     sku?: string;
     name: string;

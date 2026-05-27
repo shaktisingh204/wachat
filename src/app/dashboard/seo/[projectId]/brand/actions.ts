@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { getSeoProject, getBrandMentions } from '@/app/actions/seo.actions';
 import type { BrandMention } from '@/lib/definitions';
 
-export interface AlertConfig {
+interface AlertConfig {
   id?: string;
   name: string;
   condition: string;

@@ -28,7 +28,7 @@ import type {
   IntegrationEvent,
   IntegrationProvider,
   IntegrationStats,
-} from '@/app/actions/worksuite/integrations.actions';
+} from '@/app/actions/worksuite/integrations.actions.types';
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */
 

@@ -44,7 +44,7 @@ import {
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatCard } from '../../_components/report-toolbar';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
-import type { OverdueTaskDetailRow, OverdueTasksDeepResult } from '@/app/actions/worksuite/reports.actions';
+import type { OverdueTaskDetailRow, OverdueTasksDeepResult } from '@/app/actions/worksuite/reports.actions.types';
 
 const PRIORITY_VARIANT: Record<string, 'danger' | 'warning' | 'secondary'> = {
   High: 'danger',

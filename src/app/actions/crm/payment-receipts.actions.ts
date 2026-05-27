@@ -69,7 +69,7 @@ function asStatus(v: string | undefined): CrmReceiptStatus | undefined {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface PaymentReceiptListResult {
+interface PaymentReceiptListResult {
   receipts: CrmPaymentReceiptDoc[];
   page: number;
   limit: number;
@@ -324,7 +324,7 @@ export async function deletePaymentReceipt(id: string) {
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface PaymentReceiptKpis {
+interface PaymentReceiptKpis {
   receivedThisMonthTotal: number;
   receivedThisMonthCount: number;
   clearedCount: number;

@@ -18,14 +18,14 @@ import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicProjectRatingCategories = {
+type PublicProjectRatingCategories = {
   communication: number;
   quality: number;
   timeliness: number;
   value: number;
 };
 
-export type PublicProjectRatingSubmission = {
+type PublicProjectRatingSubmission = {
   overall: number;
   categories: PublicProjectRatingCategories;
   comment: string;
@@ -33,12 +33,12 @@ export type PublicProjectRatingSubmission = {
   raterEmail?: string;
 };
 
-export type SyndicationUrl = {
+type SyndicationUrl = {
   platform: string;
   url: string;
 };
 
-export type PublicProjectRatingView = {
+type PublicProjectRatingView = {
   project: {
     _id: string;
     name: string;
@@ -52,7 +52,7 @@ export type PublicProjectRatingView = {
   };
 };
 
-export type PublicProjectRatingResult =
+type PublicProjectRatingResult =
   | { success: true; message: string }
   | { success: false; error: string };
 

@@ -13,7 +13,7 @@ function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
 }
 
-export type AutoLeadRule = {
+type AutoLeadRule = {
     _id: string;
     name: string;
     source: 'Email' | 'SMS' | 'WhatsApp';

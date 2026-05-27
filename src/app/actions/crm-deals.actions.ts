@@ -1305,7 +1305,7 @@ export async function getCrmDealRelatedCounts(
  * Find duplicate deals — groups by (clientId, value within ±5%,
  * expectedClose within ±7d). Returns groups sized >= 2.
  */
-export interface DealDuplicateGroup {
+interface DealDuplicateGroup {
     /** Identifier label (mostly for debug). */
     key: string;
     /** Member deals in the cluster. */
@@ -1430,9 +1430,9 @@ export async function findCrmDealDuplicates(): Promise<DealDuplicateGroup[]> {
  * for a deal-dedupe match).
  */
 
-export type DealDuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
+type DealDuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
 
-export interface DealDuplicateResolution {
+interface DealDuplicateResolution {
     signature: string;
     status: DealDuplicateClusterStatus;
     survivorId?: string;

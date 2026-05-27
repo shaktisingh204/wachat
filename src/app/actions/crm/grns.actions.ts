@@ -40,7 +40,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface GrnListResult {
+interface GrnListResult {
   grns: CrmGrnDoc[];
   page: number;
   limit: number;
@@ -359,7 +359,7 @@ export async function deleteGrn(id: string) {
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface GrnKpis {
+interface GrnKpis {
   pendingQcCount: number;
   acceptedCount: number;
   partiallyAcceptedCount: number;
@@ -543,7 +543,7 @@ export async function bulkGrnAction(
 
 /* ─── PO seed for the "Convert PO → GRN" flow ─────────────────── */
 
-export interface GrnSeed {
+interface GrnSeed {
   vendorId?: string;
   warehouseId?: string;
   poId?: string;

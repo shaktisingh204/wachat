@@ -49,8 +49,7 @@ import {
 } from '../../_components/recruitment-list-shell';
 import { CandidatesKanban } from './candidates-kanban';
 import { deleteCandidate } from '@/app/actions/hr.actions';
-import type { CandidateKpis } from '@/app/actions/hr-recruitment-kpis.actions';
-
+import type { CandidateKpis } from '@/app/actions/hr-recruitment-kpis.actions.types';
 interface Candidate {
   _id: string;
   name?: string;

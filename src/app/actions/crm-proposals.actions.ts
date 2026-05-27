@@ -43,7 +43,7 @@ function useRustCrm(): boolean {
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
-export type CrmProposalStatus =
+type CrmProposalStatus =
     | 'draft'
     | 'sent'
     | 'accepted'
@@ -51,17 +51,17 @@ export type CrmProposalStatus =
     | 'expired'
     | 'archived';
 
-export interface CrmProposalSection {
+interface CrmProposalSection {
     heading: string;
     body: string;
 }
 
-export interface CrmProposalAttachment {
+interface CrmProposalAttachment {
     url: string;
     name: string;
 }
 
-export interface CrmProposalListFilters {
+interface CrmProposalListFilters {
     q?: string;
     status?: CrmProposalStatus | 'all';
     limit?: number;

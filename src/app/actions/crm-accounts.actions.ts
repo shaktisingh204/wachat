@@ -707,7 +707,7 @@ export async function getAccountRelatedCounts(accountId: string): Promise<{
 
 /* ─── Bulk + KPI actions (referenced by the list page) ─────────── */
 
-export interface CrmAccountKpis {
+interface CrmAccountKpis {
     total: number;
     active: number;
     strategic: number;

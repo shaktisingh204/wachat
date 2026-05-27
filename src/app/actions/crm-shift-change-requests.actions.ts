@@ -46,13 +46,13 @@ function useRustCrm(): boolean {
 const COLL = 'crm_shift_change_requests';
 const LIST_PATH = '/dashboard/hrm/payroll/shift-change-requests';
 
-export type CrmShiftChangeStatus =
+type CrmShiftChangeStatus =
     | 'pending'
     | 'approved'
     | 'rejected'
     | 'cancelled';
 
-export interface CrmShiftChangeRequest {
+interface CrmShiftChangeRequest {
     _id?: ObjectId | string;
     userId?: ObjectId | string;
     employee_id?: string;
@@ -71,7 +71,7 @@ export interface CrmShiftChangeRequest {
     updatedAt?: Date | string;
 }
 
-export type CrmShiftChangeRequestDoc = WithId<CrmShiftChangeRequest>;
+type CrmShiftChangeRequestDoc = WithId<CrmShiftChangeRequest>;
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
 
@@ -90,7 +90,7 @@ const VALID_STATUSES: ReadonlySet<CrmShiftChangeStatus> = new Set([
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
 
-export interface ShiftChangeListParams {
+interface ShiftChangeListParams {
     status?: CrmShiftChangeStatus | 'all';
     employeeId?: string;
     q?: string;

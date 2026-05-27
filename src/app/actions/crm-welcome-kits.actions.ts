@@ -25,20 +25,20 @@ const BASE_PATH = '/dashboard/hrm/hr/welcome-kit';
 const RBAC_KEY = 'crm_welcome_kit';
 const ENTITY_KIND = 'welcome_kit';
 
-export type CrmWelcomeKitStatus =
+type CrmWelcomeKitStatus =
     | 'pending'
     | 'shipped'
     | 'delivered'
     | 'archived';
 
-export interface CrmWelcomeKitItem {
+interface CrmWelcomeKitItem {
     name: string;
     sku?: string;
     delivered: boolean;
     delivered_at?: string | null;
 }
 
-export interface CrmWelcomeKitDoc {
+interface CrmWelcomeKitDoc {
     _id: string;
     userId?: string;
     employee_id: string;
@@ -51,7 +51,7 @@ export interface CrmWelcomeKitDoc {
     updatedAt?: string;
 }
 
-export interface CrmWelcomeKitFilters {
+interface CrmWelcomeKitFilters {
     q?: string;
     status?: CrmWelcomeKitStatus | 'all';
     employeeId?: string;
@@ -164,7 +164,7 @@ export async function getWelcomeKitById(id: string): Promise<CrmWelcomeKitDoc | 
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface WelcomeKitPayload {
+interface WelcomeKitPayload {
     employee_id: string;
     employee_name?: string;
     items: CrmWelcomeKitItem[];

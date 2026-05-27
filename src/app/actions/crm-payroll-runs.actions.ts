@@ -69,14 +69,14 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmPayrollRunStatus =
+type CrmPayrollRunStatus =
     | 'draft'
     | 'in_progress'
     | 'processed'
     | 'paid'
     | 'archived';
 
-export interface CrmPayrollRunDoc {
+interface CrmPayrollRunDoc {
     _id: string;
     userId?: string;
     period_month: number;
@@ -93,7 +93,7 @@ export interface CrmPayrollRunDoc {
     updatedAt?: string;
 }
 
-export interface ListPayrollRunsParams {
+interface ListPayrollRunsParams {
     q?: string;
     status?: CrmPayrollRunStatus | 'all';
     year?: number | 'all';

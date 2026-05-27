@@ -27,7 +27,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { normalizeAuditDiff } from '@/lib/compliance/audit-log';
 
 /** Wire shape returned to the audit-log browser. */
-export interface AuditLogRow {
+interface AuditLogRow {
     _id: string;
     createdAt?: string;
     actorId?: string;
@@ -41,7 +41,7 @@ export interface AuditLogRow {
 }
 
 /** Filters accepted by the read query. */
-export interface AuditLogQuery {
+interface AuditLogQuery {
     entityKind?: string;
     actorId?: string;
     action?: string;
@@ -58,7 +58,7 @@ export interface AuditLogQuery {
 }
 
 /** KPI summary for the audit log header strip. */
-export interface AuditLogKpis {
+interface AuditLogKpis {
     eventsToday: number;
     eventsThisWeek: number;
     uniqueActorsToday: number;
@@ -96,7 +96,7 @@ async function hasTextIndex(
     }
 }
 
-export interface RawAuditDoc {
+interface RawAuditDoc {
     _id?: { toString(): string } | string;
     createdAt?: string | Date;
     actorId?: { toString(): string } | string;
@@ -137,7 +137,7 @@ function projectRow(d: RawAuditDoc, idx: number): AuditLogRow {
  * array (never throws).
  */
 /** Paginated result returned by `getAuditLogPage`. */
-export interface AuditLogPageResult {
+interface AuditLogPageResult {
     rows: AuditLogRow[];
     total: number;
     page: number;

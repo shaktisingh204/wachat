@@ -22,7 +22,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 
-export type PinnableEntityType =
+type PinnableEntityType =
   | 'task'
   | 'project'
   | 'lead'
@@ -33,7 +33,7 @@ export type PinnableEntityType =
   | 'kb'
   | 'note';
 
-export interface PinnedItem {
+interface PinnedItem {
   _id: string;
   entityType: PinnableEntityType;
   entityId: string;
@@ -42,7 +42,7 @@ export interface PinnedItem {
   position: number;
 }
 
-export interface GroupedPinned {
+interface GroupedPinned {
   entityType: PinnableEntityType;
   items: PinnedItem[];
 }

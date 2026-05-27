@@ -393,7 +393,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
 /*  INVITATION LIFECYCLE — view / accept / decline / resend / revoke        */
 /* ──────────────────────────────────────────────────────────────────────── */
 
-export type InvitationView = {
+type InvitationView = {
     _id: string;
     token: string;
     inviteeEmail: string;

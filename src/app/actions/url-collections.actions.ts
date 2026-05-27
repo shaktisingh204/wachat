@@ -7,7 +7,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 
 const COLL = 'url_collections';
 
-export interface UrlCollectionDoc {
+interface UrlCollectionDoc {
     _id: string;
     userId: string;
     name: string;

@@ -4,7 +4,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export interface ScheduleReportPayload {
+interface ScheduleReportPayload {
     emails: string[];
     frequency: 'daily' | 'weekly' | 'monthly';
     format: 'pdf' | 'png' | 'csv';

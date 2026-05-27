@@ -55,7 +55,7 @@ import {
     getAppreciations,
 } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsAward, WsAppreciation, WsAwardFrequency } from '@/lib/worksuite/knowledge-types';
-import type { AwardKpis } from '@/app/actions/worksuite/knowledge.actions';
+import type { AwardKpis } from '@/app/actions/worksuite/knowledge.actions.types';
 
 type Tab = 'programs' | 'appreciations';
 type FrequencyFilter = 'all' | WsAwardFrequency;

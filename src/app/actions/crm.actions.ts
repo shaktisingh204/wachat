@@ -924,7 +924,7 @@ export async function getCrmContactRelatedCounts(contactId: string): Promise<{
  * Headline metrics for the contacts list page. Tenant-scoped via the
  * session userId, and tolerant of permission failures (returns zeros).
  */
-export interface CrmContactKpis {
+interface CrmContactKpis {
     total: number;
     withDeals: number;
     newsletterSubscribed: number;
@@ -993,7 +993,7 @@ export async function getCrmContactKpis(): Promise<CrmContactKpis> {
     }
 }
 
-export type BulkContactOp = 'delete' | 'status' | 'assign';
+type BulkContactOp = 'delete' | 'status' | 'assign';
 
 export async function bulkContactAction(
     ids: string[],

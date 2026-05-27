@@ -27,7 +27,7 @@ import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 /* ── Public DTO ─────────────────────────────────────────────────────────── */
 
 /** What we send to the UI. Crucially, NEVER the hash or raw token. */
-export interface CrmApiTokenRow {
+interface CrmApiTokenRow {
     _id: string;
     name: string;
     prefix: string;
@@ -38,14 +38,14 @@ export interface CrmApiTokenRow {
     revoked: boolean;
 }
 
-export interface GenerateApiTokenResult {
+interface GenerateApiTokenResult {
     ok: true;
     /** The plain-text token — show once, never again. */
     token: string;
     row: CrmApiTokenRow;
 }
 
-export interface GenerateApiTokenError {
+interface GenerateApiTokenError {
     ok: false;
     error: string;
 }
@@ -105,7 +105,7 @@ export async function getApiTokens(): Promise<CrmApiTokenRow[]> {
     }
 }
 
-export interface GenerateApiTokenInput {
+interface GenerateApiTokenInput {
     name: string;
     scopes: OAuthScope[];
     /** Optional duration in days. `undefined`/`null` ⇒ never expires. */
@@ -185,7 +185,7 @@ export async function generateApiToken(
 
 /* ── Bulk actions ───────────────────────────────────────────────────────── */
 
-export type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
 
 /** Bulk revoke (soft-delete) multiple tokens by id. */
 export async function bulkRevokeApiTokens(ids: string[]): Promise<BulkResult> {
@@ -279,7 +279,7 @@ export async function revokeApiToken(
     }
 }
 
-export interface TestApiTokenResult {
+interface TestApiTokenResult {
     ok: true;
     name: string;
     scopes: OAuthScope[];

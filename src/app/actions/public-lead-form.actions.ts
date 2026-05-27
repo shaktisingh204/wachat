@@ -14,7 +14,7 @@ import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 
-export type LeadFormFieldType =
+type LeadFormFieldType =
   | 'text'
   | 'email'
   | 'phone'
@@ -24,7 +24,7 @@ export type LeadFormFieldType =
   | 'checkbox'
   | 'date';
 
-export type LeadFormField = {
+type LeadFormField = {
   name: string;
   label: string;
   type: LeadFormFieldType;
@@ -33,7 +33,7 @@ export type LeadFormField = {
   options?: string[];
 };
 
-export type PublicLeadForm = {
+type PublicLeadForm = {
   _id: string;
   title: string;
   description?: string;
@@ -43,7 +43,7 @@ export type PublicLeadForm = {
   consentText?: string;
 } | null;
 
-export type PublicActionResult =
+type PublicActionResult =
   | { success: true; message?: string }
   | { success: false; error: string };
 

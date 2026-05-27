@@ -33,7 +33,7 @@ const BASE_PATH = '/dashboard/hrm/hr/expense-claims';
 const RBAC_KEY = 'crm_expense_claim';
 const ENTITY_KIND = 'expense_claim';
 
-export type CrmExpenseClaimStatus =
+type CrmExpenseClaimStatus =
     | 'draft'
     | 'submitted'
     | 'approved'
@@ -42,7 +42,7 @@ export type CrmExpenseClaimStatus =
     | 'cancelled'
     | 'archived';
 
-export interface CrmExpenseClaimDoc {
+interface CrmExpenseClaimDoc {
     _id: string;
     userId?: string;
     employee_id: string;
@@ -63,7 +63,7 @@ export interface CrmExpenseClaimDoc {
     updatedAt?: string;
 }
 
-export interface CrmExpenseClaimFilters {
+interface CrmExpenseClaimFilters {
     q?: string;
     status?: CrmExpenseClaimStatus | 'all';
     employeeId?: string;
@@ -236,7 +236,7 @@ export async function getExpenseClaimById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface ClaimPayload {
+interface ClaimPayload {
     employee_id: string;
     employee_name?: string;
     category_id?: string;

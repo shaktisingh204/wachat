@@ -19,13 +19,13 @@ import { revalidatePath } from 'next/cache';
 
 // ─── Types ────────────────────────────────────────────────────────────
 
-export type SabmeetRoomStatus = 'scheduled' | 'live' | 'ended' | 'canceled';
-export type SabmeetParticipantRole = 'host' | 'cohost' | 'participant' | 'viewer';
-export type SabmeetRecordingStatus = 'recording' | 'processing' | 'ready' | 'failed';
-export type SabmeetPollStatus = 'draft' | 'open' | 'closed';
-export type SabmeetDialInPinPolicy = 'required' | 'optional' | 'none';
+type SabmeetRoomStatus = 'scheduled' | 'live' | 'ended' | 'canceled';
+type SabmeetParticipantRole = 'host' | 'cohost' | 'participant' | 'viewer';
+type SabmeetRecordingStatus = 'recording' | 'processing' | 'ready' | 'failed';
+type SabmeetPollStatus = 'draft' | 'open' | 'closed';
+type SabmeetDialInPinPolicy = 'required' | 'optional' | 'none';
 
-export interface SabmeetRoom {
+interface SabmeetRoom {
   _id: string;
   userId: string;
   name: string;
@@ -51,7 +51,7 @@ export interface SabmeetRoom {
   updatedAt?: string;
 }
 
-export interface SabmeetParticipant {
+interface SabmeetParticipant {
   _id: string;
   userId: string;
   roomId: string;
@@ -64,7 +64,7 @@ export interface SabmeetParticipant {
   durationSecs?: number;
 }
 
-export interface SabmeetRecording {
+interface SabmeetRecording {
   _id: string;
   userId: string;
   roomId: string;
@@ -78,13 +78,13 @@ export interface SabmeetRecording {
   errorMessage?: string;
 }
 
-export interface SabmeetPollOption {
+interface SabmeetPollOption {
   id: string;
   label: string;
   voteCount: number;
 }
 
-export interface SabmeetPoll {
+interface SabmeetPoll {
   _id: string;
   userId: string;
   roomId: string;
@@ -95,7 +95,7 @@ export interface SabmeetPoll {
   status: SabmeetPollStatus;
 }
 
-export interface SabmeetQna {
+interface SabmeetQna {
   _id: string;
   userId: string;
   roomId: string;
@@ -212,7 +212,7 @@ export async function getSabmeetRoomByJoinCode(
   return { success: true, data: doc ? (serializeDoc(doc) as unknown as SabmeetRoom) : null };
 }
 
-export interface CreateSabmeetRoomInput {
+interface CreateSabmeetRoomInput {
   name: string;
   description?: string;
   agenda?: string[];
@@ -321,7 +321,7 @@ export async function listSabmeetParticipants(
   return { success: true, data: docs.map(serializeDoc) as unknown as SabmeetParticipant[] };
 }
 
-export interface JoinSabmeetRoomInput {
+interface JoinSabmeetRoomInput {
   roomId: string;
   displayName: string;
   participantUserId?: string;
@@ -597,7 +597,7 @@ export async function answerSabmeetQuestion(input: {
 
 // ─── Analytics ────────────────────────────────────────────────────────
 
-export interface SabmeetRoomAnalytics {
+interface SabmeetRoomAnalytics {
   totalAttendees: number;
   uniqueAttendees: number;
   peakConcurrent: number;
@@ -658,7 +658,7 @@ export async function getSabmeetRoomAnalytics(
 
 // ─── Dial-ins ─────────────────────────────────────────────────────────
 
-export interface SabmeetDialIn {
+interface SabmeetDialIn {
   _id: string;
   regionCode: string;
   label: string;

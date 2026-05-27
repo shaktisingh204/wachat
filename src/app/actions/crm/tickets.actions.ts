@@ -39,7 +39,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface TicketListResult {
+interface TicketListResult {
   tickets: CrmTicketDoc[];
   page: number;
   limit: number;

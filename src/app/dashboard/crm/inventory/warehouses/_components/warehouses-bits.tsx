@@ -32,7 +32,7 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 import type {
     CrmWarehouseFilters,
     CrmWarehouseKpis,
-} from '@/app/actions/crm-warehouses.actions';
+} from '@/app/actions/crm-warehouses.actions.types';
 
 export type WarehouseTypeFilter =
     | ''

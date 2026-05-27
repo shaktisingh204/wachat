@@ -35,12 +35,8 @@ import { ArrowLeft,
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveWelcomeKit } from '@/app/actions/crm-welcome-kits.actions';
-import type {
-    CrmWelcomeKitDoc,
-    CrmWelcomeKitItem,
-    CrmWelcomeKitStatus,
-} from '@/app/actions/crm-welcome-kits.actions';
-
+import type { CrmWelcomeKitDoc, CrmWelcomeKitItem } from '@/app/actions/crm-welcome-kits.actions.types';
+import type { CrmWelcomeKitStatus } from '@/app/actions/crm-welcome-kits.actions.types';
 const BASE = '/dashboard/hrm/hr/welcome-kit';
 
 interface WelcomeKitFormProps {

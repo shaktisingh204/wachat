@@ -19,7 +19,7 @@ import {
     type VendorTrackerResult,
 } from '@/lib/india-tax/tds-194q';
 
-export type Tds194qStatusResult =
+type Tds194qStatusResult =
     | { ok: true; data: Tds194qApplicability }
     | { ok: false; error: string };
 
@@ -44,7 +44,7 @@ export async function getTds194qStatus(
     }
 }
 
-export type Tds194qVendorTrackerResult =
+type Tds194qVendorTrackerResult =
     | { ok: true; data: VendorTrackerResult }
     | { ok: false; error: string };
 
@@ -69,7 +69,7 @@ export async function getTds194qVendorTracker(
     }
 }
 
-export type MarkTds194qDeductedResult =
+type MarkTds194qDeductedResult =
     | { ok: true; id: string }
     | { ok: false; error: string };
 

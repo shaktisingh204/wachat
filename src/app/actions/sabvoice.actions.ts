@@ -45,7 +45,7 @@ function stringifyIds<T extends { _id: ObjectId | string }>(doc: T): T & { _id: 
 
 /* ─── DIDs ──────────────────────────────────────────────────────────── */
 
-export interface VoiceDidInput {
+interface VoiceDidInput {
   number: string;
   country: string;
   provider: 'twilio' | 'plivo' | 'mock';
@@ -186,7 +186,7 @@ export async function releaseVoiceDid(id: string) {
 
 /* ─── IVRs ──────────────────────────────────────────────────────────── */
 
-export type VoiceIvrNodeType =
+type VoiceIvrNodeType =
   | 'menu'
   | 'playback'
   | 'forward'
@@ -194,7 +194,7 @@ export type VoiceIvrNodeType =
   | 'hangup'
   | 'conditional';
 
-export interface VoiceIvrNode {
+interface VoiceIvrNode {
   type: VoiceIvrNodeType;
   id?: string;
   prompt?: string;
@@ -206,7 +206,7 @@ export interface VoiceIvrNode {
   [k: string]: unknown;
 }
 
-export interface VoiceIvrInput {
+interface VoiceIvrInput {
   name: string;
   description?: string;
   status?: 'draft' | 'active' | 'archived';
@@ -315,7 +315,7 @@ export async function deleteVoiceIvr(id: string) {
 
 /* ─── Queues ────────────────────────────────────────────────────────── */
 
-export interface VoiceQueueInput {
+interface VoiceQueueInput {
   name: string;
   description?: string;
   strategy?: 'round_robin' | 'least_busy' | 'simultaneous';
@@ -397,7 +397,7 @@ export async function deleteVoiceQueue(id: string) {
 
 /* ─── Calls (CDR) ───────────────────────────────────────────────────── */
 
-export interface VoiceCallInput {
+interface VoiceCallInput {
   fromNumber: string;
   toNumber: string;
   direction: 'inbound' | 'outbound';
@@ -490,7 +490,7 @@ export async function deleteVoiceCallCdr(id: string) {
 
 /* ─── Voicemail ─────────────────────────────────────────────────────── */
 
-export interface VoicemailInput {
+interface VoicemailInput {
   callId: string;
   fromNumber: string;
   toNumber?: string;
@@ -581,9 +581,9 @@ export async function deleteVoicemail(id: string) {
 
 /* ─── Agent presence ────────────────────────────────────────────────── */
 
-export type AgentPresenceStatus = 'available' | 'busy' | 'away' | 'offline';
+type AgentPresenceStatus = 'available' | 'busy' | 'away' | 'offline';
 
-export interface AgentPresenceInput {
+interface AgentPresenceInput {
   agentUserId: string;
   status: AgentPresenceStatus;
   activeCallId?: string;

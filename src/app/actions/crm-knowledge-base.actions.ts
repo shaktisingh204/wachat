@@ -12,7 +12,7 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export interface KbArticleDoc {
+interface KbArticleDoc {
   _id: string;
   title?: string;
   slug?: string;
@@ -36,7 +36,7 @@ export interface KbArticleDoc {
   seoDescription?: string;
 }
 
-export interface KbListResult {
+interface KbListResult {
   articles: KbArticleDoc[];
   error?: string;
 }

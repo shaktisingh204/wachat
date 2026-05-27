@@ -67,7 +67,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Bugs ───────────────────────────────────────────────────────── */
 
-export interface BugListResult {
+interface BugListResult {
   bugs: BugDoc[];
   page: number;
   limit: number;

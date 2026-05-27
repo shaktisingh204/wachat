@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card } from '@/components/zoruui';
 import { WidgetRenderer } from '../_components/widget-renderer';
-import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions';
+import type { DashboardWidget, ResolvedWidgetData } from '@/app/actions/crm-dashboards.actions.types';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 

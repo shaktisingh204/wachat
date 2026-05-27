@@ -155,7 +155,7 @@ const leadSchema = z.object({
     expectedClose: z.preprocess((v) => (v ? new Date(v as any) : undefined), z.date().optional().nullable()),
 });
 
-export interface CrmLeadListFilters {
+interface CrmLeadListFilters {
     /** Free-text search across title/contactName/email/company. */
     query?: string;
     /** Status (e.g. 'New', 'Qualified', 'archived'). */
@@ -178,7 +178,7 @@ export interface CrmLeadListFilters {
     includeArchived?: boolean;
 }
 
-export interface CrmLeadKpis {
+interface CrmLeadKpis {
     total: number;
     newCount: number;
     qualifiedCount: number;
@@ -1136,7 +1136,7 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
  * additive over the shipping surface.
  * ────────────────────────────────────────────────────────────────────── */
 
-export interface CrmLeadRelatedCounts {
+interface CrmLeadRelatedCounts {
     deals: number;
     tasks: number;
     tickets: number;
@@ -1306,7 +1306,7 @@ export async function updateCrmLeadTags(
 
 /* ─── Duplicate finder ─────────────────────────────────────────────── */
 
-export interface DuplicateLeadEntry {
+interface DuplicateLeadEntry {
     _id: string;
     title?: string;
     contactName?: string;
@@ -1319,7 +1319,7 @@ export interface DuplicateLeadEntry {
     createdAt?: string;
 }
 
-export interface DuplicateGroup {
+interface DuplicateGroup {
     key: 'email' | 'phone';
     value: string;
     leads: DuplicateLeadEntry[];
@@ -1445,9 +1445,9 @@ export async function findCrmLeadDuplicates(): Promise<DuplicateGroup[]> {
  * collision produce the same signature.
  */
 
-export type DuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
+type DuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
 
-export interface DuplicateClusterResolution {
+interface DuplicateClusterResolution {
     signature: string;
     status: DuplicateClusterStatus;
     survivorId?: string;

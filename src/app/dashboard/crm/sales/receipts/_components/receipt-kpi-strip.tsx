@@ -14,7 +14,7 @@ import { Banknote, CheckCircle2, XCircle, Clock } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { PaymentReceiptKpis } from '@/app/actions/crm/payment-receipts.actions';
+import type { PaymentReceiptKpis } from '@/app/actions/crm/payment-receipts.actions.types';
 
 export type ReceiptKpiFilter = 'all' | 'cleared' | 'bounced';
 

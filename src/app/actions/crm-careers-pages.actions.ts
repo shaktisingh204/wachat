@@ -43,7 +43,7 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export interface CrmCareersPageSocialLinks {
+interface CrmCareersPageSocialLinks {
     linkedin?: string;
     twitter?: string;
     facebook?: string;
@@ -52,7 +52,7 @@ export interface CrmCareersPageSocialLinks {
     website?: string;
 }
 
-export interface CrmCareersPageDoc {
+interface CrmCareersPageDoc {
     _id: string;
     userId: string;
     enabled: boolean;

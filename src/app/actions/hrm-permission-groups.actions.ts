@@ -7,14 +7,14 @@ import { getSession } from '@/app/actions/user.actions';
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
-export type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
+type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
 
-export interface ModulePermission {
+interface ModulePermission {
   module: string;
   actions: PermissionAction[];
 }
 
-export interface HrmPermissionGroup {
+interface HrmPermissionGroup {
   _id: string;
   userId: string;
   name: string;
@@ -24,7 +24,7 @@ export interface HrmPermissionGroup {
   updatedAt: string;
 }
 
-export interface HrmEmployeeGroup {
+interface HrmEmployeeGroup {
   _id: string;
   userId: string;
   employeeId: string;

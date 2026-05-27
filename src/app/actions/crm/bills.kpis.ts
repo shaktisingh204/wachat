@@ -1,6 +1,6 @@
 import type { CrmBillDoc } from '@/lib/rust-client/crm-bills';
 
-export interface BillKpiSummary {
+interface BillKpiSummary {
   /** Sum of `balance` for bills not yet fully paid / cancelled. */
   outstanding: number;
   /** Number of bills past their due date and still unpaid. */

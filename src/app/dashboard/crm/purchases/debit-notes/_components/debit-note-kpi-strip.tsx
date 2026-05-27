@@ -13,7 +13,7 @@ import { FileMinus, BadgeDollarSign, Hourglass, Link2 } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { DebitNoteKpis } from '@/app/actions/crm/debit-notes.actions';
+import type { DebitNoteKpis } from '@/app/actions/crm/debit-notes.actions.types';
 
 export type DebitNoteKpiFilter = 'all' | 'refunded' | 'pending';
 

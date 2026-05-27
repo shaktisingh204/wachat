@@ -36,7 +36,7 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export interface CrmEmergencyContactDoc {
+interface CrmEmergencyContactDoc {
     _id: string;
     userId: string;
     employeeId: string;
@@ -51,7 +51,7 @@ export interface CrmEmergencyContactDoc {
     updatedAt?: string;
 }
 
-export interface CrmEmergencyContactListParams {
+interface CrmEmergencyContactListParams {
     employeeId?: string;
     q?: string;
     limit?: number;

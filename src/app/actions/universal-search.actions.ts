@@ -15,14 +15,14 @@ import { getSession } from '@/app/actions/user.actions';
  * regex on the most relevant string field.
  */
 
-export type UniversalSearchHit = {
+type UniversalSearchHit = {
   _id: string;
   title: string;
   subtitle?: string;
   href: string;
 };
 
-export type UniversalSearchResult = {
+type UniversalSearchResult = {
   leads: UniversalSearchHit[];
   deals: UniversalSearchHit[];
   clients: UniversalSearchHit[];
@@ -42,7 +42,7 @@ const EMPTY_RESULT: UniversalSearchResult = {
   tickets: [],
 };
 
-export type Doc = Record<string, unknown>;
+type Doc = Record<string, unknown>;
 
 function s(v: unknown): string {
   return typeof v === 'string' ? v : v == null ? '' : String(v);

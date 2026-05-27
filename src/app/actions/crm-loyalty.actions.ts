@@ -233,14 +233,14 @@ export async function saveLoyaltyProgram(
  * (when present), and redemption rate from `redemptionRatio`.
  * ──────────────────────────────────────────────────────────────────── */
 
-export interface CrmLoyaltyKpis {
+interface CrmLoyaltyKpis {
     totalMembers: number;
     pointsOutstanding: number;
     topTierMembers: number;
     redemptionRate: number;
 }
 
-export interface CrmLoyaltyListFilters {
+interface CrmLoyaltyListFilters {
     search?: string;
     status?: string;
     createdAfter?: Date | string;

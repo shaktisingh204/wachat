@@ -33,10 +33,10 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmLearningPathStatus = 'draft' | 'active' | 'archived';
-export type CrmLearningPathAudience = 'all' | 'department' | 'role';
+type CrmLearningPathStatus = 'draft' | 'active' | 'archived';
+type CrmLearningPathAudience = 'all' | 'department' | 'role';
 
-export interface CrmLearningPathDoc {
+interface CrmLearningPathDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -50,14 +50,14 @@ export interface CrmLearningPathDoc {
     updatedAt?: string;
 }
 
-export interface CrmLearningPathListParams {
+interface CrmLearningPathListParams {
     q?: string;
     status?: CrmLearningPathStatus | 'all';
     targetAudience?: CrmLearningPathAudience;
     limit?: number;
 }
 
-export interface CrmLearningPathListResponse {
+interface CrmLearningPathListResponse {
     items: CrmLearningPathDoc[];
 }
 

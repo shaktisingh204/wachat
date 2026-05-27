@@ -22,8 +22,7 @@ import {
 import { Users } from 'lucide-react';
 import BasicInfoForm from './basic-info-form';
 import PhaseList, { type PhaseDraft } from './phase-list';
-import type { HrmRoadmap, RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions';
-
+import type { HrmRoadmap, RoadmapPhase } from '@/app/actions/hrm-roadmaps.actions.types';
 type RoadmapStatus = 'draft' | 'active' | 'completed' | 'archived';
 
 interface EditRoadmapFormProps {

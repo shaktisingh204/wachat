@@ -30,13 +30,13 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmCompensationBandStatus =
+type CrmCompensationBandStatus =
     | 'draft'
     | 'active'
     | 'inactive'
     | 'archived';
 
-export interface CrmCompensationBandDoc {
+interface CrmCompensationBandDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -55,7 +55,7 @@ export interface CrmCompensationBandDoc {
     updatedAt?: string;
 }
 
-export interface ListCompensationBandsParams {
+interface ListCompensationBandsParams {
     q?: string;
     status?: CrmCompensationBandStatus | 'all';
     level?: string | 'all';

@@ -20,7 +20,7 @@ import type {
   WsFacebookAdsSetting,
 } from '@/lib/worksuite/integrations-types';
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const BASE_ROUTE = '/dashboard/crm/settings/integrations';
 
@@ -439,7 +439,7 @@ export async function saveFacebookAdsSetting(
 const COL_EVENTS = 'crm_integration_events';
 
 /** Provider keys recognised by the integration console. */
-export type IntegrationProvider =
+type IntegrationProvider =
   | 'slack'
   | 'smtp'
   | 'quickbooks'
@@ -452,7 +452,7 @@ export type IntegrationProvider =
   | 'storage';
 
 /** One row in the integration activity / sync history feed. */
-export interface IntegrationEvent {
+interface IntegrationEvent {
   _id: string;
   provider: IntegrationProvider;
   /** `'sync' | 'test' | 'delivery' | 'connect' | 'disconnect' | 'error'` */
@@ -465,7 +465,7 @@ export interface IntegrationEvent {
   createdAt: string;
 }
 
-export interface IntegrationEventInput {
+interface IntegrationEventInput {
   provider: IntegrationProvider;
   kind: string;
   status: 'success' | 'failure' | 'pending';
@@ -528,7 +528,7 @@ export async function getIntegrationEvents(
 }
 
 /** Computed KPIs surfaced in the console header. */
-export interface IntegrationStats {
+interface IntegrationStats {
   /** Sum of `count` on events of any provider-defined "delivery" kind today. */
   deliveriesToday: number;
   /** Failures recorded today. */

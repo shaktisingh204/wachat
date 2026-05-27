@@ -34,7 +34,7 @@ export async function logActivity(
     }
 }
 
-export type ActivityFilters = {
+type ActivityFilters = {
     actorUserId?: string;
     actionPrefix?: string; // e.g. 'TASK' | 'MEMBER' | 'ROLE' | 'CHAT'
     sinceIso?: string;

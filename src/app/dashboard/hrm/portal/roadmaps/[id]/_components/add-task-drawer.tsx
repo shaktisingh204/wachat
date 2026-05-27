@@ -20,8 +20,7 @@ import {
   ZoruSelectContent,
   ZoruSelectItem,
 } from '@/components/zoruui';
-import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions';
-
+import type { RoadmapTask } from '@/app/actions/hrm-roadmaps.actions.types';
 export interface DirectReport {
   _id: string;
   name: string;

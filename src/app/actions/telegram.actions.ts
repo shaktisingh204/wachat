@@ -159,7 +159,7 @@ export async function addTelegramProject(input: {
 // actions below are thin pass-throughs that translate the Rust envelope
 // into the `ActionResult` / row shape callers already expect.
 
-export type TelegramBotListRow = TelegramBotRow;
+type TelegramBotListRow = TelegramBotRow;
 
 export async function listTelegramBots(projectId: string): Promise<TelegramBotRow[]> {
     try {

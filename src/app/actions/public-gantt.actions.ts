@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicGanttTask = {
+type PublicGanttTask = {
   _id: string;
   heading: string;
   description: string | null;
@@ -24,7 +24,7 @@ export type PublicGanttTask = {
   completionPercent: number;
 };
 
-export type PublicGanttMilestone = {
+type PublicGanttMilestone = {
   _id: string;
   title: string;
   status: string;
@@ -33,14 +33,14 @@ export type PublicGanttMilestone = {
   currency: string | null;
 };
 
-export type PublicGanttLink = {
+type PublicGanttLink = {
   _id: string;
   source: string;
   target: string;
   type: string;
 };
 
-export type PublicGanttView = {
+type PublicGanttView = {
   project: {
     _id: string;
     name: string;

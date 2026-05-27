@@ -22,8 +22,8 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { createPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
-import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions';
 import { GroupForm } from './group-form';
+import type { ModulePermission } from '@/app/actions/hrm-permission-groups.actions.types';
 
 interface NewGroupSheetProps {
   onCreated: () => void;

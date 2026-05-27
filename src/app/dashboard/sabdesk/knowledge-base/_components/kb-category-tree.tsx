@@ -20,8 +20,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
-
+import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions.types';
 interface KbCategoryTreeProps {
     articles: KbArticleDoc[];
 }

@@ -22,7 +22,7 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export interface CrmBomComponent {
+interface CrmBomComponent {
   itemId?: string;
   itemName: string;
   qty: number;
@@ -32,7 +32,7 @@ export interface CrmBomComponent {
   costPerUnit?: number;
 }
 
-export interface CrmBomDoc {
+interface CrmBomDoc {
   _id: ObjectId | string;
   userId: ObjectId | string;
   bomNo: string;
@@ -53,14 +53,14 @@ export interface CrmBomDoc {
   updatedAt: Date | string;
 }
 
-export interface CrmBomKpis {
+interface CrmBomKpis {
   active: number;
   finishedGoodsCovered: number;
   avgCost: number;
   versionsCount: number;
 }
 
-export interface CrmBomListFilters {
+interface CrmBomListFilters {
   status?: string;
   finishedGoodId?: string;
   versionMin?: string;

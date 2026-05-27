@@ -20,7 +20,7 @@
 import type {
   PublicGanttMilestone,
   PublicGanttTask,
-} from '@/app/actions/public-gantt.actions';
+} from '@/app/actions/public-gantt.actions.types';
 
 type ProjectMeta = {
   _id: string;

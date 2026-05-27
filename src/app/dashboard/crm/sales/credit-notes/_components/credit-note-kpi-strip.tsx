@@ -13,7 +13,7 @@ import { FileMinus, BadgeDollarSign, Hourglass, Link2 } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { CreditNoteKpis } from '@/app/actions/crm/credit-notes.actions';
+import type { CreditNoteKpis } from '@/app/actions/crm/credit-notes.actions.types';
 
 export type CreditNoteKpiFilter = 'all' | 'refunded' | 'pending';
 

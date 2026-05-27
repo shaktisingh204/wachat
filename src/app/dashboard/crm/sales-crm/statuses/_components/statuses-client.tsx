@@ -30,9 +30,9 @@ import {
   deleteLeadStatus,
   bulkDeleteLeadStatuses,
 } from '@/app/actions/worksuite/crm-plus.actions';
-import type { LeadStatusKpis } from '@/app/actions/worksuite/crm-plus.actions';
 import type { WsLeadStatus } from '@/lib/worksuite/crm-types';
 import type { WithId } from 'mongodb';
+import type { LeadStatusKpis } from '@/app/actions/worksuite/crm-plus.actions.types';
 
 type Row = WithId<WsLeadStatus> & { _id: string };
 

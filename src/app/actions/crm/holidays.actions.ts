@@ -49,7 +49,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface HolidayListResult {
+interface HolidayListResult {
   holidays: CrmHolidayDoc[];
   page: number;
   limit: number;

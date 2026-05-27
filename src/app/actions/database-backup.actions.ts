@@ -23,7 +23,7 @@ import { getErrorMessage } from '@/lib/utils';
  * throwing — wrap calls in try/catch on the UI side.
  */
 
-export type BackupRow = {
+type BackupRow = {
   _id: string;
   filename: string;
   sizeBytes: number;
@@ -33,7 +33,7 @@ export type BackupRow = {
   error?: string;
 };
 
-export type BackupSettings = {
+type BackupSettings = {
   storage: 'local' | 's3';
   path: string;
   retentionDays: number;

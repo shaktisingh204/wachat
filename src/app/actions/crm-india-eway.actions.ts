@@ -34,7 +34,7 @@ import {
 // Stored shape
 // ──────────────────────────────────────────────────────────────────
 
-export interface StoredEWayBill {
+interface StoredEWayBill {
     _id?: ObjectId;
     userId: ObjectId;
     /** 12-digit EWB number — unique within tenant. */
@@ -71,7 +71,7 @@ export interface StoredEWayBill {
     updatedAt: Date;
 }
 
-export interface EWayBillSummary {
+interface EWayBillSummary {
     _id: string;
     ewbNo: string;
     linkedInvoiceId?: string;
@@ -122,7 +122,7 @@ function liveStatus(doc: StoredEWayBill): StoredEWayBill['status'] {
     return 'active';
 }
 
-export interface GenerateEWayBillInput {
+interface GenerateEWayBillInput {
     invoiceId?: string;
     fromGstin: string;
     toGstin?: string;

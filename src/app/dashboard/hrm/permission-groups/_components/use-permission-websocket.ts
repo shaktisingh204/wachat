@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions';
-
+import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions.types';
 export function usePermissionGroupWebsocket(initialGroups: HrmPermissionGroup[]) {
   const [groups, setGroups] = useState(initialGroups);
 

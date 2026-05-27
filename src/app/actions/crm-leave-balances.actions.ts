@@ -35,7 +35,7 @@ import { getErrorMessage } from '@/lib/utils';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export interface CrmLeaveBalanceDoc {
+interface CrmLeaveBalanceDoc {
     _id: string;
     userId: string;
     employeeId: string;
@@ -50,7 +50,7 @@ export interface CrmLeaveBalanceDoc {
     updatedAt?: string;
 }
 
-export interface CrmLeaveBalanceListParams {
+interface CrmLeaveBalanceListParams {
     employeeId?: string;
     leaveType?: string;
     period?: string;

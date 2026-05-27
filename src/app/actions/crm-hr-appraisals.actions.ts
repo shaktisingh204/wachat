@@ -135,7 +135,7 @@ export async function deleteCrmAppraisalReview(id: string): Promise<{ success: b
 
 // ── KPI Tracking ─────────────────────────────────────────────────────────────
 
-export type CrmKpi = {
+type CrmKpi = {
     _id: ObjectId;
     userId: ObjectId;
     employee_id: string;

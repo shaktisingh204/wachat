@@ -51,7 +51,7 @@ const VALID_STATUSES: ReadonlySet<CrmPayoutStatus> = new Set<CrmPayoutStatus>([
     'sent', 'cleared', 'failed',
 ]);
 
-export interface PayoutListResponse {
+interface PayoutListResponse {
     items: CrmPayoutDoc[];
     hasMore: boolean;
 }

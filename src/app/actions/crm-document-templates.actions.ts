@@ -64,12 +64,12 @@ function rustToLegacy(
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmDocumentTemplateStatus =
+type CrmDocumentTemplateStatus =
     | 'draft'
     | 'active'
     | 'archived';
 
-export interface CrmDocumentTemplateDoc {
+interface CrmDocumentTemplateDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -83,14 +83,14 @@ export interface CrmDocumentTemplateDoc {
     updatedAt?: string;
 }
 
-export interface CrmDocumentTemplateListParams {
+interface CrmDocumentTemplateListParams {
     q?: string;
     status?: CrmDocumentTemplateStatus | 'all';
     category?: string;
     limit?: number;
 }
 
-export interface CrmDocumentTemplateListResponse {
+interface CrmDocumentTemplateListResponse {
     items: CrmDocumentTemplateDoc[];
 }
 
@@ -411,7 +411,7 @@ export async function deleteDocumentTemplate(
 
 /* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
 
-export interface CrmDocumentTemplateKpis {
+interface CrmDocumentTemplateKpis {
     total: number;
     byCategory: Record<string, number>;
     lastGeneratedAt?: string;
@@ -465,9 +465,9 @@ export async function getDocumentTemplateKpis(): Promise<CrmDocumentTemplateKpis
     }
 }
 
-export type CrmDocumentTemplateBulkOp = 'delete' | 'archive' | 'publish';
+type CrmDocumentTemplateBulkOp = 'delete' | 'archive' | 'publish';
 
-export interface CrmDocumentTemplateBulkResult {
+interface CrmDocumentTemplateBulkResult {
     success: boolean;
     affected: number;
     error?: string;

@@ -17,7 +17,7 @@ function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
 }
 
-export interface CsvMapping {
+interface CsvMapping {
     dateCol: string;
     descCol: string;
     debitCol: string;
@@ -281,7 +281,7 @@ export async function getReconciliationById(
 
 /* ─── KPIs (used by reconciliation list page) ───────────────────────── */
 
-export interface CrmReconciliationKpis {
+interface CrmReconciliationKpis {
   reconciled: number;
   unreconciled: number;
   lastReconciledDate: string | null;

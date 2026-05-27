@@ -37,7 +37,7 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmRecognitionCategory =
+type CrmRecognitionCategory =
     | 'achievement'
     | 'teamwork'
     | 'leadership'
@@ -45,13 +45,13 @@ export type CrmRecognitionCategory =
     | 'customer_service'
     | 'other';
 
-export type CrmRecognitionStatus =
+type CrmRecognitionStatus =
     | 'draft'
     | 'pending'
     | 'approved'
     | 'archived';
 
-export interface CrmRecognitionDoc {
+interface CrmRecognitionDoc {
     _id: string;
     userId?: string;
     fromEmployeeId?: string;
@@ -69,7 +69,7 @@ export interface CrmRecognitionDoc {
     updatedAt?: string;
 }
 
-export interface CrmRecognitionListFilters {
+interface CrmRecognitionListFilters {
     q?: string;
     status?: CrmRecognitionStatus;
     category?: CrmRecognitionCategory;
@@ -242,7 +242,7 @@ export async function getRecognitionById(
 
 /* ─── Writes ─────────────────────────────────────────────────────────── */
 
-export interface SavePayload {
+interface SavePayload {
     fromEmployeeId?: string;
     fromEmployeeName?: string;
     toEmployeeId?: string;

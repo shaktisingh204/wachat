@@ -31,7 +31,7 @@ import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { requireSession } from '@/lib/hr-crud';
 
-export interface CandidateKpis {
+interface CandidateKpis {
   newApplications: number;
   inScreening: number;
   inInterview: number;
@@ -40,7 +40,7 @@ export interface CandidateKpis {
   total: number;
 }
 
-export interface JobKpis {
+interface JobKpis {
   open: number;
   closed: number;
   totalApplicants: number;
@@ -51,7 +51,7 @@ export interface JobKpis {
   costPerHire: number;
 }
 
-export interface InterviewKpis {
+interface InterviewKpis {
   today: number;
   thisWeek: number;
   scheduled: number;
@@ -60,7 +60,7 @@ export interface InterviewKpis {
   total: number;
 }
 
-export interface OfferKpis {
+interface OfferKpis {
   sent: number;
   accepted: number;
   declined: number;

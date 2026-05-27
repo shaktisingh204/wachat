@@ -22,7 +22,7 @@ const ProcessCommentInputSchema = z.object({
       'A custom prompt for generating a reply. If not provided, reply generation is skipped.'
     ),
 });
-export type ProcessCommentInput = z.infer<typeof ProcessCommentInputSchema>;
+type ProcessCommentInput = z.infer<typeof ProcessCommentInputSchema>;
 
 const ProcessCommentOutputSchema = z.object({
   shouldDelete: z
@@ -37,7 +37,7 @@ const ProcessCommentOutputSchema = z.object({
     .optional()
     .describe('The generated reply to the comment. This will only be present if shouldDelete is false and a replyPrompt was provided.'),
 });
-export type ProcessCommentOutput = z.infer<typeof ProcessCommentOutputSchema>;
+type ProcessCommentOutput = z.infer<typeof ProcessCommentOutputSchema>;
 
 export async function processFacebookComment(
   input: ProcessCommentInput

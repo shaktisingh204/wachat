@@ -17,7 +17,7 @@ import { rustClient, RustApiError } from '@/lib/rust-client';
 import { rustFetch } from '@/lib/rust-client/fetcher';
 
 type Ok<T> = { success: true } & T;
-export type Err = { success: false; error: string };
+type Err = { success: false; error: string };
 
 function failed(error: unknown, fallback: string): Err {
   if (error instanceof RustApiError) {
@@ -118,7 +118,7 @@ export async function revokePersonalToken(tokenId: string): Promise<Ok<{}> | Err
 
 /* ── OAuth apps ─────────────────────────────────────────────────────────── */
 
-export interface OAuthAppRow {
+interface OAuthAppRow {
   _id: string;
   name: string;
   description?: string;
@@ -173,7 +173,7 @@ export async function deleteOAuthApp(appId: string): Promise<Ok<{}> | Err> {
 
 /* ── Webhooks ──────────────────────────────────────────────────────────── */
 
-export interface WebhookSubscription {
+interface WebhookSubscription {
   _id: string;
   url: string;
   events: string[];
@@ -184,7 +184,7 @@ export interface WebhookSubscription {
   consecutiveFailures: number;
 }
 
-export interface WebhookDelivery {
+interface WebhookDelivery {
   _id: string;
   subscriptionId: string;
   event: string;
@@ -293,7 +293,7 @@ export async function retryWebhookDelivery(deliveryId: string): Promise<Ok<{}> |
 
 /* ── Usage analytics ───────────────────────────────────────────────────── */
 
-export interface UsageSummary {
+interface UsageSummary {
   from: string;
   to: string;
   totalRequests: number;
@@ -302,7 +302,7 @@ export interface UsageSummary {
   p95LatencyMs: number;
 }
 
-export interface UsageTopRow {
+interface UsageTopRow {
   path: string;
   method: string;
   count: number;
@@ -310,7 +310,7 @@ export interface UsageTopRow {
   avgLatencyMs: number;
 }
 
-export interface UsageByKeyRow {
+interface UsageByKeyRow {
   keyId: string;
   kind: string;
   env: string;
@@ -319,7 +319,7 @@ export interface UsageByKeyRow {
   lastUsedAt?: string;
 }
 
-export interface UsageLogRow {
+interface UsageLogRow {
   _id: string;
   method: string;
   path: string;

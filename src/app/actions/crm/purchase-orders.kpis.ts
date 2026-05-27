@@ -1,6 +1,6 @@
 import type { CrmPurchaseOrderDoc } from '@/lib/rust-client/crm-purchase-orders';
 
-export interface PurchaseOrderKpiSummary {
+interface PurchaseOrderKpiSummary {
   /** Number of draft purchase orders. */
   draftCount: number;
   /** Number of POs awaiting approval. */

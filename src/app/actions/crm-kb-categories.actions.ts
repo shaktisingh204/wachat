@@ -30,7 +30,7 @@ function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
 }
 
-export interface KbCategoryRow {
+interface KbCategoryRow {
   _id: string;
   name: string;
   slug: string;

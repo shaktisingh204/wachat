@@ -44,15 +44,13 @@ import {
   getHrmEmployeeList,
   getEmployeesInGroup,
 } from '@/app/actions/hrm-permission-groups.actions';
-import type {
-  HrmPermissionGroup,
-} from '@/app/actions/hrm-permission-groups.actions';
 import dynamic from 'next/dynamic';
 import { usePermissionGroupWebsocket } from './use-permission-websocket';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ConfirmDeleteDialog } from './confirm-delete-dialog';
+import type { HrmPermissionGroup } from '@/app/actions/hrm-permission-groups.actions.types';
 
 const NewGroupSheet = dynamic(() => import('./new-group-sheet').then(m => m.NewGroupSheet), {
   ssr: false,

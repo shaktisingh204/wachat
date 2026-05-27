@@ -25,7 +25,7 @@ import {
     type EmailEventTemplateOverride,
 } from '@/lib/email-templates/render';
 
-export interface EmailTemplateListItem {
+interface EmailTemplateListItem {
     eventKey: string;
     label: string;
     category: EmailEventCategory;
@@ -33,7 +33,7 @@ export interface EmailTemplateListItem {
     isCustomized: boolean;
 }
 
-export interface EmailTemplateDetail {
+interface EmailTemplateDetail {
     eventKey: string;
     label: string;
     description: string;
@@ -116,7 +116,7 @@ export async function getEmailTemplate(
     };
 }
 
-export interface SaveEmailTemplateResult {
+interface SaveEmailTemplateResult {
     ok: boolean;
     error?: string;
 }

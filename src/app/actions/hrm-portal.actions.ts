@@ -19,7 +19,7 @@ import { revalidatePath } from 'next/cache';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
-export interface PortalEmployeeProfile {
+interface PortalEmployeeProfile {
     _id: string;
     firstName: string;
     lastName: string;
@@ -35,7 +35,7 @@ export interface PortalEmployeeProfile {
     reportingManagerName: string | null;
 }
 
-export interface PortalTeamMember {
+interface PortalTeamMember {
     _id: string;
     firstName: string;
     lastName: string;
@@ -48,7 +48,7 @@ export interface PortalTeamMember {
     departmentName: string | null;
 }
 
-export interface PortalTask {
+interface PortalTask {
     _id: string;
     title: string;
     description: string | null;
@@ -63,14 +63,14 @@ export interface PortalTask {
     createdByName: string | null;
 }
 
-export interface PortalKpis {
+interface PortalKpis {
     teamSize: number;
     pendingTasks: number;
     completedThisWeek: number;
     pendingReports: number;
 }
 
-export interface AssignTaskInput {
+interface AssignTaskInput {
     title: string;
     description?: string;
     dueDate?: string;

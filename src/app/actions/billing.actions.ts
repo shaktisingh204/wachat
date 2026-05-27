@@ -12,12 +12,12 @@ import {
   type PayuRequestFields,
 } from '@/lib/payu';
 
-export interface PayuCreditCheckoutPayload {
+interface PayuCreditCheckoutPayload {
   action: string;
   params: PayuRequestFields & { hash: string };
 }
 
-export interface PayuCreditCheckoutResult {
+interface PayuCreditCheckoutResult {
   success: boolean;
   error?: string;
   payload?: PayuCreditCheckoutPayload;

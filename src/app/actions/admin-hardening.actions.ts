@@ -18,7 +18,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getAdminSession } from '@/lib/admin-session';
 import { getErrorMessage } from '@/lib/utils';
 
-export type Result = { success: boolean; error?: string };
+type Result = { success: boolean; error?: string };
 
 async function requireAdmin(): Promise<Result | null> {
     const s = await getAdminSession();
@@ -411,7 +411,7 @@ export async function setProjectArchived(
 /*  SYSTEM — queue & worker health (read-only)                  */
 /* ============================================================ */
 
-export type QueueSnapshot = {
+type QueueSnapshot = {
     name: string;
     waiting: number;
     active: number;
@@ -472,7 +472,7 @@ export async function getQueueSnapshots(): Promise<QueueSnapshot[]> {
     }
 }
 
-export type CronRunSummary = {
+type CronRunSummary = {
     name: string;
     lastRunAt: string | null;
     lastStatus: 'success' | 'failed' | 'running' | 'unknown';
@@ -540,7 +540,7 @@ export async function getCronRunSummary(): Promise<CronRunSummary[]> {
     }
 }
 
-export type DbStats = {
+type DbStats = {
     collections: number;
     dataSize: number;
     storageSize: number;
@@ -569,7 +569,7 @@ export async function getDbStats(): Promise<DbStats | null> {
 /*  AUDIT — paginated raw rows + CSV export                     */
 /* ============================================================ */
 
-export type AuditRow = {
+type AuditRow = {
     id: string;
     timestamp: string;
     tenantId: string;
@@ -580,7 +580,7 @@ export type AuditRow = {
     metadata?: string;
 };
 
-export type AuditFilters = {
+type AuditFilters = {
     tenantId?: string;
     actor?: string;
     action?: string;

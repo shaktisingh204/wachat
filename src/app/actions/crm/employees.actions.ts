@@ -38,7 +38,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface EmployeeListResult {
+interface EmployeeListResult {
   employees: CrmEmployeeDoc[];
   page: number;
   limit: number;
@@ -411,7 +411,7 @@ export async function getCrmEmployeeRelatedCounts(employeeId: string): Promise<{
  * `onNotice` is approximated from `status === 'resigned'` (notice
  * period in progress) — once the Rust DTO exposes a dedicated flag
  * we will swap this branch over. */
-export interface EmployeeKpiBundle {
+interface EmployeeKpiBundle {
   total: number;
   active: number;
   onLeave: number;

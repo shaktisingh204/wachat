@@ -24,7 +24,7 @@ import * as React from 'react';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';
-import type { GrnKpis } from '@/app/actions/crm/grns.actions';
+import type { GrnKpis } from '@/app/actions/crm/grns.actions.types';
 
 /* ─── Types ────────────────────────────────────────────────────── */
 

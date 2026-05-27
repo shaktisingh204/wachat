@@ -25,7 +25,7 @@ import {
     type ItcReconciliationResult,
 } from '@/lib/india-tax/itc-ledger';
 
-export type GetBookItcResult =
+type GetBookItcResult =
     | { ok: true; data: BookItcResult }
     | { ok: false; error: string };
 
@@ -45,7 +45,7 @@ export async function getBookItc(period: string): Promise<GetBookItcResult> {
     }
 }
 
-export type GetItcReconciliationResult =
+type GetItcReconciliationResult =
     | { ok: true; data: ItcReconciliationResult }
     | { ok: false; error: string; needsImport?: boolean };
 
@@ -79,13 +79,13 @@ export async function getItcReconciliation(
 
 /* ─── Bulk reconcile ─────────────────────────────────────────────── */
 
-export interface BulkReconcileInput {
+interface BulkReconcileInput {
     /** Pairs of (supplierGstin, invoiceNumber) to move from onlyInBooks → matched. */
     invoices: Array<{ supplierGstin: string | null; invoiceNumber: string }>;
     period: string;
 }
 
-export type BulkReconcileResult =
+type BulkReconcileResult =
     | { ok: true; reconciled: number }
     | { ok: false; error: string };
 

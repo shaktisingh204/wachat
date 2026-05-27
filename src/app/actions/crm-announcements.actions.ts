@@ -274,7 +274,7 @@ function readPayload(formData: FormData): {
     return { payload };
 }
 
-export interface CrmAnnouncementAttachment {
+interface CrmAnnouncementAttachment {
     id: string;
     url: string;
     name: string;
@@ -348,7 +348,7 @@ export async function saveAnnouncement(
 
 /* ─── KPIs ───────────────────────────────────────────────────────────── */
 
-export interface AnnouncementKpis {
+interface AnnouncementKpis {
     total: number;
     activeOrPinned: number;
     publishedThisMonth: number;

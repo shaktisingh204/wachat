@@ -50,7 +50,7 @@ async function resolveTenantSlugToOwnerId(tenantSlug: string): Promise<string | 
     }
 }
 
-export interface RequestPortalMagicLinkResult {
+interface RequestPortalMagicLinkResult {
     /** Always present and always success-shaped to avoid leaking account
      *  existence to anonymous form submitters. */
     ok: true;

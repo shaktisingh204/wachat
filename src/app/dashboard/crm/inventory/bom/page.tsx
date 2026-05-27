@@ -5,7 +5,7 @@
 
 import * as React from 'react';
 import { getCrmBoms, getCrmBomKpis } from '@/app/actions/crm-bom.actions';
-import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
+import type { CrmBomDoc } from '@/app/actions/crm-bom.actions.types';
 import { BomListClient } from './_components/bom-list-client';
 import { withTimeout } from './lib/timeout';
 

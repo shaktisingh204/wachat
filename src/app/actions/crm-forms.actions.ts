@@ -17,12 +17,12 @@ import {
 } from '@/lib/rust-client/crm-form-submissions';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 
-export type AutoCreateMapping = Partial<Record<
+type AutoCreateMapping = Partial<Record<
     'name' | 'email' | 'phone' | 'dealName' | 'description' | 'leadSource',
     string
 >>;
 
-export interface PostSubmitSettings {
+interface PostSubmitSettings {
     successMessage?: string;
     redirectUrl?: string;
     emailNotifications?: {
@@ -426,7 +426,7 @@ export async function deleteCrmForm(
 
 /* ─── getCrmFormKpis ─────────────────────────────────────────────────── */
 
-export interface CrmFormKpis {
+interface CrmFormKpis {
     total: number;
     published: number;
     drafts: number;
@@ -534,7 +534,7 @@ export async function bulkFormAction(
 
 /* ─── Legacy-name aliases used by the CustomFormForm UI ─────────────── */
 
-export interface SaveFormState {
+interface SaveFormState {
     message?: string;
     error?: string;
     id?: string;
@@ -587,9 +587,9 @@ export async function saveForm(
 
 /* ─── Submissions inbox actions ─────────────────────────────────────── */
 
-export type FormSubmissionStatusFilter = 'all' | CrmFormSubmissionStatus;
+type FormSubmissionStatusFilter = 'all' | CrmFormSubmissionStatus;
 
-export interface GetFormSubmissionsParams {
+interface GetFormSubmissionsParams {
     formId: string;
     page?: number;
     limit?: number;
@@ -599,7 +599,7 @@ export interface GetFormSubmissionsParams {
     to?: string;
 }
 
-export interface GetFormSubmissionsResult {
+interface GetFormSubmissionsResult {
     items: CrmFormSubmissionDoc[];
     total: number;
     page: number;

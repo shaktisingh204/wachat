@@ -65,7 +65,7 @@ import {
   BookingSingleDeleteDialog,
 } from './booking-list-dialogs';
 
-import type { BookingKpis } from '@/app/actions/crm/bookings.actions';
+import type { BookingKpis } from '@/app/actions/crm/bookings.actions.types';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
 interface BookingListClientProps {

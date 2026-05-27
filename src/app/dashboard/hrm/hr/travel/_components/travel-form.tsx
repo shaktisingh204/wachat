@@ -27,7 +27,7 @@ import { saveTravelRequest } from '@/app/actions/crm-travel.actions';
 import type {
     CrmTravelRequestDoc,
     CrmTravelStatus,
-} from '@/app/actions/crm-travel.actions';
+} from '@/app/actions/crm-travel.actions.types';
 
 const BASE = '/dashboard/hrm/hr/travel';
 

@@ -11,7 +11,7 @@ import {
   ScrollArea,
   cn,
 } from '@/components/zoruui';
-import type { EmailInboxThreadDoc } from '@/app/actions/email/inbox.actions';
+import type { EmailInboxThreadDoc } from '@/lib/rust-client/email-inbox';
 
 export interface ConversationListProps {
   threads: EmailInboxThreadDoc[];

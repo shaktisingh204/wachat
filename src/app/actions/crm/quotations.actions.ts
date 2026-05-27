@@ -51,7 +51,7 @@ function rustErr(e: unknown): string {
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface QuotationKpiSnapshot {
+interface QuotationKpiSnapshot {
   totalOpen: number;
   accepted: number;
   rejected: number;
@@ -194,7 +194,7 @@ export async function getQuotationKpis(): Promise<QuotationKpiSnapshot> {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface QuotationListResult {
+interface QuotationListResult {
   quotations: CrmQuotationDoc[];
   page: number;
   limit: number;
@@ -570,7 +570,7 @@ export async function archiveQuotationAction(
   }
 }
 
-export interface BulkResult {
+interface BulkResult {
   success: boolean;
   processed: number;
   error?: string;

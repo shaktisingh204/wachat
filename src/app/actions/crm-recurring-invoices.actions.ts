@@ -43,16 +43,16 @@ function useRustCrm(): boolean {
 
 /* ─── Types (TS-only, mirror the Mongo doc) ──────────────────────────── */
 
-export type CrmRecurringInvoiceStatus = 'active' | 'paused' | 'stopped' | 'completed';
+type CrmRecurringInvoiceStatus = 'active' | 'paused' | 'stopped' | 'completed';
 
-export type CrmRecurringInvoiceFrequency =
+type CrmRecurringInvoiceFrequency =
     | 'daily'
     | 'weekly'
     | 'monthly'
     | 'quarterly'
     | 'yearly';
 
-export interface CrmRecurringInvoiceDoc {
+interface CrmRecurringInvoiceDoc {
     _id: string;
     userId?: string;
     title?: string;
@@ -70,13 +70,13 @@ export interface CrmRecurringInvoiceDoc {
     updatedAt?: string;
 }
 
-export interface CrmRecurringInvoiceListParams {
+interface CrmRecurringInvoiceListParams {
     q?: string;
     status?: CrmRecurringInvoiceStatus | 'all';
     limit?: number;
 }
 
-export interface CrmRecurringInvoiceListResponse {
+interface CrmRecurringInvoiceListResponse {
     items: CrmRecurringInvoiceDoc[];
     page: number;
     limit: number;

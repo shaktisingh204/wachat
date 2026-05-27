@@ -27,7 +27,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 const COLLECTION = 'crm_item_batches';
 const BASE_PATH = '/dashboard/crm/inventory/batch-expiry';
 
-export type CrmItemBatchStatus = 'active' | 'expired' | 'recalled' | 'archived';
+type CrmItemBatchStatus = 'active' | 'expired' | 'recalled' | 'archived';
 
 const VALID_STATUSES: ReadonlySet<CrmItemBatchStatus> = new Set([
     'active',
@@ -36,7 +36,7 @@ const VALID_STATUSES: ReadonlySet<CrmItemBatchStatus> = new Set([
     'archived',
 ]);
 
-export interface CrmItemBatchDoc {
+interface CrmItemBatchDoc {
     _id: string;
     userId: string;
     itemId?: string;
@@ -165,7 +165,7 @@ export async function getCrmItemBatchById(
 
 /* ─── Writes ───────────────────────────────────────────────────────── */
 
-export interface SaveState {
+interface SaveState {
     message?: string;
     error?: string;
     id?: string;

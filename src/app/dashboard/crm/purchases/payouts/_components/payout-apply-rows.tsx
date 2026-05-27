@@ -15,7 +15,7 @@ import { PlusCircle, Trash2 } from 'lucide-react';
 
 import * as React from 'react';
 
-import type { UnpaidBillRow } from '@/app/actions/crm/payouts.actions';
+import type { UnpaidBillRow } from '@/app/actions/crm/payouts.actions.types';
 
 export interface PayoutApplyRow {
     rowKey: string;

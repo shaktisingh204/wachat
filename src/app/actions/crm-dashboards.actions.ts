@@ -16,7 +16,7 @@ import { writeAuditEntry } from '@/lib/audit-log';
 /*       the Rust crate stays untouched.                            */
 /* ============================================================== */
 
-export type WidgetKind =
+type WidgetKind =
     | 'metric'
     | 'line'
     | 'bar'
@@ -24,15 +24,15 @@ export type WidgetKind =
     | 'funnel'
     | 'table';
 
-export type WidgetDataSourceType = 'saved_view' | 'report' | 'metric_query';
+type WidgetDataSourceType = 'saved_view' | 'report' | 'metric_query';
 
-export interface WidgetDataSource {
+interface WidgetDataSource {
     type: WidgetDataSourceType;
     /** Mongo `_id` of a saved view, report, or the metric-query slug. */
     ref: string;
 }
 
-export interface DashboardWidget {
+interface DashboardWidget {
     id: string;
     kind: WidgetKind;
     title: string;
@@ -46,7 +46,7 @@ export interface DashboardWidget {
     config?: Record<string, unknown>;
 }
 
-export interface ResolvedWidgetData {
+interface ResolvedWidgetData {
     rows: any[];
     /** Optional human-readable note (e.g. "stub"). */
     note?: string;

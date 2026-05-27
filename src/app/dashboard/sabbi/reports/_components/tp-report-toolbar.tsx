@@ -8,7 +8,7 @@ import {
   ReportExportButton,
   type ReportExportButtonProps,
 } from './report-export-button';
-import type { TpReportProject, TpReportOwner } from '@/app/actions/crm-reports.actions';
+import type { TpReportProject, TpReportOwner } from '@/app/actions/crm-reports.actions.types';
 
 export interface TpReportToolbarProps {
   from?: string;

@@ -21,7 +21,7 @@ function revalidateContracts(id?: string) {
   if (id) revalidatePath(`/dashboard/crm/sales/contracts/${id}`);
 }
 
-export interface ContractListResult {
+interface ContractListResult {
   contracts: WithId<Record<string, unknown>>[];
   total: number;
   page: number;
@@ -74,7 +74,7 @@ export async function listContracts(
   }
 }
 
-export interface ContractKpis {
+interface ContractKpis {
   active: number;
   expiring30: number;
   renewing: number;
@@ -476,7 +476,7 @@ export async function archiveContract(contractId: string) {
 
 /* ─── Renewal helpers ────────────────────────────────────────────── */
 
-export interface RenewalActionResult {
+interface RenewalActionResult {
   processed: number;
   errors: string[];
 }

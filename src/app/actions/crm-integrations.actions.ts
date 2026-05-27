@@ -11,7 +11,7 @@ const INTEGRATIONS_COLLECTION = 'crm_integrations';
 const BASE_PATH = '/dashboard/crm/integrations';
 
 /** Shape returned by `getIntegrationById` and friends. */
-export interface CrmIntegrationDoc {
+interface CrmIntegrationDoc {
     _id: string;
     name: string;
     provider: string;
@@ -27,13 +27,13 @@ export interface CrmIntegrationDoc {
     updatedAt?: string;
 }
 
-export type IntegrationStatusData = {
+type IntegrationStatusData = {
     connected: boolean;
     lastSyncAt?: string;
     syncStatus?: string;
 };
 
-export type IntegrationStatus = {
+type IntegrationStatus = {
     shopify: IntegrationStatusData;
     zapier: IntegrationStatusData;
     mailchimp: IntegrationStatusData;

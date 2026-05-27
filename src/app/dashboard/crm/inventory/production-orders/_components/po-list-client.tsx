@@ -30,7 +30,7 @@ import {
 import type {
     CrmProductionOrderDoc,
     CrmProductionOrderKpis,
-} from '@/app/actions/crm-production-orders.actions';
+} from '@/app/actions/crm-production-orders.actions.types';
 
 import { PoKpiStrip, type PoStatusFilter } from './po-kpi-strip';
 import {

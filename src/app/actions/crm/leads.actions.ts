@@ -44,7 +44,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface LeadListResult {
+interface LeadListResult {
   leads: CrmLeadDoc[];
   page: number;
   limit: number;

@@ -11,8 +11,8 @@ import {
 } from '@/components/zoruui';
 import { Users, CheckCircle, Activity, MessageSquare, XCircle } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
-import type { DailyCount, FlowResultsStats, FlowSession } from '@/app/actions/sabflow-results';
 import { format } from 'date-fns';
+import type { DailyCount, FlowResultsStats, FlowSession } from '@/app/actions/sabflow-results.types';
 
 type Props = {
   stats: FlowResultsStats;

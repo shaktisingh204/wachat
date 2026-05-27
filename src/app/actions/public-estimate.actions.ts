@@ -15,7 +15,7 @@ import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
 import { generatePublicHash, isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicEstimateView = {
+type PublicEstimateView = {
   _id: string;
   estimateNumber: string;
   validTill: string | null;
@@ -38,7 +38,7 @@ export type PublicEstimateView = {
   invoiceHash?: string | null;
 } | null;
 
-export type PublicActionResult =
+type PublicActionResult =
   | { success: true; message?: string; invoiceHash?: string }
   | { success: false; error: string };
 
@@ -228,7 +228,7 @@ export async function declineEstimate(
 // Detail loader for PDF rendering.
 // ---------------------------------------------------------------------
 
-export type PublicEstimateDetailItem = {
+type PublicEstimateDetailItem = {
   name?: string;
   description?: string;
   hsnCode?: string;
@@ -237,7 +237,7 @@ export type PublicEstimateDetailItem = {
   total: number;
 };
 
-export type PublicEstimateDetailCompany = {
+type PublicEstimateDetailCompany = {
   name?: string;
   address?: string;
   email?: string;
@@ -246,7 +246,7 @@ export type PublicEstimateDetailCompany = {
   logoUrl?: string | null;
 };
 
-export type PublicEstimateDetailClient = {
+type PublicEstimateDetailClient = {
   name?: string;
   email?: string;
   phone?: string;
@@ -254,7 +254,7 @@ export type PublicEstimateDetailClient = {
   taxId?: string;
 };
 
-export type PublicEstimateDetail = {
+type PublicEstimateDetail = {
   ok: true;
   estimate: {
     _id: string;
@@ -281,7 +281,7 @@ export type PublicEstimateDetail = {
   items: PublicEstimateDetailItem[];
 };
 
-export type PublicEstimateDetailResult = PublicEstimateDetail | { ok: false; error: string };
+type PublicEstimateDetailResult = PublicEstimateDetail | { ok: false; error: string };
 
 export async function getPublicEstimateWithDetails(
   hash: string,

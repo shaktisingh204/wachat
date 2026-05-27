@@ -45,8 +45,7 @@ import Link from 'next/link';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveBom } from '@/app/actions/crm-bom.actions';
-import type { CrmBomComponent } from '@/app/actions/crm-bom.actions';
-
+import type { CrmBomComponent } from '@/app/actions/crm-bom.actions.types';
 interface ComponentRow {
     id: string;
     itemId: string;

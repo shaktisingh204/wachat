@@ -44,7 +44,7 @@ function rustErr(e: unknown): string {
     return 'An unexpected error occurred.';
 }
 
-export type GraphOpts = {
+type GraphOpts = {
     method?: 'GET' | 'POST' | 'DELETE';
     params?: Record<string, unknown>;
     body?: Record<string, unknown>;
@@ -926,7 +926,7 @@ const DEFAULT_FB_TO_CRM: Record<string, string> = {
     job_title: 'title',
 };
 
-export interface CrmLeadGenSyncStatus {
+interface CrmLeadGenSyncStatus {
     configured: boolean;
     pageId: string;
     isActive: boolean;

@@ -46,7 +46,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface LeaveListResult {
+interface LeaveListResult {
   leaves: CrmLeaveDoc[];
   page: number;
   limit: number;

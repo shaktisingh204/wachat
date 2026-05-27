@@ -61,7 +61,7 @@ function pickBool(fd: FormData, k: string): boolean | undefined {
 
 /* ── Departments ──────────────────────────────────────────────── */
 
-export interface DepartmentListResult {
+interface DepartmentListResult {
   items: CrmDepartmentDoc[];
   page: number;
   limit: number;
@@ -139,7 +139,7 @@ export async function deleteDepartmentAction(id: string): Promise<{ success: boo
 
 /* ── Designations ─────────────────────────────────────────────── */
 
-export interface DesignationListResult {
+interface DesignationListResult {
   items: CrmDesignationDoc[];
   page: number;
   limit: number;
@@ -220,7 +220,7 @@ export async function deleteDesignationAction(id: string): Promise<{ success: bo
 
 /* ── KPI snapshots (§1D) ───────────────────────────────────────── */
 
-export interface DepartmentKpiBundle {
+interface DepartmentKpiBundle {
   total: number;
   active: number;
   inactive: number;
@@ -275,7 +275,7 @@ export async function getDepartmentKpis(): Promise<DepartmentKpiBundle> {
   }
 }
 
-export interface DesignationKpiBundle {
+interface DesignationKpiBundle {
   total: number;
   active: number;
   inactive: number;

@@ -27,7 +27,7 @@ import { getSession } from '@/app/actions/user.actions';
 
 const TICKETS_COLL = 'crm_tickets';
 
-export type ActionResult = { success: boolean; error?: string };
+type ActionResult = { success: boolean; error?: string };
 
 function makeNote(body: string, authorId: string, isInternal: boolean): {
   _id: ObjectId;
@@ -228,7 +228,7 @@ export async function setTicketAssignee(
 
 /* ─── Support portal ─────────────────────────────────────────── */
 
-export interface SupportTicketRow {
+interface SupportTicketRow {
   _id: string;
   subject: string;
   status: string;

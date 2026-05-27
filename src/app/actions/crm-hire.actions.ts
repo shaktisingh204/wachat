@@ -21,7 +21,7 @@ function useRustCrm(): boolean {
  * `crm_purchase_leads` collection. All fields except `_id`/`userId` are
  * optional because hire requests are progressively enriched.
  */
-export interface CrmHireDoc {
+interface CrmHireDoc {
   _id: ObjectId | string;
   userId: ObjectId | string;
   title?: string;

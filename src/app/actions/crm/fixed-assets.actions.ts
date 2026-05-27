@@ -38,7 +38,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface FixedAssetListResult {
+interface FixedAssetListResult {
   assets: CrmFixedAssetDoc[];
   page: number;
   limit: number;

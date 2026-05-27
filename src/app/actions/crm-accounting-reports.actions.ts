@@ -6,7 +6,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { startOfDay, endOfDay } from 'date-fns';
 
-export type DayBookTransaction = {
+type DayBookTransaction = {
     id: string;
     flow: 'In' | 'Out';
     date: Date;
@@ -148,7 +148,7 @@ export async function getDayBookTransactions(date: Date): Promise<{ transactions
     }
 }
 
-export type CashFlowEntry = {
+type CashFlowEntry = {
     month: string; // "Jan 2024"
     inflow: number;
     outflow: number;
@@ -239,7 +239,7 @@ export async function getCashFlowStatement(year: number): Promise<{ monthly: Cas
  * Additive — pre-existing callers (day-book/cash-flow legacy paths) untouched.
  * ────────────────────────────────────────────────────────────────────────── */
 
-export type DayBookRangeResult = {
+type DayBookRangeResult = {
     transactions: DayBookTransaction[];
     totalIn: number;
     totalOut: number;
@@ -370,7 +370,7 @@ export async function getDayBookRange(
     }
 }
 
-export type CashFlowCategoryEntry = {
+type CashFlowCategoryEntry = {
     month: string;
     operating: number;
     investing: number;
@@ -380,7 +380,7 @@ export type CashFlowCategoryEntry = {
     net: number;
 };
 
-export type CashFlowReportResult = {
+type CashFlowReportResult = {
     monthly: CashFlowCategoryEntry[];
     totalIn: number;
     totalOut: number;
@@ -538,7 +538,7 @@ export async function getCashFlowReport(
 /**
  * Monthly revenue vs expense series — used by the Income Statement chart.
  */
-export type MonthlyPnLEntry = {
+type MonthlyPnLEntry = {
     month: string;
     revenue: number;
     expense: number;

@@ -5,9 +5,9 @@ import { ObjectId } from 'mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 
-export type ShareRole = 'viewer' | 'editor';
+type ShareRole = 'viewer' | 'editor';
 
-export interface ResourceShare {
+interface ResourceShare {
     _id: string;
     resourceType: 'url' | 'qr';
     resourceId: string;

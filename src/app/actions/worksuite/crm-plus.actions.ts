@@ -41,7 +41,7 @@ import type {
  * pattern.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,
@@ -259,7 +259,7 @@ export async function deleteLeadAgent(id: string) {
 
 /* ─── KPI aggregate for the lead-agents list page ───────────────────── */
 
-export interface LeadAgentKpis {
+interface LeadAgentKpis {
   /** Total agent assignments for the tenant. */
   total: number;
   /** Distinct employee_id (user_id) count — i.e. active agents. */
@@ -729,7 +729,7 @@ function isWithinDays(value: unknown, days: number): boolean {
   return Date.now() - d.getTime() <= days * MS_PER_DAY;
 }
 
-export interface ClientCategoryKpis {
+interface ClientCategoryKpis {
   total: number;
   totalClientsAcrossCategories: number;
   topCategory: { id: string; label: string; count: number } | null;
@@ -786,7 +786,7 @@ export async function getClientCategoryKpis(): Promise<ClientCategoryKpis> {
   };
 }
 
-export interface ClientContactKpis {
+interface ClientContactKpis {
   total: number;
   withEmail: number;
   recent7d: number;
@@ -811,7 +811,7 @@ export async function getClientContactKpis(): Promise<ClientContactKpis> {
   };
 }
 
-export interface ClientDocumentKpis {
+interface ClientDocumentKpis {
   total: number;
   byType: Record<string, number>;
   recent7d: number;
@@ -838,7 +838,7 @@ export async function getClientDocumentKpis(): Promise<ClientDocumentKpis> {
   };
 }
 
-export interface ClientNoteKpis {
+interface ClientNoteKpis {
   total: number;
   byClient: number;
   recent7d: number;
@@ -863,7 +863,7 @@ export async function getClientNoteKpis(): Promise<ClientNoteKpis> {
   };
 }
 
-export interface LeadNoteKpis {
+interface LeadNoteKpis {
   total: number;
   byLead: number;
   recent7d: number;
@@ -900,7 +900,7 @@ export async function getLeadNoteKpis(): Promise<LeadNoteKpis> {
 
 /* ─── Category KPIs ─────────────────────────────────────────────── */
 
-export interface LeadCategoryKpis {
+interface LeadCategoryKpis {
   total: number;
   withDeals: number;
   withLeads: number;
@@ -973,7 +973,7 @@ export async function bulkDeleteLeadCategories(
 
 /* ─── Source KPIs ───────────────────────────────────────────────── */
 
-export interface LeadSourceKpis {
+interface LeadSourceKpis {
   total: number;
   withActiveLeads: number;
   topSource: string;
@@ -1034,7 +1034,7 @@ export async function bulkDeleteLeadSources(
 
 /* ─── Status KPIs ───────────────────────────────────────────────── */
 
-export interface LeadStatusKpis {
+interface LeadStatusKpis {
   total: number;
   openCount: number;
   closedCount: number;
@@ -1075,7 +1075,7 @@ export async function bulkDeleteLeadStatuses(
 
 /* ─── Sales CRM Settings (pipeline + lead + deal + notification) ── */
 
-export interface SalesCrmConfig {
+interface SalesCrmConfig {
   _id?: string;
   userId?: string;
   // Pipeline
@@ -1123,7 +1123,7 @@ export async function getSalesCrmConfig(): Promise<SalesCrmConfig> {
   return out;
 }
 
-export type ConfigState = { message?: string; error?: string };
+type ConfigState = { message?: string; error?: string };
 
 export async function saveSalesCrmPipelineConfig(
   _prev: ConfigState,

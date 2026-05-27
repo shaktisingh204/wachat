@@ -23,7 +23,7 @@ import type {
 } from '@/lib/rust-client/telegram-analytics';
 
 
-export interface AnalyticsRangeInput {
+interface AnalyticsRangeInput {
     projectId: string;
     from?: string;
     to?: string;

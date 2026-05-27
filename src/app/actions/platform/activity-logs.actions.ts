@@ -5,7 +5,7 @@ import type { ActivityLog } from '@/types/platform';
 
 const collectionName = 'platform_activity_logs';
 
-export interface GetActivityLogsParams {
+interface GetActivityLogsParams {
   page?: number;
   pageSize?: number;
   query?: string;

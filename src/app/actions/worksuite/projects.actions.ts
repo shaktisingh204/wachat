@@ -57,7 +57,7 @@ import type {
  * Collections are prefixed `crm_*` (matching existing SabNode CRM data).
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 async function genericSave(
   collection: string,
@@ -175,9 +175,9 @@ export async function deleteWsProject(id: string) {
  *  `publicHash` (or `publicRatingHash`) lazily and flips the flag.
  * ══════════════════════════════════════════════════════════════════ */
 
-export type WsProjectShareKind = 'gantt' | 'taskboard' | 'rating';
+type WsProjectShareKind = 'gantt' | 'taskboard' | 'rating';
 
-export type WsProjectShareState = {
+type WsProjectShareState = {
   publicHash?: string;
   publicRatingHash?: string;
   public_gantt_chart: boolean;
@@ -612,7 +612,7 @@ export async function bulkDeleteWsTaskCategories(ids: string[]) {
   return r;
 }
 
-export interface WsTaskCategoryKpis {
+interface WsTaskCategoryKpis {
   total: number;
   inUse: number;
   unused: number;
@@ -1031,14 +1031,14 @@ export async function getCrmProjectRelatedCounts(projectId: string): Promise<{
  *  'hours' sums (estimatedHours || estimateHours || 0) of open tasks.
  * ══════════════════════════════════════════════════════════════════ */
 
-export type BurndownMode = 'tasks' | 'hours';
+type BurndownMode = 'tasks' | 'hours';
 
-export interface BurndownPoint {
+interface BurndownPoint {
   date: string; // ISO yyyy-mm-dd
   value: number;
 }
 
-export interface BurndownSeries {
+interface BurndownSeries {
   ideal: BurndownPoint[];
   actual: BurndownPoint[];
   total: number;

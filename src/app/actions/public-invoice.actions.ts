@@ -24,7 +24,7 @@ import Razorpay from 'razorpay';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isValidPublicHash } from '@/lib/public-hash';
 
-export type PublicInvoiceView = {
+type PublicInvoiceView = {
   _id: string;
   invoiceNumber: string;
   invoiceDate: string | null;
@@ -50,7 +50,7 @@ export type PublicInvoiceView = {
   };
 } | null;
 
-export type PublicActionResult =
+type PublicActionResult =
   | { success: true; message?: string }
   | { success: false; error: string };
 
@@ -89,7 +89,7 @@ async function getBaseUrl(): Promise<string> {
   return 'http://localhost:3000';
 }
 
-export type GatewayCred = {
+type GatewayCred = {
   _id: ObjectId;
   userId: ObjectId;
   gateway: string;
@@ -387,7 +387,7 @@ export async function markInvoiceViewed(hash: string): Promise<void> {
 
 /* ─── Gateway checkout ────────────────────────────────────────── */
 
-export type GatewayCheckoutResult =
+type GatewayCheckoutResult =
   | { ok: true; provider: 'stripe'; sessionUrl: string }
   | {
       ok: true;
@@ -822,7 +822,7 @@ export async function recordGatewayPaymentByHash(args: {
 // `getPublicInvoice` does (publicHash IS the auth here).
 // ---------------------------------------------------------------------
 
-export type PublicInvoiceDetailItem = {
+type PublicInvoiceDetailItem = {
   name?: string;
   description?: string;
   hsnCode?: string;
@@ -831,7 +831,7 @@ export type PublicInvoiceDetailItem = {
   total: number;
 };
 
-export type PublicInvoiceDetailCompany = {
+type PublicInvoiceDetailCompany = {
   name?: string;
   address?: string;
   email?: string;
@@ -840,7 +840,7 @@ export type PublicInvoiceDetailCompany = {
   logoUrl?: string | null;
 };
 
-export type PublicInvoiceDetailClient = {
+type PublicInvoiceDetailClient = {
   name?: string;
   email?: string;
   phone?: string;
@@ -848,7 +848,7 @@ export type PublicInvoiceDetailClient = {
   taxId?: string;
 };
 
-export type PublicInvoiceDetailPayment = {
+type PublicInvoiceDetailPayment = {
   date: string | null;
   amount: number;
   mode: string;
@@ -856,7 +856,7 @@ export type PublicInvoiceDetailPayment = {
   notes?: string;
 };
 
-export type PublicInvoiceDetail = {
+type PublicInvoiceDetail = {
   ok: true;
   invoice: {
     _id: string;
@@ -882,7 +882,7 @@ export type PublicInvoiceDetail = {
   payments: PublicInvoiceDetailPayment[];
 };
 
-export type PublicInvoiceDetailResult = PublicInvoiceDetail | { ok: false; error: string };
+type PublicInvoiceDetailResult = PublicInvoiceDetail | { ok: false; error: string };
 
 export async function getPublicInvoiceWithDetails(
   hash: string,

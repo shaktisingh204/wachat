@@ -25,9 +25,9 @@ import {
   deleteLeadSource,
   bulkDeleteLeadSources,
 } from '@/app/actions/worksuite/crm-plus.actions';
-import type { LeadSourceKpis } from '@/app/actions/worksuite/crm-plus.actions';
 import type { WsLeadSource } from '@/lib/worksuite/crm-types';
 import type { WithId } from 'mongodb';
+import type { LeadSourceKpis } from '@/app/actions/worksuite/crm-plus.actions.types';
 
 type Row = WithId<WsLeadSource> & { _id: string };
 

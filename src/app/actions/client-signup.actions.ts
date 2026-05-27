@@ -16,7 +16,7 @@ import { getErrorMessage } from '@/lib/utils';
  *   signup_settings (singleton — { allowClientSignup, requireAdminApproval, termsLink, termsText })
  */
 
-export type ClientSignupInput = {
+type ClientSignupInput = {
   company_name: string;
   contact_name: string;
   email: string;
@@ -27,7 +27,7 @@ export type ClientSignupInput = {
   agree_to_terms: boolean;
 };
 
-export type PendingSignupRow = {
+type PendingSignupRow = {
   _id: string;
   name: string;
   email: string;
@@ -36,7 +36,7 @@ export type PendingSignupRow = {
   daysPending: number;
 };
 
-export type SignupSettings = {
+type SignupSettings = {
   allowClientSignup: boolean;
   requireAdminApproval: boolean;
   termsLink: string;

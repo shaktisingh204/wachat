@@ -2376,7 +2376,7 @@ export async function getPaymentReportDeep(
 
 /* ─── Overdue Tasks deep ─────────────────────────────────────── */
 
-export interface OverdueTasksDeepFilters {
+interface OverdueTasksDeepFilters {
   projectId?: string;
   assigneeId?: string;
   priority?: string;
@@ -2384,7 +2384,7 @@ export interface OverdueTasksDeepFilters {
   maxDaysOverdue?: number;
 }
 
-export interface OverdueTaskDetailRow {
+interface OverdueTaskDetailRow {
   _id: string;
   title: string;
   projectName: string;
@@ -2395,7 +2395,7 @@ export interface OverdueTaskDetailRow {
   status: string;
 }
 
-export interface OverdueTasksDeepResult {
+interface OverdueTasksDeepResult {
   kpis: {
     total: number;
     overdueToday: number;
@@ -2558,7 +2558,7 @@ export async function getOverdueTasksDeep(
 
 /* ─── Task Report deep (with table rows) ────────────────────── */
 
-export interface TaskDetailFilters {
+interface TaskDetailFilters {
   projectId?: string;
   assigneeId?: string;
   status?: string;
@@ -2567,7 +2567,7 @@ export interface TaskDetailFilters {
   to?: string;
 }
 
-export interface TaskDetailRow {
+interface TaskDetailRow {
   _id: string;
   title: string;
   projectName: string;
@@ -2579,7 +2579,7 @@ export interface TaskDetailRow {
   completedAt: string | null;
 }
 
-export interface TaskReportDeepResult {
+interface TaskReportDeepResult {
   kpis: {
     total: number;
     completed: number;

@@ -36,7 +36,7 @@ import {
     useZoruToast,
 } from '@/components/zoruui';
 import { generatePartyTransactionReport } from '@/app/actions/crm-reports.actions';
-import type { PartyTransactionsDeepKpis } from '@/app/actions/crm-inventory.actions';
+import type { PartyTransactionsDeepKpis } from '@/app/actions/crm-inventory.actions.types';
 import {
     dateStamp,
     downloadCsv,

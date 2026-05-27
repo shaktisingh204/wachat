@@ -610,7 +610,7 @@ export async function resolveTelegramContactAction(
 
 // ---- Bot list helper (for selectors) ----------------------------------
 
-export interface BotOption {
+interface BotOption {
     id: string;
     username: string;
     name: string;

@@ -40,7 +40,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface SubscriptionListResult {
+interface SubscriptionListResult {
   subscriptions: CrmSubscriptionDoc[];
   page: number;
   limit: number;
@@ -339,7 +339,7 @@ export async function cancelSubscription(id: string) {
 
 /* ─── KPI strip aggregate (§1D.1) ─────────────────────────────── */
 
-export interface SubscriptionKpiSnapshot {
+interface SubscriptionKpiSnapshot {
   /** Active subscriptions (status === 'active'). */
   activeCount: number;
   /** Trial subscriptions (status === 'trial'). */
@@ -447,7 +447,7 @@ export async function getSubscriptionKpis(): Promise<{
 
 /* ─── Related-counts (§1D.2 right rail) ───────────────────────── */
 
-export interface SubscriptionRelatedCounts {
+interface SubscriptionRelatedCounts {
   invoices: number;
   receipts: number;
 }

@@ -4,7 +4,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { ObjectId } from 'mongodb';
 
-export interface MaintenanceLog {
+interface MaintenanceLog {
   _id: string;
   assetId: string;
   tenantId: string;

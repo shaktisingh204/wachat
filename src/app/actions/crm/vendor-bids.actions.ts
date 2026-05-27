@@ -41,7 +41,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface VendorBidListResult {
+interface VendorBidListResult {
   bids: CrmVendorBidDoc[];
   page: number;
   limit: number;
@@ -389,7 +389,7 @@ export async function archiveVendorBidAction(
   }
 }
 
-export interface BulkResult {
+interface BulkResult {
   success: boolean;
   processed: number;
   error?: string;

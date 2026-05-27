@@ -9,7 +9,7 @@
  */
 
 import { getCrmItemBatches } from '@/app/actions/crm-item-batches.actions';
-import type { CrmItemBatchDoc } from '@/app/actions/crm-item-batches.actions';
+import type { CrmItemBatchDoc } from '@/app/actions/crm-item-batches.actions.types';
 
 import { BatchExpiryListClient } from './_components/batch-expiry-list-client';
 import type { BatchExpiryKpi } from './_components/batch-expiry-list-client';

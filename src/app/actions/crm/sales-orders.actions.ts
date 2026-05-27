@@ -51,7 +51,7 @@ function rustErr(e: unknown): string {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface SalesOrderListResult {
+interface SalesOrderListResult {
   orders: CrmSalesOrderDoc[];
   page: number;
   limit: number;
@@ -76,7 +76,7 @@ export async function listSalesOrders(
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface SalesOrderKpis {
+interface SalesOrderKpis {
   totalOrders: number;
   pending: number;
   fulfilledThisMonth: number;

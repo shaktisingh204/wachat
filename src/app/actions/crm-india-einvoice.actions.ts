@@ -41,7 +41,7 @@ import {
 // Persisted shape (sub-doc on `crm_invoices.eInvoice`)
 // ──────────────────────────────────────────────────────────────────
 
-export interface InvoiceEInvoiceBlock {
+interface InvoiceEInvoiceBlock {
     irn: string;
     ackNo: string;
     ackDate: string;

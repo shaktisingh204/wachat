@@ -67,7 +67,7 @@ function parseCustomFields(fd: FormData): Record<string, unknown> | null {
   }
 }
 
-export interface DealListResult {
+interface DealListResult {
   deals: CrmDealDoc[];
   page: number;
   limit: number;

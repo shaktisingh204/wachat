@@ -42,7 +42,7 @@ import type {
   SabwaMessage,
   SabwaMessageType,
 } from "@/lib/sabwa/types";
-import type { SabwaSendMessagePayload } from "@/app/actions/sabwa.actions";
+import type { SabwaSendMessagePayload } from "@/app/actions/sabwa.actions.types";
 
 const QUICK_EMOJIS = [
   "😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎",

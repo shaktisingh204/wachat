@@ -34,7 +34,7 @@ import type {
  * than create multiple rows.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   profile: 'crm_company_profile',

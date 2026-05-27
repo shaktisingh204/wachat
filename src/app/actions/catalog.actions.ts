@@ -23,13 +23,13 @@
 
 import { getErrorMessage } from '@/lib/utils';
 
-export type Catalog = {
+type Catalog = {
     id: string;
     name: string;
     product_count: number;
 };
 
-export type Product = {
+type Product = {
     id: string;
     retailer_id: string;
     name: string;

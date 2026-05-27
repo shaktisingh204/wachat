@@ -1,6 +1,5 @@
 import type { HrField } from '../_components/hr-entity-page';
-import type { Feedback360ReviewerRole, Feedback360Status } from '@/app/actions/crm-feedback-360.actions';
-
+import type { Feedback360ReviewerRole, Feedback360Status } from '@/app/actions/crm-feedback-360.actions.types';
 export const fields: HrField[] = [
   { name: 'reviewer_id', label: 'Reviewer', required: true, type: 'entity', entity: 'employee' },
   { name: 'reviewee_id', label: 'Reviewee (Subject)', required: true, type: 'entity', entity: 'employee' },

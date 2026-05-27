@@ -5,7 +5,7 @@ import { Building2, CheckCircle2, Crown, Wallet } from 'lucide-react';
 
 import { StatCard } from '@/components/zoruui';
 
-import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions';
+import type { CrmVendorKpis } from '@/app/actions/crm-vendors.actions.types';
 
 /**
  * KPI strip for the Inventory · Vendors list page.

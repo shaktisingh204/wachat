@@ -25,7 +25,7 @@ import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
 import { cancelEWayBill } from '@/app/actions/crm-india-eway.actions';
 import { EWayBillRowActions } from './row-actions';
-import type { EWayBillSummary } from '@/app/actions/crm-india-eway.actions';
+import type { EWayBillSummary } from '@/app/actions/crm-india-eway.actions.types';
 
 /* ─── helpers ─────────────────────────────────────────────────────── */
 

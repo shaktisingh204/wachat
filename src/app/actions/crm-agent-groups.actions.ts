@@ -79,7 +79,7 @@ function asIdList(v: FormDataEntryValue | null): string[] | undefined {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface AgentGroupListResult {
+interface AgentGroupListResult {
   groups: CrmAgentGroupDoc[];
   page: number;
   limit: number;
@@ -87,7 +87,7 @@ export interface AgentGroupListResult {
   error?: string;
 }
 
-export interface GetAgentGroupsParams {
+interface GetAgentGroupsParams {
   page?: number;
   limit?: number;
   q?: string;
@@ -158,7 +158,7 @@ export async function getAgentGroupById(
 
 /* ─── Write ───────────────────────────────────────────────────── */
 
-export interface SaveAgentGroupState {
+interface SaveAgentGroupState {
   message?: string;
   error?: string;
   id?: string;

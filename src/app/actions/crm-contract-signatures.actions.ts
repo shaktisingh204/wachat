@@ -50,9 +50,9 @@ import {
 // Public-facing types
 // ──────────────────────────────────────────────────────────────────
 
-export type SignatureMode = 'typed' | 'drawn' | 'uploaded';
+type SignatureMode = 'typed' | 'drawn' | 'uploaded';
 
-export type SignatureStatus =
+type SignatureStatus =
     | 'draft'
     | 'sent'
     | 'partially_signed'
@@ -61,7 +61,7 @@ export type SignatureStatus =
     | 'voided'
     | 'terminated';
 
-export interface RedactedSigner {
+interface RedactedSigner {
     name?: string;
     email?: string;
     role?: string;
@@ -70,7 +70,7 @@ export interface RedactedSigner {
     signatureMethod?: SignatureMode | string;
 }
 
-export interface RedactedContract {
+interface RedactedContract {
     _id: string;
     title?: string;
     type?: string;
@@ -87,14 +87,14 @@ export interface RedactedContract {
     signerIndex: number;
 }
 
-export interface GetByTokenResult {
+interface GetByTokenResult {
     ok: boolean;
     contract?: RedactedContract;
     error?: string;
     code?: 'not_found' | 'invalid_token' | 'already_signed' | 'voided' | 'expired';
 }
 
-export interface SubmitArgs {
+interface SubmitArgs {
     mode: SignatureMode;
     /** Typed name, drawn data URL, or SabFiles node id. */
     value: string;
@@ -102,7 +102,7 @@ export interface SubmitArgs {
     signerEmail?: string;
 }
 
-export interface SubmitResult {
+interface SubmitResult {
     ok: boolean;
     status?: SignatureStatus | string;
     alreadySigned?: boolean;
@@ -110,7 +110,7 @@ export interface SubmitResult {
     error?: string;
 }
 
-export interface RequestResult {
+interface RequestResult {
     ok: boolean;
     signUrl?: string;
     token?: string;
@@ -121,7 +121,7 @@ export interface RequestResult {
 // Helpers
 // ──────────────────────────────────────────────────────────────────
 
-export interface SignerDoc {
+interface SignerDoc {
     name?: string;
     email?: string;
     role?: string;
@@ -137,7 +137,7 @@ export interface SignerDoc {
     signedFromGeo?: { country?: string; city?: string };
 }
 
-export interface ContractDoc {
+interface ContractDoc {
     _id: ObjectId;
     userId?: ObjectId;
     title?: string;

@@ -4,8 +4,7 @@ import * as React from 'react';
 import { CheckCircle2, Percent, Target, Trophy } from 'lucide-react';
 
 import { StatCard } from '@/components/zoruui';
-
-import type { CrmLeadKpis } from '@/app/actions/crm-leads.actions';
+import type { CrmLeadKpis } from '@/app/actions/crm-leads.actions.types';
 
 /**
  * KPI strip for the Purchases · Vendor Leads list page.

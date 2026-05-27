@@ -1,6 +1,6 @@
 'use server';
 
-export interface KeywordGeneratorOptions {
+interface KeywordGeneratorOptions {
   google: boolean;
   bing: boolean;
   youtube: boolean;

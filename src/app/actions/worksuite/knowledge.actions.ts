@@ -42,7 +42,7 @@ import type {
  * into `useActionState` and the existing `HrEntityPage` abstraction.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   kb: 'crm_knowledge_bases',
@@ -421,7 +421,7 @@ export async function deleteStickyNote(id: string) {
 }
 /* ═══════════════════ KPI helpers ═══════════════════ */
 
-export interface AwardKpis {
+interface AwardKpis {
     totalPrograms: number;
     thisMonth: number;
     uniqueRecipients: number;
@@ -457,7 +457,7 @@ export async function getAwardKpis(): Promise<AwardKpis> {
     };
 }
 
-export interface DiscussionKpis {
+interface DiscussionKpis {
     total: number;
     open: number;
     closed: number;
@@ -500,7 +500,7 @@ export async function getDiscussionKpis(): Promise<DiscussionKpis> {
     };
 }
 
-export interface EventKpis {
+interface EventKpis {
     total: number;
     upcoming: number;
     todayCount: number;
@@ -528,7 +528,7 @@ export async function getEventKpis(): Promise<EventKpis> {
     return { total: events.length, upcoming, todayCount, pastThisMonth };
 }
 
-export interface NoticeKpis {
+interface NoticeKpis {
     total: number;
     active: number;
     expired: number;
@@ -565,7 +565,7 @@ export async function getNoticeKpis(): Promise<NoticeKpis> {
 
 /* ═══════════════════ Bulk Knowledge Base ops ═══════════════════ */
 
-export interface KbKpis {
+interface KbKpis {
     total: number;
     published: number;
     drafts: number;

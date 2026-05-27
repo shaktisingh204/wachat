@@ -26,9 +26,9 @@ import { requirePermission } from '@/lib/rbac-server';
 const COLLECTION = 'crm_contract_templates';
 const BASE_PATH = '/dashboard/crm/sales/contracts/templates';
 
-export type CrmContractTemplateStatus = 'draft' | 'active' | 'archived';
+type CrmContractTemplateStatus = 'draft' | 'active' | 'archived';
 
-export type CrmContractTemplateType =
+type CrmContractTemplateType =
     | 'service'
     | 'sales'
     | 'nda'
@@ -37,7 +37,7 @@ export type CrmContractTemplateType =
     | 'employment'
     | 'other';
 
-export interface CrmContractTemplateDoc {
+interface CrmContractTemplateDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -103,7 +103,7 @@ function serialize<T>(v: T): T {
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
 
-export interface ContractTemplateListParams {
+interface ContractTemplateListParams {
     q?: string;
     status?: CrmContractTemplateStatus | 'all';
     type?: CrmContractTemplateType | 'all';

@@ -699,7 +699,7 @@ export async function deleteRewardsReferral(id: string): Promise<ActionResult> {
 
 // ────────────────────────────── Dashboard ────────────────────────────
 
-export interface RewardsDashboardKpis {
+interface RewardsDashboardKpis {
   totalMembers: number;
   pointsOutstanding: number;
   redemptionsTotal: number;
@@ -708,7 +708,7 @@ export interface RewardsDashboardKpis {
   referralConversions: number;
 }
 
-export interface RewardsTopEarner {
+interface RewardsTopEarner {
   memberId: string;
   customerId: string;
   lifetimePoints: number;

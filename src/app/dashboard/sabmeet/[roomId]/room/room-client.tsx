@@ -23,7 +23,7 @@ import {
   HelpCircle,
   Send,
 } from 'lucide-react';
-import type { MeetRoom } from '@/app/actions/sabmeet.actions';
+import type { MeetRoom } from '@/app/actions/sabmeet.actions.types';
 import {
   leaveMeetRoom,
   listMeetPolls,

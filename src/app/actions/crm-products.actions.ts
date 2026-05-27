@@ -466,7 +466,7 @@ export async function saveCrmProduct(
 
 /* ─── getCrmProductKpis ──────────────────────────────────────────────── */
 
-export interface CrmProductKpis {
+interface CrmProductKpis {
     total: number;
     inStock: number;
     /** Items with reorder point set whose current stock is below it. */

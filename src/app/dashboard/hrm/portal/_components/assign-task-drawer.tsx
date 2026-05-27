@@ -8,8 +8,8 @@ import {
     ZoruSheetTitle,
     ZoruSheetDescription,
 } from '@/components/zoruui';
-import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions';
 import { AssignTaskForm } from './assign-task-form';
+import type { PortalTeamMember } from '@/app/actions/hrm-portal.actions.types';
 
 interface AssignTaskDrawerProps {
     open: boolean;

@@ -292,7 +292,7 @@ export async function deleteDocument(
 
 /* ─── KPI ─────────────────────────────────────────────────────────────── */
 
-export interface DocumentKpis {
+interface DocumentKpis {
     total: number;
     verified: number;
     pendingVerification: number;

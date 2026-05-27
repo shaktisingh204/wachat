@@ -61,7 +61,7 @@ import {
   createFxAdjustmentEntry,
 } from '@/app/actions/crm-reconciliation.actions';
 import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
-import type { CrmReconciliationKpis, CsvMapping } from '@/app/actions/crm-reconciliation.actions';
+import type { CrmReconciliationKpis, CsvMapping } from '@/app/actions/crm-reconciliation.actions.types';
 import type { WithId, CrmPaymentAccount } from '@/lib/definitions';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */

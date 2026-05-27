@@ -37,14 +37,14 @@ import { RustApiError } from '@/lib/rust-client/fetcher';
 
 /* ─── Public types ───────────────────────────────────────────────────── */
 
-export interface CrmActionResult {
+interface CrmActionResult {
     message?: string;
     error?: string;
     code?: string;
     id?: string;
 }
 
-export interface MakeCrmActionsOptions<TEntity, TDraft> {
+interface MakeCrmActionsOptions<TEntity, TDraft> {
     /** The CrmClient instance built via makeCrmClient(). */
     client: CrmClient<TEntity, TDraft>;
     /**
@@ -69,7 +69,7 @@ export interface MakeCrmActionsOptions<TEntity, TDraft> {
     parseFormData: (formData: FormData) => TDraft;
 }
 
-export interface CrmActions<TEntity, TDraft> {
+interface CrmActions<TEntity, TDraft> {
     saveEntity(formData: FormData): Promise<CrmActionResult>;
     updateEntity(id: string, formData: FormData): Promise<CrmActionResult>;
     deleteEntity(id: string): Promise<CrmActionResult>;

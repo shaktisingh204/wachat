@@ -537,7 +537,7 @@ export async function saveCrmVendorType(
 
 /* ─── Vendor KPIs (list page strip) ──────────────────────────────── */
 
-export interface CrmVendorKpis {
+interface CrmVendorKpis {
     /** Total vendors for the tenant (all types). */
     total: number;
     /** Active vendors — at least one purchase order in the last 12 months. */

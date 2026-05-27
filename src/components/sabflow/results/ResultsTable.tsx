@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { LuChevronDown, LuChevronRight, LuDownload, LuCalendar, LuRefreshCw } from 'react-icons/lu';
-import type { FlowSession } from '@/app/actions/sabflow-results';
-
+import type { FlowSession } from '@/app/actions/sabflow-results.types';
 /* ── helpers ────────────────────────────────────────────── */
 
 function fmtDate(iso: string) {

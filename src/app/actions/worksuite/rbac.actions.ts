@@ -39,7 +39,7 @@ import type {
  *   crm_custom_module_permissions, crm_menu.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   role: 'crm_roles',
@@ -909,7 +909,7 @@ export async function userHasPermission(
  *  KPI helpers — settings list pages
  * ══════════════════════════════════════════════════════════════════ */
 
-export interface PermissionKpis {
+interface PermissionKpis {
   total: number;
   granted_role_count: number;
   top_role: { role_id: string; name: string; count: number } | null;
@@ -991,7 +991,7 @@ export async function getPermissionKpis(): Promise<PermissionKpis> {
   };
 }
 
-export interface PermissionTypeKpis {
+interface PermissionTypeKpis {
   total: number;
   by_category: { custom: number; builtin: number };
   in_use: number;
@@ -1057,7 +1057,7 @@ export async function getPermissionTypeKpis(): Promise<PermissionTypeKpis> {
   };
 }
 
-export interface CustomModuleKpis {
+interface CustomModuleKpis {
   total: number;
   by_entity_kind: Record<string, number>;
   avg_fields_per_module: number;

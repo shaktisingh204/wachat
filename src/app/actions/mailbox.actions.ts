@@ -65,12 +65,12 @@ import {
 
 /* ─── shared ─────────────────────────────────────────────────────────── */
 
-export interface MailboxActionError {
+interface MailboxActionError {
     ok: false;
     error: string;
 }
 
-export type MailboxActionResult<T> = ({ ok: true } & T) | MailboxActionError;
+type MailboxActionResult<T> = ({ ok: true } & T) | MailboxActionError;
 
 function revalidateAdmin(): void {
     revalidatePath('/dashboard/mailbox');
@@ -169,7 +169,7 @@ export async function recheckMailDomainDns(
 
 /* ─── Mailbox accounts ───────────────────────────────────────────────── */
 
-export interface ListMailAccountsParams {
+interface ListMailAccountsParams {
     domainId?: string;
     q?: string;
     status?: 'active' | 'suspended' | 'archived' | 'all';
@@ -357,7 +357,7 @@ export async function deleteMailFolder(
 
 /* ─── Messages ───────────────────────────────────────────────────────── */
 
-export interface ListMailMessagesParams {
+interface ListMailMessagesParams {
     accountId: string;
     folderId?: string;
     q?: string;

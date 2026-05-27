@@ -38,7 +38,7 @@ import type {
  *              crm_expense_categories_ext, crm_flags, crm_saved_searches.
  */
 
-export type FormState = { message?: string; error?: string; id?: string };
+type FormState = { message?: string; error?: string; id?: string };
 
 const COLS = {
   fieldGroup: 'crm_custom_field_groups',

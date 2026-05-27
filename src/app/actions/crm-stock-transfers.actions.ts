@@ -24,7 +24,7 @@ import { requirePermission } from '@/lib/rbac-server';
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
-export type CrmStockTransferStatus =
+type CrmStockTransferStatus =
     | 'Draft'
     | 'Requested'
     | 'Approved'
@@ -33,7 +33,7 @@ export type CrmStockTransferStatus =
     | 'Cancelled'
     | 'archived';
 
-export type CrmStockTransferReason =
+type CrmStockTransferReason =
     | 'rebalance'
     | 'restock'
     | 'return'
@@ -41,14 +41,14 @@ export type CrmStockTransferReason =
     | 'project'
     | 'other';
 
-export interface CrmStockTransferLineItem {
+interface CrmStockTransferLineItem {
     itemId: ObjectId;
     itemName?: string;
     quantity: number;
     unit?: string;
 }
 
-export interface CrmStockTransferAttachment {
+interface CrmStockTransferAttachment {
     id: string;
     url: string;
     name: string;
@@ -56,7 +56,7 @@ export interface CrmStockTransferAttachment {
     size?: number;
 }
 
-export interface CrmStockTransfer {
+interface CrmStockTransfer {
     _id: ObjectId;
     userId: ObjectId;
     transferNumber: string;
@@ -85,7 +85,7 @@ export interface CrmStockTransfer {
     updatedAt: Date;
 }
 
-export interface CrmStockTransferFilters {
+interface CrmStockTransferFilters {
     status?: CrmStockTransferStatus | '';
     fromWarehouseId?: string;
     toWarehouseId?: string;
@@ -94,7 +94,7 @@ export interface CrmStockTransferFilters {
     includeArchived?: boolean;
 }
 
-export interface CrmStockTransferKpis {
+interface CrmStockTransferKpis {
     total: number;
     inTransit: number;
     received: number;

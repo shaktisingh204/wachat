@@ -5,9 +5,9 @@ import {
     Card,
     Badge,
 } from '@/components/zoruui';
-import type { PortalEmployeeProfile } from '@/app/actions/hrm-portal.actions';
 import { Building2, Briefcase, CalendarDays, Hash } from 'lucide-react';
 import { fmtDate } from '@/lib/utils';
+import type { PortalEmployeeProfile } from '@/app/actions/hrm-portal.actions.types';
 
 interface ProfileCardProps {
     profile: PortalEmployeeProfile;

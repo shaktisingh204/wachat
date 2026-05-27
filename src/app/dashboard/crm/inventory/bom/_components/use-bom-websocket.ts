@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
+import type { CrmBomDoc } from '@/app/actions/crm-bom.actions.types';
 
 export function useBomWebsocket(initialBoms: (CrmBomDoc & { _id: string })[]) {
   const [boms, setBoms] = useState(initialBoms);

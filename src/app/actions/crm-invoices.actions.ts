@@ -552,7 +552,7 @@ export async function resolveInvoiceDuplicates(
  * `findInvoiceDuplicates()`, how many were already resolved (cancelled
  * + flagged as `duplicateOf`), and how many are still pending review.
  */
-export interface InvoiceDuplicatesDeepKpis {
+interface InvoiceDuplicatesDeepKpis {
     clusters: number;
     resolved: number;
     pending: number;

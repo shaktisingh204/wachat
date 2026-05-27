@@ -69,7 +69,7 @@ function asStatus(v: string | undefined): CrmPayoutStatus | undefined {
 
 /* ─── Read ────────────────────────────────────────────────────── */
 
-export interface PayoutListResult {
+interface PayoutListResult {
   payouts: CrmPayoutDoc[];
   page: number;
   limit: number;
@@ -297,7 +297,7 @@ export async function deletePayout(id: string) {
 
 /* ─── KPIs ────────────────────────────────────────────────────── */
 
-export interface PayoutKpis {
+interface PayoutKpis {
   paidThisMonthTotal: number;
   paidThisMonthCount: number;
   clearedCount: number;
@@ -423,7 +423,7 @@ export async function bulkPayoutAction(
 
 /* ─── Helpers for the form's multi-bill apply picker ──────────── */
 
-export interface UnpaidBillRow {
+interface UnpaidBillRow {
   _id: string;
   billNo?: string;
   total: number;

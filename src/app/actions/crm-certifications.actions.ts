@@ -33,13 +33,13 @@ function useRustCrm(): boolean {
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
-export type CrmCertificationStatus =
+type CrmCertificationStatus =
     | 'active'
     | 'expired'
     | 'revoked'
     | 'archived';
 
-export interface CrmCertificationDoc {
+interface CrmCertificationDoc {
     _id: string;
     userId?: string;
     name: string;
@@ -55,14 +55,14 @@ export interface CrmCertificationDoc {
     updatedAt?: string;
 }
 
-export interface CrmCertificationListParams {
+interface CrmCertificationListParams {
     q?: string;
     status?: CrmCertificationStatus | 'all';
     employeeId?: string;
     limit?: number;
 }
 
-export interface CrmCertificationListResponse {
+interface CrmCertificationListResponse {
     items: CrmCertificationDoc[];
 }
 

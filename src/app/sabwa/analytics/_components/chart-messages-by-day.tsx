@@ -4,7 +4,7 @@ import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } f
 import {
   MessageSquare } from 'lucide-react';
 
-import type { SabwaAnalyticsSeriesPoint } from '@/app/actions/sabwa.actions';
+import type { SabwaAnalyticsSeriesPoint } from '@/app/actions/sabwa.actions.types';
 
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 

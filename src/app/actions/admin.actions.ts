@@ -262,7 +262,7 @@ export async function updateUserPlanByAdmin(
     }
 }
 
-export type AdminStats = {
+type AdminStats = {
     core: {
         totalUsers: number;
         approvedUsers: number;

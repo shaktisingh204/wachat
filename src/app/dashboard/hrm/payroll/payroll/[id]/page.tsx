@@ -18,8 +18,8 @@ import {
     getPayrollRunById,
     getPayrollRunPayslips,
 } from '@/app/actions/crm-payroll-runs.actions';
-import type { CrmPayrollRunStatus } from '@/app/actions/crm-payroll-runs.actions';
 import { fmtDate, fmtINR } from '@/lib/utils';
+import type { CrmPayrollRunStatus } from '@/app/actions/crm-payroll-runs.actions.types';
 
 export const dynamic = 'force-dynamic';
 

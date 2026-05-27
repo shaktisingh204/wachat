@@ -23,7 +23,7 @@ import type { DateRange } from 'react-day-picker';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';
+import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions.types';
 
 export type TaskStatusFilter =
     | 'all'
