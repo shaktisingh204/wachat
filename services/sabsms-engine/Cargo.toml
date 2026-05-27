@@ -20,7 +20,7 @@ tower-http = { version = "0.6", features = ["trace", "cors", "limit"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 
 # Storage
-mongodb = { version = "3.1", default-features = false, features = ["rustls-tls"] }
+mongodb = { version = "3.2", default-features = false, features = ["rustls-tls", "bson-2", "compat-3-3-0"] }
 redis = { version = "0.27", default-features = false, features = ["tokio-comp", "tokio-rustls-comp"] }
 
 # Serde + time
