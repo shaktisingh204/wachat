@@ -594,7 +594,6 @@ export async function sendTelegramBroadcastNow(
     }
 }
 
-    from '@/lib/rust-client/telegram-broadcasts';
 import type { BroadcastRow as TelegramBroadcastRowType }
     from '@/lib/rust-client/telegram-broadcasts';
 

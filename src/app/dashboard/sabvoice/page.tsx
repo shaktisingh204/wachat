@@ -12,6 +12,7 @@ import {
   Voicemail,
   Users,
   ChevronRight,
+  ScreenShare,
 } from 'lucide-react';
 import { getVoiceLiveKpis } from '@/app/actions/sabvoice.actions';
 
@@ -66,6 +67,12 @@ const SECTIONS: Array<{
     title: 'Agent Dashboard',
     description: 'Live presence, active calls, queue depth.',
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    href: '/dashboard/sabvoice/assist',
+    title: 'Remote Assist',
+    description: 'SabAssist screen-share sessions linked to live calls.',
+    icon: <ScreenShare className="h-5 w-5" />,
   },
 ];
 

@@ -1,21 +1,18 @@
-import React from "react";
+import { Suspense } from 'react';
 import { getSession } from '@/app/actions';
-import HomePageClient from './page-client';
+import { LandingV2 } from '@/components/landing-v2';
 
 export const dynamic = 'force-dynamic';
 
-
 async function HomePageContent() {
-  const session = await getSession();
-
-  return <HomePageClient initialSession={session} />;
+    const session = await getSession();
+    return <LandingV2 initialSession={session} />;
 }
 
-
 export default function HomePage() {
-  return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      <HomePageContent  />
-    </React.Suspense>
-  );
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-[#06040d]" />}>
+            <HomePageContent />
+        </Suspense>
+    );
 }

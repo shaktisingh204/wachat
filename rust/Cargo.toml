@@ -393,6 +393,11 @@ members = [
     "crates/sabshop-storefronts",
     "crates/sabshop-tax-rules",
     "crates/sabshop-themes",
+    "crates/sabvault-audit",
+    "crates/sabvault-breach-alerts",
+    "crates/sabvault-folders",
+    "crates/sabvault-secrets",
+    "crates/sabvault-shares",
     "crates/sabsign-audit",
     "crates/sabsign-envelopes",
     "crates/sabsign-fields",
@@ -408,7 +413,7 @@ members = [
     "crates/sabvoice-ivrs",
     "crates/sabvoice-queues",
     "crates/sabvoice-voicemail"
-, "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace"]
+, "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace", "crates/sabtables-workspaces", "crates/sabtables-bases", "crates/sabtables-tables", "crates/sabtables-records", "crates/sabtables-views", "crates/sabtables-automations", "crates/sabtables-comments"]
 
 [workspace.package]
 edition = "2024"

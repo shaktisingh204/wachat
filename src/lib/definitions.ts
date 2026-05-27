@@ -575,6 +575,12 @@ export type TeamChannel = {
     updatedAt: Date;
 };
 
+export type TeamMessageReactionSummary = {
+    emoji: string;
+    count: number;
+    userIds: ObjectId[];
+};
+
 export type TeamMessage = {
     _id: ObjectId;
     channelId: ObjectId;
@@ -582,8 +588,77 @@ export type TeamMessage = {
     content: string;
     attachments?: { type: 'image' | 'file'; url: string; name: string }[];
     readBy: ObjectId[]; // User IDs who have read the message
+    /* ─── SabCliq integration fields ───────────────────────────────── */
+    /** When set, this message is a thread reply to the named root. */
+    threadRootId?: ObjectId;
+    /** Aggregated number of replies for thread roots. */
+    replyCount?: number;
+    /** Timestamp of the most recent thread reply. */
+    lastReplyAt?: Date;
+    /** When set, the message is pinned in its channel. */
+    pinnedAt?: Date;
+    /** Denormalised per-message reaction roll-up — source of truth lives in `team_message_reactions`. */
+    reactions?: TeamMessageReactionSummary[];
+    /** Set when the author edited the body. */
+    editedAt?: Date;
+    /** Soft-delete marker — kept so thread context survives. */
+    deletedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
+};
+
+/** Single (message, user, emoji) tuple — source-of-truth for reaction counts. */
+export type TeamMessageReaction = {
+    _id: ObjectId;
+    messageId: ObjectId;
+    channelId: ObjectId;
+    userId: ObjectId;
+    emoji: string;
+    createdAt: Date;
+};
+
+/** Channel-wide pinned-message record. */
+export type TeamMessagePin = {
+    _id: ObjectId;
+    channelId: ObjectId;
+    messageId: ObjectId;
+    pinnedBy: ObjectId;
+    pinnedAt: Date;
+};
+
+/** Per-user bookmark on a message ("save for later"). */
+export type TeamMessageBookmark = {
+    _id: ObjectId;
+    userId: ObjectId;
+    channelId: ObjectId;
+    messageId: ObjectId;
+    note?: string;
+    savedAt: Date;
+};
+
+/** Per-user presence document — one per user, upserted on each change. */
+export type TeamPresence = {
+    _id: ObjectId;
+    userId: ObjectId;
+    status: 'online' | 'away' | 'dnd' | 'offline';
+    statusText?: string;
+    statusEmoji?: string;
+    lastActiveAt: Date;
+    updatedAt: Date;
+};
+
+/** Ephemeral voice/video huddle attached to a channel. */
+export type TeamHuddle = {
+    _id: ObjectId;
+    channelId: ObjectId;
+    startedBy: ObjectId;
+    status: 'active' | 'ended';
+    participantIds: ObjectId[];
+    startedAt: Date;
+    endedAt?: Date;
+    /** Opaque transport token (LiveKit/WebRTC). The mock transport ignores it. */
+    transportToken?: string;
+    updatedAt?: Date;
 };
 
 export type CrmDeal = {

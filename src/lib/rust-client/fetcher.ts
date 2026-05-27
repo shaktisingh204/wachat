@@ -214,3 +214,36 @@ export async function rustFetch<T>(path: string, init?: RequestInit): Promise<T>
 
     return (await res.json()) as T;
 }
+
+/**
+ * Variant of {@link rustFetch} for endpoints intentionally exposed without
+ * tenant authentication — e.g. SabAssist's `/v1/sabassist/public/redeem`,
+ * which is hit directly from a customer browser via a share link.
+ *
+ * Skips the JWT mint so the request goes through unauthenticated. JSON
+ * defaulting and error parsing are otherwise identical.
+ */
+export async function rustFetchPublic<T>(path: string, init?: RequestInit): Promise<T> {
+    const url = `${getBaseUrl()}${path}`;
+    const headers = new Headers(init?.headers);
+    const isFormData =
+        typeof FormData !== 'undefined' && init?.body instanceof FormData;
+    if (!headers.has('Content-Type') && init?.body && !isFormData) {
+        headers.set('Content-Type', 'application/json');
+    }
+    headers.set('Accept', 'application/json');
+
+    const res = await fetch(url, { ...init, headers, cache: 'no-store' });
+
+    if (!res.ok) {
+        let envelope: RustErrorEnvelope | null = null;
+        try {
+            envelope = (await res.json()) as RustErrorEnvelope;
+        } catch {
+            // see rustFetch
+        }
+        throw new RustApiError(res.status, envelope, `Rust API ${res.status} ${res.statusText}`);
+    }
+
+    return (await res.json()) as T;
+}

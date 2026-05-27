@@ -21,6 +21,7 @@ import {
   Layers,
   History,
   Upload as UploadIcon,
+  FileText,
 } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -98,6 +99,12 @@ export default function EnvelopesListPage() {
       subtitle="Send documents for signature, manage envelopes, and pull audit trails."
       primaryAction={
         <div className="flex flex-wrap items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/dashboard/sabsign/docs">
+              <FileText className="h-4 w-4 mr-2" />
+              Documents
+            </Link>
+          </Button>
           <Button asChild variant="outline" size="sm">
             <Link href="/dashboard/sabsign/templates">
               <Layers className="h-4 w-4 mr-2" />

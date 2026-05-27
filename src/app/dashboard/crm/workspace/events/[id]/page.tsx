@@ -26,6 +26,7 @@ import {
     statusTone,
 } from '../_components/events-shared';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { SabbackstageEventTabs } from '../_components/sabbackstage/sabbackstage-event-tabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -155,6 +156,13 @@ export default async function EventDetailPage({
                         </p>
                     ) : null}
                 </Card>
+
+                <div className="mt-4">
+                    <SabbackstageEventTabs
+                        eventId={ev._id}
+                        eventName={ev.event_name}
+                    />
+                </div>
             </EntityDetailShell>
         </div>
     );

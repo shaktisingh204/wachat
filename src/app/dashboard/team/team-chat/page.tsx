@@ -47,13 +47,36 @@ import {
     getOrCreateDmChannel,
     listTeamChannels,
     sendTeamMessage,
+    addReactionToTeamMessage,
+    removeReactionFromTeamMessage,
+    pinTeamMessage,
+    unpinTeamMessage,
+    listPinnedMessages,
+    bookmarkTeamMessage,
+    setTeamPresence,
+    getTeamPresenceMap,
     type TeamChannelView,
     type OutgoingAttachment,
 } from '@/app/actions/team-chat.actions';
+import type {
+    PinnedMessageView,
+    PresenceView,
+} from '@/app/actions/team-chat.actions.types';
 import { getInvitedUsers } from '@/app/actions/team.actions';
 import { useCan, useProject } from '@/context/project-context';
 import type { TeamMessage, User, WithId } from '@/lib/definitions';
 import { SabFileToFileButton } from '@/components/sabfiles';
+import { ReactionsBar } from './_components/reactions-bar';
+import { PresenceDot } from './_components/presence-dot';
+import { ThreadPanel } from './_components/thread-panel';
+import { PinnedStrip } from './_components/pinned-strip';
+import { BookmarksView } from './_components/bookmarks-view';
+import { HuddleDrawer } from './_components/huddle-drawer';
+import {
+    ComposerExtras,
+    type MentionCandidate,
+} from './_components/composer-extras';
+import { Bookmark, Headphones, MessageCircleReply, Pin, PinOff } from 'lucide-react';
 
 const POLL_MS = 3000;
 
@@ -75,9 +98,17 @@ export default function TeamChatPage() {
     const [notifPerm, setNotifPerm] = React.useState<NotificationPermission>('default');
     const [sidebarQuery, setSidebarQuery] = React.useState('');
 
+    /* ─── SabCliq state ─── */
+    const [pinned, setPinned] = React.useState<PinnedMessageView[]>([]);
+    const [presence, setPresence] = React.useState<Record<string, PresenceView>>({});
+    const [threadRootId, setThreadRootId] = React.useState<string | null>(null);
+    const [bookmarksOpen, setBookmarksOpen] = React.useState(false);
+    const [huddleOpen, setHuddleOpen] = React.useState(false);
+
     const scrollRef = React.useRef<HTMLDivElement | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement | null>(null);
     const lastSeenCountRef = React.useRef(0);
+    const messageNodeRefs = React.useRef<Record<string, HTMLDivElement | null>>({});
 
     React.useEffect(() => {
         if (typeof window !== 'undefined' && 'Notification' in window) {
@@ -123,6 +154,56 @@ export default function TeamChatPage() {
         lastSeenCountRef.current = 0;
     }, [selectedChannelId, loadMessages]);
 
+    /* Pinned messages — refetched on channel change. */
+    const loadPinned = React.useCallback(async () => {
+        if (!selectedChannelId) {
+            setPinned([]);
+            return;
+        }
+        const list = await listPinnedMessages(selectedChannelId);
+        setPinned(list);
+    }, [selectedChannelId]);
+
+    React.useEffect(() => {
+        void loadPinned();
+    }, [loadPinned]);
+
+    /* Presence — best-effort, includes me + selected channel participants. */
+    const loadPresence = React.useCallback(async () => {
+        const ids = new Set<string>();
+        if (sessionUser?._id) ids.add(sessionUser._id);
+        for (const c of channels) {
+            for (const p of c.participants) ids.add(p.userId);
+        }
+        for (const u of members) ids.add(u._id.toString());
+        if (!ids.size) return;
+        const map = await getTeamPresenceMap(Array.from(ids));
+        setPresence(map);
+    }, [channels, members, sessionUser?._id]);
+
+    React.useEffect(() => {
+        void loadPresence();
+        const t = setInterval(() => void loadPresence(), 15_000);
+        return () => clearInterval(t);
+    }, [loadPresence]);
+
+    /* Heartbeat presence to online while the tab is visible. */
+    React.useEffect(() => {
+        if (!sessionUser?._id) return;
+        const beat = () => {
+            void setTeamPresence(document.hidden ? 'away' : 'online');
+        };
+        beat();
+        const id = setInterval(beat, 30_000);
+        const onVis = () => beat();
+        document.addEventListener('visibilitychange', onVis);
+        return () => {
+            clearInterval(id);
+            document.removeEventListener('visibilitychange', onVis);
+            void setTeamPresence('offline').catch(() => {});
+        };
+    }, [sessionUser?._id]);
+
     // Poll for new messages.
     React.useEffect(() => {
         if (!selectedChannelId) return;
@@ -163,6 +244,101 @@ export default function TeamChatPage() {
         },
         [reloadChannels],
     );
+
+    /* ─── SabCliq handlers ─── */
+    const onToggleReaction = React.useCallback(
+        async (messageId: string, emoji: string) => {
+            const meId = sessionUser?._id;
+            const msg = messages.find((m) => m._id.toString() === messageId);
+            const existing = msg?.reactions?.find((r) => r.emoji === emoji);
+            const minePresent =
+                !!existing && !!meId && existing.userIds.map(String).includes(meId);
+            const fn = minePresent
+                ? removeReactionFromTeamMessage
+                : addReactionToTeamMessage;
+            const res = await fn(messageId, emoji);
+            if (!res.success) {
+                toast({
+                    title: 'Reaction failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            await loadMessages();
+        },
+        [messages, sessionUser?._id, toast, loadMessages],
+    );
+
+    const onTogglePin = React.useCallback(
+        async (messageId: string, isPinned: boolean) => {
+            const res = isPinned
+                ? await unpinTeamMessage(messageId)
+                : await pinTeamMessage(messageId);
+            if (!res.success) {
+                toast({
+                    title: 'Pin update failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            await Promise.all([loadMessages(), loadPinned()]);
+        },
+        [toast, loadMessages, loadPinned],
+    );
+
+    const onBookmark = React.useCallback(
+        async (messageId: string) => {
+            const res = await bookmarkTeamMessage(messageId);
+            if (!res.success) {
+                toast({
+                    title: 'Could not save',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+                return;
+            }
+            toast({ title: 'Saved' });
+        },
+        [toast],
+    );
+
+    const onJumpMessage = React.useCallback((messageId: string) => {
+        const node = messageNodeRefs.current[messageId];
+        if (node) {
+            node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            node.classList.add('ring-2', 'ring-zoru-ink/40');
+            setTimeout(() => {
+                node.classList.remove('ring-2', 'ring-zoru-ink/40');
+            }, 1500);
+        }
+    }, []);
+
+    const onJumpFromBookmark = React.useCallback(
+        (channelId: string, messageId: string) => {
+            setBookmarksOpen(false);
+            if (channelId !== selectedChannelId) setSelectedChannelId(channelId);
+            // Wait for messages to reload before scrolling.
+            setTimeout(() => onJumpMessage(messageId), 200);
+        },
+        [selectedChannelId, onJumpMessage],
+    );
+
+    const mentionCandidates = React.useMemo<MentionCandidate[]>(() => {
+        const fromChannel = selectedChannel?.participants ?? [];
+        return fromChannel
+            .filter((p) => p.userId !== sessionUser?._id)
+            .map((p) => ({ id: p.userId, name: p.name }));
+    }, [selectedChannel, sessionUser?._id]);
+
+    const participantNames = React.useMemo(() => {
+        const map: Record<string, string> = {};
+        for (const p of selectedChannel?.participants ?? []) {
+            map[p.userId] = p.name;
+        }
+        return map;
+    }, [selectedChannel]);
 
     const onSend = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -291,6 +467,19 @@ export default function TeamChatPage() {
                         />
                     </div>
 
+                    <div className="border-b border-zoru-line p-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="md"
+                            className="w-full justify-start"
+                            onClick={() => setBookmarksOpen(true)}
+                        >
+                            <Bookmark className="h-3.5 w-3.5" />
+                            Saved messages
+                        </Button>
+                    </div>
+
                     <div className="flex-1 overflow-auto">
                         <SidebarGroupLabel label="Conversations" />
                         {channelsLoading ? (
@@ -313,20 +502,28 @@ export default function TeamChatPage() {
                         {members.length === 0 ? (
                             <div className="p-3 text-[12px] text-zoru-ink-muted">Invite someone to get started.</div>
                         ) : (
-                            members.slice(0, 12).map((u) => (
-                                <button
-                                    key={u._id.toString()}
-                                    type="button"
-                                    onClick={() => onStartDm(u._id.toString())}
-                                    className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-zoru-ink-muted hover:bg-zoru-bg"
-                                >
-                                    <Dot name={u.name || u.email} />
-                                    <div className="flex min-w-0 flex-col">
-                                        <span className="truncate text-zoru-ink">{u.name}</span>
-                                        <span className="truncate text-[11px] text-zoru-ink-muted">{u.email}</span>
-                                    </div>
-                                </button>
-                            ))
+                            members.slice(0, 12).map((u) => {
+                                const uid = u._id.toString();
+                                return (
+                                    <button
+                                        key={uid}
+                                        type="button"
+                                        onClick={() => onStartDm(uid)}
+                                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-[12.5px] text-zoru-ink-muted hover:bg-zoru-bg"
+                                    >
+                                        <div className="relative">
+                                            <Dot name={u.name || u.email} />
+                                            <span className="absolute -bottom-0.5 -right-0.5">
+                                                <PresenceDot status={presence[uid]?.status ?? 'offline'} />
+                                            </span>
+                                        </div>
+                                        <div className="flex min-w-0 flex-col">
+                                            <span className="truncate text-zoru-ink">{u.name}</span>
+                                            <span className="truncate text-[11px] text-zoru-ink-muted">{u.email}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })
                         )}
                     </div>
                 </div>
@@ -335,7 +532,20 @@ export default function TeamChatPage() {
                 <div className="flex flex-1 flex-col">
                     {selectedChannel ? (
                         <>
-                            <ChannelHeader channel={selectedChannel} meId={sessionUser?._id} />
+                            <ChannelHeader
+                                channel={selectedChannel}
+                                meId={sessionUser?._id}
+                                presence={presence}
+                                onStartHuddle={() => setHuddleOpen(true)}
+                            />
+                            {pinned.length > 0 ? (
+                                <PinnedStrip
+                                    pins={pinned}
+                                    onJump={onJumpMessage}
+                                    onUnpin={(id) => onTogglePin(id, true)}
+                                    canEdit={canSend}
+                                />
+                            ) : null}
                             <div className="flex-1 space-y-3 overflow-auto bg-zoru-surface-2/60 px-5 py-4">
                                 {messagesLoading ? (
                                     <div className="flex h-full items-center justify-center text-[12.5px] text-zoru-ink-muted">
@@ -344,13 +554,26 @@ export default function TeamChatPage() {
                                 ) : messages.length === 0 ? (
                                     <EmptyConversation channel={selectedChannel} meId={sessionUser?._id} />
                                 ) : (
-                                    renderMessagesWithDateDividers(messages, sessionUser?._id)
+                                    renderMessagesWithDateDividers(messages, sessionUser?._id, {
+                                        onToggleReaction,
+                                        onTogglePin,
+                                        onBookmark,
+                                        onOpenThread: setThreadRootId,
+                                        registerNode: (id, node) => {
+                                            messageNodeRefs.current[id] = node;
+                                        },
+                                    })
                                 )}
                                 <div ref={scrollRef} />
                             </div>
 
                             {canSend ? (
                                 <form onSubmit={onSend} className="border-t border-zoru-line bg-zoru-bg p-3">
+                                    <ComposerExtras
+                                        value={input}
+                                        candidates={mentionCandidates}
+                                        onPick={(next) => setInput(next)}
+                                    />
                                     {attachmentQueue.length > 0 ? (
                                         <div className="mb-2 flex flex-wrap gap-2">
                                             {attachmentQueue.map((a, i) => (
@@ -442,6 +665,27 @@ export default function TeamChatPage() {
                     )}
                 </div>
             </Card>
+
+            <ThreadPanel
+                rootMessageId={threadRootId}
+                channelId={selectedChannelId}
+                meId={sessionUser?._id}
+                onClose={() => setThreadRootId(null)}
+            />
+
+            <BookmarksView
+                open={bookmarksOpen}
+                onClose={() => setBookmarksOpen(false)}
+                onJump={onJumpFromBookmark}
+            />
+
+            <HuddleDrawer
+                open={huddleOpen}
+                onOpenChange={setHuddleOpen}
+                channelId={selectedChannelId}
+                meId={sessionUser?._id}
+                participantNames={participantNames}
+            />
         </div>
     );
 }
@@ -529,14 +773,25 @@ function channelTitle(c: TeamChannelView, meId?: string) {
 
 /* ─────────────────────────── Message pane helpers ─────────────────────────── */
 
-function ChannelHeader({ channel, meId }: { channel: TeamChannelView; meId?: string }) {
+function ChannelHeader({
+    channel,
+    meId,
+    presence,
+    onStartHuddle,
+}: {
+    channel: TeamChannelView;
+    meId?: string;
+    presence: Record<string, PresenceView>;
+    onStartHuddle: () => void;
+}) {
     const title = channelTitle(channel, meId);
+    const other = channel.participants.find((p) => p.userId !== meId);
     const subtitle =
         channel.type === 'group'
             ? `${channel.participants.length} members`
-            : channel.participants.find((p) => p.userId !== meId)?.userId === meId
+            : other?.userId === meId
               ? ''
-              : channel.participants.find((p) => p.userId !== meId)?.name || '';
+              : other?.name || '';
     return (
         <div className="flex items-center gap-3 border-b border-zoru-line bg-zoru-bg px-5 py-3">
             {channel.type === 'group' ? (
@@ -544,12 +799,29 @@ function ChannelHeader({ channel, meId }: { channel: TeamChannelView; meId?: str
                     <Users className="h-4 w-4" strokeWidth={2} />
                 </span>
             ) : (
-                <Dot name={title} />
+                <div className="relative">
+                    <Dot name={title} />
+                    {other ? (
+                        <span className="absolute -bottom-0.5 -right-0.5">
+                            <PresenceDot status={presence[other.userId]?.status ?? 'offline'} />
+                        </span>
+                    ) : null}
+                </div>
             )}
-            <div>
+            <div className="flex-1">
                 <div className="text-[14px] text-zoru-ink">{title}</div>
                 <div className="text-[11.5px] text-zoru-ink-muted">{subtitle}</div>
             </div>
+            <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={onStartHuddle}
+                title="Start or join a huddle"
+            >
+                <Headphones className="h-3.5 w-3.5" />
+                Huddle
+            </Button>
         </div>
     );
 }
@@ -567,10 +839,24 @@ function EmptyConversation({ channel, meId }: { channel: TeamChannelView; meId?:
     );
 }
 
-function renderMessagesWithDateDividers(messages: WithId<TeamMessage>[], meId?: string) {
+type MessageRowCallbacks = {
+    onToggleReaction: (messageId: string, emoji: string) => void;
+    onTogglePin: (messageId: string, isPinned: boolean) => void;
+    onBookmark: (messageId: string) => void;
+    onOpenThread: (messageId: string) => void;
+    registerNode: (messageId: string, node: HTMLDivElement | null) => void;
+};
+
+function renderMessagesWithDateDividers(
+    messages: WithId<TeamMessage>[],
+    meId: string | undefined,
+    callbacks: MessageRowCallbacks,
+) {
     const out: React.ReactNode[] = [];
     let lastDate: Date | null = null;
     for (const m of messages) {
+        // Skip thread-replies in the main stream — they only render inside the thread panel.
+        if ((m as any).threadRootId) continue;
         const d = new Date(m.createdAt);
         if (!lastDate || !isSameDay(lastDate, d)) {
             out.push(
@@ -582,23 +868,88 @@ function renderMessagesWithDateDividers(messages: WithId<TeamMessage>[], meId?: 
             );
             lastDate = d;
         }
-        out.push(<MessageRow key={m._id.toString()} message={m} meId={meId} />);
+        out.push(
+            <MessageRow
+                key={m._id.toString()}
+                message={m}
+                meId={meId}
+                callbacks={callbacks}
+            />,
+        );
     }
     return out;
 }
 
-function MessageRow({ message, meId }: { message: WithId<TeamMessage>; meId?: string }) {
+function MessageRow({
+    message,
+    meId,
+    callbacks,
+}: {
+    message: WithId<TeamMessage>;
+    meId?: string;
+    callbacks: MessageRowCallbacks;
+}) {
     const mine = meId && message.senderId?.toString() === meId;
+    const id = message._id.toString();
+    const isPinned = !!(message as any).pinnedAt;
+    const replyCount = (message as any).replyCount ?? 0;
+    const lastReplyAt = (message as any).lastReplyAt;
     return (
-        <div className={'flex ' + (mine ? 'justify-end' : 'justify-start')}>
+        <div
+            ref={(el) => callbacks.registerNode(id, el)}
+            className={'group/message flex ' + (mine ? 'justify-end' : 'justify-start')}
+        >
             <div
                 className={
-                    'max-w-[80%] rounded-lg px-3 py-2 text-[13px] shadow-sm ' +
+                    'relative max-w-[80%] rounded-lg px-3 py-2 text-[13px] shadow-sm ' +
                     (mine
                         ? 'bg-zoru-ink text-zoru-bg'
                         : 'border border-zoru-line bg-zoru-bg text-zoru-ink')
                 }
             >
+                {/* Hover toolbar */}
+                <div
+                    className={
+                        'absolute -top-3 ' +
+                        (mine ? 'right-2' : 'left-2') +
+                        ' z-10 hidden gap-1 rounded-md border border-zoru-line bg-zoru-bg p-0.5 shadow-sm group-hover/message:flex'
+                    }
+                >
+                    <button
+                        type="button"
+                        onClick={() => callbacks.onOpenThread(id)}
+                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        aria-label="Reply in thread"
+                        title="Reply in thread"
+                    >
+                        <MessageCircleReply className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => callbacks.onTogglePin(id, isPinned)}
+                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        aria-label={isPinned ? 'Unpin' : 'Pin'}
+                        title={isPinned ? 'Unpin' : 'Pin to channel'}
+                    >
+                        {isPinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => callbacks.onBookmark(id)}
+                        className="rounded-md p-1 text-zoru-ink-muted hover:bg-zoru-surface-2"
+                        aria-label="Save"
+                        title="Save for later"
+                    >
+                        <Bookmark className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+
+                {isPinned ? (
+                    <div className={'mb-1 inline-flex items-center gap-1 text-[10px] ' + (mine ? 'text-zoru-bg/80' : 'text-zoru-ink-muted')}>
+                        <Pin className="h-2.5 w-2.5" /> Pinned
+                    </div>
+                ) : null}
+
                 {message.content ? <div className="whitespace-pre-wrap">{message.content}</div> : null}
                 {message.attachments?.length ? (
                     <div className="mt-2 flex flex-col gap-2">
@@ -607,6 +958,44 @@ function MessageRow({ message, meId }: { message: WithId<TeamMessage>; meId?: st
                         ))}
                     </div>
                 ) : null}
+
+                {/* Reactions */}
+                {(message.reactions?.length ?? 0) > 0 ? (
+                    <div className="mt-2">
+                        <ReactionsBar
+                            reactions={message.reactions?.map((r) => ({
+                                emoji: r.emoji,
+                                count: r.count,
+                                userIds: (r.userIds || []).map(String),
+                            }))}
+                            meId={meId}
+                            onToggle={(emoji) => callbacks.onToggleReaction(id, emoji)}
+                        />
+                    </div>
+                ) : null}
+
+                {/* Thread indicator */}
+                {replyCount > 0 ? (
+                    <button
+                        type="button"
+                        onClick={() => callbacks.onOpenThread(id)}
+                        className={
+                            'mt-1.5 inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] ' +
+                            (mine
+                                ? 'border-zoru-bg/30 bg-zoru-bg/10 text-zoru-bg hover:bg-zoru-bg/20'
+                                : 'border-zoru-line bg-zoru-surface-2 text-zoru-ink hover:bg-zoru-bg')
+                        }
+                    >
+                        <MessageCircleReply className="h-3 w-3" />
+                        {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
+                        {lastReplyAt ? (
+                            <span className={mine ? 'text-zoru-bg/70' : 'text-zoru-ink-muted'}>
+                                · {format(new Date(lastReplyAt), 'p')}
+                            </span>
+                        ) : null}
+                    </button>
+                ) : null}
+
                 <div className={'mt-1 text-[10px] ' + (mine ? 'text-zoru-bg/70' : 'text-zoru-ink-muted')}>
                     {format(new Date(message.createdAt), 'p')}
                 </div>
