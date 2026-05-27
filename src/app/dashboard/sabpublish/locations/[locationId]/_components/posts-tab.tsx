@@ -23,7 +23,7 @@ import {
   ALL_SABPUBLISH_PROVIDER_IDS,
   SABPUBLISH_PROVIDER_LABELS,
   type SabpublishProviderId,
-} from '@/lib/sabpublish/providers';
+} from '@/lib/sabpublish/provider-ids';
 
 export function SabpublishPostsTab({
   locationId,

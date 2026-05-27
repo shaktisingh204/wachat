@@ -18,7 +18,7 @@ import type { SabpublishProfileFieldDoc } from '@/lib/rust-client/sabpublish-pro
 import {
   ALL_SABPUBLISH_PROVIDER_IDS,
   type SabpublishProviderId,
-} from '@/lib/sabpublish/providers';
+} from '@/lib/sabpublish/provider-ids';
 
 const FIELDS: { key: string; label: string; multiline?: boolean }[] = [
   { key: 'name', label: 'Business name' },

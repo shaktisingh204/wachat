@@ -1,5 +1,17 @@
 import 'server-only';
 
+import {
+  ALL_SABPUBLISH_PROVIDER_IDS,
+  SABPUBLISH_PROVIDER_LABELS,
+  type SabpublishProviderId,
+} from './provider-ids';
+
+export {
+  ALL_SABPUBLISH_PROVIDER_IDS,
+  SABPUBLISH_PROVIDER_LABELS,
+  type SabpublishProviderId,
+};
+
 /**
  * SabPublish — provider adapter contract.
  *
@@ -12,13 +24,6 @@ import 'server-only';
  * Profile fields are passed as a flat key/value bag (`fieldKey` →
  * stringified value) so adapters don't need to share a giant DTO.
  */
-
-export type SabpublishProviderId =
-  | 'gbp'
-  | 'yelp'
-  | 'bing'
-  | 'apple'
-  | 'facebook';
 
 export interface ProviderProfileFields {
   /** Flat key/value bag; values are stringified by the caller. */
@@ -194,18 +199,6 @@ export function getListingProvider(id: SabpublishProviderId): IListingProvider {
   }
 }
 
-export const ALL_SABPUBLISH_PROVIDER_IDS: SabpublishProviderId[] = [
-  'gbp',
-  'yelp',
-  'bing',
-  'apple',
-  'facebook',
-];
-
-export const SABPUBLISH_PROVIDER_LABELS: Record<SabpublishProviderId, string> = {
-  gbp: 'Google Business Profile',
-  yelp: 'Yelp',
-  bing: 'Bing Places',
-  apple: 'Apple Maps',
-  facebook: 'Facebook Places',
-};
+// (ALL_SABPUBLISH_PROVIDER_IDS + SABPUBLISH_PROVIDER_LABELS are re-exported
+// from './provider-ids' at the top of this file so client code can also
+// import them without picking up `server-only`.)
