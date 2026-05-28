@@ -1,30 +1,30 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
-import { Card, Badge, Button } from '@/components/zoruui';
+import React, { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  StatCard,
+} from '@/components/zoruui';
 import {
   Users,
   CalendarHeart,
   Briefcase,
-  TrendingUp,
-  Plus,
-  ArrowRight,
-  Clock,
   Calendar,
-  CheckCircle,
-  XCircle,
-  Building,
-  Target,
-  ArrowUpRight,
-  ChevronRight,
+  Clock,
+  CheckCircle2,
   UserCheck,
   UserX,
-  FileText,
   UserPlus,
   Activity,
-  Heart
+  Building,
+  Target,
+  ChevronRight,
+  Inbox,
 } from 'lucide-react';
-import Link from 'next/link';
 import { approveOrRejectLeave } from '@/app/actions/crm-hr.actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -83,11 +83,39 @@ interface HrmAdminDashboardClientProps {
   userName: string;
 }
 
+type BadgeTone = 'neutral' | 'rose' | 'rose-soft' | 'obsidian' | 'green' | 'amber' | 'red' | 'blue';
+
+function leaveTypeTone(type: string): BadgeTone {
+  const t = type.toLowerCase();
+  if (t.includes('sick') || t.includes('sl')) return 'red';
+  if (t.includes('casual') || t.includes('cl')) return 'amber';
+  if (t.includes('earned') || t.includes('el')) return 'blue';
+  return 'neutral';
+}
+
+function attendanceTone(status: string): { tone: BadgeTone; label: string } {
+  const s = status.toLowerCase();
+  if (s === 'present') return { tone: 'green', label: 'Present' };
+  if (s === 'wfh') return { tone: 'blue', label: 'WFH' };
+  if (s === 'late') return { tone: 'amber', label: 'Late' };
+  if (s === 'absent') return { tone: 'red', label: 'Absent' };
+  return { tone: 'neutral', label: status };
+}
+
+function monogram(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
 export function HrmAdminDashboardClient({
   activeEmployeesCount,
   totalEmployeesCount,
   todayAttendanceRate,
-  pendingLeavesCount,
+  pendingLeavesCount: _pendingLeavesCount,
   activeJobsCount,
   pendingLeaves: initialPendingLeaves,
   todayAttendanceFeed,
@@ -100,454 +128,403 @@ export function HrmAdminDashboardClient({
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [leavesList, setLeavesList] = useState<PendingLeave[]>(initialPendingLeaves);
+  const reduce = useReducedMotion();
 
-  const handleLeaveAction = async (id: string, action: 'Approved' | 'Rejected') => {
+  const upcomingHolidayDays = useMemo(() => {
+    const now = Date.now();
+    const cutoff = now + 30 * 24 * 60 * 60 * 1000;
+    return upcomingHolidays.filter((h) => {
+      const t = new Date(h.date).getTime();
+      return t >= now && t <= cutoff;
+    }).length;
+  }, [upcomingHolidays]);
+
+  const handleLeaveAction = (id: string, action: 'Approved' | 'Rejected') => {
     startTransition(async () => {
       try {
         const res = await approveOrRejectLeave(id, action);
         if (res.success) {
           toast({
-            title: `Request ${action}`,
-            description: `The leave request has been successfully ${action.toLowerCase()}.`,
+            title: `Request ${action.toLowerCase()}`,
+            description: `The leave request has been ${action.toLowerCase()}.`,
           });
-          // Update client list
-          setLeavesList(prev => prev.filter(l => l._id !== id));
+          setLeavesList((prev) => prev.filter((l) => l._id !== id));
         } else {
           toast({
-            title: 'Action Failed',
-            description: res.error || 'Failed to update leave request status.',
+            title: 'Action failed',
+            description: res.error || 'Failed to update leave request.',
             variant: 'destructive',
           });
         }
-      } catch (err: any) {
+      } catch (err) {
         toast({
           title: 'Error',
-          description: err.message || 'An unexpected error occurred.',
+          description: err instanceof Error ? err.message : 'Unexpected error',
           variant: 'destructive',
         });
       }
     });
   };
 
-  const getLeaveBadgeTone = (type: string) => {
-    const t = type.toLowerCase();
-    if (t.includes('sick') || t.includes('sl')) return 'danger';
-    if (t.includes('casual') || t.includes('cl')) return 'warning';
-    if (t.includes('earned') || t.includes('el')) return 'info';
-    return 'neutral';
-  };
-
-  const getAttendanceStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === 'present') return <Badge tone="success" className="font-semibold">Present</Badge>;
-    if (s === 'wfh') return <Badge tone="info" className="font-semibold">WFH</Badge>;
-    if (s === 'late') return <Badge tone="warning" className="font-semibold">Late</Badge>;
-    if (s === 'absent') return <Badge tone="danger" className="font-semibold">Absent</Badge>;
-    return <Badge tone="neutral" className="font-semibold capitalize">{status}</Badge>;
-  };
+  const rowVariants = reduce
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 6 },
+        show: (i: number) => ({
+          opacity: 1,
+          y: 0,
+          transition: { delay: i * 0.035, duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+        }),
+      };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto w-full pb-10">
-      
-      {/* Premium Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-7 rounded-3xl border border-zoru-line shadow-[var(--zoru-shadow-sm)] relative overflow-hidden">
-        <div className="relative z-10">
-          <h1 className="text-3xl font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-            HRM Executive Console
-            <span className="text-[12px] font-bold py-1 px-2.5 rounded-full bg-zoru-brand/20 text-zoru-brand border border-zoru-brand/35 tracking-wider uppercase">
-              Admin Portal
-            </span>
-          </h1>
-          <p className="text-zoru-ink-muted text-[14px] mt-1.5 font-medium">
-            Welcome back, {userName || 'Administrator'}. Here is your operations overview for today.
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-3 relative z-10">
-          <Link href="/dashboard/hrm/payroll/employees/new">
-            <Button className="h-10 text-[13px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-zoru-ink border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-              <UserPlus className="w-4 h-4" /> Add Employee
-            </Button>
-          </Link>
-          <Link href="/dashboard/hrm/payroll">
-            <Button variant="outline" className="h-10 text-[13px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]">
-              <Activity className="w-4 h-4 text-zoru-ink" /> Run Payroll
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Primary Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Metric: Headcount */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Total Headcount</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{totalEmployeesCount}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <Users className="w-5 h-5" />
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 pb-12">
+      {/* Hero ribbon */}
+      <section
+        aria-label="Welcome"
+        className="rounded-2xl border border-zinc-200 bg-white px-5 py-4"
+      >
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="inline-flex h-2 w-2 rounded-full bg-rose-500" aria-hidden />
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900">
+                HRM operations, {userName || 'Administrator'}
+              </h1>
+              <p className="mt-0.5 text-xs text-zinc-500">
+                Approvals, attendance, hiring, and people health at a glance.
+              </p>
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
-            <span className="text-zoru-ink-muted font-medium">Active Members</span>
-            <span className="text-zoru-ink font-bold font-mono">{activeEmployeesCount}</span>
-          </div>
-        </Card>
- 
-        {/* Metric: Attendance Rate */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Today's Attendance</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{todayAttendanceRate}%</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <UserCheck className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
-            <span className="text-zoru-ink-muted font-medium">Status</span>
-            <span className="text-zoru-ink font-bold flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-zoru-ink animate-ping" /> Live
-            </span>
-          </div>
-        </Card>
- 
-        {/* Metric: Pending Leaves */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Pending Leaves</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{leavesList.length}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <CalendarHeart className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
-            <span className="text-zoru-ink-muted font-medium">Requires Action</span>
-            <span className={`font-bold ${leavesList.length > 0 ? 'text-zoru-ink animate-pulse' : 'text-zoru-ink-muted'}`}>
-              {leavesList.length > 0 ? 'Action Needed' : 'All Clear'}
-            </span>
-          </div>
-        </Card>
- 
-        {/* Metric: Active Job Postings */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Active Jobs</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-1.5 tracking-tight font-mono">{activeJobsCount}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <Briefcase className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[12px]">
-            <span className="text-zoru-ink-muted font-medium">Hiring Channels</span>
-            <span className="text-zoru-ink font-bold font-mono">Active</span>
-          </div>
-        </Card>
- 
-      </div>
-
-      {/* Main Double Column Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left/Center Columns: Approvals and Attendance */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Leave Approvals Card */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
-              <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <CalendarHeart className="w-4 h-4 text-zoru-ink" /> Pending Leave Approvals
-              </h3>
-              <Badge tone={leavesList.length > 0 ? 'danger' : 'neutral'} className="font-mono">{leavesList.length}</Badge>
-            </div>
-
-            <div className="pt-4 flex-1">
-              {leavesList.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2 flex items-center justify-center text-zoru-ink mb-3 border border-zoru-line">
-                    <CheckCircle className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-[14px] font-semibold text-zoru-ink">Inbox zero on leaves</h3>
-                  <p className="text-[12px] text-zoru-ink-muted mt-1 max-w-[220px]">No pending requests right now — your team is sorted.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {leavesList.map(leave => (
-                    <div 
-                      key={leave._id} 
-                      className="p-4 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:border-zoru-line-strong hover:bg-zoru-surface-2/50 transition-all duration-300 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink border border-zoru-line flex items-center justify-center text-zoru-ink text-sm font-bold shrink-0 overflow-hidden">
-                          {leave.employeeImage ? (
-                            <img src={leave.employeeImage} alt={leave.employeeName} className="w-full h-full object-cover" />
-                          ) : (
-                            leave.employeeName[0]?.toUpperCase()
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-[13px] font-bold text-zoru-ink leading-none">{leave.employeeName}</h4>
-                            <Badge tone={getLeaveBadgeTone(leave.leaveType)} className="text-[10px] py-0 px-2 uppercase font-mono tracking-wider">
-                              {leave.leaveType}
-                            </Badge>
-                          </div>
-                          <p className="text-[11px] text-zoru-ink-muted font-medium mt-1">
-                            {leave.designation || 'Team Member'}
-                          </p>
-                          <p className="text-[12px] text-zoru-ink-muted font-medium flex items-center gap-1.5 mt-2.5">
-                            <Clock className="w-3.5 h-3.5 text-zoru-ink" />
-                            {leave.startDate ? new Date(leave.startDate).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '—'} 
-                            <span className="text-zoru-ink-muted opacity-60">to</span> 
-                            {leave.endDate ? new Date(leave.endDate).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
-                          </p>
-                          {leave.reason && (
-                            <p className="text-[12px] text-zoru-ink-muted italic bg-zoru-surface-2/20 py-1.5 px-2.5 rounded-lg border border-zoru-line mt-2 font-medium">
-                              "{leave.reason}"
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 w-full md:w-auto shrink-0 md:justify-end border-t border-zoru-line md:border-0 pt-3 md:pt-0">
-                        <Button 
-                          onClick={() => handleLeaveAction(leave._id, 'Approved')}
-                          disabled={isPending}
-                          size="sm"
-                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 bg-zoru-surface-20 hover:bg-zoru-ink text-white hover:scale-[1.02] transition-transform active:scale-[0.98] border-0 rounded-lg"
-                        >
-                          <UserCheck className="w-3.5 h-3.5" /> Approve
-                        </Button>
-                        <Button 
-                          onClick={() => handleLeaveAction(leave._id, 'Rejected')}
-                          disabled={isPending}
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 md:flex-none h-8 text-[11px] font-bold gap-1 border-zoru-line bg-zoru-surface-20/5 hover:bg-zoru-surface-2 text-zoru-ink hover:text-zoru-ink-muted hover:scale-[1.02] transition-transform active:scale-[0.98] rounded-lg"
-                        >
-                          <UserX className="w-3.5 h-3.5" /> Reject
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Today's Punch-ins List */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
-              <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <Clock className="w-4 h-4 text-zoru-ink" /> Today's Attendance Logs
-              </h3>
-              <Link href="/dashboard/hrm/payroll/attendance" className="text-[12px] font-bold text-zoru-brand hover:text-zoru-brand-dark flex items-center gap-0.5 transition-colors">
-                View Register <ChevronRight className="w-4 h-4" />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="sm"
+              className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+              asChild
+            >
+              <Link href="/dashboard/hrm/payroll/employees/new">
+                <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Add employee
               </Link>
-            </div>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+              asChild
+            >
+              <Link href="/dashboard/hrm/payroll">
+                <Activity className="mr-1.5 h-3.5 w-3.5" /> Run payroll
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
-            <div className="pt-4 flex-1">
-              {todayAttendanceFeed.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-zoru-ink-muted">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2/40 flex items-center justify-center text-zoru-ink-muted mb-3 border border-zoru-line">
-                    <Clock className="w-6 h-6 text-zoru-ink-muted" />
-                  </div>
-                  <p className="text-[13px] font-medium">No clock-ins recorded yet today.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-[13px]">
-                    <thead>
-                      <tr className="border-b border-zoru-line text-zoru-ink-muted bg-zoru-surface-2/30">
-                        <th className="px-4 py-3 text-[11px] uppercase font-bold tracking-wider">Employee</th>
-                        <th className="px-4 py-3 text-[11px] uppercase font-bold tracking-wider">Status</th>
-                        <th className="px-4 py-3 text-[11px] uppercase font-bold tracking-wider text-right">In Time</th>
-                        <th className="px-4 py-3 text-[11px] uppercase font-bold tracking-wider text-right">Out Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {todayAttendanceFeed.map((record, index) => (
-                        <tr key={record._id || index} className="border-b border-zoru-line hover:bg-zoru-surface-2/20 transition-colors">
-                          <td className="px-4 py-3.5 flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-zoru-surface-2 text-zoru-ink flex items-center justify-center text-xs font-bold shrink-0 overflow-hidden">
-                              {record.image ? (
-                                <img src={record.image} alt={record.employeeName} className="w-full h-full object-cover" />
-                              ) : (
-                                record.employeeName[0]?.toUpperCase()
-                              )}
-                            </div>
-                            <div>
-                              <div className="font-bold text-zoru-ink leading-none">{record.employeeName}</div>
-                              <div className="text-[10px] text-zoru-ink-muted mt-1 font-semibold">{record.designation}</div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3.5">
-                            {getAttendanceStatusBadge(record.status)}
-                          </td>
-                          <td className="px-4 py-3.5 text-right font-mono font-medium text-zoru-ink">
-                            {record.checkIn ? new Date(record.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
-                          </td>
-                          <td className="px-4 py-3.5 text-right font-mono font-medium text-zoru-ink">
-                            {record.checkOut ? new Date(record.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+      {/* KPI strip - 6 tiles */}
+      <section aria-label="KPIs" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="Active staff" value={activeEmployeesCount.toLocaleString()} icon={<Users />} period={`${totalEmployeesCount} total`} />
+        <StatCard label="Headcount" value={totalEmployeesCount.toLocaleString()} icon={<UserCheck />} />
+        <StatCard label="Attendance today" value={`${todayAttendanceRate}%`} icon={<Clock />} period="of active staff" />
+        <StatCard label="Pending leaves" value={leavesList.length.toLocaleString()} icon={<CalendarHeart />} period={leavesList.length > 0 ? 'needs action' : 'all clear'} />
+        <StatCard label="Active jobs" value={activeJobsCount.toLocaleString()} icon={<Briefcase />} period={`${activeJobs.length} total`} />
+        <StatCard label="Holidays in 30d" value={upcomingHolidayDays.toLocaleString()} icon={<Calendar />} period="upcoming" />
+      </section>
+
+      {/* Three-column main grid */}
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        {/* Pending leaves */}
+        <div className="rounded-2xl border border-zinc-200 bg-white">
+          <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <CalendarHeart className="h-4 w-4 text-zinc-500" />
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Pending leaves</h2>
             </div>
-          </Card>
+            <Badge tone={leavesList.length > 0 ? 'amber' : 'neutral'} className="rounded-full px-2 py-0 text-[10px] font-mono">
+              {leavesList.length}
+            </Badge>
+          </header>
+          <div className="p-3">
+            {leavesList.length === 0 ? (
+              <EmptyState
+                compact
+                icon={<CheckCircle2 />}
+                title="Inbox zero on leaves"
+                description="No pending requests right now."
+              />
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {leavesList.map((leave, i) => (
+                  <motion.li
+                    key={leave._id}
+                    custom={i}
+                    initial={reduce ? undefined : 'hidden'}
+                    animate={reduce ? undefined : 'show'}
+                    variants={rowVariants}
+                    className="flex flex-col gap-2 py-2.5"
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white">
+                        {monogram(leave.employeeName)}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <p className="truncate text-[13px] font-semibold text-zinc-900">
+                            {leave.employeeName}
+                          </p>
+                          <Badge
+                            tone={leaveTypeTone(leave.leaveType)}
+                            className="rounded-full px-1.5 py-0 text-[10px] uppercase tracking-wide"
+                          >
+                            {leave.leaveType}
+                          </Badge>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-zinc-500">{leave.designation || 'Team member'}</p>
+                        <p className="mt-1 text-[11px] text-zinc-600">
+                          {leave.startDate
+                            ? new Date(leave.startDate).toLocaleDateString([], { month: 'short', day: 'numeric' })
+                            : '-'}{' '}
+                          to{' '}
+                          {leave.endDate
+                            ? new Date(leave.endDate).toLocaleDateString([], { month: 'short', day: 'numeric' })
+                            : '-'}
+                        </p>
+                        {leave.reason && (
+                          <p className="mt-1 line-clamp-2 rounded-md bg-zinc-50 px-2 py-1 text-[11px] italic text-zinc-600">
+                            {leave.reason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 pl-10">
+                      <Button
+                        size="sm"
+                        onClick={() => handleLeaveAction(leave._id, 'Approved')}
+                        disabled={isPending}
+                        className="h-7 rounded-full px-2.5 text-[11px] active:scale-[0.97]"
+                      >
+                        <UserCheck className="mr-1 h-3 w-3" /> Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleLeaveAction(leave._id, 'Rejected')}
+                        disabled={isPending}
+                        className="h-7 rounded-full px-2.5 text-[11px] active:scale-[0.97]"
+                      >
+                        <UserX className="mr-1 h-3 w-3" /> Reject
+                      </Button>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
-        {/* Right Column: Quick Links, Holidays, Operations */}
-        <div className="space-y-6">
-          
-          {/* Employee Lifecycle Workflow */}
-          <Card className="bg-gradient-to-b from-zoru-surface/80 to-zoru-surface-2/40 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col relative overflow-hidden">
-            <div className="absolute -top-4 -right-4 p-4 opacity-[0.03] pointer-events-none">
-               <Briefcase className="w-32 h-32" />
+        {/* Today attendance feed */}
+        <div className="rounded-2xl border border-zinc-200 bg-white">
+          <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-zinc-500" />
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Today&apos;s attendance</h2>
             </div>
-            <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink pb-3 border-b border-zoru-line flex items-center gap-2 mb-5 relative z-10">
-              <Target className="w-4 h-4 text-zoru-brand" /> Lifecycle Workflow
-            </h3>
-            
-            <div className="flex flex-col relative z-10 pl-2">
-              {/* Step 1 */}
-              <div className="relative pl-6 pb-5">
-                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
-                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
-                <Link href="/dashboard/hrm/hr/jobs" className="group block -mt-1">
-                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">1. Post a Job</span>
-                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Create openings for new roles</span>
-                </Link>
-              </div>
-              
-              {/* Step 2 */}
-              <div className="relative pl-6 pb-5">
-                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
-                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
-                <Link href="/dashboard/hrm/hr/candidates" className="group block -mt-1">
-                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">2. Review Candidates</span>
-                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Interview and send offers</span>
-                </Link>
-              </div>
-
-              {/* Step 3 */}
-              <div className="relative pl-6 pb-5">
-                <div className="absolute left-1.5 top-2 bottom-0 w-px bg-zoru-line"></div>
-                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-brand bg-white shadow-[0_0_8px_rgba(0,0,0,0.05)]"></div>
-                <Link href="/dashboard/hrm/hr/onboarding" className="group block -mt-1">
-                  <span className="text-[13px] font-bold text-zoru-brand group-hover:text-zoru-brand-dark transition-colors block leading-tight">3. Onboard Employee</span>
-                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Add details and assign assets</span>
-                </Link>
-              </div>
-
-              {/* Step 4 */}
-              <div className="relative pl-6">
-                <div className="absolute left-0 top-1 w-3 h-3 rounded-full border-2 border-zoru-line-strong bg-white"></div>
-                <Link href="/dashboard/hrm/payroll/settings" className="group block -mt-1">
-                  <span className="text-[13px] font-bold text-zoru-ink group-hover:text-zoru-brand transition-colors block leading-tight">4. Setup Payroll</span>
-                  <span className="text-[11px] text-zoru-ink-muted mt-1 block">Configure salary and taxes</span>
-                </Link>
-              </div>
+            <Link
+              href="/dashboard/hrm/payroll/attendance"
+              className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+            >
+              Register <ChevronRight className="h-3 w-3" />
+            </Link>
+          </header>
+          {todayAttendanceFeed.length === 0 ? (
+            <div className="p-3">
+              <EmptyState
+                compact
+                icon={<Inbox />}
+                title="No clock-ins yet"
+                description="Punches will appear here as your team starts the day."
+              />
             </div>
-          </Card>
-
-          {/* Active Jobs */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-3 border-b border-zoru-line mb-4">
-              <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-zoru-ink" /> Active Job Openings
-              </h3>
-              <Badge tone="info" className="font-mono">{activeJobs.length}</Badge>
-            </div>
-
-            {activeJobs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 text-zoru-ink-muted text-center">
-                <Briefcase className="w-6 h-6 opacity-30 mb-2" />
-                <p className="text-[12px] font-medium">No open job postings right now.</p>
-                <Link href="/dashboard/hrm/hr/jobs" className="text-[11px] font-bold text-zoru-brand hover:underline mt-2">
-                  Create Job Posting
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {activeJobs.slice(0, 4).map(job => (
-                  <div key={job._id} className="p-3 rounded-xl border border-zoru-line bg-zoru-surface-2/30 flex flex-col gap-1.5 hover:border-zoru-line-strong transition-colors">
-                    <div className="flex justify-between items-start gap-2">
-                      <h4 className="text-[12.5px] font-bold text-zoru-ink line-clamp-1">{job.title}</h4>
-                      <Badge tone={job.status?.toLowerCase() === 'open' ? 'success' : 'neutral'} className="text-[9px] py-0 px-1.5 capitalize font-semibold">
-                        {job.status || 'Open'}
-                      </Badge>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {todayAttendanceFeed.map((r, i) => {
+                const { tone, label } = attendanceTone(r.status);
+                return (
+                  <motion.li
+                    key={r._id || `${r.employeeId}-${i}`}
+                    custom={i}
+                    initial={reduce ? undefined : 'hidden'}
+                    animate={reduce ? undefined : 'show'}
+                    variants={rowVariants}
+                    className="flex items-center gap-2.5 px-4 py-2"
+                  >
+                    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white">
+                      {monogram(r.employeeName)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-zinc-900">{r.employeeName}</p>
+                      <p className="truncate text-[11px] text-zinc-500">{r.designation}</p>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] text-zoru-ink-muted font-medium">
-                      <span className="flex items-center gap-0.5"><Building className="w-3 h-3 text-zoru-ink" /> {job.department || 'General'}</span>
-                      {job.location && (
-                        <>
-                          <span className="opacity-50">•</span>
-                          <span>{job.location}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {activeJobs.length > 4 && (
-                  <Link href="/dashboard/hrm/hr/jobs" className="block text-center text-[12px] font-bold text-zoru-brand hover:text-zoru-brand-dark transition-colors pt-2.5 border-t border-zoru-line">
-                    View all {activeJobs.length} openings
-                  </Link>
-                )}
-              </div>
-            )}
-          </Card>
-
-          {/* Upcoming Holidays Card */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-5 rounded-2xl flex flex-col">
-            <h3 className="text-[15px] font-extrabold tracking-tight text-zoru-ink pb-3 border-b border-zoru-line flex items-center gap-2 mb-4">
-              <Calendar className="w-4 h-4 text-zoru-ink" /> Upcoming Holidays
-            </h3>
-
-            {upcomingHolidays.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 text-zoru-ink-muted text-center">
-                <Calendar className="w-6 h-6 opacity-30 mb-2" />
-                <p className="text-[12px] font-medium">No upcoming holidays scheduled.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {upcomingHolidays.map(holiday => (
-                  <div key={holiday._id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-zoru-surface-2/20 transition-colors border border-transparent hover:border-zoru-line">
-                    <div className="shrink-0 w-11 h-11 rounded-xl bg-zoru-surface-2 text-zoru-ink flex flex-col items-center justify-center border border-zoru-line font-medium shadow-md shadow-zoru-line">
-                      <span className="text-[9px] uppercase font-bold tracking-widest text-zoru-ink-muted">
-                        {new Date(holiday.date).toLocaleString([], { month: 'short' })}
-                      </span>
-                      <span className="text-[15px] font-extrabold leading-none mt-0.5 font-mono">
-                        {new Date(holiday.date).getDate()}
-                      </span>
-                    </div>
-                    <div>
-                      <h4 className="text-[13px] font-bold text-zoru-ink leading-none">{holiday.name}</h4>
-                      <p className="text-[11px] text-zoru-ink-muted capitalize mt-1.5 font-medium">
-                        {holiday.holidayType || 'Holiday'}
+                    <div className="hidden text-right text-[11px] sm:block">
+                      <p className="font-mono text-zinc-900">
+                        {r.checkIn ? new Date(r.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
+                      </p>
+                      <p className="font-mono text-zinc-400">
+                        {r.checkOut ? new Date(r.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
-
+                    <Badge tone={tone} className="ml-2 rounded-full px-2 py-0 text-[10px] capitalize">
+                      {label}
+                    </Badge>
+                  </motion.li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
-      </div>
+        {/* Active jobs + side rail */}
+        <div className="flex flex-col gap-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-zinc-500" />
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Active jobs</h2>
+              </div>
+              <Link
+                href="/dashboard/hrm/hr/jobs"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                All <ChevronRight className="h-3 w-3" />
+              </Link>
+            </header>
+            {activeJobs.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Briefcase />}
+                  title="No openings"
+                  description="Create a job posting to start hiring."
+                  action={
+                    <Button size="sm" variant="outline" className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]" asChild>
+                      <Link href="/dashboard/hrm/hr/jobs/new">New posting</Link>
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {activeJobs.slice(0, 5).map((job) => {
+                  const open = job.status?.toLowerCase() === 'open';
+                  return (
+                    <li key={job._id} className="flex items-center gap-2.5 px-4 py-2.5">
+                      <span
+                        aria-hidden
+                        className={`inline-flex h-1.5 w-1.5 rounded-full ${open ? 'bg-emerald-500' : 'bg-zinc-300'}`}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[13px] font-medium text-zinc-900">{job.title}</p>
+                        <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500">
+                          <Building className="h-3 w-3" /> {job.department || 'General'}
+                          {job.location && (
+                            <>
+                              <span aria-hidden>·</span>
+                              <span className="truncate">{job.location}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <Badge tone={open ? 'green' : 'neutral'} className="rounded-full px-1.5 py-0 text-[10px] capitalize">
+                        {job.status || 'open'}
+                      </Badge>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <Link
+              href="/dashboard/hrm/payroll/departments"
+              className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+            >
+              <div className="flex items-center gap-2 text-zinc-500">
+                <Building className="h-3.5 w-3.5" />
+                <span className="text-[11px] font-medium uppercase tracking-wide">Departments</span>
+              </div>
+              <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+                {departmentsCount.toLocaleString()}
+              </p>
+            </Link>
+            <Link
+              href="/dashboard/hrm/payroll/goals"
+              className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+            >
+              <div className="flex items-center gap-2 text-zinc-500">
+                <Target className="h-3.5 w-3.5" />
+                <span className="text-[11px] font-medium uppercase tracking-wide">Goals</span>
+              </div>
+              <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+                {goalsCount.toLocaleString()}
+              </p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Holiday strip */}
+      <section
+        aria-label="Upcoming holidays"
+        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3"
+      >
+        <div className="mb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-zinc-500" />
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Upcoming holidays</h2>
+          </div>
+          <Link
+            href="/dashboard/hrm/payroll/holidays"
+            className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+          >
+            Calendar <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+        {upcomingHolidays.length === 0 ? (
+          <EmptyState
+            compact
+            icon={<Calendar />}
+            title="No upcoming holidays"
+            description="Add company holidays to populate this strip."
+          />
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {upcomingHolidays.map((h) => {
+              const d = new Date(h.date);
+              return (
+                <div
+                  key={h._id}
+                  className="flex shrink-0 items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                >
+                  <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-zinc-50 ring-1 ring-zinc-200">
+                    <span className="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">
+                      {d.toLocaleString([], { month: 'short' })}
+                    </span>
+                    <span className="font-mono text-sm font-semibold text-zinc-900 leading-none">
+                      {d.getDate()}
+                    </span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-[13px] font-medium text-zinc-900">{h.name}</p>
+                    <p className="truncate text-[11px] capitalize text-zinc-500">
+                      {h.holidayType || 'holiday'}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

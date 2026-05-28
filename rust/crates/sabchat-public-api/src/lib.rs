@@ -44,11 +44,11 @@ where
 {
     Router::new()
         .route("/contacts", get(handlers::list_contacts).post(handlers::create_contact))
-        .route("/contacts/:id", get(handlers::get_contact))
+        .route("/contacts/{id}", get(handlers::get_contact))
         .route("/conversations", get(handlers::list_conversations))
-        .route("/conversations/:id", get(handlers::get_conversation))
+        .route("/conversations/{id}", get(handlers::get_conversation))
         .route(
-            "/conversations/:id/messages",
+            "/conversations/{id}/messages",
             get(handlers::list_messages).post(handlers::append_message),
         )
 }

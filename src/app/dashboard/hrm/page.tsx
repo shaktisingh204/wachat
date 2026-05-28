@@ -10,6 +10,8 @@ import { crmTasksApi } from '@/lib/rust-client/crm-tasks';
 import { listLeaves } from '@/app/actions/crm/leaves.actions';
 import { listHolidays } from '@/app/actions/crm/holidays.actions';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HrmDashboardPage() {
   const session = await getSession();
   if (!session?.user) return redirect('/login');
@@ -138,7 +140,7 @@ export default async function HrmDashboardPage() {
     const goalsCount = await db.collection('crm_goals').countDocuments({ userId: sessionUserId });
 
     return (
-      <div className="p-6">
+      <div className="pt-6">
         <HrmAdminDashboardClient
           activeEmployeesCount={activeEmployeesCount}
           totalEmployeesCount={totalEmployeesCount}
@@ -240,8 +242,8 @@ export default async function HrmDashboardPage() {
   const serializedProjects = JSON.parse(JSON.stringify(projects));
 
   return (
-    <div className="p-6">
-      <EmployeeDashboardClient 
+    <div className="pt-6">
+      <EmployeeDashboardClient
         employee={serializedEmployee}
         attendance={todayAttendance}
         attendance30d={attendance30d}

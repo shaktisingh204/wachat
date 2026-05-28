@@ -1,8 +1,15 @@
 'use client';
-import { fmtDate } from '@/lib/utils';
 
-import React from 'react';
-import { Card, Badge, Button, Progress, Avatar } from '@/components/zoruui';
+import React, { useMemo } from 'react';
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'motion/react';
+import { fmtDate } from '@/lib/utils';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  StatCard,
+} from '@/components/zoruui';
 import {
   Users,
   Briefcase,
@@ -10,21 +17,17 @@ import {
   Megaphone,
   FileText,
   Plus,
-  ArrowRight,
-  TrendingUp,
-  Clock,
+  Calendar,
+  Bell,
   Heart,
   ShieldCheck,
-  CheckCircle,
-  Building,
-  Bell,
-  Calendar,
-  Layers,
-  Search,
-  ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Inbox,
+  Award,
+  Gavel,
+  ClipboardList,
+  GraduationCap,
 } from 'lucide-react';
-import Link from 'next/link';
 
 interface OnboardingKpis {
   total: number;
@@ -92,6 +95,61 @@ interface HrOverviewClientProps {
   userName: string;
 }
 
+type BadgeTone = 'neutral' | 'rose' | 'rose-soft' | 'obsidian' | 'green' | 'amber' | 'red' | 'blue';
+
+function priorityTone(p?: string): BadgeTone {
+  const v = (p || '').toLowerCase();
+  if (v === 'urgent') return 'red';
+  if (v === 'high') return 'amber';
+  if (v === 'normal') return 'blue';
+  return 'neutral';
+}
+
+function jobTone(status?: string): BadgeTone {
+  const v = (status || '').toLowerCase();
+  if (v === 'open') return 'green';
+  if (v === 'draft') return 'neutral';
+  if (v === 'on_hold') return 'amber';
+  if (v === 'filled') return 'blue';
+  return 'neutral';
+}
+
+function onboardingTone(status?: string): BadgeTone {
+  const v = (status || '').toLowerCase();
+  if (v === 'completed') return 'green';
+  if (v === 'in_progress') return 'blue';
+  if (v === 'pending') return 'amber';
+  return 'neutral';
+}
+
+function monogram(name?: string) {
+  if (!name) return 'NH';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
+function daysSince(iso?: string) {
+  if (!iso) return null;
+  const t = new Date(iso).getTime();
+  if (!Number.isFinite(t)) return null;
+  return Math.max(0, Math.round((Date.now() - t) / 86400000));
+}
+
+const QUICK_ACTIONS = [
+  { name: 'Employees', href: '/dashboard/hrm/payroll/employees', icon: Users, dot: 'bg-violet-500' },
+  { name: 'Announcements', href: '/dashboard/hrm/hr/announcements/new', icon: Megaphone, dot: 'bg-sky-500' },
+  { name: 'New job', href: '/dashboard/hrm/hr/jobs/new', icon: Briefcase, dot: 'bg-emerald-500' },
+  { name: 'New policy', href: '/dashboard/hrm/hr/policies/new', icon: FileText, dot: 'bg-amber-500' },
+  { name: 'Disciplinary', href: '/dashboard/hrm/hr/disciplinary', icon: Gavel, dot: 'bg-rose-500' },
+  { name: 'Recognition', href: '/dashboard/hrm/hr/recognition', icon: Award, dot: 'bg-fuchsia-500' },
+  { name: 'Doc templates', href: '/dashboard/hrm/hr/document-templates', icon: ClipboardList, dot: 'bg-indigo-500' },
+  { name: 'Training', href: '/dashboard/hrm/hr/training', icon: GraduationCap, dot: 'bg-cyan-500' },
+];
+
 export function HrOverviewClient({
   onboardingKpis,
   activeOnboardings,
@@ -102,419 +160,412 @@ export function HrOverviewClient({
   totalEmployeesCount,
   userName,
 }: HrOverviewClientProps) {
+  const reduce = useReducedMotion();
 
-  const getPriorityTone = (priority: string) => {
-    const p = priority.toLowerCase();
-    if (p === 'urgent') return 'danger';
-    if (p === 'high') return 'warning';
-    if (p === 'normal') return 'info';
-    return 'neutral';
-  };
+  const openJobs = useMemo(
+    () => jobs.filter((j) => (j.status || '').toLowerCase() === 'open').length,
+    [jobs]
+  );
 
-  const getJobStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === 'open') return <Badge tone="success">Open</Badge>;
-    if (s === 'draft') return <Badge tone="neutral">Draft</Badge>;
-    if (s === 'on_hold') return <Badge tone="warning">On Hold</Badge>;
-    if (s === 'filled') return <Badge tone="info">Filled</Badge>;
-    return <Badge tone="neutral" className="capitalize">{status}</Badge>;
-  };
+  const recentAnnouncementsCount = announcements.length;
+  const pinnedPolicies = policies.length;
 
-  const getOnboardingStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === 'completed') return <Badge tone="success">Completed</Badge>;
-    if (s === 'in_progress') return <Badge tone="info" className="animate-pulse">Active</Badge>;
-    if (s === 'pending') return <Badge tone="warning">Pending</Badge>;
-    return <Badge tone="neutral" className="capitalize">{status}</Badge>;
-  };
+  const rowVariants = reduce
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 6 },
+        show: (i: number) => ({
+          opacity: 1,
+          y: 0,
+          transition: { delay: i * 0.035, duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+        }),
+      };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto w-full pb-12">
-      
-      {/* Premium Header Greeting */}
-      <div className="relative overflow-hidden bg-zoru-surface/50 p-8 rounded-3xl border border-zoru-line backdrop-blur-md shadow-2xl">
-        {/* Glow Spheres */}
-        
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[11px] font-extrabold py-0.5 px-2.5 rounded-full bg-zoru-brand/10 text-zoru-brand border border-zoru-brand/20 tracking-wider uppercase">
-                People Operations Hub
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-zoru-ink animate-ping" />
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 pb-12">
+      {/* Hero ribbon */}
+      <section className="rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <span aria-hidden className="inline-flex h-2 w-2 rounded-full bg-rose-500" />
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900">
+                HR operations, {userName || 'Manager'}
+              </h1>
+              <p className="mt-0.5 text-xs text-zinc-500">
+                Hiring pipelines, onboardings, announcements, and policies in one place.
+              </p>
             </div>
-            <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-zoru-ink">
-              HR Operations Overview
-            </h1>
-            <p className="text-zoru-ink-muted text-[14px] mt-2 max-w-xl leading-relaxed">
-              Hello {userName || 'Manager'}, welcome to your human resources control console. Manage hiring pipelines, active onboardings, compliance protocols, and corporate updates.
-            </p>
           </div>
-          
-          {/* Quick Action Grid */}
-          <div className="flex flex-wrap gap-3">
-            <Link href="/dashboard/hrm/hr/jobs/new">
-              <Button className="h-10 text-[12.5px] font-bold shadow-lg hover:shadow-zoru-brand/20 bg-gradient-to-r from-zoru-brand to-zoru-ink border-0 text-white rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                <Plus className="w-4 h-4" /> Post a Job
-              </Button>
-            </Link>
-            <Link href="/dashboard/hrm/hr/onboarding/new">
-              <Button variant="outline" className="h-10 text-[12.5px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                <UserPlus className="w-4 h-4 text-zoru-ink" /> Onboard Hire
-              </Button>
-            </Link>
-            <Link href="/dashboard/hrm/hr/announcements/new">
-              <Button variant="outline" className="h-10 text-[12.5px] font-bold border-zoru-line bg-zoru-surface-2/60 hover:bg-zoru-surface hover:text-zoru-ink text-zoru-ink rounded-xl flex items-center gap-1.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">
-                <Megaphone className="w-4 h-4 text-zoru-ink" /> Publish Notice
-              </Button>
-            </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]" asChild>
+              <Link href="/dashboard/hrm/hr/jobs/new">
+                <Plus className="mr-1.5 h-3.5 w-3.5" /> Post a job
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+              asChild
+            >
+              <Link href="/dashboard/hrm/hr/onboarding/new">
+                <UserPlus className="mr-1.5 h-3.5 w-3.5" /> Onboard hire
+              </Link>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+              asChild
+            >
+              <Link href="/dashboard/hrm/hr/announcements/new">
+                <Megaphone className="mr-1.5 h-3.5 w-3.5" /> Publish notice
+              </Link>
+            </Button>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        {/* Metric 1: Headcount */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Total Directory</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">{totalEmployeesCount}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <Users className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
-            <span className="text-zoru-ink-muted font-medium">Active Staff Count</span>
-            <span className="text-zoru-ink font-bold font-mono">{activeEmployeesCount}</span>
-          </div>
-        </Card>
+      {/* KPI strip - 6 tiles */}
+      <section aria-label="KPIs" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="Active staff" value={activeEmployeesCount.toLocaleString()} icon={<Users />} period={`${totalEmployeesCount} total`} />
+        <StatCard label="Headcount" value={totalEmployeesCount.toLocaleString()} icon={<Users />} />
+        <StatCard label="Open jobs" value={openJobs.toLocaleString()} icon={<Briefcase />} period={`${jobs.length} total`} />
+        <StatCard label="Onboardings" value={onboardingKpis.inProgress.toLocaleString()} icon={<UserPlus />} period={`+${onboardingKpis.completedThisMonth} done this month`} />
+        <StatCard label="Announcements" value={recentAnnouncementsCount.toLocaleString()} icon={<Megaphone />} period="recent" />
+        <StatCard label="Policies" value={pinnedPolicies.toLocaleString()} icon={<ShieldCheck />} period="pinned" />
+      </section>
 
-        {/* Metric 2: Open Jobs */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Open Channels</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">
-                {jobs.filter(j => j.status?.toLowerCase() === 'open').length}
-              </h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <Briefcase className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
-            <span className="text-zoru-ink-muted font-medium">Active Positions</span>
-            <span className="text-zoru-ink font-bold font-mono">{jobs.length} Total</span>
-          </div>
-        </Card>
-
-        {/* Metric 3: Active Onboardings */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">New Hires Onboarding</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">{onboardingKpis.inProgress}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <UserPlus className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
-            <span className="text-zoru-ink-muted font-medium">Completed This Month</span>
-            <span className="text-zoru-ink font-bold font-mono">+{onboardingKpis.completedThisMonth}</span>
-          </div>
-        </Card>
-
-        {/* Metric 4: Policies & Compliance */}
-        <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] hover:border-zoru-line hover:shadow-[var(--zoru-shadow-md)] p-5 rounded-2xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between min-h-[140px] group relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted">Compliance Rate</p>
-              <h3 className="text-3xl font-extrabold text-zoru-ink mt-2 tracking-tight font-mono">100%</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-zoru-surface-2 text-zoru-ink border border-zoru-line group-hover:scale-110 transition-transform duration-300">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="mt-4 pt-3 border-t border-zoru-line flex items-center justify-between text-[11.5px]">
-            <span className="text-zoru-ink-muted font-medium">Active Policy Manuals</span>
-            <span className="text-zoru-ink font-bold font-mono">{policies.length}</span>
-          </div>
-        </Card>
-
-      </div>
-
-      {/* Main Content Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left Double Column (Onboardings & Careers) */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Active Onboarding Status Panel */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
+      {/* 4-section layout: onboardings + jobs (left 2/3), announcements + policies (right 1/3) */}
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        {/* Left double column */}
+        <div className="flex flex-col gap-3 lg:col-span-2">
+          {/* Active onboardings */}
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
-                  <UserPlus className="w-4.5 h-4.5" />
-                </div>
+                <UserPlus className="h-4 w-4 text-zinc-500" />
                 <div>
-                  <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">Active Onboarding Pipeline</h3>
-                  <p className="text-[12px] text-zoru-ink-muted mt-0.5">Tracking completion progress for newly recruited staff members.</p>
+                  <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Active onboardings</h2>
+                  <p className="mt-0.5 text-[11px] text-zinc-500">Tracking progress for new hires</p>
                 </div>
               </div>
-              <Link href="/dashboard/hrm/hr/onboarding">
-                <Button variant="outline" size="sm" className="h-8 text-[11.5px] border-zoru-line bg-zoru-surface-2/60 text-zoru-ink font-bold rounded-lg hover:bg-zoru-surface hover:text-zoru-ink flex items-center gap-1">
-                  View List <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
+              <Link
+                href="/dashboard/hrm/hr/onboarding"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                View list <ChevronRight className="h-3 w-3" />
               </Link>
-            </div>
-
-            <div className="pt-5 space-y-4">
-              {activeOnboardings.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2 border border-zoru-line flex items-center justify-center mb-3">
-                    <Heart className="w-6 h-6 text-zoru-ink" />
-                  </div>
-                  <h3 className="text-[14px] font-semibold text-zoru-ink">No onboardings in flight</h3>
-                  <p className="text-[12px] text-zoru-ink-muted mt-1 max-w-[260px]">Initiate a new onboarding workspace to track candidates from offer to day one.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {activeOnboardings.slice(0, 4).map((onboarding) => {
-                    const progress = onboarding.progress ?? 0;
-                    return (
-                      <div 
-                        key={onboarding._id}
-                        className="p-4 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:border-zoru-line-strong hover:bg-zoru-surface-2/50 transition-all duration-300"
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zoru-ink to-zoru-ink border border-zoru-line flex items-center justify-center text-zoru-ink text-sm font-extrabold shadow-inner shrink-0">
-                              {onboarding.employeeName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'NH'}
-                            </div>
-                            <div>
-                              <h4 className="text-[13.5px] font-extrabold text-zoru-ink">{onboarding.employeeName || 'New Hire'}</h4>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[11.5px] text-zoru-ink-muted flex items-center gap-1">
-                                  <Calendar className="w-3.5 h-3.5 text-zoru-ink-muted" /> 
-                                  Joining: {onboarding.joiningDate ? fmtDate(onboarding.joiningDate) : '—'}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                            {getOnboardingStatusBadge(onboarding.status)}
-                            <Link href={`/dashboard/hrm/hr/onboarding`}>
-                              <span className="p-2 rounded-lg bg-zoru-surface-2/40 text-zoru-ink-muted hover:text-zoru-ink border border-zoru-line hover:border-zoru-line-strong transition-all cursor-pointer">
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </span>
-                            </Link>
-                          </div>
-                        </div>
-
-                        {/* Progress Indicator */}
-                        <div className="mt-4 pt-3 border-t border-zoru-line">
-                          <div className="flex justify-between items-center text-[11.5px] mb-1.5">
-                            <span className="text-zoru-ink-muted font-medium">Onboarding Milestones Completed</span>
-                            <span className="text-zoru-ink font-bold font-mono">{progress}%</span>
-                          </div>
-                          <Progress value={progress} className="h-1.5 bg-zoru-surface-2" indicatorClassName="bg-zoru-surface-20" />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Jobs & Careers Section */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
-                  <Briefcase className="w-4.5 h-4.5" />
-                </div>
-                <div>
-                  <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">Active Recruitment Openings</h3>
-                  <p className="text-[12px] text-zoru-ink-muted mt-0.5">Postings live on career pages and active recruitment channels.</p>
-                </div>
-              </div>
-              <Link href="/dashboard/hrm/hr/jobs">
-                <Button variant="outline" size="sm" className="h-8 text-[11.5px] border-zoru-line bg-zoru-surface-2/60 text-zoru-ink font-bold rounded-lg hover:bg-zoru-surface hover:text-zoru-ink flex items-center gap-1">
-                  View Jobs <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="pt-5">
-              {jobs.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-zoru-ink-muted">
-                  <div className="w-12 h-12 rounded-full bg-zoru-surface-2/30 border border-zoru-line flex items-center justify-center mb-3">
-                    <Briefcase className="w-6 h-6 text-zoru-ink" />
-                  </div>
-                  <p className="text-[13px] font-medium text-zoru-ink-muted">No active job listings found.</p>
-                  <p className="text-[11.5px] text-zoru-ink-muted mt-1">Create hiring post to start receiving candidate applications.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto rounded-xl border border-zoru-line">
-                  <table className="w-full text-left text-[13px] border-collapse">
-                    <thead>
-                      <tr className="bg-zoru-surface-2/40 border-b border-zoru-line">
-                        <th className="px-4 py-3 text-[11.5px] uppercase font-bold tracking-wider text-zoru-ink-muted">Title</th>
-                        <th className="px-4 py-3 text-[11.5px] uppercase font-bold tracking-wider text-zoru-ink-muted">Department</th>
-                        <th className="px-4 py-3 text-[11.5px] uppercase font-bold tracking-wider text-zoru-ink-muted">Openings</th>
-                        <th className="px-4 py-3 text-[11.5px] uppercase font-bold tracking-wider text-zoru-ink-muted">Type</th>
-                        <th className="px-4 py-3 text-center text-[11.5px] uppercase font-bold tracking-wider text-zoru-ink-muted">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {jobs.slice(0, 5).map((job) => (
-                        <tr 
-                          key={job._id}
-                          className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/20 transition-colors"
-                        >
-                          <td className="px-4 py-3.5">
-                            <span className="font-extrabold text-zoru-ink">{job.title}</span>
-                          </td>
-                          <td className="px-4 py-3.5 text-zoru-ink font-medium">
-                            {job.departmentName || 'General Operations'}
-                          </td>
-                          <td className="px-4 py-3.5 text-zoru-ink-muted font-semibold font-mono">
-                            {job.filled} / {job.openings} Filled
-                          </td>
-                          <td className="px-4 py-3.5 text-zoru-ink-muted font-medium capitalize">
-                            {job.employmentType?.replace('_', ' ') || 'Full Time'}
-                          </td>
-                          <td className="px-4 py-3.5 text-center">
-                            {getJobStatusBadge(job.status)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </Card>
-
-        </div>
-
-        {/* Right Single Column (Announcements, Policies & Navigation Guides) */}
-        <div className="space-y-6">
-          
-          {/* Announcements Feed Component */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
-                  <Megaphone className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">Notice Board</h3>
-              </div>
-              <Link href="/dashboard/hrm/hr/announcements">
-                <Button variant="outline" size="sm" className="h-8 text-[11.5px] border-zoru-line bg-zoru-surface-2/60 text-zoru-ink font-bold rounded-lg hover:bg-zoru-surface hover:text-zoru-ink flex items-center gap-0.5">
-                  See Feed <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="pt-5 space-y-4">
-              {announcements.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-10 text-zoru-ink-muted">
-                  <div className="w-10 h-10 rounded-full bg-zoru-surface-2/30 border border-zoru-line flex items-center justify-center mb-3 text-zoru-ink-muted">
-                    <Bell className="w-5 h-5" />
-                  </div>
-                  <p className="text-[12.5px] font-medium text-zoru-ink-muted">No corporate announcements.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {announcements.slice(0, 3).map((ann) => (
-                    <div 
-                      key={ann._id}
-                      className="p-4 rounded-xl border border-zoru-line bg-zoru-surface-2/30 hover:border-zoru-line-strong hover:bg-zoru-surface-2/50 transition-all duration-300 flex flex-col justify-between"
+            </header>
+            {activeOnboardings.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Heart />}
+                  title="No onboardings in flight"
+                  description="Start an onboarding workspace from offer to day one."
+                  action={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+                      asChild
                     >
-                      <div className="flex justify-between items-start gap-2">
-                        <Badge tone={getPriorityTone(ann.priority)} className="uppercase text-[9px] font-extrabold tracking-wide py-0.5 px-2">
-                          {ann.priority}
-                        </Badge>
-                        <span className="text-[10.5px] font-medium text-zoru-ink-muted font-mono">
-                          {ann.publishedAt ? fmtDate(ann.publishedAt) : (ann.createdAt ? fmtDate(ann.createdAt) : '')}
-                        </span>
+                      <Link href="/dashboard/hrm/hr/onboarding/new">New onboarding</Link>
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {activeOnboardings.slice(0, 5).map((o, i) => {
+                  const progress = Math.max(0, Math.min(100, o.progress ?? 0));
+                  const started = daysSince(o.joiningDate);
+                  return (
+                    <motion.li
+                      key={o._id}
+                      custom={i}
+                      initial={reduce ? undefined : 'hidden'}
+                      animate={reduce ? undefined : 'show'}
+                      variants={rowVariants}
+                      className="flex items-center gap-3 px-4 py-3"
+                    >
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white">
+                        {monogram(o.employeeName)}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <p className="truncate text-[13px] font-semibold text-zinc-900">
+                            {o.employeeName || 'New hire'}
+                          </p>
+                          <Badge
+                            tone={onboardingTone(o.status)}
+                            className="rounded-full px-1.5 py-0 text-[10px] capitalize"
+                          >
+                            {o.status?.replace('_', ' ') || 'pending'}
+                          </Badge>
+                        </div>
+                        <p className="mt-0.5 text-[11px] text-zinc-500">
+                          {o.joiningDate ? `Joined ${fmtDate(o.joiningDate)}` : 'No joining date'}
+                          {started !== null && (
+                            <>
+                              <span aria-hidden> · </span>
+                              <span>{started}d ago</span>
+                            </>
+                          )}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="h-1 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                            <div
+                              className="h-full rounded-full bg-emerald-500 transition-transform"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="font-mono text-[10px] text-zinc-500">{progress}%</span>
+                        </div>
                       </div>
-                      <h4 className="text-[13.5px] font-extrabold text-zoru-ink mt-2.5 line-clamp-1">{ann.title}</h4>
-                      <p className="text-[12px] text-zoru-ink-muted mt-1 line-clamp-2 leading-relaxed">
-                        {ann.body?.replace(/<[^>]*>/g, '') || ''}
+                    </motion.li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+
+          {/* Open jobs grid */}
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-zinc-500" />
+                <div>
+                  <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Open positions</h2>
+                  <p className="mt-0.5 text-[11px] text-zinc-500">Live on careers and recruitment channels</p>
+                </div>
+              </div>
+              <Link
+                href="/dashboard/hrm/hr/jobs"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                All jobs <ChevronRight className="h-3 w-3" />
+              </Link>
+            </header>
+            {jobs.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Briefcase />}
+                  title="No active jobs"
+                  description="Create a posting to start receiving applications."
+                  action={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+                      asChild
+                    >
+                      <Link href="/dashboard/hrm/hr/jobs/new">New posting</Link>
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-2 p-3 md:grid-cols-2">
+                {jobs.slice(0, 6).map((job) => (
+                  <Link
+                    key={job._id}
+                    href={`/dashboard/hrm/hr/jobs`}
+                    className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="truncate text-[13px] font-semibold text-zinc-900">{job.title}</p>
+                      <Badge tone={jobTone(job.status)} className="rounded-full px-1.5 py-0 text-[10px] capitalize">
+                        {(job.status || 'open').replace('_', ' ')}
+                      </Badge>
+                    </div>
+                    <p className="mt-0.5 truncate text-[11px] text-zinc-500">
+                      {job.departmentName || 'General'}
+                      {job.location && (
+                        <>
+                          <span aria-hidden> · </span>
+                          <span>{job.location}</span>
+                        </>
+                      )}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[11px]">
+                      <span className="font-mono text-zinc-900">
+                        {job.filled}<span className="text-zinc-400"> / {job.openings}</span>
+                      </span>
+                      <span className="capitalize text-zinc-500">
+                        {(job.employmentType || 'full_time').replace('_', ' ')}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right single column */}
+        <div className="flex flex-col gap-3">
+          {/* Announcements feed */}
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Megaphone className="h-4 w-4 text-zinc-500" />
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Announcements</h2>
+              </div>
+              <Link
+                href="/dashboard/hrm/hr/announcements"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                Feed <ChevronRight className="h-3 w-3" />
+              </Link>
+            </header>
+            {announcements.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Bell />}
+                  title="No announcements"
+                  description="Publish a notice to the team."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {announcements.slice(0, 4).map((a, i) => (
+                  <motion.li
+                    key={a._id}
+                    custom={i}
+                    initial={reduce ? undefined : 'hidden'}
+                    animate={reduce ? undefined : 'show'}
+                    variants={rowVariants}
+                    className="px-4 py-2.5"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <Badge tone={priorityTone(a.priority)} className="rounded-full px-1.5 py-0 text-[10px] uppercase tracking-wide">
+                        {a.priority}
+                      </Badge>
+                      <span className="font-mono text-[10px] text-zinc-400">
+                        {a.publishedAt ? fmtDate(a.publishedAt) : a.createdAt ? fmtDate(a.createdAt) : ''}
+                      </span>
+                    </div>
+                    <p className="mt-1 line-clamp-1 text-[13px] font-semibold text-zinc-900">
+                      {a.title}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-zinc-500">
+                      {a.body?.replace(/<[^>]*>/g, '') || ''}
+                    </p>
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] text-zinc-500">
+                      <span>Aud: {a.audience || 'all'}</span>
+                      <span>By {a.authorName || 'Ops'}</span>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Policies */}
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-zinc-500" />
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Policies</h2>
+              </div>
+              <Link
+                href="/dashboard/hrm/hr/policies"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                All <ChevronRight className="h-3 w-3" />
+              </Link>
+            </header>
+            {policies.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Inbox />}
+                  title="No policies"
+                  description="Publish your first policy document."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {policies.slice(0, 5).map((p) => (
+                  <li key={p._id} className="flex items-center gap-2.5 px-4 py-2.5">
+                    <FileText className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-zinc-900">{p.name}</p>
+                      <p className="mt-0.5 text-[11px] text-zinc-500">
+                        {p.effectiveDate ? `Updated ${fmtDate(p.effectiveDate)}` : `v${p.version || '1.0'}`}
                       </p>
-                      
-                      <div className="mt-3 pt-2.5 border-t border-zoru-line flex items-center justify-between text-[11px] text-zoru-ink-muted">
-                        <span className="font-semibold text-zoru-ink flex items-center gap-1">
-                          <Users className="w-3 h-3 text-zoru-ink-muted" /> Aud: {ann.audience || 'All'}
-                        </span>
-                        <span className="font-medium text-zoru-ink-muted">By: {ann.authorName || 'Operations'}</span>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Compliance & Resource Guide */}
-          <Card className="bg-zoru-surface/50 border border-zoru-line text-zoru-ink shadow-[var(--zoru-shadow-sm)] p-6 rounded-2xl flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-zoru-line">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-zoru-surface-2 rounded-xl border border-zoru-line text-zoru-ink">
-                  <FileText className="w-4.5 h-4.5" />
-                </div>
-                <h3 className="text-[15.5px] font-extrabold tracking-tight text-zoru-ink">HR Policies</h3>
-              </div>
-              <Link href="/dashboard/hrm/hr/policies">
-                <Button variant="outline" size="sm" className="h-8 text-[11.5px] border-zoru-line bg-zoru-surface-2/60 text-zoru-ink font-bold rounded-lg hover:bg-zoru-surface hover:text-zoru-ink flex items-center gap-0.5">
-                  Policies <ChevronRight className="w-3.5 h-3.5" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="pt-5 space-y-3.5">
-              {policies.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-6 text-zoru-ink-muted">
-                  <p className="text-[12.5px] font-medium text-zoru-ink-muted">No active policy documents published.</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {policies.slice(0, 4).map((policy) => (
-                    <div 
-                      key={policy._id}
-                      className="p-3 rounded-lg border border-zoru-line bg-zoru-surface-2/30 hover:border-zoru-line-strong transition-colors flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <FileText className="w-4 h-4 text-zoru-ink-muted shrink-0" />
-                        <div className="min-w-0">
-                          <h5 className="text-[12.5px] font-bold text-zoru-ink truncate">{policy.name}</h5>
-                          <span className="text-[10px] text-zoru-ink-muted font-medium">Cat: {policy.category || 'HR'} · Ver {policy.version || '1.0'}</span>
-                        </div>
-                      </div>
-                      <Link href={`/dashboard/hrm/hr/policies`}>
-                        <span className="p-1 rounded bg-zoru-surface-2 text-zoru-ink-muted border border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink cursor-pointer transition-colors">
-                          <ChevronRight className="w-4 h-4" />
-                        </span>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
+                    <Badge tone="neutral" className="rounded-full px-1.5 py-0 text-[10px] capitalize">
+                      {p.category || 'HR'}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
+      </section>
 
-      </div>
+      {/* Quick-action grid */}
+      <section
+        aria-label="Quick actions"
+        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3"
+      >
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Quick actions</h2>
+          <Link
+            href="/dashboard/hrm/payroll/employees"
+            className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+          >
+            Directory <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+          {QUICK_ACTIONS.map((a) => {
+            const Icon = a.icon;
+            return (
+              <Link
+                key={a.name}
+                href={a.href}
+                className="group rounded-xl border border-zinc-200 bg-white px-3 py-2.5 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+              >
+                <div className="flex items-center gap-2">
+                  <span aria-hidden className={`inline-flex h-2 w-2 rounded-full ${a.dot}`} />
+                  <Icon className="h-3.5 w-3.5 text-zinc-500" />
+                </div>
+                <p className="mt-1.5 text-[12px] font-semibold text-zinc-900">{a.name}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
+      {/* Calendar (next-up) preview */}
+      <section
+        aria-label="Calendar shortcut"
+        className="rounded-2xl border border-zinc-200 bg-white px-4 py-3"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-zinc-500" />
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">People calendar</h2>
+          </div>
+          <Link
+            href="/dashboard/hrm/payroll/holidays"
+            className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+          >
+            Open <ChevronRight className="h-3 w-3" />
+          </Link>
+        </div>
+        <p className="mt-1 text-[11px] text-zinc-500">
+          Avg onboarding completion is {onboardingKpis.avgCompletionDays} day{onboardingKpis.avgCompletionDays === 1 ? '' : 's'}.
+        </p>
+      </section>
     </div>
   );
 }

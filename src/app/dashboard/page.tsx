@@ -6,30 +6,60 @@ import { getAccountHomeData } from "@/app/actions/home.actions";
 import { getSession } from "@/app/actions/user.actions";
 import { getOnboardingState } from "@/app/actions/onboarding-flow.actions";
 
-import { 
-  Card, CardContent, CardHeader, CardTitle, CardDescription,
+import {
   Button,
   Badge,
   StatCard,
-  Separator,
-  Avatar, AvatarFallback
+  EmptyState,
 } from "@/components/zoruui";
-import { 
-  Rocket, 
-  MessageSquare, 
-  Users, 
-  Briefcase, 
-  Zap, 
+import {
+  MessageSquare,
+  Users,
+  Briefcase,
+  Zap,
   Activity,
   ArrowRight,
-  Sparkles,
-  BarChart,
-  BellRing
+  ArrowUpRight,
+  Rocket,
+  Megaphone,
+  TrendingUp,
+  Inbox,
+  Globe2,
+  Layers,
+  Database,
+  Workflow,
+  Mail,
 } from "lucide-react";
+import { HomeMotionShell } from "./_components/home-motion-shell";
 
 export const metadata = {
-  title: "Dashboard · SabNode"
+  title: "Dashboard · SabNode",
 };
+
+const QUICK_LAUNCH: Array<{
+  name: string;
+  href: string;
+  dot: string;
+  ring: string;
+  hint: string;
+}> = [
+  { name: "Wachat", href: "/dashboard/wachat", dot: "bg-emerald-500", ring: "ring-emerald-200", hint: "WhatsApp Business" },
+  { name: "SabFlow", href: "/dashboard/sabflow", dot: "bg-sky-500", ring: "ring-sky-200", hint: "Automations" },
+  { name: "CRM", href: "/dashboard/crm", dot: "bg-violet-500", ring: "ring-violet-200", hint: "Leads + Deals" },
+  { name: "SEO", href: "/dashboard/seo", dot: "bg-amber-500", ring: "ring-amber-200", hint: "Audits + Keywords" },
+  { name: "HRM", href: "/dashboard/hrm", dot: "bg-rose-500", ring: "ring-rose-200", hint: "People Ops" },
+  { name: "Email", href: "/dashboard/email-marketing", dot: "bg-indigo-500", ring: "ring-indigo-200", hint: "Campaigns" },
+  { name: "SabChat", href: "/dashboard/sabchat", dot: "bg-cyan-500", ring: "ring-cyan-200", hint: "Live Chat" },
+  { name: "Sites", href: "/dashboard/sabsite", dot: "bg-fuchsia-500", ring: "ring-fuchsia-200", hint: "Web Builder" },
+];
+
+function broadcastBadgeTone(status: string): "green" | "amber" | "red" | "neutral" {
+  const s = status.toLowerCase();
+  if (s === "completed" || s === "sent" || s === "delivered") return "green";
+  if (s === "scheduled" || s === "queued" || s === "processing") return "amber";
+  if (s === "failed" || s === "cancelled") return "red";
+  return "neutral";
+}
 
 export default async function HomePage() {
   const [data, session, obState] = await Promise.all([
@@ -38,201 +68,364 @@ export default async function HomePage() {
     getOnboardingState(),
   ]);
 
-  const u = session?.user as any;
+  const u = session?.user as { name?: string; email?: string } | undefined;
   const userName = u?.name || u?.email?.split("@")[0] || "there";
 
   const { stats, velocity, recentBroadcasts, recentActivity } = data;
   const pct = (n: number, d: number) => (d ? Math.round((n / d) * 100) : 0);
-  
+
   const deliveryRate = pct(stats.totalDelivered, stats.totalSent);
   const dealsWonRate = pct(stats.dealsWon, stats.totalDeals);
+  const messageDelta =
+    velocity.messagesPrev24h > 0
+      ? Math.round(((velocity.messagesLast24h - velocity.messagesPrev24h) / velocity.messagesPrev24h) * 100)
+      : undefined;
+
+  const onboarding = obState?.onboarding;
+  const onboardingPct =
+    onboarding && onboarding.status !== "complete"
+      ? Math.max(0, Math.min(100, Number((onboarding as { progress?: number }).progress ?? 0)))
+      : 0;
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-6 pt-8 pb-16 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zoru-ink via-zoru-ink to-zoru-ink p-8 text-white shadow-2xl">
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-4 max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-sm font-medium backdrop-blur-md">
-              <Sparkles className="h-4 w-4 text-zoru-ink-muted" />
-              <span>Welcome back to your workspace</span>
+    <HomeMotionShell>
+      <div className="mx-auto w-full max-w-[1400px] px-6 pt-6 pb-12 space-y-4">
+        {/* Hero ribbon - slim, flat surface with soft inner border */}
+        <section
+          aria-label="Welcome"
+          className="rounded-2xl border border-zinc-200 bg-white px-5 py-4 shadow-[0_1px_0_0_rgb(0_0_0_/_0.02)]"
+        >
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+              <div className="min-w-0">
+                <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900">
+                  Good to see you, {userName}
+                </h1>
+                <p className="mt-0.5 text-xs text-zinc-500">
+                  Here is what is moving across your workspace today.
+                </p>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-              Good to see you, {userName}!
-            </h1>
-            <p className="text-lg text-zoru-ink-muted font-medium">
-              You're currently on the <strong className="text-white">{stats.planName || 'Free'}</strong> plan with {stats.credits} credits remaining. 
-              Let's make today productive.
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="neutral" className="rounded-full px-2.5 py-0.5 text-[11px] font-medium">
+                {stats.planName || "Free"} plan
+              </Badge>
+              <Badge tone="obsidian" className="rounded-full px-2.5 py-0.5 text-[11px] font-medium">
+                {stats.credits.toLocaleString()} credits
+              </Badge>
+              <Button
+                size="sm"
+                className="h-8 rounded-full px-3 text-[12px] font-medium active:scale-[0.97]"
+                asChild
+              >
+                <Link href="/dashboard/sabflow">
+                  <Zap className="mr-1.5 h-3.5 w-3.5" /> Open SabFlow
+                </Link>
+              </Button>
+            </div>
           </div>
-          <div className="hidden md:flex relative items-center">
-            <Button size="lg" className="rounded-full bg-white text-zoru-ink hover:bg-zoru-surface-2 shadow-lg" asChild>
-              <Link href="/dashboard/sabflow">
-                <Zap className="mr-2 h-4 w-4" /> Go to SabFlow
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Onboarding */}
-      {obState?.onboarding && obState.onboarding.status !== "complete" && (
-        <Card className="border-zoru-line bg-zoru-surface-2 shadow-sm">
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink">
-                <Rocket className="h-6 w-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-zoru-ink">Complete your setup</h3>
-                <p className="text-zoru-ink">Finish the onboarding to get the most out of SabNode.</p>
-              </div>
-            </div>
-            <Button variant="outline" className="border-zoru-line text-zoru-ink hover:bg-zoru-surface-2 bg-white">
-              Continue
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Primary KPI Grid */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          label="Total Messages"
-          value={stats.totalMessages.toLocaleString()}
-          icon={<MessageSquare className="h-5 w-5 text-zoru-ink" />}
-          delta={velocity.messagesLast24h > 0 ? velocity.messagesLast24h : undefined}
-          formatDelta={(d) => `+${d}`}
-          period="in last 24h"
-          className="border-t-4 border-t-zoru-line shadow-sm hover:shadow-md transition-all"
-        />
-        <StatCard 
-          label="Delivery Rate"
-          value={`${deliveryRate}%`}
-          icon={<Activity className="h-5 w-5 text-zoru-ink" />}
-          delta={stats.totalSent > 0 ? deliveryRate - 90 : undefined}
-          formatDelta={() => deliveryRate >= 95 ? "Excellent" : deliveryRate >= 80 ? "Healthy" : "Improving"}
-          period={stats.totalSent > 0 ? "based on recent sends" : "no sends yet"}
-          className="border-t-4 border-t-zoru-line shadow-sm hover:shadow-md transition-all"
-        />
-        <StatCard 
-          label="Total Contacts"
-          value={stats.totalContacts.toLocaleString()}
-          icon={<Users className="h-5 w-5 text-zoru-ink" />}
-          delta={velocity.contactsLast7d > 0 ? velocity.contactsLast7d : undefined}
-          formatDelta={(d) => `+${d}`}
-          period="added this week"
-          className="border-t-4 border-t-zoru-line shadow-sm hover:shadow-md transition-all"
-        />
-        <StatCard 
-          label="Total Deals"
-          value={stats.totalDeals.toLocaleString()}
-          icon={<Briefcase className="h-5 w-5 text-zoru-ink" />}
-          delta={dealsWonRate > 0 ? dealsWonRate : undefined}
-          formatDelta={(d) => `${d}% won`}
-          period="win rate"
-          className="border-t-4 border-t-zoru-line shadow-sm hover:shadow-md transition-all"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Recent Broadcasts */}
-        <Card className="lg:col-span-2 shadow-sm border-border bg-card">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <BarChart className="h-5 w-5 text-zoru-ink" /> Recent Broadcasts
-              </CardTitle>
-              <CardDescription>Your latest communication campaigns</CardDescription>
-            </div>
-            <Button variant="ghost" size="sm" className="text-zoru-ink hover:text-zoru-ink" asChild>
-              <Link href="/dashboard/marketing">View All <ArrowRight className="ml-1 h-4 w-4" /></Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {recentBroadcasts && recentBroadcasts.length > 0 ? (
-              <div className="space-y-4 mt-4">
-                {recentBroadcasts.slice(0, 5).map((b) => (
-                  <div key={b._id} className="flex items-center justify-between p-4 rounded-2xl bg-secondary/30 hover:bg-secondary/50 transition-colors border border-transparent hover:border-border/50">
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-full ${b.status === 'completed' ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface-2 text-zoru-ink'}`}>
-                        <Zap className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">{b.name}</p>
-                        <div className="flex items-center text-xs text-muted-foreground mt-1 gap-2">
-                          <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider">{b.status}</Badge>
-                          <span>•</span>
-                          <span>{new Date(b.createdAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">{b.successCount} delivered</p>
-                      <p className="text-xs text-muted-foreground">{b.totalContacts} total</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-border rounded-2xl mt-4">
-                <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center mb-4">
-                  <Rocket className="h-6 w-6 text-muted-foreground" />
+        {/* Onboarding strip */}
+        {onboarding && onboarding.status !== "complete" && (
+          <section
+            aria-label="Onboarding"
+            className="rounded-2xl border border-amber-200 bg-amber-50/60 px-5 py-4"
+          >
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-amber-600 ring-1 ring-amber-200">
+                  <Rocket className="h-4 w-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-zinc-900">Finish your setup</p>
+                  <p className="mt-0.5 text-xs text-zinc-600">
+                    A few steps left before SabNode is fully tuned for you.
+                  </p>
                 </div>
-                <h3 className="font-semibold">No broadcasts yet</h3>
-                <p className="text-sm text-muted-foreground mt-1 max-w-sm">Create your first broadcast to engage with your audience.</p>
-                <Button className="mt-4" asChild>
-                  <Link href="/dashboard/marketing">Create Broadcast</Link>
+              </div>
+              <div className="flex w-full items-center gap-3 md:w-72">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-amber-100">
+                  <div
+                    className="h-full rounded-full bg-amber-500 transition-transform"
+                    style={{ width: `${onboardingPct || 12}%` }}
+                  />
+                </div>
+                <span className="font-mono text-[11px] text-amber-700">{onboardingPct || 12}%</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+                  asChild
+                >
+                  <Link href="/dashboard/onboarding">Continue</Link>
                 </Button>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          </section>
+        )}
 
-        {/* Recent Activity */}
-        <Card className="shadow-sm border-border bg-card">
-          <CardHeader>
-            <CardTitle className="text-xl flex items-center gap-2">
-              <BellRing className="h-5 w-5 text-zoru-ink" /> Recent Activity
-            </CardTitle>
-            <CardDescription>What's happening in your workspace</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {recentActivity && recentActivity.length > 0 ? (
-              <div className="space-y-6 mt-4">
-                {recentActivity.slice(0, 5).map((activity, i) => (
-                  <div key={activity._id} className="relative flex gap-4">
-                    {i !== recentActivity.slice(0, 5).length - 1 && (
-                      <Separator orientation="vertical" className="absolute left-4 top-10 h-full -translate-x-1/2" />
-                    )}
-                    <Avatar className="h-8 w-8 border-2 border-background shadow-sm ring-1 ring-border">
-                      <AvatarFallback className="bg-gradient-to-br from-zoru-ink to-zoru-ink text-white text-xs">
-                        {activity.userName.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col pt-1">
-                      <p className="text-sm font-medium">
-                        <span className="font-semibold">{activity.userName}</span> {activity.action}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {new Date(activity.createdAt).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+        {/* KPI strip - 6 tiles */}
+        <section aria-label="KPIs" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          <StatCard
+            label="Messages"
+            value={stats.totalMessages.toLocaleString()}
+            icon={<MessageSquare />}
+            delta={messageDelta}
+            period="last 24h vs prior"
+          />
+          <StatCard
+            label="Delivery"
+            value={`${deliveryRate}%`}
+            icon={<Activity />}
+            period={stats.totalSent > 0 ? `${stats.totalSent.toLocaleString()} sent` : "no sends yet"}
+          />
+          <StatCard
+            label="Contacts"
+            value={stats.totalContacts.toLocaleString()}
+            icon={<Users />}
+            delta={velocity.contactsLast7d > 0 ? velocity.contactsLast7d : undefined}
+            formatDelta={(d) => `+${d}`}
+            period="added 7d"
+          />
+          <StatCard
+            label="Deals"
+            value={stats.totalDeals.toLocaleString()}
+            icon={<Briefcase />}
+            delta={dealsWonRate > 0 ? dealsWonRate : undefined}
+            formatDelta={(d) => `${d}% won`}
+            period="win rate"
+          />
+          <StatCard
+            label="Active Flows"
+            value={stats.activeFlows.toLocaleString()}
+            icon={<Workflow />}
+            period={`${stats.totalFlows.toLocaleString()} total`}
+          />
+          <StatCard
+            label="Pipeline"
+            value={`${data.currency} ${stats.pipelineValue.toLocaleString()}`}
+            icon={<TrendingUp />}
+            period={`${stats.totalLeads.toLocaleString()} leads`}
+          />
+        </section>
+
+        {/* Quick launch */}
+        <section
+          aria-label="Quick launch"
+          className="rounded-2xl border border-zinc-200 bg-white px-4 py-3"
+        >
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Quick launch</h2>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-0.5 text-[11px] font-medium text-zinc-500 hover:text-zinc-900"
+            >
+              All modules <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+            {QUICK_LAUNCH.map((m) => (
+              <Link
+                key={m.name}
+                href={m.href}
+                className="group rounded-xl border border-zinc-200 bg-white px-3 py-2.5 transition-colors hover:border-zinc-300 active:scale-[0.97]"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className={`inline-flex h-2 w-2 rounded-full ${m.dot} ring-2 ${m.ring} ring-offset-1 ring-offset-white`}
+                  />
+                  <span className="text-[13px] font-semibold text-zinc-900">{m.name}</span>
+                </div>
+                <p className="mt-1 text-[11px] text-zinc-500">{m.hint}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Two-column main grid */}
+        <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+          {/* Recent broadcasts - spans 2 */}
+          <div className="rounded-2xl border border-zinc-200 bg-white lg:col-span-2">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div>
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Recent broadcasts</h2>
+                <p className="mt-0.5 text-[11px] text-zinc-500">Latest sends across your channels</p>
+              </div>
+              <Link
+                href="/dashboard/marketing"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                View all <ArrowRight className="h-3 w-3" />
+              </Link>
+            </header>
+            <div>
+              {recentBroadcasts.length === 0 ? (
+                <div className="p-4">
+                  <EmptyState
+                    compact
+                    icon={<Megaphone />}
+                    title="No broadcasts yet"
+                    description="Create your first campaign to reach your audience."
+                    action={
+                      <Button
+                        size="sm"
+                        className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
+                        asChild
+                      >
+                        <Link href="/dashboard/marketing">Create broadcast</Link>
+                      </Button>
+                    }
+                  />
+                </div>
+              ) : (
+                <ul className="divide-y divide-zinc-100">
+                  {recentBroadcasts.slice(0, 6).map((b) => {
+                    const successRate = pct(b.successCount, b.totalContacts);
+                    const trendingUp = successRate >= 80;
+                    return (
+                      <li
+                        key={b._id}
+                        className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-zinc-50/60"
+                      >
+                        <span
+                          aria-hidden
+                          className={`inline-flex h-1.5 w-1.5 shrink-0 rounded-full ${
+                            trendingUp ? "bg-emerald-500" : "bg-zinc-300"
+                          }`}
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[13px] font-medium text-zinc-900">{b.name}</p>
+                          <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zinc-500">
+                            <Badge
+                              tone={broadcastBadgeTone(b.status)}
+                              className="rounded-full px-1.5 py-0 text-[10px] uppercase tracking-wide"
+                            >
+                              {b.status}
+                            </Badge>
+                            <span>{new Date(b.createdAt).toLocaleDateString()}</span>
+                            {b.projectName && (
+                              <>
+                                <span aria-hidden>·</span>
+                                <span className="truncate">{b.projectName}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="hidden shrink-0 text-right sm:block">
+                          <p className="font-mono text-[12px] font-medium text-zinc-900">
+                            {b.successCount.toLocaleString()}
+                            <span className="text-zinc-400"> / {b.totalContacts.toLocaleString()}</span>
+                          </p>
+                          <p
+                            className={`inline-flex items-center gap-0.5 text-[11px] ${
+                              trendingUp ? "text-emerald-600" : "text-zinc-500"
+                            }`}
+                          >
+                            <ArrowUpRight className="h-3 w-3" /> {successRate}%
+                          </p>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          {/* Recent activity */}
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div>
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Activity</h2>
+                <p className="mt-0.5 text-[11px] text-zinc-500">Your team in real time</p>
+              </div>
+              <Link
+                href="/dashboard/activity"
+                className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+              >
+                Feed <ArrowRight className="h-3 w-3" />
+              </Link>
+            </header>
+            {recentActivity.length === 0 ? (
+              <div className="p-4">
+                <EmptyState
+                  compact
+                  icon={<Inbox />}
+                  title="All quiet for now"
+                  description="Activity will appear here as your team works."
+                />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="h-11 w-11 rounded-full bg-zoru-surface-2 text-zoru-ink flex items-center justify-center mb-3">
-                  <Activity className="h-5 w-5" />
-                </div>
-                <h3 className="text-sm font-semibold text-foreground">All quiet — for now</h3>
-                <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">Activity will appear here as your team sends, books, and replies.</p>
-              </div>
+              <ol className="relative px-4 py-3">
+                <span
+                  aria-hidden
+                  className="absolute left-[26px] top-4 bottom-4 w-px bg-zinc-100"
+                />
+                {recentActivity.slice(0, 6).map((a) => {
+                  const monogram = a.userName.substring(0, 2).toUpperCase();
+                  return (
+                    <li key={a._id} className="relative flex items-start gap-3 py-2">
+                      <span className="relative z-10 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[10px] font-semibold text-white ring-4 ring-white">
+                        {monogram}
+                      </span>
+                      <div className="min-w-0 flex-1 pt-1">
+                        <p className="text-[13px] leading-tight text-zinc-900">
+                          <span className="font-semibold">{a.userName}</span>{" "}
+                          <span className="text-zinc-600">{a.action}</span>
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-zinc-400">
+                          {new Date(a.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
+
+        {/* Bottom utility row */}
+        <section className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-2 text-zinc-500">
+              <Database className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-medium uppercase tracking-wide">Library</span>
+            </div>
+            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+              {stats.totalLibraryTemplates.toLocaleString()}
+            </p>
+            <p className="mt-0.5 text-[11px] text-zinc-500">templates available</p>
+          </div>
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-2 text-zinc-500">
+              <Globe2 className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-medium uppercase tracking-wide">SEO Projects</span>
+            </div>
+            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+              {stats.totalSeoProjects.toLocaleString()}
+            </p>
+            <p className="mt-0.5 text-[11px] text-zinc-500">
+              {stats.totalSeoAudits.toLocaleString()} audits run
+            </p>
+          </div>
+          <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
+            <div className="flex items-center gap-2 text-zinc-500">
+              <Mail className="h-3.5 w-3.5" />
+              <span className="text-[11px] font-medium uppercase tracking-wide">Email</span>
+            </div>
+            <p className="mt-1 font-mono text-xl font-semibold text-zinc-900">
+              {stats.totalEmailCampaigns.toLocaleString()}
+            </p>
+            <p className="mt-0.5 text-[11px] text-zinc-500">
+              {stats.totalEmailContacts.toLocaleString()} contacts
+            </p>
+          </div>
+        </section>
       </div>
-    </div>
+    </HomeMotionShell>
   );
 }

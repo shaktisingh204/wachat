@@ -42,7 +42,7 @@ where
                 .delete(handlers::delete_invoice),
         )
         .route(
-            "/public/:hash/stripe-checkout",
+            "/public/{hash}/stripe-checkout",
             post(stripe::start_stripe_checkout),
         )
         .route(

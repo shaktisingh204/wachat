@@ -50,7 +50,7 @@ export default async function Page() {
   const activeEmployeesCount = rawEmployees.filter((e: any) => e?.status?.toLowerCase() === 'active').length || totalEmployeesCount;
 
   return (
-    <div className="p-6">
+    <div className="pt-6">
       <HrOverviewClient
         onboardingKpis={onboardingKpis}
         activeOnboardings={activeOnboardings}

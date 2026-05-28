@@ -13,14 +13,14 @@ pub fn router(state: Arc<AppState>) -> Router {
     // gate). Service routes require X-Sabsms-Service-Token.
     let service = Router::new()
         .route("/v1/messages", post(send::enqueue))
-        .route("/v1/messages/:id", axum::routing::get(send::get_one))
+        .route("/v1/messages/{id}", axum::routing::get(send::get_one))
         .route_layer(middleware::from_fn_with_state(
             state.clone(),
             auth::require_service_token,
         ));
 
     let webhooks = Router::new().route(
-        "/webhook/:provider/:direction",
+        "/webhook/{provider}/{direction}",
         post(webhook::handle),
     );
 

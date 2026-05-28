@@ -1,9 +1,27 @@
 'use client';
 
-import React from 'react';
-import { Card, Badge, Button } from '@/components/zoruui';
-import { Briefcase, CheckSquare, Target, ArrowRight, UserCheck, CalendarDays, Activity, CalendarHeart, Clock, Plus } from 'lucide-react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  Badge,
+  Button,
+  EmptyState,
+  StatCard,
+} from '@/components/zoruui';
+import {
+  Briefcase,
+  CheckSquare,
+  CalendarDays,
+  Activity,
+  CalendarHeart,
+  Clock,
+  Plus,
+  ArrowRight,
+  UserCheck,
+  Inbox,
+  ListChecks,
+} from 'lucide-react';
 import { EmployeePunchWidget } from './employee-punch-widget';
 
 interface EmployeeDashboardClientProps {
@@ -16,7 +34,33 @@ interface EmployeeDashboardClientProps {
   upcomingHolidays: any[];
 }
 
+type BadgeTone = 'neutral' | 'rose' | 'rose-soft' | 'obsidian' | 'green' | 'amber' | 'red' | 'blue';
 
+function priorityTone(p?: string): BadgeTone {
+  const v = (p || '').toLowerCase();
+  if (v === 'high' || v === 'urgent') return 'red';
+  if (v === 'medium') return 'amber';
+  if (v === 'low') return 'blue';
+  return 'neutral';
+}
+
+function leaveStatusTone(s?: string): BadgeTone {
+  const v = (s || '').toLowerCase();
+  if (v === 'approved') return 'green';
+  if (v === 'pending') return 'amber';
+  if (v === 'rejected') return 'red';
+  return 'neutral';
+}
+
+function monogram(name?: string) {
+  if (!name) return 'E';
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? '')
+    .join('');
+}
 
 export function EmployeeDashboardClient({
   employee,
@@ -25,244 +69,344 @@ export function EmployeeDashboardClient({
   tasks,
   projects,
   recentLeaves,
-  upcomingHolidays
+  upcomingHolidays,
 }: EmployeeDashboardClientProps) {
-  const greeting = `Welcome back, ${employee.firstName || 'Team Member'}!`;
+  const reduce = useReducedMotion();
 
-  // --- Analytics Calculations ---
-  const presentCount = attendance30d.filter((a) => a.status === 'present' || a.status === 'wfh').length;
-  const lateCount = attendance30d.filter((a) => (a.lateByMinutes ?? 0) > 0).length;
-  const totalHours = attendance30d.reduce((sum, a) => sum + (a.totalHours ?? 0), 0);
-  const avgHours = presentCount > 0 ? (totalHours / presentCount).toFixed(1) : 0;
+  const presentCount = useMemo(
+    () => attendance30d.filter((a) => a.status === 'present' || a.status === 'wfh').length,
+    [attendance30d]
+  );
+  const totalHours = useMemo(
+    () => attendance30d.reduce((sum, a) => sum + (a.totalHours ?? 0), 0),
+    [attendance30d]
+  );
+  const avgHours = presentCount > 0 ? (totalHours / presentCount).toFixed(1) : '0';
+  const monthAttendancePct = attendance30d.length > 0
+    ? Math.round((presentCount / attendance30d.length) * 100)
+    : 0;
 
-  // --- Mock Quotas for visualization ---
-  const elTotal = 24;
-  const clTotal = 12;
-  const slTotal = 8;
-  
-  // Very rough derivation from recent leaves for demonstration
-  const usedEl = recentLeaves.filter(l => l.status === 'approved' && l.leaveTypeId.includes('EL')).reduce((sum, l) => sum + l.days, 0) || 4;
-  const usedCl = recentLeaves.filter(l => l.status === 'approved' && l.leaveTypeId.includes('CL')).reduce((sum, l) => sum + l.days, 0) || 2;
-  const usedSl = recentLeaves.filter(l => l.status === 'approved' && l.leaveTypeId.includes('SL')).reduce((sum, l) => sum + l.days, 0) || 1;
+  const pendingTasks = useMemo(
+    () => tasks.filter((t) => (t.status || '').toLowerCase() !== 'done').length,
+    [tasks]
+  );
+
+  const usedLeavesDays = useMemo(
+    () =>
+      recentLeaves
+        .filter((l) => (l.status || '').toLowerCase() === 'approved')
+        .reduce((sum, l) => sum + (l.days ?? 0), 0),
+    [recentLeaves]
+  );
+
+  const todayStatusLabel = useMemo(() => {
+    if (!attendance) return 'Not started';
+    if (attendance.punchOut?.at) return 'Completed';
+    if (attendance.punchIn?.at) return 'On shift';
+    return 'Not started';
+  }, [attendance]);
+
+  // Last 7-day attendance timeline
+  const last7 = useMemo(() => {
+    const days: Array<{ date: string; status: string }> = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today.getTime() - i * 86400000);
+      const iso = d.toISOString().slice(0, 10);
+      const rec = attendance30d.find((a) => a.date && a.date.startsWith(iso));
+      days.push({ date: iso, status: rec?.status || 'absent' });
+    }
+    return days;
+  }, [attendance30d]);
+
+  const dayDot = (s: string) => {
+    const v = s.toLowerCase();
+    if (v === 'present') return 'bg-emerald-500';
+    if (v === 'wfh') return 'bg-sky-500';
+    if (v === 'late') return 'bg-amber-500';
+    if (v === 'leave') return 'bg-violet-500';
+    return 'bg-zinc-200';
+  };
+
+  const rowVariants = reduce
+    ? undefined
+    : {
+        hidden: { opacity: 0, y: 6 },
+        show: (i: number) => ({
+          opacity: 1,
+          y: 0,
+          transition: { delay: i * 0.035, duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+        }),
+      };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto w-full pb-10">
-      {/* Header Profile Section */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-zoru-info-ink to-zoru-brand flex items-center justify-center text-white text-2xl font-bold shadow-md relative group overflow-hidden">
-            {employee.image ? (
-              <img src={employee.image} alt={employee.firstName} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-            ) : (
-              (employee.firstName?.[0] || 'E').toUpperCase()
-            )}
-            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
+    <div className="mx-auto w-full max-w-[1400px] space-y-4 px-6 pb-12">
+      {/* Hero ribbon */}
+      <section className="rounded-2xl border border-zinc-200 bg-white px-5 py-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-[12px] font-semibold text-white">
+              {monogram(employee.firstName)}
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900">
+                Welcome back, {employee.firstName || 'Team Member'}
+              </h1>
+              <p className="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-500">
+                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+                {employee.designation || 'Team Member'}
+                {employee.departmentName && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>{employee.departmentName}</span>
+                  </>
+                )}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-zoru-ink">{greeting}</h1>
-            <p className="text-[13px] text-zoru-ink-muted font-medium flex items-center gap-2 mt-1">
-              <UserCheck className="w-4 h-4 text-zoru-success-ink" /> 
-              {employee.designation || 'Team Member'} 
-              {employee.departmentId && <span className="opacity-50">•</span>}
-              {employee.departmentId && <span>{employee.departmentId}</span>}
-            </p>
-          </div>
+          <Badge
+            tone={todayStatusLabel === 'On shift' ? 'green' : todayStatusLabel === 'Completed' ? 'blue' : 'neutral'}
+            className="self-start rounded-full px-2.5 py-0.5 text-[11px] font-medium md:self-center"
+          >
+            {todayStatusLabel}
+          </Badge>
         </div>
-      </div>
+      </section>
 
-      {/* Main Punch Widget (Hidden for Admins) */}
+      {/* Punch widget - only for non-admin employees */}
       {!employee.isAdmin && (
         <EmployeePunchWidget employeeId={String(employee._id)} initialAttendance={attendance} />
       )}
 
-      {/* Advanced Features Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Attendance Analytics */}
-        <Card className="p-5 border border-zoru-line flex flex-col justify-between bg-zoru-surface/30">
-           <h3 className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2 mb-4">
-              <Activity className="w-4 h-4 text-zoru-info-ink" /> 30-Day Attendance
-           </h3>
-           <div className="grid grid-cols-3 gap-3">
-              <div className="bg-zoru-surface border border-zoru-line p-3 rounded-xl text-center shadow-sm">
-                <div className="text-[10px] uppercase font-bold text-zoru-ink-muted">Present</div>
-                <div className="text-[20px] font-bold text-zoru-success-ink font-mono mt-1">{presentCount}</div>
-              </div>
-              <div className="bg-zoru-surface border border-zoru-line p-3 rounded-xl text-center shadow-sm">
-                <div className="text-[10px] uppercase font-bold text-zoru-ink-muted">Late</div>
-                <div className="text-[20px] font-bold text-zoru-warning-ink font-mono mt-1">{lateCount}</div>
-              </div>
-              <div className="bg-zoru-surface border border-zoru-line p-3 rounded-xl text-center shadow-sm">
-                <div className="text-[10px] uppercase font-bold text-zoru-ink-muted">Avg Hrs</div>
-                <div className="text-[20px] font-bold text-zoru-info-ink font-mono mt-1">{avgHours}</div>
-              </div>
-           </div>
-        </Card>
+      {/* KPI strip - 6 tiles */}
+      <section aria-label="KPIs" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <StatCard label="Attendance 30d" value={`${monthAttendancePct}%`} icon={<Activity />} period={`${presentCount} days present`} />
+        <StatCard label="Pending tasks" value={pendingTasks.toLocaleString()} icon={<ListChecks />} period={`${tasks.length} assigned`} />
+        <StatCard label="Active projects" value={projects.length.toLocaleString()} icon={<Briefcase />} />
+        <StatCard label="Used leaves" value={usedLeavesDays.toLocaleString()} icon={<CalendarHeart />} period="approved this period" />
+        <StatCard label="Avg hours" value={avgHours} icon={<Clock />} period="per workday" />
+        <StatCard label="Holidays upcoming" value={upcomingHolidays.length.toLocaleString()} icon={<CalendarDays />} />
+      </section>
 
-        {/* Leave Balances Widget */}
-        <Card className="p-5 border border-zoru-line flex flex-col justify-between lg:col-span-2 relative overflow-hidden">
-          <div className="flex justify-between items-start mb-4 relative z-10">
-            <h3 className="text-[12px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2">
-                <CalendarHeart className="w-4 h-4 text-zoru-ink-muted" /> Leave Balances
-            </h3>
-            <Link href="/dashboard/crm/hr-payroll/leave/new">
-              <Button size="sm" variant="outline" className="h-7 text-[11px] font-bold gap-1 shadow-sm">
-                <Plus className="w-3 h-3" /> Request Time Off
-              </Button>
+      {/* Main 3-col grid: tasks (2x) + side rail */}
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white lg:col-span-2">
+          <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4 text-zinc-500" />
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">My tasks</h2>
+            </div>
+            <Link
+              href="/dashboard/crm/tasks"
+              className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+            >
+              View all <ArrowRight className="h-3 w-3" />
             </Link>
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 relative z-10">
-            {/* EL */}
-            <div>
-              <div className="flex justify-between text-[11px] font-bold mb-1.5">
-                <span className="text-zoru-ink">Earned (EL)</span>
-                <span className="text-zoru-ink-muted">{elTotal - usedEl} / {elTotal}</span>
-              </div>
-              <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((elTotal - usedEl)/elTotal)*100}%` }} />
-              </div>
+          </header>
+          {tasks.length === 0 ? (
+            <div className="p-3">
+              <EmptyState
+                compact
+                icon={<Inbox />}
+                title="No active tasks"
+                description="When you are assigned tasks they will show here."
+              />
             </div>
-            {/* CL */}
-            <div>
-              <div className="flex justify-between text-[11px] font-bold mb-1.5">
-                <span className="text-zoru-ink">Casual (CL)</span>
-                <span className="text-zoru-ink-muted">{clTotal - usedCl} / {clTotal}</span>
-              </div>
-              <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((clTotal - usedCl)/clTotal)*100}%` }} />
-              </div>
-            </div>
-            {/* SL */}
-            <div>
-              <div className="flex justify-between text-[11px] font-bold mb-1.5">
-                <span className="text-zoru-ink">Sick (SL)</span>
-                <span className="text-zoru-ink-muted">{slTotal - usedSl} / {slTotal}</span>
-              </div>
-              <div className="h-2 bg-zoru-surface-2 rounded-full overflow-hidden">
-                <div className="h-full bg-zoru-ink rounded-full transition-all" style={{ width: `${((slTotal - usedSl)/slTotal)*100}%` }} />
-              </div>
-            </div>
-          </div>
-        </Card>
-
-      </div>
-
-      {/* Workload Overview Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Active Tasks Panel */}
-        <Card className="flex flex-col border border-zoru-line overflow-hidden md:col-span-2">
-          <div className="p-4 border-b border-zoru-line bg-zoru-surface/50 flex items-center justify-between backdrop-blur-sm">
-            <h3 className="text-[13px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2">
-              <CheckSquare className="w-4 h-4" /> My Active Tasks
-            </h3>
-            <Badge tone="info" className="font-mono">{tasks.length}</Badge>
-          </div>
-          
-          <div className="p-4 flex-1 bg-zoru-bg">
-            {tasks.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-40 text-zoru-ink-muted">
-                <CheckSquare className="w-8 h-8 opacity-20 mb-2" />
-                <p className="text-[13px]">No active tasks assigned to you right now.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {tasks.slice(0, 5).map(task => (
-                  <Link href={`/dashboard/crm/tasks/${task._id}`} key={String(task._id)} className="block group">
-                    <div className="p-3 rounded-lg border border-zoru-line bg-zoru-surface hover:border-zoru-info transition-colors">
-                      <div className="flex justify-between items-start gap-4">
-                        <h4 className="text-[13px] font-semibold text-zoru-ink group-hover:text-zoru-info-ink transition-colors line-clamp-1">{task.title}</h4>
-                        <Badge tone={task.priority === 'High' ? 'danger' : task.priority === 'Medium' ? 'warning' : 'neutral'} className="shrink-0 text-[10px]">
-                          {task.priority || 'Normal'}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-3 mt-2 text-[11px] text-zoru-ink-muted font-medium">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No date'}</span>
-                        <span className="opacity-50">•</span>
-                        <span>{task.status || 'To-Do'}</span>
+          ) : (
+            <ul className="divide-y divide-zinc-100">
+              {tasks.slice(0, 6).map((t, i) => (
+                <motion.li
+                  key={String(t._id)}
+                  custom={i}
+                  initial={reduce ? undefined : 'hidden'}
+                  animate={reduce ? undefined : 'show'}
+                  variants={rowVariants}
+                >
+                  <Link
+                    href={`/dashboard/crm/tasks/${t._id}`}
+                    className="flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-zinc-50/60"
+                  >
+                    <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-zinc-300" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-zinc-900">{t.title}</p>
+                      <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-zinc-500">
+                        <Clock className="h-3 w-3" />
+                        {t.dueDate ? new Date(t.dueDate).toLocaleDateString() : 'No date'}
+                        <span aria-hidden>·</span>
+                        <span className="capitalize">{t.status || 'to-do'}</span>
                       </div>
                     </div>
+                    <Badge tone={priorityTone(t.priority)} className="rounded-full px-1.5 py-0 text-[10px] capitalize">
+                      {t.priority || 'normal'}
+                    </Badge>
                   </Link>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="p-3 border-t border-zoru-line bg-zoru-surface/50 text-center">
-            <Link href="/dashboard/crm/tasks" className="text-[12px] font-semibold text-zoru-brand hover:text-zoru-brand-dark transition-colors inline-flex items-center gap-1">
-              View all tasks <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-        </Card>
-
-        <div className="flex flex-col gap-6">
-          {/* Assigned Projects Panel */}
-          <Card className="flex flex-col border border-zoru-line overflow-hidden flex-1">
-            <div className="p-4 border-b border-zoru-line bg-zoru-surface/50 flex items-center justify-between backdrop-blur-sm">
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2">
-                <Briefcase className="w-4 h-4" /> My Projects
-              </h3>
-              <Badge tone="success" className="font-mono">{projects.length}</Badge>
-            </div>
-            
-            <div className="p-4 flex-1 bg-zoru-bg">
-              {projects.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-zoru-ink-muted">
-                  <Briefcase className="w-8 h-8 opacity-20 mb-2" />
-                  <p className="text-[13px] text-center">You haven't been assigned to any projects.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {projects.slice(0, 3).map(project => (
-                    <Link href={`/dashboard/crm/projects/${project._id}`} key={String(project._id)} className="block group">
-                      <div className="p-3 rounded-lg border border-zoru-line bg-zoru-surface hover:border-zoru-success transition-colors">
-                        <div className="flex justify-between items-start gap-2">
-                          <h4 className="text-[13px] font-semibold text-zoru-ink group-hover:text-zoru-success-ink transition-colors line-clamp-1">{project.name}</h4>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* Upcoming Holidays Panel */}
-          <Card className="flex flex-col border border-zoru-line overflow-hidden flex-1">
-            <div className="p-4 border-b border-zoru-line bg-zoru-surface/50 flex items-center justify-between backdrop-blur-sm">
-              <h3 className="text-[13px] font-bold uppercase tracking-wider text-zoru-ink-muted flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-zoru-brand" /> Upcoming Holidays
-              </h3>
-            </div>
-            
-            <div className="p-4 flex-1 bg-zoru-bg">
-              {upcomingHolidays.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-32 text-zoru-ink-muted">
-                  <CalendarDays className="w-8 h-8 opacity-20 mb-2" />
-                  <p className="text-[13px] text-center">No upcoming holidays found.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {upcomingHolidays.map(holiday => (
-                    <div key={String(holiday._id)} className="flex items-center gap-3 p-2 rounded-lg hover:bg-zoru-surface-2 transition-colors">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-zoru-brand/10 text-zoru-brand flex flex-col items-center justify-center border border-zoru-brand/20">
-                        <span className="text-[9px] uppercase font-bold tracking-widest">{new Date(holiday.date).toLocaleString('en-US', { month: 'short' })}</span>
-                        <span className="text-[14px] font-bold leading-none">{new Date(holiday.date).getDate()}</span>
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-bold text-zoru-ink">{holiday.name}</h4>
-                        <p className="text-[11px] text-zoru-ink-muted capitalize mt-0.5">{holiday.holidayType || 'Holiday'}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
+                </motion.li>
+              ))}
+            </ul>
+          )}
         </div>
 
-      </div>
+        {/* Side rail: projects + leaves */}
+        <div className="flex flex-col gap-3">
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-zinc-500" />
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">My projects</h2>
+              </div>
+              <Badge tone="neutral" className="rounded-full px-2 py-0 text-[10px] font-mono">
+                {projects.length}
+              </Badge>
+            </header>
+            {projects.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<Briefcase />}
+                  title="No projects"
+                  description="You have not been assigned to a project yet."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {projects.slice(0, 4).map((p) => (
+                  <li key={String(p._id)}>
+                    <Link
+                      href={`/dashboard/crm/projects/${p._id}`}
+                      className="flex items-center gap-2.5 px-4 py-2.5 transition-colors hover:bg-zinc-50/60"
+                    >
+                      <span aria-hidden className="inline-flex h-1.5 w-1.5 rounded-full bg-violet-500" />
+                      <p className="min-w-0 flex-1 truncate text-[13px] font-medium text-zinc-900">{p.name}</p>
+                      <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-white">
+            <header className="flex items-center justify-between border-b border-zinc-100 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <CalendarHeart className="h-4 w-4 text-zinc-500" />
+                <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Recent leaves</h2>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 rounded-full px-2.5 text-[11px] active:scale-[0.97]"
+                asChild
+              >
+                <Link href="/dashboard/crm/hr-payroll/leave/new">
+                  <Plus className="mr-1 h-3 w-3" /> Request
+                </Link>
+              </Button>
+            </header>
+            {recentLeaves.length === 0 ? (
+              <div className="p-3">
+                <EmptyState
+                  compact
+                  icon={<CalendarHeart />}
+                  title="No leaves"
+                  description="Time-off requests appear here."
+                />
+              </div>
+            ) : (
+              <ul className="divide-y divide-zinc-100">
+                {recentLeaves.slice(0, 4).map((l) => (
+                  <li key={String(l._id)} className="flex items-center gap-2.5 px-4 py-2.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-medium text-zinc-900">
+                        {l.leaveTypeId || 'Leave'} <span className="text-zinc-400">·</span> {l.days ?? 0}d
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-zinc-500">
+                        {l.startDate ? new Date(l.startDate).toLocaleDateString() : ''}
+                      </p>
+                    </div>
+                    <Badge tone={leaveStatusTone(l.status)} className="rounded-full px-1.5 py-0 text-[10px] capitalize">
+                      {l.status || 'pending'}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom row: 7-day timeline + holidays strip */}
+      <section className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 lg:col-span-1">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Last 7 days</h2>
+            <span className="text-[11px] text-zinc-500">attendance</span>
+          </div>
+          <div className="mt-3 flex items-end justify-between gap-1.5">
+            {last7.map((d) => {
+              const day = new Date(d.date);
+              return (
+                <div key={d.date} className="flex flex-col items-center gap-1.5">
+                  <span aria-hidden className={`h-8 w-2 rounded-full ${dayDot(d.status)}`} />
+                  <span className="text-[10px] font-medium text-zinc-500">
+                    {day.toLocaleDateString([], { weekday: 'short' })[0]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] text-zinc-500">
+            <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Present</span>
+            <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-sky-500" /> WFH</span>
+            <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Late</span>
+            <span className="inline-flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-zinc-200" /> Absent</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3 lg:col-span-2">
+          <div className="mb-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-zinc-500" />
+              <h2 className="text-sm font-semibold tracking-tight text-zinc-900">Upcoming holidays</h2>
+            </div>
+          </div>
+          {upcomingHolidays.length === 0 ? (
+            <EmptyState
+              compact
+              icon={<CalendarDays />}
+              title="No upcoming holidays"
+              description="Public holidays will appear here."
+            />
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {upcomingHolidays.map((h) => {
+                const d = new Date(h.date);
+                return (
+                  <div
+                    key={String(h._id)}
+                    className="flex shrink-0 items-center gap-2.5 rounded-xl border border-zinc-200 bg-white px-3 py-2"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-zinc-50 ring-1 ring-zinc-200">
+                      <span className="text-[9px] font-semibold uppercase tracking-wide text-zinc-500">
+                        {d.toLocaleString([], { month: 'short' })}
+                      </span>
+                      <span className="font-mono text-sm font-semibold leading-none text-zinc-900">
+                        {d.getDate()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-[13px] font-medium text-zinc-900">{h.name}</p>
+                      <p className="truncate text-[11px] capitalize text-zinc-500">
+                        {h.holidayType || 'holiday'}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
