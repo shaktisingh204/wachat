@@ -1,19 +1,17 @@
-import { WaPage } from '@/components/wachat-ui';
+'use client';
+
+import { Skeleton, Card } from '@/components/zoruui';
 
 export default function LinkTrackingLoading() {
   return (
-    <WaPage>
-      <div className="mb-8">
-        <div className="h-3 w-20 rounded-full bg-zinc-100" />
-        <div className="mt-3 h-9 w-80 rounded-lg bg-zinc-100" />
-        <div className="mt-2 h-3 w-[28rem] rounded-full bg-zinc-100" />
-      </div>
-      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-[100px] animate-pulse rounded-2xl border border-zinc-200 bg-white p-5" />
-        ))}
-      </div>
-      <div className="h-[220px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
-    </WaPage>
+    <div className="p-6 space-y-6">
+      <Skeleton className="h-8 w-1/4" />
+      <Skeleton className="h-4 w-2/4" />
+      <Card className="p-6 space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </Card>
+    </div>
   );
 }

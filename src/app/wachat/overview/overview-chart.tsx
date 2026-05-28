@@ -21,7 +21,7 @@ type ChartPoint = {
 export default function OverviewChart({ data }: { data: ChartPoint[] }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center text-sm text-zinc-500">
+      <div className="flex h-[300px] items-center justify-center text-sm text-zoru-ink-muted">
         No chart data available
       </div>
     );
@@ -31,36 +31,56 @@ export default function OverviewChart({ data }: { data: ChartPoint[] }) {
     <div className="h-[300px] w-full text-sm">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e4e4e7" />
-          <XAxis
-            dataKey="date"
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--zoru-line))" />
+          <XAxis 
+            dataKey="date" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#71717a', fontSize: 11 }}
+            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
             tickFormatter={(val) => {
               const d = new Date(val);
               return `${d.getMonth() + 1}/${d.getDate()}`;
             }}
           />
-          <YAxis
+          <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: '#71717a', fontSize: 11 }}
+            tick={{ fill: 'hsl(var(--zoru-ink-muted))', fontSize: 12 }}
             allowDecimals={false}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#ffffff',
-              borderColor: '#e4e4e7',
-              borderRadius: '12px',
-              boxShadow: '0 10px 30px -12px rgba(0,0,0,0.12)',
-              fontSize: 12,
+          <Tooltip 
+            contentStyle={{ 
+              backgroundColor: 'hsl(var(--zoru-surface))', 
+              borderColor: 'hsl(var(--zoru-line))',
+              borderRadius: 'var(--zoru-radius-sm)',
+              boxShadow: 'var(--zoru-shadow-sm)'
             }}
           />
-          <Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="sent" name="Sent" stroke="#10b981" strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="delivered" name="Delivered" stroke="#0ea5e9" strokeWidth={2} dot={false} />
-          <Line type="monotone" dataKey="read" name="Read" stroke="#a16207" strokeWidth={2} dot={false} />
+          <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+          <Line
+            type="monotone"
+            dataKey="sent"
+            name="Sent"
+            stroke="hsl(var(--zoru-info))"
+            strokeWidth={2}
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="delivered"
+            name="Delivered"
+            stroke="hsl(var(--zoru-success))"
+            strokeWidth={2}
+            dot={false}
+          />
+          <Line
+            type="monotone"
+            dataKey="read"
+            name="Read"
+            stroke="hsl(var(--zoru-warning))"
+            strokeWidth={2}
+            dot={false}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

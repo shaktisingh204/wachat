@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertTriangle, ArrowLeft, RotateCcw } from 'lucide-react';
-import { WaPage, WaButton } from '@/components/wachat-ui';
+import { Button } from '@/components/zoruui';
 
-export default function SetupDocsError({
+export default function ErrorBoundary({
   error,
   reset,
 }: {
@@ -12,24 +11,18 @@ export default function SetupDocsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Wachat Setup Docs Error]', error);
+    console.error(error);
   }, [error]);
 
   return (
-    <WaPage>
-      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center text-center">
-        <span aria-hidden className="grid h-14 w-14 place-items-center rounded-2xl" style={{ background: 'var(--mt-accent-soft)' }}>
-          <AlertTriangle className="h-6 w-6" strokeWidth={2} style={{ color: 'var(--mt-accent)' }} />
-        </span>
-        <h1 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-950">Docs failed to load</h1>
-        <p className="mt-2 text-[14px] leading-relaxed text-zinc-600">
-          {error.message || 'Something went wrong rendering the docs.'}
-        </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
-          <WaButton onClick={reset} leftIcon={RotateCcw}>Try again</WaButton>
-          <WaButton href="/wachat/setup" variant="outline" leftIcon={ArrowLeft}>Back to setup</WaButton>
-        </div>
-      </div>
-    </WaPage>
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 space-y-4">
+      <h2 className="text-xl font-semibold text-zoru-ink">Something went wrong!</h2>
+      <p className="text-zoru-ink-muted text-sm max-w-[500px] text-center">
+        {error.message || 'An unexpected error occurred while loading this page.'}
+      </p>
+      <Button onClick={() => reset()} variant="outline">
+        Try again
+      </Button>
+    </div>
   );
 }

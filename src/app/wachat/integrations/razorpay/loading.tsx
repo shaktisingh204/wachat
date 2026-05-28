@@ -1,17 +1,17 @@
-import { WaPage } from '@/components/wachat-ui';
+'use client';
 
-export default function RazorpayLoading() {
+import { Skeleton, Card } from '@/components/zoruui';
+
+export default function IntegrationsRazorpayLoading() {
   return (
-    <WaPage>
-      <div className="mb-8">
-        <div className="h-3 w-40 rounded-full bg-zinc-100" />
-        <div className="mt-3 h-9 w-48 rounded-lg bg-zinc-100" />
-        <div className="mt-2 h-3 w-80 rounded-full bg-zinc-100" />
-      </div>
-      <div className="space-y-4">
-        <div className="h-72 rounded-2xl border border-zinc-200 bg-white" />
-        <div className="h-44 rounded-2xl border border-zinc-200 bg-white" />
-      </div>
-    </WaPage>
+    <div className="p-6 space-y-6">
+      <Skeleton className="h-8 w-1/4" />
+      <Skeleton className="h-4 w-2/4" />
+      <Card className="p-6 space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </Card>
+    </div>
   );
 }

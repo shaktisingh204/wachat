@@ -1,29 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { m, AnimatePresence, useReducedMotion } from 'motion/react';
 import {
-  AlertCircle,
-  Activity,
-  ArrowRight,
-  BadgeCheck,
-  Check,
-  CheckCircle2,
-  ChevronRight,
-  Clock,
-  Lock,
-  MessageCircle,
-  Phone,
-  Send,
-  ShieldCheck,
-  Sparkles,
-  Workflow,
-  Bot,
-  Users,
-  Briefcase,
-  ExternalLink,
-} from 'lucide-react';
-import {
+  Alert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
   Checkbox,
   Label,
   Dialog,
@@ -32,267 +12,517 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  Button,
+  Badge,
+  Skeleton,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/zoruui';
+import { useState, useEffect, useMemo } from 'react';
 import EmbeddedSignup from '@/components/zoruui-domain/embedded-signup';
 import {
-  WaPage,
-  PageHeader,
-  WaButton,
-  Section,
-  PhoneFrame,
-  ChatBubble,
-  EmptyState,
-  StatusPill,
-  type StatusTone,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+  AlertCircle,
+  ArrowRight,
+  BadgeCheck,
+  Bot,
+  Briefcase,
+  CheckCircle2,
+  Lock,
+  MessageCircle,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Workflow,
+  Zap,
+  Search,
+  RefreshCw,
+  Phone,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
-/* Static config — what your customers get / steps / trust            */
+/* Types & Interfaces                                                 */
 /* ------------------------------------------------------------------ */
 
-const UNLOCKS = [
-  { icon: Send, label: 'Bulk broadcasts', hint: 'Reach thousands in one tap.' },
-  { icon: MessageCircle, label: 'Live inbox', hint: 'Reply in real time.' },
-  { icon: Workflow, label: 'Flow automation', hint: 'Drip and auto-reply.' },
-  { icon: Users, label: 'Smart segments', hint: 'Tags, attributes, lists.' },
-  { icon: Bot, label: 'AI chatbot', hint: '24/7 first-line replies.' },
-  { icon: Briefcase, label: 'CRM pipeline', hint: 'Leads, deals, tickets.' },
-] as const;
+interface UnlockItem {
+  icon: React.ElementType;
+  label: string;
+  description: string;
+}
 
-const TRUST = [
-  { icon: ShieldCheck, text: 'Official Meta partner using the secure Embedded Signup.' },
-  { icon: Lock, text: 'No passwords stored. Access via OAuth token only.' },
-  { icon: BadgeCheck, text: 'Revoke access anytime from Meta Business Settings.' },
-] as const;
+interface TrustItem {
+  icon: React.ElementType;
+  text: string;
+}
 
-const STEPS = [
-  { key: 'authorize', title: 'Connect WhatsApp', sub: "Authorize SabNode through Meta's official popup. Takes about a minute." },
-  { key: 'select', title: 'Pick your WABA', sub: 'Choose an existing WhatsApp Business Account or create a new one inline.' },
-  { key: 'verify', title: 'Verify number', sub: 'We verify the phone number you want to send from. Quality rating starts at green.' },
-  { key: 'test', title: 'Send a test', sub: 'Fire off a hello message to confirm everything routes correctly.' },
-] as const;
+interface StepItem {
+  n: string;
+  title: string;
+  sub: string;
+}
 
-// Brands that trust the platform — rendered via simpleicons CDN with text fallback.
-const TRUSTED_BRANDS: { name: string; slug: string }[] = [
-  { name: 'Stripe', slug: 'stripe' },
-  { name: 'Shopify', slug: 'shopify' },
-  { name: 'Zapier', slug: 'zapier' },
-  { name: 'Razorpay', slug: 'razorpay' },
-  { name: 'HubSpot', slug: 'hubspot' },
-  { name: 'Notion', slug: 'notion' },
+interface WabaAccount {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  status: 'active' | 'pending' | 'disconnected';
+  lastSynced: string;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  error: string | null;
+  status: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* Constants                                                          */
+/* ------------------------------------------------------------------ */
+
+const UNLOCKS: UnlockItem[] = [
+  { icon: Send, label: 'Bulk Broadcasts', description: 'Reach thousands with a single click' },
+  { icon: MessageCircle, label: 'Live Chat Inbox', description: 'Reply to conversations in real-time' },
+  { icon: Workflow, label: 'Flow Automation', description: 'Auto-reply & drip campaigns' },
+  { icon: Users, label: 'Contact Management', description: 'Segments, tags & smart lists' },
+  { icon: Bot, label: 'AI Chatbot', description: 'Handles queries 24/7' },
+  { icon: Briefcase, label: 'CRM Integration', description: 'Leads, deals & pipeline' },
 ];
 
-const SECURITY_BADGES: { label: string; sub: string }[] = [
-  { label: 'SOC 2 Type II', sub: 'Continuous controls' },
-  { label: 'GDPR ready', sub: 'EU data residency' },
-  { label: 'ISO 27001', sub: 'Information security' },
-  { label: 'HIPAA aware', sub: 'PHI safeguards' },
+const TRUST: TrustItem[] = [
+  { icon: ShieldCheck, text: 'Official Meta Partner — uses the secure Embedded Signup flow' },
+  { icon: Lock, text: 'No passwords stored — access via OAuth token only' },
+  { icon: BadgeCheck, text: 'Revoke access anytime from your Meta Business Settings' },
+];
+
+const STEPS: StepItem[] = [
+  { n: '1', title: 'Click "Connect WhatsApp"', sub: 'Opens the official Meta authorization flow in a popup.' },
+  { n: '2', title: 'Log in to Facebook', sub: 'Use the Facebook account linked to your Business portfolio.' },
+  { n: '3', title: 'Select your WABA', sub: 'Choose an existing WhatsApp Business Account or create one.' },
+  { n: '4', title: "You're live", sub: 'Return here — your project appears instantly.' },
 ];
 
 /* ------------------------------------------------------------------ */
-/* Config-missing screen                                              */
+/* Components                                                         */
 /* ------------------------------------------------------------------ */
+
+function SetupSkeleton() {
+  return (
+    <div className="mx-auto max-w-6xl pb-12 space-y-12">
+      <div className="flex flex-col items-center justify-center space-y-4 pt-10">
+        <Skeleton className="h-20 w-20 rounded-3xl" />
+        <Skeleton className="h-6 w-48 rounded-full" />
+        <Skeleton className="h-10 w-96" />
+        <Skeleton className="h-6 w-3/4 max-w-xl" />
+        <Skeleton className="h-12 w-48 rounded-full mt-4" />
+      </div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Skeleton className="lg:col-span-2 h-96 rounded-3xl" />
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-48 rounded-3xl" />
+          <Skeleton className="h-48 rounded-3xl" />
+          <Skeleton className="h-64 rounded-3xl" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function ConfigError() {
   return (
-    <WaPage>
-      <PageHeader
-        title="Setup is missing required config"
-        description="Two environment variables are needed to launch the WhatsApp embedded signup flow."
-        kicker="Wachat · setup"
-      />
-      <Section title="Add these to your environment" description="They power the Meta-hosted popup that links your WABA to SabNode.">
-        <ul className="space-y-2.5">
-          {['NEXT_PUBLIC_META_ONBOARDING_APP_ID', 'NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID'].map((k) => (
-            <li
-              key={k}
-              className="flex items-center gap-2.5 rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-[12.5px] text-zinc-700"
-            >
-              <AlertCircle className="h-3.5 w-3.5 shrink-0 text-rose-500" strokeWidth={2.25} />
-              {k}
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <Alert variant="destructive" className="max-w-lg w-full rounded-2xl">
+        <AlertCircle className="h-4 w-4" />
+        <ZoruAlertTitle>Configuration Missing</ZoruAlertTitle>
+        <ZoruAlertDescription className="space-y-2 mt-2">
+          <p>Add these env variables to your <code>.env</code> file:</p>
+          <ul className="list-disc list-inside text-xs space-y-1 font-mono bg-zoru-ink/10 rounded-lg p-3">
+            <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
+            <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
+          </ul>
+        </ZoruAlertDescription>
+      </Alert>
+    </div>
+  );
+}
+
+function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { appId: string; configId: string; includeCatalog: boolean; setIncludeCatalog: (val: boolean) => void }) {
+  return (
+    <div className="mb-14 text-center space-y-5">
+      <div className="relative mx-auto w-fit">
+        <div className="absolute inset-0 rounded-3xl bg-zoru-surface-2 opacity-40 blur-xl scale-110" />
+        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-zoru-ink shadow-[0_8px_32px_rgba(5,150,105,0.28)]">
+          <MessageCircle className="h-10 w-10 text-white" />
+        </div>
+        <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-zoru-surface-2 shadow-lg shadow-zoru-line/50" />
+        <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-zoru-surface-2 shadow-lg" />
+      </div>
+
+      <Badge className="rounded-full bg-zoru-surface-2 text-zoru-ink border border-zoru-line px-4 py-1 text-xs font-semibold hover:bg-zoru-surface-2">
+        <Sparkles className="mr-1.5 h-3 w-3" /> Official Meta Embedded Signup
+      </Badge>
+
+      <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
+        Connect Your <span className="text-zoru-ink">WhatsApp Account</span>
+      </h1>
+
+      <p className="mx-auto max-w-xl text-lg text-zoru-ink-muted leading-relaxed">
+        Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard.
+      </p>
+
+      <Dialog>
+        <ZoruDialogTrigger asChild>
+          <Button size="lg" className="rounded-full px-10 text-base shadow-xl shadow-zoru-line/30 hover:shadow-zoru-line/50 hover:scale-[1.03] transition-all mt-2">
+            <MessageCircle className="mr-2 h-5 w-5" />
+            Connect WhatsApp Account
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </ZoruDialogTrigger>
+        <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
+          <ZoruDialogHeader>
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
+              <MessageCircle className="h-5 w-5 text-white" />
+            </div>
+            <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              You'll be redirected to Facebook to authorize access. It only takes a minute.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+
+          <div className="py-4 space-y-5">
+            <EmbeddedSignup
+              appId={appId}
+              configId={configId}
+              includeCatalog={includeCatalog}
+              state="whatsapp"
+            />
+
+            <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
+              <Checkbox
+                id="include-catalog"
+                checked={includeCatalog}
+                onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
+                className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
+              />
+              <div>
+                <Label htmlFor="include-catalog" className="text-sm font-medium cursor-pointer">
+                  Include Catalog Management
+                </Label>
+                <p className="text-xs text-zoru-ink-muted mt-0.5">
+                  Grants permission to manage your WhatsApp product catalog
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {TRUST.slice(0, 2).map((t) => (
+                <div key={t.text} className="flex items-center gap-2 text-xs text-zoru-ink-muted">
+                  <t.icon className="h-3.5 w-3.5 shrink-0 text-zoru-ink" />
+                  {t.text}
+                </div>
+              ))}
+            </div>
+          </div>
+        </ZoruDialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function UnlocksSection() {
+  return (
+    <div className="lg:col-span-2 rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 md:p-8 shadow-sm">
+      <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-6">What you unlock</p>
+      <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+        {UNLOCKS.map((u) => (
+          <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-zoru-line/60 bg-white p-4 transition hover:shadow-md hover:border-zoru-line">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-ink group-hover:text-white transition-colors">
+              <u.icon className="h-[18px] w-[18px]" />
+            </div>
+            <div>
+              <p className="font-semibold text-sm">{u.label}</p>
+              <p className="text-xs text-zoru-ink-muted mt-0.5">{u.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-zoru-line/60">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-5">How it works</p>
+        <div className="space-y-0">
+          {STEPS.map((s, idx) => (
+            <div key={s.n} className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-xs font-bold text-white shadow-md shadow-zoru-line/25">
+                  {s.n}
+                </div>
+                {idx < STEPS.length - 1 && (
+                  <div className="mt-1 mb-1 w-px flex-1 bg-zoru-surface-2" style={{ minHeight: 24 }} />
+                )}
+              </div>
+              <div className="pb-5">
+                <p className="font-semibold text-sm">{s.title}</p>
+                <p className="text-xs text-zoru-ink-muted mt-0.5">{s.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { appId: string; configId: string; includeCatalog: boolean; setIncludeCatalog: (val: boolean) => void }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Security & Trust</p>
+        <div className="space-y-4">
+          {TRUST.map((t) => (
+            <div key={t.text} className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink">
+                <t.icon className="h-3.5 w-3.5" />
+              </div>
+              <p className="text-sm text-zoru-ink-muted leading-snug">{t.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Before you start</p>
+        <ul className="space-y-3">
+          {[
+            'A Facebook account with admin access to your Business portfolio',
+            'A verified Meta Business Account',
+            'A phone number not already registered on WhatsApp personal',
+          ].map((req) => (
+            <li key={req} className="flex items-start gap-2.5 text-sm text-zoru-ink-muted">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink" />
+              {req}
             </li>
           ))}
         </ul>
-        <p className="mt-4 text-[12.5px] leading-relaxed text-zinc-500">
-          Once both are present, refresh this page and the embedded signup will appear automatically.
-        </p>
-      </Section>
-    </WaPage>
+      </div>
+
+      <div className="relative overflow-hidden rounded-3xl border border-zoru-line bg-zoru-ink p-6 text-white shadow-xl shadow-zoru-line/25">
+        <div className="relative space-y-3">
+          <Zap className="h-7 w-7 text-zoru-ink-muted" />
+          <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
+          <p className="text-sm text-white/90">Connect your account in under 2 minutes.</p>
+          <Dialog>
+            <ZoruDialogTrigger asChild>
+              <Button className="w-full rounded-xl bg-white text-zoru-ink hover:bg-white/90 font-semibold shadow-lg mt-1">
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Connect Now
+              </Button>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
+              <ZoruDialogHeader>
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
+                  <MessageCircle className="h-5 w-5 text-white" />
+                </div>
+                <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
+                <ZoruDialogDescription>
+                  You'll be redirected to Facebook to authorize access.
+                </ZoruDialogDescription>
+              </ZoruDialogHeader>
+              <div className="py-4 space-y-5">
+                <EmbeddedSignup
+                  appId={appId}
+                  configId={configId}
+                  includeCatalog={includeCatalog}
+                  state="whatsapp"
+                />
+                <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
+                  <Checkbox
+                    id="include-catalog-2"
+                    checked={includeCatalog}
+                    onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
+                    className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
+                  />
+                  <div>
+                    <Label htmlFor="include-catalog-2" className="text-sm font-medium cursor-pointer">
+                      Include Catalog Management
+                    </Label>
+                    <p className="text-xs text-zoru-ink-muted mt-0.5">
+                      Grants permission to manage your WhatsApp product catalog
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </ZoruDialogContent>
+          </Dialog>
+        </div>
+      </div>
+    </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Connect dialog                                                     */
-/* ------------------------------------------------------------------ */
+function ConnectedAccounts() {
+  const [accounts, setAccounts] = useState<WabaAccount[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Filtering & Sorting State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'name' | 'lastSynced'>('lastSynced');
 
-interface ConnectDialogProps {
-  appId: string;
-  configId: string;
-  includeCatalog: boolean;
-  setIncludeCatalog: (v: boolean) => void;
-  trigger: React.ReactNode;
-}
+  useEffect(() => {
+    // Simulate API fetch
+    const fetchAccounts = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response: ApiResponse<WabaAccount[]> = {
+          data: [],
+          error: null,
+          status: 200,
+        };
+        if (response.error) throw new Error(response.error);
+        setAccounts(response.data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch accounts');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAccounts();
+  }, []);
 
-function ConnectDialog({ appId, configId, includeCatalog, setIncludeCatalog, trigger }: ConnectDialogProps) {
+  const filteredAndSortedAccounts = useMemo(() => {
+    return accounts
+      .filter((acc) => {
+        const matchesSearch = acc.name.toLowerCase().includes(searchQuery.toLowerCase()) || acc.phoneNumber.includes(searchQuery);
+        const matchesStatus = statusFilter === 'all' || acc.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'name') {
+          return a.name.localeCompare(b.name);
+        } else {
+          return new Date(b.lastSynced).getTime() - new Date(a.lastSynced).getTime();
+        }
+      });
+  }, [accounts, searchQuery, statusFilter, sortBy]);
+
+  const refreshData = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setAccounts([]);
+      setIsLoading(false);
+    }, 500);
+  };
+
   return (
-    <Dialog>
-      <ZoruDialogTrigger asChild>{trigger}</ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md rounded-2xl">
-        <ZoruDialogHeader>
-          <div
-            className="mb-2 grid h-10 w-10 place-items-center rounded-xl text-white"
-            style={{ backgroundImage: 'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))' }}
-          >
-            <MessageCircle className="h-5 w-5" strokeWidth={2.25} />
-          </div>
-          <ZoruDialogTitle>Connect via Meta</ZoruDialogTitle>
-          <ZoruDialogDescription>
-            You will be redirected to Facebook to authorize SabNode. Takes about a minute.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+    <div className="mt-16 mb-8 rounded-3xl border border-zoru-line bg-zoru-surface shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-zoru-line bg-zoru-surface-2/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">Connected Accounts</h2>
+          <p className="text-sm text-zoru-ink-muted mt-1">Manage your linked WhatsApp Business accounts.</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
+          <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} />
+          Refresh
+        </Button>
+      </div>
 
-        <div className="space-y-5 py-3">
-          <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} state="whatsapp" />
-
-          <div className="flex items-start gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-            <Checkbox
-              id="include-catalog"
-              checked={includeCatalog}
-              onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
-              className="mt-0.5"
+      <div className="p-6">
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
+            <Input
+              placeholder="Search by name or number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-zoru-surface"
             />
-            <div>
-              <Label htmlFor="include-catalog" className="text-[13px] font-medium cursor-pointer">
-                Include catalog management
-              </Label>
-              <p className="mt-0.5 text-[11.5px] text-zinc-500">
-                Grants permission to manage your WhatsApp product catalog.
-              </p>
-            </div>
           </div>
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px] bg-zoru-surface">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="disconnected">Disconnected</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={sortBy} onValueChange={(val: 'name' | 'lastSynced') => setSortBy(val)}>
+              <SelectTrigger className="w-[140px] bg-zoru-surface">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lastSynced">Last Synced</SelectItem>
+                <SelectItem value="name">Name (A-Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-          <ul className="space-y-1.5">
-            {TRUST.slice(0, 2).map((t) => (
-              <li key={t.text} className="flex items-center gap-2 text-[11.5px] text-zinc-500">
-                <t.icon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--mt-accent)' }} />
-                {t.text}
-              </li>
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <ZoruAlertTitle>Error</ZoruAlertTitle>
+            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          </Alert>
+        )}
+
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-20 w-full rounded-xl" />
+            <Skeleton className="h-20 w-full rounded-xl" />
+          </div>
+        ) : filteredAndSortedAccounts.length === 0 ? (
+          <div className="text-center py-12 text-zoru-ink-muted border-2 border-dashed border-zoru-line rounded-xl">
+            <Phone className="mx-auto h-8 w-8 mb-3 opacity-50" />
+            <p>No accounts found matching your criteria.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredAndSortedAccounts.map((account) => (
+              <div key={account.id} className="flex items-center justify-between p-4 rounded-xl border border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2/50 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                    account.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' :
+                    account.status === 'pending' ? 'bg-zoru-surface-2 text-zoru-ink' :
+                    'bg-zoru-surface-2 text-zoru-ink'
+                  )}>
+                    <MessageCircle className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">{account.name}</p>
+                    <p className="text-sm text-zoru-ink-muted font-mono mt-0.5">{account.phoneNumber}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="text-right hidden sm:block">
+                    <p className="text-xs font-medium uppercase text-zoru-ink-muted">Last Synced</p>
+                    <p className="text-sm">{new Date(account.lastSynced).toLocaleString()}</p>
+                  </div>
+                  <Badge variant="outline" className={cn(
+                    "px-2.5 py-0.5 capitalize font-medium",
+                    account.status === 'active' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
+                    account.status === 'pending' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
+                    'border-zoru-line text-zoru-ink bg-zoru-surface-2'
+                  )}>
+                    {account.status}
+                  </Badge>
+                </div>
+              </div>
             ))}
-          </ul>
-        </div>
-      </ZoruDialogContent>
-    </Dialog>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Brand logo (simpleicons CDN with text fallback)                    */
-/* ------------------------------------------------------------------ */
-
-function BrandLogo({ slug, name }: { slug: string; name: string }) {
-  const [errored, setErrored] = useState(false);
-  if (errored) {
-    return <span className="text-[12px] font-semibold tracking-tight text-zinc-500">{name}</span>;
-  }
-  return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={`https://cdn.simpleicons.org/${slug}/71717a`}
-      alt={name}
-      className="h-5 w-auto opacity-70 transition-opacity hover:opacity-100"
-      onError={() => setErrored(true)}
-    />
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Step row                                                           */
-/* ------------------------------------------------------------------ */
-
-function stepTone(active: boolean, done: boolean): { tone: StatusTone; label: string } {
-  if (done) return { tone: 'sent', label: 'Done' };
-  if (active) return { tone: 'sending', label: 'In progress' };
-  return { tone: 'draft', label: 'Pending' };
-}
-
-function StepRow({
-  index,
-  step,
-  active,
-  done,
-}: {
-  index: number;
-  step: (typeof STEPS)[number];
-  active: boolean;
-  done: boolean;
-}) {
-  const reduce = useReducedMotion();
-  const tone = stepTone(active, done);
-
-  return (
-    <m.li
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 + index * 0.06, ease: EASE_OUT }}
-      className="relative flex gap-4 pb-6 last:pb-0"
-    >
-      {index < STEPS.length - 1 && (
-        <span aria-hidden className="absolute left-[15px] top-9 h-[calc(100%-1.5rem)] w-px bg-zinc-200" />
-      )}
-
-      <div className="relative">
-        <m.span
-          aria-hidden
-          className={`relative grid h-8 w-8 place-items-center rounded-full border text-[12px] font-semibold tabular-nums ${
-            done
-              ? 'border-transparent text-white'
-              : active
-                ? 'border-zinc-900 bg-white text-zinc-900'
-                : 'border-zinc-200 bg-white text-zinc-400'
-          }`}
-          style={done ? { background: 'var(--mt-accent)' } : undefined}
-          animate={
-            active && !done && !reduce
-              ? { boxShadow: ['0 0 0 0px var(--mt-accent-glow)', '0 0 0 10px transparent'] }
-              : { boxShadow: '0 0 0 0 transparent' }
-          }
-          transition={
-            active && !done && !reduce
-              ? { duration: 1.6, repeat: Infinity, ease: 'easeOut' }
-              : { duration: 0.2 }
-          }
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            {done ? (
-              <m.span
-                key="check"
-                initial={reduce ? { opacity: 0 } : { scale: 0, opacity: 0 }}
-                animate={reduce ? { opacity: 1 } : { scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 380, damping: 20 }}
-              >
-                <Check className="h-3.5 w-3.5" strokeWidth={2.75} aria-hidden />
-              </m.span>
-            ) : (
-              <m.span key="num" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {index + 1}
-              </m.span>
-            )}
-          </AnimatePresence>
-        </m.span>
+          </div>
+        )}
       </div>
-
-      <div className="min-w-0 flex-1 pt-1">
-        <div className="flex items-center justify-between gap-3">
-          <p className={`text-[13.5px] font-semibold ${done ? 'text-zinc-500 line-through decoration-zinc-300' : 'text-zinc-950'}`}>
-            {step.title}
-          </p>
-          <StatusPill tone={tone.tone}>{tone.label}</StatusPill>
-        </div>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-500">{step.sub}</p>
-      </div>
-    </m.li>
+    </div>
   );
 }
 
@@ -300,258 +530,47 @@ function StepRow({
 /* Page                                                               */
 /* ------------------------------------------------------------------ */
 
-export default function SetupClient() {
+export default function SetupPage() {
   const [mounted, setMounted] = useState(false);
   const [includeCatalog, setIncludeCatalog] = useState(true);
-  // Steps stay locked until the real OAuth callback flips them; we read from
-  // sessionStorage so a returning user can resume mid-flow without losing state.
-  const [completedSteps] = useState<Record<string, boolean>>({});
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const activeStepIndex = useMemo(() => {
-    const idx = STEPS.findIndex((s) => !completedSteps[s.key]);
-    return idx === -1 ? STEPS.length - 1 : idx;
-  }, [completedSteps]);
+  if (!mounted) {
+    return <SetupSkeleton />;
+  }
 
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
   const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
 
-  if (!appId || !configId) return <ConfigError />;
-  if (!mounted) return null;
-
-  const completedCount = STEPS.filter((s) => completedSteps[s.key]).length;
-  const progressPct = Math.round((completedCount / STEPS.length) * 100);
-
-  const connectButton = (
-    <WaButton leftIcon={MessageCircle} rightIcon={ArrowRight}>
-      Connect WhatsApp
-    </WaButton>
-  );
+  if (!appId || !configId) {
+    return <ConfigError />;
+  }
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Connect your WhatsApp Business Account"
-        description="Securely link your WABA to SabNode and unlock broadcasts, inbox, automation, and CRM from one place."
-        kicker="Wachat · setup"
-        backHref="/wachat"
-        actions={
-          <>
-            <WaButton href="/wachat/setup/docs" variant="outline" rightIcon={ExternalLink}>
-              Manual setup
-            </WaButton>
-            <ConnectDialog
-              appId={appId}
-              configId={configId}
-              includeCatalog={includeCatalog}
-              setIncludeCatalog={setIncludeCatalog}
-              trigger={connectButton}
-            />
-          </>
-        }
-      />
+    <div className="relative">
+      <div className="mx-auto max-w-6xl pb-12">
+        <HeroSection
+          appId={appId}
+          configId={configId}
+          includeCatalog={includeCatalog}
+          setIncludeCatalog={setIncludeCatalog}
+        />
 
-      {/* Progress strip */}
-      <m.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: EASE_OUT }}
-        className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3"
-      >
-        <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg" style={{ background: 'var(--mt-accent-soft)' }}>
-            <Activity className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
-          </span>
-          <div>
-            <p className="text-[12.5px] font-semibold tracking-tight text-zinc-950">
-              {completedCount}/{STEPS.length} steps complete
-            </p>
-            <p className="text-[11px] text-zinc-500">Typical setup time, two to three minutes</p>
-          </div>
-        </div>
-        <div className="ml-auto flex min-w-[180px] flex-1 items-center gap-2 sm:flex-none sm:basis-[260px]">
-          <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
-            <m.span
-              className="absolute inset-y-0 left-0 rounded-full"
-              style={{ background: 'var(--mt-accent)' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${progressPct}%` }}
-              transition={{ duration: 0.5, ease: EASE_OUT }}
-            />
-          </div>
-          <span className="w-9 text-right font-mono text-[11px] tabular-nums text-zinc-600">{progressPct}%</span>
-        </div>
-      </m.div>
-
-      <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        {/* Left column */}
-        <div className="space-y-4">
-          <Section title="Onboarding flow" description="Four steps. Most teams finish in under three minutes.">
-            <ol className="space-y-0">
-              {STEPS.map((s, i) => (
-                <StepRow
-                  key={s.key}
-                  index={i}
-                  step={s}
-                  active={i === activeStepIndex}
-                  done={!!completedSteps[s.key]}
-                />
-              ))}
-            </ol>
-          </Section>
-
-          <Section title="What you unlock" description="Available immediately after the WABA is connected.">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {UNLOCKS.map((u, i) => (
-                <m.div
-                  key={u.label}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.05 + i * 0.04, ease: EASE_OUT }}
-                  className="group flex items-start gap-3 rounded-xl border border-zinc-200 bg-white p-3.5"
-                >
-                  <span
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white"
-                    style={{ backgroundImage: 'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))' }}
-                  >
-                    <u.icon className="h-4 w-4" strokeWidth={2.25} aria-hidden />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-semibold text-zinc-900">{u.label}</p>
-                    <p className="mt-0.5 text-[12px] leading-relaxed text-zinc-500">{u.hint}</p>
-                  </div>
-                </m.div>
-              ))}
-            </div>
-          </Section>
-
-          <Section title="Trusted by operators" description="Teams shipping production WhatsApp on SabNode.">
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-              {TRUSTED_BRANDS.map((b) => (
-                <div key={b.slug} className="grid h-7 place-items-center">
-                  <BrandLogo slug={b.slug} name={b.name} />
-                </div>
-              ))}
-            </div>
-          </Section>
-
-          <Section title="Security and trust" description="Why this is safer than handing over passwords.">
-            <ul className="space-y-3">
-              {TRUST.map((t) => (
-                <li key={t.text} className="flex items-start gap-3">
-                  <span
-                    className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg"
-                    style={{ background: 'var(--mt-accent-soft)' }}
-                  >
-                    <t.icon className="h-3.5 w-3.5" style={{ color: 'var(--mt-accent)' }} aria-hidden />
-                  </span>
-                  <p className="text-[13px] leading-relaxed text-zinc-600">{t.text}</p>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {SECURITY_BADGES.map((b) => (
-                <div key={b.label} className="rounded-lg border border-zinc-200 bg-zinc-50/60 px-3 py-2">
-                  <p className="text-[11.5px] font-semibold tracking-tight text-zinc-900">{b.label}</p>
-                  <p className="mt-0.5 text-[10.5px] text-zinc-500">{b.sub}</p>
-                </div>
-              ))}
-            </div>
-          </Section>
-        </div>
-
-        {/* Right column */}
-        <div className="space-y-4">
-          <Section title="What customers will see" description="A preview of your first conversation once connected.">
-            <PhoneFrame title="Your business" subtitle="business account">
-              <ChatBubble who="them" text="Hi! Is this offer still available?" time="9:41" delay={0.05} />
-              <ChatBubble
-                who="us"
-                kind="template"
-                text="Yes! Free shipping ends tonight. Reply YES to lock it in."
-                time="9:42"
-                delay={0.2}
-              />
-              <ChatBubble who="them" text="YES" time="9:42" delay={0.4} />
-              <ChatBubble who="us" kind="cta" text="Confirmed. Order #4291 ships tomorrow." time="9:43" delay={0.55} />
-            </PhoneFrame>
-          </Section>
-
-          <Section padded={false}>
-            <div
-              className="relative overflow-hidden rounded-2xl p-5 text-white"
-              style={{
-                backgroundImage:
-                  'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))',
-              }}
-            >
-              <Sparkles className="h-6 w-6 opacity-90" strokeWidth={2} aria-hidden />
-              <p className="mt-3 text-[15px] font-semibold leading-snug">Ready to start reaching customers?</p>
-              <p className="mt-1 text-[12.5px] text-white/90">Most teams finish in under three minutes.</p>
-              <div className="mt-4">
-                <ConnectDialog
-                  appId={appId}
-                  configId={configId}
-                  includeCatalog={includeCatalog}
-                  setIncludeCatalog={setIncludeCatalog}
-                  trigger={
-                    <button
-                      type="button"
-                      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-zinc-900 transition-[transform] duration-150 active:scale-[0.97]"
-                    >
-                      <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-                      Connect now
-                      <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-                    </button>
-                  }
-                />
-              </div>
-            </div>
-          </Section>
-
-          <Section title="Before you start" description="Three things to have on hand.">
-            <ul className="space-y-2.5">
-              {[
-                'A Facebook account with admin access to your Business portfolio.',
-                'A verified Meta Business Account.',
-                'A phone number not already on WhatsApp personal.',
-              ].map((t) => (
-                <li key={t} className="flex items-start gap-2.5 text-[13px] leading-relaxed text-zinc-600">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--mt-accent)' }} strokeWidth={2.25} />
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </Section>
-
-          <Section title="Need a hand?" description="Average response time under 4 minutes.">
-            <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: 'var(--mt-accent-soft)' }}>
-                <Clock className="h-4 w-4" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
-              </span>
-              <div className="flex-1">
-                <p className="text-[13px] font-semibold text-zinc-950">Talk to a setup engineer</p>
-                <p className="mt-0.5 text-[11.5px] text-zinc-500">Concierge handover, weekday support hours.</p>
-              </div>
-              <WaButton variant="outline" size="sm" href="/contact">Chat</WaButton>
-            </div>
-          </Section>
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <Section
-          title="Connected accounts"
-          description="Linked WhatsApp Business Accounts will appear here."
-        >
-          <EmptyState
-            icon={Phone}
-            title="No accounts connected yet"
-            description="Run the connect flow above. Once authorized, your WABA, number, and quality rating will land here automatically."
+        <div className="grid gap-6 lg:grid-cols-3">
+          <UnlocksSection />
+          <RightPanel
+            appId={appId}
+            configId={configId}
+            includeCatalog={includeCatalog}
+            setIncludeCatalog={setIncludeCatalog}
           />
-        </Section>
+        </div>
+
+        <ConnectedAccounts />
       </div>
-    </WaPage>
+    </div>
   );
 }

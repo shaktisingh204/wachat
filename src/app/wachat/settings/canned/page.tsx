@@ -1,32 +1,42 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
-  ArrowRight,
-  CircleAlert,
-  Info,
-  Keyboard,
-  MessageSquareQuote,
-  RefreshCw,
-  TriangleAlert,
-} from 'lucide-react';
-
-import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  EmptyState,
+  ZoruPageDescription,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  Skeleton,
   Input,
   Switch,
   Label,
   Alert,
   ZoruAlertTitle,
-  ZoruAlertDescription,
+  ZoruAlertDescription
 } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+import { CircleAlert, TriangleAlert } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
 import { CannedMessagesSettingsTab } from '@/components/zoruui-domain/canned-messages-settings-tab';
-import { WaPage, PageHeader, Section, EmptyState, WaButton, MetricTile, StatusPill } from '@/components/wachat-ui';
+
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 const RESERVED_SHORTCUTS = [
-  'cmd + c', 'cmd + v', 'cmd + x', 'cmd + z', 'cmd + y', 'cmd + a', 'cmd + f', 'cmd + p', 'cmd + s', 'cmd + r', 'cmd + t', 'cmd + w', 'cmd + n',
+  'cmd + c', 'cmd + v', 'cmd + x', 'cmd + z', 'cmd + y', 'cmd + a', 'cmd + f', 'cmd + p', 'cmd + s', 'cmd + r', 'cmd + t', 'cmd + w', 'cmd + n', 
   'ctrl + c', 'ctrl + v', 'ctrl + x', 'ctrl + z', 'ctrl + y', 'ctrl + a', 'ctrl + f', 'ctrl + p', 'ctrl + s', 'ctrl + r', 'ctrl + t', 'ctrl + w', 'ctrl + n',
   'alt + f4', 'alt + tab', 'cmd + tab',
   'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12',
@@ -40,7 +50,7 @@ function GeneralCannedSettings() {
   const [trigger, setTrigger] = useState('');
   const [isReserved, setIsReserved] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-
+  
   useEffect(() => {
     setIsMounted(true);
     const savedSync = localStorage.getItem('wachat_sync_canned_projects') === 'true';
@@ -51,8 +61,12 @@ function GeneralCannedSettings() {
   }, []);
 
   const checkCollision = (shortcut: string) => {
-    if (!shortcut) return setIsReserved(false);
-    setIsReserved(RESERVED_SHORTCUTS.includes(shortcut.toLowerCase()));
+    if (!shortcut) {
+      setIsReserved(false);
+      return;
+    }
+    const isCollision = RESERVED_SHORTCUTS.includes(shortcut.toLowerCase());
+    setIsReserved(isCollision);
   };
 
   const handleSyncChange = (checked: boolean) => {
@@ -63,107 +77,90 @@ function GeneralCannedSettings() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.key === 'Backspace' || e.key === 'Delete') {
-      setTrigger('');
-      checkCollision('');
-      localStorage.setItem('wachat_canned_trigger', '');
-      return;
+       setTrigger('');
+       checkCollision('');
+       localStorage.setItem('wachat_canned_trigger', '');
+       return;
     }
-    if (['Control', 'Meta', 'Alt', 'Shift', 'CapsLock', 'Tab'].includes(e.key)) return;
 
-    const keys: string[] = [];
+    if (['Control', 'Meta', 'Alt', 'Shift', 'CapsLock', 'Tab'].includes(e.key)) {
+        return;
+    }
+    
+    const keys = [];
     if (e.metaKey) keys.push('Cmd');
     if (e.ctrlKey) keys.push('Ctrl');
     if (e.altKey) keys.push('Alt');
     if (e.shiftKey) keys.push('Shift');
-    const keyName = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    
+    const keyName = e.key === ' ' ? 'Space' : (e.key.length === 1 ? e.key.toUpperCase() : e.key);
     keys.push(keyName);
+    
     const shortcut = keys.join(' + ');
     setTrigger(shortcut);
     checkCollision(shortcut);
     localStorage.setItem('wachat_canned_trigger', shortcut);
   };
 
-  if (!isMounted) {
-    return <div className="h-[260px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />;
-  }
+  if (!isMounted) return <Skeleton className="h-[250px] w-full mb-6" />;
 
   return (
-    <Section title="General settings" description="Configure global preferences for canned messages.">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <Label htmlFor="sync-projects" className="cursor-pointer text-[13.5px] font-semibold text-zinc-900">
-              Sync across sub-projects
-            </Label>
-            <p className="mt-0.5 text-[12px] text-zinc-500">
+    <Card className="mb-2">
+      <ZoruCardHeader>
+        <ZoruCardTitle>General Settings</ZoruCardTitle>
+        <ZoruCardDescription>Configure global preferences for canned messages.</ZoruCardDescription>
+      </ZoruCardHeader>
+      <ZoruCardContent className="space-y-6">
+        
+        {/* Sync Feature */}
+        <div className="flex items-center justify-between space-x-4">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="sync-projects" className="text-base cursor-pointer">Sync across sub-projects</Label>
+            <span className="text-sm text-zoru-ink-muted">
               Automatically share canned messages with all other active sub-projects in your account.
-            </p>
+            </span>
           </div>
-          <Switch id="sync-projects" checked={syncProjects} onCheckedChange={handleSyncChange} />
+          <Switch 
+            id="sync-projects" 
+            checked={syncProjects} 
+            onCheckedChange={handleSyncChange} 
+          />
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="trigger-shortcut" className="text-[13.5px] font-semibold text-zinc-900">
-            Keyboard trigger
-          </Label>
-          <p className="text-[12px] leading-relaxed text-zinc-500">
-            Focus the input and press the key combination you want to use for opening the canned messages menu. Backspace clears.
-          </p>
+        {/* Keyboard Trigger Feature */}
+        <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-1">
+            <Label htmlFor="trigger-shortcut" className="text-base">Keyboard Trigger Shortcut</Label>
+            <span className="text-sm text-zoru-ink-muted">
+              Focus the input below and press the key combination you want to use for opening the canned messages menu. Use Backspace to clear.
+            </span>
+          </div>
+          
           <div className="max-w-md">
-            <Input
-              id="trigger-shortcut"
-              placeholder="e.g. Cmd + /"
+            <Input 
+              id="trigger-shortcut" 
+              placeholder="e.g. Cmd + /" 
               value={trigger}
               onKeyDown={handleKeyDown}
               readOnly
-              className="rounded-xl font-mono"
+              className="font-mono cursor-pointer focus:ring-2 focus:ring-primary"
             />
           </div>
 
           {isReserved && (
-            <Alert variant="destructive" className="mt-2 max-w-md rounded-xl">
+            <Alert variant="destructive" className="max-w-md mt-2">
               <TriangleAlert className="h-4 w-4" />
-              <ZoruAlertTitle>Shortcut collision</ZoruAlertTitle>
+              <ZoruAlertTitle>Shortcut Collision Detected</ZoruAlertTitle>
               <ZoruAlertDescription>
-                The selected shortcut ({trigger}) conflicts with a native browser or OS shortcut. Pick a different combination.
+                The selected shortcut ({trigger}) conflicts with a native browser or OS shortcut. 
+                Please choose a different combination to avoid issues.
               </ZoruAlertDescription>
             </Alert>
           )}
         </div>
-      </div>
-    </Section>
-  );
-}
 
-function CannedHeaderKpis() {
-  const [trigger, setTrigger] = useState<string>('');
-  const [sync, setSync] = useState<boolean>(false);
-  useEffect(() => {
-    setTrigger(localStorage.getItem('wachat_canned_trigger') || 'Cmd + /');
-    setSync(localStorage.getItem('wachat_sync_canned_projects') === 'true');
-  }, []);
-
-  return (
-    <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      <MetricTile
-        label="Trigger shortcut"
-        value={<span className="font-mono text-[13px]">{trigger || 'Not set'}</span>}
-        icon={Keyboard}
-        delay={0.02}
-      />
-      <MetricTile
-        label="Project sync"
-        value={<span className="text-[15px]">{sync ? 'On' : 'Off'}</span>}
-        icon={RefreshCw}
-        delay={0.04}
-      />
-      <MetricTile
-        label="Status"
-        value={<span className="text-[15px]">Legacy</span>}
-        icon={Info}
-        delay={0.06}
-      />
-    </section>
+      </ZoruCardContent>
+    </Card>
   );
 }
 
@@ -171,84 +168,67 @@ export default function CannedMessagesPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
 
+  const breadcrumbs = (
+    <Breadcrumb>
+      <ZoruBreadcrumbList>
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+        </ZoruBreadcrumbItem>
+        <ZoruBreadcrumbSeparator />
+        <ZoruBreadcrumbItem>
+          <ZoruBreadcrumbPage>Canned messages</ZoruBreadcrumbPage>
+        </ZoruBreadcrumbItem>
+      </ZoruBreadcrumbList>
+    </Breadcrumb>
+  );
+
   if (isLoadingProject) {
     return (
-      <WaPage>
-        <PageHeader
-          title="Canned messages"
-          description="Pre-written message snippets your agents can send instantly."
-          kicker="Wachat · settings"
-          backHref="/wachat"
-          eyebrowIcon={MessageSquareQuote}
-        />
-        <div className="h-[420px] animate-pulse rounded-2xl border border-zinc-200 bg-white" />
-      </WaPage>
+      <div className="flex min-h-full flex-col gap-6">
+        {breadcrumbs}
+        <Skeleton className="h-[420px] w-full" />
+      </div>
     );
   }
 
   if (!activeProject) {
     return (
-      <WaPage>
-        <PageHeader
-          title="Canned messages"
-          description="Pre-written message snippets your agents can send instantly."
-          kicker="Wachat · settings"
-          backHref="/wachat"
-          eyebrowIcon={MessageSquareQuote}
-        />
+      <div className="flex min-h-full flex-col gap-6">
+        {breadcrumbs}
         <EmptyState
-          icon={CircleAlert}
+          icon={<CircleAlert className="h-10 w-10" />}
           title="Select a project first"
-          description="Pick a project from the Wachat home page to manage canned messages."
-          action={<WaButton onClick={() => router.push('/wachat')}>Choose a project</WaButton>}
+          description="Pick a project from the WaChat home page to manage canned messages."
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
-      </WaPage>
+      </div>
     );
   }
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Canned messages"
-        description="Pre-written message snippets your agents can send instantly."
-        kicker="Wachat · settings"
-        backHref="/wachat"
-        eyebrowIcon={MessageSquareQuote}
-        actions={
-          <WaButton variant="outline" size="sm" href="/wachat/saved-replies" rightIcon={ArrowRight}>
-            Open saved replies
-          </WaButton>
-        }
-      />
+    <div className="flex min-h-full flex-col gap-6">
+      {breadcrumbs}
 
-      <div className="space-y-4">
-        {/* Soft deprecation banner — points users toward Saved Replies. */}
-        <div className="flex flex-wrap items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-100">
-            <Info className="h-4 w-4 text-amber-700" strokeWidth={2.25} />
-          </span>
-          <div className="flex-1">
-            <p className="flex items-center gap-2 text-[13px] font-semibold text-amber-900">
-              Canned messages are moving to Saved replies
-              <StatusPill tone="paused">Legacy</StatusPill>
-            </p>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-amber-800">
-              Saved replies adds rich-media, variables, and shared folders. Existing canned shortcuts continue to work and will migrate automatically.
-            </p>
-          </div>
-          <WaButton href="/wachat/saved-replies" size="sm" rightIcon={ArrowRight}>
-            Try saved replies
-          </WaButton>
-        </div>
+      <PageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Canned messages</ZoruPageTitle>
+          <ZoruPageDescription>
+            Pre-written message snippets your agents can send instantly.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </PageHeader>
 
-        <CannedHeaderKpis />
+      <GeneralCannedSettings />
 
-        <GeneralCannedSettings />
-
-        <Section title="Snippet library" description="Manage shortcuts, content, and visibility for each canned message.">
+      <Card>
+        <ZoruCardContent>
           <CannedMessagesSettingsTab project={activeProject} />
-        </Section>
-      </div>
-    </WaPage>
+        </ZoruCardContent>
+      </Card>
+    </div>
   );
 }

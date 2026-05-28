@@ -1,10 +1,25 @@
 'use client';
 
-import { Blocks, GitFork, Lightbulb } from 'lucide-react';
-import { m } from 'motion/react';
+import {
+  Button,
+  Card,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruPageDescription,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  Separator,
+} from '@/components/zoruui';
+import {
+  ChevronLeft,
+  GitFork,
+  Lightbulb } from 'lucide-react';
 
-import { WaPage, PageHeader, Section } from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import Link from 'next/link';
+import { Blocks } from 'lucide-react';
 
 const commonPatterns = [
   {
@@ -12,7 +27,7 @@ const commonPatterns = [
     description: 'Capture valuable customer information directly in WhatsApp.',
     steps: [
       'Create a "Welcome" screen with a heading and body text explaining the offer.',
-      'Add `TextInput` components for name, email, and phone number.',
+      'Add `TextInput` components for Name, Email, and Phone Number.',
       'The footer button should navigate to a "Thank you" screen.',
       'The final screen can confirm submission, e.g. "Thanks, a representative will contact you shortly!"',
     ],
@@ -42,7 +57,7 @@ const commonPatterns = [
 
 const availableComponents = [
   {
-    category: 'Text and layout',
+    category: 'Text & Layout',
     items: [
       { name: 'TextHeading', description: 'Large, prominent text for screen titles.' },
       { name: 'TextSubheading', description: 'Medium text for section headings.' },
@@ -51,9 +66,9 @@ const availableComponents = [
     ],
   },
   {
-    category: 'Form inputs',
+    category: 'Form Inputs',
     items: [
-      { name: 'TextInput', description: 'Single-line text field (text, email, phone, number).' },
+      { name: 'TextInput', description: 'Single-line text field (supports text, email, phone, number).' },
       { name: 'TextArea', description: 'Multi-line text input for longer responses.' },
       { name: 'DatePicker', description: 'Interactive calendar widget for selecting dates.' },
       { name: 'Dropdown', description: 'Collapsible list for selecting one option from many.' },
@@ -63,113 +78,122 @@ const availableComponents = [
     ],
   },
   {
-    category: 'Media and advanced',
+    category: 'Media & Advanced',
     items: [
       { name: 'Image', description: 'Static image display within the flow.' },
-      { name: 'PhotoPicker', description: 'Capture or select images.' },
-      { name: 'DocumentPicker', description: 'Upload documents (PDFs, etc).' },
+      { name: 'PhotoPicker', description: 'Allows users to capture or select and upload images.' },
+      { name: 'DocumentPicker', description: 'Allows users to upload documents (PDFs, etc).' },
     ],
   },
 ];
 
 export default function FlowsUserGuidePage() {
   return (
-    <WaPage>
-      <PageHeader
-        title="Building interactive experiences with Meta flows"
-        description="A guide to creating multi-step, interactive forms and journeys inside WhatsApp."
-        kicker="Wachat"
-        eyebrowIcon={GitFork}
-        backHref="/wachat/flows"
-      />
+    <div className="flex flex-col gap-8">
+      <div>
+        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
+          <Link href="/wachat/flows">
+            <ChevronLeft className="mr-1 h-4 w-4" />
+            Back to Meta Flows
+          </Link>
+        </Button>
 
-      <Section title="What are Meta flows?" description="The short version.">
-        <p className="text-[13.5px] leading-relaxed text-zinc-700">
-          Meta flows are rich, native experiences you can launch inside WhatsApp conversations. Think
-          of them as mini-apps or forms inside the chat. Instead of asking a user for their name, then
-          their email, then their availability one message at a time, you can send a single flow that
-          collects all of this information across one or more screens.
-        </p>
-        <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
-            <div>
-              <h4 className="text-[13px] font-semibold tracking-tight text-zinc-950">Key advantage</h4>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-600">
-                Flows reduce friction, leading to higher completion rates for tasks like booking
-                appointments, generating leads, or collecting feedback.
-              </p>
+        <PageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>
+              <span className="inline-flex items-center gap-3">
+                <GitFork className="h-7 w-7" />
+                Building interactive experiences with Meta Flows
+              </span>
+            </ZoruPageTitle>
+            <ZoruPageDescription>
+              A guide to creating multi-step, interactive forms and journeys inside WhatsApp.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </PageHeader>
+      </div>
+
+      <Card>
+        <ZoruCardHeader>
+          <ZoruCardTitle>What are Meta Flows?</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
+          <p className="text-zoru-ink">
+            Meta Flows are rich, native experiences that you can launch within WhatsApp conversations.
+            Think of them as mini-apps or forms inside the chat. Instead of asking a user for their
+            name, then their email, then their availability one message at a time, you can send a
+            single Flow that collects all this information on one or more screens.
+          </p>
+          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+            <div className="flex items-start gap-3">
+              <Lightbulb className="mt-1 h-5 w-5 flex-shrink-0 text-zoru-ink" />
+              <div>
+                <h4 className="font-semibold text-zoru-ink">Key advantage</h4>
+                <p className="text-sm text-zoru-ink-muted">
+                  Flows reduce friction for the user, leading to higher completion rates for tasks
+                  like booking appointments, generating leads, or collecting feedback.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </Section>
+        </ZoruCardContent>
+      </Card>
 
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">Common patterns and use cases</h2>
-        <p className="mt-1 text-[13px] text-zinc-600">
-          Ideas for flows you can build and how to structure them.
+      <Separator />
+
+      <div>
+        <h2 className="text-2xl text-zoru-ink">Common patterns & use cases</h2>
+        <p className="mt-1 text-zoru-ink-muted">
+          Here are some ideas for flows you can build, and how to structure them.
         </p>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {commonPatterns.map((pattern, i) => (
-          <m.article
-            key={pattern.title}
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: 0.04 + i * 0.05, ease: EASE_OUT }}
-            className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-5"
-          >
-            <h3 className="text-[14px] font-semibold tracking-tight text-zinc-950">{pattern.title}</h3>
-            <p className="mt-1 text-[12.5px] text-zinc-500">{pattern.description}</p>
-            <ol className="mt-3 list-inside list-decimal space-y-2 text-[12.5px] leading-relaxed text-zinc-700">
-              {pattern.steps.map((step, idx) => (
-                <li key={idx}>{step}</li>
-              ))}
-            </ol>
-          </m.article>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {commonPatterns.map((pattern) => (
+          <Card key={pattern.title} className="flex flex-col">
+            <ZoruCardHeader>
+              <ZoruCardTitle>{pattern.title}</ZoruCardTitle>
+              <ZoruCardDescription>{pattern.description}</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="flex-grow">
+              <ol className="list-inside list-decimal space-y-2 text-sm text-zoru-ink">
+                {pattern.steps.map((step, index) => (
+                  <li key={index}>{step}</li>
+                ))}
+              </ol>
+            </ZoruCardContent>
+          </Card>
         ))}
       </div>
+      <Separator />
 
-      <div className="mt-10">
-        <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-zinc-950">
-          <Blocks className="h-5 w-5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} aria-hidden />
+      <div>
+        <h2 className="text-2xl text-zoru-ink flex items-center gap-2">
+          <Blocks className="h-6 w-6 text-zoru-brand" />
           Available flow components
         </h2>
-        <p className="mt-1 text-[13px] text-zinc-600">
-          Official building blocks available in the Meta flows API. Combine them to build rich
-          experiences.
+        <p className="mt-1 text-zoru-ink-muted">
+          These are the official building blocks available in the Meta Flows API. Combine them to build rich user experiences.
         </p>
       </div>
 
-      <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {availableComponents.map((category, i) => (
-          <m.article
-            key={category.category}
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.35, delay: 0.04 + i * 0.05, ease: EASE_OUT }}
-            className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-5"
-          >
-            <h3 className="text-[14px] font-semibold tracking-tight text-zinc-950">{category.category}</h3>
-            <div className="mt-3 space-y-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {availableComponents.map((category) => (
+          <Card key={category.category} className="flex flex-col">
+            <ZoruCardHeader>
+              <ZoruCardTitle>{category.category}</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="flex-grow space-y-4">
               {category.items.map((item) => (
                 <div key={item.name} className="flex flex-col">
-                  <span
-                    className="w-fit rounded-md px-1.5 py-0.5 font-mono text-[11.5px] font-semibold text-zinc-700"
-                    style={{ background: 'var(--mt-accent-soft)' }}
-                  >
-                    {item.name}
-                  </span>
-                  <span className="mt-1 text-[12.5px] text-zinc-600">{item.description}</span>
+                  <span className="font-medium text-zoru-ink text-sm font-mono bg-zoru-surface-hover w-fit px-1.5 py-0.5 rounded-[var(--zoru-radius)]">{item.name}</span>
+                  <span className="text-sm text-zoru-ink-muted mt-1">{item.description}</span>
                 </div>
               ))}
-            </div>
-          </m.article>
+            </ZoruCardContent>
+          </Card>
         ))}
       </div>
-    </WaPage>
+    </div>
   );
 }

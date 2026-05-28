@@ -1,28 +1,50 @@
-'use client';
+"use client";
 
-import { DashboardShell } from '@/components/dashboard-ui/shell';
-import type { ReactNode } from 'react';
+import { ZoruHomeShell } from '@/components/zoruui';
+import { usePathname } from "next/navigation";
 
 /**
- * WachatShell — thin wrapper around the new `DashboardShell`. The shell
- * auto-resolves the active sidebar from the pathname (via
- * `findAppSidebarConfig`), so /wachat/* automatically picks up the
- * existing Wachat module menu without us re-declaring it here.
+ * WachatShell — wraps `ZoruHomeShell` with the wachat-specific
+ * grouped sidebar (Inbox, Contacts, Broadcasts, Templates,
+ * Automation, Reports, Growth, Calling, Engagement, Settings).
  *
- * Kept as a wrapper so future Wachat-only banners / notices can land
- * here without touching every page.
+ * Used by `src/app/wachat/layout.tsx`. Client-only so we can read
+ * `usePathname()` to flag the active sidebar item.
  */
 
+import * as React from "react";
+
+import { buildWachatSidebarGroups } from "./wachat-sidebar-config";
+
 export interface WachatShellProps {
-    user?: { name?: string | null; email?: string | null; avatar?: string | null; role?: string | null };
-    plan?: { name?: string | null; credits?: number };
-    children: ReactNode;
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    avatar?: string | null;
+  };
+  plan?: {
+    name?: string | null;
+    credits?: number;
+  };
+  children: React.ReactNode;
 }
 
 export function WachatShell({ user, plan, children }: WachatShellProps) {
-    return (
-        <DashboardShell user={user} plan={plan}>
-            {children}
-        </DashboardShell>
-    );
+  const pathname = usePathname();
+  const groups = React.useMemo(
+    () => buildWachatSidebarGroups(pathname),
+    [pathname],
+  );
+
+  return (
+    <ZoruHomeShell
+      user={user}
+      plan={plan}
+      sidebarHeading="WaChat"
+      sidebarCaption={user?.name ?? user?.email ?? "Project"}
+      sidebarGroups={groups}
+    >
+      {children}
+    </ZoruHomeShell>
+  );
 }

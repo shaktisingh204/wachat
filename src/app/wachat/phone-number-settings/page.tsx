@@ -1,40 +1,50 @@
 'use client';
 
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { Image as ImageIcon, Loader2, Phone, Save, Sparkles, Type } from 'lucide-react';
-
 import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  EmptyState,
   Input,
   Label,
+  Skeleton,
   Textarea,
   useZoruToast,
 } from '@/components/zoruui';
-
 import {
-  WaPage,
-  PageHeader,
-  Section,
-  EmptyState,
-  WaButton,
-  MetricTile,
-  PhoneFrame,
-  ChatBubble,
-} from '@/components/wachat-ui';
-import { SabFilePickerButton } from '@/components/sabfiles';
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Loader2,
+  Phone,
+  Save,
+  Sparkles } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
   getPhoneNumberProfiles,
   updatePhoneProfile,
-} from '@/app/actions/wachat-features.actions';
+  } from '@/app/actions/wachat-features.actions';
 import { handleGenerateBusinessDescription } from '@/app/actions/ai-actions';
+
+/**
+ * Wachat Phone Number Settings — ZoruUI migration.
+ * Per-number business profile editor.
+ */
+
+import * as React from 'react';
 
 export default function PhoneNumberSettingsPage() {
   const { activeProject } = useProject();
@@ -48,6 +58,7 @@ export default function PhoneNumberSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Edit-display-name dialog
   const [displayNameOpen, setDisplayNameOpen] = useState(false);
   const [draftDisplayName, setDraftDisplayName] = useState('');
 
@@ -56,7 +67,11 @@ export default function PhoneNumberSettingsPage() {
       startLoading(async () => {
         const res = await getPhoneNumberProfiles(pid);
         if (res.error) {
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast({
+            title: 'Error',
+            description: res.error,
+            variant: 'destructive',
+          });
         } else {
           const nums = res.phoneNumbers || [];
           setPhones(nums);
@@ -66,7 +81,7 @@ export default function PhoneNumberSettingsPage() {
               address: nums[0].address || '',
               description: nums[0].description || '',
               email: nums[0].email || '',
-              websites: Array.isArray(nums[0].websites) ? nums[0].websites.join(', ') : nums[0].websites || '',
+              websites: Array.isArray(nums[0].websites) ? nums[0].websites.join(', ') : (nums[0].websites || ''),
             });
           }
         }
@@ -88,7 +103,7 @@ export default function PhoneNumberSettingsPage() {
         address: p.address || '',
         description: p.description || '',
         email: p.email || '',
-        websites: Array.isArray(p.websites) ? p.websites.join(', ') : p.websites || '',
+        websites: Array.isArray(p.websites) ? p.websites.join(', ') : (p.websites || ''),
       });
     }
   };
@@ -97,11 +112,12 @@ export default function PhoneNumberSettingsPage() {
     const phone = phones[selectedIdx];
     if (!phone || !projectId) return;
 
+    // Client-side validation matching Meta API requirements
     const errors: string[] = [];
     if (profile.about && profile.about.length > 139) errors.push('About text must be 139 characters or less.');
     if (profile.address) {
       if (profile.address.length > 256) errors.push('Address must be 256 characters or less.');
-      if (profile.address.length < 5) errors.push('Address must be at least 5 characters long.');
+      if (profile.address.length < 5) errors.push('Address must be at least 5 characters long to be accepted by Meta.');
     }
     if (profile.description && profile.description.length > 512) errors.push('Description must be 512 characters or less.');
     if (profile.email) {
@@ -115,6 +131,7 @@ export default function PhoneNumberSettingsPage() {
       const urls = typeof profile.websites === 'string'
         ? profile.websites.split(',').map((w) => w.trim()).filter(Boolean)
         : (profile.websites as unknown as string[]);
+      
       if (urls.length > 2) errors.push('Maximum 2 websites are allowed.');
       const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
       for (const url of urls) {
@@ -125,18 +142,34 @@ export default function PhoneNumberSettingsPage() {
     }
 
     if (errors.length > 0) {
-      toast({ title: 'Validation error', description: errors.join('\n'), variant: 'destructive' });
+      toast({
+        title: 'Validation Error',
+        description: errors.join('\n'),
+        variant: 'destructive',
+      });
       return;
     }
 
     setIsSaving(true);
     const finalProfile = { ...profile, websites: webs };
-    const res = await updatePhoneProfile(projectId, phone.id || phone._id, finalProfile);
+
+    const res = await updatePhoneProfile(
+      projectId,
+      phone.id || phone._id,
+      finalProfile,
+    );
     setIsSaving(false);
     if (res.error) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
     } else {
-      toast({ title: 'Saved', description: `Profile for ${phone.display_phone_number || phone.number || 'phone'} updated.` });
+      toast({
+        title: 'Saved',
+        description: `Profile for ${phone.display_phone_number || phone.number || 'phone'} updated.`,
+      });
     }
   };
 
@@ -144,213 +177,189 @@ export default function PhoneNumberSettingsPage() {
     const phone = phones[selectedIdx];
     const name = phone?.verified_name || phone?.displayName || phone?.display_phone_number || 'Business';
     const context = `${name}. ${profile.about || ''} ${profile.address || ''}`.trim();
+
     setIsGenerating(true);
     const res = await handleGenerateBusinessDescription(context);
     setIsGenerating(false);
+
     if (res.error) {
-      toast({ title: 'Generation failed', description: res.error, variant: 'destructive' });
+      toast({
+        title: 'Generation Failed',
+        description: res.error,
+        variant: 'destructive',
+      });
     } else if (res.description) {
-      const generated: string = res.description;
-      setProfile((prev) => ({ ...prev, description: generated }));
-      toast({ title: 'Done', description: 'Business description generated.' });
+      setProfile((prev) => ({ ...prev, description: res.description }));
+      toast({
+        title: 'Success',
+        description: 'Business description generated successfully.',
+      });
     }
   };
 
-  const fields: { key: string; label: string; multiline?: boolean; helpText: string; max?: number }[] = [
-    { key: 'about', label: 'About', helpText: 'Max 139 characters.', max: 139 },
-    { key: 'description', label: 'Business description', multiline: true, helpText: 'Max 512 characters. Shown to users in chat.', max: 512 },
-    { key: 'address', label: 'Address', helpText: 'Physical location. Min 5, max 256 chars.', max: 256 },
-    { key: 'email', label: 'Email', helpText: 'Max 128 characters.', max: 128 },
-    { key: 'websites', label: 'Websites', helpText: 'Comma separated. Maximum 2 URLs.' },
+  const fields = [
+    { key: 'about', label: 'About', helpText: 'Max 139 characters.' },
+    { key: 'description', label: 'Business Description', multiline: true, helpText: 'Max 512 characters. Displayed to users in chat.' },
+    { key: 'address', label: 'Address', helpText: 'Physical location of your business. Min 5, Max 256 chars.' },
+    { key: 'email', label: 'Email', helpText: 'Max 128 characters.' },
+    { key: 'websites', label: 'Websites', helpText: 'Comma separated, maximum 2 URLs (e.g. https://example.com).' },
   ];
 
   const current = phones[selectedIdx];
-  const profilePicUrl = profile.profilePicUrl || current?.profile?.profile_picture_url || '';
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Phone number settings"
-        description="Manage the business profile for each connected phone number."
-        kicker="Wachat · numbers"
-        backHref="/wachat"
-        eyebrowIcon={Phone}
-      />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Phone number settings</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
+
+      <div className="mt-5">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          Phone number settings
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          Manage business profile for each connected phone number.
+        </p>
+      </div>
 
       {isLoading ? (
-        <div className="space-y-4">
-          <div className="h-10 w-64 animate-pulse rounded-full bg-zinc-100" />
-          <div className="h-72 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+        <div className="mt-6 grid gap-4">
+          <Skeleton className="h-9 w-64" />
+          <Skeleton className="h-72 w-full" />
         </div>
       ) : phones.length === 0 ? (
-        <EmptyState
-          icon={Phone}
-          title="No phone numbers connected"
-          description="Connect a WhatsApp Business number to manage its profile here."
-        />
+        <div className="mt-6">
+          <EmptyState
+            icon={<Phone />}
+            title="No phone numbers connected"
+            description="Connect a WhatsApp Business number to manage its profile here."
+          />
+        </div>
       ) : (
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {phones.map((p, i) => {
-              const active = selectedIdx === i;
-              return (
-                <button
-                  key={p.id || i}
-                  type="button"
-                  onClick={() => selectPhone(i)}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[12px] font-semibold transition-[transform,background-color,color] duration-150 active:scale-[0.97] ${
-                    active
-                      ? 'border-transparent text-white'
-                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-900'
-                  }`}
-                  style={active ? { background: 'var(--mt-accent)' } : undefined}
-                >
-                  <Phone className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                  {p.display_phone_number || p.number || `Phone ${i + 1}`}
-                </button>
-              );
-            })}
+        <>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {phones.map((p, i) => (
+              <Button
+                key={p.id || i}
+                variant={selectedIdx === i ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => selectPhone(i)}
+              >
+                <Phone />
+                {p.display_phone_number || p.number || `Phone ${i + 1}`}
+              </Button>
+            ))}
           </div>
 
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <MetricTile
-              label="About"
-              value={<span className="text-[15px]">{(profile.about || '').length}/139</span>}
-              icon={Type}
-              delay={0.02}
-            />
-            <MetricTile
-              label="Description"
-              value={<span className="text-[15px]">{(profile.description || '').length}/512</span>}
-              icon={Type}
-              delay={0.04}
-            />
-            <MetricTile
-              label="Websites"
-              value={
-                <span className="text-[15px]">
-                  {(profile.websites || '').split(',').filter((s: string) => s.trim()).length}/2
+          <Card className="mt-4 p-6">
+            <div className="mb-6 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
+                  <Phone className="h-6 w-6 text-zoru-ink-muted" />
                 </span>
-              }
-              icon={Phone}
-              delay={0.06}
-            />
-            <MetricTile
-              label="Profile photo"
-              value={<span className="text-[15px]">{profilePicUrl ? 'Set' : 'Not set'}</span>}
-              icon={ImageIcon}
-              delay={0.08}
-            />
-          </section>
-
-          <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-            <Section
-              title={current?.display_phone_number || current?.number || 'Profile'}
-              description={current?.verified_name || current?.displayName || ''}
-              action={
-                <WaButton size="sm" variant="outline" onClick={() => {
-                  setDraftDisplayName(current?.verified_name || current?.displayName || '');
-                  setDisplayNameOpen(true);
-                }}>
-                  Edit display name
-                </WaButton>
-              }
-            >
-              <div className="flex flex-col gap-5">
-                <div className="flex items-center gap-3">
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-zinc-200 bg-zinc-100">
-                    {profilePicUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="grid h-full w-full place-items-center text-zinc-400">
-                        <ImageIcon className="h-5 w-5" strokeWidth={2} />
-                      </div>
-                    )}
+                <div>
+                  <div className="text-[16px] text-zoru-ink">
+                    {current?.display_phone_number || current?.number || '--'}
                   </div>
-                  <div className="flex-1">
-                    <p className="text-[12.5px] font-semibold text-zinc-900">Profile photo</p>
-                    <p className="mt-0.5 text-[11.5px] text-zinc-500">JPEG or PNG, square 640px recommended.</p>
+                  <div className="text-[12px] text-zoru-ink-muted">
+                    {current?.verified_name || current?.displayName || ''}
                   </div>
-                  <SabFilePickerButton
-                    accept="image"
-                    label="Pick image"
-                    onPick={(p) => setProfile((prev) => ({ ...prev, profilePicUrl: (p as any).url || (p as any).publicUrl || '' }))}
-                  />
-                </div>
-
-                {fields.map((f) => {
-                  const value = profile[f.key] || '';
-                  return (
-                    <div key={f.key} className="flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor={`pn-${f.key}`} className="text-[12px] font-semibold text-zinc-700">
-                          {f.label}
-                        </Label>
-                        {f.key === 'description' && (
-                          <WaButton size="sm" variant="ghost" onClick={generateDescription} disabled={isGenerating} leftIcon={isGenerating ? Loader2 : Sparkles}>
-                            {isGenerating ? 'Generating' : 'AI generate'}
-                          </WaButton>
-                        )}
-                      </div>
-                      {f.multiline ? (
-                        <Textarea
-                          id={`pn-${f.key}`}
-                          value={value}
-                          onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                          rows={4}
-                          maxLength={f.max}
-                          className="rounded-xl"
-                        />
-                      ) : (
-                        <Input
-                          id={`pn-${f.key}`}
-                          value={value}
-                          onChange={(e) => setProfile((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                          maxLength={f.max}
-                          className="rounded-xl"
-                        />
-                      )}
-                      <div className="flex items-center justify-between">
-                        {f.helpText && <span className="text-[11.5px] text-zinc-500">{f.helpText}</span>}
-                        {f.max && (
-                          <span className={`font-mono text-[10.5px] tabular-nums ${value.length > f.max ? 'text-rose-600' : 'text-zinc-400'}`}>
-                            {value.length}/{f.max}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-                <div className="pt-1">
-                  <WaButton onClick={handleSave} disabled={isSaving} leftIcon={isSaving ? Loader2 : Save}>
-                    {isSaving ? 'Saving' : 'Save profile'}
-                  </WaButton>
                 </div>
               </div>
-            </Section>
-
-            <Section title="Live preview" description="How your business appears in a customer's chat.">
-              <PhoneFrame
-                title={current?.verified_name || current?.displayName || 'Your business'}
-                subtitle={profile.about ? profile.about.slice(0, 38) : 'business account'}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setDraftDisplayName(
+                    current?.verified_name || current?.displayName || '',
+                  );
+                  setDisplayNameOpen(true);
+                }}
               >
-                <ChatBubble who="them" text="Hi, is this the official account?" time="9:41" delay={0.05} />
-                <ChatBubble
-                  who="us"
-                  kind="template"
-                  text={profile.description?.slice(0, 110) || 'Yes! Welcome. How can we help today?'}
-                  time="9:41"
-                  delay={0.2}
-                />
-                <ChatBubble who="us" kind="cta" text="Tap to view our site" time="9:42" delay={0.4} />
-              </PhoneFrame>
-            </Section>
-          </div>
-        </div>
+                Edit display name
+              </Button>
+            </div>
+
+            <div className="flex max-w-lg flex-col gap-5">
+              {fields.map((f) => (
+                <div key={f.key} className="flex flex-col gap-1.5 relative">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor={`pn-${f.key}`}>{f.label}</Label>
+                    {f.key === 'description' && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[12px] text-zoru-brand"
+                        onClick={generateDescription}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="mr-1 h-3 w-3" />}
+                        {isGenerating ? 'Generating...' : 'AI Generate'}
+                      </Button>
+                    )}
+                  </div>
+                  {f.multiline ? (
+                    <Textarea
+                      id={`pn-${f.key}`}
+                      value={profile[f.key] || ''}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          [f.key]: e.target.value,
+                        }))
+                      }
+                      rows={4}
+                      maxLength={f.key === 'description' ? 512 : undefined}
+                    />
+                  ) : (
+                    <Input
+                      id={`pn-${f.key}`}
+                      value={profile[f.key] || ''}
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          [f.key]: e.target.value,
+                        }))
+                      }
+                      maxLength={
+                        f.key === 'about' ? 139 :
+                        f.key === 'address' ? 256 :
+                        f.key === 'email' ? 128 : undefined
+                      }
+                    />
+                  )}
+                  {f.helpText && (
+                    <span className="text-[11.5px] text-zoru-ink-muted leading-tight">
+                      {f.helpText}
+                    </span>
+                  )}
+                </div>
+              ))}
+              <div className="pt-2">
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
+                  {isSaving ? 'Saving…' : 'Save profile'}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </>
       )}
 
-      {/* Edit display name */}
+      {/* ── Edit display name dialog ── */}
       <Dialog open={displayNameOpen} onOpenChange={setDisplayNameOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
@@ -359,24 +368,36 @@ export default function PhoneNumberSettingsPage() {
               Update the verified display name shown to your WhatsApp customers.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="flex flex-col gap-2 py-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="display-name">Display name</Label>
-            <Input id="display-name" value={draftDisplayName} onChange={(e) => setDraftDisplayName(e.target.value)} placeholder="Acme Inc." className="rounded-xl" />
+            <Input
+              id="display-name"
+              value={draftDisplayName}
+              onChange={(e) => setDraftDisplayName(e.target.value)}
+              placeholder="Acme Inc."
+            />
           </div>
           <ZoruDialogFooter>
-            <WaButton variant="outline" onClick={() => setDisplayNameOpen(false)}>Cancel</WaButton>
-            <WaButton
+            <Button variant="ghost" onClick={() => setDisplayNameOpen(false)}>
+              Cancel
+            </Button>
+            <Button
               onClick={() => {
-                toast({ title: 'Display name updated', description: `Submitted "${draftDisplayName}" for review.` });
+                toast({
+                  title: 'Display name updated',
+                  description: `Submitted "${draftDisplayName}" for review.`,
+                });
                 setDisplayNameOpen(false);
               }}
               disabled={!draftDisplayName.trim()}
             >
               Save
-            </WaButton>
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
-    </WaPage>
+
+      <div className="h-6" />
+    </div>
   );
 }

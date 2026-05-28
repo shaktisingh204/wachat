@@ -1,42 +1,43 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { m, AnimatePresence } from 'motion/react';
-import { Activity, Bot, Clock, Edit2, Phone, Plus, Trash2, User, Users } from 'lucide-react';
-
 import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  useZoruToast,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
   Input,
-  Label,
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
-  useZoruToast,
+  SelectContent,
+  SelectItem,
+  Badge,
+  Label,
 } from '@/components/zoruui';
-
-import {
-  WaPage,
-  PageHeader,
-  Section,
-  EmptyState,
-  WaButton,
-  StatusPill,
-  MetricTile,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, Phone, Bot, User } from 'lucide-react';
 
 type Team = { id: string; name: string };
 type RouteType = 'bot' | 'agent';
 
-interface PhoneNumberRow {
+interface PhoneNumber {
   id: string;
   number: string;
   label: string;
@@ -45,36 +46,59 @@ interface PhoneNumberRow {
 }
 
 const TEAMS: Team[] = [
-  { id: 'team_1', name: 'Sales' },
-  { id: 'team_2', name: 'Support' },
+  { id: 'team_1', name: 'Sales Team' },
+  { id: 'team_2', name: 'Support Team' },
   { id: 'team_3', name: 'Marketing' },
   { id: 'team_4', name: 'Global Ops' },
 ];
 
-const INITIAL_NUMBERS: PhoneNumberRow[] = [
-  { id: 'num_1', number: '+1 (415) 555-0142', label: 'Primary sales', teamId: 'team_1', defaultRoute: 'agent' },
-  { id: 'num_2', number: '+1 (415) 555-0177', label: 'Support bot', teamId: 'team_2', defaultRoute: 'bot' },
+const INITIAL_NUMBERS: PhoneNumber[] = [
+  {
+    id: 'num_1',
+    number: '+1 (415) 555-0142',
+    label: 'Primary Sales',
+    teamId: 'team_1',
+    defaultRoute: 'agent',
+  },
+  {
+    id: 'num_2',
+    number: '+1 (415) 555-0177',
+    label: 'Support Bot',
+    teamId: 'team_2',
+    defaultRoute: 'bot',
+  },
 ];
 
 export default function MultiNumberManagementPage() {
   const { toast } = useZoruToast();
-  const [numbers, setNumbers] = useState<PhoneNumberRow[]>(INITIAL_NUMBERS);
+  const [numbers, setNumbers] = useState<PhoneNumber[]>(INITIAL_NUMBERS);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  // Dialog states
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<PhoneNumberRow>>({});
 
-  useEffect(() => setIsHydrated(true), []);
-  if (!isHydrated) return null;
+  // Form states
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formData, setFormData] = useState<Partial<PhoneNumber>>({});
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  if (!isHydrated) return null; // Prevent hydration mismatch
 
   const handleOpenAdd = () => {
-    setFormData({ number: '', label: '', teamId: TEAMS[0].id, defaultRoute: 'bot' });
+    setFormData({
+      number: '',
+      label: '',
+      teamId: TEAMS[0].id,
+      defaultRoute: 'bot',
+    });
     setIsAddOpen(true);
   };
 
-  const handleOpenEdit = (num: PhoneNumberRow) => {
+  const handleOpenEdit = (num: PhoneNumber) => {
     setEditingId(num.id);
     setFormData({ ...num });
     setIsEditOpen(true);
@@ -85,10 +109,10 @@ export default function MultiNumberManagementPage() {
       toast({ title: 'Error', description: 'Please fill in all required fields.' });
       return;
     }
-    const newNumber: PhoneNumberRow = {
+    const newNumber: PhoneNumber = {
       id: `num_${Date.now()}`,
-      number: formData.number!,
-      label: formData.label!,
+      number: formData.number,
+      label: formData.label,
       teamId: formData.teamId || TEAMS[0].id,
       defaultRoute: (formData.defaultRoute as RouteType) || 'bot',
     };
@@ -102,236 +126,271 @@ export default function MultiNumberManagementPage() {
       toast({ title: 'Error', description: 'Please fill in all required fields.' });
       return;
     }
-    setNumbers((prev) => prev.map((n) => (n.id === editingId ? ({ ...n, ...formData } as PhoneNumberRow) : n)));
+    setNumbers(
+      numbers.map((n) =>
+        n.id === editingId ? ({ ...n, ...formData } as PhoneNumber) : n
+      )
+    );
     setIsEditOpen(false);
     toast({ title: 'Number updated', description: 'Your changes have been saved.' });
   };
 
   const handleDelete = (id: string) => {
-    setNumbers((prev) => prev.filter((n) => n.id !== id));
-    toast({ title: 'Number deleted' });
+    setNumbers(numbers.filter((n) => n.id !== id));
+    toast({ title: 'Number deleted', description: 'The phone number has been removed.' });
   };
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Numbers and routing"
-        description="Bind WhatsApp Business API numbers to specific teams and configure their default routing."
-        kicker="Wachat · routing"
-        backHref="/wachat"
-        eyebrowIcon={Users}
-        actions={
-          <WaButton leftIcon={Plus} onClick={handleOpenAdd}>Add number</WaButton>
-        }
-      />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Numbers & Routing</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      {(() => {
-        const botRoutes = numbers.filter((n) => n.defaultRoute === 'bot').length;
-        const agentRoutes = numbers.filter((n) => n.defaultRoute === 'agent').length;
-        const teamsCovered = new Set(numbers.map((n) => n.teamId)).size;
-        return (
-          <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <MetricTile label="Numbers" value={numbers.length} icon={Phone} delay={0.02} />
-            <MetricTile label="Teams covered" value={teamsCovered} icon={Users} delay={0.04} />
-            <MetricTile label="Routes to bot" value={botRoutes} icon={Bot} delay={0.06} />
-            <MetricTile label="Routes to agent" value={agentRoutes} icon={User} delay={0.08} />
-            <MetricTile label="Last change" value={<span className="text-[15px]">Just now</span>} icon={Clock} delay={0.1} />
-          </section>
-        );
-      })()}
+      <div className="mt-5 flex items-end justify-between gap-6">
+        <div className="min-w-0">
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+            Numbers & Routing
+          </h1>
+          <p className="mt-1.5 max-w-[680px] text-[13px] text-zoru-ink-muted">
+            Manage your WhatsApp Business API (WABA) numbers. Bind numbers to specific
+            teams and configure their default routing behavior.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button onClick={handleOpenAdd}>
+            <Plus className="mr-2 h-4 w-4" /> Add number
+          </Button>
+        </div>
+      </div>
 
-      {/* Routing matrix — teams as columns, numbers as rows */}
-      {numbers.length > 0 && (
-        <Section title="Routing matrix" description="Visual grid of which team owns each number, click to reassign.">
-          <div className="overflow-x-auto">
-            <table className="w-full border-separate border-spacing-0 text-[12px]">
-              <thead>
-                <tr>
-                  <th className="sticky left-0 z-10 bg-white px-2 py-2 text-left text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                    Number
-                  </th>
-                  {TEAMS.map((t) => (
-                    <th key={t.id} className="px-2 py-2 text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                      {t.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {numbers.map((n) => (
-                  <tr key={n.id} className="border-t border-zinc-100">
-                    <td className="sticky left-0 z-10 bg-white px-2 py-2 font-mono text-[11.5px] text-zinc-900">
-                      {n.number}
-                    </td>
-                    {TEAMS.map((t) => {
-                      const active = n.teamId === t.id;
-                      return (
-                        <td key={t.id} className="px-1 py-1.5 text-center">
-                          <button
-                            type="button"
-                            onClick={() => setNumbers((prev) => prev.map((x) => (x.id === n.id ? { ...x, teamId: t.id } : x)))}
-                            className={`grid h-7 w-full place-items-center rounded-lg border text-[11px] font-semibold transition-[transform,background-color,color] duration-150 active:scale-[0.97] ${
-                              active
-                                ? 'border-transparent text-white'
-                                : 'border-zinc-200 bg-white text-zinc-500 hover:border-zinc-900 hover:text-zinc-900'
-                            }`}
-                            style={active ? { background: 'var(--mt-accent)' } : undefined}
-                            aria-label={`Assign ${n.number} to ${t.name}`}
-                          >
-                            {active ? n.defaultRoute === 'bot' ? <Bot className="h-3 w-3" strokeWidth={2.5} /> : <User className="h-3 w-3" strokeWidth={2.5} /> : '·'}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Section>
-      )}
-
-      <Section title="Routing list" description="Each WABA number routes to a team and a default destination.">
-        {numbers.length === 0 ? (
-          <EmptyState
-            icon={Phone}
-            title="No numbers configured"
-            description="Add a number to begin routing inbound chats."
-            action={<WaButton leftIcon={Plus} onClick={handleOpenAdd}>Add number</WaButton>}
-          />
-        ) : (
-          <ul className="divide-y divide-zinc-100">
-            <AnimatePresence initial={false}>
-              {numbers.map((num, i) => {
+      <Card className="mt-6 overflow-hidden p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Phone Number</TableHead>
+              <TableHead>Label</TableHead>
+              <TableHead>Assigned Team</TableHead>
+              <TableHead>Default Route</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {numbers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="py-8 text-center text-zoru-ink-muted">
+                  No phone numbers configured. Click "Add number" to get started.
+                </TableCell>
+              </TableRow>
+            ) : (
+              numbers.map((num) => {
                 const team = TEAMS.find((t) => t.id === num.teamId);
                 return (
-                  <m.li
-                    key={num.id}
-                    layout
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: 8 }}
-                    transition={{ duration: 0.3, delay: i * 0.03, ease: EASE_OUT }}
-                    className="flex items-center justify-between gap-3 px-1 py-3"
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg"
-                        style={{ background: 'var(--mt-accent-soft)' }}
-                      >
-                        <Phone className="h-4 w-4" style={{ color: 'var(--mt-accent)' }} strokeWidth={2.25} aria-hidden />
-                      </span>
-                      <div className="min-w-0">
-                        <p className="truncate font-mono text-[13px] tabular-nums text-zinc-950">{num.number}</p>
-                        <p className="truncate text-[11.5px] text-zinc-500">{num.label}</p>
+                  <TableRow key={num.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-zoru-ink-subtle" />
+                        {num.number}
                       </div>
-                    </div>
-                    <div className="hidden items-center gap-2 sm:flex">
+                    </TableCell>
+                    <TableCell>{num.label}</TableCell>
+                    <TableCell>
                       {team ? (
-                        <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] font-semibold text-zinc-700">
+                        <Badge
+                          variant="secondary"
+                          className="rounded-[var(--zoru-radius-sm)] font-normal text-[11px]"
+                        >
                           {team.name}
-                        </span>
+                        </Badge>
                       ) : (
-                        <span className="text-[11px] text-zinc-400">Unassigned</span>
+                        <span className="text-zoru-ink-muted">Unassigned</span>
                       )}
-                      <span className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-zinc-700 ring-1 ring-zinc-200">
-                        {num.defaultRoute === 'bot' ? <Bot className="h-3 w-3" strokeWidth={2.25} /> : <User className="h-3 w-3" strokeWidth={2.25} />}
-                        <span className="capitalize">{num.defaultRoute}</span>
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <button onClick={() => handleOpenEdit(num)} className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100" aria-label="Edit">
-                        <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      </button>
-                      <button onClick={() => handleDelete(num.id)} className="grid h-7 w-7 place-items-center rounded-full text-rose-500 hover:bg-rose-50" aria-label="Delete">
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      </button>
-                    </div>
-                  </m.li>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5">
+                        {num.defaultRoute === 'bot' ? (
+                          <Bot className="h-3.5 w-3.5 text-zoru-primary" />
+                        ) : (
+                          <User className="h-3.5 w-3.5 text-zoru-warning" />
+                        )}
+                        <span className="capitalize text-sm">{num.defaultRoute}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenEdit(num)}
+                          className="h-8 w-8"
+                        >
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(num.id)}
+                          className="h-8 w-8 text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 );
-              })}
-            </AnimatePresence>
-          </ul>
-        )}
-      </Section>
+              })
+            )}
+          </TableBody>
+        </Table>
+      </Card>
 
-      {/* Add */}
+      {/* Add Dialog */}
       <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>Add new number</ZoruDialogTitle>
-            <ZoruDialogDescription>Register a new WhatsApp number and configure its routing rules.</ZoruDialogDescription>
+            <ZoruDialogTitle>Add New Number</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Register a new WhatsApp number and configure its routing rules.
+            </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="grid gap-3 py-2">
-            <div className="grid gap-1.5">
-              <Label htmlFor="number">Phone number</Label>
-              <Input id="number" placeholder="+1 (555) 000-0000" value={formData.number || ''} onChange={(e) => setFormData({ ...formData, number: e.target.value })} className="rounded-xl" />
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="number">Phone Number</Label>
+              <Input
+                id="number"
+                placeholder="+1 (555) 000-0000"
+                value={formData.number || ''}
+                onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+              />
             </div>
-            <div className="grid gap-1.5">
-              <Label htmlFor="label">Internal label</Label>
-              <Input id="label" placeholder="e.g. US sales team" value={formData.label || ''} onChange={(e) => setFormData({ ...formData, label: e.target.value })} className="rounded-xl" />
+            <div className="grid gap-2">
+              <Label htmlFor="label">Internal Label</Label>
+              <Input
+                id="label"
+                placeholder="e.g. US Sales Team"
+                value={formData.label || ''}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              />
             </div>
-            <div className="grid gap-1.5">
-              <Label>Assigned team</Label>
-              <Select value={formData.teamId} onValueChange={(val) => setFormData({ ...formData, teamId: val })}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select a team" /></SelectTrigger>
-                <SelectContent>{TEAMS.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+            <div className="grid gap-2">
+              <Label>Assigned Team</Label>
+              <Select
+                value={formData.teamId}
+                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAMS.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-1.5">
-              <Label>Default route</Label>
-              <Select value={formData.defaultRoute} onValueChange={(val) => setFormData({ ...formData, defaultRoute: val as RouteType })}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select routing" /></SelectTrigger>
+            <div className="grid gap-2">
+              <Label>Default Route</Label>
+              <Select
+                value={formData.defaultRoute}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, defaultRoute: val as RouteType })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select routing" />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bot">AI bot</SelectItem>
-                  <SelectItem value="agent">Human agent</SelectItem>
+                  <SelectItem value="bot">AI Bot</SelectItem>
+                  <SelectItem value="agent">Human Agent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <WaButton variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</WaButton>
-            <WaButton onClick={handleSaveAdd}>Add number</WaButton>
+            <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAdd}>Add Number</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
 
-      {/* Edit */}
+      {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit configuration</ZoruDialogTitle>
-            <ZoruDialogDescription>Update routing rules and team assignment for {formData.number}.</ZoruDialogDescription>
+            <ZoruDialogTitle>Edit Number Configuration</ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Update routing rules and team assignment for {formData.number}.
+            </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="grid gap-3 py-2">
-            <div className="grid gap-1.5">
-              <Label htmlFor="edit-label">Internal label</Label>
-              <Input id="edit-label" value={formData.label || ''} onChange={(e) => setFormData({ ...formData, label: e.target.value })} className="rounded-xl" />
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-label">Internal Label</Label>
+              <Input
+                id="edit-label"
+                placeholder="e.g. US Sales Team"
+                value={formData.label || ''}
+                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+              />
             </div>
-            <div className="grid gap-1.5">
-              <Label>Assigned team</Label>
-              <Select value={formData.teamId} onValueChange={(val) => setFormData({ ...formData, teamId: val })}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select a team" /></SelectTrigger>
-                <SelectContent>{TEAMS.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent>
+            <div className="grid gap-2">
+              <Label>Assigned Team</Label>
+              <Select
+                value={formData.teamId}
+                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAMS.map((team) => (
+                    <SelectItem key={team.id} value={team.id}>
+                      {team.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-1.5">
-              <Label>Default route</Label>
-              <Select value={formData.defaultRoute} onValueChange={(val) => setFormData({ ...formData, defaultRoute: val as RouteType })}>
-                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select routing" /></SelectTrigger>
+            <div className="grid gap-2">
+              <Label>Default Route</Label>
+              <Select
+                value={formData.defaultRoute}
+                onValueChange={(val) =>
+                  setFormData({ ...formData, defaultRoute: val as RouteType })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select routing" />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bot">AI bot</SelectItem>
-                  <SelectItem value="agent">Human agent</SelectItem>
+                  <SelectItem value="bot">AI Bot</SelectItem>
+                  <SelectItem value="agent">Human Agent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <ZoruDialogFooter>
-            <WaButton variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</WaButton>
-            <WaButton onClick={handleSaveEdit}>Save changes</WaButton>
+            <Button variant="ghost" onClick={() => setIsEditOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
-    </WaPage>
+    </div>
   );
 }

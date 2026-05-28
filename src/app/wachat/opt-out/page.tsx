@@ -1,22 +1,29 @@
 'use client';
 
 import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
+  EmptyState,
   Input,
   Label,
+  Skeleton,
   Textarea,
   useZoruToast,
   ZoruFileUploadCard,
   ZoruFileUploadItem,
   Switch,
-  cn,
 } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition,
-  useCallback,
-  useMemo,
-} from 'react';
+  useCallback } from 'react';
 import {
   Download,
   Loader2,
@@ -25,45 +32,22 @@ import {
   Trash2,
   Upload,
   Bot,
-  CalendarPlus,
-  TrendingDown,
-  Search as SearchIcon,
-  ListChecks,
-  Tag as TagIcon,
-} from 'lucide-react';
-import { m, AnimatePresence, useReducedMotion } from 'motion/react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-  ResponsiveContainer,
-  Cell,
-} from 'recharts';
+  } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
   addToOptOut,
   getOptOutList,
   removeFromOptOut,
-} from '@/app/actions/wachat-features.actions';
+  } from '@/app/actions/wachat-features.actions';
 
-import {
-  WaPage,
-  PageHeader,
-  WaButton,
-  Section,
-  MetricTile,
-  EmptyState,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+/**
+ * Wachat Opt-Out / DND — ZoruUI migration.
+ * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
+ */
 
 import * as React from 'react';
 import { fmtDate } from '@/lib/utils';
-
-const WA_GREEN = '#25D366';
-const REASON_COLORS = ['#25D366', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#0EA5E9', '#10B981'];
 
 type OptOutItem = {
   _id: string;
@@ -82,16 +66,17 @@ export default function OptOutPage() {
   const [bulkText, setBulkText] = useState('');
   const [uploadItems, setUploadItems] = useState<ZoruFileUploadItem[]>([]);
   const [autoSentiment, setAutoSentiment] = useState(false);
-  const [search, setSearch] = useState('');
-  const [reasonFilter, setReasonFilter] = useState<string>('all');
-  const reduceMotion = useReducedMotion();
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
     startTransition(async () => {
       const res = await getOptOutList(String(activeProject._id));
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
         return;
       }
       setList((res.optOuts as OptOutItem[]) ?? []);
@@ -111,7 +96,11 @@ export default function OptOutPage() {
       reason.trim() || undefined,
     );
     if (!res.success) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({
+        title: 'Error',
+        description: res.error,
+        variant: 'destructive',
+      });
       return;
     }
     toast({ title: 'Number added to opt-out list.' });
@@ -124,7 +113,11 @@ export default function OptOutPage() {
     startTransition(async () => {
       const res = await removeFromOptOut(id);
       if (!res.success) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({
+          title: 'Error',
+          description: res.error,
+          variant: 'destructive',
+        });
         return;
       }
       toast({ title: 'Removed from opt-out list.' });
@@ -141,6 +134,7 @@ export default function OptOutPage() {
     let ok = 0;
     let fail = 0;
     for (const p of phones) {
+      // Basic row-level validation
       if (!/\d/.test(p)) {
         fail++;
         continue;
@@ -149,11 +143,14 @@ export default function OptOutPage() {
         const res = await addToOptOut(String(activeProject?._id ?? ''), p);
         if (res.success) ok++;
         else fail++;
-      } catch {
+      } catch (err) {
         fail++;
       }
     }
-    toast({ title: 'Bulk add complete', description: `${ok} added, ${fail} failed.` });
+    toast({
+      title: 'Bulk add complete',
+      description: `${ok} added, ${fail} failed.`,
+    });
     setBulkText('');
     load();
   };
@@ -195,6 +192,7 @@ export default function OptOutPage() {
         const p = cols[0];
         const r = cols[1] || '';
 
+        // Row-level validation
         if (!p || !/\d/.test(p)) {
           failCount++;
         } else {
@@ -206,11 +204,11 @@ export default function OptOutPage() {
             );
             if (res.success) successCount++;
             else failCount++;
-          } catch {
+          } catch (err) {
             failCount++;
           }
         }
-
+        
         const currentProgress = Math.round(
           ((i - startIndex + 1) / totalToProcess) * 100
         );
@@ -228,15 +226,19 @@ export default function OptOutPage() {
                 ...ui,
                 status: failCount === totalToProcess ? 'error' : 'done',
                 progress: 100,
-                errorMessage: failCount > 0 ? `${failCount} rows failed` : undefined,
+                errorMessage:
+                  failCount > 0 ? `${failCount} rows failed` : undefined,
               }
             : ui
         )
       );
 
-      toast({ title: 'CSV upload complete', description: `${successCount} added, ${failCount} failed.` });
+      toast({
+        title: 'CSV Upload Complete',
+        description: `${successCount} added, ${failCount} failed.`,
+      });
       load();
-    } catch {
+    } catch (err) {
       setUploadItems((prev) =>
         prev.map((ui) =>
           ui.id === item.id
@@ -270,7 +272,8 @@ export default function OptOutPage() {
     URL.revokeObjectURL(url);
   };
 
-  const keywordStats = useMemo(() => {
+  // Per-keyword stats from reasons
+  const keywordStats = React.useMemo(() => {
     const map = new Map<string, number>();
     list.forEach((item) => {
       const key = (item.reason || 'No reason').trim() || 'No reason';
@@ -279,97 +282,38 @@ export default function OptOutPage() {
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [list]);
 
-  const stats = useMemo(() => {
-    const now = Date.now();
-    const day = 24 * 60 * 60 * 1000;
-    const week = 7 * day;
-    const optedOutToday = list.filter((i) => i.optedOutAt && now - new Date(i.optedOutAt).getTime() < day).length;
-    const optedOutThisWeek = list.filter((i) => i.optedOutAt && now - new Date(i.optedOutAt).getTime() < week).length;
-    const withReason = list.filter((i) => !!i.reason).length;
-    const reasonPct = list.length > 0 ? Math.round((withReason / list.length) * 100) : 0;
-    return {
-      total: list.length,
-      today: optedOutToday,
-      week: optedOutThisWeek,
-      reasons: keywordStats.length,
-      withReason,
-      reasonPct,
-    };
-  }, [list, keywordStats.length]);
-
-  const chartData = useMemo(
-    () => keywordStats.slice(0, 8).map(([k, n]) => ({ name: k.length > 18 ? k.slice(0, 18) + '...' : k, value: n })),
-    [keywordStats],
-  );
-
-  const filteredList = useMemo(() => {
-    let rows = list.slice();
-    const q = search.trim().toLowerCase();
-    if (q) {
-      rows = rows.filter((r) =>
-        (r.phone || '').toLowerCase().includes(q) ||
-        (r.reason || '').toLowerCase().includes(q),
-      );
-    }
-    if (reasonFilter !== 'all') {
-      rows = rows.filter((r) => (r.reason || 'No reason') === reasonFilter);
-    }
-    return rows;
-  }, [list, search, reasonFilter]);
-
-  const stagger = reduceMotion ? 0 : 0.02;
-
   return (
-    <WaPage>
-      <PageHeader
-        title="Opt-out / DND"
-        description="Manage numbers that have opted out of receiving messages."
-        kicker="Wachat · contacts"
-        backHref="/wachat"
-        actions={
-          <WaButton variant="outline" onClick={handleExport} disabled={list.length === 0} leftIcon={Download}>
-            Export CSV
-          </WaButton>
-        }
-      />
+    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Opt-out / DND</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      {/* 6-tile KPI strip */}
-      <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <MetricTile label="Total opted-out" value={stats.total.toLocaleString()} icon={ShieldOff} delay={0} />
-        <MetricTile label="Opted-out today" value={stats.today.toLocaleString()} icon={CalendarPlus} delay={0.04} />
-        <MetricTile label="Opted-out 7d" value={stats.week.toLocaleString()} icon={TrendingDown} delay={0.08} />
-        <MetricTile label="Unique reasons" value={stats.reasons.toLocaleString()} icon={ListChecks} delay={0.12} />
-        <MetricTile label="With reason" value={`${stats.reasonPct}%`} icon={TagIcon} delay={0.16} />
-        <MetricTile label="Auto-opt-out" value={autoSentiment ? 'On' : 'Off'} icon={Bot} delay={0.2} />
-      </section>
+      <div className="mt-5">
+        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          Opt-out / DND management
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+          Manage numbers that have opted out of receiving messages.
+        </p>
+      </div>
 
-      {/* Per-reason chart */}
-      {chartData.length > 0 && (
-        <Section title="Per-reason breakdown" description="Top reasons people opt out of your messages." className="mb-4">
-          <div className="h-56 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
-                <XAxis dataKey="name" stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} interval={0} />
-                <YAxis stroke="#a1a1aa" fontSize={11} tickLine={false} axisLine={false} allowDecimals={false} />
-                <RechartsTooltip
-                  cursor={{ fill: 'rgba(0, 0, 0, 0.04)' }}
-                  contentStyle={{ borderRadius: '10px', border: '1px solid #eaeaea', fontSize: 11 }}
-                />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {chartData.map((_, i) => (
-                    <Cell key={i} fill={REASON_COLORS[i % REASON_COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Section>
-      )}
-
-      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
           {/* Add form */}
-          <Section title="Add to opt-out list">
+          <Card className="p-5">
+            <h2 className="mb-4 text-[15px] text-zoru-ink">Add to opt-out list</h2>
             <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="opt-phone">Phone number</Label>
@@ -379,7 +323,7 @@ export default function OptOutPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+1 234 567 8900"
                   required
-                  className="w-52 rounded-lg"
+                  className="w-52"
                 />
               </div>
               <div className="flex flex-1 flex-col gap-1.5">
@@ -389,30 +333,43 @@ export default function OptOutPage() {
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
                   placeholder="e.g. User requested"
-                  className="rounded-lg"
                 />
               </div>
-              <WaButton type="submit" leftIcon={Plus}>Add</WaButton>
+              <Button type="submit" size="sm">
+                <Plus /> Add
+              </Button>
             </form>
-          </Section>
+          </Card>
 
           {/* Bulk paste */}
-          <Section title="Bulk add" description="Paste multiple phone numbers separated by newlines or commas.">
+          <Card className="p-5">
+            <h2 className="mb-3 text-[15px] text-zoru-ink">Bulk add</h2>
+            <p className="mb-2 text-[12px] text-zoru-ink-muted">
+              Paste multiple phone numbers separated by newlines or commas.
+            </p>
             <Textarea
               rows={4}
               placeholder={'+919876543210\n+919876543211\n+919876543212'}
               value={bulkText}
               onChange={(e) => setBulkText(e.target.value)}
             />
-            <div className="mt-3">
-              <WaButton variant="outline" size="sm" onClick={handleBulkPaste} disabled={!bulkText.trim()} leftIcon={Upload}>
-                Bulk add
-              </WaButton>
-            </div>
-          </Section>
-
-          {/* CSV upload */}
-          <Section title="Upload CSV" description="Upload a CSV file containing opt-outs. Expected columns: phone, reason (optional).">
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={handleBulkPaste}
+              disabled={!bulkText.trim()}
+            >
+              <Upload /> Bulk add
+            </Button>
+          </Card>
+          
+          {/* CSV Upload */}
+          <Card className="p-5">
+            <h2 className="mb-3 text-[15px] text-zoru-ink">Upload CSV</h2>
+            <p className="mb-4 text-[12px] text-zoru-ink-muted">
+              Upload a CSV file containing opt-outs. Expected columns: <b>phone, reason</b> (optional).
+            </p>
             <ZoruFileUploadCard
               accept=".csv"
               hint="CSV up to 5MB"
@@ -421,119 +378,111 @@ export default function OptOutPage() {
               items={uploadItems}
               onRemove={(id) => setUploadItems((p) => p.filter((i) => i.id !== id))}
             />
-          </Section>
+          </Card>
 
-          {/* List */}
-          <Section
-            title="Opt-out numbers"
-            description={`${filteredList.length.toLocaleString()} of ${list.length.toLocaleString()}`}
-            padded={false}
-          >
-            <div className="flex flex-wrap items-center gap-2 border-b border-zinc-100 px-3 py-2.5">
-              <div className="flex min-w-[220px] flex-1 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 focus-within:border-zinc-400">
-                <SearchIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
-                <Input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search phone or reason..."
-                  className="h-7 border-0 bg-transparent px-0 text-[12.5px] shadow-none focus-visible:ring-0"
-                />
-              </div>
-              {keywordStats.length > 0 && (
-                <select
-                  value={reasonFilter}
-                  onChange={(e) => setReasonFilter(e.target.value)}
-                  className="h-8 rounded-full border border-zinc-200 bg-white px-2.5 text-[11.5px] font-semibold text-zinc-700"
-                >
-                  <option value="all">All reasons</option>
-                  {keywordStats.map(([k]) => (
-                    <option key={k} value={k}>{k}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            {/* Column header */}
-            <div className="hidden items-center gap-2 border-b border-zinc-100 bg-zinc-50/50 px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-zinc-500 md:flex">
-              <span className="flex-1">Phone</span>
-              <span className="flex-1">Reason</span>
-              <span className="w-[140px]">Opted out at</span>
-              <span className="w-[44px]" />
-            </div>
-
-            {isPending && list.length === 0 ? (
-              <div className="divide-y divide-zinc-100">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-3 px-4 py-2.5">
-                    <div className="h-3 w-32 animate-pulse rounded-full bg-zinc-100" />
+          {/* Per-keyword stats */}
+          {keywordStats.length > 0 && (
+            <Card className="p-5">
+              <h2 className="mb-3 text-[15px] text-zoru-ink">Per-reason stats</h2>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                {keywordStats.slice(0, 8).map(([k, n]) => (
+                  <div
+                    key={k}
+                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2"
+                  >
+                    <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                      {k}
+                    </div>
+                    <div className="mt-0.5 text-[18px] text-zoru-ink leading-none">
+                      {n}
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : !isPending && filteredList.length === 0 ? (
-              <div className="px-5 py-12">
-                <EmptyState
-                  icon={ShieldOff}
-                  title={list.length === 0 ? 'No opt-out numbers recorded' : 'No matching numbers'}
-                  description={list.length === 0 ? 'Numbers added here will be skipped from outbound campaigns.' : 'Try a different search or reason filter.'}
-                />
+            </Card>
+          )}
+
+          {/* List */}
+          <Card className="p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-[15px] text-zoru-ink">Opt-out numbers</h2>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExport}
+                disabled={list.length === 0}
+              >
+                <Download /> Export CSV
+              </Button>
+            </div>
+            {isPending && list.length === 0 ? (
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
               </div>
+            ) : !isPending && list.length === 0 ? (
+              <EmptyState
+                compact
+                icon={<ShieldOff />}
+                title="No opt-out numbers recorded"
+                description="Numbers added here will be skipped from outbound campaigns."
+              />
             ) : (
-              <ul className="divide-y divide-zinc-100">
-                <AnimatePresence initial={false}>
-                  {filteredList.map((item, i) => {
-                    const reasonIdx = keywordStats.findIndex(([k]) => k === (item.reason || 'No reason'));
-                    const reasonColor = reasonIdx >= 0 ? REASON_COLORS[reasonIdx % REASON_COLORS.length] : '#a1a1aa';
-                    return (
-                      <m.li
-                        key={item._id}
-                        initial={{ opacity: 0, y: 3 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2, delay: i * stagger, ease: EASE_OUT }}
-                        className={cn(
-                          'grid grid-cols-[1fr_1fr_140px_44px] items-center gap-3 px-4 py-2 text-[12.5px] hover:bg-zinc-50/70',
-                        )}
-                      >
-                        <span className="truncate font-mono tabular-nums text-zinc-900">{item.phone}</span>
-                        <span className="flex items-center gap-1.5 truncate text-zinc-600">
-                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: reasonColor }} />
-                          {item.reason || <span className="text-zinc-400">No reason</span>}
-                        </span>
-                        <span className="truncate text-[11px] tabular-nums text-zinc-500">
-                          {item.optedOutAt ? fmtDate(item.optedOutAt) : '-'}
-                        </span>
-                        <button
-                          type="button"
-                          aria-label={`Remove ${item.phone}`}
-                          onClick={() => handleRemove(item._id)}
-                          disabled={isPending}
-                          className="grid h-7 w-7 place-items-center rounded-full text-zinc-400 transition-colors hover:bg-rose-50 hover:text-rose-600 active:scale-[0.97]"
-                        >
-                          {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />}
-                        </button>
-                      </m.li>
-                    );
-                  })}
-                </AnimatePresence>
-              </ul>
+              <div className="space-y-1">
+                <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] text-zoru-ink-muted">
+                  <span>Phone</span>
+                  <span>Reason</span>
+                  <span>Opted out</span>
+                  <span />
+                </div>
+                {list.map((item) => (
+                  <div
+                    key={item._id}
+                    className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-2 text-[13px] text-zoru-ink hover:bg-zoru-surface"
+                  >
+                    <span>{item.phone}</span>
+                    <span className="text-zoru-ink-muted">
+                      {item.reason || '--'}
+                    </span>
+                    <span className="text-[12px] text-zoru-ink-muted">
+                      {item.optedOutAt
+                        ? fmtDate(item.optedOutAt)
+                        : '--'}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-zoru-ink-muted hover:text-zoru-danger"
+                      onClick={() => handleRemove(item._id)}
+                      disabled={isPending}
+                      aria-label={`Remove ${item.phone}`}
+                    >
+                      {isPending ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <Trash2 />
+                      )}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
-          </Section>
+          </Card>
         </div>
 
-        {/* Sidebar */}
+        {/* Sidebar settings */}
         <div className="flex flex-col gap-4">
-          <Section
-            title={
-              <span className="inline-flex items-center gap-2">
-                <Bot className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden style={{ color: 'var(--mt-accent)' }} />
-                AI settings
-              </span>
-            }
-            description="Auto-add contacts to opt-out list based on sentiment of inbound messages (e.g. &ldquo;stop messaging me&rdquo;, &ldquo;unsubscribe&rdquo;)."
-          >
+          <Card className="p-5">
+            <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium text-zoru-ink">
+              <Bot className="h-4 w-4 text-zoru-ink-muted" /> AI Settings
+            </h2>
+            <p className="mb-4 text-[12px] text-zoru-ink-muted leading-relaxed">
+              Auto-add contacts to opt-out list based on sentiment analysis of inbound messages (e.g. "stop messaging me", "unsubscribe").
+            </p>
             <div className="flex items-center justify-between">
               <Label htmlFor="auto-sentiment-switch" className="cursor-pointer">
-                Enable sentiment auto-opt-out
+                Enable Sentiment Auto-Opt-Out
               </Label>
               <Switch
                 id="auto-sentiment-switch"
@@ -547,41 +496,11 @@ export default function OptOutPage() {
                 }}
               />
             </div>
-          </Section>
-
-          {keywordStats.length > 0 && (
-            <Section title="Per-reason breakdown">
-              <ul className="space-y-2">
-                {keywordStats.slice(0, 8).map(([k, n], i) => {
-                  const pct = list.length > 0 ? Math.round((n / list.length) * 100) : 0;
-                  const color = REASON_COLORS[i % REASON_COLORS.length];
-                  return (
-                    <li key={k}>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="inline-flex items-center gap-1.5 truncate font-semibold text-zinc-700">
-                          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                          <span className="truncate">{k}</span>
-                        </span>
-                        <span className="tabular-nums text-zinc-500">{n} · {pct}%</span>
-                      </div>
-                      <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-100">
-                        <m.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.5, ease: EASE_OUT }}
-                          className="h-full"
-                          style={{ backgroundColor: color }}
-                        />
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Section>
-          )}
+          </Card>
         </div>
       </div>
-    </WaPage>
+
+      <div className="h-6" />
+    </div>
   );
 }

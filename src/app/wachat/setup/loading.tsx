@@ -1,32 +1,23 @@
-import { WaPage } from '@/components/wachat-ui';
+import { Skeleton } from '@/components/zoruui';
 
-export default function SetupLoading() {
+export default function Loading() {
   return (
-    <WaPage>
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <div className="h-3 w-24 rounded-full bg-zinc-100" />
-          <div className="mt-3 h-9 w-80 rounded-lg bg-zinc-100" />
-          <div className="mt-2 h-3 w-96 rounded-full bg-zinc-100" />
-        </div>
-        <div className="flex gap-2">
-          <div className="h-10 w-32 rounded-full bg-zinc-100" />
-          <div className="h-10 w-44 rounded-full bg-zinc-100" />
-        </div>
+    <div className="w-full p-6 space-y-6 animate-in fade-in duration-500">
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-[250px]" />
+        <Skeleton className="h-4 w-[350px]" />
       </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-6">
-          <div className="h-[340px] rounded-2xl border border-zinc-200 bg-white" />
-          <div className="h-[260px] rounded-2xl border border-zinc-200 bg-white" />
-          <div className="h-[180px] rounded-2xl border border-zinc-200 bg-white" />
-        </div>
-        <div className="space-y-6">
-          <div className="h-[420px] rounded-2xl border border-zinc-200 bg-white" />
-          <div className="h-[160px] rounded-2xl border border-zinc-200 bg-white" />
-          <div className="h-[200px] rounded-2xl border border-zinc-200 bg-white" />
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
+        <Skeleton className="h-32 w-full rounded-xl" />
       </div>
-    </WaPage>
+      <div className="space-y-4 mt-8">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+      </div>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertTriangle, RotateCcw } from 'lucide-react';
-import { WaPage, WaButton, EmptyState } from '@/components/wachat-ui';
+import { Button, EmptyState } from '@/components/zoruui';
+import { TriangleAlert } from 'lucide-react';
 
 export default function LinkTrackingError({
   error,
@@ -11,15 +11,22 @@ export default function LinkTrackingError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => { console.error('[Wachat LinkTracking]', error); }, [error]);
+  useEffect(() => {
+    console.error('Error in LinkTracking:', error);
+  }, [error]);
+
   return (
-    <WaPage>
+    <div className="flex h-[50vh] flex-col items-center justify-center">
       <EmptyState
-        icon={AlertTriangle}
-        title="Couldn't load link tracking"
-        description={error.message || "We hit an error loading click analytics. Try again, or come back in a moment."}
-        action={<WaButton onClick={reset} leftIcon={RotateCcw}>Try again</WaButton>}
+        icon={<TriangleAlert className="h-10 w-10 text-zoru-danger" />}
+        title="Something went wrong"
+        description="We couldn't load this page. Please try again."
+        action={
+          <Button onClick={reset} variant="outline" className="mt-4">
+            Try again
+          </Button>
+        }
       />
-    </WaPage>
+    </div>
   );
 }

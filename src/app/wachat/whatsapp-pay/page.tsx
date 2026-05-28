@@ -1,18 +1,40 @@
 'use client';
 
-import * as React from 'react';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  DataTable,
+  ZoruDateRangePicker,
+  DropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  EmptyState,
+  Skeleton,
+  useZoruToast,
+} from '@/components/zoruui';
 import {
   useCallback,
   useEffect,
   useMemo,
   useState,
-  useTransition,
-} from 'react';
+  useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { subDays, format } from 'date-fns';
+import { subDays,
+  format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import Papa from 'papaparse';
-import { m } from 'motion/react';
 import {
   IndianRupee,
   CheckCircle2,
@@ -22,48 +44,25 @@ import {
   MoreHorizontal,
   Receipt,
   FileText,
-  TrendingUp,
-  Users,
-  RotateCcw,
-  Activity,
-} from 'lucide-react';
+  } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { getProjectById } from '@/app/actions/index';
 import { getTransactionsForProject, refundTransaction } from '@/app/actions/whatsapp.actions';
-import type { Project, Transaction } from '@/lib/definitions';
+import type { Project,
+  Transaction } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { TransactionChart } from '@/app/wachat/_components/transaction-chart';
-import { fmtDate, fmtINR } from '@/lib/utils';
 
-import {
-  DataTable,
-  ZoruDateRangePicker,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  useZoruToast,
-} from '@/components/zoruui';
-import {
-  WaButton,
-  MetricTile,
-  Section,
-  EmptyState,
-  StatusPill,
-  type StatusTone,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+/**
+ * Wachat WhatsApp Pay — Transactions tab (ZoruUI).
+ *
+ * KPI strip + transaction chart + transaction table with refund-confirm
+ * alert dialog.
+ */
+
+import { fmtDate, fmtINR } from '@/lib/utils';
+import * as React from 'react';
 
 type PaymentRow = {
   id: string;
@@ -71,17 +70,55 @@ type PaymentRow = {
   status: string;
   description: string;
   date: string;
-  customer?: string;
 };
 
-const statusTone = (status?: string): StatusTone => {
-  const s = (status ?? '').toLowerCase();
-  if (s === 'success' || s === 'completed' || s === 'captured') return 'live';
-  if (s === 'failed' || s === 'canceled' || s === 'cancelled') return 'failed';
-  if (s === 'pending' || s === 'created') return 'queued';
-  if (s === 'refunded') return 'paused';
-  return 'draft';
-};
+function statusVariant(
+  status?: string,
+): 'success' | 'danger' | 'ghost' | 'warning' | 'secondary' {
+  if (!status) return 'secondary';
+  const s = status.toLowerCase();
+  if (s === 'success' || s === 'completed' || s === 'captured') return 'success';
+  if (s === 'failed' || s === 'canceled' || s === 'cancelled') return 'danger';
+  if (s === 'pending' || s === 'created') return 'warning';
+  return 'ghost';
+}
+
+/* ── Stat card ────────────────────────────────────────────────── */
+
+function StatCard({
+  label,
+  value,
+  hint,
+  icon,
+  loading,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  icon: React.ReactNode;
+  loading?: boolean;
+}) {
+  return (
+    <Card className="flex items-start gap-4 p-5">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-5">
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[12px] text-zoru-ink-muted">{label}</p>
+        {loading ? (
+          <Skeleton className="mt-1 h-7 w-24" />
+        ) : (
+          <p className="text-[22px] tabular-nums text-zoru-ink leading-tight">
+            {value}
+          </p>
+        )}
+        <p className="mt-0.5 text-[11px] text-zoru-ink-muted">{hint}</p>
+      </div>
+    </Card>
+  );
+}
+
+/* ── Page ──────────────────────────────────────────────────────── */
 
 export default function WhatsAppPayPage() {
   const { activeProject } = useProject();
@@ -108,7 +145,9 @@ export default function WhatsAppPayPage() {
         ]);
         setProject(projectData);
         setTransactions(transactionsData);
-        if (showToast) toast({ title: 'Refreshed', description: 'Payment data updated.' });
+        if (showToast) {
+          toast({ title: 'Refreshed', description: 'Payment data updated.' });
+        }
       });
     },
     [activeProjectId, toast],
@@ -119,42 +158,20 @@ export default function WhatsAppPayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeProjectId]);
 
-  const stats = useMemo(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    let successfulCount = 0;
-    let totalRevenue = 0;
-    let failedCount = 0;
-    let refundedCount = 0;
-    let refundedAmount = 0;
-    let txToday = 0;
-    let volumeToday = 0;
-    let initiatedCount = 0;
-    const customers = new Map<string, number>();
-    for (const t of transactions) {
-      const status = (t.status ?? '').toUpperCase();
-      const amount = t.amount / 100;
-      const desc = t.description || '-';
-      if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'CAPTURED') {
-        successfulCount++; totalRevenue += amount;
-        customers.set(desc, (customers.get(desc) || 0) + amount);
-      } else if (status === 'REFUNDED') { refundedCount++; refundedAmount += amount; }
-      else if (status === 'FAILED' || status === 'CANCELED' || status === 'CANCELLED') { failedCount++; }
-      else if (status === 'PENDING' || status === 'CREATED') { initiatedCount++; }
-      const created = t.createdAt ? new Date(t.createdAt as unknown as string | Date).toISOString().slice(0, 10) : '';
-      if (created === today) {
-        txToday++;
-        if (status === 'SUCCESS' || status === 'COMPLETED' || status === 'CAPTURED') volumeToday += amount;
-      }
-    }
-    let topCustomer = '-'; let topAmount = 0;
-    for (const [k, v] of customers) if (v > topAmount) { topCustomer = k; topAmount = v; }
-    const avgAmount = successfulCount > 0 ? totalRevenue / successfulCount : 0;
-    const successRate = transactions.length > 0 ? (successfulCount / transactions.length) * 100 : 0;
-    return {
-      successfulCount, totalRevenue, failedCount, refundedCount, refundedAmount,
-      txToday, volumeToday, avgAmount, successRate, topCustomer, topAmount, initiatedCount,
-    };
-  }, [transactions]);
+  const stats = useMemo(
+    () =>
+      transactions.reduce(
+        (acc, t) => {
+          if (t.status === 'SUCCESS') {
+            acc.successfulTransactions++;
+            acc.totalRevenue += t.amount / 100;
+          }
+          return acc;
+        },
+        { successfulTransactions: 0, totalRevenue: 0 },
+      ),
+    [transactions],
+  );
 
   const handleExport = () => {
     if (!transactions.length) return;
@@ -182,23 +199,37 @@ export default function WhatsAppPayPage() {
     const grouped = transactions.reduce((acc: any, t) => {
       const d = format(new Date(t.createdAt), 'yyyy-MM-dd');
       if (!acc[d]) {
-        acc[d] = { date: d, successfulCount: 0, failedCount: 0, refundedCount: 0, totalRevenue: 0, totalRefunded: 0 };
+        acc[d] = {
+          date: d,
+          successfulCount: 0,
+          failedCount: 0,
+          refundedCount: 0,
+          totalRevenue: 0,
+          totalRefunded: 0,
+        };
       }
+      
       const status = t.status.toUpperCase();
-      if (status === 'SUCCESS' || status === 'COMPLETED') { acc[d].successfulCount++; acc[d].totalRevenue += t.amount / 100; }
-      else if (status === 'REFUNDED') { acc[d].refundedCount++; acc[d].totalRefunded += t.amount / 100; }
-      else { acc[d].failedCount++; }
+      if (status === 'SUCCESS' || status === 'COMPLETED') {
+        acc[d].successfulCount++;
+        acc[d].totalRevenue += t.amount / 100;
+      } else if (status === 'REFUNDED') {
+        acc[d].refundedCount++;
+        acc[d].totalRefunded += t.amount / 100;
+      } else {
+        acc[d].failedCount++;
+      }
       return acc;
     }, {});
 
     const rows = Object.values(grouped).sort((a: any, b: any) => a.date.localeCompare(b.date)).map((r: any) => ({
       Date: r.date,
-      'Successful transactions': r.successfulCount,
-      'Failed or pending transactions': r.failedCount,
-      'Refunded transactions': r.refundedCount,
-      'Total revenue (INR)': r.totalRevenue,
-      'Total refunded (INR)': r.totalRefunded,
-      'Net revenue (INR)': r.totalRevenue - r.totalRefunded,
+      'Successful Transactions': r.successfulCount,
+      'Failed/Pending Transactions': r.failedCount,
+      'Refunded Transactions': r.refundedCount,
+      'Total Revenue (INR)': r.totalRevenue,
+      'Total Refunded (INR)': r.totalRefunded,
+      'Net Revenue (INR)': r.totalRevenue - r.totalRefunded
     }));
 
     const csv = Papa.unparse(rows);
@@ -206,10 +237,10 @@ export default function WhatsAppPayPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `reconciliation-${new Date().toISOString()}.csv`;
+    a.download = `automated-reconciliation-report-${new Date().toISOString()}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
-    toast({ title: 'Reconciliation generated', description: 'CSV report downloaded.' });
+    toast({ title: 'Reconciliation Generated', description: 'Your automated reconciliation report has been downloaded.' });
   };
 
   const tableData: PaymentRow[] = useMemo(
@@ -229,29 +260,42 @@ export default function WhatsAppPayPage() {
       {
         accessorKey: 'date',
         header: 'Date',
-        cell: ({ row }) => <span className="text-[11.5px] text-zinc-500 tabular-nums">{format(new Date(row.original.date), 'dd MMM, HH:mm')}</span>,
-      },
-      {
-        accessorKey: 'id',
-        header: 'TX ID',
-        cell: ({ row }) => <span className="font-mono text-[11px] text-zinc-500">{row.original.id.slice(-10)}</span>,
+        cell: ({ row }) => (
+          <span className="text-[12px] text-zoru-ink-muted">
+            {format(new Date(row.original.date), 'PPp')}
+          </span>
+        ),
       },
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => <span className="text-[12.5px] text-zinc-900">{row.original.description}</span>,
+        cell: ({ row }) => (
+          <span className="text-zoru-ink">{row.original.description}</span>
+        ),
       },
       {
         accessorKey: 'amount',
         header: () => <div className="text-right">Amount</div>,
-        cell: ({ row }) => (
-          <div className="text-right text-[12.5px] font-semibold tabular-nums text-zinc-900">{fmtINR(row.original.amount / 100)}</div>
-        ),
+        cell: ({ row }) => {
+          const formatted = fmtINR(row.original.amount / 100);
+          return (
+            <div className="text-right tabular-nums text-zoru-ink">
+              {formatted}
+            </div>
+          );
+        },
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        cell: ({ row }) => <StatusPill tone={statusTone(row.original.status)}>{row.original.status.toLowerCase()}</StatusPill>,
+        cell: ({ row }) => (
+          <Badge
+            variant={statusVariant(row.original.status)}
+            className="capitalize"
+          >
+            {row.original.status.toLowerCase()}
+          </Badge>
+        ),
       },
       {
         id: 'actions',
@@ -259,20 +303,23 @@ export default function WhatsAppPayPage() {
         cell: ({ row }) => (
           <DropdownMenu>
             <ZoruDropdownMenuTrigger asChild>
-              <button
-                type="button"
-                aria-label="Open actions"
-                className="grid h-6 w-6 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.94]"
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Open actions menu"
               >
-                <MoreHorizontal className="h-3 w-3" strokeWidth={2.25} />
-              </button>
+                <MoreHorizontal />
+              </Button>
             </ZoruDropdownMenuTrigger>
             <ZoruDropdownMenuContent align="end">
               <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
               <ZoruDropdownMenuItem
                 onSelect={() => {
                   navigator.clipboard.writeText(row.original.id);
-                  toast({ title: 'Copied', description: 'Transaction ID copied to clipboard.' });
+                  toast({
+                    title: 'Copied',
+                    description: 'Transaction ID copied to clipboard.',
+                  });
                 }}
               >
                 Copy transaction ID
@@ -295,130 +342,140 @@ export default function WhatsAppPayPage() {
   if (!activeProjectId) {
     return (
       <EmptyState
-        icon={Receipt}
+        icon={<Receipt />}
         title="No project selected"
-        description="Pick a project from the home screen to manage its payments."
+        description="Select a project from the home screen to manage its payments."
       />
     );
   }
 
   const statsLoading = isLoading && transactions.length === 0;
 
-  // Funnel
-  const funnel = useMemo(() => {
-    const initiated = stats.initiatedCount + stats.successfulCount + stats.failedCount + stats.refundedCount;
-    return [
-      { label: 'Initiated', value: initiated, color: '#a1a1aa' },
-      { label: 'Paid', value: stats.successfulCount, color: '#25D366' },
-      { label: 'Refunded', value: stats.refundedCount, color: '#f59e0b' },
-    ];
-  }, [stats]);
-  const funnelMax = Math.max(...funnel.map((f) => f.value), 1);
-
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full w-full flex-col gap-6">
       {/* Actions strip */}
-      <m.div
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: EASE_OUT }}
-        className="flex flex-wrap items-center gap-2"
-      >
-        <ZoruDateRangePicker value={dateRange} onChange={setDateRange} className="w-[300px]" />
-        <WaButton variant="outline" size="sm" onClick={() => fetchData(true)} disabled={isLoading} leftIcon={RefreshCw}>
+      <div className="flex flex-wrap items-center gap-2">
+        <ZoruDateRangePicker
+          value={dateRange}
+          onChange={setDateRange}
+          className="w-[300px]"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => fetchData(true)}
+          disabled={isLoading}
+        >
+          <RefreshCw className={isLoading ? 'animate-spin' : ''} />
           Refresh
-        </WaButton>
-        <WaButton variant="outline" size="sm" onClick={handleExport} disabled={transactions.length === 0} leftIcon={Download}>
-          Export CSV
-        </WaButton>
-        <WaButton variant="outline" size="sm" onClick={handleGenerateReconciliation} disabled={transactions.length === 0} leftIcon={FileText}>
-          Reconciliation
-        </WaButton>
-      </m.div>
-
-      {/* 6-tile KPI strip */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <MetricTile label="Today" value={stats.txToday.toLocaleString('en-IN')} icon={Activity} delay={0.02} />
-        <MetricTile label="Volume" value={fmtINR(stats.totalRevenue)} icon={IndianRupee} delay={0.04} />
-        <MetricTile label="Success rate" value={`${stats.successRate.toFixed(1)}%`} icon={CheckCircle2} delay={0.06} />
-        <MetricTile label="Refunds" value={stats.refundedCount.toLocaleString('en-IN')} icon={RotateCcw} delay={0.08} />
-        <MetricTile label="Avg amount" value={fmtINR(stats.avgAmount)} icon={TrendingUp} delay={0.1} />
-        <MetricTile label="Top customer" value={stats.topAmount > 0 ? fmtINR(stats.topAmount) : '-'} icon={Users} delay={0.12} />
-      </section>
-
-      <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-        {/* Chart */}
-        <Section title="Transactions over time" description="Revenue curve across the selected range.">
-          <TransactionChart transactions={transactions} dateRange={dateRange} />
-        </Section>
-
-        {/* Funnel */}
-        <Section title="Payment funnel" description="From intent to settlement.">
-          <ul className="flex flex-col gap-2">
-            {funnel.map((f) => {
-              const pct = (f.value / funnelMax) * 100;
-              return (
-                <li key={f.label}>
-                  <div className="flex items-center justify-between text-[11.5px]">
-                    <span className="font-semibold text-zinc-700">{f.label}</span>
-                    <span className="tabular-nums text-zinc-900">{f.value.toLocaleString('en-IN')}</span>
-                  </div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-zinc-100">
-                    <m.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ duration: 0.7, ease: EASE_OUT }}
-                      style={{ background: f.color }}
-                      className="h-full"
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-zinc-100 pt-3 text-[11px]">
-            <div>
-              <p className="font-semibold uppercase tracking-wider text-zinc-500">Refunded volume</p>
-              <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-zinc-900">{fmtINR(stats.refundedAmount)}</p>
-            </div>
-            <div>
-              <p className="font-semibold uppercase tracking-wider text-zinc-500">Volume today</p>
-              <p className="mt-0.5 text-[13px] font-semibold tabular-nums text-zinc-900">{fmtINR(stats.volumeToday)}</p>
-            </div>
-          </div>
-        </Section>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExport}
+          disabled={transactions.length === 0}
+        >
+          <Download />
+          Export
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleGenerateReconciliation}
+          disabled={transactions.length === 0}
+        >
+          <FileText />
+          Reconciliation Report
+        </Button>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <StatCard
+          label="Total revenue"
+          value={fmtINR(stats.totalRevenue)}
+          hint="from successful transactions"
+          icon={<IndianRupee />}
+          loading={statsLoading}
+        />
+        <StatCard
+          label="Successful transactions"
+          value={stats.successfulTransactions.toLocaleString()}
+          hint="payments completed"
+          icon={<CheckCircle2 />}
+          loading={statsLoading}
+        />
+        <StatCard
+          label="Failed or pending"
+          value={(
+            transactions.length - stats.successfulTransactions
+          ).toLocaleString()}
+          hint="awaiting or failed"
+          icon={<XCircle />}
+          loading={statsLoading}
+        />
+      </div>
+
+      {/* Chart */}
+      <Card className="p-5">
+        <h3 className="text-[15px] text-zoru-ink">Transactions over time</h3>
+        <p className="mb-4 text-[12px] text-zoru-ink-muted">
+          Revenue curve across the selected date range.
+        </p>
+        <TransactionChart transactions={transactions} dateRange={dateRange} />
+      </Card>
+
       {/* Table */}
-      <Section title="Transaction history" description="A detailed log of every payment from chat.">
+      <Card className="p-5">
+        <h3 className="text-[15px] text-zoru-ink">Transaction history</h3>
+        <p className="mb-4 text-[12px] text-zoru-ink-muted">
+          A detailed log of all payments initiated from this platform.
+        </p>
         {statsLoading ? (
           <div className="flex flex-col gap-2">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-9 animate-pulse rounded-lg bg-zinc-100" />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-10" />
             ))}
           </div>
         ) : tableData.length === 0 ? (
           <EmptyState
-            icon={Receipt}
+            icon={<Receipt />}
             title="No transactions yet"
             description="Once customers pay through WhatsApp, the records will appear here."
           />
         ) : (
-          <DataTable columns={columns} data={tableData} filterColumn="description" filterPlaceholder="Filter transactions..." />
+          <DataTable
+            columns={columns}
+            data={tableData}
+            filterColumn="description"
+            filterPlaceholder="Filter transactions…"
+          />
         )}
-      </Section>
+      </Card>
 
-      {/* Refund confirm */}
-      <ZoruAlertDialog open={refundTarget !== null} onOpenChange={(open) => { if (!open) setRefundTarget(null); }}>
+      {/* Refund-confirm alert dialog */}
+      <ZoruAlertDialog
+        open={refundTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRefundTarget(null);
+        }}
+      >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Refund this payment?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              This issues a refund for <span className="font-semibold text-zinc-900">{refundTarget ? fmtINR(refundTarget.amount / 100) : ''}</span>. Refunds typically settle within 5 to 10 business days and cannot be undone.
+              This will request a refund for{' '}
+              <span className="text-zoru-ink">
+                {refundTarget ? fmtINR(refundTarget.amount / 100) : ''}
+              </span>
+              . Refunds typically settle within 5–10 business days. This action
+              cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={refundPending}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogCancel disabled={refundPending}>
+              Cancel
+            </ZoruAlertDialogCancel>
             <ZoruAlertDialogAction
               destructive
               disabled={refundPending}
@@ -427,13 +484,14 @@ export default function WhatsAppPayPage() {
                 startRefundTransition(async () => {
                   try {
                     const idempotencyKey = crypto.randomUUID();
-                    const timeoutPromise = new Promise<{ error: string }>((_, reject) =>
-                      setTimeout(() => reject(new Error('Provider API timeout')), 10000),
+                    const timeoutPromise = new Promise<{error: string}>((_, reject) => 
+                      setTimeout(() => reject(new Error('Provider API timeout')), 10000)
                     );
-                    const res = (await Promise.race([
+                    const res = await Promise.race([
                       refundTransaction(activeProjectId, refundTarget.id, idempotencyKey),
-                      timeoutPromise,
-                    ])) as { error?: string; message?: string };
+                      timeoutPromise
+                    ]) as { error?: string; message?: string };
+                    
                     if (res.error) {
                       toast({ title: 'Refund failed', description: res.error, variant: 'destructive' });
                     } else {

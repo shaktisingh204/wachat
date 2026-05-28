@@ -1,12 +1,16 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * /wachat layout — now on the new `DashboardShell` (landing-aligned
- * light theme, per-module accent identity, no ZoruUI chrome). The
- * shell auto-resolves the Wachat sidebar from the pathname.
+ * /wachat layout — phase 0 of the wachat → ZoruUI migration.
  *
- * Still wraps everything in RBACGuard + ProjectProvider so the project
- * context is available to every page in the module.
+ * Reuses `ZoruHomeShell` so every wachat page renders inside the
+ * SAME sidebar + dock as `/dashboard`. No bespoke wachat chrome.
+ * Sidebar groups (Workspace / Shortcuts) and the bottom-anchored
+ * dock are inherited unchanged. The "WaChat" dock entry highlights
+ * automatically when `pathname` starts with `/wachat`.
+ *
+ * Per-phase work (1–9) only touches the page content; this layout
+ * is the constant.
  */
 
 import "@/styles/zoruui.css";
@@ -64,7 +68,6 @@ export default async function WachatLayout({
             name: user?.name,
             email: user?.email,
             avatar: user?.image,
-            role: user?.role,
           }}
           plan={{
             name: user?.plan?.name,

@@ -1,67 +1,110 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { m } from 'motion/react';
-import { History, Phone, Settings } from 'lucide-react';
+import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+} from '@/components/zoruui';
+import {
+  usePathname } from 'next/navigation';
+import { History,
+  Phone,
+  Settings } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
-import { WaPage, PageHeader } from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+
+/**
+ * Wachat Calls — ZoruUI layout.
+ *
+ * Two sub-pages: Call Logs · Call Setup. Sub-nav uses Button
+ * variants (no tab UI per the no-tab-ui directive). Each sub-page's
+ * content is rendered by its child route.
+ */
+
+import * as React from 'react';
 
 const SECTIONS = [
-  { href: '/wachat/calls/logs', label: 'Call logs', icon: History },
-  { href: '/wachat/calls/settings', label: 'Call setup', icon: Settings },
+  {
+    href: '/wachat/calls/logs',
+    label: 'Call Logs',
+    icon: <History />,
+  },
+  {
+    href: '/wachat/calls/settings',
+    label: 'Call Setup',
+    icon: <Settings />,
+  },
 ];
 
-export default function CallsLayout({ children }: { children: React.ReactNode }) {
+export default function CallsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const { activeProject } = useProject();
 
   return (
-    <WaPage>
-      <PageHeader
-        title="WhatsApp calling"
-        description={`Calling controls for ${activeProject?.name ?? 'this project'}. Review call logs, tweak voicemail prompts, and toggle business calling per number.`}
-        kicker="Wachat · calls"
-        eyebrowIcon={Phone}
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>
+              {activeProject?.name ? `${activeProject.name} · Calls` : 'Calls'}
+            </ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      <div className="mb-6 flex flex-wrap gap-1 rounded-full border border-zinc-200 bg-white p-1">
-        {SECTIONS.map((s) => {
-          const active = pathname === s.href || pathname.startsWith(s.href + '/');
-          const Icon = s.icon;
-          return (
-            <Link
-              key={s.href}
-              href={s.href}
-              className="relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 active:scale-[0.97]"
-            >
-              {active && (
-                <m.span
-                  layoutId="wa-calls-tab"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: 'var(--mt-accent)' }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-              <span className={`relative z-10 inline-flex items-center gap-1.5 ${active ? 'text-white' : 'text-zinc-600'}`}>
-                <Icon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                {s.label}
-              </span>
-            </Link>
-          );
-        })}
+      <div>
+        <h1 className="flex items-center gap-3 text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+            <Phone className="h-5 w-5" />
+          </span>
+          WhatsApp Calling
+        </h1>
+        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
+          Configure and monitor your WhatsApp calling features — review call
+          logs, tweak voicemail prompts, and enable business calling on
+          specific numbers.
+        </p>
       </div>
 
-      <m.div
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: EASE_OUT }}
-      >
-        {children}
-      </m.div>
-    </WaPage>
+      {/* Sub-page nav (no tab UI). Active section uses solid button,
+          inactive uses outline. */}
+      <nav className="flex flex-wrap gap-2">
+        {SECTIONS.map((s) => {
+          const active =
+            pathname === s.href || pathname.startsWith(s.href + '/');
+          return (
+            <Button
+              key={s.href}
+              variant={active ? 'default' : 'outline'}
+              size="sm"
+              asChild
+            >
+              <a href={s.href}>
+                {s.icon}
+                {s.label}
+              </a>
+            </Button>
+          );
+        })}
+      </nav>
+
+      <div>{children}</div>
+    </div>
   );
 }

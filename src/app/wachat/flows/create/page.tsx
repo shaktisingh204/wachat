@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Badge,
+  Button,
   Input,
   Label,
   Select,
@@ -8,6 +10,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  Skeleton,
   cn,
   useZoruToast,
   Dialog,
@@ -23,9 +26,9 @@ import {
   useEffect,
   useMemo,
   useState,
-  useTransition,
-} from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+  useTransition } from 'react';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   AlertTriangle,
@@ -38,7 +41,7 @@ import {
   LoaderCircle,
   Save,
   Upload,
-} from 'lucide-react';
+  } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
 import { useProject } from '@/context/project-context';
@@ -55,11 +58,9 @@ import {
   publishMetaFlow,
   saveMetaFlowDraft,
   updateMetaFlowMetadata,
-} from '@/app/actions/meta-flow.actions';
-import type { MetaFlowValidationError, Project } from '@/lib/definitions';
-
-import { ModuleTheme } from '@/components/dashboard-ui/module-theme';
-import { WaButton, StatusPill, type StatusTone } from '@/components/wachat-ui';
+  } from '@/app/actions/meta-flow.actions';
+import type { MetaFlowValidationError,
+  Project } from '@/lib/definitions';
 
 const DEFAULT_FLOW = {
   version: '7.3',
@@ -70,25 +71,25 @@ const DEFAULT_FLOW = {
 
 function PageSkeleton() {
   return (
-    <div className="flex h-full flex-col gap-4 p-6">
+    <div className="flex h-full flex-col gap-4">
       <div className="flex items-center justify-between">
-        <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-100" />
-        <div className="h-10 w-64 animate-pulse rounded-lg bg-zinc-100" />
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-10 w-64" />
       </div>
       <div className="grid flex-1 grid-cols-12 gap-4">
-        <div className="col-span-2 h-full animate-pulse rounded-xl bg-zinc-100" />
-        <div className="col-span-7 h-full animate-pulse rounded-xl bg-zinc-100" />
-        <div className="col-span-3 h-full animate-pulse rounded-xl bg-zinc-100" />
+        <Skeleton className="col-span-2 h-full" />
+        <Skeleton className="col-span-7 h-full" />
+        <Skeleton className="col-span-3 h-full" />
       </div>
     </div>
   );
 }
 
-function ValidationBanner({
+function ValidationBanner({ 
   errors,
   flowData,
-  onSelectNode,
-}: {
+  onSelectNode
+}: { 
   errors: MetaFlowValidationError[];
   flowData: any;
   onSelectNode: (screenId: string, component: any) => void;
@@ -97,24 +98,24 @@ function ValidationBanner({
 
   const handleClick = (e: MetaFlowValidationError) => {
     if (!e.pointers?.length) return;
-    const ptr = e.pointers[0];
+    const ptr = e.pointers[0]; // e.g., "/screens/0/layout/children/1"
     const parts = ptr.split('/').filter(Boolean);
     if (parts[0] === 'screens' && parts[1]) {
       const screenIndex = parseInt(parts[1], 10);
       const screen = flowData?.screens?.[screenIndex];
       if (screen) {
-        let compNode: any = null;
-        let currObj: any = screen;
+        let compNode = null;
+        let currObj = screen;
         for (let i = 2; i < parts.length; i++) {
-          const p = parts[i];
-          if (currObj && currObj[p] !== undefined) {
-            currObj = currObj[p];
-            if (currObj && typeof currObj === 'object' && currObj.type) {
-              compNode = currObj;
+            const p = parts[i];
+            if (currObj && currObj[p] !== undefined) {
+                currObj = currObj[p];
+                if (currObj && typeof currObj === 'object' && currObj.type) {
+                    compNode = currObj;
+                }
+            } else {
+                break;
             }
-          } else {
-            break;
-          }
         }
         onSelectNode(screen.id, compNode);
       }
@@ -122,9 +123,9 @@ function ValidationBanner({
   };
 
   return (
-    <div className="border-b border-rose-200 bg-rose-50 px-4 py-2 text-[12.5px] text-rose-700">
-      <div className="flex items-center gap-2 font-semibold">
-        <AlertTriangle className="h-3.5 w-3.5" strokeWidth={2.25} />
+    <div className="border-b border-zoru-danger/30 bg-zoru-danger/5 px-4 py-2 text-[12.5px] text-zoru-danger-ink">
+      <div className="flex items-center gap-2">
+        <AlertTriangle className="h-3.5 w-3.5" />
         {errors.length} validation error{errors.length > 1 ? 's' : ''}
       </div>
       <ul className="mt-1 list-disc pl-6 leading-relaxed">
@@ -133,17 +134,13 @@ function ValidationBanner({
             <span className="font-mono">{e.error_type ?? e.error ?? 'error'}</span>
             {e.line_start ? ` (line ${e.line_start})` : ''}: {e.message}
             {e.pointers?.length ? (
-              <button
-                type="button"
-                onClick={() => handleClick(e)}
-                className="ml-2 inline-flex items-center text-[12px] font-semibold text-rose-800 underline-offset-2 hover:underline"
-              >
-                Locate
-              </button>
+               <Button variant="link" size="sm" className="ml-2 h-auto p-0 text-zoru-danger-ink underline" onClick={() => handleClick(e)}>
+                 Locate
+               </Button>
             ) : null}
           </li>
         ))}
-        {errors.length > 5 ? <li>and {errors.length - 5} more</li> : null}
+        {errors.length > 5 ? <li>…and {errors.length - 5} more</li> : null}
       </ul>
     </div>
   );
@@ -153,7 +150,7 @@ function ScreenReorderDialog({
   open,
   onOpenChange,
   screens,
-  onReorder,
+  onReorder
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -175,9 +172,11 @@ function ScreenReorderDialog({
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIdx === null || draggedIdx === index) return;
+    
     const newScreens = [...localScreens];
     const [dragged] = newScreens.splice(draggedIdx, 1);
     newScreens.splice(index, 0, dragged);
+    
     setDraggedIdx(index);
     setLocalScreens(newScreens);
   };
@@ -190,54 +189,38 @@ function ScreenReorderDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reorder screens</DialogTitle>
+          <DialogTitle>Reorder Screens</DialogTitle>
           <DialogDescription>Drag and drop to reorder the screens in your flow.</DialogDescription>
         </DialogHeader>
-        <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto">
-          {localScreens.map((screen, idx) => (
-            <div
-              key={screen.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, idx)}
-              onDragOver={(e) => handleDragOver(e, idx)}
-              onDragEnd={handleDragEnd}
-              className={cn(
-                'flex cursor-grab items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3 transition-colors active:cursor-grabbing',
-                draggedIdx === idx ? 'opacity-50' : 'hover:bg-zinc-50',
-              )}
-            >
-              <GripVertical className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2.25} />
-              <Layers className="h-3.5 w-3.5" strokeWidth={2.25} style={{ color: 'var(--mt-accent)' }} />
-              <span className="text-[13px] font-medium text-zinc-900">{screen.title || screen.id}</span>
-            </div>
-          ))}
-          {localScreens.length === 0 ? (
-            <div className="p-4 text-center text-[12.5px] text-zinc-500">No screens to reorder.</div>
-          ) : null}
+        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
+           {localScreens.map((screen, idx) => (
+             <div
+               key={screen.id}
+               draggable
+               onDragStart={(e) => handleDragStart(e, idx)}
+               onDragOver={(e) => handleDragOver(e, idx)}
+               onDragEnd={handleDragEnd}
+               className={cn(
+                 "cursor-grab active:cursor-grabbing p-3 border rounded-md flex items-center gap-3 transition-colors",
+                 draggedIdx === idx ? "bg-zoru-surface-hover opacity-50" : "bg-zoru-surface hover:bg-zoru-surface-hover"
+               )}
+             >
+               <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+               <Layers className="h-4 w-4 text-zoru-brand" />
+               <span className="font-medium">{screen.title || screen.id}</span>
+             </div>
+           ))}
+           {localScreens.length === 0 ? (
+             <div className="p-4 text-center text-sm text-zoru-ink-muted">No screens to reorder.</div>
+           ) : null}
         </div>
         <DialogFooter>
-          <WaButton variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-            Cancel
-          </WaButton>
-          <WaButton
-            size="sm"
-            onClick={() => {
-              onReorder(localScreens);
-              onOpenChange(false);
-            }}
-          >
-            Save order
-          </WaButton>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => { onReorder(localScreens); onOpenChange(false); }}>Save Order</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
-
-function statusTone(status: string): StatusTone {
-  if (status === 'PUBLISHED') return 'live';
-  if (status === 'DEPRECATED') return 'failed';
-  return 'draft';
 }
 
 function CreateMetaFlowPageContent() {
@@ -270,9 +253,11 @@ function CreateMetaFlowPageContent() {
   const [deprecating, setDeprecating] = useState(false);
 
   const [showEncryptionDialog, setShowEncryptionDialog] = useState(false);
+
   const [lastSavedData, setLastSavedData] = useState<string>('');
   const [reorderDialogOpen, setReorderDialogOpen] = useState(false);
-
+  
+  // History State
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isUndoRedo, setIsUndoRedo] = useState(false);
@@ -343,7 +328,7 @@ function CreateMetaFlowPageContent() {
           toast({
             title: 'Encryption key propagating',
             description:
-              'Meta accepted the public key but is still rolling it out. Retry in 1-2 minutes.',
+              'Meta accepted the public key but is still rolling it out. Retry in 1–2 minutes.',
           });
         } else {
           setShowEncryptionDialog(true);
@@ -384,8 +369,7 @@ function CreateMetaFlowPageContent() {
           if (!created.success || !created.flowId) {
             setValidation(created.validation_errors ?? []);
             if (created.error && !handleEncryptionError(created.error)) {
-              if (showToast)
-                toast({ title: 'Create failed', description: created.error, variant: 'destructive' });
+              if (showToast) toast({ title: 'Create failed', description: created.error, variant: 'destructive' });
             }
             return null;
           }
@@ -393,16 +377,18 @@ function CreateMetaFlowPageContent() {
           setMetaId(created.metaId ?? null);
           setStatus('DRAFT');
 
-          const saved = await saveMetaFlowDraft({ flowId: created.flowId, flow_data: cleaned });
+          const saved = await saveMetaFlowDraft({
+            flowId: created.flowId,
+            flow_data: cleaned,
+          });
           setValidation(saved.validation_errors ?? []);
           if (!saved.success) {
             if (saved.error && !handleEncryptionError(saved.error)) {
-              if (showToast)
-                toast({
-                  title: 'Flow created, but JSON upload failed',
-                  description: saved.error,
-                  variant: 'destructive',
-                });
+              if (showToast) toast({
+                title: 'Flow created, but JSON upload failed',
+                description: saved.error,
+                variant: 'destructive',
+              });
             }
             router.replace(`/wachat/flows/create?flowId=${created.flowId}`);
             return created.flowId;
@@ -427,18 +413,16 @@ function CreateMetaFlowPageContent() {
         setValidation(saved.validation_errors ?? []);
         if (!saved.success) {
           if (saved.error && !handleEncryptionError(saved.error)) {
-            if (showToast)
-              toast({ title: 'Save failed', description: saved.error, variant: 'destructive' });
+            if (showToast) toast({ title: 'Save failed', description: saved.error, variant: 'destructive' });
           }
           return null;
         }
         if (!meta.success && meta.error) {
-          if (showToast)
-            toast({
-              title: 'Metadata update failed',
-              description: meta.error,
-              variant: 'destructive',
-            });
+          if (showToast) toast({
+            title: 'Metadata update failed',
+            description: meta.error,
+            variant: 'destructive',
+          });
         }
         if (showToast) toast({ title: 'Draft saved' });
         setLastSavedData(JSON.stringify(overrideFlowData ?? flowData));
@@ -450,26 +434,24 @@ function CreateMetaFlowPageContent() {
     [projectId, flowName, category, endpointUri, flowData, flowId, router, toast, handleEncryptionError],
   );
 
+  // History tracking
   useEffect(() => {
     if (isUndoRedo) {
-      setIsUndoRedo(false);
-      return;
+       setIsUndoRedo(false);
+       return;
     }
     const timer = setTimeout(() => {
-      setHistory((prev) => {
-        const newHistory = prev.slice(0, historyIndex + 1);
-        if (
-          newHistory.length > 0 &&
-          JSON.stringify(newHistory[newHistory.length - 1]) === JSON.stringify(flowData)
-        ) {
-          return prev;
-        }
-        newHistory.push(JSON.parse(JSON.stringify(flowData)));
-        if (newHistory.length > 30) newHistory.shift();
-        return newHistory;
-      });
-      setHistoryIndex((prev) => Math.min(prev + 1, 29));
-    }, 500);
+       setHistory((prev) => {
+         const newHistory = prev.slice(0, historyIndex + 1);
+         if (newHistory.length > 0 && JSON.stringify(newHistory[newHistory.length - 1]) === JSON.stringify(flowData)) {
+            return prev;
+         }
+         newHistory.push(JSON.parse(JSON.stringify(flowData)));
+         if (newHistory.length > 30) newHistory.shift();
+         return newHistory;
+       });
+       setHistoryIndex((prev) => Math.min(prev + 1, 29));
+    }, 500); // debounce history entry
     return () => clearTimeout(timer);
   }, [flowData, historyIndex, isUndoRedo]);
 
@@ -489,15 +471,19 @@ function CreateMetaFlowPageContent() {
     }
   };
 
+  // Auto-save logic
   useEffect(() => {
     const isEditingNow = !!flowId;
     const isDraftNow = status === 'DRAFT' || !status;
     const isDeprecatedNow = status === 'DEPRECATED';
+    
     if (!isEditingNow || !isDraftNow || isDeprecatedNow || savingDraft || publishing) return;
+    
     const currentDataStr = JSON.stringify(flowData);
     if (currentDataStr === lastSavedData) return;
 
     const timer = setTimeout(() => {
+      // Background auto-save, no toast
       runSaveDraft(flowData, false);
     }, 4000);
 
@@ -525,7 +511,7 @@ function CreateMetaFlowPageContent() {
       setFlowData(next);
       toast({
         title: 'Marked last screen as terminal',
-        description: `"${last.title || last.id}" is now the final screen. Adjust in the properties panel if that is wrong.`,
+        description: `"${last.title || last.id}" is now the final screen. Adjust in the properties panel if that's wrong.`,
       });
     }
 
@@ -571,7 +557,11 @@ function CreateMetaFlowPageContent() {
 
   const runDeprecate = useCallback(async () => {
     if (!flowId) return;
-    if (!confirm('Deprecating a flow stops it from being sent to users. This cannot be undone. Continue?'))
+    if (
+      !confirm(
+        'Deprecating a flow stops it from being sent to users. This cannot be undone. Continue?',
+      )
+    )
       return;
     setDeprecating(true);
     try {
@@ -587,214 +577,237 @@ function CreateMetaFlowPageContent() {
     }
   }, [flowId, toast]);
 
-  const statusChip = useMemo(() => (
-    <StatusPill tone={statusTone(status)}>{status}</StatusPill>
-  ), [status]);
+  const statusChip = useMemo(() => {
+    if (isPublished) return <Badge variant="success">PUBLISHED</Badge>;
+    if (isDeprecated) return <Badge variant="danger">DEPRECATED</Badge>;
+    return <Badge variant="ghost">DRAFT</Badge>;
+  }, [isPublished, isDeprecated]);
 
   if (isLoading) return <PageSkeleton />;
 
   const disableEdits = isDeprecated;
 
   return (
-    <ModuleTheme slug="wachat">
-      <Suspense fallback={<PageSkeleton />}>
-        <div className="flex h-[calc(100vh-theme(spacing.20))] flex-col">
-          <header className="flex flex-shrink-0 flex-col gap-0 border-b border-zinc-200 bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
-              <div className="flex min-w-0 items-center gap-3">
-                <Link
-                  href="/wachat/flows"
-                  className="grid h-7 w-7 place-items-center rounded-full border border-zinc-200 text-zinc-500 transition-colors hover:border-zinc-900 hover:text-zinc-900"
-                  aria-label="Back"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
+    <Suspense fallback={<PageSkeleton />}>
+      <div className="flex h-[calc(100vh-theme(spacing.20))] flex-col">
+        <header className="flex flex-shrink-0 flex-col gap-0 border-b border-zoru-line bg-zoru-bg">
+          <div className="flex items-center justify-between gap-3 p-3">
+            <div className="flex min-w-0 items-center gap-4">
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/wachat/flows">
+                  <ChevronLeft className="mr-2 h-4 w-4" /> Back
                 </Link>
-                <span className="h-5 w-px bg-zinc-200" />
-                <Input
-                  aria-label="Flow name"
-                  value={flowName}
-                  onChange={(e) => setFlowName(e.target.value)}
-                  disabled={disableEdits}
-                  className="h-8 w-64 rounded-lg border-transparent bg-transparent px-2 text-[16px] font-semibold tracking-tight shadow-none hover:border-zinc-200 focus:border-zinc-200"
-                />
-                {statusChip}
-                {metaId ? (
-                  <span className="truncate font-mono text-[11px] text-zinc-400">ID {metaId}</span>
-                ) : null}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Select value={category} onValueChange={setCategory} disabled={disableEdits}>
-                  <ZoruSelectTrigger className="h-8 w-[170px] rounded-full">
-                    <ZoruSelectValue placeholder="Category" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {flowCategories.map((c) => (
-                      <ZoruSelectItem key={c.id} value={c.id}>
-                        {c.name}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </Select>
-
-                <div className="flex items-center rounded-full border border-zinc-200 bg-white">
-                  <button
-                    type="button"
-                    className="grid h-8 w-8 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-40 active:scale-[0.97]"
-                    disabled={disableEdits || historyIndex <= 0}
-                    onClick={undo}
-                    title="Undo"
-                  >
-                    <History className="h-3.5 w-3.5 -scale-x-100" strokeWidth={2.25} aria-hidden />
-                  </button>
-                  <button
-                    type="button"
-                    className="grid h-8 w-8 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-zinc-50 hover:text-zinc-900 disabled:opacity-40 active:scale-[0.97]"
-                    disabled={disableEdits || historyIndex >= history.length - 1}
-                    onClick={redo}
-                    title="Redo"
-                  >
-                    <History className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-                  </button>
-                </div>
-
-                <WaButton
-                  variant="outline"
-                  size="sm"
-                  leftIcon={GripVertical}
-                  disabled={disableEdits || !isDraft}
-                  onClick={() => setReorderDialogOpen(true)}
-                >
-                  Reorder
-                </WaButton>
-
-                <WaButton
-                  variant="outline"
-                  size="sm"
-                  leftIcon={savingDraft ? LoaderCircle : Save}
-                  disabled={savingDraft || disableEdits || !isDraft}
-                  onClick={() => runSaveDraft(flowData, true)}
-                  className={savingDraft ? '[&_svg]:animate-spin' : ''}
-                >
-                  Save draft
-                </WaButton>
-
-                <WaButton
-                  size="sm"
-                  leftIcon={publishing ? LoaderCircle : Upload}
-                  disabled={publishing || disableEdits || !isDraft}
-                  onClick={runPublish}
-                  className={publishing ? '[&_svg]:animate-spin' : ''}
-                >
-                  Publish
-                </WaButton>
-
-                <WaButton
-                  variant="outline"
-                  size="sm"
-                  leftIcon={previewing ? LoaderCircle : Eye}
-                  disabled={previewing || !flowId}
-                  onClick={runPreview}
-                  className={previewing ? '[&_svg]:animate-spin' : ''}
-                >
-                  Preview
-                </WaButton>
-
-                {isPublished && (
-                  <WaButton
-                    variant="outline"
-                    size="sm"
-                    leftIcon={deprecating ? LoaderCircle : Archive}
-                    disabled={deprecating}
-                    onClick={runDeprecate}
-                    className={deprecating ? '[&_svg]:animate-spin' : ''}
-                  >
-                    Deprecate
-                  </WaButton>
-                )}
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 border-t border-zinc-100 bg-zinc-50/60 px-5 py-2">
-              <Label
-                htmlFor="endpoint_uri"
-                className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500"
-              >
-                Endpoint URI
-              </Label>
+              </Button>
+              <div className="h-6 w-px bg-zoru-line" />
               <Input
-                id="endpoint_uri"
-                value={endpointUri}
-                onChange={(e) => setEndpointUri(e.target.value)}
-                disabled={disableEdits || !isDraft}
-                placeholder="https://your.app/api/wachat/flows/endpoint/<PHONE_NUMBER_ID>"
-                className="h-7 flex-1 rounded-lg font-mono text-[11.5px]"
+                aria-label="Flow name"
+                value={flowName}
+                onChange={(e) => setFlowName(e.target.value)}
+                disabled={disableEdits}
+                className="h-8 w-64 border-transparent bg-transparent px-2 text-lg shadow-none hover:border-zoru-line focus:border-zoru-line"
               />
-              {project?.phoneNumbers?.[0]?.id ? (
-                <WaButton
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={disableEdits || !isDraft}
-                  onClick={() => {
-                    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-                    const phoneId = project.phoneNumbers[0].id;
-                    setEndpointUri(`${origin}/api/wachat/flows/endpoint/${phoneId}`);
-                  }}
-                >
-                  Auto-fill
-                </WaButton>
+              {statusChip}
+              {metaId ? (
+                <span className="truncate font-mono text-[11px] text-zoru-ink-muted">
+                  ID {metaId}
+                </span>
               ) : null}
-              <span className="text-[10.5px] text-zinc-400">For data_exchange screens</span>
             </div>
 
-            <ValidationBanner
-              errors={validation}
-              flowData={flowData}
-              onSelectNode={(screenId, comp) => {
-                setSelectedScreenId(screenId);
-                if (comp) setSelectedComponent(comp);
-              }}
-            />
-          </header>
+            <div className="flex items-center gap-3">
+              <Select value={category} onValueChange={setCategory} disabled={disableEdits}>
+                <ZoruSelectTrigger className="h-8 w-[170px]">
+                  <ZoruSelectValue placeholder="Category" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {flowCategories.map((c) => (
+                    <ZoruSelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </Select>
 
-          <ScreenReorderDialog
-            open={reorderDialogOpen}
-            onOpenChange={setReorderDialogOpen}
-            screens={flowData?.screens || []}
-            onReorder={(newScreens) => {
-              setFlowData({ ...flowData, screens: newScreens });
-            }}
-          />
+              <div className="flex items-center rounded-md border border-zoru-line">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-none rounded-l-md border-r border-zoru-line"
+                  disabled={disableEdits || historyIndex <= 0}
+                  onClick={undo}
+                  title="Undo"
+                >
+                  <History className="h-3.5 w-3.5 -scale-x-100" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-none rounded-r-md"
+                  disabled={disableEdits || historyIndex >= history.length - 1}
+                  onClick={redo}
+                  title="Redo"
+                >
+                  <History className="h-3.5 w-3.5" />
+                </Button>
+              </div>
 
-          <div className="flex-1 overflow-hidden">
-            <MetaFlowBuilderLayout
-              flowData={flowData}
-              setFlowData={setFlowData}
-              selectedScreenId={selectedScreenId}
-              setSelectedScreenId={setSelectedScreenId}
-              selectedComponent={selectedComponent}
-              setSelectedComponent={setSelectedComponent}
-              onPublish={runPublish}
-            />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={disableEdits || !isDraft}
+                onClick={() => setReorderDialogOpen(true)}
+                title="Reorder Screens"
+              >
+                <GripVertical className="h-4 w-4" />
+                Reorder
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={savingDraft || disableEdits || !isDraft}
+                onClick={() => runSaveDraft(flowData, true)}
+                title={
+                  !isDraft
+                    ? 'Only DRAFT flows can be edited'
+                    : 'Save the current canvas as DRAFT on Meta'
+                }
+              >
+                {savingDraft ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                Save draft
+              </Button>
+
+              <Button
+                size="sm"
+                disabled={publishing || disableEdits || !isDraft}
+                onClick={runPublish}
+                title={!isDraft ? 'Already published' : 'Save and publish to Meta'}
+              >
+                {publishing ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                Publish
+              </Button>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={previewing || !flowId}
+                onClick={runPreview}
+              >
+                {previewing ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+                Preview
+              </Button>
+
+              {isPublished ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={deprecating}
+                  onClick={runDeprecate}
+                >
+                  {deprecating ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Archive className="h-4 w-4" />
+                  )}
+                  Deprecate
+                </Button>
+              ) : null}
+            </div>
           </div>
-        </div>
 
-        {project && project.phoneNumbers && project.phoneNumbers.length > 0 ? (
-          <FlowsEncryptionDialog
-            project={project as Project}
-            phone={project.phoneNumbers[0]}
-            open={showEncryptionDialog}
-            onOpenChange={setShowEncryptionDialog}
-            trigger={<></>}
-            onSuccess={() => {
-              refreshProject();
-              setShowEncryptionDialog(false);
-            }}
+          <div className="flex items-center gap-3 border-t border-zoru-line bg-zoru-surface px-3 py-1.5">
+            <Label
+              htmlFor="endpoint_uri"
+              className="text-[11px] uppercase tracking-wide text-zoru-ink-muted"
+            >
+              Endpoint URI
+            </Label>
+            <Input
+              id="endpoint_uri"
+              value={endpointUri}
+              onChange={(e) => setEndpointUri(e.target.value)}
+              disabled={disableEdits || !isDraft}
+              placeholder="https://your.app/api/wachat/flows/endpoint/<PHONE_NUMBER_ID>"
+              className="h-7 flex-1 font-mono text-[11.5px]"
+            />
+            {project?.phoneNumbers?.[0]?.id ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-[11px]"
+                disabled={disableEdits || !isDraft}
+                onClick={() => {
+                  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+                  const phoneId = project.phoneNumbers[0].id;
+                  setEndpointUri(`${origin}/api/wachat/flows/endpoint/${phoneId}`);
+                }}
+                title="Fill with this project's first phone number endpoint"
+              >
+                Auto-fill
+              </Button>
+            ) : null}
+            <span className="text-[10.5px] text-zoru-ink-muted">For data_exchange screens</span>
+          </div>
+
+          <ValidationBanner 
+            errors={validation} 
+            flowData={flowData} 
+            onSelectNode={(screenId, comp) => {
+              setSelectedScreenId(screenId);
+              if (comp) setSelectedComponent(comp);
+            }} 
           />
-        ) : null}
-      </Suspense>
-    </ModuleTheme>
+        </header>
+
+        <ScreenReorderDialog
+          open={reorderDialogOpen}
+          onOpenChange={setReorderDialogOpen}
+          screens={flowData?.screens || []}
+          onReorder={(newScreens) => {
+             setFlowData({ ...flowData, screens: newScreens });
+          }}
+        />
+
+        <div className="flex-1 overflow-hidden">
+          <MetaFlowBuilderLayout
+            flowData={flowData}
+            setFlowData={setFlowData}
+            selectedScreenId={selectedScreenId}
+            setSelectedScreenId={setSelectedScreenId}
+            selectedComponent={selectedComponent}
+            setSelectedComponent={setSelectedComponent}
+            onPublish={runPublish}
+          />
+        </div>
+      </div>
+
+      {project && project.phoneNumbers && project.phoneNumbers.length > 0 ? (
+        <FlowsEncryptionDialog
+          project={project as Project}
+          phone={project.phoneNumbers[0]}
+          open={showEncryptionDialog}
+          onOpenChange={setShowEncryptionDialog}
+          trigger={<></>}
+          onSuccess={() => {
+            refreshProject();
+            setShowEncryptionDialog(false);
+          }}
+        />
+      ) : null}
+    </Suspense>
   );
 }
 

@@ -1,19 +1,17 @@
-import { WaPage } from '@/components/wachat-ui';
+'use client';
+
+import { Skeleton, Card } from '@/components/zoruui';
 
 export default function IntegrationsLoading() {
   return (
-    <WaPage>
-      <div className="mb-8">
-        <div className="h-3 w-32 rounded-full bg-zinc-100" />
-        <div className="mt-3 h-9 w-64 rounded-lg bg-zinc-100" />
-        <div className="mt-2 h-3 w-96 rounded-full bg-zinc-100" />
-      </div>
-      <div className="mb-6 h-10 w-80 rounded-full bg-zinc-100" />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-44 rounded-2xl border border-zinc-200 bg-white" />
-        ))}
-      </div>
-    </WaPage>
+    <div className="p-6 space-y-6">
+      <Skeleton className="h-8 w-1/4" />
+      <Skeleton className="h-4 w-2/4" />
+      <Card className="p-6 space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-20 w-full" />
+      </Card>
+    </div>
   );
 }

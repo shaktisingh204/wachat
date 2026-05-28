@@ -1,20 +1,42 @@
 'use client';
 
 import {
+  Badge,
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
   DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuLabel,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
+  EmptyState,
+  Input,
+  ZoruPageDescription,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  Skeleton,
+  cn,
+  useZoruToast,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  useZoruToast,
+  ZoruSelectContent,
+  ZoruSelectItem,
 } from '@/components/zoruui';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
@@ -32,43 +54,28 @@ import {
   CalendarDays,
   MessageSquare,
   Activity,
-  GitFork,
-  TrendingUp,
-  Archive,
-  CheckCircle2,
-  Hash,
-} from 'lucide-react';
-import { m } from 'motion/react';
+  Filter,
+  } from 'lucide-react';
 
 import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
-import { deleteMetaFlow, getMetaFlows } from '@/app/actions/meta-flow.actions';
+
+import { deleteMetaFlow,
+  getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { MetaFlow } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { SyncMetaFlowsButton } from '@/components/zoruui-domain/sync-meta-flows-button';
 
-import {
-  WaPage,
-  PageHeader,
-  WaButton,
-  MetricTile,
-  Section,
-  EmptyState,
-  StatusPill,
-  type StatusTone,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+/**
+ * Wachat Meta Flows — flow list, search & status.
+ */
 
-function statusTone(status?: string): StatusTone {
+import * as React from 'react';
+
+function statusVariant(status?: string): 'success' | 'ghost' | 'danger' {
   const s = (status ?? '').toLowerCase();
-  if (s === 'published') return 'live';
-  if (s === 'deprecated') return 'failed';
-  return 'draft';
-}
-
-function hash(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return Math.abs(h);
+  if (s === 'published') return 'success';
+  if (s === 'draft' || !s) return 'ghost';
+  return 'danger';
 }
 
 export default function MetaFlowsPage() {
@@ -80,7 +87,6 @@ export default function MetaFlowsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'recent' | 'sessions' | 'completion'>('recent');
 
   const fetchFlows = useCallback(() => {
     if (!activeProjectId) return;
@@ -105,183 +111,160 @@ export default function MetaFlowsPage() {
     }
   };
 
-  const enrichedFlows = useMemo(
+  const filteredFlows = useMemo(
     () =>
-      flows.map((f) => {
-        const h = hash(f.metaId);
-        const completion = 45 + (h % 48);
-        const sessionsToday = h % 32;
-        const screens = 2 + (h % 7);
-        return { ...f, completion, sessionsToday, screens };
-      }),
-    [flows],
+      flows.filter(
+        (flow) => {
+          const matchesSearch = flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            flow.metaId.includes(searchQuery);
+          
+          const s = (flow.status || 'DRAFT').toLowerCase();
+          const matchesStatus = statusFilter === 'all' || s === statusFilter.toLowerCase();
+          
+          const c = flow.categories || [];
+          const matchesCategory = categoryFilter === 'all' || c.includes(categoryFilter);
+          
+          return matchesSearch && matchesStatus && matchesCategory;
+        }
+      ),
+    [flows, searchQuery, statusFilter, categoryFilter],
   );
 
-  const filteredFlows = useMemo(() => {
-    const list = enrichedFlows.filter((flow) => {
-      const matchesSearch =
-        flow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        flow.metaId.includes(searchQuery);
-      const s = (flow.status || 'DRAFT').toLowerCase();
-      const matchesStatus = statusFilter === 'all' || s === statusFilter.toLowerCase();
-      const c = flow.categories || [];
-      const matchesCategory = categoryFilter === 'all' || c.includes(categoryFilter);
-      return matchesSearch && matchesStatus && matchesCategory;
-    });
-    return list.sort((a, b) => {
-      if (sortBy === 'sessions') return b.sessionsToday - a.sessionsToday;
-      if (sortBy === 'completion') return b.completion - a.completion;
-      return 0;
-    });
-  }, [enrichedFlows, searchQuery, statusFilter, categoryFilter, sortBy]);
+  const getCompletionRate = useCallback((metaId: string) => {
+    // Generate a deterministic mock completion rate between 45% and 92%
+    let sum = 0;
+    for (let i = 0; i < metaId.length; i++) sum += metaId.charCodeAt(i);
+    return `${45 + (sum % 48)}%`;
+  }, []);
 
   const stats = useMemo(() => {
-    const published = enrichedFlows.filter((f) => (f.status ?? '').toLowerCase() === 'published').length;
-    const draft = enrichedFlows.filter(
-      (f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status,
-    ).length;
-    const archived = enrichedFlows.filter((f) => (f.status ?? '').toLowerCase() === 'deprecated').length;
-    const sessionsToday = enrichedFlows.reduce((s, f) => s + f.sessionsToday, 0);
-    const avgCompletion = enrichedFlows.length
-      ? Math.round(enrichedFlows.reduce((s, f) => s + f.completion, 0) / enrichedFlows.length)
-      : 0;
-    return { published, draft, archived, sessionsToday, avgCompletion };
-  }, [enrichedFlows]);
-
-  const TEMPLATES = [
-    {
-      key: 'lead_gen',
-      icon: Users,
-      title: 'Lead generation',
-      desc: 'Capture name, email, and phone right inside WhatsApp.',
-    },
-    {
-      key: 'appointment',
-      icon: CalendarDays,
-      title: 'Appointment booking',
-      desc: 'Let customers pick a date and time without leaving chat.',
-    },
-    {
-      key: 'feedback',
-      icon: MessageSquare,
-      title: 'Customer feedback',
-      desc: 'Collect ratings and feedback after a purchase.',
-    },
-  ];
+    const published = flows.filter((f) => (f.status ?? '').toLowerCase() === 'published').length;
+    const draft = flows.filter((f) => (f.status ?? '').toLowerCase() === 'draft' || !f.status)
+      .length;
+    return { published, draft };
+  }, [flows]);
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Meta flows"
-        description="Multi-step WhatsApp experiences. Forms, bookings, order flows. Managed end-to-end from SabNode."
-        kicker="Wachat"
-        eyebrowIcon={GitFork}
-        backHref="/wachat"
-        actions={
-          <>
-            <SyncMetaFlowsButton projectId={activeProjectId} onSyncComplete={fetchFlows} />
-            <WaButton variant="outline" size="sm" leftIcon={BookOpen} href="/wachat/flows/docs">
-              API docs
-            </WaButton>
-            <WaButton leftIcon={CirclePlus} onClick={() => router.push('/wachat/flows/create')} disabled={!activeProjectId}>
-              New flow
-            </WaButton>
-          </>
-        }
-      />
+    <div className="flex min-h-full flex-col gap-6">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Meta Flows</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <MetricTile label="Total flows" value={flows.length} icon={GitFork} delay={0.02} />
-        <MetricTile
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <PageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Meta Flows</ZoruPageTitle>
+            <ZoruPageDescription>
+              Interactive multi-step WhatsApp experiences — forms, bookings, order flows — managed
+              directly from SabNode.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </PageHeader>
+        <div className="flex items-center gap-2">
+          <SyncMetaFlowsButton projectId={activeProjectId} onSyncComplete={fetchFlows} />
+          <Button variant="outline" onClick={() => router.push('/wachat/flows/docs')}>
+            <BookOpen className="h-3.5 w-3.5" />
+            API docs
+          </Button>
+          <Button
+            onClick={() => router.push('/wachat/flows/create')}
+            disabled={!activeProjectId}
+          >
+            <CirclePlus className="h-3.5 w-3.5" />
+            New flow
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <Stat label="Total flows" value={String(flows.length)} />
+        <Stat
           label="Published"
-          value={stats.published}
-          icon={CheckCircle2}
-          delta={
+          value={String(stats.published)}
+          hint={
             flows.length > 0
-              ? { value: `${Math.round((stats.published / flows.length) * 100)}% live`, positive: true }
-              : undefined
+              ? `${Math.round((stats.published / flows.length) * 100)}% live`
+              : 'none yet'
           }
-          delay={0.05}
+          tint="success"
         />
-        <MetricTile label="Drafts" value={stats.draft} icon={Pencil} delay={0.08} />
-        <MetricTile label="Archived" value={stats.archived} icon={Archive} delay={0.11} />
-        <MetricTile label="Sessions today" value={stats.sessionsToday} icon={Activity} delay={0.14} />
-        <MetricTile
-          label="Completion"
-          value={`${stats.avgCompletion}%`}
-          icon={TrendingUp}
-          delta={{ value: 'avg', positive: stats.avgCompletion >= 60 }}
-          delay={0.17}
-        />
+        <Stat label="Drafts" value={String(stats.draft)} />
       </div>
 
       {!activeProjectId ? (
         <EmptyState
-          icon={CircleAlert}
+          icon={<CircleAlert className="h-10 w-10" />}
           title="No project selected"
-          description="Please select a project from the main dashboard to manage Meta flows."
-          action={<WaButton onClick={() => router.push('/wachat')}>Choose a project</WaButton>}
+          description="Please select a project from the main dashboard to manage Meta Flows."
+          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
       ) : (
         <>
-          {/* Templates strip */}
-          <section className="mb-5">
-            <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-zinc-500">
-              Start from a template
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {TEMPLATES.map((tpl, i) => (
-                <m.button
-                  key={tpl.key}
-                  type="button"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: 0.03 + i * 0.04, ease: EASE_OUT }}
-                  onClick={() => router.push(`/wachat/flows/create?template=${tpl.key}`)}
-                  className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 text-left transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px] active:scale-[0.98]"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.boxShadow = '';
-                  }}
-                >
-                  <span
-                    className="grid h-9 w-9 place-items-center rounded-lg text-white"
-                    style={{
-                      backgroundImage:
-                        'linear-gradient(135deg, var(--mt-accent), color-mix(in oklch, var(--mt-accent) 55%, white))',
-                    }}
-                  >
-                    <tpl.icon className="h-4 w-4" strokeWidth={2.25} aria-hidden />
-                  </span>
-                  <p className="mt-3 text-[13.5px] font-semibold tracking-tight text-zinc-950">{tpl.title}</p>
-                  <p className="mt-1 text-[12px] leading-relaxed text-zinc-600">{tpl.desc}</p>
-                </m.button>
-              ))}
+          <div className="mb-2 mt-4">
+            <h3 className="mb-3 text-sm font-medium text-zoru-ink">Start from a template</h3>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <Card 
+                className="flex cursor-pointer flex-col p-4 transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface-2" 
+                onClick={() => router.push('/wachat/flows/create?template=lead_gen')}
+              >
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted">
+                  <Users className="h-5 w-5" />
+                </div>
+                <div className="mb-1 font-medium text-zoru-ink">Lead Generation</div>
+                <div className="text-xs text-zoru-ink-muted">Capture user info like name, email, and phone number directly in WhatsApp.</div>
+              </Card>
+              <Card 
+                className="flex cursor-pointer flex-col p-4 transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface-2" 
+                onClick={() => router.push('/wachat/flows/create?template=appointment')}
+              >
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted">
+                  <CalendarDays className="h-5 w-5" />
+                </div>
+                <div className="mb-1 font-medium text-zoru-ink">Appointment Booking</div>
+                <div className="text-xs text-zoru-ink-muted">Let customers choose a date and time to book an appointment with you.</div>
+              </Card>
+              <Card 
+                className="flex cursor-pointer flex-col p-4 transition-colors hover:border-zoru-line-strong hover:bg-zoru-surface-2" 
+                onClick={() => router.push('/wachat/flows/create?template=feedback')}
+              >
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink-muted">
+                  <MessageSquare className="h-5 w-5" />
+                </div>
+                <div className="mb-1 font-medium text-zoru-ink">Customer Feedback</div>
+                <div className="text-xs text-zoru-ink-muted">Collect ratings and feedback from your customers after a purchase.</div>
+              </Card>
             </div>
-          </section>
+          </div>
 
-          {/* Filters */}
-          <m.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: EASE_OUT }}
-            className="mb-4 flex flex-wrap items-center gap-2"
-          >
-            <label className="flex flex-1 min-w-[240px] items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 transition-colors focus-within:border-zinc-400">
-              <Search className="h-3.5 w-3.5 text-zinc-400" strokeWidth={2} aria-hidden />
-              <input
+          <Card className="p-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="min-w-[260px] flex-1">
+              <Input
+                placeholder="Search flows by name or Meta ID…"
+                leadingSlot={<Search />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search flows by name or Meta ID"
-                className="w-full bg-transparent text-[13px] text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
-                aria-label="Search flows"
               />
-            </label>
+            </div>
+            
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <ZoruSelectTrigger className="w-[150px] rounded-full">
-                <ZoruSelectValue placeholder="Status" />
+              <ZoruSelectTrigger className="w-[140px]">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3.5 w-3.5 opacity-50" />
+                  <ZoruSelectValue placeholder="Status" />
+                </div>
               </ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
@@ -290,116 +273,113 @@ export default function MetaFlowsPage() {
                 <ZoruSelectItem value="deprecated">Deprecated</ZoruSelectItem>
               </ZoruSelectContent>
             </Select>
+
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <ZoruSelectTrigger className="w-[160px] rounded-full">
-                <ZoruSelectValue placeholder="Category" />
+              <ZoruSelectTrigger className="w-[160px]">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3.5 w-3.5 opacity-50" />
+                  <ZoruSelectValue placeholder="Category" />
+                </div>
               </ZoruSelectTrigger>
               <ZoruSelectContent>
                 <ZoruSelectItem value="all">All categories</ZoruSelectItem>
-                {flowCategories.map((c) => (
-                  <ZoruSelectItem key={c.id} value={c.id}>
-                    {c.name}
-                  </ZoruSelectItem>
+                {flowCategories.map(c => (
+                  <ZoruSelectItem key={c.id} value={c.id}>{c.name}</ZoruSelectItem>
                 ))}
               </ZoruSelectContent>
             </Select>
-            <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-              <ZoruSelectTrigger className="w-[150px] rounded-full">
-                <ZoruSelectValue placeholder="Sort" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="recent">Recent</ZoruSelectItem>
-                <ZoruSelectItem value="sessions">Sessions today</ZoruSelectItem>
-                <ZoruSelectItem value="completion">Completion %</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-            <WaButton
-              variant="outline"
-              size="sm"
-              leftIcon={RefreshCw}
-              onClick={fetchFlows}
-              disabled={isLoading}
-              className={isLoading ? '[&_svg]:animate-spin' : ''}
-            >
-              {isLoading ? 'Refreshing' : 'Refresh'}
-            </WaButton>
-            <span className="ml-auto text-[11.5px] tabular-nums text-zinc-400">
+
+            <Button variant="outline" size="sm" onClick={fetchFlows} disabled={isLoading}>
+              <RefreshCw className={cn('h-3.5 w-3.5', isLoading && 'animate-spin')} />
+              {isLoading ? 'Refreshing…' : 'Refresh'}
+            </Button>
+            <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
               {filteredFlows.length} / {flows.length} flows
             </span>
-          </m.div>
+          </div>
 
-          {/* Flow cards */}
-          {isLoading && flows.length === 0 ? (
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-44 animate-pulse rounded-xl border border-zinc-200 bg-white" />
-              ))}
-            </div>
-          ) : filteredFlows.length === 0 ? (
-            <EmptyState
-              icon={ServerCog}
-              title={searchQuery ? 'No matching flows' : 'No Meta flows yet'}
-              description={
-                searchQuery
-                  ? `Nothing matched "${searchQuery}". Try a different search.`
-                  : 'Create a flow to let customers fill forms, book slots, or order items inside a WhatsApp conversation.'
-              }
-              action={
-                !searchQuery ? (
-                  <WaButton size="sm" leftIcon={CirclePlus} onClick={() => router.push('/wachat/flows/create')}>
-                    Create your first flow
-                  </WaButton>
-                ) : undefined
-              }
-            />
-          ) : (
-            <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3">
-              {filteredFlows.map((flow, i) => {
-                const isPublished = (flow.status ?? '').toLowerCase() === 'published';
-                return (
-                  <m.li
-                    key={flow._id.toString()}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.04 + i * 0.025, ease: EASE_OUT }}
-                  >
-                    <article
-                      className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[2px]"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.boxShadow = '';
-                      }}
+          <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
+            {isLoading && flows.length === 0 ? (
+              <div className="p-4">
+                <Skeleton className="h-32 w-full" />
+              </div>
+            ) : filteredFlows.length === 0 ? (
+              <EmptyState
+                icon={<ServerCog className="h-10 w-10" />}
+                title={searchQuery ? 'No matching flows' : 'No Meta Flows yet'}
+                description={
+                  searchQuery
+                    ? `Nothing matched "${searchQuery}". Try a different search.`
+                    : 'Create a flow to let customers fill out forms, book slots, or order items inside a WhatsApp conversation.'
+                }
+                action={
+                  !searchQuery ? (
+                    <Button size="sm" onClick={() => router.push('/wachat/flows/create')}>
+                      <CirclePlus className="h-3.5 w-3.5" />
+                      Create your first flow
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Flow name</th>
+                    <th className="px-4 py-3 text-left">Meta ID</th>
+                    <th className="px-4 py-3 text-left">Category</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Completion</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zoru-line">
+                  {filteredFlows.map((flow) => (
+                    <tr
+                      key={flow._id.toString()}
+                      className="transition-colors hover:bg-zoru-surface-2"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <Link
-                            href={`/wachat/flows/create?flowId=${flow._id.toString()}`}
-                            className="block truncate text-[14px] font-semibold tracking-tight text-zinc-950 transition-colors hover:text-emerald-700"
-                          >
-                            {flow.name}
-                          </Link>
-                          <p className="mt-0.5 font-mono text-[11px] tabular-nums text-zinc-400">
-                            ID · {flow.metaId.slice(-12)}
-                          </p>
+                      <td className="px-4 py-3 text-zoru-ink">{flow.name}</td>
+                      <td className="px-4 py-3 font-mono text-xs tabular-nums text-zoru-ink-muted">
+                        {flow.metaId}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {flow.categories?.map((cat) => (
+                            <Badge key={cat} variant="ghost">
+                              {cat}
+                            </Badge>
+                          ))}
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={statusVariant(flow.status)}>
+                          {flow.status || 'Draft'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        {flow.status === 'PUBLISHED' ? (
+                          <div className="flex items-center gap-1.5 text-xs">
+                            <Activity className="h-3.5 w-3.5 text-zoru-success-ink" />
+                            <span className="font-medium">{getCompletionRate(flow.metaId)}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-zoru-ink-muted">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <DropdownMenu>
                           <ZoruDropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className="grid h-7 w-7 place-items-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900 active:scale-[0.97]"
-                              aria-label="Open menu"
-                            >
-                              <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={2.25} aria-hidden />
-                            </button>
+                            <Button variant="ghost" size="icon-sm" aria-label="Open menu">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
                           </ZoruDropdownMenuTrigger>
                           <ZoruDropdownMenuContent align="end">
                             <ZoruDropdownMenuLabel>Actions</ZoruDropdownMenuLabel>
                             <ZoruDropdownMenuSeparator />
                             <ZoruDropdownMenuItem asChild>
                               <Link href={`/wachat/flows/create?flowId=${flow._id.toString()}`}>
-                                <Pencil className="mr-2 h-3.5 w-3.5" />
+                                <Pencil className="mr-2 h-4 w-4" />
                                 Edit flow
                               </Link>
                             </ZoruDropdownMenuItem>
@@ -408,76 +388,50 @@ export default function MetaFlowsPage() {
                               destructive
                               onClick={() => handleDelete(flow._id.toString(), flow.metaId)}
                             >
-                              <Trash2 className="mr-2 h-3.5 w-3.5" />
+                              <Trash2 className="mr-2 h-4 w-4" />
                               Delete
                             </ZoruDropdownMenuItem>
                           </ZoruDropdownMenuContent>
                         </DropdownMenu>
-                      </div>
-
-                      {(flow.categories?.length ?? 0) > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {flow.categories?.slice(0, 4).map((cat) => (
-                            <span
-                              key={cat}
-                              className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-medium text-zinc-700"
-                            >
-                              {cat}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-zinc-50 p-2 text-center">
-                        <div>
-                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Screens</div>
-                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.screens}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Today</div>
-                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.sessionsToday}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-400">Done</div>
-                          <div className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{flow.completion}%</div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-zinc-500">
-                          <span>Completion</span>
-                          <span className="tabular-nums">{flow.completion}%</span>
-                        </div>
-                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-100">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${flow.completion}%`, background: '#25D366' }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-3">
-                        <StatusPill tone={statusTone(flow.status)}>{flow.status || 'Draft'}</StatusPill>
-                        {isPublished ? (
-                          <span className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-emerald-700">
-                            <Activity className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                            live
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] text-zinc-500">
-                            <Hash className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                            unpublished
-                          </span>
-                        )}
-                      </div>
-                    </article>
-                  </m.li>
-                );
-              })}
-            </ul>
-          )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Card>
         </>
       )}
-    </WaPage>
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  hint,
+  tint = 'neutral',
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+  tint?: 'neutral' | 'success';
+}) {
+  return (
+    <Card className="p-4">
+      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">{label}</div>
+      <div className="mt-2 flex items-baseline gap-2">
+        <div
+          className={cn(
+            'text-[22px] tracking-[-0.01em] leading-none',
+            tint === 'success' ? 'text-zoru-success-ink' : 'text-zoru-ink',
+          )}
+        >
+          {value}
+        </div>
+      </div>
+      {hint && <div className="mt-1 truncate text-[11px] text-zoru-ink-muted">{hint}</div>}
+    </Card>
   );
 }

@@ -1,440 +1,382 @@
 'use client';
 
-import * as React from 'react';
-import { m, useReducedMotion } from 'motion/react';
 import {
-  Activity,
-  AlertTriangle,
+  Badge,
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
+  ZoruPageDescription,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableHead,
+  ZoruTableCell,
+  Tabs,
+  ZoruTabsList,
+  ZoruTabsTrigger,
+  ZoruTabsContent,
+} from '@/components/zoruui';
+import {
   ArrowRight,
-  ArrowUpRight,
-  CheckCircle2,
-  Clock,
   Code2,
-  Copy,
-  Edit2,
   FileSpreadsheet,
-  Globe,
-  Layers,
+  KeyRound,
   Link as LinkIcon,
-  PieChart,
-  Plus,
   Puzzle,
-  Send,
   ShoppingBag,
   Store,
-  Trash2,
   Zap,
+  Globe,
+  PieChart,
+  Plus,
+  Trash2,
+  Edit2,
+  Copy,
 } from 'lucide-react';
 
-import {
-  WaPage,
-  PageHeader,
-  Section,
-  WaButton,
-  StatusPill,
-  Tabs,
-  type TabSpec,
-  DataRow,
-  MetricTile,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
+import Link from 'next/link';
 
-/* ------------------------------------------------------------------ */
-/* Static data                                                        */
-/* ------------------------------------------------------------------ */
-
-type IntegrationStatus = 'ready' | 'coming-soon';
-
-interface IntegrationCard {
+type Integration = {
   title: string;
   description: string;
+  icon: React.ReactNode;
   href?: string;
-  status: IntegrationStatus;
-  /** Brand slug for the simpleicons CDN, or a Lucide icon as fallback. */
-  brand?: string;
-  fallbackIcon?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-}
+  status: 'ready' | 'coming-soon';
+};
 
-const integrations: IntegrationCard[] = [
+const integrations: Integration[] = [
   {
     title: 'WhatsApp link generator',
-    description: 'Create wa.me links with pre-filled messages and UTM tracking.',
+    description:
+      'Create wa.me links with pre-filled messages and track them through UTM parameters.',
+    icon: <LinkIcon className="h-[18px] w-[18px]" />,
     href: '/wachat/integrations/whatsapp-link-generator',
     status: 'ready',
-    brand: 'whatsapp',
-    fallbackIcon: LinkIcon,
   },
   {
     title: 'Website widget',
-    description: 'Embed a floating WhatsApp chat widget on your website. Zero dev work.',
+    description:
+      'Embed a floating WhatsApp chat widget on your website. Zero dev work, custom branding.',
+    icon: <Code2 className="h-[18px] w-[18px]" />,
     href: '/wachat/integrations/whatsapp-widget-generator',
     status: 'ready',
-    fallbackIcon: Code2,
   },
   {
     title: 'Razorpay',
-    description: 'Connect Razorpay to accept payments directly from WhatsApp messages.',
+    description:
+      'Connect your Razorpay account to accept payments directly from WhatsApp messages.',
+    icon: <KeyRound className="h-[18px] w-[18px]" />,
     href: '/wachat/integrations/razorpay',
     status: 'ready',
-    brand: 'razorpay',
   },
   {
     title: 'Shopify',
-    description: 'Sync orders, send abandoned-cart nudges, and delivery updates.',
+    description:
+      'Sync orders, send abandoned-cart nudges and delivery updates from Shopify to WhatsApp.',
+    icon: <ShoppingBag className="h-[18px] w-[18px]" />,
     status: 'coming-soon',
-    brand: 'shopify',
-    fallbackIcon: ShoppingBag,
   },
   {
     title: 'Zapier',
-    description: '5,000+ apps to Wachat. Trigger broadcasts, sync contacts, log events.',
+    description:
+      'Connect 5,000+ apps to Wachat: trigger broadcasts, sync contacts, log events — no code.',
+    icon: <Zap className="h-[18px] w-[18px]" />,
     status: 'coming-soon',
-    brand: 'zapier',
-    fallbackIcon: Zap,
   },
   {
     title: 'Google Sheets',
-    description: 'Two-way contact sync with a spreadsheet. Column mapping, scheduled pulls.',
+    description:
+      'Sync contacts to/from a spreadsheet. Two-way updates, column mapping, scheduled pulls.',
+    icon: <FileSpreadsheet className="h-[18px] w-[18px]" />,
     status: 'coming-soon',
-    brand: 'googlesheets',
-    fallbackIcon: FileSpreadsheet,
   },
   {
     title: 'WooCommerce',
     description: 'Trigger WhatsApp flows on order events: created, paid, shipped, delivered.',
+    icon: <Store className="h-[18px] w-[18px]" />,
     status: 'coming-soon',
-    brand: 'woocommerce',
-    fallbackIcon: Store,
   },
 ];
 
-const oauthConnections: {
-  name: string;
-  description: string;
-  brand?: string;
-  fallback: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  connected: boolean;
-  connectedAt?: string;
-}[] = [
+const oauthConnections = [
   {
     name: 'Facebook / Meta',
-    description: 'Connect your WhatsApp Business Account (WABA).',
-    brand: 'meta',
-    fallback: Globe,
-    connected: true,
-    connectedAt: 'Dec 1, 2024',
+    description: 'Connect your WhatsApp Business Account (WABA)',
+    icon: <Globe className="h-[18px] w-[18px]" />,
+    status: 'connected',
+    connectedAt: 'Dec 1, 2023',
   },
   {
     name: 'Shopify',
-    description: 'Sync products and customers.',
-    brand: 'shopify',
-    fallback: ShoppingBag,
-    connected: false,
+    description: 'Sync your products and customers',
+    icon: <ShoppingBag className="h-[18px] w-[18px]" />,
+    status: 'disconnected',
   },
   {
     name: 'Google Analytics',
-    description: 'Track WhatsApp link clicks and widget interactions.',
-    brand: 'googleanalytics',
-    fallback: PieChart,
-    connected: false,
-  },
+    description: 'Track WhatsApp link clicks and widget interactions',
+    icon: <PieChart className="h-[18px] w-[18px]" />,
+    status: 'disconnected',
+  }
 ];
 
-const webhookSamples = [
+const webhooks = [
   {
     id: 'wh_123',
     url: 'https://api.myapp.com/webhooks/whatsapp',
     events: ['message.received', 'message.status'],
-    status: 'active' as const,
-    createdAt: 'Nov 15, 2024',
+    status: 'active',
+    createdAt: 'Nov 15, 2023',
   },
   {
     id: 'wh_124',
     url: 'https://hooks.zapier.com/hooks/catch/12345/abcde/',
     events: ['contact.created'],
-    status: 'inactive' as const,
-    createdAt: 'Oct 20, 2024',
-  },
+    status: 'inactive',
+    createdAt: 'Oct 20, 2023',
+  }
 ];
 
 const apiKeys = [
   {
     id: 'key_1',
-    name: 'Production API key',
+    name: 'Production API Key',
     key: 'sk_live_••••••••9f8a',
-    createdAt: 'Nov 10, 2024',
-    lastUsed: 'May 24, 2026',
+    createdAt: 'Nov 10, 2023',
+    lastUsed: 'May 24, 2024',
   },
   {
     id: 'key_2',
-    name: 'Development API key',
+    name: 'Development API Key',
     key: 'sk_test_••••••••3b2c',
-    createdAt: 'Jan 5, 2026',
+    createdAt: 'Jan 5, 2024',
     lastUsed: 'Never',
-  },
-];
-
-/* ------------------------------------------------------------------ */
-/* Brand-logo helper                                                  */
-/* ------------------------------------------------------------------ */
-
-function BrandLogo({
-  brand,
-  fallback: Fallback,
-  className = 'h-5 w-5',
-}: {
-  brand?: string;
-  fallback?: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  className?: string;
-}) {
-  const [errored, setErrored] = React.useState(false);
-  if (brand && !errored) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={`https://cdn.simpleicons.org/${brand}/000000`}
-        alt=""
-        aria-hidden
-        className={className}
-        onError={() => setErrored(true)}
-      />
-    );
   }
-  if (Fallback) return <Fallback className={className} strokeWidth={2} />;
-  return <Puzzle className={className} strokeWidth={2} />;
-}
-
-/* ------------------------------------------------------------------ */
-/* Page                                                               */
-/* ------------------------------------------------------------------ */
-
-const TABS: TabSpec[] = [
-  { id: 'apps', label: 'App integrations' },
-  { id: 'oauth', label: 'OAuth connections' },
-  { id: 'webhooks', label: 'Webhooks and keys' },
 ];
 
 export default function IntegrationsPage() {
-  const [tab, setTab] = React.useState<string>('apps');
-  const reduce = useReducedMotion();
-
   return (
-    <WaPage>
-      <PageHeader
-        title="Integrations"
-        description="Plug SabNode into the rest of your stack. Link generators, embeddable widgets, and payment providers."
-        kicker="Wachat · integrations"
-        backHref="/wachat"
-        eyebrowIcon={Puzzle}
-      />
+    <div className="flex h-full w-full flex-col">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Integrations</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      {/* KPI strip — purely derived from local config (no fake metrics). */}
-      {(() => {
-        const total = integrations.length;
-        const ready = integrations.filter((i) => i.status === 'ready').length;
-        const comingSoon = total - ready;
-        const oauthConnected = oauthConnections.filter((o) => o.connected).length;
-        const activeWebhooks = webhookSamples.filter((w) => w.status === 'active').length;
-        const keys = apiKeys.length;
-        return (
-          <section className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <MetricTile label="Total apps" value={total} icon={Layers} delay={0.02} />
-            <MetricTile label="Ready" value={ready} icon={CheckCircle2} delay={0.04} />
-            <MetricTile label="Coming soon" value={comingSoon} icon={Clock} delay={0.06} />
-            <MetricTile label="OAuth linked" value={oauthConnected} icon={Activity} delay={0.08} />
-            <MetricTile label="Live webhooks" value={activeWebhooks} icon={Send} delay={0.1} />
-            <MetricTile label="API keys" value={keys} icon={AlertTriangle} delay={0.12} />
-          </section>
-        );
-      })()}
+      <PageHeader className="mt-5">
+        <ZoruPageHeading>
+          <ZoruPageTitle>Integrations</ZoruPageTitle>
+          <ZoruPageDescription>
+            Plug SabNode into the rest of your stack. Link generators, embeddable widgets, and
+            payment providers.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </PageHeader>
 
-      <Tabs items={TABS} active={tab} onChange={setTab} />
+      <Tabs defaultValue="integrations" className="mt-6 w-full">
+        <ZoruTabsList className="mb-4">
+          <ZoruTabsTrigger value="integrations">App Integrations</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="oauth">OAuth Connections</ZoruTabsTrigger>
+          <ZoruTabsTrigger value="webhooks">Webhooks & API Keys</ZoruTabsTrigger>
+        </ZoruTabsList>
 
-      {tab === 'apps' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {integrations.map((integration, i) => (
-              <m.div
-                key={integration.title}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: reduce ? 0 : i * 0.04, ease: EASE_OUT }}
-                className="flex h-24 items-center gap-3 rounded-xl border border-zinc-200 bg-white px-3.5 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 14px 32px -22px var(--mt-accent-glow)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 0 1px transparent'; }}
-              >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-white">
-                  <BrandLogo brand={integration.brand} fallback={integration.fallbackIcon} className="h-5 w-5" />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="truncate text-[13.5px] font-semibold tracking-tight text-zinc-950">
-                      {integration.title}
-                    </h3>
-                    {integration.status === 'ready' ? (
-                      <StatusPill tone="live">Ready</StatusPill>
-                    ) : (
-                      <StatusPill tone="paused">Soon</StatusPill>
-                    )}
-                  </div>
-                  <p className="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-zinc-500">
-                    {integration.description}
-                  </p>
+        <ZoruTabsContent value="integrations" className="mt-0 outline-none">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {integrations.map((integration) => (
+              <Card key={integration.title} className="flex flex-col gap-4 p-5">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                    {integration.icon}
+                  </span>
+                  <h3 className="text-[15px] text-zoru-ink">{integration.title}</h3>
                 </div>
-                {integration.status === 'ready' && integration.href ? (
-                  <WaButton href={integration.href} size="sm" rightIcon={ArrowRight}>
-                    Open
-                  </WaButton>
-                ) : (
-                  <WaButton size="sm" variant="outline" disabled>
-                    Notify
-                  </WaButton>
-                )}
-              </m.div>
+
+                <p className="flex-1 text-sm leading-relaxed text-zoru-ink-muted">
+                  {integration.description}
+                </p>
+
+                <div className="flex items-center justify-between border-t border-zoru-line pt-4">
+                  {integration.status === 'ready' ? (
+                    <Badge variant="success">Ready to configure</Badge>
+                  ) : (
+                    <Badge variant="ghost">Coming soon</Badge>
+                  )}
+                  {integration.status === 'ready' && integration.href ? (
+                    <Button size="sm" asChild>
+                      <Link href={integration.href}>
+                        Configure
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" disabled>
+                      Notify me
+                    </Button>
+                  )}
+                </div>
+              </Card>
             ))}
           </div>
 
-          <Section padded={false}>
-            <div className="flex items-center gap-4 p-5">
-              <span
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
-                style={{ background: 'var(--mt-accent-soft)' }}
-              >
-                <Puzzle className="h-5 w-5" style={{ color: 'var(--mt-accent)' }} strokeWidth={2} />
-              </span>
-              <div className="flex-1">
-                <p className="text-[14px] font-semibold text-zinc-950">More integrations on the way</p>
-                <p className="mt-0.5 text-[12.5px] leading-relaxed text-zinc-600">
-                  HubSpot, Stripe, and a public webhook beta are next. Need a specific one? Tell us.
-                </p>
-              </div>
-              <WaButton variant="outline" size="sm" rightIcon={ArrowUpRight}>
-                Request
-              </WaButton>
+          <Card className="mt-6 flex items-center gap-4 p-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+              <Puzzle className="h-[18px] w-[18px]" />
+            </span>
+            <div className="flex-1">
+              <p className="text-[14px] text-zoru-ink">More integrations coming soon</p>
+              <p className="text-[12.5px] leading-snug text-zoru-ink-muted">
+                Shopify, HubSpot, Zapier and Stripe are in the works. Need a specific one? Tell us.
+              </p>
             </div>
-          </Section>
-        </div>
-      )}
+          </Card>
+        </ZoruTabsContent>
 
-      {tab === 'oauth' && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          {oauthConnections.map((app, i) => (
-            <m.div
-              key={app.name}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: reduce ? 0 : i * 0.05, ease: EASE_OUT }}
-              className="flex items-center justify-between gap-4 rounded-2xl border border-zinc-200 bg-white p-5"
-            >
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-zinc-200">
-                  <BrandLogo brand={app.brand} fallback={app.fallback} className="h-5 w-5" />
-                </span>
-                <div>
-                  <h3 className="text-[14.5px] font-semibold tracking-tight text-zinc-950">{app.name}</h3>
-                  <p className="mt-0.5 text-[12.5px] text-zinc-600">{app.description}</p>
+        <ZoruTabsContent value="oauth" className="mt-0 outline-none">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {oauthConnections.map((app) => (
+              <Card key={app.name} className="flex items-center justify-between p-5">
+                <div className="flex items-center gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                    {app.icon}
+                  </span>
+                  <div>
+                    <h3 className="text-[15px] font-medium text-zoru-ink">{app.name}</h3>
+                    <p className="text-sm text-zoru-ink-muted">{app.description}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {app.connected ? (
-                  <>
-                    <div className="hidden flex-col items-end sm:flex">
-                      <StatusPill tone="live">Connected</StatusPill>
-                      <span className="mt-1 text-[10.5px] text-zinc-500">Since {app.connectedAt}</span>
-                    </div>
-                    <WaButton size="sm" variant="outline">
-                      Disconnect
-                    </WaButton>
-                  </>
-                ) : (
-                  <WaButton size="sm">Connect</WaButton>
-                )}
-              </div>
-            </m.div>
-          ))}
-        </div>
-      )}
+                <div className="flex items-center gap-3">
+                  {app.status === 'connected' ? (
+                    <>
+                      <div className="flex flex-col items-end">
+                        <Badge variant="success">Connected</Badge>
+                        <span className="mt-1 text-[11px] text-zoru-ink-muted">Since {app.connectedAt}</span>
+                      </div>
+                      <Button size="sm" variant="outline">Disconnect</Button>
+                    </>
+                  ) : (
+                    <Button size="sm">Connect</Button>
+                  )}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </ZoruTabsContent>
 
-      {tab === 'webhooks' && (
-        <div className="space-y-6">
-          <Section
-            title="Webhooks"
-            description="Manage webhook endpoints to receive real-time updates."
-            action={<WaButton size="sm" leftIcon={Plus}>Add webhook</WaButton>}
-          >
-            {webhookSamples.length === 0 ? (
-              <p className="px-1 py-2 text-[13px] text-zinc-500">No webhooks configured.</p>
-            ) : (
-              <ul className="divide-y divide-zinc-100">
-                {webhookSamples.map((wh) => (
-                  <DataRow
-                    key={wh.id}
-                    title={<span className="font-mono">{wh.url}</span>}
-                    subtitle={
-                      <span className="flex flex-wrap items-center gap-1.5">
-                        {wh.events.map((ev) => (
-                          <span
-                            key={ev}
-                            className="rounded-full bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] text-zinc-600"
-                          >
-                            {ev}
-                          </span>
-                        ))}
-                        <span className="text-zinc-400">· {wh.createdAt}</span>
-                      </span>
-                    }
-                    trailing={
-                      <div className="flex items-center gap-1">
+        <ZoruTabsContent value="webhooks" className="mt-0 outline-none">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-medium text-zoru-ink">Webhooks</h3>
+                  <p className="text-sm text-zoru-ink-muted">Manage webhook endpoints to receive real-time updates.</p>
+                </div>
+                <Button size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Webhook
+                </Button>
+              </div>
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow>
+                    <ZoruTableHead>URL</ZoruTableHead>
+                    <ZoruTableHead>Events</ZoruTableHead>
+                    <ZoruTableHead>Status</ZoruTableHead>
+                    <ZoruTableHead>Created</ZoruTableHead>
+                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {webhooks.map((wh) => (
+                    <ZoruTableRow key={wh.id}>
+                      <ZoruTableCell className="font-medium">{wh.url}</ZoruTableCell>
+                      <ZoruTableCell>
+                        <div className="flex flex-wrap gap-1">
+                          {wh.events.map((ev) => (
+                            <Badge key={ev} variant="secondary" className="text-[10px] uppercase font-medium">{ev}</Badge>
+                          ))}
+                        </div>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
                         {wh.status === 'active' ? (
-                          <StatusPill tone="live">Active</StatusPill>
+                          <Badge variant="success">Active</Badge>
                         ) : (
-                          <StatusPill tone="paused">Inactive</StatusPill>
+                          <Badge variant="ghost">Inactive</Badge>
                         )}
-                        <button className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100" aria-label="Edit">
-                          <Edit2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                        </button>
-                        <button className="grid h-7 w-7 place-items-center rounded-full text-rose-500 hover:bg-rose-50" aria-label="Delete">
-                          <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                        </button>
-                      </div>
-                    }
-                  />
-                ))}
-              </ul>
-            )}
-          </Section>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink-muted">{wh.createdAt}</ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button size="icon" variant="ghost" className="h-8 w-8"><Edit2 className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))}
+                </ZoruTableBody>
+              </ZoruTable>
+            </div>
 
-          <Section
-            title="API keys"
-            description="Manage API keys to authenticate your requests."
-            action={<WaButton size="sm" leftIcon={Plus}>Generate key</WaButton>}
-          >
-            <ul className="divide-y divide-zinc-100">
-              {apiKeys.map((k) => (
-                <DataRow
-                  key={k.id}
-                  title={k.name}
-                  subtitle={<span className="font-mono">{k.key}</span>}
-                  trailing={
-                    <div className="flex items-center gap-3">
-                      <div className="hidden text-right sm:block">
-                        <p className="text-[10px] uppercase tracking-[0.08em] text-zinc-400">Last used</p>
-                        <p className="font-mono text-[11.5px] text-zinc-600">{k.lastUsed}</p>
-                      </div>
-                      <button className="grid h-7 w-7 place-items-center rounded-full text-zinc-500 hover:bg-zinc-100" aria-label="Copy">
-                        <Copy className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      </button>
-                      <button className="grid h-7 w-7 place-items-center rounded-full text-rose-500 hover:bg-rose-50" aria-label="Delete">
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      </button>
-                    </div>
-                  }
-                />
-              ))}
-            </ul>
-          </Section>
-        </div>
-      )}
-    </WaPage>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-medium text-zoru-ink">API Keys</h3>
+                  <p className="text-sm text-zoru-ink-muted">Manage API keys to authenticate your API requests.</p>
+                </div>
+                <Button size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Generate Key
+                </Button>
+              </div>
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow>
+                    <ZoruTableHead>Name</ZoruTableHead>
+                    <ZoruTableHead>Key</ZoruTableHead>
+                    <ZoruTableHead>Created At</ZoruTableHead>
+                    <ZoruTableHead>Last Used</ZoruTableHead>
+                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {apiKeys.map((k) => (
+                    <ZoruTableRow key={k.id}>
+                      <ZoruTableCell className="font-medium">{k.name}</ZoruTableCell>
+                      <ZoruTableCell className="font-mono text-xs">{k.key}</ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink-muted">{k.createdAt}</ZoruTableCell>
+                      <ZoruTableCell className="text-zoru-ink-muted">{k.lastUsed}</ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button size="icon" variant="ghost" className="h-8 w-8"><Copy className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))}
+                </ZoruTableBody>
+              </ZoruTable>
+            </div>
+          </div>
+        </ZoruTabsContent>
+      </Tabs>
+    </div>
   );
 }

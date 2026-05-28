@@ -1,10 +1,16 @@
-'use client';
-
-import * as React from 'react';
-import { fmtDate } from '@/lib/utils';
+"use client";
+import { fmtDate } from "@/lib/utils";
 
 import {
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
   Button,
+  Card,
+  ZoruCardContent,
   Dialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -12,39 +18,22 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   Input,
+  Label,
+  ZoruPageDescription,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
   Select,
   ZoruSelectContent,
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
   Textarea,
+  cn,
   useZoruToast,
-} from '@/components/zoruui';
-import { memo, useMemo, useState } from 'react';
-import { m, AnimatePresence, useReducedMotion } from 'motion/react';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
-import {
-  Plus,
-  Copy,
-  Trash2,
-  GripVertical,
-  History,
-  Image as ImageIcon,
-  Video,
-  FileText,
-  Sun,
-  Moon,
-  Eye,
-  CircleCheck,
-  CircleX,
-  TriangleAlert,
-  Variable,
-  Hash,
-  Type as TypeIcon,
-  MessageSquare,
-  ExternalLink,
-  Phone,
-} from 'lucide-react';
+} from "@/components/zoruui";
+import { memo, useMemo, useState } from "react";
+import { Plus, Eye, Copy, Trash2, GripVertical, History } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -53,28 +42,20 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-import { useProject } from '@/context/project-context';
+import { useProject } from "@/context/project-context";
 
-import {
-  WaPage,
-  PageHeader,
-  WaButton,
-  PhoneFrame,
-  ChatBubble,
-} from '@/components/wachat-ui';
-
-type HeaderType = 'none' | 'text' | 'image' | 'video' | 'document';
-type BtnType = 'quick_reply' | 'url' | 'phone';
+type HeaderType = "none" | "text" | "image" | "video" | "document";
+type BtnType = "quick_reply" | "url" | "phone";
 
 interface TplButton {
   type: BtnType;
@@ -82,13 +63,16 @@ interface TplButton {
   value: string;
 }
 
-const LIMITS = { body: 1024, header: 60, footer: 60, button: 25, maxButtons: 3 };
-
 const SortableBlock = memo(
   ({ id, children }: { id: string; children: React.ReactNode }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-      id,
-    });
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id });
 
     const style = {
       transform: CSS.Transform.toString(transform),
@@ -98,80 +82,41 @@ const SortableBlock = memo(
     };
 
     return (
-      <div ref={setNodeRef} style={style} className="group relative">
-        <button
-          type="button"
+      <div ref={setNodeRef} style={style} className="relative group">
+        <div
           {...attributes}
           {...listeners}
-          aria-label="Drag to reorder"
-          className="absolute -left-7 top-6 grid h-7 w-7 cursor-grab place-items-center rounded-full text-zinc-400 opacity-0 transition-opacity duration-150 hover:bg-zinc-100 hover:text-zinc-900 group-hover:opacity-100"
+          className="absolute left-[-28px] top-6 p-1 cursor-grab text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity hover:text-zoru-ink"
         >
-          <GripVertical className="h-3.5 w-3.5" strokeWidth={2.25} />
-        </button>
+          <GripVertical size={18} />
+        </div>
         {children}
       </div>
     );
   },
 );
-SortableBlock.displayName = 'SortableBlock';
-
-function BlockCard({
-  title,
-  children,
-  meta,
-}: {
-  title: string;
-  children: React.ReactNode;
-  meta?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white p-4">
-      <div className="mb-2.5 flex items-center justify-between">
-        <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-          {title}
-        </h2>
-        {meta && <span className="text-[10.5px] tabular-nums text-zinc-500">{meta}</span>}
-      </div>
-      <div className="space-y-3">{children}</div>
-    </div>
-  );
-}
-
-function LimitBar({ used, limit }: { used: number; limit: number }) {
-  const pct = Math.min(100, Math.round((used / limit) * 100));
-  const over = used > limit;
-  const near = !over && pct >= 80;
-  return (
-    <div className="h-1 overflow-hidden rounded-full bg-zinc-100">
-      <div
-        className="h-full rounded-full transition-[width] duration-200"
-        style={{
-          width: `${Math.min(100, pct)}%`,
-          background: over ? '#f43f5e' : near ? '#f59e0b' : 'var(--mt-accent)',
-        }}
-      />
-    </div>
-  );
-}
+SortableBlock.displayName = "SortableBlock";
 
 export default function TemplateBuilderPage() {
   const { activeProject } = useProject();
   const { toast } = useZoruToast();
-  const reduceMotion = useReducedMotion();
 
-  const [category, setCategory] = useState('marketing');
-  const [headerType, setHeaderType] = useState<HeaderType>('none');
-  const [headerText, setHeaderText] = useState('');
-  const [body, setBody] = useState('Hello {{1}}, your order {{2}} is confirmed!');
-  const [footer, setFooter] = useState('Powered by Wachat');
+  const [category, setCategory] = useState("marketing");
+  const [headerType, setHeaderType] = useState<HeaderType>("none");
+  const [headerText, setHeaderText] = useState("");
+  const [body, setBody] = useState(
+    "Hello {{1}}, your order {{2}} is confirmed!",
+  );
+  const [footer, setFooter] = useState("Powered by Wachat");
   const [buttons, setButtons] = useState<TplButton[]>([]);
-  const [variableValues, setVariableValues] = useState<Record<string, string>>({
-    '1': 'Alex',
-    '2': 'ORD-1042',
-  });
-  const [previewMode, setPreviewMode] = useState<'light' | 'dark' | 'both'>('both');
 
-  const [blocks, setBlocks] = useState(['category', 'header', 'body', 'footer', 'buttons']);
+  const [blocks, setBlocks] = useState([
+    "category",
+    "header",
+    "body",
+    "footer",
+    "buttons",
+  ]);
 
   const [saveOpen, setSaveOpen] = useState(false);
   const [versionsOpen, setVersionsOpen] = useState(false);
@@ -182,7 +127,9 @@ export default function TemplateBuilderPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -198,103 +145,36 @@ export default function TemplateBuilderPage() {
 
   const insertVar = (n: number) => setBody((p) => p + ` {{${n}}}`);
   const addButton = () => {
-    if (buttons.length < LIMITS.maxButtons)
-      setButtons((p) => [...p, { type: 'quick_reply', text: '', value: '' }]);
+    if (buttons.length < 3)
+      setButtons((p) => [...p, { type: "quick_reply", text: "", value: "" }]);
   };
   const updateButton = (i: number, patch: Partial<TplButton>) =>
     setButtons((p) => p.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
-  const removeButton = (i: number) => setButtons((p) => p.filter((_, idx) => idx !== i));
-
-  /* ── derived ──────────────────────────────────────────────── */
-
-  const varList = useMemo(() => {
-    const matches = Array.from(body.matchAll(/{{\s*(\d+)\s*}}/g)).map((m) => m[1]);
-    return Array.from(new Set(matches)).sort((a, b) => Number(a) - Number(b));
-  }, [body]);
-
-  const renderedBody = useMemo(() => {
-    return body.replace(/{{\s*(\d+)\s*}}/g, (_, k) =>
-      variableValues[k] !== undefined && variableValues[k] !== ''
-        ? variableValues[k]
-        : `{{${k}}}`,
-    );
-  }, [body, variableValues]);
-
-  type Check = { ok: boolean; severity: 'error' | 'warn'; label: string };
-  const checks = useMemo<Check[]>(() => {
-    const out: Check[] = [];
-    out.push({ ok: body.trim().length > 0, severity: 'error', label: 'Body text is present.' });
-    out.push({ ok: body.length <= LIMITS.body, severity: 'error', label: `Body within ${LIMITS.body} chars.` });
-    if (headerType === 'text') {
-      out.push({
-        ok: headerText.length > 0 && headerText.length <= LIMITS.header,
-        severity: 'error',
-        label: `Text header 1-${LIMITS.header} chars.`,
-      });
-    }
-    out.push({
-      ok: footer.length <= LIMITS.footer,
-      severity: 'error',
-      label: `Footer within ${LIMITS.footer} chars.`,
-    });
-    out.push({
-      ok: buttons.length <= LIMITS.maxButtons,
-      severity: 'error',
-      label: `Max ${LIMITS.maxButtons} buttons.`,
-    });
-    out.push({
-      ok: buttons.every((b) => b.text.length <= LIMITS.button),
-      severity: 'error',
-      label: `Each button label within ${LIMITS.button} chars.`,
-    });
-    out.push({
-      ok: buttons.every((b) => b.type === 'quick_reply' || b.value.trim().length > 0),
-      severity: 'error',
-      label: 'URL / phone buttons have a value.',
-    });
-    const varsNumbers = varList.map(Number).sort((a, b) => a - b);
-    if (varsNumbers.length > 0) {
-      out.push({
-        ok: varsNumbers.every((n, idx) => n === idx + 1),
-        severity: 'error',
-        label: 'Variables numbered sequentially from {{1}}.',
-      });
-    }
-    out.push({
-      ok: !/\b(click here|buy now|act fast|limited offer|free!)\b/i.test(body),
-      severity: 'warn',
-      label: 'No salesy phrases ("buy now", "click here", "act fast").',
-    });
-    return out;
-  }, [body, headerType, headerText, footer, buttons, varList]);
-
-  const errors = checks.filter((c) => !c.ok && c.severity === 'error').length;
-  const warnings = checks.filter((c) => !c.ok && c.severity === 'warn').length;
-
-  /* ── payload + save ──────────────────────────────────────── */
+  const removeButton = (i: number) =>
+    setButtons((p) => p.filter((_, idx) => idx !== i));
 
   const buildPayload = () => {
     const components: any[] = [];
-    if (headerType === 'text' && headerText)
-      components.push({ type: 'HEADER', format: 'TEXT', text: headerText });
-    else if (headerType !== 'none')
-      components.push({ type: 'HEADER', format: headerType.toUpperCase() });
-    components.push({ type: 'BODY', text: body });
-    if (footer) components.push({ type: 'FOOTER', text: footer });
+    if (headerType === "text" && headerText)
+      components.push({ type: "HEADER", format: "TEXT", text: headerText });
+    else if (headerType !== "none")
+      components.push({ type: "HEADER", format: headerType.toUpperCase() });
+    components.push({ type: "BODY", text: body });
+    if (footer) components.push({ type: "FOOTER", text: footer });
     if (buttons.length > 0) {
       components.push({
-        type: 'BUTTONS',
+        type: "BUTTONS",
         buttons: buttons.map((b) => ({
-          type: b.type === 'quick_reply' ? 'QUICK_REPLY' : b.type.toUpperCase(),
+          type: b.type === "quick_reply" ? "QUICK_REPLY" : b.type.toUpperCase(),
           text: b.text,
-          ...(b.type !== 'quick_reply' ? { [b.type]: b.value } : {}),
+          ...(b.type !== "quick_reply" ? { [b.type]: b.value } : {}),
         })),
       });
     }
     return {
       name: `template_${Date.now()}`,
       category: category.toUpperCase(),
-      language: 'en_US',
+      language: "en_US",
       components,
     };
   };
@@ -303,7 +183,16 @@ export default function TemplateBuilderPage() {
     const payload = buildPayload();
     const json = JSON.stringify(payload, null, 2);
 
-    const newState = { category, headerType, headerText, body, footer, buttons, blocks };
+    // Save version
+    const newState = {
+      category,
+      headerType,
+      headerText,
+      body,
+      footer,
+      buttons,
+      blocks,
+    };
     const newVersion = {
       id: `v_${Date.now()}`,
       name: `Version ${versions.length + 1}`,
@@ -314,7 +203,7 @@ export default function TemplateBuilderPage() {
 
     await navigator.clipboard.writeText(json);
     toast({
-      title: 'Template JSON copied and version saved',
+      title: "Template JSON copied & Version saved",
       description: `Template payload (${json.length} chars) copied to clipboard.`,
     });
     setSaveOpen(false);
@@ -329,151 +218,148 @@ export default function TemplateBuilderPage() {
     setButtons(ver.state.buttons);
     if (ver.state.blocks) setBlocks(ver.state.blocks);
 
-    toast({ title: 'Version loaded', description: `Loaded ${ver.name}` });
+    toast({
+      title: "Version loaded",
+      description: `Loaded ${ver.name}`,
+    });
     setVersionsOpen(false);
   };
 
-  /* ── blocks ──────────────────────────────────────────────── */
-
   const categoryBlock = useMemo(
     () => (
-      <BlockCard title="Category">
-        <Select value={category} onValueChange={setCategory}>
-          <ZoruSelectTrigger>
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="marketing">Marketing</ZoruSelectItem>
-            <ZoruSelectItem value="utility">Utility</ZoruSelectItem>
-            <ZoruSelectItem value="authentication">Authentication</ZoruSelectItem>
-          </ZoruSelectContent>
-        </Select>
-      </BlockCard>
+      <Card>
+        <ZoruCardContent className="space-y-3 pt-6">
+          <h2 className="text-[15px] font-semibold text-zoru-ink">Category</h2>
+          <Select value={category} onValueChange={setCategory}>
+            <ZoruSelectTrigger>
+              <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="marketing">Marketing</ZoruSelectItem>
+              <ZoruSelectItem value="utility">Utility</ZoruSelectItem>
+              <ZoruSelectItem value="authentication">
+                Authentication
+              </ZoruSelectItem>
+            </ZoruSelectContent>
+          </Select>
+        </ZoruCardContent>
+      </Card>
     ),
     [category],
   );
 
   const headerBlock = useMemo(
     () => (
-      <BlockCard
-        title="Header"
-        meta={
-          headerType === 'text'
-            ? `${headerText.length} / ${LIMITS.header}`
-            : headerType !== 'none'
-            ? headerType
-            : undefined
-        }
-      >
-        <div className="flex flex-wrap gap-2">
-          {(['none', 'text', 'image', 'video', 'document'] as const).map((t) => {
-            const isActive = headerType === t;
-            return (
-              <button
-                key={t}
-                type="button"
-                onClick={() => setHeaderType(t)}
-                className="rounded-full border px-3 py-1.5 text-[11.5px] font-semibold capitalize transition-[transform,box-shadow,background-color,color] duration-150 active:scale-[0.97]"
-                style={{
-                  borderColor: isActive ? 'var(--mt-accent)' : '#e4e4e7',
-                  color: isActive ? '#ffffff' : '#52525b',
-                  backgroundColor: isActive ? 'var(--mt-accent)' : '#ffffff',
-                }}
-              >
-                {t}
-              </button>
-            );
-          })}
-        </div>
-        {headerType === 'text' && (
-          <>
+      <Card>
+        <ZoruCardContent className="space-y-3 pt-6">
+          <h2 className="text-[15px] font-semibold text-zoru-ink">Header</h2>
+          <div className="flex flex-wrap gap-2">
+            {(["none", "text", "image", "video", "document"] as const).map(
+              (t) => {
+                const isActive = headerType === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setHeaderType(t)}
+                    className={cn(
+                      "rounded-[var(--zoru-radius)] border px-3 py-1.5 text-[12px] font-medium capitalize transition-colors",
+                      isActive
+                        ? "border-zoru-ink bg-zoru-ink text-zoru-on-primary"
+                        : "border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:text-zoru-ink",
+                    )}
+                  >
+                    {t}
+                  </button>
+                );
+              },
+            )}
+          </div>
+          {headerType === "text" && (
             <Input
               placeholder="Header text"
               value={headerText}
               onChange={(e) => setHeaderText(e.target.value)}
-              maxLength={LIMITS.header}
             />
-            <LimitBar used={headerText.length} limit={LIMITS.header} />
-          </>
-        )}
-        {(headerType === 'image' || headerType === 'video' || headerType === 'document') && (
-          <p className="text-[11.5px] text-zinc-500">
-            Upload {headerType} when submitting for approval.
-          </p>
-        )}
-      </BlockCard>
+          )}
+          {(headerType === "image" ||
+            headerType === "video" ||
+            headerType === "document") && (
+            <p className="text-[12px] text-zoru-ink-muted">
+              Upload {headerType} when submitting for approval.
+            </p>
+          )}
+        </ZoruCardContent>
+      </Card>
     ),
     [headerType, headerText],
   );
 
   const bodyBlock = useMemo(
     () => (
-      <BlockCard title="Body" meta={`${body.length} / ${LIMITS.body}`}>
-        <Textarea
-          rows={4}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Message body"
-        />
-        <LimitBar used={body.length} limit={LIMITS.body} />
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] text-zinc-500">Insert variable:</span>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              type="button"
-              onClick={() => insertVar(n)}
-              className="rounded-full border border-zinc-200 bg-white px-2 py-1 font-mono text-[11px] font-semibold text-zinc-700 transition-colors hover:border-zinc-900 hover:text-zinc-950 active:scale-[0.97]"
-            >{`{{${n}}}`}</button>
-          ))}
-        </div>
-      </BlockCard>
+      <Card>
+        <ZoruCardContent className="space-y-3 pt-6">
+          <h2 className="text-[15px] font-semibold text-zoru-ink">Body</h2>
+          <Textarea
+            rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Message body…"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[12px] text-zoru-ink-muted">Variables:</span>
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => insertVar(n)}
+                className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2 py-1 font-mono text-[11px] text-zoru-ink hover:bg-zoru-surface"
+              >{`{{${n}}}`}</button>
+            ))}
+          </div>
+        </ZoruCardContent>
+      </Card>
     ),
     [body],
   );
 
   const footerBlock = useMemo(
     () => (
-      <BlockCard title="Footer" meta={`${footer.length} / ${LIMITS.footer}`}>
-        <Input
-          placeholder="Footer text (optional)"
-          value={footer}
-          onChange={(e) => setFooter(e.target.value)}
-          maxLength={LIMITS.footer}
-        />
-        <LimitBar used={footer.length} limit={LIMITS.footer} />
-      </BlockCard>
+      <Card>
+        <ZoruCardContent className="space-y-3 pt-6">
+          <h2 className="text-[15px] font-semibold text-zoru-ink">Footer</h2>
+          <Input
+            placeholder="Footer text (optional)"
+            value={footer}
+            onChange={(e) => setFooter(e.target.value)}
+          />
+        </ZoruCardContent>
+      </Card>
     ),
     [footer],
   );
 
   const buttonsBlock = useMemo(
     () => (
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-            Buttons
-          </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-[10.5px] tabular-nums text-zinc-500">
-              {buttons.length} / {LIMITS.maxButtons}
-            </span>
-            <WaButton
+      <Card>
+        <ZoruCardContent className="space-y-3 pt-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[15px] font-semibold text-zoru-ink">
+              Buttons ({buttons.length}/3)
+            </h2>
+            <Button
               size="sm"
               variant="outline"
               onClick={addButton}
-              disabled={buttons.length >= LIMITS.maxButtons}
-              leftIcon={Plus}
+              disabled={buttons.length >= 3}
             >
-              Add
-            </WaButton>
+              <Plus /> Add
+            </Button>
           </div>
-        </div>
-        <div className="space-y-2.5">
           {buttons.map((btn, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2.5"
+              className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
             >
               <div className="min-w-[140px]">
                 <Select
@@ -484,7 +370,9 @@ export default function TemplateBuilderPage() {
                     <ZoruSelectValue />
                   </ZoruSelectTrigger>
                   <ZoruSelectContent>
-                    <ZoruSelectItem value="quick_reply">Quick reply</ZoruSelectItem>
+                    <ZoruSelectItem value="quick_reply">
+                      Quick reply
+                    </ZoruSelectItem>
                     <ZoruSelectItem value="url">URL</ZoruSelectItem>
                     <ZoruSelectItem value="phone">Phone</ZoruSelectItem>
                   </ZoruSelectContent>
@@ -492,36 +380,30 @@ export default function TemplateBuilderPage() {
               </div>
               <Input
                 className="min-w-[120px] flex-1"
-                placeholder={`Button label (${LIMITS.button} max)`}
+                placeholder="Button label"
                 value={btn.text}
-                maxLength={LIMITS.button}
                 onChange={(e) => updateButton(i, { text: e.target.value })}
               />
-              {btn.type !== 'quick_reply' && (
+              {btn.type !== "quick_reply" && (
                 <Input
                   className="min-w-[120px] flex-1"
-                  placeholder={btn.type === 'url' ? 'https://' : '+1234567890'}
+                  placeholder={btn.type === "url" ? "https://…" : "+1234567890"}
                   value={btn.value}
                   onChange={(e) => updateButton(i, { value: e.target.value })}
                 />
               )}
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="icon-sm"
                 aria-label="Remove button"
                 onClick={() => removeButton(i)}
-                className="grid h-8 w-8 place-items-center rounded-full text-zinc-500 transition-colors hover:bg-white hover:text-rose-600 active:scale-[0.97]"
               >
-                <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-              </button>
+                <Trash2 />
+              </Button>
             </div>
           ))}
-          {buttons.length === 0 && (
-            <p className="text-[11.5px] text-zinc-500">
-              No buttons yet. Click Add to insert a quick reply, URL, or phone button.
-            </p>
-          )}
-        </div>
-      </div>
+        </ZoruCardContent>
+      </Card>
     ),
     [buttons],
   );
@@ -534,136 +416,51 @@ export default function TemplateBuilderPage() {
     buttons: buttonsBlock,
   };
 
-  const mediaIcon =
-    headerType === 'image'
-      ? ImageIcon
-      : headerType === 'video'
-      ? Video
-      : headerType === 'document'
-      ? FileText
-      : null;
-
-  const renderPreviewBody = (
-    <AnimatePresence mode="popLayout" initial={false}>
-      {mediaIcon && (
-        <m.div
-          key={`media-${headerType}`}
-          layout
-          initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.25, ease: EASE_OUT }}
-          className="flex justify-start"
-        >
-          <div className="grid h-24 w-[80%] place-items-center rounded-2xl rounded-bl-sm bg-white/95 shadow-sm">
-            {React.createElement(mediaIcon, {
-              className: 'h-7 w-7 text-emerald-700/60',
-              strokeWidth: 1.75,
-              'aria-hidden': true,
-            })}
-          </div>
-        </m.div>
-      )}
-
-      {headerType === 'text' && headerText && (
-        <m.div key="header-text" layout transition={{ duration: 0.25, ease: EASE_OUT }}>
-          <ChatBubble
-            who="them"
-            text={
-              <span className="text-[12.5px] font-semibold text-zinc-900">{headerText}</span>
-            }
-          />
-        </m.div>
-      )}
-
-      <m.div key="body" layout transition={{ duration: 0.25, ease: EASE_OUT }}>
-        <ChatBubble
-          who="them"
-          text={
-            <div className="space-y-1">
-              <p className="whitespace-pre-wrap">{renderedBody || 'Message body'}</p>
-              {footer && <p className="pt-1 text-[10px] text-zinc-500">{footer}</p>}
-            </div>
-          }
-          time="12:00 PM"
-        />
-      </m.div>
-
-      {buttons.length > 0 && (
-        <m.div
-          key="buttons"
-          layout
-          initial={reduceMotion ? false : { opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 4 }}
-          transition={{ duration: 0.25, ease: EASE_OUT }}
-          className="space-y-1 pt-1"
-        >
-          {buttons.map((b, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-[11.5px] font-semibold text-emerald-700 shadow-sm"
-            >
-              {b.type === 'url' && <ExternalLink className="h-3 w-3" strokeWidth={2.25} />}
-              {b.type === 'phone' && <Phone className="h-3 w-3" strokeWidth={2.25} />}
-              {b.text || 'Button'}
-            </div>
-          ))}
-        </m.div>
-      )}
-    </AnimatePresence>
-  );
-
   return (
-    <WaPage>
-      <PageHeader
-        title="Template builder"
-        description="Build WhatsApp message templates visually. Drag-reorder blocks, preview in dual mode, and copy the JSON for submission."
-        kicker={activeProject?.name ? `Wachat · ${activeProject.name}` : 'Wachat · builder'}
-        backHref="/wachat/templates"
-        actions={
-          <>
-            <div className="hidden items-center gap-1 rounded-full border border-zinc-200 bg-white p-0.5 sm:inline-flex">
-              {(['light', 'both', 'dark'] as const).map((mode) => {
-                const isActive = previewMode === mode;
-                const Icon = mode === 'light' ? Sun : mode === 'dark' ? Moon : Eye;
-                return (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => setPreviewMode(mode)}
-                    aria-pressed={isActive}
-                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-semibold transition-colors capitalize"
-                    style={{
-                      color: isActive ? '#ffffff' : '#52525b',
-                      background: isActive ? 'var(--mt-accent)' : 'transparent',
-                    }}
-                  >
-                    <Icon className="h-3 w-3" strokeWidth={2.25} aria-hidden />
-                    {mode}
-                  </button>
-                );
-              })}
-            </div>
-            <WaButton
-              variant="outline"
-              size="sm"
-              leftIcon={History}
-              onClick={() => setVersionsOpen(true)}
-            >
-              Versions ({versions.length})
-            </WaButton>
-            <WaButton size="sm" leftIcon={Copy} onClick={() => setSaveOpen(true)}>
-              Save template
-            </WaButton>
-          </>
-        }
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat/templates">
+              Templates
+            </ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Builder</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
-        <div className="flex flex-col gap-3 pl-8">
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={blocks} strategy={verticalListSortingStrategy}>
+      <PageHeader bordered={false}>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Template builder</ZoruPageTitle>
+          <ZoruPageDescription>
+            Build WhatsApp message templates visually. Save copies the JSON
+            payload to your clipboard for submission.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </PageHeader>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
+        <div className="flex flex-col gap-4 pl-8">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={blocks}
+              strategy={verticalListSortingStrategy}
+            >
               {blocks.map((id) => (
                 <SortableBlock key={id} id={id}>
                   {blockMap[id]}
@@ -671,123 +468,91 @@ export default function TemplateBuilderPage() {
               ))}
             </SortableContext>
           </DndContext>
+
+          <div className="flex gap-4">
+            <Button onClick={() => setSaveOpen(true)}>
+              <Copy /> Save template (copy JSON)
+            </Button>
+            <Button variant="secondary" onClick={() => setVersionsOpen(true)}>
+              <History /> Versions ({versions.length})
+            </Button>
+          </div>
         </div>
 
-        <aside className="lg:sticky lg:top-5 lg:self-start">
-          <div className="space-y-3">
-            <div className={previewMode === 'both' ? 'grid grid-cols-2 gap-3' : ''}>
-              {(previewMode === 'light' || previewMode === 'both') && (
-                <div className="space-y-1.5">
-                  <p className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                    <Sun className="h-2.5 w-2.5" strokeWidth={2.25} /> Light
-                  </p>
-                  <PhoneFrame title={activeProject?.name ?? 'Wachat Business'} subtitle="online">
-                    {renderPreviewBody}
-                  </PhoneFrame>
+        <div className="lg:sticky lg:top-6 lg:self-start">
+          <Card variant="elevated">
+            <ZoruCardContent className="space-y-3 pt-6">
+              <h2 className="flex items-center gap-1.5 text-[15px] font-semibold text-zoru-ink">
+                <Eye className="h-4 w-4" /> Preview
+              </h2>
+              <div className="rounded-[var(--zoru-radius-lg)] bg-zoru-surface p-4">
+                <div className="max-w-[260px] rounded-[var(--zoru-radius)] bg-zoru-bg p-3 shadow-[var(--zoru-shadow-sm)]">
+                  {blocks.map((blockId) => {
+                    if (blockId === "header" && headerType !== "none") {
+                      return (
+                        <div key={blockId} className="mb-2">
+                          {headerType === "text" && headerText && (
+                            <p className="mb-1 text-[13px] font-semibold text-zoru-ink">
+                              {headerText}
+                            </p>
+                          )}
+                          {headerType !== "text" && (
+                            <div className="flex h-24 items-center justify-center rounded bg-zoru-surface-2 text-[11px] uppercase text-zoru-ink-subtle">
+                              {headerType}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    if (blockId === "body") {
+                      return (
+                        <p
+                          key={blockId}
+                          className="whitespace-pre-wrap text-[13px] text-zoru-ink mb-2"
+                        >
+                          {body || "Message body…"}
+                        </p>
+                      );
+                    }
+                    if (blockId === "footer" && footer) {
+                      return (
+                        <p
+                          key={blockId}
+                          className="mt-2 text-[11px] text-zoru-ink-muted"
+                        >
+                          {footer}
+                        </p>
+                      );
+                    }
+                    if (blockId === "buttons" && buttons.length > 0) {
+                      return (
+                        <div
+                          key={blockId}
+                          className="mt-2 flex flex-col gap-1 border-t border-zoru-line pt-2"
+                        >
+                          {buttons.map((b, i) => (
+                            <div
+                              key={i}
+                              className="py-1 text-center text-[12px] font-medium text-zoru-ink"
+                            >
+                              {b.text || "Button"}
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
                 </div>
+              </div>
+              {activeProject?.name && (
+                <Label className="block text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+                  Project: {activeProject.name}
+                </Label>
               )}
-              {(previewMode === 'dark' || previewMode === 'both') && (
-                <div className="space-y-1.5">
-                  <p className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                    <Moon className="h-2.5 w-2.5" strokeWidth={2.25} /> Dark
-                  </p>
-                  <div className="[&_.text-emerald-700]:text-emerald-300 [&_.text-zinc-800]:text-zinc-100 [&_.text-zinc-900]:text-zinc-50 [&_.text-zinc-500]:text-zinc-400 [&_.text-zinc-600]:text-zinc-300">
-                    <PhoneFrame title={activeProject?.name ?? 'Wachat Business'} subtitle="online">
-                      {renderPreviewBody}
-                    </PhoneFrame>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Structure stats */}
-            <div className="grid grid-cols-4 divide-x divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white text-center">
-              <StructStat icon={TypeIcon} label="Hdr" value={headerType === 'none' ? '—' : headerType.toUpperCase().slice(0, 3)} />
-              <StructStat icon={Hash} label="Body" value={`${body.length}`} />
-              <StructStat icon={Variable} label="Vars" value={`${varList.length}`} />
-              <StructStat icon={MessageSquare} label="Btns" value={`${buttons.length}`} />
-            </div>
-
-            {/* Variable inspector */}
-            {varList.length > 0 && (
-              <div className="space-y-2 rounded-xl border border-zinc-200 bg-white p-3">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                    <Variable className="h-3 w-3" strokeWidth={2.25} aria-hidden /> Sample values
-                  </span>
-                  <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-[10px] tabular-nums text-zinc-600">
-                    {varList.length}
-                  </span>
-                </div>
-                <ul className="space-y-1.5">
-                  {varList.map((v) => (
-                    <li key={v} className="flex items-center gap-2">
-                      <span className="grid h-7 w-9 shrink-0 place-items-center rounded-md border border-zinc-200 bg-white font-mono text-[10.5px] font-semibold text-zinc-700">
-                        {`{{${v}}}`}
-                      </span>
-                      <Input
-                        value={variableValues[v] ?? ''}
-                        onChange={(e) => setVariableValues({ ...variableValues, [v]: e.target.value })}
-                        placeholder={`Sample for {{${v}}}`}
-                        className="h-7 text-[12px]"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Validation */}
-            <div className="space-y-1.5 rounded-xl border border-zinc-200 bg-white p-3">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                  <CircleCheck className="h-3 w-3" strokeWidth={2.25} aria-hidden /> Policy checks
-                </span>
-                <span className="text-[10px] tabular-nums text-zinc-500">
-                  {checks.filter((c) => c.ok).length} / {checks.length}
-                </span>
-              </div>
-              <ul className="divide-y divide-zinc-100">
-                {checks.map((c, i) => {
-                  const Icon = c.ok ? CircleCheck : c.severity === 'error' ? CircleX : TriangleAlert;
-                  const color = c.ok
-                    ? 'text-emerald-600'
-                    : c.severity === 'error'
-                    ? 'text-rose-600'
-                    : 'text-amber-600';
-                  return (
-                    <li key={i} className="flex items-start gap-2 py-1.5 text-[11.5px]">
-                      <Icon className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${color}`} strokeWidth={2.25} aria-hidden />
-                      <span className={c.ok ? 'text-zinc-600' : 'text-zinc-900'}>{c.label}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              <div className="flex items-center gap-2 border-t border-zinc-100 pt-2 text-[11px]">
-                {errors > 0 ? (
-                  <span className="inline-flex items-center gap-1 font-semibold text-rose-600">
-                    <CircleX className="h-3 w-3" strokeWidth={2.25} aria-hidden /> {errors} blocking
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-600">
-                    <CircleCheck className="h-3 w-3" strokeWidth={2.25} aria-hidden /> Ready
-                  </span>
-                )}
-                {warnings > 0 && (
-                  <span className="inline-flex items-center gap-1 font-semibold text-amber-600">
-                    <TriangleAlert className="h-3 w-3" strokeWidth={2.25} aria-hidden /> {warnings} warn
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {activeProject?.name && (
-              <p className="text-center text-[10.5px] font-semibold uppercase tracking-[0.08em] text-zinc-500">
-                Project: {activeProject.name}
-              </p>
-            )}
-          </div>
-        </aside>
+            </ZoruCardContent>
+          </Card>
+        </div>
       </div>
 
       <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
@@ -795,9 +560,10 @@ export default function TemplateBuilderPage() {
           <ZoruDialogHeader>
             <ZoruDialogTitle>Save template</ZoruDialogTitle>
             <ZoruDialogDescription>
-              The template JSON payload will be copied to your clipboard, and a new version will be
-              saved to your history. Paste it into your Meta Business Manager (or the Templates page)
-              to submit it for approval.
+              The template JSON payload will be copied to your clipboard, and a
+              new version will be saved to your history. Paste it into your Meta
+              Business Manager (or the Templates page) to submit it for
+              approval.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <ZoruDialogFooter>
@@ -805,7 +571,7 @@ export default function TemplateBuilderPage() {
               Cancel
             </Button>
             <Button onClick={handleSave}>
-              <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy JSON and save
+              <Copy /> Copy JSON & Save
             </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
@@ -814,27 +580,35 @@ export default function TemplateBuilderPage() {
       <Dialog open={versionsOpen} onOpenChange={setVersionsOpen}>
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>Version history</ZoruDialogTitle>
+            <ZoruDialogTitle>Version History</ZoruDialogTitle>
             <ZoruDialogDescription>
               Restore a previously saved version of this template.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
-          <div className="mt-4 flex max-h-[300px] flex-col gap-2 overflow-y-auto">
+          <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto mt-4">
             {versions.length === 0 ? (
-              <p className="text-[13px] text-zinc-500">
+              <p className="text-sm text-zoru-ink-muted">
                 No versions saved yet. Save your template to create a version.
               </p>
             ) : (
               versions.map((v) => (
                 <div
                   key={v.id}
-                  className="flex items-center justify-between rounded-lg border border-zinc-200 bg-zinc-50 p-3"
+                  className="flex items-center justify-between p-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface"
                 >
                   <div>
-                    <p className="text-[13px] font-medium text-zinc-900">{v.name}</p>
-                    <p className="text-[11.5px] text-zinc-500">{fmtDate(v.timestamp)}</p>
+                    <p className="text-[14px] font-medium text-zoru-ink">
+                      {v.name}
+                    </p>
+                    <p className="text-[12px] text-zoru-ink-muted">
+                      {fmtDate(v.timestamp)}
+                    </p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => loadVersion(v)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => loadVersion(v)}
+                  >
                     Restore
                   </Button>
                 </div>
@@ -848,25 +622,8 @@ export default function TemplateBuilderPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>
-    </WaPage>
-  );
-}
 
-function StructStat({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number; 'aria-hidden'?: boolean }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="px-2 py-2.5">
-      <Icon className="mx-auto h-3 w-3 text-zinc-500" strokeWidth={2.25} aria-hidden />
-      <p className="mt-0.5 text-[12px] font-semibold tabular-nums text-zinc-900">{value}</p>
-      <p className="text-[9.5px] uppercase tracking-[0.06em] text-zinc-500">{label}</p>
+      <div className="h-6" />
     </div>
   );
 }
-

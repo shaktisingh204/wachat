@@ -1,22 +1,15 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
-import {
-  Filter,
-  Plus,
-  Trash2,
-  Play,
-  Loader2,
-  Hash,
-  Clock,
-  Star,
-  StarOff,
-} from 'lucide-react';
-import { m, AnimatePresence } from 'motion/react';
-
 import {
   useZoruToast,
+  Breadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  Button,
+  Card,
   Input,
   Label,
   Select,
@@ -30,31 +23,29 @@ import {
   ZoruSheetFooter,
   ZoruSheetHeader,
   ZoruSheetTitle,
+  Badge,
+  EmptyState,
 } from '@/components/zoruui';
 import {
-  WaPage,
-  PageHeader,
-  WaButton,
-  Section,
-  MetricTile,
-  EmptyState,
-} from '@/components/wachat-ui';
-import { EASE_OUT } from '@/components/dashboard-ui/module-theme';
-import { fmtDate } from '@/lib/utils';
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Filter,
+  Plus,
+  Trash2,
+  Play,
+  Loader2 } from 'lucide-react';
+
 import { useProject } from '@/context/project-context';
-import {
-  getConversationFilters,
-  saveConversationFilter,
-  deleteConversationFilter,
-} from '@/app/actions/wachat-features.actions';
+import { getConversationFilters, saveConversationFilter, deleteConversationFilter } from '@/app/actions/wachat-features.actions';
 
 /**
- * /wachat/conversation-filters - Saved filter presets. Each filter
- * card shows usage count, last-applied timestamp, and a "default"
- * toggle stored client-side. The create form lives inside a Sheet.
+ * /wachat/conversation-filters — Saved filter presets, rebuilt on
+ * ZoruUI primitives. The create-filter form lives inside a Sheet.
  */
 
-const DEFAULT_KEY = 'wachat:default-filter';
+import * as React from 'react';
 
 export default function ConversationFiltersPage() {
   const { activeProject } = useProject();
@@ -70,19 +61,8 @@ export default function ConversationFiltersPage() {
     dateFrom: '',
     dateTo: '',
   });
-  const [defaultId, setDefaultId] = useState<string | null>(null);
-  const [appliedAt, setAppliedAt] = useState<Record<string, string>>({});
   const [isLoading, startTransition] = useTransition();
   const [isMutating, startMutateTransition] = useTransition();
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      setDefaultId(window.localStorage.getItem(DEFAULT_KEY));
-    } catch {
-      /* localStorage unavailable */
-    }
-  }, []);
 
   const fetchData = useCallback(() => {
     if (!projectId) return;
@@ -109,13 +89,24 @@ export default function ConversationFiltersPage() {
     if (form.dateFrom) conditions.dateFrom = form.dateFrom;
     if (form.dateTo) conditions.dateTo = form.dateTo;
     startMutateTransition(async () => {
-      const res = await saveConversationFilter(projectId, form.name.trim(), conditions);
+      const res = await saveConversationFilter(
+        projectId,
+        form.name.trim(),
+        conditions,
+      );
       if (res.error) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
         return;
       }
-      toast({ title: 'Filter created', description: res.message });
-      setForm({ name: '', status: '', tag: '', agent: '', dateFrom: '', dateTo: '' });
+      toast({ title: 'Filter Created', description: res.message });
+      setForm({
+        name: '',
+        status: '',
+        tag: '',
+        agent: '',
+        dateFrom: '',
+        dateTo: '',
+      });
       setShowSheet(false);
       fetchData();
     });
@@ -129,202 +120,104 @@ export default function ConversationFiltersPage() {
         return;
       }
       toast({ title: 'Deleted', description: 'Filter removed.' });
-      if (defaultId === filterId) {
-        setDefaultId(null);
-        try { window.localStorage.removeItem(DEFAULT_KEY); } catch { /* ignore */ }
-      }
       fetchData();
     });
   };
 
-  const toggleDefault = (filterId: string, filterName: string) => {
-    if (defaultId === filterId) {
-      setDefaultId(null);
-      try { window.localStorage.removeItem(DEFAULT_KEY); } catch { /* ignore */ }
-      toast({ title: 'Default cleared' });
-    } else {
-      setDefaultId(filterId);
-      try { window.localStorage.setItem(DEFAULT_KEY, filterId); } catch { /* ignore */ }
-      toast({ title: 'Default set', description: `"${filterName}" will load by default.` });
-    }
-  };
-
-  const applyFilter = (f: any) => {
-    setAppliedAt((prev) => ({ ...prev, [f._id]: new Date().toISOString() }));
-    toast({ title: 'Applied', description: `Filter "${f.name}" applied.` });
-  };
-
-  const totalUsage = useMemo(
-    () => filters.reduce((s, f) => s + (Number(f.usageCount) || 0), 0),
-    [filters],
-  );
-  const recentlyApplied = useMemo(() => {
-    const candidates: { id: string; ts: string }[] = [];
-    for (const f of filters) {
-      const last = appliedAt[f._id] || f.lastAppliedAt || f.lastUsedAt;
-      if (last) candidates.push({ id: f._id, ts: last });
-    }
-    candidates.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
-    return candidates[0] || null;
-  }, [filters, appliedAt]);
+  if (isLoading && filters.length === 0) {
+    return (
+      <div className="flex min-h-[300px] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+      </div>
+    );
+  }
 
   return (
-    <WaPage>
-      <PageHeader
-        title="Conversation filters"
-        description="Save filter presets so the inbox is one click away from the conversations you care about."
-        kicker="Wachat · filters"
-        backHref="/wachat"
-        eyebrowIcon={Filter}
-        actions={
-          <WaButton leftIcon={Plus} onClick={() => setShowSheet(true)}>
-            New filter
-          </WaButton>
-        }
-      />
+    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <Breadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Conversation Filters</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </Breadcrumb>
 
-      {/* KPI strip */}
-      <section aria-labelledby="filter-kpis" className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <h2 id="filter-kpis" className="sr-only">Filter stats</h2>
-        <MetricTile label="Saved filters" value={filters.length.toLocaleString('en-IN')} icon={Filter} delay={0} />
-        <MetricTile label="Total applications" value={totalUsage.toLocaleString('en-IN')} icon={Hash} delay={0.04} />
-        <MetricTile
-          label="Default filter"
-          value={defaultId ? (filters.find((f) => f._id === defaultId)?.name || '--') : 'None set'}
-          icon={Star}
-          delay={0.08}
-        />
-        <MetricTile
-          label="Last applied"
-          value={recentlyApplied ? fmtDate(recentlyApplied.ts) : '--'}
-          icon={Clock}
-          delay={0.12}
-        />
-      </section>
-
-      {isLoading && filters.length === 0 ? (
-        <div className="flex min-h-[260px] items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+            Conversation Filters
+          </h1>
+          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+            Create saved filter presets to quickly find conversations.
+          </p>
         </div>
-      ) : filters.length > 0 ? (
-        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <AnimatePresence initial={false}>
-            {filters.map((f, i) => {
-              const c = f.conditions || {};
-              const chips = [
-                c.status && { label: c.status },
-                c.tag && { label: c.tag },
-                c.agent && { label: c.agent },
-                (c.dateFrom || c.dateTo) && {
-                  label: `${c.dateFrom || '…'} → ${c.dateTo || '…'}`,
-                },
-              ].filter(Boolean) as { label: string }[];
-              const usage = Number(f.usageCount) || 0;
-              const lastApplied = appliedAt[f._id] || f.lastAppliedAt || f.lastUsedAt;
-              const isDefault = defaultId === f._id;
-              return (
-                <m.li
-                  key={f._id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.35, delay: i * 0.04, ease: EASE_OUT }}
-                  className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-4 transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-[1px]"
-                  style={{ boxShadow: '0 0 0 1px transparent' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 18px 40px -22px var(--mt-accent-glow)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 1px transparent'; }}
-                >
-                  {isDefault && (
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-x-0 top-0 h-[2px]"
-                      style={{ backgroundColor: 'var(--mt-accent)' }}
-                    />
+        <Button size="sm" onClick={() => setShowSheet(true)}>
+          <Plus /> New Filter
+        </Button>
+      </div>
+
+      {filters.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filters.map((f) => {
+            const c = f.conditions || {};
+            return (
+              <Card key={f._id} className="p-5">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="text-[15px] text-zoru-ink">{f.name}</h3>
+                  <button
+                    onClick={() => handleDelete(f._id)}
+                    disabled={isMutating}
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-danger transition-colors hover:bg-zoru-danger/10"
+                    aria-label="Delete"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {c.status && <Badge variant="secondary">{c.status}</Badge>}
+                  {c.tag && <Badge variant="info">{c.tag}</Badge>}
+                  {c.agent && <Badge variant="secondary">{c.agent}</Badge>}
+                  {(c.dateFrom || c.dateTo) && (
+                    <Badge variant="secondary">
+                      {c.dateFrom || '...'} - {c.dateTo || '...'}
+                    </Badge>
                   )}
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="truncate text-[14px] font-semibold tracking-tight text-zinc-950">{f.name}</h3>
-                    <div className="flex items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => toggleDefault(f._id, f.name)}
-                        className={`grid h-7 w-7 shrink-0 place-items-center rounded-full transition-colors duration-150 active:scale-[0.94] ${
-                          isDefault ? 'text-amber-500 hover:bg-amber-50' : 'text-zinc-400 hover:bg-zinc-50 hover:text-zinc-900'
-                        }`}
-                        aria-label={isDefault ? 'Clear default' : 'Save as default'}
-                        title={isDefault ? 'Default filter' : 'Save as default'}
-                      >
-                        {isDefault ? (
-                          <Star className="h-3.5 w-3.5 fill-current" strokeWidth={2} />
-                        ) : (
-                          <StarOff className="h-3.5 w-3.5" strokeWidth={2.25} />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(f._id)}
-                        disabled={isMutating}
-                        className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-zinc-400 transition-colors duration-150 hover:bg-rose-50 hover:text-rose-600 active:scale-[0.94]"
-                        aria-label={`Delete ${f.name}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" strokeWidth={2.25} />
-                      </button>
-                    </div>
-                  </div>
-                  {chips.length > 0 ? (
-                    <div className="mt-2.5 flex flex-wrap gap-1.5">
-                      {chips.map((chip, idx) => (
-                        <span
-                          key={idx}
-                          className="rounded-full bg-zinc-100 px-2 py-0.5 text-[10.5px] font-medium text-zinc-700"
-                        >
-                          {chip.label}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="mt-2.5 text-[11px] italic text-zinc-400">No conditions set</p>
-                  )}
-                  <dl className="mt-3 grid grid-cols-2 gap-y-1 text-[11px]">
-                    <dt className="inline-flex items-center gap-1 text-zinc-500">
-                      <Hash className="h-3 w-3" strokeWidth={2} aria-hidden /> Uses
-                    </dt>
-                    <dd className="text-right font-semibold tabular-nums text-zinc-900">
-                      {usage.toLocaleString('en-IN')}
-                    </dd>
-                    <dt className="inline-flex items-center gap-1 text-zinc-500">
-                      <Clock className="h-3 w-3" strokeWidth={2} aria-hidden /> Last applied
-                    </dt>
-                    <dd className="text-right tabular-nums text-zinc-700">
-                      {lastApplied ? fmtDate(lastApplied) : '--'}
-                    </dd>
-                  </dl>
-                  <div className="mt-3 flex items-center justify-between border-t border-zinc-100 pt-2.5">
-                    <WaButton size="sm" variant="ghost" leftIcon={Play} onClick={() => applyFilter(f)}>
-                      Apply
-                    </WaButton>
-                    {isDefault && (
-                      <span
-                        className="rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.04em]"
-                        style={{ background: 'var(--mt-accent-soft)', color: 'var(--mt-accent)' }}
-                      >
-                        Default
-                      </span>
-                    )}
-                  </div>
-                </m.li>
-              );
-            })}
-          </AnimatePresence>
-        </ul>
+                </div>
+                <div className="mt-3">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      toast({
+                        title: 'Applied',
+                        description: `Filter "${f.name}" applied.`,
+                      })
+                    }
+                  >
+                    <Play /> Apply
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
       ) : (
         <EmptyState
-          icon={Filter}
+          icon={<Filter />}
           title="No saved filters yet"
-          description="Save common search criteria so you can find a slice of conversations in a single click."
+          description="Save common search criteria to quickly find conversations."
           action={
-            <WaButton leftIcon={Plus} onClick={() => setShowSheet(true)}>
-              Create your first filter
-            </WaButton>
+            <Button size="sm" onClick={() => setShowSheet(true)}>
+              <Plus /> Create your first filter
+            </Button>
           }
         />
       )}
@@ -339,9 +232,9 @@ export default function ConversationFiltersPage() {
             </ZoruSheetDescription>
           </ZoruSheetHeader>
 
-          <div className="mt-5 grid gap-4">
+          <div className="mt-5 grid gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="filter-name">Filter name</Label>
+              <Label htmlFor="filter-name">Filter name *</Label>
               <Input
                 id="filter-name"
                 placeholder="My filter"
@@ -351,7 +244,10 @@ export default function ConversationFiltersPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Status</Label>
-              <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+              <Select
+                value={form.status}
+                onValueChange={(v) => setForm({ ...form, status: v })}
+              >
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Any status" />
                 </ZoruSelectTrigger>
@@ -374,7 +270,10 @@ export default function ConversationFiltersPage() {
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Agent</Label>
-              <Select value={form.agent} onValueChange={(v) => setForm({ ...form, agent: v })}>
+              <Select
+                value={form.agent}
+                onValueChange={(v) => setForm({ ...form, agent: v })}
+              >
                 <ZoruSelectTrigger>
                   <ZoruSelectValue placeholder="Any agent" />
                 </ZoruSelectTrigger>
@@ -407,19 +306,25 @@ export default function ConversationFiltersPage() {
           </div>
 
           <ZoruSheetFooter className="mt-6">
-            <WaButton variant="outline" onClick={() => setShowSheet(false)} disabled={isMutating}>
+            <Button
+              variant="outline"
+              onClick={() => setShowSheet(false)}
+              disabled={isMutating}
+            >
               Cancel
-            </WaButton>
-            <WaButton
+            </Button>
+            <Button
               onClick={handleCreate}
-              leftIcon={isMutating ? Loader2 : Plus}
               disabled={!form.name.trim() || isMutating}
             >
-              Save filter
-            </WaButton>
+              {isMutating ? <Loader2 className="animate-spin" /> : null}
+              Save Filter
+            </Button>
           </ZoruSheetFooter>
         </ZoruSheetContent>
       </Sheet>
-    </WaPage>
+
+      <div className="h-6" />
+    </div>
   );
 }
