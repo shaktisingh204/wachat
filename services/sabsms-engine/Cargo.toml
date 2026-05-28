@@ -21,7 +21,7 @@ reqwest = { version = "0.12", default-features = false, features = ["json", "rus
 
 # Storage
 mongodb = { version = "3.2", default-features = false, features = ["rustls-tls", "bson-2", "compat-3-3-0"] }
-redis = { version = "0.27", default-features = false, features = ["tokio-comp", "tokio-rustls-comp"] }
+redis = { version = "0.27", default-features = false, features = ["tokio-comp", "tokio-rustls-comp", "connection-manager"] }
 
 # Serde + time
 serde = { version = "1", features = ["derive"] }
