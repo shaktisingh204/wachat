@@ -54,34 +54,15 @@ import { deliverWebhook, signPayload } from "@/lib/api-platform/webhooks";
 /* Event vocabulary                                                            */
 /* -------------------------------------------------------------------------- */
 
-/**
- * The closed set of SabCRM events an outbound webhook may subscribe to.
- *
- * Stored verbatim on the subscription so the set is forward-compatible: adding
- * a new member here is the only change required to support a new event.
- */
-export type SabcrmWebhookEvent =
-  | "record.created"
-  | "record.updated"
-  | "record.deleted"
-  | "activity.created";
-
-/** Every supported event, in display order. Used for validation + UI. */
-export const SABCRM_WEBHOOK_EVENTS: readonly SabcrmWebhookEvent[] = [
-  "record.created",
-  "record.updated",
-  "record.deleted",
-  "activity.created",
-] as const;
-
-const WEBHOOK_EVENT_SET: ReadonlySet<string> = new Set<string>(
+// The event vocabulary lives in a framework-neutral module so Client
+// Components can import it without pulling this server-only file (Mongo +
+// node:crypto) into the client bundle. Re-exported here for existing server
+// callers.
+export {
   SABCRM_WEBHOOK_EVENTS,
-);
-
-/** Narrows an arbitrary string to a known {@link SabcrmWebhookEvent}. */
-export function isSabcrmWebhookEvent(v: unknown): v is SabcrmWebhookEvent {
-  return typeof v === "string" && WEBHOOK_EVENT_SET.has(v);
-}
+  isSabcrmWebhookEvent,
+  type SabcrmWebhookEvent,
+} from "./webhook-events";
 
 /* -------------------------------------------------------------------------- */
 /* Collection name + persisted document shape                                  */

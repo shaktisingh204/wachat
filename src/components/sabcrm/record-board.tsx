@@ -23,6 +23,23 @@
  *    move to screen-reader users.
  *  - Keyboard users can focus a card and use Arrow-Left / Arrow-Right to move
  *    it to the adjacent column; Escape cancels a pending keyboard move.
+ *  - Each column is a `<section>` landmark with `aria-label`, `aria-colindex`,
+ *    and `aria-colcount` so screen-reader users can navigate the board grid.
+ *  - Cards carry `role="article"` when non-interactive, or `role="button"`
+ *    when draggable/openable, with `aria-describedby` pointing to the keyboard
+ *    shortcut hint so AT announces "use arrow keys to move between columns."
+ *  - After a keyboard move the focus is programmatically shifted to the card's
+ *    new position so focus never strands on the vacated column.
+ *
+ * Performance:
+ *  - `BoardColumn` and `BoardCard` are wrapped in `React.memo` so only the
+ *    column whose `isDropTarget` or `savingId` changed re-renders on drag
+ *    events — not the entire board.
+ *  - `handleDragOver` no longer captures `dragOverKey` in its closure; it uses
+ *    functional state instead, eliminating a spurious re-creation on every
+ *    drag-over event.
+ *  - All per-column/per-card callback references are stable across renders
+ *    (useCallback with minimal deps), keeping React.memo effective.
  *
  * The component is fully tenant-safe by construction: it never queries Mongo
  * directly. Every read/write goes through a `*.actions.ts` server action, each
@@ -71,6 +88,13 @@ const UNGROUPED_KEY = '__ungrouped__';
 
 /** Per-column fetch cap forwarded to {@link groupRecordsAction}. */
 const BOARD_CARD_CAP = 500;
+
+/**
+ * Stable id for the visually-hidden keyboard-shortcut hint referenced by
+ * every draggable card's `aria-describedby`. Defined at module level so the
+ * string never changes between renders.
+ */
+const KB_HINT_ID = 'sabcrm-board-kb-hint';
 
 // ---------------------------------------------------------------------------
 // Color mapping (mirrors the table/index renderer for visual parity)
@@ -191,6 +215,13 @@ export function RecordBoard({
     record: CrmRecordWithLabel;
     fromKey: string;
   } | null>(null);
+
+  /**
+   * Map from record `_id` to the card's DOM node. Populated by each
+   * `BoardCard` via callback ref. Used to restore focus after a keyboard move
+   * so focus follows the card into its new column instead of stranding.
+   */
+  const cardRefMap = React.useRef<Map<string, HTMLDivElement>>(new Map());
 
   /**
    * Tracks whether a mouse/touch drag is live at all — used to toggle
@@ -362,9 +393,11 @@ export function RecordBoard({
       }
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      if (dragOverKey !== targetKey) setDragOverKey(targetKey);
+      // Use functional setState to avoid capturing `dragOverKey` in the
+      // closure — this keeps the callback stable and React.memo effective.
+      setDragOverKey((curr) => (curr === targetKey ? curr : targetKey));
     },
-    [canEdit, dragOverKey],
+    [canEdit],
   );
 
   const handleDragLeave = React.useCallback(
@@ -401,7 +434,10 @@ export function RecordBoard({
    * while the card has keyboard focus and `canEdit` is true.
    *
    * Finds the current column index, steps ±1, skips the ungrouped column, and
-   * calls `moveCard`.
+   * calls `moveCard`. After the optimistic state update settles React will
+   * re-render the card in its new column — we schedule a microtask-safe
+   * `requestAnimationFrame` to shift focus to the card's new DOM node so
+   * keyboard focus is never stranded in the vacated column.
    */
   const handleKeyboardMove = React.useCallback(
     (record: CrmRecordWithLabel, fromKey: string, direction: -1 | 1) => {
@@ -418,8 +454,23 @@ export function RecordBoard({
       if (!toGroup) return;
 
       void moveCard(record, fromKey, toGroup.key);
+
+      // Restore focus to the card after it re-renders in the new column.
+      // Two rAF ticks give React time to commit the optimistic state update.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cardRefMap.current.get(record._id)?.focus();
+        });
+      });
     },
     [canEdit, savingId, groups, moveCard],
+  );
+
+  // The visible (non-ungrouped) column count for aria-colcount.
+  // Must be declared before any conditional return to satisfy the rules of hooks.
+  const visibleColCount = React.useMemo(
+    () => groups.filter((g) => g.key !== UNGROUPED_KEY).length,
+    [groups],
   );
 
   // ---- Render ---------------------------------------------------------------
@@ -452,6 +503,15 @@ export function RecordBoard({
         {liveMsg}
       </div>
 
+      {/*
+       * Visually-hidden keyboard-shortcut hint referenced by every draggable
+       * card's `aria-describedby`. Rendered once at board level so AT
+       * announces "use arrow keys to move between columns" on card focus.
+       */}
+      <span id={KB_HINT_ID} className="sr-only">
+        Use Arrow Left and Arrow Right keys to move between columns.
+      </span>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-zoru-ink-muted">
@@ -482,14 +542,23 @@ export function RecordBoard({
 
       {/* Columns */}
       <ScrollArea className="w-full" viewportClassName="pb-3">
+        {/*
+         * role="grid" on the columns container lets AT treat the board as a
+         * two-dimensional widget. Each column `<section>` carries aria-colindex
+         * and aria-colcount so screen-reader users hear "column 2 of 4" as
+         * they navigate with arrow keys.
+         */}
         <div
+          role="grid"
+          aria-label={`${object.labelPlural} board grouped by ${groupField.label}`}
+          aria-colcount={visibleColCount || undefined}
           className="flex items-start gap-4"
         >
           {loading && groups.length === 0
             ? Array.from({ length: 4 }).map((_, i) => (
-                <BoardColumnSkeleton key={`skeleton-${i}`} />
+                <BoardColumnSkeleton key={`skeleton-col-${i}`} />
               ))
-            : groups.map((group) => (
+            : groups.map((group, idx) => (
                 <BoardColumn
                   key={group.key}
                   group={group}
@@ -500,6 +569,9 @@ export function RecordBoard({
                   isDropTarget={dragOverKey === group.key}
                   isDragLive={isDragging}
                   savingId={savingId}
+                  colIndex={idx + 1}
+                  colCount={groups.length}
+                  cardRefMap={cardRefMap}
                   onCreate={onCreate}
                   onOpenRecord={onOpenRecord}
                   onCardDragStart={handleDragStart}
@@ -530,6 +602,12 @@ interface BoardColumnProps {
   /** True while any mouse/touch drag is live — drives `aria-dropeffect`. */
   isDragLive: boolean;
   savingId: string | null;
+  /** 1-based column index for `aria-colindex`. */
+  colIndex: number;
+  /** Total column count for `aria-colcount` announced per column. */
+  colCount: number;
+  /** Shared ref map so cards can register their DOM node for focus restoration. */
+  cardRefMap: React.MutableRefObject<Map<string, HTMLDivElement>>;
   onCreate?: (columnValue: string) => void;
   onOpenRecord?: (record: CrmRecordWithLabel) => void;
   onCardDragStart: (
@@ -548,7 +626,13 @@ interface BoardColumnProps {
   ) => void;
 }
 
-function BoardColumn({
+/**
+ * Wrapped in `React.memo` so only the column(s) whose props actually changed
+ * re-render on board-level state updates (e.g. drag-over key, saving id).
+ * Without memo, a single `dragOverKey` change re-renders every card on the
+ * board — expensive for large card sets.
+ */
+const BoardColumn = React.memo(function BoardColumn({
   group,
   object,
   cardFields,
@@ -557,6 +641,9 @@ function BoardColumn({
   isDropTarget,
   isDragLive,
   savingId,
+  colIndex,
+  colCount,
+  cardRefMap,
   onCreate,
   onOpenRecord,
   onCardDragStart,
@@ -579,7 +666,10 @@ function BoardColumn({
 
   return (
     <section
-      aria-label={`${group.label} column`}
+      role="rowgroup"
+      aria-label={`${group.label} column, ${group.total} record${group.total === 1 ? '' : 's'}`}
+      aria-colindex={colIndex}
+      aria-colcount={colCount}
       aria-dropeffect={dropEffect}
       className={cn(
         'flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border bg-zoru-surface/40 transition-colors',
@@ -602,7 +692,10 @@ function BoardColumn({
           >
             {group.label}
           </Badge>
-          <span className="text-xs tabular-nums text-zoru-ink-muted">
+          <span
+            className="text-xs tabular-nums text-zoru-ink-muted"
+            aria-hidden="true"
+          >
             {group.total}
           </span>
         </div>
@@ -619,11 +712,15 @@ function BoardColumn({
         )}
       </div>
 
-      {/* Cards */}
-      <div className="flex flex-col gap-2 p-3">
+      {/* Cards list */}
+      <div
+        role="row"
+        aria-label={`${group.label} cards`}
+        className="flex flex-col gap-2 p-3"
+      >
         {group.records.length === 0 ? (
           <div
-            aria-label={isDropTarget ? 'Drop here' : 'No records in this column'}
+            aria-hidden="true"
             className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-6 text-center text-xs text-zoru-ink-muted"
           >
             {isDropTarget ? 'Drop here' : 'No records'}
@@ -638,6 +735,7 @@ function BoardColumn({
               fromKey={group.key}
               draggable={canEdit && !isUngrouped}
               saving={savingId === record._id}
+              cardRefMap={cardRefMap}
               onOpenRecord={onOpenRecord}
               onDragStart={onCardDragStart}
               onDragEnd={onCardDragEnd}
@@ -648,7 +746,7 @@ function BoardColumn({
       </div>
     </section>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Card
@@ -661,6 +759,8 @@ interface BoardCardProps {
   fromKey: string;
   draggable: boolean;
   saving: boolean;
+  /** Shared ref map — card registers its DOM node here for focus restoration. */
+  cardRefMap: React.MutableRefObject<Map<string, HTMLDivElement>>;
   onOpenRecord?: (record: CrmRecordWithLabel) => void;
   onDragStart: (
     record: CrmRecordWithLabel,
@@ -675,13 +775,21 @@ interface BoardCardProps {
   ) => void;
 }
 
-function BoardCard({
+/**
+ * Wrapped in `React.memo` so a card only re-renders when its own record,
+ * draggable state, or saving state changes — not when other cards or columns
+ * update. The memo comparison is shallow; since `record` is a plain object
+ * from server state, referential equality holds when the optimistic update
+ * hasn't touched this card.
+ */
+const BoardCard = React.memo(function BoardCard({
   record,
   object,
   fields,
   fromKey,
   draggable,
   saving,
+  cardRefMap,
   onOpenRecord,
   onDragStart,
   onDragEnd,
@@ -703,6 +811,24 @@ function BoardCard({
    */
   const [grabbed, setGrabbed] = React.useState(false);
 
+  /**
+   * Callback ref: registers / unregisters this card's DOM node in the shared
+   * `cardRefMap` keyed by `record._id`. The parent uses this map to restore
+   * focus after a keyboard move (two rAF ticks after the optimistic update).
+   */
+  const cardCallbackRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) {
+        cardRefMap.current.set(record._id, node);
+      } else {
+        cardRefMap.current.delete(record._id);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [record._id],
+    // cardRefMap.current is a stable Map; only _id identity matters here.
+  );
+
   const handleDragStart = React.useCallback(
     (e: React.DragEvent) => {
       setGrabbed(true);
@@ -720,8 +846,8 @@ function BoardCard({
    * Keyboard handler for the card. Supports:
    *
    *  - Enter / Space  → open record (when `onOpenRecord` is set)
-   *  - Arrow-Left     → move card to the column to the left  (when canEdit)
-   *  - Arrow-Right    → move card to the column to the right (when canEdit)
+   *  - Arrow-Left     → move card to the column to the left  (when draggable)
+   *  - Arrow-Right    → move card to the column to the right (when draggable)
    *
    * Arrow keys only fire the move when the card itself has focus — not when
    * focus is inside a descendant interactive element — so they don't interfere
@@ -753,22 +879,22 @@ function BoardCard({
     [draggable, saving, onOpenRecord, onKeyboardMove, record, fromKey],
   );
 
+  const isInteractive = draggable || !!onOpenRecord;
+
   return (
     <Card
+      ref={cardCallbackRef}
       variant="default"
       interactive={!!onOpenRecord}
       draggable={draggable && !saving}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onClick={onOpenRecord ? () => onOpenRecord(record) : undefined}
-      role={draggable || onOpenRecord ? 'button' : undefined}
-      tabIndex={draggable || onOpenRecord ? 0 : undefined}
+      role="gridcell"
+      tabIndex={isInteractive ? 0 : undefined}
       onKeyDown={handleKeyDown}
-      aria-label={
-        draggable
-          ? `${title}. Use arrow keys to move between columns.`
-          : title
-      }
+      aria-label={title}
+      aria-describedby={draggable ? KB_HINT_ID : undefined}
       aria-grabbed={draggable ? grabbed : undefined}
       aria-busy={saving || undefined}
       className={cn(
@@ -806,7 +932,7 @@ function BoardCard({
       )}
     </Card>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Skeletons

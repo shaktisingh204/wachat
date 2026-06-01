@@ -1,0 +1,8 @@
+// Higher number = higher priority rank in search results.
+export const STANDARD_OBJECTS_BY_PRIORITY_RANK: Record<string, number> = {
+  person: 5,
+  company: 4,
+  opportunity: 3,
+  note: 2,
+  task: 1,
+};

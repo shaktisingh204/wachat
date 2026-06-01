@@ -7,8 +7,8 @@
  * (`/sabcrm/<objectSlug>`). It is the metadata-driven equivalent of Twenty's
  * per-view header and drives every read parameter the record runtime needs:
  *
- *   - **Search** — debounced free-text, applied server-side across the object's
- *     text-ish fields.
+ *   - **Search** — internally debounced free-text (300 ms); `onChange` receives
+ *     the committed value so the host never needs its own debounce timer.
  *   - **Filters** — per-field condition chips. Each chip picks a field, an
  *     operator appropriate to that field's {@link FieldType}, and (unless the
  *     operator is value-less) a value. Conditions compile to the
@@ -28,6 +28,18 @@
  *
  * Pure ZoruUI, black-and-white. Filter values that point at FILE fields are not
  * offered (file inputs are handled elsewhere through SabFiles).
+ *
+ * Accessibility guarantees
+ * ------------------------
+ * - All interactive controls carry an `aria-label` or visible text that screen
+ *   readers can announce.
+ * - The view toggle uses `role="group"` + `aria-label` with `aria-pressed` on
+ *   each button.
+ * - Result count is wrapped in an `aria-live="polite"` region.
+ * - The toolbar root carries `aria-busy` while a fetch is in flight.
+ * - Search input has a stable `id` linked to its visible icon via `aria-label`.
+ * - Filter chip remove buttons announce the field being removed.
+ * - Focus does not jump unexpectedly when chips are removed.
  */
 
 import * as React from 'react';
@@ -43,6 +55,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
 
 import {
   Badge,
@@ -128,7 +141,11 @@ export interface SortState {
 /** The complete, serialisable state the toolbar drives. */
 export interface ViewToolbarState {
   view: ViewKind;
-  /** Raw search box text (host debounces it before querying). */
+  /**
+   * Debounced search text. The toolbar buffers keystrokes internally and only
+   * calls `onChange` after the 300 ms quiet window, so the host receives the
+   * committed value directly — no extra debounce needed on the host side.
+   */
   search: string;
   filters: FilterCondition[];
   sort: SortState | null;
@@ -417,6 +434,9 @@ function stateFromView(
 // Component
 // ---------------------------------------------------------------------------
 
+/** Unique id prefix so multiple toolbars on one page don't clash. */
+let _toolbarCounter = 0;
+
 export function ViewToolbar({
   object,
   projectId,
@@ -429,22 +449,64 @@ export function ViewToolbar({
 }: ViewToolbarProps): React.ReactElement {
   const { toast } = useZoruToast();
 
+  // Stable id for the search input — generated once per mount.
+  const searchInputId = React.useRef(`sabcrm-search-${++_toolbarCounter}`);
+
   const [views, setViews] = React.useState<SavedView[]>([]);
   const [activeViewId, setActiveViewId] = React.useState<string | null>(null);
   const [filterOpen, setFilterOpen] = React.useState(false);
   const [sortOpen, setSortOpen] = React.useState(false);
   const [saveOpen, setSaveOpen] = React.useState(false);
 
+  // Raw (unthrottled) search text kept in local state so the input stays
+  // responsive while the debounced onChange fires at most once per 300 ms.
+  const [searchRaw, setSearchRaw] = React.useState(state.search);
+
   const toastRef = React.useRef(toast);
   React.useEffect(() => {
     toastRef.current = toast;
   }, [toast]);
 
+  // Keep a stable reference to `onChange` so debounced callbacks never
+  // close over a stale version.
+  const onChangeRef = React.useRef(onChange);
+  React.useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Keep a stable reference to `state` for the same reason.
+  const stateRef = React.useRef(state);
+  React.useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // Debounced search: fires onChange with the committed value after 300 ms of
+  // inactivity. Uses the *latest* state via refs so the callback itself is
+  // stable and never needs to be recreated.
+  const commitSearch = useDebouncedCallback((raw: string) => {
+    onChangeRef.current({ ...stateRef.current, search: raw });
+  }, 300);
+
+  // When a saved view is applied the host resets `state.search`; mirror that
+  // back into the local raw buffer so the input reflects the new value.
+  React.useEffect(() => {
+    setSearchRaw(state.search);
+  }, [state.search]);
+
   const fields = React.useMemo(() => usableFields(object), [object]);
   const sortableFields = fields;
   const boardFields = React.useMemo(() => groupableFields(object), [object]);
-  const canBoard =
-    object.views.includes('board') && boardFields.length > 0;
+  const canBoard = object.views.includes('board') && boardFields.length > 0;
+
+  // Pre-build a key→field index so chip rendering and dialog lookups are O(1).
+  const fieldIndex = React.useMemo(
+    () => new Map(object.fields.map((f) => [f.key, f])),
+    [object.fields],
+  );
+  const fieldByKeyFast = React.useCallback(
+    (key: string) => fieldIndex.get(key),
+    [fieldIndex],
+  );
 
   // ---- load saved views for this object ---------------------------------
   const reloadViews = React.useCallback(async () => {
@@ -465,34 +527,44 @@ export function ViewToolbar({
   }, [object.slug, projectId]);
 
   // ---- handlers ---------------------------------------------------------
+  // Use functional setState pattern so `patch` doesn't depend on `state`.
   const patch = React.useCallback(
     (delta: Partial<ViewToolbarState>) => {
-      onChange({ ...state, ...delta });
+      onChangeRef.current({ ...stateRef.current, ...delta });
     },
-    [onChange, state],
+    [],
   );
 
   const applyView = React.useCallback(
     (view: SavedView) => {
       setActiveViewId(view._id);
-      onChange(stateFromView(object, view));
+      onChangeRef.current(stateFromView(object, view));
     },
-    [object, onChange],
+    [object],
   );
 
-  const removeCondition = (index: number) => {
-    setActiveViewId(null);
-    patch({ filters: state.filters.filter((_, i) => i !== index) });
-  };
+  const removeCondition = React.useCallback(
+    (index: number) => {
+      setActiveViewId(null);
+      onChangeRef.current({
+        ...stateRef.current,
+        filters: stateRef.current.filters.filter((_, i) => i !== index),
+      });
+    },
+    [],
+  );
 
-  const setView = (view: ViewKind) => {
-    if (view === state.view) return;
-    const next: ViewToolbarState = { ...state, view };
-    if (view === 'board' && !next.groupByField) {
-      next.groupByField = object.board?.groupByField ?? boardFields[0]?.key;
-    }
-    onChange(next);
-  };
+  const setView = React.useCallback(
+    (view: ViewKind) => {
+      if (view === stateRef.current.view) return;
+      const next: ViewToolbarState = { ...stateRef.current, view };
+      if (view === 'board' && !next.groupByField) {
+        next.groupByField = object.board?.groupByField ?? boardFields[0]?.key;
+      }
+      onChangeRef.current(next);
+    },
+    [object.board, boardFields],
+  );
 
   const onDeleteView = React.useCallback(
     async (view: SavedView) => {
@@ -505,11 +577,11 @@ export function ViewToolbar({
         });
         return;
       }
-      if (activeViewId === view._id) setActiveViewId(null);
+      setActiveViewId((curr) => (curr === view._id ? null : curr));
       setViews((curr) => curr.filter((v) => v._id !== view._id));
       toastRef.current({ title: `Deleted “${view.name}”.` });
     },
-    [projectId, activeViewId],
+    [projectId],
   );
 
   const onSetDefaultView = React.useCallback(
@@ -524,55 +596,82 @@ export function ViewToolbar({
         return;
       }
       await reloadViews();
-      toastRef.current({ title: `“${view.name}” is now the default view.` });
+      toastRef.current({ title: `"${view.name}" is now the default view.` });
     },
     [projectId, reloadViews],
   );
 
+  const onSave = React.useCallback(() => setSaveOpen(true), []);
+
   const activeView = views.find((v) => v._id === activeViewId) ?? null;
   const activeFilterCount = state.filters.length;
 
+  // Aria label for the sort button reflects the active sort field.
+  const sortAriaLabel = state.sort
+    ? `Sort by ${fieldByKeyFast(state.sort.field)?.label ?? state.sort.field}, ${state.sort.dir === 'desc' ? 'descending' : 'ascending'}`
+    : 'Sort records';
+
+  // Aria label for the filter button reflects the active count.
+  const filterAriaLabel =
+    activeFilterCount > 0
+      ? `Filters — ${activeFilterCount} active`
+      : 'Add filters';
+
   return (
-    <div className={cn('mb-4 flex flex-col gap-3', className)}>
+    <div
+      className={cn('mb-4 flex flex-col gap-3', className)}
+      aria-busy={loading || undefined}
+    >
       {/* Row 1 — search · view toggle · saved views */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="w-full max-w-sm">
           <Input
-            value={state.search}
+            id={searchInputId.current}
+            value={searchRaw}
             onChange={(e) => {
+              const raw = e.target.value;
+              setSearchRaw(raw);
               setActiveViewId(null);
-              patch({ search: e.target.value });
+              commitSearch(raw);
             }}
-            leadingSlot={<Search />}
+            leadingSlot={<Search aria-hidden="true" />}
             placeholder={`Search ${object.labelPlural.toLowerCase()}…`}
             aria-label={`Search ${object.labelPlural}`}
           />
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {typeof resultCount === 'number' && !loading && (
-            <span className="text-sm text-zoru-ink-muted">
-              {resultCount}{' '}
-              {resultCount === 1
-                ? object.labelSingular.toLowerCase()
-                : object.labelPlural.toLowerCase()}
-            </span>
-          )}
+          {/* Result count — announced politely so screen readers update naturally */}
+          <span
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="text-sm text-zoru-ink-muted"
+          >
+            {typeof resultCount === 'number' && !loading
+              ? `${resultCount} ${
+                  resultCount === 1
+                    ? object.labelSingular.toLowerCase()
+                    : object.labelPlural.toLowerCase()
+                }`
+              : null}
+          </span>
 
           {canBoard && (
             <div
               className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-0.5"
               role="group"
-              aria-label="View"
+              aria-label="View layout"
             >
               <Button
                 type="button"
                 size="sm"
                 variant={state.view === 'table' ? 'secondary' : 'ghost'}
                 aria-pressed={state.view === 'table'}
+                aria-label="Table view"
                 onClick={() => setView('table')}
               >
-                <Table2 className="mr-1.5" />
+                <Table2 className="mr-1.5" aria-hidden="true" />
                 Table
               </Button>
               <Button
@@ -580,9 +679,10 @@ export function ViewToolbar({
                 size="sm"
                 variant={state.view === 'board' ? 'secondary' : 'ghost'}
                 aria-pressed={state.view === 'board'}
+                aria-label="Board view"
                 onClick={() => setView('board')}
               >
-                <Columns3 className="mr-1.5" />
+                <Columns3 className="mr-1.5" aria-hidden="true" />
                 Board
               </Button>
             </div>
@@ -593,7 +693,7 @@ export function ViewToolbar({
             activeView={activeView}
             canManage={canManageViews}
             onApply={applyView}
-            onSave={() => setSaveOpen(true)}
+            onSave={onSave}
             onDelete={onDeleteView}
             onSetDefault={onSetDefaultView}
           />
@@ -606,13 +706,14 @@ export function ViewToolbar({
           type="button"
           size="sm"
           variant={state.sort ? 'secondary' : 'outline'}
+          aria-label={sortAriaLabel}
           onClick={() => setSortOpen(true)}
         >
-          <ArrowDownUp className="mr-1.5" />
+          <ArrowDownUp className="mr-1.5" aria-hidden="true" />
           Sort
           {state.sort && (
-            <Badge variant="outline" className="ml-1.5">
-              {fieldByKey(object, state.sort.field)?.label ?? state.sort.field}
+            <Badge variant="outline" className="ml-1.5" aria-hidden="true">
+              {fieldByKeyFast(state.sort.field)?.label ?? state.sort.field}
             </Badge>
           )}
         </Button>
@@ -621,12 +722,13 @@ export function ViewToolbar({
           type="button"
           size="sm"
           variant={activeFilterCount > 0 ? 'secondary' : 'outline'}
+          aria-label={filterAriaLabel}
           onClick={() => setFilterOpen(true)}
         >
-          <FilterIcon className="mr-1.5" />
+          <FilterIcon className="mr-1.5" aria-hidden="true" />
           Filter
           {activeFilterCount > 0 && (
-            <Badge variant="outline" className="ml-1.5">
+            <Badge variant="outline" className="ml-1.5" aria-hidden="true">
               {activeFilterCount}
             </Badge>
           )}
@@ -634,14 +736,17 @@ export function ViewToolbar({
 
         {state.view === 'board' && boardFields.length > 0 && (
           <div className="flex items-center gap-1.5">
-            <ListFilter className="h-4 w-4 text-zoru-ink-muted" />
+            <ListFilter
+              className="h-4 w-4 text-zoru-ink-muted"
+              aria-hidden="true"
+            />
             <Select
               value={state.groupByField ?? boardFields[0]?.key}
               onValueChange={(key) => patch({ groupByField: key })}
             >
               <SelectTrigger
                 className="h-9 w-[180px]"
-                aria-label="Group board by"
+                aria-label="Group board by field"
               >
                 <SelectValue placeholder="Group by" />
               </SelectTrigger>
@@ -661,12 +766,13 @@ export function ViewToolbar({
             type="button"
             size="sm"
             variant="ghost"
+            aria-label="Clear all filters and sort"
             onClick={() => {
               setActiveViewId(null);
               patch({ filters: [], sort: null });
             }}
           >
-            <X className="mr-1" />
+            <X className="mr-1" aria-hidden="true" />
             Clear
           </Button>
         )}
@@ -674,32 +780,37 @@ export function ViewToolbar({
 
       {/* Active filter chips */}
       {activeFilterCount > 0 && (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          role="list"
+          aria-label="Active filters"
+        >
           {state.filters.map((cond, index) => {
-            const field = fieldByKey(object, cond.field);
+            const field = fieldByKeyFast(cond.field);
+            const fieldLabel = field?.label ?? cond.field;
             return (
               <span
-                key={`${cond.field}-${index}`}
+                key={`${cond.field}-${cond.operator}-${index}`}
+                role="listitem"
                 className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface py-1 pl-2.5 pr-1 text-xs text-zoru-ink"
               >
-                <span className="font-medium">
-                  {field?.label ?? cond.field}
-                </span>
+                <span className="font-medium">{fieldLabel}</span>
                 <span className="text-zoru-ink-muted">
                   {OPERATOR_LABELS[cond.operator]}
                 </span>
-                {!VALUELESS_OPERATORS.has(cond.operator) && cond.value !== '' && (
-                  <span className="font-medium">
-                    {displayValue(field, cond.value)}
-                  </span>
-                )}
+                {!VALUELESS_OPERATORS.has(cond.operator) &&
+                  cond.value !== '' && (
+                    <span className="font-medium">
+                      {displayValue(field, cond.value)}
+                    </span>
+                  )}
                 <button
                   type="button"
-                  aria-label="Remove filter"
+                  aria-label={`Remove filter: ${fieldLabel} ${OPERATOR_LABELS[cond.operator]}`}
                   className="rounded-full p-0.5 text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink"
                   onClick={() => removeCondition(index)}
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3 w-3" aria-hidden="true" />
                 </button>
               </span>
             );
@@ -774,7 +885,7 @@ interface SavedViewsMenuProps {
   onSetDefault: (view: SavedView) => void | Promise<void>;
 }
 
-function SavedViewsMenu({
+const SavedViewsMenu = React.memo(function SavedViewsMenu({
   views,
   activeView,
   canManage,
@@ -783,12 +894,22 @@ function SavedViewsMenu({
   onDelete,
   onSetDefault,
 }: SavedViewsMenuProps): React.ReactElement {
+  const triggerLabel = activeView
+    ? `Saved views — current: ${activeView.name}`
+    : 'Saved views';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" size="sm" variant="outline">
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          aria-label={triggerLabel}
+        >
           <Star
             className={cn('mr-1.5', activeView?.isDefault && 'fill-current')}
+            aria-hidden="true"
           />
           {activeView ? activeView.name : 'Views'}
         </Button>
@@ -799,11 +920,9 @@ function SavedViewsMenu({
           <DropdownMenuItem disabled>No saved views yet</DropdownMenuItem>
         ) : (
           views.map((view) => (
-            <DropdownMenuItem
-              key={view._id}
-              onSelect={() => onApply(view)}
-            >
+            <DropdownMenuItem key={view._id} onSelect={() => onApply(view)}>
               <Star
+                aria-hidden="true"
                 className={cn(
                   'text-zoru-ink-muted',
                   view.isDefault && 'fill-current text-zoru-ink',
@@ -823,7 +942,7 @@ function SavedViewsMenu({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={onSave}>
-              <Plus />
+              <Plus aria-hidden="true" />
               Save current as view…
             </DropdownMenuItem>
             {views.length > 0 && (
@@ -835,7 +954,7 @@ function SavedViewsMenu({
                     disabled={view.isDefault}
                     onSelect={() => void onSetDefault(view)}
                   >
-                    <Star />
+                    <Star aria-hidden="true" />
                     {view.isDefault
                       ? `${view.name} (default)`
                       : `Make “${view.name}” default`}
@@ -847,7 +966,7 @@ function SavedViewsMenu({
                     destructive
                     onSelect={() => void onDelete(view)}
                   >
-                    <Trash2 />
+                    <Trash2 aria-hidden="true" />
                     Delete “{view.name}”
                   </DropdownMenuItem>
                 ))}
@@ -858,7 +977,7 @@ function SavedViewsMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Sort dialog
@@ -874,7 +993,7 @@ interface SortDialogProps {
   onApply: (sort: SortState | null) => void;
 }
 
-function SortDialog({
+const SortDialog = React.memo(function SortDialog({
   open,
   onOpenChange,
   fields,
@@ -899,7 +1018,7 @@ function SortDialog({
 
         <div className="flex flex-col gap-3 py-1">
           <div className="space-y-2">
-            <Label>Field</Label>
+            <Label htmlFor="sort-field-select">Field</Label>
             <Select
               value={draft?.field ?? NO_SORT}
               onValueChange={(field) =>
@@ -910,7 +1029,7 @@ function SortDialog({
                 )
               }
             >
-              <SelectTrigger aria-label="Sort field">
+              <SelectTrigger id="sort-field-select" aria-label="Sort field">
                 <SelectValue placeholder="No sorting" />
               </SelectTrigger>
               <SelectContent>
@@ -926,7 +1045,7 @@ function SortDialog({
 
           {draft && (
             <div className="space-y-2">
-              <Label>Direction</Label>
+              <Label htmlFor="sort-dir-select">Direction</Label>
               <Select
                 value={draft.dir}
                 onValueChange={(dir) =>
@@ -936,7 +1055,7 @@ function SortDialog({
                   })
                 }
               >
-                <SelectTrigger aria-label="Sort direction">
+                <SelectTrigger id="sort-dir-select" aria-label="Sort direction">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -963,7 +1082,7 @@ function SortDialog({
       </ZoruDialogContent>
     </Dialog>
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Filter dialog
@@ -978,7 +1097,7 @@ interface FilterDialogProps {
   onApply: (conditions: FilterCondition[]) => void;
 }
 
-function FilterDialog({
+const FilterDialog = React.memo(function FilterDialog({
   open,
   onOpenChange,
   object,
@@ -992,32 +1111,35 @@ function FilterDialog({
     if (open) setDraft(conditions);
   }, [open, conditions]);
 
-  const addRow = () => {
+  const addRow = React.useCallback(() => {
     const field = fields[0];
     if (!field) return;
     setDraft((prev) => [
       ...prev,
       { field: field.key, operator: operatorsForType(field.type)[0], value: '' },
     ]);
-  };
+  }, [fields]);
 
-  const updateRow = (index: number, delta: Partial<FilterCondition>) => {
-    setDraft((prev) =>
-      prev.map((row, i) => (i === index ? { ...row, ...delta } : row)),
-    );
-  };
+  const updateRow = React.useCallback(
+    (index: number, delta: Partial<FilterCondition>) => {
+      setDraft((prev) =>
+        prev.map((row, i) => (i === index ? { ...row, ...delta } : row)),
+      );
+    },
+    [],
+  );
 
-  const removeRow = (index: number) => {
+  const removeRow = React.useCallback((index: number) => {
     setDraft((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
-  const apply = () => {
+  const apply = React.useCallback(() => {
     // Drop incomplete rows (value required for value-bearing operators).
     const cleaned = draft.filter(
       (c) => VALUELESS_OPERATORS.has(c.operator) || c.value.trim() !== '',
     );
     onApply(cleaned);
-  };
+  }, [draft, onApply]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1029,7 +1151,11 @@ function FilterDialog({
           </ZoruDialogDescription>
         </ZoruDialogHeader>
 
-        <div className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto py-1 pr-1">
+        <div
+          className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto py-1 pr-1"
+          role="list"
+          aria-label="Filter conditions"
+        >
           {draft.length === 0 ? (
             <p className="py-4 text-center text-sm text-zoru-ink-muted">
               No filters yet.
@@ -1037,11 +1163,19 @@ function FilterDialog({
           ) : (
             draft.map((cond, index) => {
               const field = fieldByKey(object, cond.field);
+              const fieldLabel = field?.label ?? cond.field;
               const ops = field
                 ? operatorsForType(field.type)
                 : (['eq'] as FilterOperator[]);
+              // Use field+operator as key; index is a fallback for duplicates.
+              const rowKey = `${cond.field}-${cond.operator}-${index}`;
               return (
-                <div key={index} className="flex flex-wrap items-center gap-2">
+                <div
+                  key={rowKey}
+                  role="listitem"
+                  className="flex flex-wrap items-center gap-2"
+                  aria-label={`Filter ${index + 1}: ${fieldLabel}`}
+                >
                   <div className="min-w-[140px] flex-1">
                     <Select
                       value={cond.field}
@@ -1049,14 +1183,14 @@ function FilterDialog({
                         const nf = fieldByKey(object, value);
                         updateRow(index, {
                           field: value,
-                          operator: nf
-                            ? operatorsForType(nf.type)[0]
-                            : 'eq',
+                          operator: nf ? operatorsForType(nf.type)[0] : 'eq',
                           value: '',
                         });
                       }}
                     >
-                      <SelectTrigger aria-label="Filter field">
+                      <SelectTrigger
+                        aria-label={`Filter ${index + 1} field`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1081,7 +1215,9 @@ function FilterDialog({
                         })
                       }
                     >
-                      <SelectTrigger aria-label="Filter operator">
+                      <SelectTrigger
+                        aria-label={`Filter ${index + 1} operator`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -1099,6 +1235,7 @@ function FilterDialog({
                       field={field}
                       operator={cond.operator}
                       value={cond.value}
+                      index={index}
                       onChange={(value) => updateRow(index, { value })}
                     />
                   </div>
@@ -1107,10 +1244,10 @@ function FilterDialog({
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    aria-label="Remove condition"
+                    aria-label={`Remove filter ${index + 1}: ${fieldLabel}`}
                     onClick={() => removeRow(index)}
                   >
-                    <X />
+                    <X aria-hidden="true" />
                   </Button>
                 </div>
               );
@@ -1124,8 +1261,9 @@ function FilterDialog({
               size="sm"
               onClick={addRow}
               disabled={fields.length === 0}
+              aria-label="Add filter condition"
             >
-              <Plus className="mr-1.5" />
+              <Plus className="mr-1.5" aria-hidden="true" />
               Add condition
             </Button>
           </div>
@@ -1137,6 +1275,7 @@ function FilterDialog({
             variant="ghost"
             onClick={() => setDraft([])}
             disabled={draft.length === 0}
+            aria-label="Clear all filter conditions"
           >
             Clear
           </Button>
@@ -1154,21 +1293,26 @@ function FilterDialog({
       </ZoruDialogContent>
     </Dialog>
   );
-}
+});
 
 interface FilterValueInputProps {
   field: FieldMetadata | undefined;
   operator: FilterOperator;
   value: string;
+  /** 0-based position used to build a unique, descriptive aria-label. */
+  index: number;
   onChange: (value: string) => void;
 }
 
-function FilterValueInput({
+const FilterValueInput = React.memo(function FilterValueInput({
   field,
   operator,
   value,
+  index,
   onChange,
 }: FilterValueInputProps): React.ReactElement {
+  const ariaLabel = `Filter ${index + 1} value`;
+
   if (VALUELESS_OPERATORS.has(operator)) {
     return (
       <span className="block py-2 text-xs italic text-zoru-ink-muted">
@@ -1181,7 +1325,7 @@ function FilterValueInput({
     const options = field.options ?? [];
     return (
       <Select value={value === '' ? undefined : value} onValueChange={onChange}>
-        <SelectTrigger aria-label="Filter value">
+        <SelectTrigger aria-label={ariaLabel}>
           <SelectValue placeholder="Select…" />
         </SelectTrigger>
         <SelectContent>
@@ -1214,10 +1358,10 @@ function FilterValueInput({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder="Value"
-      aria-label="Filter value"
+      aria-label={ariaLabel}
     />
   );
-}
+});
 
 // ---------------------------------------------------------------------------
 // Save-view dialog
@@ -1234,7 +1378,7 @@ interface SaveViewDialogProps {
   onError: (message: string) => void;
 }
 
-function SaveViewDialog({
+const SaveViewDialog = React.memo(function SaveViewDialog({
   open,
   onOpenChange,
   object,
@@ -1349,4 +1493,4 @@ function SaveViewDialog({
       </ZoruDialogContent>
     </Dialog>
   );
-}
+});

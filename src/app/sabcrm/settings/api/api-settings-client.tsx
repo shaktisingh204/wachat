@@ -94,7 +94,7 @@ import {
   type CreateWebhookInput,
   type UpdateWebhookPatch,
 } from '@/app/actions/sabcrm.actions';
-import { SABCRM_WEBHOOK_EVENTS, type SabcrmWebhookEvent } from '@/lib/sabcrm/webhooks.server';
+import { SABCRM_WEBHOOK_EVENTS, type SabcrmWebhookEvent } from '@/lib/sabcrm/webhook-events';
 
 // ---------------------------------------------------------------------------
 // Helpers

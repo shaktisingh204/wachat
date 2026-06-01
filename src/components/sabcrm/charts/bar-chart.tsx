@@ -18,7 +18,8 @@
  *   component serialisation-safe across the RSC → Client boundary.
  * - Empty / loading / error states are rendered inline rather than throwing.
  * - Fully accessible: the bar chart has `role="img"` with an `aria-label`
- *   derived from the series configuration.
+ *   derived from the series configuration, plus a visually-hidden data table
+ *   fallback for screen readers and keyboard navigation.
  *
  * Usage — countByField series
  * ---------------------------
@@ -235,6 +236,29 @@ function defaultFormat(value: number): string {
   });
 }
 
+/**
+ * Build a text summary of the chart data for screen readers.
+ * Summarises the top bars and total across all bars.
+ */
+function buildDataSummary(
+  bars: NormalisedBar[],
+  formatValue: (v: number) => string,
+): string {
+  if (bars.length === 0) return "No data available";
+
+  const total = bars.reduce((sum, bar) => sum + bar.value, 0);
+  const topThree = bars.slice(0, 3);
+  const topSummary = topThree
+    .map((bar) => `${bar.label}: ${formatValue(bar.value)}`)
+    .join(", ");
+
+  if (bars.length <= 3) {
+    return `Data: ${topSummary}. Total: ${formatValue(total)}`;
+  }
+
+  return `Top categories: ${topSummary}. Total across ${bars.length} categories: ${formatValue(total)}`;
+}
+
 /* -------------------------------------------------------------------------- */
 /* Custom tooltip                                                              */
 /* -------------------------------------------------------------------------- */
@@ -316,11 +340,12 @@ export function CrmBarChart({
   const fmt = formatValue ?? defaultFormat;
 
   // Derive the accessible label for the chart canvas.
+  // Include the series type and key fields for screen reader context.
   const ariaLabel = title
-    ? `${title} bar chart`
+    ? `${title} bar chart showing distribution across categories`
     : series.kind === "countByField"
-      ? `${series.result.object} by ${series.result.field} bar chart`
-      : `${series.result.object} ${series.result.sumField} by ${series.result.groupField} bar chart`;
+      ? `${series.result.object} count distribution by ${series.result.field}`
+      : `${series.result.object} aggregated ${series.result.sumField} by ${series.result.groupField}`;
 
   // Normalise both series shapes into a flat array for Recharts.
   const bars = React.useMemo<NormalisedBar[]>(() => {
@@ -527,6 +552,34 @@ export function CrmBarChart({
               </li>
             ))}
           </ul>
+        )}
+
+        {/* Visually-hidden data table for screen readers and keyboard navigation. */}
+        {!loading && !error && bars.length > 0 && (
+          <div
+            className="sr-only"
+            role="region"
+            aria-label="Chart data table"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bars.map((bar) => (
+                  <tr key={bar.key}>
+                    <td>{bar.label}</td>
+                    <td>{fmt(bar.value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Text summary for quick context. */}
+            <p>{buildDataSummary(bars, fmt)}</p>
+          </div>
         )}
       </ZoruCardContent>
     </Card>

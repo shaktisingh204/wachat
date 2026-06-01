@@ -169,6 +169,12 @@ export interface RelationInputProps {
   invalid?: boolean;
   disabled?: boolean;
   id?: string;
+  /**
+   * The `id` of a sibling element that describes validation errors. Forwarded
+   * as `aria-describedby` on the trigger button so screen readers announce the
+   * error message when the field is in an invalid state.
+   */
+  errorId?: string;
   className?: string;
 }
 
@@ -176,6 +182,13 @@ export interface RelationInputProps {
  * Controlled editor for a RELATION field. The relation kind decides the
  * cardinality: `MANY_TO_ONE` is single-select, `ONE_TO_MANY` is multi-select.
  * Both share one searchable list UI and emit a normalised `string[]`.
+ *
+ * Keyboard navigation inside the dropdown:
+ *   - Arrow Down / Arrow Up  — move focus between options
+ *   - Home / End             — jump to first / last option
+ *   - Enter / Space          — toggle the focused option
+ *   - Escape                 — close the dropdown
+ *   - Tab                    — close and leave the widget
  */
 export function RelationInput({
   field,
@@ -185,19 +198,24 @@ export function RelationInput({
   invalid = false,
   disabled = false,
   id,
+  errorId,
   className,
 }: RelationInputProps): React.ReactElement {
   const isMany = field.relation?.kind === 'ONE_TO_MANY';
   const selected = React.useMemo(() => toIdArray(value), [value]);
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
+  const [activeIndex, setActiveIndex] = React.useState<number>(-1);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const listRef = React.useRef<HTMLDivElement | null>(null);
+  const listboxId = React.useId();
+  const searchId = React.useId();
 
   const targetNoun = field.relation?.targetObject
     ? field.relation.targetObject.replace(/s$/, '')
     : field.label.toLowerCase();
 
-  // Close the dropdown on outside click / Escape.
+  // Close the dropdown on outside click.
   React.useEffect(() => {
     if (!open) return;
     const onPointerDown = (e: PointerEvent) => {
@@ -205,21 +223,28 @@ export function RelationInput({
         setOpen(false);
       }
     };
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
     document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
     return () => {
       document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
     };
   }, [open]);
 
-  // Reset the search query whenever the dropdown closes.
+  // Reset search query and active index whenever the dropdown closes.
   React.useEffect(() => {
-    if (!open) setQuery('');
+    if (!open) {
+      setQuery('');
+      setActiveIndex(-1);
+    }
   }, [open]);
+
+  // Scroll the focused option into view whenever activeIndex changes.
+  React.useEffect(() => {
+    if (activeIndex < 0 || !listRef.current) return;
+    const item = listRef.current.querySelector<HTMLElement>(
+      `[data-option-index="${activeIndex}"]`,
+    );
+    item?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex]);
 
   const filtered = React.useMemo(
     () => filterOptions(options, query),
@@ -252,9 +277,67 @@ export function RelationInput({
     [onChange, selected],
   );
 
+  /** Handles keyboard navigation inside the search input. */
+  const handleSearchKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault();
+          if (activeIndex >= 0 && activeIndex < filtered.length) {
+            const opt = filtered[activeIndex];
+            isMany ? toggleMany(opt.id) : selectSingle(opt.id);
+          }
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          setActiveIndex((i) =>
+            filtered.length === 0 ? -1 : Math.min(i + 1, filtered.length - 1),
+          );
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setActiveIndex((i) => Math.max(i - 1, 0));
+          break;
+        case 'Home':
+          e.preventDefault();
+          setActiveIndex(filtered.length > 0 ? 0 : -1);
+          break;
+        case 'End':
+          e.preventDefault();
+          setActiveIndex(filtered.length > 0 ? filtered.length - 1 : -1);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setOpen(false);
+          break;
+        case 'Tab':
+          setOpen(false);
+          break;
+        default:
+          // Reset active index when the query changes so the first match
+          // is highlighted automatically.
+          if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+            setActiveIndex(0);
+          }
+          break;
+      }
+    },
+    [activeIndex, filtered, isMany, toggleMany, selectSingle],
+  );
+
+  // Reset active index when the filtered list changes.
+  React.useEffect(() => {
+    setActiveIndex((i) => (i >= filtered.length ? filtered.length - 1 : i));
+  }, [filtered.length]);
+
   const invalidRing = invalid
     ? 'border-zoru-danger focus-within:ring-zoru-danger/30'
     : 'border-zoru-line';
+
+  const activeOptionId =
+    activeIndex >= 0 && activeIndex < filtered.length
+      ? `${listboxId}-opt-${activeIndex}`
+      : undefined;
 
   // -------------------------------------------------------------------------
   // Trigger summary (collapsed state)
@@ -312,6 +395,10 @@ export function RelationInput({
         disabled={disabled}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={open ? listboxId : undefined}
+        aria-activedescendant={open ? activeOptionId : undefined}
+        aria-describedby={errorId}
+        aria-label={id ? undefined : field.label}
         onClick={() => setOpen((v) => !v)}
         className={cn(
           'flex min-h-9 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border bg-zoru-bg px-3 py-1.5 text-left text-sm transition-colors',
@@ -322,6 +409,7 @@ export function RelationInput({
       >
         <span className="min-w-0 flex-1">{triggerLabel}</span>
         <ChevronDown
+          aria-hidden="true"
           className={cn(
             'h-4 w-4 shrink-0 text-zoru-ink-muted transition-transform',
             open && 'rotate-180',
@@ -330,53 +418,69 @@ export function RelationInput({
       </button>
 
       {open && !disabled && (
-        <div
-          role="listbox"
-          aria-multiselectable={isMany}
-          className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]"
-        >
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg shadow-[var(--zoru-shadow,0_8px_24px_rgba(0,0,0,0.12))]">
           <div className="border-b border-zoru-line p-1.5">
             <Input
+              id={searchId}
               autoFocus
+              aria-label={`Search ${field.label}`}
+              aria-controls={listboxId}
+              aria-activedescendant={activeOptionId}
               value={query}
               placeholder={`Search ${field.label.toLowerCase()}…`}
-              leadingSlot={<Search />}
+              leadingSlot={<Search aria-hidden="true" />}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') e.preventDefault();
-              }}
+              onKeyDown={handleSearchKeyDown}
             />
           </div>
 
-          <div className="max-h-56 overflow-y-auto p-1">
+          <div
+            id={listboxId}
+            ref={listRef}
+            role="listbox"
+            aria-label={field.label}
+            aria-multiselectable={isMany}
+            className="max-h-56 overflow-y-auto p-1"
+          >
             {filtered.length === 0 && (
-              <p className="px-2 py-3 text-center text-xs text-zoru-ink-muted">
+              <p className="px-2 py-3 text-center text-xs text-zoru-ink-muted" role="status">
                 {options.length === 0
                   ? 'No related records available.'
                   : 'No matches.'}
               </p>
             )}
 
-            {filtered.map((opt) => {
+            {filtered.map((opt, idx) => {
               const on = selected.includes(opt.id);
+              const isActive = idx === activeIndex;
+              const optId = `${listboxId}-opt-${idx}`;
               return (
                 <button
                   key={opt.id}
+                  id={optId}
                   type="button"
                   role="option"
                   aria-selected={on}
+                  data-option-index={idx}
                   onClick={() =>
                     isMany ? toggleMany(opt.id) : selectSingle(opt.id)
                   }
+                  onMouseEnter={() => setActiveIndex(idx)}
                   className={cn(
                     'flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm transition-colors hover:bg-zoru-surface',
                     on && 'bg-zoru-surface/60',
+                    isActive && 'ring-1 ring-inset ring-zoru-ink/20',
                   )}
                 >
                   {isMany ? (
-                    <Checkbox checked={on} className="pointer-events-none" />
+                    <Checkbox
+                      checked={on}
+                      aria-hidden="true"
+                      className="pointer-events-none"
+                    />
                   ) : (
                     <Check
+                      aria-hidden="true"
                       className={cn(
                         'h-4 w-4 shrink-0',
                         on ? 'text-zoru-ink' : 'text-transparent',
@@ -391,7 +495,7 @@ export function RelationInput({
 
           {isMany && selected.length > 0 && (
             <div className="flex items-center justify-between border-t border-zoru-line px-2 py-1.5 text-xs text-zoru-ink-muted">
-              <span>
+              <span aria-live="polite">
                 {selected.length} selected
               </span>
               <button

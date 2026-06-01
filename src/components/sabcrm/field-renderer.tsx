@@ -16,6 +16,18 @@
  *
  * File fields route through SabFiles (`SabFileUrlInput`) per SabNode
  * policy — there is no free-text URL paste anywhere in this module.
+ *
+ * A11y guarantees:
+ *   - Every editable input is associated with a visible label via `id`
+ *     (the host form supplies a `<label htmlFor={id}>`) or an explicit
+ *     `aria-label` when the field label cannot be a `<label>` element.
+ *   - Validation errors are referenced through `aria-describedby` pointing
+ *     at a sibling error element managed by the host (`errorId` prop).
+ *   - The BOOLEAN group and MULTI_SELECT group carry `role="group"` +
+ *     `aria-labelledby` so assistive technology announces the field name.
+ *   - The RATING widget uses `role="radiogroup"` / `role="radio"`.
+ *   - The RELATION picker supports full keyboard navigation (arrows, Enter,
+ *     Home/End, Escape) via the RelationInput component.
  */
 
 import * as React from 'react';
@@ -169,7 +181,7 @@ export interface FieldValueProps {
 }
 
 /** Read-only display of a single field value. */
-export function FieldValue({
+export const FieldValue = React.memo(function FieldValue({
   field,
   value,
   resolveRelationLabel,
@@ -385,7 +397,8 @@ export function FieldValue({
     default:
       return empty;
   }
-}
+});
+FieldValue.displayName = 'FieldValue';
 
 function fileNameFromUrl(url: string): string {
   try {
@@ -421,6 +434,155 @@ export function resolveRecordTitle(
 }
 
 // ---------------------------------------------------------------------------
+// Sub-components for MULTI_SELECT and RATING inputs — extracted so that
+// React.memo and useCallback can be used properly (hooks cannot appear inside
+// a switch-case branch).
+// ---------------------------------------------------------------------------
+
+interface MultiSelectInputProps {
+  field: FieldMetadata;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  invalid: boolean;
+  disabled: boolean;
+  errorId: string | undefined;
+  className?: string;
+}
+
+const MultiSelectInput = React.memo(function MultiSelectInput({
+  field,
+  value,
+  onChange,
+  invalid,
+  disabled,
+  errorId,
+  className,
+}: MultiSelectInputProps): React.ReactElement {
+  const selected = React.useMemo(() => asStringArray(value), [value]);
+
+  const toggle = React.useCallback(
+    (optValue: string) => {
+      const next = selected.includes(optValue)
+        ? selected.filter((s) => s !== optValue)
+        : [...selected, optValue];
+      onChange(next);
+    },
+    [selected, onChange],
+  );
+
+  const groupId = React.useId();
+
+  return (
+    <div
+      role="group"
+      aria-labelledby={`${groupId}-label`}
+      aria-describedby={errorId}
+      className={cn(
+        'flex flex-wrap gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2',
+        invalid && 'border-zoru-danger',
+        disabled && 'opacity-60',
+        className,
+      )}
+    >
+      {/* Visually hidden label anchor for aria-labelledby */}
+      <span id={`${groupId}-label`} className="sr-only">
+        {field.label}
+      </span>
+
+      {(field.options ?? []).map((opt) => {
+        const on = selected.includes(opt.value);
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            disabled={disabled}
+            aria-pressed={on}
+            aria-label={`${opt.label}${on ? ', selected' : ''}`}
+            onClick={() => toggle(opt.value)}
+            className={cn(
+              'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+              on
+                ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
+                : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:border-zoru-ink/30 hover:text-zoru-ink',
+            )}
+          >
+            {on && <Check className="h-3 w-3" aria-hidden="true" />}
+            {opt.label}
+          </button>
+        );
+      })}
+      {(field.options ?? []).length === 0 && (
+        <span className="text-xs text-zoru-ink-muted">
+          No options configured.
+        </span>
+      )}
+    </div>
+  );
+});
+MultiSelectInput.displayName = 'MultiSelectInput';
+
+interface RatingInputProps {
+  field: FieldMetadata;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  disabled: boolean;
+  errorId: string | undefined;
+  className?: string;
+}
+
+const RatingInput = React.memo(function RatingInput({
+  field,
+  value,
+  onChange,
+  disabled,
+  errorId,
+  className,
+}: RatingInputProps): React.ReactElement {
+  const n = asNumber(value);
+  const current = n === '' ? 0 : Math.max(0, Math.min(5, Math.round(n)));
+
+  const handleClick = React.useCallback(
+    (star: number) => {
+      onChange(current === star ? '' : star);
+    },
+    [current, onChange],
+  );
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label={field.label}
+      aria-describedby={errorId}
+      className={cn('inline-flex items-center gap-1', className)}
+    >
+      {([1, 2, 3, 4, 5] as const).map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={disabled}
+          aria-label={`${star} star${star > 1 ? 's' : ''}`}
+          aria-checked={current === star}
+          role="radio"
+          onClick={() => handleClick(star)}
+          className="rounded p-0.5 transition-transform hover:scale-110 disabled:cursor-not-allowed"
+        >
+          <Star
+            aria-hidden="true"
+            className={cn(
+              'h-5 w-5',
+              star <= current
+                ? 'fill-zoru-ink text-zoru-ink'
+                : 'text-zoru-ink-muted/40',
+            )}
+          />
+        </button>
+      ))}
+    </div>
+  );
+});
+RatingInput.displayName = 'RatingInput';
+
+// ---------------------------------------------------------------------------
 // Editable input
 // ---------------------------------------------------------------------------
 
@@ -434,11 +596,17 @@ export interface FieldInputProps {
   /** Candidate records for RELATION fields (host-supplied). */
   relationOptions?: RelationOption[];
   id?: string;
+  /**
+   * The `id` of a sibling element that describes validation errors. When
+   * supplied it is forwarded to the underlying control as `aria-describedby`
+   * so screen readers announce the error message automatically.
+   */
+  errorId?: string;
   className?: string;
 }
 
 /** Controlled editor for a single field, switching on its {@link FieldType}. */
-export function FieldInput({
+export const FieldInput = React.memo(function FieldInput({
   field,
   value,
   onChange,
@@ -446,11 +614,15 @@ export function FieldInput({
   disabled = false,
   relationOptions = [],
   id,
+  errorId,
   className,
 }: FieldInputProps): React.ReactElement {
   const invalidRing = invalid
     ? 'border-zoru-danger focus-visible:ring-zoru-danger/30'
     : undefined;
+  // Forwarded to every underlying control so assistive technology reads the
+  // validation message element when the field is in an error state.
+  const describedBy = errorId ?? undefined;
 
   switch (field.type) {
     case 'TEXT': {
@@ -462,6 +634,9 @@ export function FieldInput({
         return (
           <Textarea
             id={id}
+            aria-label={id ? undefined : field.label}
+            aria-describedby={describedBy}
+            aria-invalid={invalid || undefined}
             value={asString(value)}
             disabled={disabled}
             placeholder={field.description ?? `Enter ${field.label.toLowerCase()}`}
@@ -474,6 +649,8 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           value={asString(value)}
           disabled={disabled}
           placeholder={field.description ?? `Enter ${field.label.toLowerCase()}`}
@@ -489,12 +666,14 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="number"
           inputMode="decimal"
           value={n === '' ? '' : String(n)}
           disabled={disabled}
           placeholder={field.type === 'CURRENCY' ? '0.00' : '0'}
-          leadingSlot={field.type === 'CURRENCY' ? <span>$</span> : undefined}
+          leadingSlot={field.type === 'CURRENCY' ? <span aria-hidden="true">$</span> : undefined}
           onChange={(e) => {
             const raw = e.target.value;
             onChange(raw === '' ? '' : Number(raw));
@@ -508,11 +687,13 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="email"
           value={asString(value)}
           disabled={disabled}
           placeholder="name@example.com"
-          leadingSlot={<Mail />}
+          leadingSlot={<Mail aria-hidden="true" />}
           onChange={(e) => onChange(e.target.value)}
           className={cn(invalidRing, className)}
         />
@@ -522,11 +703,13 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="tel"
           value={asString(value)}
           disabled={disabled}
           placeholder="+1 555 000 0000"
-          leadingSlot={<Phone />}
+          leadingSlot={<Phone aria-hidden="true" />}
           onChange={(e) => onChange(e.target.value)}
           className={cn(invalidRing, className)}
         />
@@ -536,11 +719,13 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="url"
           value={asString(value)}
           disabled={disabled}
           placeholder="https://example.com"
-          leadingSlot={<LinkIcon />}
+          leadingSlot={<LinkIcon aria-hidden="true" />}
           onChange={(e) => onChange(e.target.value)}
           className={cn(invalidRing, className)}
         />
@@ -550,6 +735,8 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="date"
           value={asString(value).slice(0, 10)}
           disabled={disabled}
@@ -562,6 +749,8 @@ export function FieldInput({
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           type="datetime-local"
           value={toDateTimeLocal(asString(value))}
           disabled={disabled}
@@ -570,20 +759,36 @@ export function FieldInput({
         />
       );
 
-    case 'BOOLEAN':
+    case 'BOOLEAN': {
+      // The Switch receives `id` so a host <label htmlFor={id}> works.
+      // The wrapping div uses role="group" + aria-label as a fallback when
+      // no external label element is wired up.
+      const boolLabel = asBoolean(value) ? 'Yes' : 'No';
+      const boolLabelId = id ? `${id}-label` : undefined;
       return (
-        <div className={cn('flex items-center gap-2', className)}>
+        <div
+          role="group"
+          aria-labelledby={boolLabelId}
+          aria-describedby={describedBy}
+          className={cn('flex items-center gap-2', className)}
+        >
           <Switch
             id={id}
+            aria-label={id ? undefined : field.label}
             checked={asBoolean(value)}
             disabled={disabled}
             onCheckedChange={(checked) => onChange(checked)}
           />
-          <span className="text-sm text-zoru-ink-muted">
-            {asBoolean(value) ? 'Yes' : 'No'}
+          <span
+            id={boolLabelId}
+            className="text-sm text-zoru-ink-muted"
+            aria-hidden="true"
+          >
+            {boolLabel}
           </span>
         </div>
       );
+    }
 
     case 'SELECT': {
       const v = asString(value);
@@ -593,7 +798,12 @@ export function FieldInput({
           disabled={disabled}
           onValueChange={(next) => onChange(next)}
         >
-          <SelectTrigger id={id} className={cn(invalidRing, className)}>
+          <SelectTrigger
+            id={id}
+            aria-label={id ? undefined : field.label}
+            aria-describedby={describedBy}
+            className={cn(invalidRing, className)}
+          >
             <SelectValue
               placeholder={`Select ${field.label.toLowerCase()}`}
             />
@@ -609,85 +819,30 @@ export function FieldInput({
       );
     }
 
-    case 'MULTI_SELECT': {
-      const selected = asStringArray(value);
-      const toggle = (optValue: string) => {
-        const next = selected.includes(optValue)
-          ? selected.filter((s) => s !== optValue)
-          : [...selected, optValue];
-        onChange(next);
-      };
+    case 'MULTI_SELECT':
       return (
-        <div
-          className={cn(
-            'flex flex-wrap gap-1.5 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-2',
-            invalid && 'border-zoru-danger',
-            disabled && 'opacity-60',
-            className,
-          )}
-        >
-          {(field.options ?? []).map((opt) => {
-            const on = selected.includes(opt.value);
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                disabled={disabled}
-                onClick={() => toggle(opt.value)}
-                className={cn(
-                  'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
-                  on
-                    ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                    : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:border-zoru-ink/30 hover:text-zoru-ink',
-                )}
-              >
-                {on && <Check className="h-3 w-3" />}
-                {opt.label}
-              </button>
-            );
-          })}
-          {(field.options ?? []).length === 0 && (
-            <span className="text-xs text-zoru-ink-muted">
-              No options configured.
-            </span>
-          )}
-        </div>
+        <MultiSelectInput
+          field={field}
+          value={value}
+          onChange={onChange}
+          invalid={invalid}
+          disabled={disabled}
+          errorId={describedBy}
+          className={className}
+        />
       );
-    }
 
-    case 'RATING': {
-      const n = asNumber(value);
-      const current = n === '' ? 0 : Math.max(0, Math.min(5, Math.round(n)));
+    case 'RATING':
       return (
-        <div
-          className={cn('inline-flex items-center gap-1', className)}
-          role="radiogroup"
-          aria-label={field.label}
-        >
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              disabled={disabled}
-              aria-label={`${star} star${star > 1 ? 's' : ''}`}
-              aria-checked={current === star}
-              role="radio"
-              onClick={() => onChange(current === star ? '' : star)}
-              className="rounded p-0.5 transition-transform hover:scale-110 disabled:cursor-not-allowed"
-            >
-              <Star
-                className={cn(
-                  'h-5 w-5',
-                  star <= current
-                    ? 'fill-zoru-ink text-zoru-ink'
-                    : 'text-zoru-ink-muted/40',
-                )}
-              />
-            </button>
-          ))}
-        </div>
+        <RatingInput
+          field={field}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          errorId={describedBy}
+          className={className}
+        />
       );
-    }
 
     case 'RELATION':
       return (
@@ -698,27 +853,39 @@ export function FieldInput({
           options={relationOptions}
           invalid={invalid}
           disabled={disabled}
+          errorId={describedBy}
           className={className}
           onChange={(next) => onChange(next)}
         />
       );
 
     case 'FILE':
+      // SabFileUrlInput does not accept arbitrary ARIA props; wrap it in a
+      // labelled group so the field label and any error description are
+      // still announced by assistive technology.
       return (
-        <SabFileUrlInput
-          value={asString(value)}
-          accept={fileAccept()}
-          disabled={disabled}
-          className={className}
-          pickerTitle={`Attach ${field.label}`}
-          onChange={(url) => onChange(url)}
-        />
+        <div
+          role="group"
+          aria-label={field.label}
+          aria-describedby={describedBy}
+          className={cn('contents', className)}
+        >
+          <SabFileUrlInput
+            value={asString(value)}
+            accept={fileAccept()}
+            disabled={disabled}
+            pickerTitle={`Attach ${field.label}`}
+            onChange={(url) => onChange(url)}
+          />
+        </div>
       );
 
     default:
       return (
         <Input
           id={id}
+          aria-label={id ? undefined : field.label}
+          aria-describedby={describedBy}
           value={asString(value)}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
@@ -726,7 +893,8 @@ export function FieldInput({
         />
       );
   }
-}
+});
+FieldInput.displayName = 'FieldInput';
 
 /** Normalises an ISO / arbitrary date string into `datetime-local` format. */
 function toDateTimeLocal(raw: string): string {

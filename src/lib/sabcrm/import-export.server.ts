@@ -59,6 +59,12 @@ import type { ExportRow } from "@/lib/crm-list-export";
 export const MAX_IMPORT_ROWS = 5_000;
 export const MAX_EXPORT_ROWS = 10_000;
 
+/**
+ * Maximum validation error strings collected per row.
+ * Prevents a pathologically-bad row from generating unbounded error arrays.
+ */
+export const MAX_ROW_ERRORS = 20;
+
 /* -------------------------------------------------------------------------- */
 /* Shared types                                                                */
 /* -------------------------------------------------------------------------- */
@@ -211,8 +217,11 @@ function coerceCell(
 
     case "CURRENCY": {
       // Currency is stored as a number (amount in the base unit).
-      const stripped = str.replace(/[^0-9.\-]/g, "");
-      const n = Number(stripped);
+      // Strip currency symbols, spaces, and thousands separators.
+      // Keep digits, decimal point, and an optional leading minus sign.
+      const stripped = str.replace(/[^0-9.-]/g, "");
+      // Reject if nothing numeric remains after stripping (e.g. pure alpha input).
+      const n = stripped.length === 0 ? NaN : Number(stripped);
       if (!Number.isFinite(n)) {
         return {
           ok: false,
@@ -307,9 +316,14 @@ function coerceCell(
       return { ok: true, value: n };
     }
 
-    // RELATION + FILE handled above; this default satisfies the compiler.
-    default:
+    // RELATION + FILE are handled above. Any unknown future FieldType falls
+    // through here: store the raw string rather than dropping data.
+    default: {
+      // Narrow the unreachable arms at compile time without an `any` cast.
+      const _exhaustive: never = field.type as never;
+      void _exhaustive;
       return { ok: true, value: str };
+    }
   }
 }
 
@@ -320,10 +334,12 @@ function coerceCell(
 /**
  * Validates a single raw row against the object's field metadata + the caller's
  * column mapping. Returns either a ready-to-insert data map or an array of
- * human-readable error strings.
+ * human-readable error strings (capped at {@link MAX_ROW_ERRORS}).
  *
  * Fields absent from `mapping` are skipped — `createRecord` will apply any
  * declared `defaultValue`. RELATION and FILE fields are always skipped.
+ * Columns present in `rawRow` that are not referenced by any field mapping are
+ * silently ignored (unknown-column skip).
  */
 function validateRow(
   rawRow: RawRow,
@@ -332,6 +348,13 @@ function validateRow(
 ): { ok: true; data: Record<string, unknown> } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   const data: Record<string, unknown> = {};
+
+  /** Append an error only while we are below the per-row cap. */
+  const addError = (msg: string): void => {
+    if (errors.length < MAX_ROW_ERRORS) {
+      errors.push(msg);
+    }
+  };
 
   for (const field of object.fields) {
     // Skip system, relation, and file fields — not settable via import.
@@ -342,17 +365,22 @@ function validateRow(
     if (!columnHeader) {
       // Still check for required fields that have no default value.
       if (field.required && field.defaultValue === undefined) {
-        errors.push(
+        addError(
           `Required field "${field.label}" (${field.key}) has no column mapping and no default value.`,
         );
       }
       continue;
     }
 
-    const raw = rawRow[columnHeader] ?? "";
+    // Unknown column: the mapped CSV header does not exist in this row.
+    // Treat exactly as an empty cell — the field may have a default value.
+    const raw: string = Object.prototype.hasOwnProperty.call(rawRow, columnHeader)
+      ? rawRow[columnHeader]
+      : "";
+
     const coerced = coerceCell(raw, field);
     if (!coerced.ok) {
-      errors.push(coerced.error);
+      addError(coerced.error);
       continue;
     }
     if (coerced.value !== undefined) {
@@ -374,22 +402,36 @@ function validateRow(
  * For each raw row:
  *   1. Maps column headers to field keys via `columnMapping`.
  *   2. Coerces each cell to the field's declared FieldType.
- *   3. Collects validation errors (or aborts early when `stopOnFirstError`).
+ *   3. Collects validation errors per-row (capped at {@link MAX_ROW_ERRORS})
+ *      without aborting the rest of the batch — unless `stopOnFirstError` is
+ *      set, in which case the first failure (validation OR insert) marks all
+ *      remaining rows as skipped and returns immediately.
  *   4. Calls `createRecord` for valid rows (applies `sanitiseData` + defaults).
+ *      A transient insert error on one row is recorded and the batch continues
+ *      (non-fatal) unless `stopOnFirstError` is set.
  *
  * RELATION and FILE columns are silently skipped — they cannot be set from
  * a flat file; use the record-detail UI post-import.
  *
+ * Unknown CSV columns (headers present in `rawRow` but not referenced by any
+ * field mapping) are silently ignored — they do not cause validation errors.
+ *
  * Returns an {@link ImportBatchResult} so the caller can show a per-row
  * summary in the import wizard UI.
  *
- * @throws `Error` when the object slug is unknown, or `rows.length > MAX_IMPORT_ROWS`.
+ * @throws `Error` (fatal, no result returned) when:
+ *   - `rows.length > MAX_IMPORT_ROWS`
+ *   - The object slug is unknown
  */
 export async function importRecords(
   opts: ImportRecordsOptions,
 ): Promise<ImportBatchResult> {
   const { object: slug, columnMapping, rows, projectId, userId, stopOnFirstError } =
     opts;
+
+  if (rows.length === 0) {
+    return { total: 0, succeeded: 0, failed: 0, rows: [] };
+  }
 
   if (rows.length > MAX_IMPORT_ROWS) {
     throw new Error(
@@ -407,6 +449,22 @@ export async function importRecords(
   let failed = 0;
   const rowResults: ImportRowResult[] = [];
 
+  /**
+   * Mark all rows from the current cursor position to the end of the input
+   * as skipped ("aborted due to earlier error"), update the failed counter,
+   * and break out of the loop.
+   *
+   * Called only when `stopOnFirstError` is true.
+   */
+  const abortRemaining = (): void => {
+    const abortMsg = "Import aborted due to earlier error.";
+    const remaining = rows.length - rowResults.length;
+    for (let i = 0; i < remaining; i++) {
+      rowResults.push({ ok: false, errors: [abortMsg] });
+      failed += 1;
+    }
+  };
+
   for (const rawRow of rows) {
     const validated = validateRow(rawRow, objectMeta, columnMapping);
 
@@ -414,12 +472,7 @@ export async function importRecords(
       failed += 1;
       rowResults.push({ ok: false, errors: validated.errors });
       if (stopOnFirstError) {
-        // Fill remaining rows as not-attempted and return early.
-        const remaining = rows.length - rowResults.length;
-        for (let i = 0; i < remaining; i++) {
-          rowResults.push({ ok: false, errors: ["Import aborted due to earlier error."] });
-          failed += 1;
-        }
+        abortRemaining();
         break;
       }
       continue;
@@ -429,20 +482,15 @@ export async function importRecords(
       const record = await createRecord(projectId, userId, slug, validated.data);
       succeeded += 1;
       rowResults.push({ ok: true, record });
-    } catch (e) {
+    } catch (err) {
       failed += 1;
-      rowResults.push({
-        ok: false,
-        errors: [e instanceof Error ? e.message : "Insert failed."],
-      });
+      const msg = err instanceof Error ? err.message : "Insert failed.";
+      rowResults.push({ ok: false, errors: [msg] });
       if (stopOnFirstError) {
-        const remaining = rows.length - rowResults.length;
-        for (let i = 0; i < remaining; i++) {
-          rowResults.push({ ok: false, errors: ["Import aborted due to earlier error."] });
-          failed += 1;
-        }
+        abortRemaining();
         break;
       }
+      // Non-fatal: continue with next row.
     }
   }
 
@@ -823,3 +871,16 @@ export async function validateImportMapping(
 
   return issues;
 }
+
+/* -------------------------------------------------------------------------- */
+/* @internal — test-only exports                                               */
+/*                                                                             */
+/* These are NOT part of the public API. They expose the private helpers       */
+/* coerceCell and validateRow so that the node:test unit tests in __tests__/  */
+/* can exercise them directly without a live MongoDB connection.               */
+/*                                                                             */
+/* Do not import these in application code.                                   */
+/* -------------------------------------------------------------------------- */
+
+/** @internal */
+export { coerceCell as _coerceCell, validateRow as _validateRow };

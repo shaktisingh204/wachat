@@ -102,12 +102,11 @@ import {
   updateAutomationRuleAction,
   deleteAutomationRuleAction,
 } from '@/app/actions/sabcrm.actions';
-import type { AutomationRule } from '@/lib/sabcrm/automation.server';
-import {
-  AUTOMATION_EVENTS,
-  type AutomationEvent,
-  type AutomationAction,
+import type {
+  AutomationRule,
+  AutomationAction,
 } from '@/lib/sabcrm/automation.server';
+import { AUTOMATION_EVENTS, type AutomationEvent } from '@/lib/sabcrm/automation-events';
 
 // ---------------------------------------------------------------------------
 // Constants

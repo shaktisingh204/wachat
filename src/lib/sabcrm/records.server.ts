@@ -75,6 +75,13 @@ interface StoredRecord {
 
 const DEFAULT_PAGE_SIZE = 30;
 const MAX_PAGE_SIZE = 200;
+/**
+ * Upper bound on the requested page index. Bounds the computed `skip` so a
+ * hostile / runaway `page` can never produce a non-finite skip or an
+ * unbounded scan. 1e7 pages × the max page size is already far past any real
+ * dataset; callers asking beyond it simply get the last clamped page.
+ */
+const MAX_PAGE = 10_000_000;
 
 /* -------------------------------------------------------------------------- */
 /* Typed query primitives (additive)                                          */
@@ -165,9 +172,77 @@ const VALID_OPERATORS: ReadonlySet<string> = new Set<FilterOperator>([
 /* Id helpers (the single string <-> ObjectId boundary)                       */
 /* -------------------------------------------------------------------------- */
 
-/** Returns an {@link ObjectId} for a caller-supplied id, or `null` if invalid. */
-function toObjectId(id: string): ObjectId | null {
-  return ObjectId.isValid(id) ? new ObjectId(id) : null;
+/**
+ * Returns an {@link ObjectId} for a caller-supplied id, or `null` if invalid.
+ *
+ * Hardened against malformed input: `ObjectId.isValid` accepts any 12-byte
+ * Buffer or 24-char hex string but will happily coerce a 12-char ASCII string
+ * (e.g. `"deletethis!!"`) too, so we additionally require a plain non-empty
+ * string. Non-string / empty / whitespace ids short-circuit to `null`, which
+ * every caller maps onto a clean not-found result rather than a thrown error.
+ */
+function toObjectId(id: unknown): ObjectId | null {
+  if (typeof id !== "string") return null;
+  const trimmed = id.trim();
+  if (!trimmed || !ObjectId.isValid(trimmed)) return null;
+  return new ObjectId(trimmed);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Query-value safety ($-injection defence)                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A value is "operator-bearing" when it is a plain object that carries a
+ * MongoDB operator key (`$gt`, `$where`, `$function`, `$ne`, …) or a dotted
+ * path key. Such values must NEVER be spread into a query straight from caller
+ * input — doing so would let a request smuggle its own query operators past the
+ * typed builder (NoSQL injection). Legitimate composite field values
+ * (currency `{ amount, currency }`, relation `{ id, label }`, etc.) contain no
+ * `$`/`.`-prefixed keys and are therefore considered safe.
+ *
+ * Detection is shallow-recursive: nested objects/arrays are inspected too, so a
+ * payload like `{ a: { $where: "…" } }` is still rejected.
+ */
+function hasOperatorKeys(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some(hasOperatorKeys);
+  }
+  if (value === null || typeof value !== "object") return false;
+  if (value instanceof Date) return false;
+  for (const key of Object.keys(value as Record<string, unknown>)) {
+    if (key.startsWith("$") || key.includes(".")) return true;
+    if (hasOperatorKeys((value as Record<string, unknown>)[key])) return true;
+  }
+  return false;
+}
+
+/**
+ * Sanitises a caller-supplied value destined to be used as a *raw* match value
+ * (i.e. placed into the query without our own wrapping operator). Returns the
+ * value unchanged when it is injection-safe, or `undefined` when it carries
+ * Mongo operators / dotted keys (signalling the caller to drop the clause).
+ *
+ * Primitives, `Date`s and arrays/objects free of `$`/`.` keys pass through
+ * untouched so all legitimate exact-match queries keep working.
+ */
+function safeMatchValue(value: unknown): unknown | undefined {
+  return hasOperatorKeys(value) ? undefined : value;
+}
+
+/**
+ * Rejects legacy-filter / field keys that could escape the `data.<key>` path or
+ * pollute the query object: anything containing `$`, `.` or the well-known
+ * prototype-pollution keys. Field keys in this module are always simple
+ * identifiers, so this is a tightening with no effect on valid input.
+ */
+function isSafeFilterKey(key: string): boolean {
+  if (!key) return false;
+  if (key.includes("$") || key.includes(".")) return false;
+  if (key === "__proto__" || key === "constructor" || key === "prototype") {
+    return false;
+  }
+  return true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -304,11 +379,26 @@ function conditionToMongo(
 
   const path = fieldPath(field);
 
+  // Operators that place a *raw* caller value into the query run it through the
+  // injection guard first: an operator-bearing object (e.g. `{ $where: "…" }`)
+  // makes the whole clause a no-op rather than smuggling a Mongo operator in.
+  // `in`/`notIn` additionally drop any operator-bearing array elements so a
+  // single poisoned member can't taint the set.
+  const safeArray = (raw: unknown): unknown[] | null => {
+    const arr = Array.isArray(raw) ? raw : [raw];
+    const clean = arr.filter((item) => safeMatchValue(item) !== undefined);
+    return clean.length > 0 ? clean : null;
+  };
+
   switch (op) {
-    case "eq":
-      return { path, expr: value };
-    case "neq":
-      return { path, expr: { $ne: value } };
+    case "eq": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: safe };
+    }
+    case "neq": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: { $ne: safe } };
+    }
     case "contains":
       return {
         path,
@@ -319,18 +409,30 @@ function conditionToMongo(
         path,
         expr: { $not: { $regex: escapeRegExp(String(value)), $options: "i" } },
       };
-    case "gt":
-      return { path, expr: { $gt: value } };
-    case "gte":
-      return { path, expr: { $gte: value } };
-    case "lt":
-      return { path, expr: { $lt: value } };
-    case "lte":
-      return { path, expr: { $lte: value } };
-    case "in":
-      return { path, expr: { $in: Array.isArray(value) ? value : [value] } };
-    case "notIn":
-      return { path, expr: { $nin: Array.isArray(value) ? value : [value] } };
+    case "gt": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: { $gt: safe } };
+    }
+    case "gte": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: { $gte: safe } };
+    }
+    case "lt": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: { $lt: safe } };
+    }
+    case "lte": {
+      const safe = safeMatchValue(value);
+      return safe === undefined ? null : { path, expr: { $lte: safe } };
+    }
+    case "in": {
+      const arr = safeArray(value);
+      return arr ? { path, expr: { $in: arr } } : null;
+    }
+    case "notIn": {
+      const arr = safeArray(value);
+      return arr ? { path, expr: { $nin: arr } } : null;
+    }
     case "isEmpty":
       // Missing, null, or empty string.
       return { path, expr: { $in: [null, ""] } };
@@ -362,11 +464,18 @@ function buildFilter(
     object: query.object,
   };
 
-  // Legacy exact-match filters (Record<field, value>).
+  // Legacy exact-match filters (Record<field, value>). Both the key and the
+  // value are caller-supplied, so we (a) reject keys that could escape the
+  // `data.<key>` path or pollute the query object and (b) drop values that
+  // carry Mongo operators / dotted keys — only injection-safe scalars, dates,
+  // and operator-free composite objects are passed straight through.
   if (query.filters) {
     for (const [key, value] of Object.entries(query.filters)) {
       if (value === undefined || value === null || value === "") continue;
-      (filter as Record<string, unknown>)[`data.${key}`] = value;
+      if (!isSafeFilterKey(key)) continue;
+      const safe = safeMatchValue(value);
+      if (safe === undefined) continue;
+      (filter as Record<string, unknown>)[`data.${key}`] = safe;
     }
   }
 
@@ -439,14 +548,28 @@ function buildSort(query: RecordQueryExtended, object: ObjectMetadata): Sort {
   return { createdAt: -1 };
 }
 
+/**
+ * Clamps a requested page size into `[1, MAX_PAGE_SIZE]`, defaulting when the
+ * input is missing / non-finite (NaN, ±Infinity) / non-positive. The result is
+ * always a positive integer so it is safe to hand to Mongo's `.limit()`.
+ */
 function clampPageSize(pageSize?: number): number {
-  if (!pageSize || pageSize <= 0) return DEFAULT_PAGE_SIZE;
-  return Math.min(pageSize, MAX_PAGE_SIZE);
+  if (typeof pageSize !== "number" || !Number.isFinite(pageSize)) {
+    return DEFAULT_PAGE_SIZE;
+  }
+  if (pageSize <= 0) return DEFAULT_PAGE_SIZE;
+  return Math.min(Math.floor(pageSize), MAX_PAGE_SIZE);
 }
 
+/**
+ * Clamps a requested page index into `[1, MAX_PAGE]`, defaulting to `1` when the
+ * input is missing / non-finite / below 1. Capping the upper bound keeps the
+ * computed `skip` finite (an `Infinity` page would otherwise produce an
+ * `Infinity`/`NaN` skip and throw inside the driver).
+ */
 function clampPage(page?: number): number {
-  if (!page || page < 1) return 1;
-  return Math.floor(page);
+  if (typeof page !== "number" || !Number.isFinite(page) || page < 1) return 1;
+  return Math.min(Math.floor(page), MAX_PAGE);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -742,10 +865,14 @@ export async function groupRecords(
   const filter = buildFilter(projectId, userId, fullQuery, meta);
   const sort = buildSort(fullQuery, meta);
 
-  const cap = Math.min(
-    MAX_BOARD_CAP,
-    Math.max(1, query?.pageSize ?? DEFAULT_BOARD_CAP),
-  );
+  // Per-board read cap. Guard the caller-supplied `pageSize` against
+  // missing / non-finite values so the `.limit()` below is always a positive
+  // integer in `[1, MAX_BOARD_CAP]`.
+  const requestedCap =
+    typeof query?.pageSize === "number" && Number.isFinite(query.pageSize)
+      ? Math.floor(query.pageSize)
+      : DEFAULT_BOARD_CAP;
+  const cap = Math.min(MAX_BOARD_CAP, Math.max(1, requestedCap));
 
   const rawDocs = await col
     .find(filter as unknown as Filter<Record<string, unknown>>)

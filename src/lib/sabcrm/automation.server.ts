@@ -52,40 +52,17 @@ import { fireCrmNotification } from "@/lib/notifications/crm";
  * Types — automation event                                                   *
  * ======================================================================== */
 
-/**
- * The lifecycle events that can trigger an automation rule.
- *
- * - `record_created`   — a new CRM record of `objectSlug` was created.
- * - `record_updated`   — an existing record was patched via `updateRecord`.
- * - `record_deleted`   — a record was deleted.
- * - `activity_created` — a timeline activity (note/task/call/…) was created
- *                        for a record.
- * - `field_changed`    — the value of a specific field changed (superset of
- *                        `record_updated`, but triggers only when `fieldKey`
- *                        matches the automation's condition).
- */
-export type AutomationEvent =
-  | "record_created"
-  | "record_updated"
-  | "record_deleted"
-  | "activity_created"
-  | "field_changed";
-
-/** The set of all recognised automation events. */
-export const AUTOMATION_EVENTS: readonly AutomationEvent[] = [
-  "record_created",
-  "record_updated",
-  "record_deleted",
-  "activity_created",
-  "field_changed",
-] as const;
-
-function isAutomationEvent(value: unknown): value is AutomationEvent {
-  return (
-    typeof value === "string" &&
-    (AUTOMATION_EVENTS as readonly string[]).includes(value)
-  );
-}
+// The event vocabulary lives in a framework-neutral module so the automations
+// settings UI (a Client Component) can import it without pulling this
+// server-only engine (Mongo) into the client bundle. Re-exported here for
+// existing server callers.
+export {
+  AUTOMATION_EVENTS,
+  isAutomationEvent,
+  type AutomationEvent,
+} from "./automation-events";
+import { isAutomationEvent } from "./automation-events";
+import type { AutomationEvent } from "./automation-events";
 
 /* ======================================================================== *
  * Types — conditions                                                         *

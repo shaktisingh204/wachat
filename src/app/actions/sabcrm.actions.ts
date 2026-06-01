@@ -3046,9 +3046,11 @@ export async function getActivityFeedAction(
 // ---------------------------------------------------------------------------
 
 // Re-export the serialised types callers need without reaching into the
-// server-only webhooks lib directly.
+// server-only webhooks lib directly. NOTE: a 'use server' module may only
+// export async functions — value constants (SABCRM_WEBHOOK_EVENTS) live in the
+// framework-neutral `@/lib/sabcrm/webhook-events` module; import them from
+// there in client/server code, not from this actions file.
 export type { WebhookSubscription, CreateWebhookInput, UpdateWebhookPatch };
-export { SABCRM_WEBHOOK_EVENTS };
 
 /** Lists all webhook subscriptions for the active project, newest first. */
 export async function listWebhooksAction(
@@ -3371,14 +3373,16 @@ export async function revokeApiKeyAction(
 // admin-gated because automation rules expose internal business logic.
 // ---------------------------------------------------------------------------
 
-// Re-export the types callers need.
+// Re-export the types callers need. NOTE: a 'use server' module may only
+// export async functions — the AUTOMATION_EVENTS value constant lives in the
+// framework-neutral `@/lib/sabcrm/automation-events` module; import it from
+// there in client/server code, not from this actions file.
 export type {
   AutomationRule,
   CreateAutomationRuleInput,
   UpdateAutomationRulePatch,
   AutomationRuleStatus,
 };
-export { AUTOMATION_EVENTS };
 export type {
   AutomationEvent,
   AutomationCondition,

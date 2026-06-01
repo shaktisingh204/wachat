@@ -26,6 +26,9 @@
  *   - ARIA: proper grid/rowgroup/columnheader/row roles, aria-sort on
  *     active sort columns, aria-busy during loading, aria-live for the
  *     status region, and aria-label on the actions column.
+ *   - Perf: RecordRow is memoized so only the row(s) whose busy-state
+ *     changes re-render; stable refs break dep-cycle on `total` /
+ *     `onRowUpdate` to avoid cascade re-renders.
  */
 
 import * as React from 'react';
@@ -48,6 +51,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
+  TableCaption,
   EmptyState,
   Skeleton,
   cn,
@@ -113,6 +117,100 @@ function applyPatch(
 }
 
 // ---------------------------------------------------------------------------
+// RecordRow — memoized so only affected rows re-render when busy-state changes
+// ---------------------------------------------------------------------------
+
+interface RecordRowProps {
+  record: CrmRecordWithLabel;
+  rowIndex: number;
+  columns: FieldMetadata[];
+  fields: FieldMetadata[];
+  isDeleting: boolean;
+  isUpdating: boolean;
+  isInteractive: boolean;
+  canDelete: boolean;
+  resolveRelationLabel?: (id: string) => string | undefined;
+  onRowClick?: (record: CrmRecordWithLabel) => void;
+  onRowKeyDown: (record: CrmRecordWithLabel, e: React.KeyboardEvent<HTMLTableRowElement>) => void;
+  onDelete: (record: CrmRecordWithLabel, e: React.MouseEvent | React.KeyboardEvent) => void;
+}
+
+/** Single data row. Memoized — only re-renders when its own props change. */
+const RecordRow = React.memo(function RecordRow({
+  record,
+  rowIndex,
+  columns,
+  fields,
+  isDeleting,
+  isUpdating,
+  isInteractive,
+  canDelete,
+  resolveRelationLabel,
+  onRowClick,
+  onRowKeyDown,
+  onDelete,
+}: RecordRowProps): React.ReactElement {
+  const title = resolveRecordTitle(record, fields);
+  const isBusy = isDeleting || isUpdating;
+
+  return (
+    <TableRow
+      key={record._id}
+      tabIndex={isInteractive ? 0 : undefined}
+      role="row"
+      aria-rowindex={rowIndex + 2} // +1 for 1-based, +1 more for header row
+      aria-busy={isBusy}
+      aria-disabled={isDeleting}
+      className={cn(
+        isInteractive &&
+          'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-inset',
+        isBusy && 'opacity-50 pointer-events-none',
+      )}
+      onClick={() => {
+        if (!isBusy) onRowClick?.(record);
+      }}
+      onKeyDown={(e) => {
+        if (!isBusy) onRowKeyDown(record, e);
+      }}
+    >
+      <TableCell className="font-medium text-zoru-ink">
+        {title}
+      </TableCell>
+      {columns.map((col) => (
+        <TableCell key={col.key}>
+          <FieldValue
+            field={col}
+            value={record.data[col.key]}
+            resolveRelationLabel={resolveRelationLabel}
+            dense
+          />
+        </TableCell>
+      ))}
+      {canDelete && (
+        <TableCell>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Delete ${title}`}
+            disabled={isBusy}
+            onClick={(e) => onDelete(record, e)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                onDelete(record, e);
+              }
+            }}
+          >
+            <Trash2 className="text-zoru-ink-muted" aria-hidden />
+          </Button>
+        </TableCell>
+      )}
+    </TableRow>
+  );
+});
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -174,6 +272,21 @@ export function RecordTable({
   React.useEffect(() => {
     recordsRef.current = records;
   }, [records]);
+
+  // Stable ref to `total` so handleDelete can snapshot it without being
+  // listed as a dep (which would recreate the callback — and cause every
+  // memoized RecordRow to re-render — on each delete).
+  const totalRef = React.useRef(total);
+  React.useEffect(() => {
+    totalRef.current = total;
+  }, [total]);
+
+  // Stable ref to `onRowUpdate` so handleRowUpdate stays referentially stable
+  // across host re-renders that pass a new (but equivalent) callback.
+  const onRowUpdateRef = React.useRef(onRowUpdate);
+  React.useEffect(() => {
+    onRowUpdateRef.current = onRowUpdate;
+  }, [onRowUpdate]);
 
   // Debounce the search box.
   React.useEffect(() => {
@@ -250,8 +363,11 @@ export function RecordTable({
       if (!confirmed) return;
 
       // --- Optimistic removal ---
+      // Read current values through refs so this callback stays stable across
+      // renders (avoids making `total` a dep, which would invalidate all
+      // memoized RecordRow instances on each deletion).
       const snapshotRecords = recordsRef.current;
-      const snapshotTotal = total; // captured at call time via closure over state
+      const snapshotTotal = totalRef.current;
 
       setDeletingIds((prev) => new Set([...prev, record._id]));
       setRecords((curr) => curr.filter((r) => r._id !== record._id));
@@ -279,8 +395,8 @@ export function RecordTable({
 
       toastRef.current({ title: `Deleted ${object.labelSingular.toLowerCase()}.` });
     },
-    // total must be a dep so the snapshot captures the current value.
-    [object.fields, object.labelSingular, projectId, total],
+    // totalRef / recordsRef / toastRef are stable refs — excluded from deps intentionally.
+    [object.fields, object.labelSingular, projectId],
   );
 
   // ---------------------------------------------------------------------------
@@ -318,11 +434,12 @@ export function RecordTable({
       }
 
       toastRef.current({ title: 'Record updated.' });
-      // Notify the host if it needs to do something post-save (e.g. close an
-      // inline editor). This is fire-and-forget from the table's perspective.
-      onRowUpdate?.(recordId, patch);
+      // Notify the host via ref so this callback stays stable regardless of
+      // whether the host passes a new `onRowUpdate` function reference.
+      onRowUpdateRef.current?.(recordId, patch);
     },
-    [projectId, onRowUpdate],
+    // onRowUpdateRef / toastRef / recordsRef are stable refs — excluded intentionally.
+    [projectId],
   );
 
   // ---------------------------------------------------------------------------
@@ -433,6 +550,16 @@ export function RecordTable({
         aria-busy={loading}
       >
         <Table aria-label={object.labelPlural} aria-rowcount={total}>
+          {/*
+           * sr-only caption provides a concise description of the table's
+           * purpose for screen reader users who navigate by table landmarks.
+           * The visible column headers are sufficient for sighted users.
+           */}
+          <TableCaption className="sr-only">
+            {object.labelPlural}
+            {debouncedSearch ? ` — filtered by "${debouncedSearch}"` : ''}
+            {sort ? ` — sorted by ${sort.by} ${sort.dir}ending` : ''}
+          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead
@@ -509,69 +636,23 @@ export function RecordTable({
                 </TableCell>
               </TableRow>
             ) : (
-              records.map((record, rowIndex) => {
-                const isDeleting = deletingIds.has(record._id);
-                const isUpdating = updatingIds.has(record._id);
-                const isInteractive = !!onRowClick;
-                return (
-                  <TableRow
-                    key={record._id}
-                    // Row is focusable when it's clickable.
-                    tabIndex={isInteractive ? 0 : undefined}
-                    role="row"
-                    aria-rowindex={rowIndex + 1}
-                    aria-busy={isDeleting || isUpdating}
-                    aria-disabled={isDeleting}
-                    className={cn(
-                      isInteractive &&
-                        'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink focus-visible:ring-inset',
-                      (isDeleting || isUpdating) && 'opacity-50 pointer-events-none',
-                    )}
-                    onClick={() => {
-                      if (!isDeleting && !isUpdating) onRowClick?.(record);
-                    }}
-                    onKeyDown={(e) => {
-                      if (!isDeleting && !isUpdating) handleRowKeyDown(record, e);
-                    }}
-                  >
-                    <TableCell className="font-medium text-zoru-ink">
-                      {resolveRecordTitle(record, object.fields)}
-                    </TableCell>
-                    {columns.map((col) => (
-                      <TableCell key={col.key}>
-                        <FieldValue
-                          field={col}
-                          value={record.data[col.key]}
-                          resolveRelationLabel={resolveRelationLabel}
-                          dense
-                        />
-                      </TableCell>
-                    ))}
-                    {canDelete && (
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Delete ${resolveRecordTitle(record, object.fields)}`}
-                          disabled={isDeleting || isUpdating}
-                          // Stop click propagation so clicking delete doesn't
-                          // also trigger onRowClick.
-                          onClick={(e) => void handleDelete(record, e)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.stopPropagation();
-                              void handleDelete(record, e);
-                            }
-                          }}
-                        >
-                          <Trash2 className="text-zoru-ink-muted" aria-hidden />
-                        </Button>
-                      </TableCell>
-                    )}
-                  </TableRow>
-                );
-              })
+              records.map((record, rowIndex) => (
+                <RecordRow
+                  key={record._id}
+                  record={record}
+                  rowIndex={rowIndex}
+                  columns={columns}
+                  fields={object.fields}
+                  isDeleting={deletingIds.has(record._id)}
+                  isUpdating={updatingIds.has(record._id)}
+                  isInteractive={!!onRowClick}
+                  canDelete={canDelete}
+                  resolveRelationLabel={resolveRelationLabel}
+                  onRowClick={onRowClick}
+                  onRowKeyDown={handleRowKeyDown}
+                  onDelete={handleDelete}
+                />
+              ))
             )}
           </TableBody>
         </Table>

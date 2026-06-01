@@ -260,11 +260,11 @@ function AuthorAvatar({
 }): React.ReactElement {
   const name = author?.name?.trim() || authorId || 'Unknown';
   return (
-    <Avatar className={cn('h-8 w-8', pending && 'opacity-60')}>
+    <Avatar className={cn('h-8 w-8', pending && 'opacity-60')} title={name}>
       {author?.avatarUrl ? (
-        <ZoruAvatarImage src={author.avatarUrl} alt={name} />
+        <ZoruAvatarImage src={author.avatarUrl} alt={`${name}'s avatar`} />
       ) : null}
-      <ZoruAvatarFallback>{initials(name)}</ZoruAvatarFallback>
+      <ZoruAvatarFallback aria-label={`${name}'s initials`}>{initials(name)}</ZoruAvatarFallback>
     </Avatar>
   );
 }
@@ -276,11 +276,11 @@ function AttachmentRow({
 }): React.ReactElement | null {
   if (!attachments.length) return null;
   return (
-    <ul className="mt-2 flex flex-wrap gap-2">
+    <ul className="mt-2 flex flex-wrap gap-2" aria-label="Attachments">
       {attachments.map((att) => {
         const chip = (
           <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-muted px-2 py-1 text-xs text-zoru-ink">
-            <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" />
+            <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" aria-hidden="true" />
             <span className="min-w-0 truncate">{att.name}</span>
           </span>
         );
@@ -291,6 +291,7 @@ function AttachmentRow({
                 href={att.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Download ${att.name}`}
                 className="transition-opacity hover:opacity-80"
               >
                 {chip}
@@ -320,6 +321,8 @@ function TimelineEntry({
   const authorName =
     author?.name?.trim() || activity.authorId || 'Unknown';
   const isComment = activity.type === 'COMMENT';
+  const createdAtMs = toMs(activity.createdAt);
+  const isoDateTime = new Date(createdAtMs).toISOString();
 
   return (
     <li
@@ -341,13 +344,17 @@ function TimelineEntry({
               variant="outline"
               className="inline-flex items-center gap-1 px-1.5 py-0 text-[11px] font-normal"
             >
-              <Icon className="h-3 w-3" />
+              <Icon className="h-3 w-3" aria-hidden="true" />
               {TYPE_LABEL[activity.type]}
             </Badge>
           )}
-          <span className="text-xs text-zoru-ink-muted">
+          <time
+            dateTime={isoDateTime}
+            title={new Date(createdAtMs).toLocaleString()}
+            className="text-xs text-zoru-ink-muted"
+          >
             {pending ? 'Saving…' : relativeTime(activity.createdAt, nowMs)}
-          </span>
+          </time>
         </div>
 
         {!isComment && activity.title ? (
@@ -411,11 +418,14 @@ function Composer({
     <Card>
       <CardContent className="flex flex-col gap-3 p-3">
         <div className="flex items-center gap-2">
+          <label htmlFor="activity-type-select" className="text-sm font-medium text-zoru-ink">
+            Activity type
+          </label>
           <Select
             value={type}
             onValueChange={(v) => setType(v as ComposerType)}
           >
-            <SelectTrigger className="h-8 w-[140px] text-sm">
+            <SelectTrigger className="h-8 w-[140px] text-sm" id="activity-type-select">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -428,7 +438,11 @@ function Composer({
           </Select>
         </div>
 
+        <label htmlFor="activity-body-textarea" className="sr-only">
+          {placeholder}
+        </label>
         <Textarea
+          id="activity-body-textarea"
           value={body}
           onChange={(e) => setBody(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -436,14 +450,15 @@ function Composer({
           rows={3}
           disabled={submitting}
           className="resize-y text-sm"
+          aria-describedby="activity-submit-hint"
         />
 
         {attachments.length > 0 && (
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2" aria-label="Pending attachments">
             {attachments.map((att) => (
               <li key={att.fileId}>
                 <span className="inline-flex max-w-[14rem] items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-surface-muted px-2 py-1 text-xs text-zoru-ink">
-                  <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" />
+                  <Paperclip className="h-3 w-3 shrink-0 text-zoru-ink-muted" aria-hidden="true" />
                   <span className="min-w-0 truncate">{att.name}</span>
                   <button
                     type="button"
@@ -452,7 +467,7 @@ function Composer({
                     aria-label={`Remove ${att.name}`}
                     className="ml-0.5 rounded-sm text-zoru-ink-muted transition-colors hover:text-zoru-ink disabled:opacity-50"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-3 w-3" aria-hidden="true" />
                   </button>
                 </span>
               </li>
@@ -460,14 +475,19 @@ function Composer({
           </ul>
         )}
 
+        <p id="activity-submit-hint" className="text-xs text-zoru-ink-muted">
+          Tip: Press Ctrl+Enter or Cmd+Enter to submit
+        </p>
+
         <div className="flex items-center justify-between gap-2">
           <SabFilePickerButton
             accept="all"
             variant="outline"
             className="h-8 px-3 text-sm"
             onPick={onAddPick}
+            aria-label="Attach files to this activity"
           >
-            <Paperclip className="h-4 w-4" />
+            <Paperclip className="h-4 w-4" aria-hidden="true" />
             Attach
           </SabFilePickerButton>
           <Button
@@ -476,11 +496,12 @@ function Composer({
             onClick={onSubmit}
             disabled={!canSubmit}
             className="gap-1.5"
+            aria-label={type === 'COMMENT' ? 'Post comment' : `Log ${TYPE_LABEL[type].toLowerCase()}`}
           >
             {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send className="h-4 w-4" aria-hidden="true" />
             )}
             {type === 'COMMENT' ? 'Comment' : 'Log'}
           </Button>
@@ -498,7 +519,7 @@ function TimelineSkeleton(): React.ReactElement {
   return (
     <ul className="flex flex-col gap-5" aria-hidden="true">
       {[0, 1, 2].map((i) => (
-        <li key={i} className="flex gap-3">
+        <li key={`skeleton-${i}`} className="flex gap-3">
           <Skeleton className="h-8 w-8 rounded-full" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-3.5 w-40" />
@@ -747,9 +768,11 @@ export function ActivityTimeline({
       <Card>
         <CardContent className="p-4 sm:p-5">
           {loading ? (
-            <TimelineSkeleton />
+            <div role="status" aria-live="polite" aria-label="Loading activity timeline">
+              <TimelineSkeleton />
+            </div>
           ) : loadError ? (
-            <div className="flex flex-col items-center gap-3 py-8">
+            <div className="flex flex-col items-center gap-3 py-8" role="alert">
               <EmptyState
                 title="Couldn’t load activity"
                 description={loadError}
@@ -774,15 +797,15 @@ export function ActivityTimeline({
               />
             </div>
           ) : (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6" role="log" aria-label="Activity timeline" aria-live="polite">
               {groups.map((group) => (
-                <section key={group.key}>
-                  <div className="mb-3 flex items-center gap-3">
+                <section key={group.key} aria-label={`Activity from ${group.heading}`}>
+                  <h2 className="mb-3 flex items-center gap-3">
                     <span className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
                       {group.heading}
                     </span>
-                    <Separator className="flex-1" />
-                  </div>
+                    <Separator className="flex-1" aria-hidden="true" />
+                  </h2>
                   <ul className="flex flex-col">
                     {group.items.map((activity) => (
                       <TimelineEntry
@@ -805,9 +828,11 @@ export function ActivityTimeline({
                     disabled={loadingMore}
                     onClick={() => void fetchPage(page + 1, 'append')}
                     className="gap-1.5"
+                    aria-busy={loadingMore}
+                    aria-label={`Load older activity. Currently showing ${activities.length} of ${total} items.`}
                   >
                     {loadingMore && (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                     )}
                     Load older activity
                   </Button>
