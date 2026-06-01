@@ -1,0 +1,8 @@
+# SabCRM post-fix verification (Mon Jun  1 03:28:04 IST 2026)
+dist_light_chromatic_p3=0
+dist_dark_chromatic_p3=0
+src_light_chromatic_p3=0
+files_with_SabCRM=31
+(eval):10: no matches found: [\\\"][^\"]*(SabCRM|Sabnode)"
+broken_imports=0
+pkgname_altered=0

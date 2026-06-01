@@ -27,6 +27,19 @@ import {
   listObjects,
   getObject,
   addCustomField,
+  createCustomObject,
+  updateObject,
+  deleteCustomObject,
+  addField,
+  updateField,
+  removeField,
+  reorderFields,
+  createRelation,
+  type CreateCustomObjectInput,
+  type UpdateObjectPatch,
+  type UpdateFieldPatch,
+  type DeleteCustomObjectResult,
+  type CreateRelationResult,
 } from '@/lib/sabcrm/objects.server';
 import {
   listRecords,
@@ -61,6 +74,19 @@ import {
   type AssignResult,
   type MyAssignmentsPage,
 } from '@/lib/sabcrm/assignment.server';
+import {
+  listCrmMembers,
+  type CrmMember,
+} from '@/lib/sabcrm/members.server';
+import {
+  importRecords,
+  exportRecords,
+  type ImportBatchResult,
+  type ExportRecordsResult,
+  type RawRow,
+  type ColumnMapping,
+} from '@/lib/sabcrm/import-export.server';
+import { writeAuditEntry } from '@/lib/audit-log';
 import { fireCrmNotification } from '@/lib/notifications/crm';
 import { sabcrmRecords, sabcrmViews } from '@/lib/sabcrm/db';
 import { ObjectId, type Filter, type Sort } from 'mongodb';
@@ -68,6 +94,7 @@ import type {
   ActionResult,
   ObjectMetadata,
   FieldMetadata,
+  FieldRelation,
   CrmRecord,
   CrmRecordWithLabel,
   RecordQuery,
@@ -1453,5 +1480,554 @@ export async function addCommentAction(
     return { ok: true, data: activity };
   } catch (e) {
     return fail(e, 'Failed to add comment.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Custom object management (admin-gated)
+//
+// Creating, updating, and deleting custom objects mutate the CRM data model
+// and are therefore gated behind the `edit` action, which maps to
+// `sabcrm:admin` in the SabCRM RBAC capability set.
+//
+// Every mutation fires a best-effort audit entry so changes appear in the
+// §12.21 audit-log page alongside record-level events.
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a fully-custom CRM object for the active project.
+ *
+ * Admin-gated. Validates the slug (kebab-case, not a reserved standard slug),
+ * enforces at least one `isLabel` field (defaults to a `name` TEXT field when
+ * none is supplied), and writes the new object doc to `sabcrm_objects`.
+ */
+export async function createCustomObjectAction(
+  input: CreateCustomObjectInput,
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!input?.slug?.trim()) {
+    return { ok: false, error: 'Object slug is required.' };
+  }
+  if (!input.labelSingular?.trim() || !input.labelPlural?.trim()) {
+    return { ok: false, error: 'Singular and plural labels are required.' };
+  }
+  if (!input.icon?.trim()) {
+    return { ok: false, error: 'An icon is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await createCustomObject(g.ctx.projectId, input);
+
+    // Fire-and-forget audit: never unwinds the data write on failure.
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'create',
+      entityKind: 'crm_object',
+      entityId: data.slug,
+      reason: `Created custom object "${data.labelSingular}"`,
+    }).catch(() => undefined);
+
+    revalidatePath(CRM_BASE_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create custom object.');
+  }
+}
+
+/**
+ * Updates the presentation metadata (labels, icon, description, views, board)
+ * of a fully-custom object. Standard objects are immutable via this action —
+ * only field additions are permitted on standard objects through
+ * {@link addCustomFieldAction}.
+ *
+ * Admin-gated.
+ */
+export async function updateObjectAction(
+  slug: string,
+  patch: UpdateObjectPatch,
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!patch || Object.keys(patch).length === 0) {
+    return { ok: false, error: 'At least one field to update is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await updateObject(g.ctx.projectId, slug, patch);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'update',
+      entityKind: 'crm_object',
+      entityId: slug,
+      diff: Object.fromEntries(
+        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+      ),
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${slug}`);
+    revalidatePath(CRM_BASE_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update object.');
+  }
+}
+
+/**
+ * Deletes a fully-custom object. Standard objects cannot be deleted.
+ *
+ * By default, refuses deletion when records exist for the object. Pass
+ * `{ force: true }` to cascade-delete those records and detach any inbound
+ * RELATION fields from other custom objects pointing at this one.
+ *
+ * Admin-gated.
+ */
+export async function deleteCustomObjectAction(
+  slug: string,
+  opts: { force?: boolean } = {},
+  projectId?: string,
+): Promise<ActionResult<DeleteCustomObjectResult>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await deleteCustomObject(g.ctx.projectId, slug, opts);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'delete',
+      entityKind: 'crm_object',
+      entityId: slug,
+      reason: data.deletedRecords > 0
+        ? `Cascade-deleted ${data.deletedRecords} record(s)`
+        : undefined,
+    }).catch(() => undefined);
+
+    revalidatePath(CRM_BASE_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to delete custom object.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Field management (admin-gated)
+//
+// All field mutations go through the runtime metadata engine in
+// `objects.server.ts`. Audit entries record the field key + object slug for
+// traceability. `addCustomFieldAction` already exists for the additive case;
+// the four actions below round out the full field lifecycle.
+// ---------------------------------------------------------------------------
+
+/**
+ * Adds a field to an object (standard or custom). Runs full structural
+ * validation (label, type, SELECT/MULTI_SELECT options, RELATION target
+ * presence) and enforces the single-`isLabel` invariant.
+ *
+ * Admin-gated. Prefer this over the pre-existing `addCustomFieldAction` for
+ * new callers — it uses the richer validation path in `addField`.
+ */
+export async function addFieldAction(
+  slug: string,
+  field: FieldMetadata,
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!field?.key?.trim() || !field?.label?.trim()) {
+    return { ok: false, error: 'Field key and label are required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await addField(g.ctx.projectId, slug, field);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'create',
+      entityKind: 'crm_field',
+      entityId: `${slug}.${field.key}`,
+      diff: { field: { after: { key: field.key, type: field.type, label: field.label } } },
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${slug}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to add field.');
+  }
+}
+
+/**
+ * Updates the editable attributes of a custom field (label, icon, description,
+ * required, inTable, isLabel, options, defaultValue, relation). The field
+ * `key` and `type` are immutable — drop and re-add to change them.
+ *
+ * Standard and system fields cannot be edited.
+ *
+ * Admin-gated.
+ */
+export async function updateFieldAction(
+  slug: string,
+  fieldKey: string,
+  patch: UpdateFieldPatch,
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!fieldKey) return { ok: false, error: 'Field key is required.' };
+  if (!patch || Object.keys(patch).length === 0) {
+    return { ok: false, error: 'At least one attribute to update is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await updateField(g.ctx.projectId, slug, fieldKey, patch);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'update',
+      entityKind: 'crm_field',
+      entityId: `${slug}.${fieldKey}`,
+      diff: Object.fromEntries(
+        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+      ),
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${slug}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update field.');
+  }
+}
+
+/**
+ * Removes a custom field from an object. Standard and system fields cannot
+ * be removed. Returns the resolved object after the change.
+ *
+ * Admin-gated.
+ */
+export async function removeFieldAction(
+  slug: string,
+  fieldKey: string,
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!fieldKey) return { ok: false, error: 'Field key is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await removeField(g.ctx.projectId, slug, fieldKey);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'delete',
+      entityKind: 'crm_field',
+      entityId: `${slug}.${fieldKey}`,
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${slug}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to remove field.');
+  }
+}
+
+/**
+ * Reorders the custom fields of an object. Standard fields always render
+ * first in their canonical code-declared order; only the relative order of
+ * custom fields is persistable.
+ *
+ * `orderedCustomKeys` must be an exact permutation of all custom field keys
+ * on the object — no duplicates, no omissions.
+ *
+ * Admin-gated.
+ */
+export async function reorderFieldsAction(
+  slug: string,
+  orderedCustomKeys: string[],
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!Array.isArray(orderedCustomKeys)) {
+    return { ok: false, error: 'orderedCustomKeys must be an array.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await reorderFields(g.ctx.projectId, slug, orderedCustomKeys);
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'update',
+      entityKind: 'crm_field_order',
+      entityId: slug,
+      diff: { order: { after: orderedCustomKeys } },
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${slug}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to reorder fields.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Relation definition (admin-gated)
+//
+// Defines a RELATION field on a source object and — unless `inverse: false`
+// is passed — creates a reciprocal back-reference on the target object.
+// Gated as an admin operation because it mutates two objects' schemas.
+// ---------------------------------------------------------------------------
+
+/** Input shape for {@link createRelationAction}. */
+export interface CreateRelationActionInput {
+  /** Slug of the object that owns the forward relation field. */
+  fromSlug: string;
+  /** Field key for the new relation field on `fromSlug`. */
+  fieldKey: string;
+  /** Relation descriptor (targetObject + kind, optionally labelField). */
+  relation: FieldRelation;
+  /** Optional forward field label. Defaults to the target object's singular label. */
+  forwardLabel?: string;
+  /** Set `false` to skip creating the reciprocal field on the target object. */
+  inverse?: boolean;
+  /** Override the auto-generated inverse field key. */
+  inverseFieldKey?: string;
+  /** Override the auto-generated inverse field label. */
+  inverseLabel?: string;
+}
+
+/**
+ * Defines a RELATION field on a source object and, by default, creates the
+ * reciprocal field on the target object so both sides are first-class fields.
+ *
+ * The target object (`relation.targetObject`) must already exist in the
+ * project. Admin-gated.
+ */
+export async function createRelationAction(
+  input: CreateRelationActionInput,
+  projectId?: string,
+): Promise<ActionResult<CreateRelationResult>> {
+  if (!input?.fromSlug) return { ok: false, error: 'fromSlug is required.' };
+  if (!input?.fieldKey) return { ok: false, error: 'fieldKey is required.' };
+  if (!input?.relation?.targetObject) {
+    return { ok: false, error: 'relation.targetObject is required.' };
+  }
+  if (input.relation.kind !== 'MANY_TO_ONE' && input.relation.kind !== 'ONE_TO_MANY') {
+    return { ok: false, error: 'relation.kind must be MANY_TO_ONE or ONE_TO_MANY.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await createRelation(
+      g.ctx.projectId,
+      input.fromSlug,
+      input.fieldKey,
+      input.relation,
+      {
+        inverse: input.inverse,
+        inverseFieldKey: input.inverseFieldKey,
+        inverseLabel: input.inverseLabel,
+        forwardLabel: input.forwardLabel,
+      },
+    );
+
+    void writeAuditEntry({
+      tenantUserId: g.ctx.userId,
+      actorId: g.ctx.userId,
+      action: 'create',
+      entityKind: 'crm_relation',
+      entityId: `${input.fromSlug}.${input.fieldKey}`,
+      diff: {
+        relation: {
+          after: {
+            fromSlug: input.fromSlug,
+            fieldKey: input.fieldKey,
+            targetObject: input.relation.targetObject,
+            kind: input.relation.kind,
+            inverseFieldKey: data.inverseFieldKey,
+          },
+        },
+      },
+    }).catch(() => undefined);
+
+    revalidatePath(`${CRM_BASE_PATH}/${input.fromSlug}`);
+    revalidatePath(`${CRM_BASE_PATH}/${input.relation.targetObject}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create relation.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Member listing (view-gated)
+//
+// Surfaces workspace members with their derived SabCRM role for assignee
+// pickers and the settings members page. Read-only; gated behind `sabcrm:view`.
+// ---------------------------------------------------------------------------
+
+/**
+ * Lists all workspace members for the active project, enriched with their
+ * derived SabCRM capability (view / manage / admin). Owner is always first;
+ * agents are sorted alphabetically. Read-gated behind `sabcrm:view`.
+ */
+export async function listMembersAction(
+  projectId?: string,
+): Promise<ActionResult<CrmMember[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listCrmMembers(g.ctx.projectId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list members.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Import / export (manage-gated)
+//
+// Bulk record import from a parsed CSV/XLSX file and bulk export to a flat
+// serialisable shape that the client-side `downloadCsv`/`downloadXlsx`
+// helpers consume directly. Both are gated behind the `sabcrm:manage`
+// capability because they can create/read large numbers of records at once.
+// ---------------------------------------------------------------------------
+
+/** Input accepted by {@link importRecordsAction}. */
+export interface ImportRecordsActionInput {
+  /** Object slug to import into (e.g. `"companies"`). */
+  object: string;
+  /**
+   * Column→field mapping: field key → CSV column header. Fields absent from
+   * the mapping fall back to their `defaultValue`. RELATION and FILE field
+   * keys are silently skipped.
+   */
+  columnMapping: ColumnMapping;
+  /**
+   * Raw rows from a parsed CSV/XLSX: column header → raw string value.
+   * Must not exceed 5,000 rows per call; chunk larger files.
+   */
+  rows: RawRow[];
+  /**
+   * When `true`, aborts on the first validation or insert error.
+   * Default: `false` — per-row failures are collected and reported back.
+   */
+  stopOnFirstError?: boolean;
+}
+
+/**
+ * Validates and bulk-inserts CRM records from a parsed CSV/XLSX file.
+ *
+ * Per-row coercion and validation are applied against the object's
+ * `FieldMetadata`. Valid rows are inserted via the existing `createRecord`
+ * runtime so `sanitiseData` and field defaults are honoured uniformly.
+ * Returns a per-row summary so the UI can render a row-level error report.
+ *
+ * Gated behind `sabcrm:manage` (maps to `create` action).
+ */
+export async function importRecordsAction(
+  input: ImportRecordsActionInput,
+  projectId?: string,
+): Promise<ActionResult<ImportBatchResult>> {
+  if (!input?.object) return { ok: false, error: 'Object is required.' };
+  if (!Array.isArray(input.rows) || input.rows.length === 0) {
+    return { ok: false, error: 'At least one row is required.' };
+  }
+  if (!input.columnMapping || typeof input.columnMapping !== 'object') {
+    return { ok: false, error: 'A columnMapping is required.' };
+  }
+
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await importRecords({
+      object: input.object,
+      columnMapping: input.columnMapping,
+      rows: input.rows,
+      projectId: g.ctx.projectId,
+      userId: g.ctx.userId,
+      stopOnFirstError: input.stopOnFirstError,
+    });
+
+    if (data.succeeded > 0) {
+      revalidatePath(`${CRM_BASE_PATH}/${input.object}`);
+    }
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to import records.');
+  }
+}
+
+/** Options accepted by {@link exportRecordsAction}. */
+export interface ExportRecordsActionInput {
+  /** Object slug to export (e.g. `"opportunities"`). */
+  object: string;
+  /**
+   * Ordered list of field keys to include. Defaults to every non-RELATION,
+   * non-FILE field declared on the object.
+   */
+  fields?: string[];
+  /**
+   * Maximum rows to export. Capped at 10,000; defaults to 1,000.
+   */
+  limit?: number;
+}
+
+/**
+ * Reads records for one object and serialises them into a `{ headers, rows }`
+ * shape ready to pass to `downloadCsv` / `downloadXlsx` on the client.
+ *
+ * The first column is always `id`; the last two are `createdAt` /
+ * `updatedAt`. RELATION and FILE fields are excluded by default — pass them
+ * in `opts.fields` to include the raw id values.
+ *
+ * Gated behind `sabcrm:manage` (maps to `edit` action) because exporting
+ * may retrieve large volumes of tenant data.
+ */
+export async function exportRecordsAction(
+  input: ExportRecordsActionInput,
+  projectId?: string,
+): Promise<ActionResult<ExportRecordsResult>> {
+  if (!input?.object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await exportRecords({
+      object: input.object,
+      projectId: g.ctx.projectId,
+      userId: g.ctx.userId,
+      fields: input.fields,
+      limit: input.limit,
+    });
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to export records.');
   }
 }

@@ -1,0 +1,10 @@
+# Where did Pass-2 edits land? (app.sabnode.com is a Pass-2-introduced token)
+services/sabcrm files with app.sabnode.com: 6
+twenty (upstream ref) files with app.sabnode.com: 0
+
+# SabCRM brand spread
+services/sabcrm files with SabCRM: 80
+twenty (upstream ref) files with SabCRM: 0
+
+# Did /twenty get polluted at all? (it should be pristine Twenty)
+twenty files mentioning sabnode (any): 0
