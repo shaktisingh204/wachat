@@ -170,3 +170,8 @@ graphify-out/graph.json
 graphify-out/
 graphify-out/
 graphify-out/
+
+# SabCRM raw mass-wave port output (reference for the real module-by-module port; excluded from build)
+src/lib/sabcrm/_ported_raw/
+src/components/sabcrm/_ported_raw/
+/_ported_raw_misc/

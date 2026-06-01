@@ -1,8 +1,0 @@
-// PORT-NOTE: NestJS registerEnumType() removed; plain TypeScript enum.
-
-export enum CommandMenuItemAvailabilityType {
-  GLOBAL = 'GLOBAL',
-  GLOBAL_OBJECT_CONTEXT = 'GLOBAL_OBJECT_CONTEXT',
-  RECORD_SELECTION = 'RECORD_SELECTION',
-  FALLBACK = 'FALLBACK',
-}

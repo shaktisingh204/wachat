@@ -12,6 +12,7 @@
     "stop:pm2": "pm2 stop all && pm2 delete all",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "test:sabcrm-migrations": "tsx --test src/lib/sabcrm/__tests__/metadata-migrations.test.ts",
     "test:rbac": "tsx --test src/lib/__tests__/rbac.test.ts",
     "test:sla": "tsx --test src/lib/sla/__tests__/engine.test.ts",
     "test:sabflow-collab": "tsx --test src/lib/sabflow/__tests__/e2e-collab/*.test.ts",

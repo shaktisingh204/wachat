@@ -93,6 +93,8 @@
     "services",
     "**/__tests__/**",
     "**/*.test.ts",
-    "**/*.test.tsx"
+    "**/*.test.tsx",
+    "src/lib/sabcrm/_ported_raw",
+    "src/components/sabcrm/_ported_raw"
   ]
 }
