@@ -135,6 +135,10 @@ export const globalModules = [
     'sabwa_analytics', 'sabwa_export', 'sabwa_webhooks', 'sabwa_api_keys',
     'sabwa_audit', 'sabwa_settings',
 
+    // SabCRM (embedded Twenty engine — see src/lib/sabcrm/rbac-keys.ts).
+    // Colon-notation keys gate the SabNode-side mount + plan access.
+    'sabcrm:view', 'sabcrm:manage', 'sabcrm:admin',
+
     // SabFlow (automation workflow engine — see src/lib/sabflow/rbac-keys.ts).
     // Dot-notation matches the keys already reserved by earlier SabFlow phases
     // (credentials/rbac.ts, persistence/guards.ts, triggers/replay/route.ts).
@@ -179,6 +183,7 @@ export const moduleCategories = {
     'SabSMS': ['sabsms_overview', 'sabsms_inbox', 'sabsms_campaigns', 'sabsms_templates', 'sabsms_drips', 'sabsms_numbers', 'sabsms_providers', 'sabsms_suppressions', 'sabsms_consent', 'sabsms_compliance', 'sabsms_analytics', 'sabsms_logs', 'sabsms_webhooks', 'sabsms_api_keys', 'sabsms_settings', 'sabsms_team', 'sabsms_billing', 'sabsms_notifications'],
     'SabChat': ['sabchat_inbox', 'sabchat_visitors', 'sabchat_analytics', 'sabchat_widget', 'sabchat_auto_reply', 'sabchat_quick_replies', 'sabchat_ai_replies', 'sabchat_faq', 'sabchat_settings'],
     'SabWa': ['sabwa_overview', 'sabwa_connect', 'sabwa_inbox', 'sabwa_chats', 'sabwa_groups', 'sabwa_group_manage', 'sabwa_broadcasts', 'sabwa_bulk_send', 'sabwa_scheduler', 'sabwa_contacts', 'sabwa_templates', 'sabwa_auto_reply', 'sabwa_flows', 'sabwa_ai', 'sabwa_media', 'sabwa_status', 'sabwa_calls', 'sabwa_labels', 'sabwa_starred', 'sabwa_analytics', 'sabwa_export', 'sabwa_webhooks', 'sabwa_api_keys', 'sabwa_audit', 'sabwa_settings'],
+    'SabCRM': ['sabcrm:view', 'sabcrm:manage', 'sabcrm:admin'],
     'SabFlow': ['sabflow.doc.read', 'sabflow.doc.write', 'sabflow.doc.delete', 'sabflow.doc.share', 'sabflow.doc.admin', 'sabflow.credential.read', 'sabflow.credential.use', 'sabflow.credential.write', 'sabflow.credential.delete', 'sabflow.credential.share', 'sabflow.credential.admin', 'sabflow.workflow.read', 'sabflow.workflow.write', 'sabflow.workflow.execute', 'sabflow.trigger.admin'],
     'Utilities': ['website_builder', 'url_shortener', 'qr_code_maker'],
     'SEO': ['seo_dashboard', 'seo_brand_radar', 'seo_site_explorer'],

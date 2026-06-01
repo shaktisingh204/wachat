@@ -107,6 +107,29 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     { id: 'sabrewards', name: 'SabRewards — Loyalty + Coupons', icon: Award },
 ];
 
+/**
+ * SabCRM (embedded Twenty engine) plan feature.
+ *
+ * Mirrors the way SabWa is gated: SabWa is NOT a typed key on
+ * `PlanFeaturePermissions` (its caps live in `src/lib/sabwa/plan-limits.ts`),
+ * so SabCRM likewise gets a standalone, additive feature descriptor here
+ * instead of being forced into the strictly-typed `planFeatureMap` /
+ * `planFeaturesDefaults` collections (which are exactly typed against
+ * `PlanFeaturePermissions` in `src/lib/definitions.ts` and would fail a strict
+ * typecheck for any non-`keyof` key).
+ *
+ * `permissionKey` is the RBAC view gate registered for `/sabcrm`
+ * (see `src/lib/sabcrm/rbac-keys.ts`). `defaultEnabled` keeps SabCRM ON for
+ * every plan by default, matching the §17 Sab-* application gates above.
+ */
+export const sabcrmPlanFeature = {
+    id: 'sabcrm',
+    name: 'SabCRM — Embedded Twenty',
+    icon: Building,
+    permissionKey: 'sabcrm:view',
+    defaultEnabled: true,
+} as const;
+
 export const planFeaturesDefaults: PlanFeaturePermissions = {
     overview: true,
     campaigns: true,

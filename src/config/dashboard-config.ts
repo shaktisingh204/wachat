@@ -126,6 +126,15 @@ export const sabwaMenuItems: MenuItem[] = [
     { href: '/sabwa/settings', label: 'Settings', icon: Settings, permissionKey: 'sabwa_settings' },
 ];
 
+// SabCRM — native metadata-driven CRM. Route-level RBAC: `/sabcrm` and every
+// object route require `sabcrm:view`; settings (data-model admin) require
+// `sabcrm:admin`. More specific (longer) hrefs are matched first by
+// getRequiredPermissionForPath, so the settings/admin gate wins over the base.
+export const sabcrmMenuItems: MenuItem[] = [
+    { href: '/sabcrm/settings', label: 'Data Model', icon: Settings, permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm', label: 'SabCRM', icon: CrmIcon, exact: false, permissionKey: 'sabcrm:view' },
+];
+
 export const crmMenuGroups: MenuGroup[] = [
     {
         title: "Overview",

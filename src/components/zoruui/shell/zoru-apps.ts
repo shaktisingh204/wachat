@@ -153,6 +153,14 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     isActive: (p) => !!p?.startsWith("/dashboard/crm"),
   },
   {
+    id: "sabcrm",
+    name: "SabCRM",
+    href: "/sabcrm",
+    Icon: CrmIcon,
+    migration: "done",
+    isActive: (p) => p === "/sabcrm" || !!p?.startsWith("/sabcrm/"),
+  },
+  {
     id: "hrm",
     name: "HRM",
     href: "/dashboard/hrm",

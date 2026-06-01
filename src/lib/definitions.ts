@@ -382,6 +382,12 @@ export type GlobalRolePermissions = {
     sabwa_audit?: ModulePermission;
     sabwa_settings?: ModulePermission;
 
+    // SabCRM (embedded Twenty engine — see src/lib/sabcrm/rbac-keys.ts).
+    // Colon-notation keys: must be quoted property names.
+    'sabcrm:view'?: ModulePermission;
+    'sabcrm:manage'?: ModulePermission;
+    'sabcrm:admin'?: ModulePermission;
+
     // SabFlow (automation workflow engine — see src/lib/sabflow/rbac-keys.ts).
     // Dot-notation keys: must be quoted property names.
     'sabflow.doc.read'?: ModulePermission;
