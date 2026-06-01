@@ -130,8 +130,25 @@ export const sabwaMenuItems: MenuItem[] = [
 // object route require `sabcrm:view`; settings (data-model admin) require
 // `sabcrm:admin`. More specific (longer) hrefs are matched first by
 // getRequiredPermissionForPath, so the settings/admin gate wins over the base.
+//
+// Ordering rule: list every sub-path BEFORE its parent so that the longest-
+// prefix match in `getRequiredPermissionForPath` always resolves to the most
+// specific entry. `settings/*` must come before `settings`, which must come
+// before the root `/sabcrm` catch-all.
 export const sabcrmMenuItems: MenuItem[] = [
-    { href: '/sabcrm/settings', label: 'Data Model', icon: Settings, permissionKey: 'sabcrm:admin' },
+    // ── Settings (admin-only) — most specific first ────────────────────────
+    { href: '/sabcrm/settings/data-model',   label: 'Data Model',   icon: Database,       permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/members',      label: 'Members',      icon: Users,          permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/views',        label: 'Views',        icon: Layers,         permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/api',          label: 'API Keys',     icon: Key,            permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/automations',  label: 'Automations',  icon: Bolt,           permissionKey: 'sabcrm:admin' },
+    // `/sabcrm/settings` covers any future settings sub-route not listed above.
+    { href: '/sabcrm/settings',              label: 'Settings',     icon: Settings,       permissionKey: 'sabcrm:admin' },
+    // ── Main views (view-level) — specific named routes before root ────────
+    { href: '/sabcrm/dashboard',             label: 'Dashboard',    icon: LayoutDashboard, permissionKey: 'sabcrm:view' },
+    { href: '/sabcrm/reports',               label: 'Reports',      icon: BarChart,        permissionKey: 'sabcrm:view' },
+    { href: '/sabcrm/tasks',                 label: 'Tasks',        icon: ClipboardList,   permissionKey: 'sabcrm:view' },
+    // `/sabcrm` catches all remaining object and record routes via prefix match.
     { href: '/sabcrm', label: 'SabCRM', icon: CrmIcon, exact: false, permissionKey: 'sabcrm:view' },
 ];
 

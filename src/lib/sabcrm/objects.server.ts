@@ -25,6 +25,7 @@ import "server-only";
  */
 
 import { sabcrmObjects, sabcrmRecords, type SabcrmObjectDoc } from "./db";
+import { dropFieldData } from "./metadata-migrations.server";
 import {
   STANDARD_OBJECTS,
   STANDARD_OBJECT_SLUGS,
@@ -844,15 +845,31 @@ export async function updateField(
 }
 
 /**
- * Remove a field from an object. Alias over {@link removeCustomField} exposed
- * under the engine's field-CRUD vocabulary.
+ * Remove a field from an object and migrate stored record data.
+ *
+ * After the field is dropped from the object's metadata, its value is unset
+ * from every record's `data` map (via {@link dropFieldData}) so no orphaned
+ * keys linger. The metadata removal is the source of truth — if the data
+ * sweep fails it is logged but does not roll back the metadata change (the
+ * orphaned keys are harmless and a later sweep is idempotent).
  */
 export async function removeField(
   projectId: string,
   slug: string,
   fieldKey: string,
 ): Promise<ObjectMetadata> {
-  return removeCustomField(projectId, slug, fieldKey);
+  const updated = await removeCustomField(projectId, slug, fieldKey);
+  try {
+    await dropFieldData(projectId, slug, fieldKey);
+  } catch (err) {
+    // Non-fatal: metadata is already updated; orphaned data keys are inert
+    // and a subsequent removeField/dropFieldData call cleans them up.
+    console.error(
+      `[sabcrm] dropFieldData failed for ${slug}.${fieldKey} in project ${projectId}:`,
+      err,
+    );
+  }
+  return updated;
 }
 
 /**

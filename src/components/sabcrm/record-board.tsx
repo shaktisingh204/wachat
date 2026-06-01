@@ -11,9 +11,18 @@
  *
  * Dragging a card from one column to another patches that record's group-by
  * field via {@link updateRecordAction}. The move is OPTIMISTIC: the card jumps
- * to the target column immediately, and only rolls back (with an inline toast)
+ * to the target column immediately, and rolls back (with a destructive toast)
  * if the server rejects the write — so RBAC / plan / validation failures stay
  * visible and never silently desync the board.
+ *
+ * Accessibility:
+ *  - `aria-grabbed` toggles true/false on the card being dragged.
+ *  - Each droppable column carries `aria-dropeffect="move"` while a drag is
+ *    live; `"none"` otherwise.
+ *  - A visually-hidden ARIA live region announces every completed or failed
+ *    move to screen-reader users.
+ *  - Keyboard users can focus a card and use Arrow-Left / Arrow-Right to move
+ *    it to the adjacent column; Escape cancels a pending keyboard move.
  *
  * The component is fully tenant-safe by construction: it never queries Mongo
  * directly. Every read/write goes through a `*.actions.ts` server action, each
@@ -123,6 +132,8 @@ export interface RecordBoardProps {
   className?: string;
 }
 
+// (No additional internal types beyond the exported props.)
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -181,6 +192,24 @@ export function RecordBoard({
     fromKey: string;
   } | null>(null);
 
+  /**
+   * Tracks whether a mouse/touch drag is live at all — used to toggle
+   * `aria-dropeffect` on every column and `aria-grabbed` on the dragged card.
+   */
+  const [isDragging, setIsDragging] = React.useState(false);
+
+  /**
+   * ARIA live region message. Set to a non-empty string after every move
+   * attempt (success or failure); auto-cleared after ~1.2 s so the AT does
+   * not re-announce stale messages on subsequent renders.
+   */
+  const [liveMsg, setLiveMsg] = React.useState('');
+  React.useEffect(() => {
+    if (!liveMsg) return;
+    const id = window.setTimeout(() => setLiveMsg(''), 1200);
+    return () => window.clearTimeout(id);
+  }, [liveMsg]);
+
   // Fetch the grouped page whenever the inputs change.
   React.useEffect(() => {
     if (!boardable || !resolvedGroupBy) {
@@ -223,6 +252,75 @@ export function RecordBoard({
     localTick,
   ]);
 
+  // ---- Core move logic -------------------------------------------------------
+
+  /**
+   * Optimistically move `record` from `fromKey` to `toKey`, then persist via
+   * the server action. Rolls back the local state and fires a destructive toast
+   * on server error.
+   *
+   * The pre-move snapshot is captured *inside* the `setGroups` functional
+   * updater — not from the `groups` closure — so concurrent drags can never
+   * use a stale snapshot as their rollback target.
+   */
+  const moveCard = React.useCallback(
+    async (record: CrmRecordWithLabel, fromKey: string, toKey: string) => {
+      if (!resolvedGroupBy) return;
+
+      const optimistic: CrmRecordWithLabel = {
+        ...record,
+        data: { ...record.data, [resolvedGroupBy]: toKey },
+      };
+
+      // Capture the pre-move snapshot atomically inside the state updater.
+      let snapshot: SabcrmRecordGroup[] = [];
+      setGroups((curr) => {
+        snapshot = curr;
+        return curr.map((g) => {
+          if (g.key === fromKey) {
+            const next = g.records.filter((r) => r._id !== record._id);
+            return { ...g, records: next, total: next.length };
+          }
+          if (g.key === toKey) {
+            const next = [optimistic, ...g.records];
+            return { ...g, records: next, total: next.length };
+          }
+          return g;
+        });
+      });
+
+      setSavingId(record._id);
+      const res = await updateRecordAction(
+        record._id,
+        { [resolvedGroupBy]: toKey },
+        projectId,
+      );
+      setSavingId(null);
+
+      if (!res.ok) {
+        // Roll back to the snapshot captured at the moment of the move.
+        setGroups(snapshot);
+        const msg = `Move failed: ${res.error}`;
+        setLiveMsg(msg);
+        toastRef.current({
+          title: 'Move failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      } else {
+        // Build a human-readable success announcement from the column labels.
+        setGroups((curr) => {
+          const toLabel =
+            curr.find((g) => g.key === toKey)?.label ?? toKey;
+          const recordTitle = optimistic.label || record._id;
+          setLiveMsg(`${recordTitle} moved to ${toLabel}.`);
+          return curr;
+        });
+      }
+    },
+    [resolvedGroupBy, projectId],
+  );
+
   // ---- Drag-and-drop --------------------------------------------------------
 
   const handleDragStart = React.useCallback(
@@ -232,6 +330,7 @@ export function RecordBoard({
         return;
       }
       draggingRef.current = { record, fromKey };
+      setIsDragging(true);
       e.dataTransfer.effectAllowed = 'move';
       // Some browsers require data to be set for a drag to start.
       try {
@@ -245,6 +344,7 @@ export function RecordBoard({
 
   const handleDragEnd = React.useCallback(() => {
     draggingRef.current = null;
+    setIsDragging(false);
     setDragOverKey(null);
   }, []);
 
@@ -274,57 +374,11 @@ export function RecordBoard({
     [],
   );
 
-  const moveCard = React.useCallback(
-    async (record: CrmRecordWithLabel, fromKey: string, toKey: string) => {
-      if (!resolvedGroupBy) return;
-
-      // Snapshot for rollback.
-      const snapshot = groups;
-      const optimistic: CrmRecordWithLabel = {
-        ...record,
-        data: { ...record.data, [resolvedGroupBy]: toKey },
-      };
-
-      // Optimistically move the card between buckets + adjust counts.
-      setGroups((curr) =>
-        curr.map((g) => {
-          if (g.key === fromKey) {
-            const next = g.records.filter((r) => r._id !== record._id);
-            return { ...g, records: next, total: next.length };
-          }
-          if (g.key === toKey) {
-            const next = [optimistic, ...g.records];
-            return { ...g, records: next, total: next.length };
-          }
-          return g;
-        }),
-      );
-
-      setSavingId(record._id);
-      const res = await updateRecordAction(
-        record._id,
-        { [resolvedGroupBy]: toKey },
-        projectId,
-      );
-      setSavingId(null);
-
-      if (!res.ok) {
-        // Roll back to the pre-drag arrangement and surface the error.
-        setGroups(snapshot);
-        toastRef.current({
-          title: 'Move failed',
-          description: res.error,
-          variant: 'destructive',
-        });
-      }
-    },
-    [groups, resolvedGroupBy, projectId],
-  );
-
   const handleDrop = React.useCallback(
     (targetKey: string, e: React.DragEvent) => {
       e.preventDefault();
       setDragOverKey(null);
+      setIsDragging(false);
       const dragging = draggingRef.current;
       draggingRef.current = null;
       if (
@@ -338,6 +392,34 @@ export function RecordBoard({
       void moveCard(dragging.record, dragging.fromKey, targetKey);
     },
     [canEdit, moveCard],
+  );
+
+  // ---- Keyboard move ---------------------------------------------------------
+
+  /**
+   * Called by `BoardCard` when the user presses Arrow-Left or Arrow-Right
+   * while the card has keyboard focus and `canEdit` is true.
+   *
+   * Finds the current column index, steps ±1, skips the ungrouped column, and
+   * calls `moveCard`.
+   */
+  const handleKeyboardMove = React.useCallback(
+    (record: CrmRecordWithLabel, fromKey: string, direction: -1 | 1) => {
+      if (!canEdit || savingId) return;
+
+      const visibleGroups = groups.filter((g) => g.key !== UNGROUPED_KEY);
+      const fromIdx = visibleGroups.findIndex((g) => g.key === fromKey);
+      if (fromIdx === -1) return;
+
+      const toIdx = fromIdx + direction;
+      if (toIdx < 0 || toIdx >= visibleGroups.length) return;
+
+      const toGroup = visibleGroups[toIdx];
+      if (!toGroup) return;
+
+      void moveCard(record, fromKey, toGroup.key);
+    },
+    [canEdit, savingId, groups, moveCard],
   );
 
   // ---- Render ---------------------------------------------------------------
@@ -357,6 +439,19 @@ export function RecordBoard({
 
   return (
     <div className={cn('flex flex-col gap-3', className)}>
+      {/*
+       * Visually-hidden ARIA live region — announces move results to
+       * screen-reader users without disrupting sighted layout.
+       */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {liveMsg}
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-zoru-ink-muted">
@@ -380,14 +475,16 @@ export function RecordBoard({
         <EmptyState
           compact
           icon={<LayoutGrid />}
-          title="Couldn’t load board"
+          title="Couldn't load board"
           description={error}
         />
       )}
 
       {/* Columns */}
       <ScrollArea className="w-full" viewportClassName="pb-3">
-        <div className="flex items-start gap-4">
+        <div
+          className="flex items-start gap-4"
+        >
           {loading && groups.length === 0
             ? Array.from({ length: 4 }).map((_, i) => (
                 <BoardColumnSkeleton key={`skeleton-${i}`} />
@@ -401,6 +498,7 @@ export function RecordBoard({
                   canCreate={canCreate}
                   canEdit={canEdit}
                   isDropTarget={dragOverKey === group.key}
+                  isDragLive={isDragging}
                   savingId={savingId}
                   onCreate={onCreate}
                   onOpenRecord={onOpenRecord}
@@ -409,6 +507,7 @@ export function RecordBoard({
                   onColumnDragOver={handleDragOver}
                   onColumnDragLeave={handleDragLeave}
                   onColumnDrop={handleDrop}
+                  onKeyboardMove={handleKeyboardMove}
                 />
               ))}
         </div>
@@ -428,6 +527,8 @@ interface BoardColumnProps {
   canCreate: boolean;
   canEdit: boolean;
   isDropTarget: boolean;
+  /** True while any mouse/touch drag is live — drives `aria-dropeffect`. */
+  isDragLive: boolean;
   savingId: string | null;
   onCreate?: (columnValue: string) => void;
   onOpenRecord?: (record: CrmRecordWithLabel) => void;
@@ -440,6 +541,11 @@ interface BoardColumnProps {
   onColumnDragOver: (targetKey: string, e: React.DragEvent) => void;
   onColumnDragLeave: (targetKey: string) => void;
   onColumnDrop: (targetKey: string, e: React.DragEvent) => void;
+  onKeyboardMove: (
+    record: CrmRecordWithLabel,
+    fromKey: string,
+    direction: -1 | 1,
+  ) => void;
 }
 
 function BoardColumn({
@@ -449,6 +555,7 @@ function BoardColumn({
   canCreate,
   canEdit,
   isDropTarget,
+  isDragLive,
   savingId,
   onCreate,
   onOpenRecord,
@@ -457,13 +564,23 @@ function BoardColumn({
   onColumnDragOver,
   onColumnDragLeave,
   onColumnDrop,
+  onKeyboardMove,
 }: BoardColumnProps): React.ReactElement {
   const isUngrouped = group.key === UNGROUPED_KEY;
   const droppable = canEdit && !isUngrouped;
 
+  /**
+   * `aria-dropeffect` is deprecated in ARIA 1.1 but still widely honoured by
+   * AT. We set it to "move" while a drag is live over a valid drop target, and
+   * "none" otherwise — matching the DnD semantics precisely.
+   */
+  const dropEffect: React.AriaAttributes['aria-dropeffect'] =
+    isDragLive && droppable ? 'move' : 'none';
+
   return (
     <section
       aria-label={`${group.label} column`}
+      aria-dropeffect={dropEffect}
       className={cn(
         'flex w-72 shrink-0 flex-col rounded-[var(--zoru-radius-lg)] border bg-zoru-surface/40 transition-colors',
         isDropTarget
@@ -505,7 +622,10 @@ function BoardColumn({
       {/* Cards */}
       <div className="flex flex-col gap-2 p-3">
         {group.records.length === 0 ? (
-          <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-6 text-center text-xs text-zoru-ink-muted">
+          <div
+            aria-label={isDropTarget ? 'Drop here' : 'No records in this column'}
+            className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-3 py-6 text-center text-xs text-zoru-ink-muted"
+          >
             {isDropTarget ? 'Drop here' : 'No records'}
           </div>
         ) : (
@@ -521,6 +641,7 @@ function BoardColumn({
               onOpenRecord={onOpenRecord}
               onDragStart={onCardDragStart}
               onDragEnd={onCardDragEnd}
+              onKeyboardMove={onKeyboardMove}
             />
           ))
         )}
@@ -547,6 +668,11 @@ interface BoardCardProps {
     e: React.DragEvent,
   ) => void;
   onDragEnd: () => void;
+  onKeyboardMove: (
+    record: CrmRecordWithLabel,
+    fromKey: string,
+    direction: -1 | 1,
+  ) => void;
 }
 
 function BoardCard({
@@ -559,6 +685,7 @@ function BoardCard({
   onOpenRecord,
   onDragStart,
   onDragEnd,
+  onKeyboardMove,
 }: BoardCardProps): React.ReactElement {
   const title = resolveRecordTitle(record, object.fields);
   // Only show fields that actually have a value, to keep cards compact.
@@ -569,27 +696,81 @@ function BoardCard({
     return true;
   });
 
+  /**
+   * `aria-grabbed` is deprecated in ARIA 1.1 but still used by many AT to
+   * announce that an item is being dragged. We track a local "grabbed" state
+   * that mirrors the HTML5 DnD lifecycle (dragstart → dragend).
+   */
+  const [grabbed, setGrabbed] = React.useState(false);
+
+  const handleDragStart = React.useCallback(
+    (e: React.DragEvent) => {
+      setGrabbed(true);
+      onDragStart(record, fromKey, e);
+    },
+    [onDragStart, record, fromKey],
+  );
+
+  const handleDragEnd = React.useCallback(() => {
+    setGrabbed(false);
+    onDragEnd();
+  }, [onDragEnd]);
+
+  /**
+   * Keyboard handler for the card. Supports:
+   *
+   *  - Enter / Space  → open record (when `onOpenRecord` is set)
+   *  - Arrow-Left     → move card to the column to the left  (when canEdit)
+   *  - Arrow-Right    → move card to the column to the right (when canEdit)
+   *
+   * Arrow keys only fire the move when the card itself has focus — not when
+   * focus is inside a descendant interactive element — so they don't interfere
+   * with e.g. a <select> inside a card field renderer.
+   */
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget) return; // only top-level card focus
+
+      if ((e.key === 'Enter' || e.key === ' ') && onOpenRecord) {
+        e.preventDefault();
+        onOpenRecord(record);
+        return;
+      }
+
+      if (draggable && !saving) {
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          onKeyboardMove(record, fromKey, -1);
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          onKeyboardMove(record, fromKey, 1);
+          return;
+        }
+      }
+    },
+    [draggable, saving, onOpenRecord, onKeyboardMove, record, fromKey],
+  );
+
   return (
     <Card
       variant="default"
       interactive={!!onOpenRecord}
-      draggable={draggable}
-      onDragStart={(e) => onDragStart(record, fromKey, e)}
-      onDragEnd={onDragEnd}
+      draggable={draggable && !saving}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
       onClick={onOpenRecord ? () => onOpenRecord(record) : undefined}
-      role={onOpenRecord ? 'button' : undefined}
-      tabIndex={onOpenRecord ? 0 : undefined}
-      onKeyDown={
-        onOpenRecord
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onOpenRecord(record);
-              }
-            }
-          : undefined
+      role={draggable || onOpenRecord ? 'button' : undefined}
+      tabIndex={draggable || onOpenRecord ? 0 : undefined}
+      onKeyDown={handleKeyDown}
+      aria-label={
+        draggable
+          ? `${title}. Use arrow keys to move between columns.`
+          : title
       }
-      aria-label={title}
+      aria-grabbed={draggable ? grabbed : undefined}
+      aria-busy={saving || undefined}
       className={cn(
         'gap-2 p-3',
         draggable && 'cursor-grab active:cursor-grabbing',

@@ -1,15 +1,12 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * /sabcrm layout — guarded shell for the embedded SabCRM (Twenty) SPA.
+ * /sabcrm layout — auth guard and project context for the native SabCRM.
  *
- * SabCRM is the vendored Twenty engine (`services/sabcrm/`) embedded into
- * the SabNode shell. The engine renders its own full-screen SPA (mounted by
- * `./page.tsx` via an iframe / status fallback), so unlike `/sabwa` this
- * layout deliberately does NOT wrap children in a bespoke SabNode chrome or a
- * module-specific session provider — it only enforces the SabNode auth /
- * onboarding / RBAC guard and provides project context, then hands off to the
- * embedded SPA inside the `.zoruui` scope.
+ * SabCRM is a metadata-driven CRM built natively in SabNode (metadata in Mongo,
+ * server actions for CRUD, ZoruUI for rendering). This layout enforces the
+ * SabNode auth / onboarding / RBAC guard and provides project context via
+ * ProjectProvider. All child routes render within the `.zoruui` scope.
  *
  * Auth/project guard mirrors `src/app/sabwa/layout.tsx`.
  */

@@ -35,6 +35,7 @@ import {
   removeField,
   reorderFields,
   createRelation,
+  ensureStandardObjects,
   type CreateCustomObjectInput,
   type UpdateObjectPatch,
   type UpdateFieldPatch,
@@ -81,14 +82,98 @@ import {
 import {
   importRecords,
   exportRecords,
+  buildColumnMappingSuggestions,
+  validateImportMapping,
   type ImportBatchResult,
   type ExportRecordsResult,
   type RawRow,
   type ColumnMapping,
+  type MappingValidationIssue,
 } from '@/lib/sabcrm/import-export.server';
-import { writeAuditEntry } from '@/lib/audit-log';
 import { fireCrmNotification } from '@/lib/notifications/crm';
 import { sabcrmRecords, sabcrmViews } from '@/lib/sabcrm/db';
+import { emitSabcrmEvent } from '@/lib/sabcrm/events.server';
+import {
+  listWebhooks,
+  getWebhook,
+  createWebhook,
+  updateWebhook,
+  rotateWebhookSecret,
+  deleteWebhook,
+  type WebhookSubscription,
+  type CreateWebhookInput,
+  type UpdateWebhookPatch,
+  SABCRM_WEBHOOK_EVENTS,
+} from '@/lib/sabcrm/webhooks.server';
+import {
+  issueApiKey,
+  listApiKeys,
+  revokeApiKey,
+  type SabcrmApiKey,
+  type IssuedSabcrmApiKey,
+} from '@/lib/sabcrm/apikeys.server';
+import {
+  listAutomationRules,
+  getAutomationRule,
+  createAutomationRule,
+  updateAutomationRule,
+  deleteAutomationRule,
+  listAutomationRuleStatuses,
+  type AutomationRule,
+  type CreateAutomationRuleInput,
+  type UpdateAutomationRulePatch,
+  type AutomationRuleStatus,
+  AUTOMATION_EVENTS,
+} from '@/lib/sabcrm/automation.server';
+import {
+  assertWithinRecordLimit,
+  assertWithinCustomObjectLimit,
+  assertWithinCustomFieldLimit,
+} from '@/lib/sabcrm/limits.server';
+import {
+  logSabcrmAudit,
+  logRecordAudit,
+  logObjectAudit,
+  logFieldAudit,
+  logActivityAudit,
+  logViewAudit,
+} from '@/lib/sabcrm/audit.server';
+import {
+  listReports,
+  getReport,
+  createReport,
+  updateReport,
+  deleteReport,
+  runReport,
+  runReportDefinition,
+  type SavedReport,
+  type CreateReportInput,
+  type UpdateReportPatch,
+  type ReportDataSeries,
+} from '@/lib/sabcrm/reports.server';
+import { getDashboardKpis, type CrmDashboardKpis } from '@/lib/sabcrm/kpis.server';
+import {
+  countByField,
+  sumByField,
+  timeSeries,
+  recordTotals,
+  type CountByFieldResult,
+  type SumByFieldResult,
+  type TimeSeriesResult,
+  type RecordTotalsResult,
+  type TimeInterval,
+} from '@/lib/sabcrm/analytics.server';
+import {
+  getProjectFeedPage,
+  getProjectFeedCursor,
+  getProjectFeedDigest,
+  type FeedFilter,
+  type FeedPageOptions,
+  type FeedPage,
+  type FeedCursorOptions,
+  type FeedCursorPage,
+  type FeedDigest,
+} from '@/lib/sabcrm/feed.server';
 import { ObjectId, type Filter, type Sort } from 'mongodb';
 import type {
   ActionResult,
@@ -154,9 +239,24 @@ async function gate(
 
   // 2. active project — `getProjects` returns `WithId<Project>[]`, so the id is
   // an ObjectId; stringify it for the (ObjectId-safe string) lib boundary.
-  const firstProjectId = (await getCachedProjects())[0]?._id;
-  const projectId = explicitProjectId ?? (firstProjectId ? String(firstProjectId) : undefined);
-  if (!projectId) return { ok: false, error: 'No active project.' };
+  //
+  // SECURITY: `explicitProjectId` is client-supplied. We must NOT trust it
+  // blindly — the shared RBAC resolver fails *open* for a project the caller
+  // is not a member of (defaulting to an 'agent'/owner template), so a user
+  // could pass another tenant's projectId and read/write their CRM data.
+  // Defense-in-depth: only accept a projectId that appears in THIS user's own
+  // resolved project list; otherwise fall back to their first project.
+  const myProjects = await getCachedProjects();
+  const myProjectIds = new Set(myProjects.map((p) => String(p._id)));
+  const firstProjectId = myProjects[0]?._id;
+  const requested = explicitProjectId ?? (firstProjectId ? String(firstProjectId) : undefined);
+  if (!requested) return { ok: false, error: 'No active project.' };
+  if (!myProjectIds.has(requested)) {
+    // The caller is not a member of the requested project — deny rather than
+    // let the fail-open RBAC resolver grant cross-tenant access.
+    return { ok: false, error: 'Permission denied.' };
+  }
+  const projectId = requested;
 
   // 3. RBAC
   const allowed = await canServer(MODULE_KEY, action, projectId);
@@ -187,6 +287,9 @@ export async function listObjectsAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Idempotent seed: ensures standard-object overlay rows exist so custom
+    // fields have a home from the first read of a project.
+    await ensureStandardObjects(g.ctx.projectId);
     const data = await listObjects(g.ctx.projectId);
     return { ok: true, data };
   } catch (e) {
@@ -212,7 +315,22 @@ export async function addCustomFieldAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Enforce per-plan custom-field cap before adding.
+    await assertWithinCustomFieldLimit(g.ctx.projectId, slug);
+
     const data = await addCustomField(g.ctx.projectId, slug, field);
+
+    void logFieldAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      slug,
+      slug,
+      {
+        reason: `Added custom field "${field.key}" to "${slug}"`,
+        diff: { [field.key]: { after: { key: field.key, type: field.type, label: field.label } } },
+      },
+    );
+
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     return { ok: true, data };
   } catch (e) {
@@ -248,6 +366,9 @@ export async function listRecordsAction(
   const needsExtended = !!ext.multiSort?.length || !!ext.expandRelations?.length;
 
   try {
+    // Idempotent seed so the object catalogue is ready before we query records.
+    await ensureStandardObjects(g.ctx.projectId);
+
     if (!needsExtended) {
       const data = await listRecords(
         g.ctx.projectId,
@@ -317,6 +438,7 @@ export async function getRecordAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    await ensureStandardObjects(g.ctx.projectId);
     const record = await getRecord(g.ctx.projectId, g.ctx.userId, id);
     if (!record) return { ok: false, error: 'Record not found.' };
     return { ok: true, data: record };
@@ -337,12 +459,32 @@ export async function createRecordAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Enforce per-plan record cap before inserting — throws SabcrmLimitError
+    // which normalises into { ok: false, error } via the fail() path below.
+    await assertWithinRecordLimit(g.ctx.projectId);
+
     const data = await createRecord(
       g.ctx.projectId,
       g.ctx.userId,
       object,
       values ?? {},
     );
+
+    void logRecordAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      object,
+      data._id,
+      { reason: `Created ${object} record` },
+    );
+
+    void emitSabcrmEvent(g.ctx.projectId, 'record.created', {
+      tenantUserId: g.ctx.userId,
+      objectSlug: object,
+      recordId: data._id,
+      record: data as Record<string, unknown>,
+    });
+
     revalidatePath(`${CRM_BASE_PATH}/${object}`);
     return { ok: true, data };
   } catch (e) {
@@ -364,6 +506,28 @@ export async function updateRecordAction(
   try {
     const data = await updateRecord(g.ctx.projectId, g.ctx.userId, id, patch ?? {});
     if (!data) return { ok: false, error: 'Record not found.' };
+
+    void logRecordAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      data.object,
+      id,
+      {
+        reason: `Updated ${data.object} record`,
+        diff: Object.fromEntries(
+          Object.entries(patch ?? {}).map(([k, v]) => [k, { after: v }]),
+        ),
+      },
+    );
+
+    void emitSabcrmEvent(g.ctx.projectId, 'record.updated', {
+      tenantUserId: g.ctx.userId,
+      objectSlug: data.object,
+      recordId: id,
+      record: data as Record<string, unknown>,
+      changedFields: Object.keys(patch ?? {}),
+    });
+
     revalidatePath(`${CRM_BASE_PATH}/${data.object}`);
     return { ok: true, data };
   } catch (e) {
@@ -382,8 +546,25 @@ export async function deleteRecordAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Fetch the record before deletion so we can log the object slug.
+    const existing = await getRecord(g.ctx.projectId, g.ctx.userId, id);
     const deleted = await deleteRecord(g.ctx.projectId, g.ctx.userId, id);
     if (!deleted) return { ok: false, error: 'Record not found.' };
+
+    void logRecordAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'delete',
+      existing?.object ?? 'record',
+      id,
+      { reason: `Deleted ${existing?.object ?? 'record'} record ${id}` },
+    );
+
+    void emitSabcrmEvent(g.ctx.projectId, 'record.deleted', {
+      tenantUserId: g.ctx.userId,
+      objectSlug: existing?.object ?? 'record',
+      recordId: id,
+    });
+
     revalidatePath(CRM_BASE_PATH);
     return { ok: true, data: { id } };
   } catch (e) {
@@ -394,6 +575,11 @@ export async function deleteRecordAction(
 // ---------------------------------------------------------------------------
 // View actions
 // ---------------------------------------------------------------------------
+
+// Re-export the serialisable SavedView shape so client-component consumers
+// (e.g. the settings/views management page) can type their state against the
+// same interface without importing from the server-only views.server module.
+export type { SavedView, SaveViewInput } from '@/lib/sabcrm/views.server';
 
 /**
  * Lists the saved views for one object. Returns project-shared views plus the
@@ -430,6 +616,15 @@ export async function saveViewAction(
   try {
     const result = await saveView(g.ctx.projectId, input);
     if (!result.ok) return result;
+
+    void logViewAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      input.id ? 'update' : 'create',
+      input.object,
+      result.data?._id ?? input.id ?? input.object,
+      { reason: `${input.id ? 'Updated' : 'Saved'} view "${input.name}"` },
+    );
+
     revalidatePath(`${CRM_BASE_PATH}/${input.object}`);
     return result;
   } catch (e) {
@@ -464,6 +659,15 @@ export async function deleteViewAction(
     } as unknown as Filter<Record<string, unknown>>);
 
     const object = String((existing as Record<string, unknown>).object ?? '');
+
+    void logViewAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'delete',
+      object || 'view',
+      id,
+      { reason: `Deleted view ${id}` },
+    );
+
     if (object) revalidatePath(`${CRM_BASE_PATH}/${object}`);
     return { ok: true, data: { id } };
   } catch (e) {
@@ -511,6 +715,14 @@ export async function setDefaultViewAction(
     await col.updateOne(
       { _id: oid } as unknown as Filter<Record<string, unknown>>,
       { $set: { isDefault: true, updatedAt: ts } },
+    );
+
+    void logViewAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      object || 'view',
+      id,
+      { reason: `Set default view ${id}` },
     );
 
     if (object) revalidatePath(`${CRM_BASE_PATH}/${object}`);
@@ -1189,6 +1401,23 @@ export async function createActivityAction(
           : undefined,
       dueAt: toDateOrUndefined(input.dueAt),
     });
+    void logActivityAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      input.targetObject,
+      activity._id,
+      { reason: `Created ${input.type} activity: "${input.title}"` },
+    );
+
+    void emitSabcrmEvent(g.ctx.projectId, 'activity.created', {
+      tenantUserId: g.ctx.userId,
+      objectSlug: input.targetObject,
+      recordId: input.targetRecordId,
+      activityId: activity._id,
+      activityType: activity.type,
+      activityTitle: activity.title,
+    });
+
     revalidatePath(`${CRM_BASE_PATH}/${input.targetObject}/${input.targetRecordId}`);
     return { ok: true, data: activity };
   } catch (e) {
@@ -1281,6 +1510,15 @@ export async function updateActivityAction(
       dueAt,
     });
     if (!updated) return { ok: false, error: 'Activity not found.' };
+
+    void logActivityAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      updated.targetObject,
+      id,
+      { reason: `Updated ${updated.type} activity` },
+    );
+
     revalidatePath(
       `${CRM_BASE_PATH}/${updated.targetObject}/${updated.targetRecordId}`,
     );
@@ -1304,6 +1542,15 @@ export async function deleteActivityAction(
     const existing = await getActivity(g.ctx.projectId, id);
     const deleted = await deleteActivity(g.ctx.projectId, id);
     if (!deleted) return { ok: false, error: 'Activity not found.' };
+
+    void logActivityAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'delete',
+      existing?.targetObject ?? 'activity',
+      id,
+      { reason: `Deleted ${existing?.type ?? 'activity'} ${id}` },
+    );
+
     if (existing) {
       revalidatePath(
         `${CRM_BASE_PATH}/${existing.targetObject}/${existing.targetRecordId}`,
@@ -1338,6 +1585,15 @@ export async function setTaskStatusAction(
     if (!updated) {
       return { ok: false, error: 'Task not found or is not a task.' };
     }
+
+    void logActivityAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'status_change',
+      updated.targetObject,
+      taskId,
+      { reason: `Task status set to ${status}`, diff: { status: { after: status } } },
+    );
+
     revalidatePath(
       `${CRM_BASE_PATH}/${updated.targetObject}/${updated.targetRecordId}`,
     );
@@ -1377,6 +1633,24 @@ export async function assignRecordAction(
       assigneeId,
     );
     if (!result) return { ok: false, error: 'Record not found.' };
+
+    void logRecordAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'assign',
+      result.record.object,
+      recordId,
+      {
+        reason: assigneeId
+          ? `Assigned ${result.record.object} record to ${assigneeId}`
+          : `Unassigned ${result.record.object} record`,
+        diff: {
+          assigneeId: {
+            before: result.previousAssigneeId ?? null,
+            after: assigneeId,
+          },
+        },
+      },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${result.record.object}`);
     revalidatePath(`${CRM_BASE_PATH}/${result.record.object}/${result.record._id}`);
@@ -1450,6 +1724,23 @@ export async function addCommentAction(
       attachments: toAttachments(input.attachments),
       mentions,
     });
+    void logActivityAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      input.targetObject,
+      activity._id,
+      { reason: `Added comment on ${input.targetObject} record ${input.targetRecordId}` },
+    );
+
+    void emitSabcrmEvent(g.ctx.projectId, 'activity.created', {
+      tenantUserId: g.ctx.userId,
+      objectSlug: input.targetObject,
+      recordId: input.targetRecordId,
+      activityId: activity._id,
+      activityType: 'COMMENT',
+      activityTitle: activity.title,
+    });
+
     revalidatePath(
       `${CRM_BASE_PATH}/${input.targetObject}/${input.targetRecordId}`,
     );
@@ -1519,17 +1810,18 @@ export async function createCustomObjectAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Enforce per-plan custom-object cap before inserting.
+    await assertWithinCustomObjectLimit(g.ctx.projectId);
+
     const data = await createCustomObject(g.ctx.projectId, input);
 
-    // Fire-and-forget audit: never unwinds the data write on failure.
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'create',
-      entityKind: 'crm_object',
-      entityId: data.slug,
-      reason: `Created custom object "${data.labelSingular}"`,
-    }).catch(() => undefined);
+    void logObjectAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      data.slug,
+      data.slug,
+      { reason: `Created custom object "${data.labelSingular}"` },
+    );
 
     revalidatePath(CRM_BASE_PATH);
     return { ok: true, data };
@@ -1562,16 +1854,18 @@ export async function updateObjectAction(
   try {
     const data = await updateObject(g.ctx.projectId, slug, patch);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'update',
-      entityKind: 'crm_object',
-      entityId: slug,
-      diff: Object.fromEntries(
-        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
-      ),
-    }).catch(() => undefined);
+    void logObjectAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      slug,
+      slug,
+      {
+        reason: `Updated object "${slug}"`,
+        diff: Object.fromEntries(
+          Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+        ),
+      },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     revalidatePath(CRM_BASE_PATH);
@@ -1603,16 +1897,17 @@ export async function deleteCustomObjectAction(
   try {
     const data = await deleteCustomObject(g.ctx.projectId, slug, opts);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'delete',
-      entityKind: 'crm_object',
-      entityId: slug,
-      reason: data.deletedRecords > 0
-        ? `Cascade-deleted ${data.deletedRecords} record(s)`
-        : undefined,
-    }).catch(() => undefined);
+    void logObjectAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'delete',
+      slug,
+      slug,
+      {
+        reason: data.deletedRecords > 0
+          ? `Deleted custom object "${slug}" and cascade-deleted ${data.deletedRecords} record(s)`
+          : `Deleted custom object "${slug}"`,
+      },
+    );
 
     revalidatePath(CRM_BASE_PATH);
     return { ok: true, data };
@@ -1652,16 +1947,21 @@ export async function addFieldAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Enforce per-plan custom-field cap before adding.
+    await assertWithinCustomFieldLimit(g.ctx.projectId, slug);
+
     const data = await addField(g.ctx.projectId, slug, field);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'create',
-      entityKind: 'crm_field',
-      entityId: `${slug}.${field.key}`,
-      diff: { field: { after: { key: field.key, type: field.type, label: field.label } } },
-    }).catch(() => undefined);
+    void logFieldAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'create',
+      slug,
+      slug,
+      {
+        reason: `Added field "${field.key}" to "${slug}"`,
+        diff: { [field.key]: { after: { key: field.key, type: field.type, label: field.label } } },
+      },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     return { ok: true, data };
@@ -1697,16 +1997,18 @@ export async function updateFieldAction(
   try {
     const data = await updateField(g.ctx.projectId, slug, fieldKey, patch);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'update',
-      entityKind: 'crm_field',
-      entityId: `${slug}.${fieldKey}`,
-      diff: Object.fromEntries(
-        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
-      ),
-    }).catch(() => undefined);
+    void logFieldAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      slug,
+      slug,
+      {
+        reason: `Updated field "${fieldKey}" on "${slug}"`,
+        diff: Object.fromEntries(
+          Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+        ),
+      },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     return { ok: true, data };
@@ -1735,13 +2037,13 @@ export async function removeFieldAction(
   try {
     const data = await removeField(g.ctx.projectId, slug, fieldKey);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'delete',
-      entityKind: 'crm_field',
-      entityId: `${slug}.${fieldKey}`,
-    }).catch(() => undefined);
+    void logFieldAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'delete',
+      slug,
+      slug,
+      { reason: `Removed field "${fieldKey}" from "${slug}"` },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     return { ok: true, data };
@@ -1776,14 +2078,16 @@ export async function reorderFieldsAction(
   try {
     const data = await reorderFields(g.ctx.projectId, slug, orderedCustomKeys);
 
-    void writeAuditEntry({
-      tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
-      action: 'update',
-      entityKind: 'crm_field_order',
-      entityId: slug,
-      diff: { order: { after: orderedCustomKeys } },
-    }).catch(() => undefined);
+    void logFieldAudit(
+      { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+      'update',
+      slug,
+      slug,
+      {
+        reason: `Reordered fields on "${slug}"`,
+        diff: { order: { after: orderedCustomKeys } },
+      },
+    );
 
     revalidatePath(`${CRM_BASE_PATH}/${slug}`);
     return { ok: true, data };
@@ -1855,12 +2159,15 @@ export async function createRelationAction(
       },
     );
 
-    void writeAuditEntry({
+    void logSabcrmAudit({
       tenantUserId: g.ctx.userId,
-      actorId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'relation',
       action: 'create',
-      entityKind: 'crm_relation',
+      objectSlug: input.fromSlug,
       entityId: `${input.fromSlug}.${input.fieldKey}`,
+      reason: `Created RELATION field "${input.fieldKey}" on "${input.fromSlug}" → "${input.relation.targetObject}"`,
       diff: {
         relation: {
           after: {
@@ -1872,7 +2179,7 @@ export async function createRelationAction(
           },
         },
       },
-    }).catch(() => undefined);
+    });
 
     revalidatePath(`${CRM_BASE_PATH}/${input.fromSlug}`);
     revalidatePath(`${CRM_BASE_PATH}/${input.relation.targetObject}`);
@@ -1965,6 +2272,10 @@ export async function importRecordsAction(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Enforce per-plan record cap for the whole batch up-front so we never
+    // half-import (the assertion checks used + incoming <= cap).
+    await assertWithinRecordLimit(g.ctx.projectId, input.rows.length);
+
     const data = await importRecords({
       object: input.object,
       columnMapping: input.columnMapping,
@@ -1975,6 +2286,13 @@ export async function importRecordsAction(
     });
 
     if (data.succeeded > 0) {
+      void logRecordAudit(
+        { tenantUserId: g.ctx.userId, projectId: g.ctx.projectId, actor: g.ctx.userId },
+        'create',
+        input.object,
+        input.object,
+        { reason: `Bulk-imported ${data.succeeded} ${input.object} record(s)` },
+      );
       revalidatePath(`${CRM_BASE_PATH}/${input.object}`);
     }
     return { ok: true, data };
@@ -2029,5 +2347,1236 @@ export async function exportRecordsAction(
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to export records.');
+  }
+}
+
+// Re-export the MappingValidationIssue type so the import dialog can import it
+// from the actions barrel without reaching into the server-only lib directly.
+export type { MappingValidationIssue };
+
+// ---------------------------------------------------------------------------
+// Saved Reports (manage-gated CRUD + view-gated run)
+//
+// Reports store a named analytics query definition (object + metric + groupBy
+// + filters + chartType) in the `sabcrm_reports` collection and execute it
+// live against `sabcrm_records` via an aggregation pipeline.
+//
+// Gating:
+//   - listReportsAction / getReportAction / runReportAction / runReportDefinitionAction
+//       → gate('view')    (sabcrm:view — reads only)
+//   - createReportAction / updateReportAction / deleteReportAction
+//       → gate('edit')    (sabcrm:manage — schema/definition writes)
+// ---------------------------------------------------------------------------
+
+// Re-export the types callers need without reaching into the server-only lib.
+export type {
+  SavedReport,
+  CreateReportInput,
+  UpdateReportPatch,
+  ReportDataSeries,
+};
+export type {
+  ReportMetric,
+  ReportChartType,
+  ReportTimeBucket,
+  ReportDataPoint,
+} from '@/lib/sabcrm/reports.server';
+
+const REPORTS_PATH = `${CRM_BASE_PATH}/reports`;
+
+/**
+ * Lists all saved reports for the active project, newest first.
+ * Optionally narrows to one object slug via `opts.object`.
+ */
+export async function listReportsAction(
+  opts?: { object?: string },
+  projectId?: string,
+): Promise<ActionResult<SavedReport[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listReports(g.ctx.projectId, opts);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list reports.');
+  }
+}
+
+/**
+ * Fetches a single saved report by id. Returns `{ ok: false }` when not found.
+ */
+export async function getReportAction(
+  reportId: string,
+  projectId?: string,
+): Promise<ActionResult<SavedReport>> {
+  if (!reportId) return { ok: false, error: 'Report id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await getReport(g.ctx.projectId, reportId);
+    if (!data) return { ok: false, error: 'Report not found.' };
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to get report.');
+  }
+}
+
+/**
+ * Creates a new saved report definition. Gated behind the `manage` capability
+ * because report definitions are project-scoped persistent schema.
+ */
+export async function createReportAction(
+  input: CreateReportInput,
+  projectId?: string,
+): Promise<ActionResult<SavedReport>> {
+  if (!input?.name?.trim()) return { ok: false, error: 'Report name is required.' };
+  if (!input?.object) return { ok: false, error: 'Object slug is required.' };
+  if (!input?.metric) return { ok: false, error: 'Metric is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await createReport(g.ctx.projectId, g.ctx.userId, input);
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'view',
+      action: 'create',
+      objectSlug: input.object,
+      entityId: data._id,
+      reason: `Created report "${data.name}"`,
+    });
+
+    revalidatePath(REPORTS_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create report.');
+  }
+}
+
+/**
+ * Applies a patch to a saved report definition.
+ * The `object` field is intentionally not patchable — callers must delete and
+ * re-create to change the target object.
+ */
+export async function updateReportAction(
+  reportId: string,
+  patch: UpdateReportPatch,
+  projectId?: string,
+): Promise<ActionResult<SavedReport>> {
+  if (!reportId) return { ok: false, error: 'Report id is required.' };
+  if (!patch || typeof patch !== 'object') {
+    return { ok: false, error: 'Patch is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await updateReport(g.ctx.projectId, reportId, patch);
+    if (!data) return { ok: false, error: 'Report not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'view',
+      action: 'update',
+      objectSlug: data.object,
+      entityId: data._id,
+      reason: `Updated report "${data.name}"`,
+    });
+
+    revalidatePath(REPORTS_PATH);
+    revalidatePath(`${REPORTS_PATH}/${reportId}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update report.');
+  }
+}
+
+/**
+ * Deletes a saved report definition. Returns `{ ok: false }` when not found.
+ */
+export async function deleteReportAction(
+  reportId: string,
+  projectId?: string,
+): Promise<ActionResult<boolean>> {
+  if (!reportId) return { ok: false, error: 'Report id is required.' };
+
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    // Fetch the definition first so we can log the audit entry with the
+    // object slug and name (deleteReport returns only a boolean).
+    const existing = await getReport(g.ctx.projectId, reportId);
+    if (!existing) return { ok: false, error: 'Report not found.' };
+
+    const removed = await deleteReport(g.ctx.projectId, reportId);
+    if (!removed) return { ok: false, error: 'Report not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'view',
+      action: 'delete',
+      objectSlug: existing.object,
+      entityId: reportId,
+      reason: `Deleted report "${existing.name}"`,
+    });
+
+    revalidatePath(REPORTS_PATH);
+    return { ok: true, data: true };
+  } catch (e) {
+    return fail(e, 'Failed to delete report.');
+  }
+}
+
+/**
+ * Executes a saved report by id and returns its analytics data series.
+ * View-gated so any project member can run reports they can see.
+ */
+export async function runReportAction(
+  reportId: string,
+  projectId?: string,
+): Promise<ActionResult<ReportDataSeries>> {
+  if (!reportId) return { ok: false, error: 'Report id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await runReport(g.ctx.projectId, g.ctx.userId, reportId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to run report.');
+  }
+}
+
+/**
+ * Executes an unsaved report definition inline — for the "preview" mode in the
+ * report builder before the user saves. View-gated (reads only).
+ */
+export async function runReportDefinitionAction(
+  definition: CreateReportInput,
+  projectId?: string,
+): Promise<ActionResult<ReportDataSeries>> {
+  if (!definition?.object) return { ok: false, error: 'Object is required.' };
+  if (!definition?.metric) return { ok: false, error: 'Metric is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await runReportDefinition(g.ctx.projectId, g.ctx.userId, definition);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to preview report.');
+  }
+}
+
+/**
+ * Builds a suggested column→field mapping by fuzzy-matching the provided CSV
+ * headers against the target object's field labels and keys.
+ *
+ * Read-gated behind `sabcrm:view`. Returns a partial mapping (only matched
+ * fields); the caller should let the user fix unmatched columns.
+ */
+export async function buildColumnMappingSuggestionsAction(
+  object: string,
+  csvHeaders: string[],
+  projectId?: string,
+): Promise<ActionResult<ColumnMapping>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!Array.isArray(csvHeaders) || csvHeaders.length === 0) {
+    return { ok: false, error: 'CSV headers are required.' };
+  }
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await buildColumnMappingSuggestions(
+      g.ctx.projectId,
+      object,
+      csvHeaders,
+    );
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to build mapping suggestions.');
+  }
+}
+
+/**
+ * Validates a caller-supplied column→field mapping against the object's field
+ * metadata and the available CSV headers.
+ *
+ * Returns an array of validation issues (empty = no issues). Read-gated behind
+ * `sabcrm:view`.
+ */
+export async function validateImportMappingAction(
+  object: string,
+  columnMapping: ColumnMapping,
+  availableHeaders: string[],
+  projectId?: string,
+): Promise<ActionResult<MappingValidationIssue[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!columnMapping || typeof columnMapping !== 'object') {
+    return { ok: false, error: 'Column mapping is required.' };
+  }
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await validateImportMapping(
+      g.ctx.projectId,
+      object,
+      columnMapping,
+      availableHeaders,
+    );
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to validate import mapping.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// KPI dashboard action (view-gated)
+//
+// Returns a four-bucket snapshot (record counts / open opportunities /
+// tasks due-today + overdue / new-this-week) computed in parallel from
+// `sabcrm_records` and `sabcrm_activities`. Read-only; gated behind
+// `sabcrm:view`. Never throws to the client — individual sub-query failures
+// are caught in the library layer and zeroed out.
+// ---------------------------------------------------------------------------
+
+// Re-export the KPI types so dashboard components can import them without
+// reaching into the server-only lib directly.
+export type {
+  CrmDashboardKpis,
+  ObjectRecordCount,
+  OpportunityKpi,
+  TaskKpi,
+  NewThisWeekKpi,
+} from '@/lib/sabcrm/kpis.server';
+
+/**
+ * Returns the four CRM dashboard KPI buckets for the active project.
+ *
+ * All sub-queries run concurrently in the library layer. Any sub-query that
+ * fails is zeroed rather than propagated, so the dashboard always renders.
+ *
+ * Read-gated behind `sabcrm:view`.
+ */
+export async function getKpisAction(
+  projectId?: string,
+): Promise<ActionResult<CrmDashboardKpis>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await getDashboardKpis(g.ctx.projectId, g.ctx.userId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to load KPIs.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Analytics run action (view-gated)
+//
+// Executes one of four analytics aggregations — countByField, sumByField,
+// timeSeries, or recordTotals — against the live `sabcrm_records` collection.
+// The spec discriminates between them via a `kind` tag so callers send one
+// strongly-typed request and get back a strongly-typed response.
+//
+// All aggregations are read-only and gated behind `sabcrm:view` — the same
+// cap as a plain record list. Results are always per-project (userId is never
+// forwarded, so they cover the full tenant project data not just the caller's
+// own records).
+// ---------------------------------------------------------------------------
+
+// Re-export result types so chart components can reference them without
+// importing the server-only analytics lib.
+export type {
+  CountByFieldResult,
+  SumByFieldResult,
+  TimeSeriesResult,
+  RecordTotalsResult,
+  TimeInterval,
+};
+
+/** Discriminated union describing which aggregation to run and with what args. */
+export type AnalyticsSpec =
+  | {
+      kind: 'countByField';
+      object: string;
+      fieldKey: string;
+    }
+  | {
+      kind: 'sumByField';
+      object: string;
+      groupFieldKey: string;
+      sumFieldKey: string;
+    }
+  | {
+      kind: 'timeSeries';
+      object: string;
+      dateField: string;
+      interval?: TimeInterval;
+    }
+  | {
+      kind: 'recordTotals';
+    };
+
+/** Union of all possible result shapes that {@link runAnalyticsAction} may return. */
+export type AnalyticsResult =
+  | CountByFieldResult
+  | SumByFieldResult
+  | TimeSeriesResult
+  | RecordTotalsResult;
+
+/**
+ * Executes an analytics aggregation described by `spec` against the active
+ * project's CRM data.
+ *
+ * The `kind` tag routes the request to one of the four analytics helpers:
+ *   - `countByField`  — distribution of records by a single field value
+ *   - `sumByField`    — sum of a numeric field grouped by another field
+ *   - `timeSeries`    — record counts bucketed over time
+ *   - `recordTotals`  — total record count per object across the project
+ *
+ * Read-gated behind `sabcrm:view`.
+ */
+export async function runAnalyticsAction(
+  spec: AnalyticsSpec,
+  projectId?: string,
+): Promise<ActionResult<AnalyticsResult>> {
+  if (!spec?.kind) return { ok: false, error: 'Analytics spec kind is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    switch (spec.kind) {
+      case 'countByField': {
+        if (!spec.object) return { ok: false, error: 'Object is required.' };
+        if (!spec.fieldKey) return { ok: false, error: 'fieldKey is required.' };
+        const data = await countByField(g.ctx.projectId, spec.object, spec.fieldKey);
+        return { ok: true, data };
+      }
+
+      case 'sumByField': {
+        if (!spec.object) return { ok: false, error: 'Object is required.' };
+        if (!spec.groupFieldKey) return { ok: false, error: 'groupFieldKey is required.' };
+        if (!spec.sumFieldKey) return { ok: false, error: 'sumFieldKey is required.' };
+        const data = await sumByField(
+          g.ctx.projectId,
+          spec.object,
+          spec.groupFieldKey,
+          spec.sumFieldKey,
+        );
+        return { ok: true, data };
+      }
+
+      case 'timeSeries': {
+        if (!spec.object) return { ok: false, error: 'Object is required.' };
+        if (!spec.dateField) return { ok: false, error: 'dateField is required.' };
+        const data = await timeSeries(
+          g.ctx.projectId,
+          spec.object,
+          spec.dateField,
+          spec.interval,
+        );
+        return { ok: true, data };
+      }
+
+      case 'recordTotals': {
+        const data = await recordTotals(g.ctx.projectId);
+        return { ok: true, data };
+      }
+
+      default: {
+        const _exhaustive: never = spec;
+        return { ok: false, error: `Unknown analytics kind: ${(_exhaustive as AnalyticsSpec).kind}` };
+      }
+    }
+  } catch (e) {
+    return fail(e, 'Failed to run analytics.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// saveReportAction — unified create-or-update (manage-gated)
+//
+// Thin wrapper that routes to createReport when no `id` is present and to
+// updateReport when `id` is supplied. This gives the report builder UI a
+// single "save" surface instead of branching on whether the report exists.
+// Gated behind `sabcrm:manage` (maps to `edit`) for both paths.
+// ---------------------------------------------------------------------------
+
+/** Input for {@link saveReportAction}: a report definition with an optional id. */
+export interface SaveReportActionInput extends CreateReportInput {
+  /**
+   * When supplied, the existing report with this id is patched rather than
+   * creating a new document. Must be a valid hex ObjectId of a report that
+   * belongs to the active project.
+   */
+  id?: string;
+}
+
+/**
+ * Creates a new saved report or updates an existing one, depending on whether
+ * `input.id` is supplied.
+ *
+ * - **Create** (no `id`): inserts a new report; requires `name`, `object`,
+ *   and `metric`.
+ * - **Update** (with `id`): applies a partial patch to the existing report;
+ *   the `object` field is immutable (delete + recreate to change it).
+ *
+ * Gated behind `sabcrm:manage` (the `edit` action) for both paths. Returns
+ * the full {@link SavedReport} after the mutation so the UI can refresh its
+ * local state in one round-trip.
+ */
+export async function saveReportAction(
+  input: SaveReportActionInput,
+  projectId?: string,
+): Promise<ActionResult<SavedReport>> {
+  if (!input?.name?.trim()) return { ok: false, error: 'Report name is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    if (input.id) {
+      // Update path — id is present.
+      const { id, name, metric, groupByField, filters, chartType, timeBucket, description, metricField } = input;
+      const patch: UpdateReportPatch = {};
+      if (name !== undefined) patch.name = name;
+      if (description !== undefined) patch.description = description;
+      if (metric !== undefined) patch.metric = metric;
+      if (metricField !== undefined) patch.metricField = metricField;
+      if (groupByField !== undefined) patch.groupByField = groupByField;
+      if (filters !== undefined) patch.filters = filters;
+      if (chartType !== undefined) patch.chartType = chartType;
+      if (timeBucket !== undefined) patch.timeBucket = timeBucket;
+
+      const data = await updateReport(g.ctx.projectId, id, patch);
+      if (!data) return { ok: false, error: 'Report not found.' };
+
+      void logSabcrmAudit({
+        tenantUserId: g.ctx.userId,
+        projectId: g.ctx.projectId,
+        actor: g.ctx.userId,
+        domain: 'view',
+        action: 'update',
+        objectSlug: data.object,
+        entityId: data._id,
+        reason: `Saved (updated) report "${data.name}"`,
+      });
+
+      revalidatePath(REPORTS_PATH);
+      revalidatePath(`${REPORTS_PATH}/${id}`);
+      return { ok: true, data };
+    } else {
+      // Create path — no id supplied.
+      if (!input.object) return { ok: false, error: 'Object slug is required.' };
+      if (!input.metric) return { ok: false, error: 'Metric is required.' };
+
+      const data = await createReport(g.ctx.projectId, g.ctx.userId, input);
+
+      void logSabcrmAudit({
+        tenantUserId: g.ctx.userId,
+        projectId: g.ctx.projectId,
+        actor: g.ctx.userId,
+        domain: 'view',
+        action: 'create',
+        objectSlug: input.object,
+        entityId: data._id,
+        reason: `Saved (created) report "${data.name}"`,
+      });
+
+      revalidatePath(REPORTS_PATH);
+      return { ok: true, data };
+    }
+  } catch (e) {
+    return fail(e, 'Failed to save report.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Activity feed action (view-gated)
+//
+// Surfaces the project-wide reverse-chronological activity stream that the
+// CRM dashboard digest panel and the "Recent Activity" sidebar consume.
+// Three query modes are supported:
+//
+//   - `page`    (default) — offset-based pagination; returns total count.
+//   - `cursor`            — cursor-based streaming for infinite-scroll UIs.
+//   - `digest`            — aggregated summary statistics over a time window.
+//
+// All modes are read-only and gated behind `sabcrm:view`. The feed spans the
+// whole project (not just the caller's own records) so any authorised member
+// can see what the team has been doing.
+// ---------------------------------------------------------------------------
+
+// Re-export the feed types so dashboard components can import them without
+// reaching into the server-only lib directly.
+export type {
+  FeedFilter,
+  FeedPageOptions,
+  FeedPage,
+  FeedCursorOptions,
+  FeedCursorPage,
+  FeedDigest,
+};
+export type { FeedActivityType, FeedCursor } from '@/lib/sabcrm/feed.server';
+
+/** Discriminated union describing which feed query mode to use. */
+export type ActivityFeedSpec =
+  | {
+      /** Offset-based pagination (default). Returns total count. */
+      mode: 'page';
+      filter?: FeedFilter;
+      options?: FeedPageOptions;
+    }
+  | {
+      /** Cursor-based streaming for infinite-scroll UIs. No count query. */
+      mode: 'cursor';
+      filter?: FeedFilter;
+      options?: FeedCursorOptions;
+    }
+  | {
+      /** Aggregated digest statistics over a time window. */
+      mode: 'digest';
+      since?: string | Date;
+      until?: string | Date;
+      filter?: Omit<FeedFilter, 'since' | 'until'>;
+    };
+
+/** Union of all possible results from {@link getActivityFeedAction}. */
+export type ActivityFeedResult = FeedPage | FeedCursorPage | FeedDigest;
+
+/**
+ * Retrieves the project-wide CRM activity feed in one of three modes:
+ *
+ * - `page`   — classic offset-based pagination; use for dashboard tables and
+ *              lists where you need the total count (`total` field).
+ * - `cursor` — cursor-based streaming for infinite-scroll / real-time UIs;
+ *              cheaper (skips `countDocuments`); use `nextCursor` to fetch
+ *              the next batch.
+ * - `digest` — returns aggregated counts (`byType`, `byObject`, `byAuthor`)
+ *              and the most recent activity over a configurable time window;
+ *              use for "what happened this week" summary cards.
+ *
+ * All modes:
+ *   - Are scoped to the active project (no cross-tenant data).
+ *   - Are read-gated behind `sabcrm:view`.
+ *   - Accept a {@link FeedFilter} to narrow by activity type, target object,
+ *     author, and date range.
+ */
+export async function getActivityFeedAction(
+  spec: ActivityFeedSpec,
+  projectId?: string,
+): Promise<ActionResult<ActivityFeedResult>> {
+  if (!spec?.mode) return { ok: false, error: 'Feed spec mode is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    switch (spec.mode) {
+      case 'page': {
+        const data = await getProjectFeedPage(
+          g.ctx.projectId,
+          spec.filter,
+          spec.options,
+        );
+        return { ok: true, data };
+      }
+
+      case 'cursor': {
+        const data = await getProjectFeedCursor(
+          g.ctx.projectId,
+          spec.filter,
+          spec.options,
+        );
+        return { ok: true, data };
+      }
+
+      case 'digest': {
+        const data = await getProjectFeedDigest(
+          g.ctx.projectId,
+          spec.since,
+          spec.until,
+          spec.filter,
+        );
+        return { ok: true, data };
+      }
+
+      default: {
+        const _exhaustive: never = spec;
+        return { ok: false, error: `Unknown feed mode: ${(_exhaustive as ActivityFeedSpec).mode}` };
+      }
+    }
+  } catch (e) {
+    return fail(e, 'Failed to load activity feed.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Webhook CRUD (admin-gated)
+//
+// Manage outbound webhook subscriptions for a project. Every subscription
+// points at an external HTTPS endpoint that receives a signed JSON POST when
+// a subscribed SabCRM event fires. The `secret` is returned exactly once on
+// create / rotate — the actions layer never re-surfaces it.
+//
+// Gating: `edit` action maps to `sabcrm:admin` capability so only project
+// admins can register external endpoints.
+// ---------------------------------------------------------------------------
+
+// Re-export the serialised types callers need without reaching into the
+// server-only webhooks lib directly.
+export type { WebhookSubscription, CreateWebhookInput, UpdateWebhookPatch };
+export { SABCRM_WEBHOOK_EVENTS };
+
+/** Lists all webhook subscriptions for the active project, newest first. */
+export async function listWebhooksAction(
+  projectId?: string,
+): Promise<ActionResult<WebhookSubscription[]>> {
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listWebhooks(g.ctx.projectId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list webhooks.');
+  }
+}
+
+/** Fetches a single webhook subscription by id. */
+export async function getWebhookAction(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<WebhookSubscription>> {
+  if (!id) return { ok: false, error: 'Webhook id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await getWebhook(g.ctx.projectId, id);
+    if (!data) return { ok: false, error: 'Webhook not found.' };
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to get webhook.');
+  }
+}
+
+/**
+ * Creates a webhook subscription for the active project. Returns the
+ * subscription with the clear-text `secret` exposed exactly once.
+ *
+ * Admin-gated.
+ */
+export async function createWebhookAction(
+  input: CreateWebhookInput,
+  projectId?: string,
+): Promise<ActionResult<WebhookSubscription>> {
+  if (!input?.url?.trim()) return { ok: false, error: 'url is required.' };
+  if (!Array.isArray(input.events) || input.events.length === 0) {
+    return { ok: false, error: 'At least one event is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await createWebhook(g.ctx.projectId, g.ctx.userId, input);
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'create',
+      objectSlug: 'webhook',
+      entityId: data._id,
+      reason: `Created webhook subscription to "${data.url}"`,
+      diff: { events: { after: data.events } },
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/webhooks`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create webhook.');
+  }
+}
+
+/**
+ * Updates a webhook subscription (url / events / description / active flag).
+ * The secret is rotated via {@link rotateWebhookSecretAction}.
+ *
+ * Admin-gated.
+ */
+export async function updateWebhookAction(
+  id: string,
+  patch: UpdateWebhookPatch,
+  projectId?: string,
+): Promise<ActionResult<WebhookSubscription>> {
+  if (!id) return { ok: false, error: 'Webhook id is required.' };
+  if (!patch || Object.keys(patch).length === 0) {
+    return { ok: false, error: 'At least one field to update is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await updateWebhook(g.ctx.projectId, id, patch);
+    if (!data) return { ok: false, error: 'Webhook not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'update',
+      objectSlug: 'webhook',
+      entityId: id,
+      reason: `Updated webhook subscription ${id}`,
+      diff: Object.fromEntries(
+        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+      ),
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/webhooks`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update webhook.');
+  }
+}
+
+/**
+ * Rotates the signing secret for a webhook subscription. The new secret is
+ * returned exactly once — it cannot be recovered afterwards.
+ *
+ * Admin-gated.
+ */
+export async function rotateWebhookSecretAction(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<WebhookSubscription>> {
+  if (!id) return { ok: false, error: 'Webhook id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await rotateWebhookSecret(g.ctx.projectId, id);
+    if (!data) return { ok: false, error: 'Webhook not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'update',
+      objectSlug: 'webhook',
+      entityId: id,
+      reason: `Rotated secret for webhook subscription ${id}`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/webhooks`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to rotate webhook secret.');
+  }
+}
+
+/**
+ * Deletes a webhook subscription. Returns `{ id }` on success.
+ *
+ * Admin-gated.
+ */
+export async function deleteWebhookAction(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ id: string }>> {
+  if (!id) return { ok: false, error: 'Webhook id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const deleted = await deleteWebhook(g.ctx.projectId, id);
+    if (!deleted) return { ok: false, error: 'Webhook not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'delete',
+      objectSlug: 'webhook',
+      entityId: id,
+      reason: `Deleted webhook subscription ${id}`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/webhooks`);
+    return { ok: true, data: { id } };
+  } catch (e) {
+    return fail(e, 'Failed to delete webhook.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// API key management (admin-gated)
+//
+// Issues, lists, and revokes the bearer tokens used by the SabCRM public REST
+// API. Keys are tenant-scoped to the project. The raw key is shown exactly
+// once on issue — it is never persisted in clear text, so there is no
+// recovery path after the initial display.
+//
+// Gating: `edit` action (sabcrm:admin). All three operations are admin-only
+// because they grant or revoke programmatic project access.
+// ---------------------------------------------------------------------------
+
+// Re-export the types callers need.
+export type { SabcrmApiKey, IssuedSabcrmApiKey };
+
+/**
+ * Issues a new SabCRM API key for the active project.
+ *
+ * The returned `IssuedSabcrmApiKey.rawKey` is the only time the secret is
+ * visible — surface it in the UI immediately and do not show it again.
+ *
+ * Admin-gated.
+ */
+export async function issueApiKeyAction(
+  label: string,
+  projectId?: string,
+): Promise<ActionResult<IssuedSabcrmApiKey>> {
+  if (!label?.trim()) return { ok: false, error: 'A key label is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await issueApiKey(g.ctx.projectId, g.ctx.userId, label);
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'create',
+      objectSlug: 'apikey',
+      entityId: data.id,
+      reason: `Issued API key "${data.key.label}" (prefix: ${data.prefix})`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/api-keys`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to issue API key.');
+  }
+}
+
+/**
+ * Lists the active API keys for the project. Secrets are never included.
+ * Pass `includeRevoked: true` to include the full history in audit views.
+ *
+ * Admin-gated.
+ */
+export async function listApiKeysAction(
+  opts?: { includeRevoked?: boolean },
+  projectId?: string,
+): Promise<ActionResult<SabcrmApiKey[]>> {
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listApiKeys(g.ctx.projectId, {
+      includeRevoked: opts?.includeRevoked,
+    });
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list API keys.');
+  }
+}
+
+/**
+ * Revokes an API key so it can no longer authenticate requests. Soft-revoke:
+ * the key record is retained for audit. Idempotent — revoking an already-
+ * revoked key returns `{ ok: false }`.
+ *
+ * Admin-gated.
+ */
+export async function revokeApiKeyAction(
+  keyId: string,
+  projectId?: string,
+): Promise<ActionResult<{ keyId: string }>> {
+  if (!keyId) return { ok: false, error: 'Key id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const revoked = await revokeApiKey(g.ctx.projectId, keyId, g.ctx.userId);
+    if (!revoked) {
+      return { ok: false, error: 'API key not found or already revoked.' };
+    }
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'delete',
+      objectSlug: 'apikey',
+      entityId: keyId,
+      reason: `Revoked API key ${keyId}`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/api-keys`);
+    return { ok: true, data: { keyId } };
+  } catch (e) {
+    return fail(e, 'Failed to revoke API key.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Automation CRUD (admin-gated)
+//
+// Create, read, update, and delete automation rules for the active project.
+// An automation rule watches for a lifecycle event (record_created,
+// record_updated, …) and fires a configured action (create_task,
+// send_notification, call_webhook). The evaluation engine lives in
+// `@/lib/sabcrm/automation.server` and is called fire-and-forget from the
+// mutation paths in the records/activities server-actions.
+//
+// Gating: `edit` action (sabcrm:admin) for all mutations; reads are also
+// admin-gated because automation rules expose internal business logic.
+// ---------------------------------------------------------------------------
+
+// Re-export the types callers need.
+export type {
+  AutomationRule,
+  CreateAutomationRuleInput,
+  UpdateAutomationRulePatch,
+  AutomationRuleStatus,
+};
+export { AUTOMATION_EVENTS };
+export type {
+  AutomationEvent,
+  AutomationCondition,
+  AutomationConditionOp,
+  AutomationAction,
+  AutomationActionCreateTask,
+  AutomationActionSendNotification,
+  AutomationActionCallWebhook,
+} from '@/lib/sabcrm/automation.server';
+
+/**
+ * Lists all automation rules for the active project, newest-updated first.
+ *
+ * Admin-gated.
+ */
+export async function listAutomationRulesAction(
+  projectId?: string,
+): Promise<ActionResult<AutomationRule[]>> {
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listAutomationRules(g.ctx.projectId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list automation rules.');
+  }
+}
+
+/**
+ * Fetches one automation rule by id.
+ *
+ * Admin-gated.
+ */
+export async function getAutomationRuleAction(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<AutomationRule>> {
+  if (!id) return { ok: false, error: 'Rule id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await getAutomationRule(g.ctx.projectId, id);
+    if (!data) return { ok: false, error: 'Automation rule not found.' };
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to get automation rule.');
+  }
+}
+
+/**
+ * Creates a new automation rule for the active project.
+ *
+ * Admin-gated. Validates the trigger event, conditions, and action shape via
+ * the lib layer before inserting.
+ */
+export async function createAutomationRuleAction(
+  input: CreateAutomationRuleInput,
+  projectId?: string,
+): Promise<ActionResult<AutomationRule>> {
+  if (!input?.name?.trim()) {
+    return { ok: false, error: 'Rule name is required.' };
+  }
+  if (!input?.trigger?.event) {
+    return { ok: false, error: 'Trigger event is required.' };
+  }
+  if (!input?.action?.type) {
+    return { ok: false, error: 'Action type is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await createAutomationRule(g.ctx.projectId, input);
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'create',
+      objectSlug: 'automation',
+      entityId: data.id,
+      reason: `Created automation rule "${data.name}" (trigger: ${data.trigger.event}, action: ${data.action.type})`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/automations`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to create automation rule.');
+  }
+}
+
+/**
+ * Applies a partial patch to an automation rule. Validates the merged trigger
+ * + action before writing.
+ *
+ * Admin-gated.
+ */
+export async function updateAutomationRuleAction(
+  id: string,
+  patch: UpdateAutomationRulePatch,
+  projectId?: string,
+): Promise<ActionResult<AutomationRule>> {
+  if (!id) return { ok: false, error: 'Rule id is required.' };
+  if (!patch || Object.keys(patch).length === 0) {
+    return { ok: false, error: 'At least one field to update is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await updateAutomationRule(g.ctx.projectId, id, patch);
+    if (!data) return { ok: false, error: 'Automation rule not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'update',
+      objectSlug: 'automation',
+      entityId: id,
+      reason: `Updated automation rule "${data.name}"`,
+      diff: Object.fromEntries(
+        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+      ),
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/automations`);
+    revalidatePath(`${CRM_BASE_PATH}/settings/automations/${id}`);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update automation rule.');
+  }
+}
+
+/**
+ * Deletes an automation rule. Returns `true` on success.
+ *
+ * Admin-gated.
+ */
+export async function deleteAutomationRuleAction(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<boolean>> {
+  if (!id) return { ok: false, error: 'Rule id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    // Fetch the rule first so we can log its name in the audit entry.
+    const existing = await getAutomationRule(g.ctx.projectId, id);
+    if (!existing) return { ok: false, error: 'Automation rule not found.' };
+
+    const deleted = await deleteAutomationRule(g.ctx.projectId, id);
+    if (!deleted) return { ok: false, error: 'Automation rule not found.' };
+
+    void logSabcrmAudit({
+      tenantUserId: g.ctx.userId,
+      projectId: g.ctx.projectId,
+      actor: g.ctx.userId,
+      domain: 'object',
+      action: 'delete',
+      objectSlug: 'automation',
+      entityId: id,
+      reason: `Deleted automation rule "${existing.name}"`,
+    });
+
+    revalidatePath(`${CRM_BASE_PATH}/settings/automations`);
+    return { ok: true, data: true };
+  } catch (e) {
+    return fail(e, 'Failed to delete automation rule.');
+  }
+}
+
+/**
+ * Returns lightweight execution-state rows for all automation rules in the
+ * active project. Used by the admin UI to render status badges without
+ * loading full rule documents.
+ *
+ * Admin-gated.
+ */
+export async function listAutomationRuleStatusesAction(
+  projectId?: string,
+): Promise<ActionResult<AutomationRuleStatus[]>> {
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await listAutomationRuleStatuses(g.ctx.projectId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list automation rule statuses.');
   }
 }

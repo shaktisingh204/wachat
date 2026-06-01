@@ -10,9 +10,17 @@
  * Every editable field is rendered in place: the read-only {@link FieldValue}
  * acts as a button that, when clicked, swaps to the shared {@link FieldInput}
  * editor. Saving a field dispatches {@link updateRecordAction} with an
- * optimistic update + toast; a failed save rolls the value back. Fields are
- * grouped into sections (Details / Relationships) and a created/updated meta
- * footer is always shown.
+ * optimistic update + toast; a failed save rolls the value back and shows an
+ * inline error below the field. Fields are grouped into sections
+ * (Details / Relationships) and a created/updated meta footer is always shown.
+ *
+ * Accessibility hardening:
+ *   - An `aria-live="polite"` region announces save success/failure to
+ *     screen-reader users without interrupting the reading flow.
+ *   - Pressing Escape while a field is being edited calls `cancelEdit`,
+ *     mirroring the Cancel button so keyboard-only users can bail out.
+ *   - A save failure additionally surfaces an inline error message below the
+ *     field (role="alert") instead of relying solely on the toast.
  *
  * The component owns its own optimistic copy of `record.data` so edits feel
  * instant, while staying in lockstep with any `record` prop the host supplies
@@ -166,11 +174,23 @@ export function RecordDetail({
   const [editingKey, setEditingKey] = React.useState<string | null>(null);
   const [draft, setDraft] = React.useState<unknown>(undefined);
   const [savingKey, setSavingKey] = React.useState<string | null>(null);
+  // Inline error for the field that just failed to save (key → message).
+  const [fieldError, setFieldError] = React.useState<Record<string, string>>({});
+  // Live-region message for screen-reader announcements.
+  const [liveMessage, setLiveMessage] = React.useState<string>('');
 
   const toastRef = React.useRef(toast);
   React.useEffect(() => {
     toastRef.current = toast;
   }, [toast]);
+
+  // Reset the live-region text ~4 s after each announcement so the same
+  // message can be re-announced on a subsequent save of the same field.
+  React.useEffect(() => {
+    if (!liveMessage) return;
+    const id = window.setTimeout(() => setLiveMessage(''), 4000);
+    return () => window.clearTimeout(id);
+  }, [liveMessage]);
 
   // Keep in sync with a directly-supplied record (e.g. after a dialog edit).
   React.useEffect(() => {
@@ -210,6 +230,13 @@ export function RecordDetail({
       if (!canEdit || field.system || savingKey) return;
       setEditingKey(field.key);
       setDraft(current);
+      // Clear any stale error for this field when re-entering edit mode.
+      setFieldError((prev) => {
+        if (!prev[field.key]) return prev;
+        const next = { ...prev };
+        delete next[field.key];
+        return next;
+      });
     },
     [canEdit, savingKey],
   );
@@ -239,6 +266,13 @@ export function RecordDetail({
       setFetched(optimistic);
       setSavingKey(field.key);
       setEditingKey(null);
+      // Clear any prior inline error for this field while saving.
+      setFieldError((prev) => {
+        if (!prev[field.key]) return prev;
+        const next = { ...prev };
+        delete next[field.key];
+        return next;
+      });
 
       const res = await updateRecordAction(
         record._id,
@@ -254,6 +288,11 @@ export function RecordDetail({
             ? { ...curr, data: { ...curr.data, [field.key]: prev } }
             : curr,
         );
+        // Inline error so keyboard / AT users see the problem without relying
+        // solely on the toast (which may be ephemeral / ARIA-obscured).
+        setFieldError((prev) => ({ ...prev, [field.key]: res.error }));
+        // Announce via the live region.
+        setLiveMessage(`Failed to save ${field.label}: ${res.error}`);
         toastRef.current({
           title: 'Save failed',
           description: res.error,
@@ -272,6 +311,8 @@ export function RecordDetail({
       };
       setFetched(saved);
       onUpdated?.(saved);
+      // Announce success to screen readers.
+      setLiveMessage(`${field.label} saved.`);
       toastRef.current({ title: `${field.label} updated.` });
     },
     [record, draft, projectId, cancelEdit, onUpdated],
@@ -339,6 +380,18 @@ export function RecordDetail({
 
   return (
     <Card className={cn('flex flex-col', className)}>
+      {/* Polite live region — announces save status to screen readers without
+          interrupting the current reading flow. The message is reset after a
+          short delay so the same text can be announced again on a subsequent
+          save of the same field. */}
+      <span
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {liveMessage}
+      </span>
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-zoru-ink-muted">
@@ -398,6 +451,8 @@ export function RecordDetail({
                   ? relationOptionsByObject[field.relation.targetObject] ?? []
                   : undefined;
                 const fieldId = `sabcrm-detail-${field.key}`;
+                const fieldErrorId = `sabcrm-detail-err-${field.key}`;
+                const inlineError = fieldError[field.key];
 
                 return (
                   <div
@@ -423,7 +478,16 @@ export function RecordDetail({
 
                     <dd className="min-w-0 text-sm">
                       {isEditing ? (
-                        <div className="flex flex-col gap-2">
+                        /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */
+                        <div
+                          className="flex flex-col gap-2"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape' && !isSaving) {
+                              e.preventDefault();
+                              cancelEdit();
+                            }
+                          }}
+                        >
                           <FieldInput
                             id={fieldId}
                             field={field}
@@ -458,37 +522,53 @@ export function RecordDetail({
                           </div>
                         </div>
                       ) : (
-                        <div className="group flex items-center gap-2">
-                          <button
-                            type="button"
-                            disabled={!editable}
-                            onClick={() => beginEdit(field, value)}
-                            className={cn(
-                              'min-w-0 flex-1 rounded-[var(--zoru-radius)] px-2 py-1 text-left transition-colors',
-                              editable
-                                ? 'cursor-text hover:bg-zoru-surface'
-                                : 'cursor-default',
+                        <div className="flex flex-col gap-1">
+                          <div className="group flex items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={!editable}
+                              onClick={() => beginEdit(field, value)}
+                              aria-describedby={
+                                inlineError ? fieldErrorId : undefined
+                              }
+                              className={cn(
+                                'min-w-0 flex-1 rounded-[var(--zoru-radius)] px-2 py-1 text-left transition-colors',
+                                editable
+                                  ? 'cursor-text hover:bg-zoru-surface'
+                                  : 'cursor-default',
+                                inlineError &&
+                                  'ring-1 ring-zoru-danger/50',
+                              )}
+                              aria-label={
+                                editable
+                                  ? `Edit ${field.label}`
+                                  : undefined
+                              }
+                            >
+                              <FieldValue
+                                field={field}
+                                value={value}
+                                resolveRelationLabel={resolveRelationLabel}
+                              />
+                            </button>
+                            {isSaving && (
+                              <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-zoru-ink-muted" />
                             )}
-                            aria-label={
-                              editable
-                                ? `Edit ${field.label}`
-                                : undefined
-                            }
-                          >
-                            <FieldValue
-                              field={field}
-                              value={value}
-                              resolveRelationLabel={resolveRelationLabel}
-                            />
-                          </button>
-                          {isSaving && (
-                            <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-zoru-ink-muted" />
-                          )}
-                          {editable && !isSaving && (
-                            <Pencil
-                              className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted opacity-0 transition-opacity group-hover:opacity-100"
-                              aria-hidden
-                            />
+                            {editable && !isSaving && (
+                              <Pencil
+                                className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted opacity-0 transition-opacity group-hover:opacity-100"
+                                aria-hidden
+                              />
+                            )}
+                          </div>
+                          {inlineError && (
+                            <p
+                              id={fieldErrorId}
+                              role="alert"
+                              className="flex items-center gap-1 px-2 text-xs text-zoru-danger"
+                            >
+                              {inlineError}
+                            </p>
                           )}
                         </div>
                       )}

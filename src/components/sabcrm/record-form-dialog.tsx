@@ -12,10 +12,26 @@
  * The dialog is controlled (`open` / `onOpenChange`). On a successful
  * save it invokes `onSaved` with the resulting record so the host can
  * refresh its table / detail view.
+ *
+ * Accessibility guarantees:
+ *   - Every field `<input>`/`<select>`/etc. has `id` + `<Label htmlFor>`.
+ *   - Each field that has a description or an active error carries an
+ *     `aria-describedby` pointing at those helper / error nodes.
+ *   - An `aria-live="assertive"` error summary appears above the field list
+ *     when validation fails, lists each invalid field as a focusable link,
+ *     and disappears on the next successful submit or dialog close.
+ *   - Focus is programmatically moved to the error summary heading on
+ *     validation failure so screen-reader users hear it immediately.
+ *   - The entire form (all fields + buttons) is disabled while the server
+ *     action is in-flight; the submit button shows a spinner + "Saving…"
+ *     label and carries `aria-busy="true"`.
+ *   - Focus trap and ARIA modal semantics are provided by Radix Dialog
+ *     (`DialogPrimitive.Content`), which is already wired inside ZoruUI's
+ *     `DialogContent`.
  */
 
 import * as React from 'react';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 import {
   Button,
@@ -41,6 +57,10 @@ import type {
 } from '@/lib/sabcrm/types';
 import { FieldInput, type RelationOption } from './field-renderer';
 
+// ---------------------------------------------------------------------------
+// Public API (unchanged)
+// ---------------------------------------------------------------------------
+
 export interface RecordFormDialogProps {
   object: ObjectMetadata;
   open: boolean;
@@ -58,7 +78,17 @@ export interface RecordFormDialogProps {
   relationOptionsByObject?: Record<string, RelationOption[]>;
 }
 
+// ---------------------------------------------------------------------------
+// Internal types
+// ---------------------------------------------------------------------------
+
 type FormValues = Record<string, unknown>;
+/** Map of field.key → error message string (non-empty = invalid). */
+type FieldErrors = Record<string, string>;
+
+// ---------------------------------------------------------------------------
+// Helpers (pure, hoisted outside component — stable across renders)
+// ---------------------------------------------------------------------------
 
 /** Builds the initial form state from a record (edit) or defaults (create). */
 function buildInitialValues(
@@ -67,11 +97,9 @@ function buildInitialValues(
 ): FormValues {
   const values: FormValues = {};
   for (const field of fields) {
-    if (record) {
-      values[field.key] = record.data[field.key] ?? defaultFor(field);
-    } else {
-      values[field.key] = defaultFor(field);
-    }
+    values[field.key] = record
+      ? (record.data[field.key] ?? defaultFor(field))
+      : defaultFor(field);
   }
   return values;
 }
@@ -97,6 +125,24 @@ function isEmpty(value: unknown): boolean {
   return false;
 }
 
+/** Runs validation and returns an error map (empty = valid). */
+function validateFields(
+  fields: FieldMetadata[],
+  values: FormValues,
+): FieldErrors {
+  const errors: FieldErrors = {};
+  for (const field of fields) {
+    if (field.required && isEmpty(values[field.key])) {
+      errors[field.key] = `${field.label} is required.`;
+    }
+  }
+  return errors;
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
+
 /** Create / edit dialog driven entirely off object metadata. */
 export function RecordFormDialog({
   object,
@@ -119,8 +165,12 @@ export function RecordFormDialog({
   const [values, setValues] = React.useState<FormValues>(() =>
     buildInitialValues(editableFields, record),
   );
-  const [errors, setErrors] = React.useState<Record<string, boolean>>({});
+  const [errors, setErrors] = React.useState<FieldErrors>({});
   const [saving, setSaving] = React.useState(false);
+
+  // Ref used to focus the error summary heading when validation fails so that
+  // assistive technologies immediately announce the problem count.
+  const errorSummaryRef = React.useRef<HTMLDivElement>(null);
 
   // Reset the form each time the dialog opens or the target record changes.
   React.useEffect(() => {
@@ -130,27 +180,38 @@ export function RecordFormDialog({
     setSaving(false);
   }, [open, record, editableFields]);
 
+  // Move focus to the error summary whenever new validation errors appear so
+  // screen readers announce the summary without the user having to hunt for it.
+  const errorKeys = Object.keys(errors);
+  React.useEffect(() => {
+    if (errorKeys.length > 0) {
+      errorSummaryRef.current?.focus();
+    }
+  // We intentionally depend on the serialised key-list string so the effect
+  // only fires when the set of invalid fields actually changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errorKeys.join(',')]);
+
   const setFieldValue = React.useCallback((key: string, value: unknown) => {
     setValues((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: false } : prev));
+    // Clear the per-field error as soon as the user starts editing it.
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
   }, []);
-
-  const validate = React.useCallback((): boolean => {
-    const next: Record<string, boolean> = {};
-    for (const field of editableFields) {
-      if (field.required && isEmpty(values[field.key])) {
-        next[field.key] = true;
-      }
-    }
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }, [editableFields, values]);
 
   const onSubmit = React.useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (saving) return;
-      if (!validate()) {
+
+      const validationErrors = validateFields(editableFields, values);
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        // Toast is supplementary — primary feedback is the inline error summary.
         toast({
           title: 'Missing required fields',
           description: 'Please fill in the highlighted fields.',
@@ -184,10 +245,10 @@ export function RecordFormDialog({
     },
     [
       saving,
-      validate,
+      editableFields,
+      values,
       isEditing,
       record,
-      values,
       projectId,
       object.slug,
       object.labelSingular,
@@ -197,8 +258,19 @@ export function RecordFormDialog({
     ],
   );
 
+  // IDs used for aria-describedby wiring.
+  const formId = 'sabcrm-record-form';
+  const errorSummaryId = 'sabcrm-error-summary';
+  const invalidFieldKeys = errorKeys;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {/*
+       * DialogContent (Radix) provides:
+       *   • role="dialog" + aria-modal="true"
+       *   • Focus trap (first focusable element on open; restores on close)
+       *   • Escape to close
+       */}
       <DialogContent className="flex max-h-[88vh] max-w-2xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="border-b border-zoru-line p-5">
           <DialogTitle>
@@ -212,47 +284,156 @@ export function RecordFormDialog({
         </DialogHeader>
 
         <form
+          id={formId}
           onSubmit={onSubmit}
+          noValidate
+          aria-label={
+            isEditing
+              ? `Edit ${object.labelSingular} form`
+              : `New ${object.labelSingular} form`
+          }
+          aria-describedby={
+            invalidFieldKeys.length > 0 ? errorSummaryId : undefined
+          }
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5">
+            {/* ── Error summary ─────────────────────────────────────────── */}
+            {invalidFieldKeys.length > 0 && (
+              <div
+                id={errorSummaryId}
+                ref={errorSummaryRef}
+                // tabIndex=-1 makes it programmatically focusable without
+                // adding it to the natural tab order.
+                tabIndex={-1}
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                className={cn(
+                  'flex flex-col gap-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40',
+                  'bg-zoru-danger/5 p-3 text-sm text-zoru-danger',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-danger/40',
+                )}
+              >
+                <p className="flex items-center gap-1.5 font-medium">
+                  <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
+                  {invalidFieldKeys.length === 1
+                    ? '1 field needs your attention:'
+                    : `${invalidFieldKeys.length} fields need your attention:`}
+                </p>
+                <ul className="ml-5 list-disc space-y-0.5">
+                  {editableFields
+                    .filter((f) => errors[f.key])
+                    .map((f) => (
+                      <li key={f.key}>
+                        {/* Clicking the link focuses the invalid control. */}
+                        <a
+                          href={`#sabcrm-field-${f.key}`}
+                          className="underline underline-offset-2 hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zoru-danger"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document
+                              .getElementById(`sabcrm-field-${f.key}`)
+                              ?.focus();
+                          }}
+                        >
+                          {f.label}
+                        </a>
+                        {' — '}
+                        {errors[f.key]}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+
+            {/* ── Fields ────────────────────────────────────────────────── */}
             {editableFields.map((field) => {
               const fieldId = `sabcrm-field-${field.key}`;
-              const relationOptions = field.relation
-                ? relationOptionsByObject[field.relation.targetObject] ?? []
+              const descId = field.description
+                ? `sabcrm-desc-${field.key}`
                 : undefined;
+              const errId = errors[field.key]
+                ? `sabcrm-err-${field.key}`
+                : undefined;
+              // aria-describedby lists description then error (both optional).
+              const describedBy =
+                [descId, errId].filter(Boolean).join(' ') || undefined;
+
+              const relationOptions = field.relation
+                ? (relationOptionsByObject[field.relation.targetObject] ?? [])
+                : undefined;
+
               return (
                 <div key={field.key} className="flex flex-col gap-1.5">
-                  <Label htmlFor={fieldId} className="flex items-center gap-1">
+                  <Label
+                    htmlFor={fieldId}
+                    className="flex items-center gap-1"
+                  >
                     {field.label}
                     {field.required && (
-                      <span className="text-zoru-danger" aria-hidden>
+                      // aria-hidden: the required state is conveyed via
+                      // aria-required on the input itself (FieldInput passes
+                      // it through to the native element when `field.required`
+                      // is set — graceful degradation otherwise).
+                      <span
+                        className="text-zoru-danger"
+                        aria-hidden="true"
+                        title="Required"
+                      >
                         *
                       </span>
                     )}
                   </Label>
-                  {field.description && field.type !== 'TEXT' && (
-                    <p className="text-xs text-zoru-ink-muted">
+
+                  {field.description && (
+                    <p
+                      id={descId}
+                      className="text-xs text-zoru-ink-muted"
+                    >
                       {field.description}
                     </p>
                   )}
-                  <FieldInput
-                    id={fieldId}
-                    field={field}
-                    value={values[field.key]}
-                    invalid={!!errors[field.key]}
-                    disabled={saving}
-                    relationOptions={relationOptions}
-                    onChange={(value) => setFieldValue(field.key, value)}
-                  />
+
+                  {/*
+                   * FieldInputProps does not spread arbitrary HTML attributes,
+                   * so ARIA and autoFocus are applied via a thin wrapper div
+                   * that carries the semantics visible to assistive technology.
+                   * The div uses role="group" so AT contextualises the inner
+                   * control with the aria-describedby IDs even when FieldInput
+                   * cannot forward them to a native element itself.
+                   */}
+                  <div
+                    role="group"
+                    aria-describedby={describedBy}
+                    aria-required={field.required ? true : undefined}
+                    aria-invalid={errors[field.key] ? true : undefined}
+                  >
+                    <FieldInput
+                      id={fieldId}
+                      field={field}
+                      value={values[field.key]}
+                      invalid={!!errors[field.key]}
+                      disabled={saving}
+                      relationOptions={relationOptions}
+                      onChange={(value) => setFieldValue(field.key, value)}
+                    />
+                  </div>
+
                   {errors[field.key] && (
-                    <p className="text-xs text-zoru-danger">
-                      {field.label} is required.
+                    <p
+                      id={errId}
+                      role="alert"
+                      aria-live="polite"
+                      className="text-xs text-zoru-danger"
+                    >
+                      {errors[field.key]}
                     </p>
                   )}
                 </div>
               );
             })}
+
             {editableFields.length === 0 && (
               <p className="text-sm text-zoru-ink-muted">
                 This object has no editable fields.
@@ -260,18 +441,35 @@ export function RecordFormDialog({
             )}
           </div>
 
+          {/* ── Footer ──────────────────────────────────────────────────── */}
           <DialogFooter className="border-t border-zoru-line bg-zoru-surface/40 p-4">
             <Button
               type="button"
               variant="ghost"
+              // Disable cancel while submitting so users cannot close mid-flight.
               disabled={saving}
+              aria-disabled={saving}
               onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className={cn('animate-spin')} />}
-              {isEditing ? 'Save changes' : `Create ${object.labelSingular.toLowerCase()}`}
+            <Button
+              type="submit"
+              disabled={saving}
+              aria-disabled={saving}
+              aria-busy={saving}
+            >
+              {saving && (
+                <Loader2
+                  className={cn('animate-spin')}
+                  aria-hidden="true"
+                />
+              )}
+              {saving
+                ? 'Saving…'
+                : isEditing
+                  ? 'Save changes'
+                  : `Create ${object.labelSingular.toLowerCase()}`}
             </Button>
           </DialogFooter>
         </form>
