@@ -160,6 +160,11 @@ src/config/site.ts
 # /src/components/wabasimplify/webhook-logs.tsx
 # /src/app/dashboard/crm/hr-payroll/settings/page.tsx
 .gitignore
+# SabCRM: vendored Twenty CRM (reference only, NOT deployed) + scratch artifacts
+/twenty/
+/services/sabcrm/
+/.sabcrm-*.js
+/.sabcrm-*.txt
 /Users/harshkhandelwal/Downloads/sabnode/services/sabwa-engine/target/graphify-out/
 graphify-out/graph.json
 graphify-out/
