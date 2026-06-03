@@ -50,6 +50,14 @@ pub struct ListQuery {
     /// Page size. Clamped at 100 by the handler. Defaults to 20.
     #[serde(default)]
     pub limit: Option<u64>,
+    /// Optional URL-encoded JSON string of structured field filters of shape
+    /// `{ "<fieldKey>": <condition>, ... }`. A condition is either a bare
+    /// scalar (string/number/bool → equality on `data.<fieldKey>`) or an
+    /// object `{ "op": "...", "value": <v> }` with `op` in `eq` | `ne` |
+    /// `contains` | `gt` | `lt` | `gte` | `lte` | `in` | `isEmpty` |
+    /// `isNotEmpty`. Bad JSON is rejected with a `400`.
+    #[serde(default)]
+    pub filters: Option<String>,
 }
 
 /// Query params for endpoints that only need the tenant scope

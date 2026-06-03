@@ -39,6 +39,14 @@ export interface SabcrmRecordListParams {
   sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  /**
+   * Structured field filters, keyed by field key. Each condition is either a
+   * bare scalar (equality on `data.<fieldKey>`) or an object
+   * `{ op, value }` with `op` in `eq`|`ne`|`contains`|`gt`|`lt`|`gte`|`lte`|
+   * `in`|`isEmpty`|`isNotEmpty`. JSON-stringified into the `filters` query
+   * param; omitted when empty.
+   */
+  filters?: Record<string, unknown>;
 }
 
 export interface SabcrmRecordListResponse {
@@ -86,6 +94,9 @@ export const sabcrmRecordsApi = {
     object: string,
     params: SabcrmRecordListParams,
   ): Promise<SabcrmRecordListResponse> {
+    const hasFilters =
+      params.filters !== undefined &&
+      Object.keys(params.filters).length > 0;
     return rustFetch<SabcrmRecordListResponse>(
       `${base(object)}${qs({
         projectId: params.projectId,
@@ -94,6 +105,7 @@ export const sabcrmRecordsApi = {
         sortDir: params.sortDir,
         page: params.page,
         limit: params.limit,
+        filters: hasFilters ? JSON.stringify(params.filters) : undefined,
       })}`,
     );
   },

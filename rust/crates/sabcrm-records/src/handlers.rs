@@ -92,6 +92,122 @@ fn data_to_doc(data: &Value) -> Result<Document> {
     }
 }
 
+/// Convert a `serde_json::Value` (a filter operand) into BSON. Used for the
+/// right-hand side of structured filter conditions. Bad payloads surface as
+/// a `400` rather than a `500` — the input is client-controlled.
+fn value_to_bson(v: &Value) -> Result<Bson> {
+    bson::to_bson(v)
+        .map_err(|e| ApiError::BadRequest(format!("invalid filter value: {e}")))
+}
+
+/// Render a `serde_json::Value` as the string used by the case-insensitive
+/// `contains` regex. Strings are used verbatim (un-quoted); other scalars are
+/// stringified.
+fn value_to_regex_string(v: &Value) -> String {
+    match v {
+        Value::String(s) => s.clone(),
+        other => other.to_string(),
+    }
+}
+
+/// Translate one `{ "op": ..., "value": ... }` condition (or a bare scalar)
+/// into the Mongo predicate applied to `data.<fieldKey>`. Returns the value
+/// that should be assigned to the `data.<fieldKey>` key in the Mongo filter.
+///
+/// Supported ops:
+/// - `eq` → `<v>` (bare equality)
+/// - `ne` → `{ "$ne": <v> }`
+/// - `contains` → `{ "$regex": <stringified v>, "$options": "i" }`
+/// - `gt` / `lt` / `gte` / `lte` → `{ "$gt"|"$lt"|"$gte"|"$lte": <v> }`
+/// - `in` → `{ "$in": <array v> }`
+/// - `isEmpty` → `{ "$in": [null, ""] }` (also matches missing via Mongo)
+/// - `isNotEmpty` → `{ "$nin": [null, ""], "$exists": true }`
+fn condition_to_bson(cond: &Value) -> Result<Bson> {
+    // Bare scalar → equality.
+    let obj = match cond {
+        Value::Object(map) => map,
+        scalar => return value_to_bson(scalar),
+    };
+
+    // An object without an `op` key is treated as a literal equality operand
+    // (e.g. an embedded document compared by value).
+    let op = match obj.get("op").and_then(Value::as_str) {
+        Some(op) => op,
+        None => return value_to_bson(cond),
+    };
+
+    let value = obj.get("value").unwrap_or(&Value::Null);
+
+    let predicate = match op {
+        "eq" => return value_to_bson(value),
+        "ne" => doc! { "$ne": value_to_bson(value)? },
+        "contains" => doc! {
+            "$regex": value_to_regex_string(value),
+            "$options": "i",
+        },
+        "gt" => doc! { "$gt": value_to_bson(value)? },
+        "lt" => doc! { "$lt": value_to_bson(value)? },
+        "gte" => doc! { "$gte": value_to_bson(value)? },
+        "lte" => doc! { "$lte": value_to_bson(value)? },
+        "in" => {
+            let arr = value.as_array().ok_or_else(|| {
+                ApiError::BadRequest("`in` filter requires an array value.".to_owned())
+            })?;
+            let items: Vec<Bson> = arr
+                .iter()
+                .map(value_to_bson)
+                .collect::<Result<Vec<_>>>()?;
+            doc! { "$in": items }
+        }
+        "isEmpty" => doc! { "$in": [Bson::Null, Bson::String(String::new())] },
+        "isNotEmpty" => doc! {
+            "$nin": [Bson::Null, Bson::String(String::new())],
+            "$exists": true,
+        },
+        other => {
+            return Err(ApiError::BadRequest(format!(
+                "unsupported filter op `{other}`."
+            )));
+        }
+    };
+
+    Ok(Bson::Document(predicate))
+}
+
+/// Parse the optional URL-encoded JSON `filters` query param and AND each
+/// `{ "<fieldKey>": <condition> }` entry into the supplied Mongo `filter`
+/// as `data.<fieldKey> <predicate>`. Bad JSON or an unsupported op yields a
+/// `400`; an absent / empty param is a no-op.
+fn apply_filters(filter: &mut Document, filters: Option<&str>) -> Result<()> {
+    let raw = match filters.map(str::trim).filter(|s| !s.is_empty()) {
+        Some(raw) => raw,
+        None => return Ok(()),
+    };
+
+    let parsed: Value = serde_json::from_str(raw)
+        .map_err(|e| ApiError::BadRequest(format!("invalid `filters` JSON: {e}")))?;
+
+    let map = match parsed {
+        Value::Object(map) => map,
+        _ => {
+            return Err(ApiError::BadRequest(
+                "`filters` must be a JSON object.".to_owned(),
+            ));
+        }
+    };
+
+    for (field, cond) in &map {
+        let key = field.trim();
+        if key.is_empty() {
+            continue;
+        }
+        let predicate = condition_to_bson(cond)?;
+        filter.insert(format!("data.{key}"), predicate);
+    }
+
+    Ok(())
+}
+
 /// Clean a stored record into the wire JSON, renaming `_id` → `id` (hex).
 /// `document_to_clean_json` already renders the `ObjectId` value as a hex
 /// string; this just relabels the key to match the TS client contract.
@@ -145,6 +261,9 @@ pub async fn list_records(
             .collect();
         filter.insert("$or", Bson::Array(ors));
     }
+
+    // ---- Structured field filters -------------------------------------
+    apply_filters(&mut filter, query.filters.as_deref())?;
 
     // ---- Sort ----------------------------------------------------------
     let sort_dir = match query.sort_dir.as_deref().map(str::trim) {

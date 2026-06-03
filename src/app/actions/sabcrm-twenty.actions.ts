@@ -172,10 +172,40 @@ export async function listSabcrmRecordsTw(
       sortDir: params.sortDir,
       page: params.page,
       limit: params.limit,
+      filters: params.filters,
     });
     return { ok: true, data: { records: res.records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to list records.');
+  }
+}
+
+/**
+ * Lists records of `object` whose `data.<fieldKey>` equals `value`. A thin
+ * convenience over {@link listSabcrmRecordsTw} for relations panels (e.g. the
+ * people linked to a company by their `companyId`). Equality is expressed via
+ * the engine's structured `filters` capability.
+ */
+export async function listRelatedSabcrmRecordsTw(
+  object: string,
+  fieldKey: string,
+  value: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordsTwPage>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!fieldKey) return { ok: false, error: 'A field key is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.list(object, {
+      projectId: g.ctx.projectId,
+      filters: { [fieldKey]: value },
+    });
+    return { ok: true, data: { records: res.records, total: res.total } };
+  } catch (e) {
+    return fail(e, 'Failed to list related records.');
   }
 }
 

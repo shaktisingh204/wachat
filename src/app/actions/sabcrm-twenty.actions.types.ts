@@ -29,6 +29,13 @@ export interface ListSabcrmRecordsTwParams {
   sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  /**
+   * Structured field filters keyed by field key. Each value is either a bare
+   * scalar (equality on `data.<fieldKey>`) or an object `{ op, value }` with
+   * `op` in `eq`|`ne`|`contains`|`gt`|`lt`|`gte`|`lte`|`in`|`isEmpty`|
+   * `isNotEmpty`. Threaded to the engine's `filters` query param.
+   */
+  filters?: Record<string, unknown>;
 }
 
 /** Result of a record list call. */
