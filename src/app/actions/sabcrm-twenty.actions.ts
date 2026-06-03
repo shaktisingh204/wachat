@@ -31,6 +31,11 @@ import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
 import { sabcrmActivitiesApi } from '@/lib/rust-client/sabcrm-activities';
 import { sabcrmFavoritesApi } from '@/lib/rust-client/sabcrm-favorites';
+import {
+  recordAudit,
+  maybeNotifyAssignment,
+  runWorkflowsForEvent,
+} from '@/lib/sabcrm/runtime';
 import type {
   SabcrmRustActivity,
   SabcrmComment,
@@ -309,6 +314,31 @@ export async function createSabcrmRecordTw(
       data: data ?? {},
       createdBy: g.ctx.userId,
     });
+
+    // Fire the stored engines inline (best-effort; never throws).
+    await recordAudit(g.ctx.projectId, {
+      actorId: g.ctx.userId,
+      action: 'create',
+      object,
+      recordId: record.id,
+      summary: `Created ${object} record`,
+    });
+    await maybeNotifyAssignment(
+      g.ctx.projectId,
+      object,
+      record.id,
+      data ?? {},
+      g.ctx.userId,
+    );
+    await runWorkflowsForEvent(
+      g.ctx.projectId,
+      'record.created',
+      object,
+      record.id,
+      data ?? {},
+      g.ctx.userId,
+    );
+
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: record };
   } catch (e) {
@@ -334,6 +364,38 @@ export async function updateSabcrmRecordTw(
       projectId: g.ctx.projectId,
       data: data ?? {},
     });
+
+    // Fire the stored engines inline (best-effort; never throws).
+    await recordAudit(g.ctx.projectId, {
+      actorId: g.ctx.userId,
+      action: 'update',
+      object,
+      recordId: id,
+      summary: `Updated ${object} record`,
+    });
+    // Only notify when this patch actually touched the assignee.
+    const patch = data ?? {};
+    const assigneeChanged =
+      Object.prototype.hasOwnProperty.call(patch, 'assigneeId') ||
+      Object.prototype.hasOwnProperty.call(patch, 'assignee');
+    if (assigneeChanged) {
+      await maybeNotifyAssignment(
+        g.ctx.projectId,
+        object,
+        id,
+        patch,
+        g.ctx.userId,
+      );
+    }
+    await runWorkflowsForEvent(
+      g.ctx.projectId,
+      'record.updated',
+      object,
+      id,
+      patch,
+      g.ctx.userId,
+    );
+
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
     return { ok: true, data: record };
@@ -397,6 +459,24 @@ export async function deleteSabcrmRecordTw(
 
   try {
     const res = await sabcrmRecordsApi.remove(object, id, g.ctx.projectId);
+
+    // Fire the stored engines inline (best-effort; never throws).
+    await recordAudit(g.ctx.projectId, {
+      actorId: g.ctx.userId,
+      action: 'delete',
+      object,
+      recordId: id,
+      summary: `Deleted ${object} record`,
+    });
+    await runWorkflowsForEvent(
+      g.ctx.projectId,
+      'record.deleted',
+      object,
+      id,
+      {},
+      g.ctx.userId,
+    );
+
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: { ok: res.ok } };
   } catch (e) {
@@ -424,6 +504,24 @@ export async function trashSabcrmRecordTw(
 
   try {
     const record = await sabcrmRecordsApi.trash(object, id, g.ctx.projectId);
+
+    // Fire the stored engines inline (best-effort; never throws).
+    await recordAudit(g.ctx.projectId, {
+      actorId: g.ctx.userId,
+      action: 'delete',
+      object,
+      recordId: id,
+      summary: `Trashed ${object} record`,
+    });
+    await runWorkflowsForEvent(
+      g.ctx.projectId,
+      'record.deleted',
+      object,
+      id,
+      {},
+      g.ctx.userId,
+    );
+
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
     return { ok: true, data: record };

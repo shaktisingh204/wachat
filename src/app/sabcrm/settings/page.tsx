@@ -14,6 +14,7 @@ import {
   SlidersHorizontal,
   ShieldCheck,
   FlaskConical,
+  CreditCard,
   Tag,
   Gauge,
   Lock,
@@ -119,6 +120,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'General',
         description: 'Workspace name, logo and defaults',
         icon: SlidersHorizontal,
+      },
+      {
+        slug: 'billing',
+        label: 'Billing & Plan',
+        description: 'Your SabNode plan and CRM usage',
+        icon: CreditCard,
       },
       {
         slug: 'members',

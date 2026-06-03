@@ -1,0 +1,484 @@
+/* =========================================================================
+   SabCRM Settings — Billing & Plan (Twenty-style)
+   -------------------------------------------------------------------------
+   Companion sheet to `src/styles/sabcrm-twenty.css` and `../settings-twenty.css`.
+   Scoped to the Billing & Plan settings view only. Every selector sits under
+   `.sabcrm-twenty` (supplied by the SabCRM app frame) so styles never leak
+   into the rest of SabNode. Uses ONLY the shared `--st-*` design tokens and
+   defines no new CSS variables.
+
+   NOTE: the usage stat-card / meter / skeleton classes below are defined here
+   (rather than imported from the Usage settings sheet) so this page is
+   self-contained — it only imports `billing.css`.
+   ========================================================================= */
+
+/* ----- Sections ----- */
+.sabcrm-twenty .st-billing-section {
+  margin-top: var(--st-space-6);
+}
+
+.sabcrm-twenty .st-billing-section:first-of-type {
+  margin-top: 0;
+}
+
+.sabcrm-twenty .st-billing-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-billing-section__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-billing-section__hint {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Grids ----- */
+.sabcrm-twenty .st-billing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-billing-grid--two {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.sabcrm-twenty .st-billing-grid--plans {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+/* ----- Billing card (current plan / entitlement) ----- */
+.sabcrm-twenty .st-billing-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-billing-card--plan {
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-billing-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-billing-card__eyebrow {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- "Active" / "Included" badge ----- */
+.sabcrm-twenty .st-billing-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--st-space-2);
+  border-radius: 999px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-billing-badge--muted {
+  background: var(--st-hover);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Current plan body ----- */
+.sabcrm-twenty .st-billing-card__plan-name {
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-billing-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sabcrm-twenty .st-billing-card__price-value {
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-billing-card__price-unit {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-billing-card__chip {
+  display: flex;
+}
+
+.sabcrm-twenty .st-billing-card__sub {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.45;
+}
+
+.sabcrm-twenty .st-billing-card__manage {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* ----- SabCRM entitlement row ----- */
+.sabcrm-twenty .st-entitlement-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  margin-top: auto;
+}
+
+.sabcrm-twenty .st-entitlement-row__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-entitlement-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-entitlement-row__name {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-entitlement-row__meta {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-entitlement-row__check {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   Usage stat card + meter (self-contained copy of the Usage settings styles)
+   ========================================================================= */
+.sabcrm-twenty .st-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-stat-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-stat-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-stat-card__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-stat-card__value {
+  font-size: 26px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-stat-card__value-error {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-usage-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.sabcrm-twenty .st-usage-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--st-hover);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-usage-bar__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: var(--st-accent);
+  transition: width 0.4s ease;
+}
+
+.sabcrm-twenty .st-usage-bar__fill--warn {
+  background: #c77700;
+}
+
+.sabcrm-twenty .st-usage-bar__fill--over {
+  background: #b3261e;
+}
+
+.sabcrm-twenty .st-usage-meter__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-usage-meter__pct {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-usage-meter__pct--warn {
+  color: #c77700;
+}
+
+.sabcrm-twenty .st-usage-meter__pct--over {
+  color: #b3261e;
+}
+
+.sabcrm-twenty .st-usage-meter__limit {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   Available plan card
+   ========================================================================= */
+.sabcrm-twenty .st-plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-plan-card--current {
+  border-color: var(--st-accent);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-plan-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-plan-card__name {
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-plan-card__current-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--st-space-2);
+  border-radius: 999px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-plan-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sabcrm-twenty .st-plan-card__price-value {
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-plan-card__price-unit {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-plan-card__chip {
+  display: flex;
+}
+
+.sabcrm-twenty .st-plan-card__limits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sabcrm-twenty .st-plan-card__limits li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-plan-card__limit-label {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-plan-card__limit-value {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-plan-card__cta {
+  margin-top: auto;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.sabcrm-twenty .st-plan-card__cta[disabled] {
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* ----- Closing note ----- */
+.sabcrm-twenty .st-billing-note {
+  margin: var(--st-space-6) 0 0;
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.5;
+}
+
+/* =========================================================================
+   Skeletons (shared shimmer)
+   ========================================================================= */
+.sabcrm-twenty .st-stat-card--skeleton,
+.sabcrm-twenty .st-plan-card--skeleton {
+  pointer-events: none;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-skel-line {
+  border-radius: var(--st-radius);
+  background: linear-gradient(
+    90deg,
+    var(--st-hover) 25%,
+    var(--st-border-light) 37%,
+    var(--st-hover) 63%
+  );
+  background-size: 400% 100%;
+  animation: st-billing-shimmer 1.4s ease infinite;
+}
+
+.sabcrm-twenty .st-skel-line--label {
+  width: 60%;
+  height: 12px;
+}
+
+.sabcrm-twenty .st-skel-line--value {
+  width: 45%;
+  height: 24px;
+}
+
+.sabcrm-twenty .st-skel-line--bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+}
+
+@keyframes st-billing-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-skel-line {
+    animation: none;
+  }
+  .sabcrm-twenty .st-usage-bar__fill {
+    transition: none;
+  }
+}

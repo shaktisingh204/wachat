@@ -40,6 +40,10 @@ import {
   PenLine,
   Workflow as WorkflowIcon,
   Save,
+  Play,
+  Loader2,
+  Check,
+  History,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -51,12 +55,14 @@ import {
   updateWorkflowTw,
   deleteWorkflowTw,
 } from '@/app/actions/sabcrm-workflows.actions';
+import { runWorkflowNowTw } from '@/app/actions/sabcrm-runtime.actions';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import './workflows.css';
+import './run-now.css';
 
 // ---------------------------------------------------------------------------
 // Local types (mirrors the workflow shape exposed by the engine actions; kept
@@ -84,6 +90,8 @@ interface Workflow {
   enabled: boolean;
   trigger: WorkflowTrigger;
   steps: WorkflowStep[];
+  /** ISO timestamp (or epoch ms) of the last execution, when the engine reports it. */
+  lastRunAt?: string | number | null;
   [key: string]: unknown;
 }
 
@@ -151,6 +159,26 @@ function triggerSummary(t: WorkflowTrigger): string {
 /** Stable-ish equality for the dirty flag (avoids JSON key-order traps lightly). */
 function sameWorkflow(a: Workflow, b: Workflow): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** Compact "x ago" rendering for a `lastRunAt` value; null when absent/invalid. */
+function relativeTimeFrom(value: string | number | null | undefined): string | null {
+  if (value === null || value === undefined || value === '') return null;
+  const ms = typeof value === 'number' ? value : Date.parse(value);
+  if (!Number.isFinite(ms)) return null;
+  const diff = Date.now() - ms;
+  if (diff < 0) return 'just now';
+  const sec = Math.floor(diff / 1000);
+  if (sec < 45) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  const mon = Math.floor(day / 30);
+  if (mon < 12) return `${mon}mo ago`;
+  return `${Math.floor(mon / 12)}y ago`;
 }
 
 // ---------------------------------------------------------------------------
@@ -418,16 +446,22 @@ function AddStep({ onAdd }: { onAdd: (type: StepType) => void }): React.JSX.Elem
 // Builder (right pane)
 // ---------------------------------------------------------------------------
 
+/** Outcome of the most recent "Run now" click, surfaced inline + transiently. */
+type RunNote = { kind: 'ok' | 'err'; message: string };
+
 interface BuilderProps {
   draft: Workflow;
   baseline: Workflow;
   objects: ObjectMetadata[];
   saving: boolean;
   deleting: boolean;
+  running: boolean;
+  runNote: RunNote | null;
   onChange: (next: Workflow) => void;
   onSave: () => void;
   onToggleEnabled: () => void;
   onDelete: () => void;
+  onRun: () => void;
 }
 
 function Builder({
@@ -436,12 +470,18 @@ function Builder({
   objects,
   saving,
   deleting,
+  running,
+  runNote,
   onChange,
   onSave,
   onToggleEnabled,
   onDelete,
+  onRun,
 }: BuilderProps): React.JSX.Element {
   const dirty = !sameWorkflow(draft, baseline);
+  /** A draft is "saved" (runnable) when it exists server-side and has no pending edits. */
+  const runnable = !dirty && !saving;
+  const lastRun = relativeTimeFrom(draft.lastRunAt);
 
   const setTrigger = (patch: Partial<WorkflowTrigger>) =>
     onChange({ ...draft, trigger: { ...draft.trigger, ...patch } });
@@ -494,6 +534,54 @@ function Builder({
         ) : (
           <span className="wf-saved">Saved</span>
         )}
+        {lastRun ? (
+          <span className="wf-run__last" title="Last run">
+            <span className="wf-run__last-icon" aria-hidden="true">
+              <History size={12} />
+            </span>
+            Last run: {lastRun}
+          </span>
+        ) : null}
+        <span className="wf-run">
+          <TwentyButton
+            variant="secondary"
+            icon={running ? undefined : Play}
+            disabled={!runnable || running}
+            onClick={onRun}
+            title={
+              runnable
+                ? 'Run this workflow now'
+                : 'Save your changes before running'
+            }
+            aria-busy={running}
+          >
+            {running ? (
+              <>
+                <Loader2 size={14} className="wf-run__spin" aria-hidden="true" />
+                Running…
+              </>
+            ) : (
+              'Run now'
+            )}
+          </TwentyButton>
+          {runNote ? (
+            <span
+              className={`wf-run__note wf-run__note--${runNote.kind === 'ok' ? 'ok' : 'err'}`}
+              role="status"
+              aria-live="polite"
+              title={runNote.message}
+            >
+              <span className="wf-run__note-icon" aria-hidden="true">
+                {runNote.kind === 'ok' ? (
+                  <Check size={12} />
+                ) : (
+                  <AlertTriangle size={12} />
+                )}
+              </span>
+              {runNote.message}
+            </span>
+          ) : null}
+        </span>
         <TwentyButton
           variant="primary"
           icon={Save}
@@ -727,6 +815,18 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
   const [deleteTarget, setDeleteTarget] = React.useState<Workflow | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
+  /** "Run now" state for the selected workflow (one at a time). */
+  const [running, setRunning] = React.useState(false);
+  const [runNote, setRunNote] = React.useState<RunNote | null>(null);
+  /** Timer that clears the transient note; cleared on unmount/re-run. */
+  const runNoteTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  React.useEffect(
+    () => () => {
+      if (runNoteTimer.current) clearTimeout(runNoteTimer.current);
+    },
+    [],
+  );
+
   // -- Load list + objects -------------------------------------------------
   const load = React.useCallback(async (projectId: string) => {
     setLoading(true);
@@ -764,6 +864,9 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
   const select = React.useCallback(
     async (workflow: Workflow) => {
       setSelectedId(workflow.id);
+      // Switching workflows clears any stale run note from the previous one.
+      if (runNoteTimer.current) clearTimeout(runNoteTimer.current);
+      setRunNote(null);
       // Seed immediately from the list row so the pane is never blank.
       setBaseline(workflow);
       setDraft(workflow);
@@ -912,6 +1015,44 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
     }
   }, [deleteTarget, activeProjectId, selectedId]);
 
+  // -- Run now (manual one-off execution of a saved workflow) -------------
+  const handleRunNow = React.useCallback(
+    async (workflow: Workflow) => {
+      if (!activeProjectId || running) return;
+      if (runNoteTimer.current) clearTimeout(runNoteTimer.current);
+      setRunNote(null);
+      setRunning(true);
+      const showNote = (note: RunNote) => {
+        setRunNote(note);
+        runNoteTimer.current = setTimeout(() => setRunNote(null), 4000);
+      };
+      try {
+        const res = await runWorkflowNowTw(workflow.id, activeProjectId);
+        if (res.ok) {
+          showNote({ kind: 'ok', message: res.data.ran ? 'Workflow ran' : 'Nothing to run' });
+          // Optimistically stamp lastRunAt so the header/list reflect the run.
+          const stampedAt = new Date().toISOString();
+          setWorkflows((prev) =>
+            prev.map((w) => (w.id === workflow.id ? { ...w, lastRunAt: stampedAt } : w)),
+          );
+          setBaseline((prev) =>
+            prev && prev.id === workflow.id ? { ...prev, lastRunAt: stampedAt } : prev,
+          );
+          setDraft((prev) =>
+            prev && prev.id === workflow.id ? { ...prev, lastRunAt: stampedAt } : prev,
+          );
+        } else {
+          showNote({ kind: 'err', message: res.error || 'Run failed' });
+        }
+      } catch {
+        showNote({ kind: 'err', message: 'Run failed. The service may be unavailable.' });
+      } finally {
+        setRunning(false);
+      }
+    },
+    [activeProjectId, running],
+  );
+
   const enabledCount = workflows.filter((w) => w.enabled).length;
 
   return (
@@ -1021,6 +1162,9 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
                       />
                     </span>
                     <span className="wf-list__trigger">{triggerSummary(w.trigger)}</span>
+                    {relativeTimeFrom(w.lastRunAt) ? (
+                      <span className="wf-list__lastrun">Last run: {relativeTimeFrom(w.lastRunAt)}</span>
+                    ) : null}
                   </button>
                 ))}
               </div>
@@ -1034,10 +1178,13 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
                 objects={objects}
                 saving={saving}
                 deleting={deleting && deleteTarget?.id === draft.id}
+                running={running}
+                runNote={runNote}
                 onChange={setDraft}
                 onSave={() => void handleSave()}
                 onToggleEnabled={() => void handleToggleEnabled(draft)}
                 onDelete={() => setDeleteTarget(draft)}
+                onRun={() => void handleRunNow(draft)}
               />
             ) : (
               <div className="wf-placeholder">
