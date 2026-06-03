@@ -34,7 +34,7 @@ import {
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
-import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-objects.actions';
+import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import {
   listSabcrmRecordsTw,
   getSabcrmRecordTw,
@@ -161,7 +161,7 @@ export default function SabcrmApiPlaygroundPage(): React.JSX.Element {
     setObjectsLoading(true);
     setLoadError(null);
     try {
-      const res = await listSabcrmObjectsTw(projectId);
+      const res = await listObjectsTw(projectId);
       if (res.ok) {
         setObjects(res.data);
         // Default the object select to the first available object.
