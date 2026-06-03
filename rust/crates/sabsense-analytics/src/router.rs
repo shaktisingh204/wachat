@@ -17,7 +17,7 @@ where
     Router::new()
         .route("/", get(handlers::list_items).post(handlers::create_item))
         .route(
-            "/:id",
+            "/{id}",
             get(handlers::get_item)
                 .patch(handlers::update_item)
                 .delete(handlers::delete_item),

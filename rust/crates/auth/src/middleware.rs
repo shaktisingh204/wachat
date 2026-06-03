@@ -10,7 +10,7 @@
 //! let cfg = Arc::new(AuthConfig { secret: vec![] });
 //!
 //! let admin_routes = Router::new()
-//!     .route("/projects/:id", post(delete_project))
+//!     .route("/projects/{id}", post(delete_project))
 //!     .layer(from_fn_with_state(cfg.clone(), require_role("admin")))
 //!     .with_state(cfg);
 //! ```
