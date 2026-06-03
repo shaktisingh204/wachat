@@ -77,14 +77,14 @@ pub struct TranslationQuery {
 
 // --- Locales ---
 
-pub async list_locales(
+pub async fn list_locales(
     State(db): State<MockDb>,
 ) -> Json<Vec<Locale>> {
     let state = db.read().await;
     Json(state.locales.clone())
 }
 
-pub async create_locale(
+pub async fn create_locale(
     State(db): State<MockDb>,
     Json(payload): Json<CreateLocale>,
 ) -> (StatusCode, Json<Locale>) {
@@ -102,7 +102,7 @@ pub async create_locale(
     (StatusCode::CREATED, Json(locale))
 }
 
-pub async get_locale(
+pub async fn get_locale(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<Locale>, StatusCode> {
@@ -113,7 +113,7 @@ pub async get_locale(
     }
 }
 
-pub async update_locale(
+pub async fn update_locale(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateLocale>,
@@ -136,7 +136,7 @@ pub async update_locale(
     }
 }
 
-pub async delete_locale(
+pub async fn delete_locale(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
 ) -> StatusCode {
@@ -152,7 +152,7 @@ pub async delete_locale(
 
 // --- Translations ---
 
-pub async list_translations(
+pub async fn list_translations(
     State(db): State<MockDb>,
     Query(query): Query<TranslationQuery>,
 ) -> Json<Vec<TranslationString>> {
@@ -170,7 +170,7 @@ pub async list_translations(
     Json(result)
 }
 
-pub async create_translation(
+pub async fn create_translation(
     State(db): State<MockDb>,
     Json(payload): Json<CreateTranslation>,
 ) -> (StatusCode, Json<TranslationString>) {
@@ -188,7 +188,7 @@ pub async create_translation(
     (StatusCode::CREATED, Json(translation))
 }
 
-pub async get_translation(
+pub async fn get_translation(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<TranslationString>, StatusCode> {
@@ -199,7 +199,7 @@ pub async get_translation(
     }
 }
 
-pub async update_translation(
+pub async fn update_translation(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateTranslation>,
@@ -219,7 +219,7 @@ pub async update_translation(
     }
 }
 
-pub async delete_translation(
+pub async fn delete_translation(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
 ) -> StatusCode {
@@ -234,7 +234,7 @@ pub async delete_translation(
 }
 
 // Complex: Compile Language Pack
-pub async compile_language_pack(
+pub async fn compile_language_pack(
     State(db): State<MockDb>,
     Path(locale_id): Path<Uuid>,
 ) -> Result<Json<LanguagePack>, StatusCode> {
@@ -268,7 +268,7 @@ pub struct BulkKeysRequest {
     pub keys: Vec<String>,
 }
 
-pub async get_translation_keys(
+pub async fn get_translation_keys(
     State(db): State<MockDb>,
     Json(payload): Json<BulkKeysRequest>,
 ) -> Json<std::collections::HashMap<String, String>> {
@@ -285,11 +285,11 @@ pub async get_translation_keys(
 
 // --- Business Hour Regions ---
 
-pub async list_regions(State(db): State<MockDb>) -> Json<Vec<BusinessHourRegion>> {
+pub async fn list_regions(State(db): State<MockDb>) -> Json<Vec<BusinessHourRegion>> {
     Json(db.read().await.business_hour_regions.clone())
 }
 
-pub async create_region(
+pub async fn create_region(
     State(db): State<MockDb>,
     Json(payload): Json<CreateBusinessHourRegion>,
 ) -> (StatusCode, Json<BusinessHourRegion>) {
@@ -309,7 +309,7 @@ pub async create_region(
     (StatusCode::CREATED, Json(region))
 }
 
-pub async get_region(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<BusinessHourRegion>, StatusCode> {
+pub async fn get_region(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<BusinessHourRegion>, StatusCode> {
     db.read().await.business_hour_regions.iter().find(|r| r.id == id)
         .map(|r| Json(r.clone())).ok_or(StatusCode::NOT_FOUND)
 }
@@ -320,7 +320,7 @@ pub struct RegionalOverrideRequest {
     pub holiday_calendar_id: Option<Uuid>,
 }
 
-pub async set_regional_override(
+pub async fn set_regional_override(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
     Json(payload): Json<RegionalOverrideRequest>,
@@ -340,7 +340,7 @@ pub async set_regional_override(
     }
 }
 
-pub async delete_region(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
+pub async fn delete_region(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
     let mut state = db.write().await;
     let len = state.business_hour_regions.len();
     state.business_hour_regions.retain(|r| r.id != id);
@@ -349,11 +349,11 @@ pub async delete_region(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Statu
 
 // --- Layout Configs ---
 
-pub async list_layouts(State(db): State<MockDb>) -> Json<Vec<LayoutConfig>> {
+pub async fn list_layouts(State(db): State<MockDb>) -> Json<Vec<LayoutConfig>> {
     Json(db.read().await.layout_configs.clone())
 }
 
-pub async create_layout(
+pub async fn create_layout(
     State(db): State<MockDb>,
     Json(payload): Json<CreateLayoutConfig>,
 ) -> (StatusCode, Json<LayoutConfig>) {
@@ -373,12 +373,12 @@ pub async create_layout(
     (StatusCode::CREATED, Json(layout))
 }
 
-pub async get_layout(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<LayoutConfig>, StatusCode> {
+pub async fn get_layout(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<LayoutConfig>, StatusCode> {
     db.read().await.layout_configs.iter().find(|l| l.id == id)
         .map(|l| Json(l.clone())).ok_or(StatusCode::NOT_FOUND)
 }
 
-pub async delete_layout(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
+pub async fn delete_layout(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
     let mut state = db.write().await;
     let len = state.layout_configs.len();
     state.layout_configs.retain(|l| l.id != id);
@@ -387,11 +387,11 @@ pub async delete_layout(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Statu
 
 // --- Currency Settings ---
 
-pub async list_currencies(State(db): State<MockDb>) -> Json<Vec<CurrencySetting>> {
+pub async fn list_currencies(State(db): State<MockDb>) -> Json<Vec<CurrencySetting>> {
     Json(db.read().await.currency_settings.clone())
 }
 
-pub async create_currency(
+pub async fn create_currency(
     State(db): State<MockDb>,
     Json(payload): Json<CreateCurrencySetting>,
 ) -> (StatusCode, Json<CurrencySetting>) {
@@ -410,7 +410,7 @@ pub async create_currency(
     (StatusCode::CREATED, Json(currency))
 }
 
-pub async get_currency(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<CurrencySetting>, StatusCode> {
+pub async fn get_currency(State(db): State<MockDb>, Path(id): Path<Uuid>) -> Result<Json<CurrencySetting>, StatusCode> {
     db.read().await.currency_settings.iter().find(|c| c.id == id)
         .map(|c| Json(c.clone())).ok_or(StatusCode::NOT_FOUND)
 }
@@ -420,7 +420,7 @@ pub struct UpdateCurrency {
     pub exchange_rate_to_base: f64,
 }
 
-pub async update_currency_rate(
+pub async fn update_currency_rate(
     State(db): State<MockDb>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateCurrency>,
@@ -435,7 +435,7 @@ pub async update_currency_rate(
     }
 }
 
-pub async delete_currency(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
+pub async fn delete_currency(State(db): State<MockDb>, Path(id): Path<Uuid>) -> StatusCode {
     let mut state = db.write().await;
     let len = state.currency_settings.len();
     state.currency_settings.retain(|c| c.id != id);
