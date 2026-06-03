@@ -77,6 +77,7 @@ sabcrm-tags = { path = "../sabcrm-tags" }
 sabcrm-pipelines = { path = "../sabcrm-pipelines" }
 sabcrm-templates = { path = "../sabcrm-templates" }
 sabcrm-segments = { path = "../sabcrm-segments" }
+sabcrm-targets = { path = "../sabcrm-targets" }
 sabcrm-dashboards = { path = "../sabcrm-dashboards" }
 sabcrm-notifications = { path = "../sabcrm-notifications" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }

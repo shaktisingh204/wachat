@@ -477,6 +477,7 @@ members = [
     "crates/sabcrm-tags",
     "crates/sabcrm-templates",
     "crates/sabcrm-segments",
+    "crates/sabcrm-targets",
     "crates/sabcrm-invites",
     "crates/sabcrm-dashboards",
     "crates/sabcrm-pipelines",

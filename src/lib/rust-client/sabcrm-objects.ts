@@ -15,7 +15,64 @@ import 'server-only';
  * `rust/crates/sabcrm-objects/src/{dto,handlers}.rs`.
  */
 import { rustFetch } from './fetcher';
-import type { ObjectMetadata } from '@/lib/sabcrm/types';
+import type {
+  FieldMetadata as BaseFieldMetadata,
+  ObjectMetadata as BaseObjectMetadata,
+} from '@/lib/sabcrm/types';
+
+/**
+ * Physical index type. Mirrors Twenty's `IndexType` — `BTREE` (default,
+ * scalar keys) or `GIN` (jsonb / array / tsvector; persist-only on Mongo).
+ */
+export type SabcrmIndexType = 'BTREE' | 'GIN';
+
+/**
+ * One index definition on an object (Twenty `IndexMetadata` distilled).
+ * Field entries are field `key`s; the records collection maps them to
+ * `data.<key>` and always prefixes the physical index with `projectId` +
+ * `object`.
+ */
+export interface SabcrmIndexMetadata {
+  /** Index name (unique per object). */
+  name: string;
+  /** Ordered list of field keys participating in the index. */
+  fields: string[];
+  /** UNIQUE constraint. A single-field unique index drives `isUnique`. */
+  unique?: boolean;
+  /** Physical index type (`BTREE` default). */
+  type?: SabcrmIndexType;
+}
+
+/**
+ * Field metadata as carried by the Rust object surface — a superset of the
+ * native {@link BaseFieldMetadata} with the Twenty-parity additions
+ * `settings` (type-discriminated blob) and `isUnique`.
+ */
+export interface SabcrmFieldMetadata extends BaseFieldMetadata {
+  /** Type-discriminated per-field settings blob (free-form JSON). */
+  settings?: Record<string, unknown>;
+  /** Whether this field is backed by a single-field UNIQUE index. */
+  isUnique?: boolean;
+}
+
+/**
+ * Object metadata as carried by the Rust object surface — a superset of the
+ * native {@link BaseObjectMetadata} with the Twenty-parity flags
+ * (`isSystem`, `isSearchable`), a `labelIdentifier` (field key acting as the
+ * record title) and first-class `indexes`. `fields` is widened to carry the
+ * per-field additions.
+ */
+export interface ObjectMetadata extends BaseObjectMetadata {
+  fields: SabcrmFieldMetadata[];
+  /** Internal object not surfaced as a normal CRM object. */
+  isSystem?: boolean;
+  /** Whether records of this object are indexed into search. */
+  isSearchable?: boolean;
+  /** Field `key` that acts as the record's display label. */
+  labelIdentifier?: string;
+  /** First-class index definitions for this object's records. */
+  indexes?: SabcrmIndexMetadata[];
+}
 
 /** `PATCH /{slug}` patch body sans `projectId` — a partial object document. */
 export interface SabcrmObjectUpdateInput {
@@ -91,5 +148,22 @@ export const sabcrmObjectsApi = {
       `${BASE}/${encodeURIComponent(slug)}${qs({ projectId })}`,
       { method: 'DELETE' },
     );
+  },
+
+  /**
+   * `PUT /v1/sabcrm/objects/{slug}/indexes` — replace the object's index
+   * definitions and best-effort reconcile real `sabcrm_records` indexes
+   * (scoped by `projectId` + object). Returns the merged object.
+   */
+  async setIndexes(
+    projectId: string,
+    slug: string,
+    indexes: SabcrmIndexMetadata[],
+  ): Promise<ObjectMetadata> {
+    const res = await rustFetch<SingleEnvelope>(
+      `${BASE}/${encodeURIComponent(slug)}/indexes`,
+      { method: 'PUT', body: JSON.stringify({ projectId, indexes }) },
+    );
+    return res.object;
   },
 };

@@ -1991,6 +1991,31 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     [records, objectSlug, activeProjectId],
   );
 
+  // Pipelines targeting THIS object — these are the ones offered in the board
+  // "Pipeline" selector. A pipeline matches when `pipeline.object === slug`.
+  // Declared here (above `handleMoveCard`) so the board move handler can read
+  // `pipelineActive` without hitting a temporal-dead-zone reference.
+  const objectPipelines = React.useMemo(
+    () => pipelines.filter((p) => p.object === objectSlug),
+    [pipelines, objectSlug],
+  );
+
+  // The chosen pipeline (if any). Defaults to none — the board then keeps its
+  // default SELECT-field grouping. If the selected id no longer resolves (e.g.
+  // the pipeline was deleted), this is `null` and the board falls back.
+  const selectedPipeline = React.useMemo(
+    () =>
+      selectedPipelineId
+        ? objectPipelines.find((p) => p.id === selectedPipelineId) ?? null
+        : null,
+    [objectPipelines, selectedPipelineId],
+  );
+
+  // A pipeline is only ACTIVE on the board when one is chosen AND we're in
+  // board view AND we have a stage field to bucket/persist on. (We reuse the
+  // board's group-by SELECT field as the record's stage field.)
+  const pipelineActive = !!selectedPipeline && view === 'board' && !!boardField;
+
   // Board drag-and-drop: move a card to another column = set its group/stage
   // field to the target column's value. Optimistic (the card jumps columns
   // immediately), persisted via the Rust engine, rolled back on error into the
@@ -2197,29 +2222,6 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       cancelled = true;
     };
   }, [activeProjectId]);
-
-  // Pipelines targeting THIS object — these are the ones offered in the board
-  // "Pipeline" selector. A pipeline matches when `pipeline.object === slug`.
-  const objectPipelines = React.useMemo(
-    () => pipelines.filter((p) => p.object === objectSlug),
-    [pipelines, objectSlug],
-  );
-
-  // The chosen pipeline (if any). Defaults to none — the board then keeps its
-  // default SELECT-field grouping. If the selected id no longer resolves (e.g.
-  // the pipeline was deleted), this is `null` and the board falls back.
-  const selectedPipeline = React.useMemo(
-    () =>
-      selectedPipelineId
-        ? objectPipelines.find((p) => p.id === selectedPipelineId) ?? null
-        : null,
-    [objectPipelines, selectedPipelineId],
-  );
-
-  // A pipeline is only ACTIVE on the board when one is chosen AND we're in
-  // board view AND we have a stage field to bucket/persist on. (We reuse the
-  // board's group-by SELECT field as the record's stage field.)
-  const pipelineActive = !!selectedPipeline && view === 'board' && !!boardField;
 
   // Sum a numeric (amount) metric over a record set — used for the per-stage
   // amount pill. Returns null when there's no metric field configured.

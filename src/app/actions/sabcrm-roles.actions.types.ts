@@ -14,6 +14,10 @@ export type {
   SabcrmRustRole,
   SabcrmRoleCreateInput,
   SabcrmRoleUpdateInput,
+  SabcrmPermissionFlag,
+  SabcrmRoleDefaults,
+  SabcrmObjectPermission,
+  SabcrmFieldPermission,
 } from '@/lib/rust-client/sabcrm-roles';
 
 import type {

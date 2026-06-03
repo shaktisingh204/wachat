@@ -7,8 +7,10 @@
  * {@link FieldMetadata} and a raw stored value it renders the value the way
  * upstream Twenty does — currency money-formatted, links as anchors, emails /
  * phones clickable, ratings as star glyphs, dates humanized, booleans as a
- * check / dash, SELECT options as colored chips, relations as chips and plain
- * text for everything else. Null / empty values collapse to a muted em-dash.
+ * check / dash, SELECT options as colored chips, relations as chips, ACTOR as
+ * an avatar + name + muted source tag, RICH_TEXT_V2 as a clamped markdown
+ * preview, and plain text for everything else. NUMERIC aliases NUMBER. Null /
+ * empty values collapse to a muted em-dash.
  *
  * It is intentionally dependency-light (no date lib — `toLocaleDateString`),
  * stateless and side-effect-free. The two record screens use it for the *read*
@@ -21,7 +23,7 @@
 
 import * as React from 'react';
 
-import { TwentyChip } from './twenty-primitives';
+import { TwentyAvatar, TwentyChip } from './twenty-primitives';
 import type { FieldMetadata, FieldOption } from '@/lib/sabcrm/types';
 
 import './twenty-field.css';
@@ -183,6 +185,109 @@ function parseStringList(value: unknown, primaryKey: string, listKey: string): s
   return [];
 }
 
+/**
+ * Normalise a PHONES value into a flat list of `{ display, dial }`. Tolerates
+ * Twenty's `{ primaryPhoneNumber, primaryPhoneCountryCode, primaryPhoneCallingCode,
+ * additionalPhones[] }` composite, a plain array of strings / objects, or a
+ * single string. The country / calling code is prefixed to the display + dial
+ * so `tel:` links carry the full international number.
+ */
+function parsePhones(value: unknown): Array<{ display: string; dial: string }> {
+  const out: Array<{ display: string; dial: string }> = [];
+  const pushPhone = (raw: unknown) => {
+    if (typeof raw === 'string') {
+      const s = raw.trim();
+      if (s) out.push({ display: s, dial: s });
+      return;
+    }
+    const rec = asRecord(raw);
+    if (!rec) return;
+    const number = firstString(
+      rec.number,
+      rec.primaryPhoneNumber,
+      rec.phoneNumber,
+      rec.value,
+    );
+    if (!number) return;
+    // callingCode is the `+NN` dialling prefix; countryCode is the ISO region.
+    const calling = firstString(
+      rec.callingCode,
+      rec.primaryPhoneCallingCode,
+      rec.countryCode,
+      rec.primaryPhoneCountryCode,
+    );
+    const prefix = calling
+      ? calling.startsWith('+')
+        ? calling
+        : `+${calling.replace(/[^\d]/g, '')}`
+      : '';
+    const display = prefix ? `${prefix} ${number}` : number;
+    out.push({ display, dial: `${prefix}${number}`.replace(/\s+/g, '') });
+  };
+
+  if (Array.isArray(value)) {
+    value.forEach(pushPhone);
+    return out;
+  }
+  const rec = asRecord(value);
+  if (rec) {
+    pushPhone(rec);
+    const extra = rec.additionalPhones ?? rec.additionalPhoneNumbers;
+    if (Array.isArray(extra)) extra.forEach(pushPhone);
+    return out;
+  }
+  pushPhone(value);
+  return out;
+}
+
+/** Friendly labels for Twenty's `FieldActorSource` enum values. */
+const ACTOR_SOURCE_LABELS: Record<string, string> = {
+  MANUAL: 'Manual',
+  IMPORT: 'Import',
+  API: 'API',
+  WORKFLOW: 'Workflow',
+  SYSTEM: 'System',
+  EMAIL: 'Email',
+  CALENDAR: 'Calendar',
+  AGENT: 'Agent',
+  WEBHOOK: 'Webhook',
+  APPLICATION: 'Application',
+};
+
+/**
+ * Resolve an ACTOR value into `{ name, source }`. Tolerates Twenty's
+ * `{ source, workspaceMemberId, name }` composite (where `source` is a
+ * `FieldActorSource` enum value), an object carrying just a `name`, or a plain
+ * string (treated as the actor name with no source tag).
+ */
+function parseActor(value: unknown): { name: string; source: string } | null {
+  if (typeof value === 'string') {
+    const s = value.trim();
+    return s ? { name: s, source: '' } : null;
+  }
+  const rec = asRecord(value);
+  if (!rec) return null;
+  const name = firstString(rec.name, rec.displayName, rec.label);
+  const rawSource = firstString(rec.source);
+  const source = rawSource
+    ? ACTOR_SOURCE_LABELS[rawSource.toUpperCase()] ?? rawSource
+    : '';
+  if (!name && !source) return null;
+  return { name, source };
+}
+
+/**
+ * Resolve a RICH_TEXT_V2 value into plain display text. Tolerates Twenty's
+ * `{ blocknote, markdown }` composite (prefers `markdown`), and a plain string.
+ */
+function parseRichText(value: unknown): string {
+  const rec = asRecord(value);
+  if (rec) {
+    return firstString(rec.markdown, rec.blocknote, rec.text);
+  }
+  return typeof value === 'string' ? value : '';
+}
+
 /** Normalise a FULL_NAME value into "First Last". */
 function parseFullName(value: unknown): string {
   const rec = asRecord(value);
@@ -299,6 +404,8 @@ export function TwentyFieldValue({
     'FULL_NAME',
     'ADDRESS',
     'RAW_JSON',
+    'ACTOR',
+    'RICH_TEXT_V2',
   ]);
   if (isEmpty(value) && field.type !== 'BOOLEAN') {
     const hasComposite =
@@ -323,7 +430,10 @@ export function TwentyFieldValue({
       );
     }
 
-    case 'NUMBER': {
+    case 'NUMBER':
+    case 'NUMERIC': {
+      // NUMERIC is Twenty's high-precision numeric (string-backed); both render
+      // as a thousands-separated number.
       const n = Number(value);
       return Number.isNaN(n) ? (
         <span className="st-field-text">{String(value)}</span>
@@ -519,18 +629,18 @@ export function TwentyFieldValue({
     }
 
     case 'PHONES': {
-      const phones = parseStringList(value, 'primaryPhoneNumber', 'additionalPhones');
+      const phones = parsePhones(value);
       if (phones.length === 0) return <EmptyValue />;
       return (
         <span className="st-field-chips">
           {phones.map((phone, i) => (
             <a
-              key={`${phone}-${i}`}
-              href={`tel:${phone.replace(/\s+/g, '')}`}
+              key={`${phone.dial}-${i}`}
+              href={`tel:${phone.dial}`}
               className="st-chip st-chip--link"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="st-chip__label">{phone}</span>
+              <span className="st-chip__label">{phone.display}</span>
             </a>
           ))}
         </span>
@@ -600,6 +710,30 @@ export function TwentyFieldValue({
         return <EmptyValue />;
       }
       return <pre className="st-field-json">{text}</pre>;
+    }
+
+    case 'ACTOR': {
+      const actor = parseActor(value);
+      if (!actor || (!actor.name && !actor.source)) return <EmptyValue />;
+      const displayName = actor.name || actor.source || 'Unknown';
+      return (
+        <span className="st-field-actor">
+          <TwentyAvatar name={displayName} size="sm" />
+          <span className="st-field-actor__name">{displayName}</span>
+          {actor.source ? (
+            <span className="st-field-actor__source">{actor.source}</span>
+          ) : null}
+        </span>
+      );
+    }
+
+    case 'RICH_TEXT_V2': {
+      const text = parseRichText(value).trim();
+      return text ? (
+        <span className="st-field-richtext">{text}</span>
+      ) : (
+        <EmptyValue />
+      );
     }
 
     case 'TEXT':

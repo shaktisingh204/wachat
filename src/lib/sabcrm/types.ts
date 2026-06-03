@@ -17,6 +17,8 @@
 export type FieldType =
   | 'TEXT'
   | 'NUMBER'
+  /** Twenty's high-precision numeric (string-backed). Renders like NUMBER. */
+  | 'NUMERIC'
   | 'CURRENCY'
   | 'BOOLEAN'
   | 'DATE'
@@ -36,7 +38,11 @@ export type FieldType =
   | 'PHONES'
   | 'LINKS'
   | 'ARRAY'
-  | 'RAW_JSON';
+  | 'RAW_JSON'
+  /** Audit actor composite — `{ source, workspaceMemberId, name }`. */
+  | 'ACTOR'
+  /** Twenty's rich text v2 composite — `{ blocknote, markdown }`. */
+  | 'RICH_TEXT_V2';
 
 /** A single option for SELECT / MULTI_SELECT fields. */
 export interface FieldOption {

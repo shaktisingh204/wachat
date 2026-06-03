@@ -40,7 +40,8 @@ use crate::dto::{
     BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse, CreateRecordInput,
     DistinctQuery, DistinctResponse, DuplicateGroup, DuplicatesQuery, DuplicatesResponse,
     GroupRecordsInput, GroupResponse, ListQuery, ListResponse, MergeRecordsInput, OkResponse,
-    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
+    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, SearchHit,
+    SearchQuery, SearchResponse, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -66,6 +67,8 @@ const MAX_DISTINCT_VALUES: usize = 200;
 const MAX_DUPLICATE_GROUPS: i64 = 100;
 /// Hard cap on records returned per duplicate group.
 const MAX_DUPLICATE_RECORDS: usize = 10;
+/// Hard cap on hits returned by the cross-object global search endpoint.
+const MAX_SEARCH_HITS: i64 = 50;
 
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
@@ -1518,6 +1521,142 @@ pub async fn record_relations(
     }
 
     Ok(Json(RelationsResponse { relations }))
+}
+
+// ===========================================================================
+// GET /search — searchAll (cross-object global search)
+// ===========================================================================
+
+/// Read a trimmed, non-empty string at `data.<key>` from a record's `data`
+/// sub-document. Returns `None` when absent, non-string, or blank.
+fn data_str<'a>(data: &'a Document, key: &str) -> Option<&'a str> {
+    data.get_str(key).ok().map(str::trim).filter(|s| !s.is_empty())
+}
+
+/// Derive a human label for a matched record from its likely title field, in
+/// priority order: `name` → `title` → `firstName`+`lastName` → `email`. Falls
+/// back to the hex id when nothing usable is present.
+fn derive_label(data: &Document, id: &str) -> String {
+    if let Some(name) = data_str(data, "name") {
+        return name.to_owned();
+    }
+    if let Some(title) = data_str(data, "title") {
+        return title.to_owned();
+    }
+    let first = data_str(data, "firstName");
+    let last = data_str(data, "lastName");
+    if first.is_some() || last.is_some() {
+        let joined = [first, last]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>()
+            .join(" ");
+        if !joined.is_empty() {
+            return joined;
+        }
+    }
+    if let Some(email) = data_str(data, "email") {
+        return email.to_owned();
+    }
+    id.to_owned()
+}
+
+/// Find the first [`SEARCH_FIELDS`] value that contains `q` (case-insensitive),
+/// to surface as the hit's `snippet`. `None` when no text-ish field matches
+/// (e.g. the match was on a field not stored as a plain string).
+fn derive_snippet(data: &Document, needle_lower: &str) -> Option<String> {
+    for field in SEARCH_FIELDS {
+        if let Some(val) = data_str(data, field) {
+            if val.to_lowercase().contains(needle_lower) {
+                return Some(val.to_owned());
+            }
+        }
+    }
+    None
+}
+
+/// `GET /v1/sabcrm/records/search?projectId=&q=&limit=` — **cross-object**
+/// global search. Unlike the per-object endpoints this is NOT scoped to a
+/// single `{object}`: it matches `q` (case-insensitive regex) against the
+/// common text-ish [`SEARCH_FIELDS`] of `data.*` across EVERY object in
+/// `projectId`, excluding trashed records.
+///
+/// Returns `{ hits: [{ object, id, label, snippet? }] }` capped at
+/// [`MAX_SEARCH_HITS`]. `label` is derived from the record's likely title
+/// field (name / title / firstName+lastName / email); `snippet` is the first
+/// matched text-ish field. An empty / missing `q` yields no hits.
+#[instrument(skip_all)]
+pub async fn search_all(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(query): Query<SearchQuery>,
+) -> Result<Json<SearchResponse>> {
+    let project_id = require_project(&query.project_id)?;
+
+    let needle = match query.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        Some(q) => q,
+        None => return Ok(Json(SearchResponse { hits: Vec::new() })),
+    };
+    let needle_lower = needle.to_lowercase();
+
+    let limit = query
+        .limit
+        .filter(|l| *l > 0)
+        .map(|l| l as i64)
+        .unwrap_or(MAX_SEARCH_HITS)
+        .min(MAX_SEARCH_HITS);
+
+    // Cross-object scope: `{ projectId }` + not-trashed, with the free-text
+    // `$or` regex over the common search fields (NOT scoped to one object).
+    let mut filter = doc! { "projectId": project_id };
+    let (k, v) = not_trashed();
+    filter.insert(k, v);
+
+    let ors: Vec<Bson> = SEARCH_FIELDS
+        .iter()
+        .map(|field| {
+            Bson::Document(doc! {
+                format!("data.{field}"): { "$regex": needle, "$options": "i" }
+            })
+        })
+        .collect();
+    filter.insert("$or", Bson::Array(ors));
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let mut cursor = coll
+        .find(filter)
+        .sort(doc! { "updatedAt": -1 })
+        .limit(limit)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.search.find"))
+        })?;
+
+    let mut hits = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.search.cursor"))
+    })? {
+        let id = d
+            .get_object_id("_id")
+            .map(|o| o.to_hex())
+            .unwrap_or_default();
+        let object = d.get_str("object").unwrap_or_default().to_owned();
+        let data = d.get_document("data").ok();
+
+        let (label, snippet) = match data {
+            Some(data) => (derive_label(data, &id), derive_snippet(data, &needle_lower)),
+            None => (id.clone(), None),
+        };
+
+        hits.push(SearchHit {
+            object,
+            id,
+            label,
+            snippet,
+        });
+    }
+
+    Ok(Json(SearchResponse { hits }))
 }
 
 /// Fetch the string value stored at `data.<field_key>` for the source record

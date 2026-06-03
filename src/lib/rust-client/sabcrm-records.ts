@@ -182,6 +182,26 @@ export interface SabcrmRecordDuplicatesResponse {
   groups: SabcrmRecordDuplicateGroup[];
 }
 
+/**
+ * One cross-object global-search hit — a single matched record identified by
+ * its object slug + id, labelled by its likely title field, with an optional
+ * matched-text snippet. Mirrors the Rust `SearchHit` DTO.
+ */
+export interface SabcrmSearchHit {
+  /** Object slug the record belongs to (e.g. `people`, `companies`). */
+  object: string;
+  /** Hex id of the matched record. */
+  id: string;
+  /** Human label derived from name/title/firstName+lastName/email. */
+  label: string;
+  /** Optional matched-text snippet (the first text-ish field that matched). */
+  snippet?: string;
+}
+
+export interface SabcrmSearchResponse {
+  hits: SabcrmSearchHit[];
+}
+
 export interface SabcrmRecordCreateInput {
   projectId: string;
   data: Record<string, unknown>;
@@ -231,6 +251,23 @@ const base = (object: string) =>
   `/v1/sabcrm/records/${encodeURIComponent(object)}`;
 
 export const sabcrmRecordsApi = {
+  /**
+   * `GET /v1/sabcrm/records/search` — **cross-object** global search. Matches
+   * `q` (case-insensitive) against the common text-ish `data.*` fields of
+   * EVERY object in `projectId` (trashed records excluded) and returns ranked
+   * record hits (`{ object, id, label, snippet? }`), capped at 50 server-side.
+   * An empty `q` yields no hits.
+   */
+  searchAll(
+    projectId: string,
+    q: string,
+    limit?: number,
+  ): Promise<SabcrmSearchResponse> {
+    return rustFetch<SabcrmSearchResponse>(
+      `/v1/sabcrm/records/search${qs({ projectId, q, limit })}`,
+    );
+  },
+
   /** `GET /v1/sabcrm/records/{object}` — paginated list. */
   list(
     object: string,

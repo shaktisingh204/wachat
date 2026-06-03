@@ -37,18 +37,23 @@ use axum::{
 use bson::{Bson, Document, doc};
 use chrono::Utc;
 use futures::TryStreamExt;
-use sabcrm_core::{ObjectMetadata, standard_object, standard_object_slugs, standard_objects};
+use sabcrm_core::{standard_object, standard_object_slugs, standard_objects};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
-use tracing::instrument;
+use tracing::{instrument, warn};
 
 use crate::dto::{
-    CreateObjectInput, ListResponse, ObjectResponse, OkResponse, ScopeQuery, UpdateObjectInput,
+    CreateObjectInput, IndexMetadata, IndexType, ListResponse, ObjectMetadata, ObjectResponse,
+    OkResponse, ScopeQuery, SetIndexesInput, UpdateObjectInput,
 };
 
 /// The Mongo collection backing persisted custom / override objects.
 const OBJECTS_COLL: &str = "sabcrm_objects";
+
+/// The Mongo collection backing CRM records (`{ projectId, object, data }`),
+/// targeted best-effort by the ensure-indexes path.
+const RECORDS_COLL: &str = "sabcrm_records";
 
 // ===========================================================================
 // helpers
@@ -120,7 +125,10 @@ async fn merged_objects(mongo: &MongoHandle, project_id: &str) -> Result<Vec<Obj
     }
 
     // Start from the standard objects, overlaying any extension fields.
-    let mut result: Vec<ObjectMetadata> = standard_objects();
+    let mut result: Vec<ObjectMetadata> = standard_objects()
+        .into_iter()
+        .map(ObjectMetadata::from_core)
+        .collect();
     for obj in &mut result {
         if let Some(ext) = custom.iter().find(|c| c.slug == obj.slug) {
             merge_extra_fields(obj, ext);
@@ -177,7 +185,7 @@ pub async fn get_object(
             ApiError::Internal(anyhow::Error::new(e).context("sabcrm_objects.find_one"))
         })?;
 
-    let object = match (standard_object(&slug), persisted) {
+    let object = match (standard_object(&slug).map(ObjectMetadata::from_core), persisted) {
         // Standard slug, optionally extended by a persisted doc.
         (Some(mut base), Some(ext_doc)) => {
             let ext = doc_to_object(ext_doc)?;
@@ -291,6 +299,128 @@ pub async fn update_object(
     Ok(Json(ObjectResponse {
         object: doc_to_object(updated)?,
     }))
+}
+
+// ===========================================================================
+// PUT /{slug}/indexes — setObjectIndexes
+// ===========================================================================
+
+/// Best-effort: create real Mongo indexes on `sabcrm_records` for one
+/// object's index definitions. Records are stored as
+/// `{ projectId, object, data: { <fieldKey>: value } }`, so an index over
+/// field keys `[a, b]` becomes a compound index over `data.a`, `data.b`
+/// (always prefixed by `projectId` + `object` so it is tenant/object
+/// scoped). `GIN`-typed defs are skipped here (no Mongo equivalent — the
+/// def is still persisted for parity). Failures are logged, not fatal.
+async fn ensure_record_indexes(
+    mongo: &MongoHandle,
+    project_id: &str,
+    slug: &str,
+    indexes: &[IndexMetadata],
+) {
+    use mongodb::IndexModel;
+    use mongodb::options::IndexOptions;
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    for idx in indexes {
+        // GIN has no Mongo analogue; persist-only.
+        if matches!(idx.r#type, Some(IndexType::Gin)) {
+            continue;
+        }
+        if idx.fields.is_empty() {
+            continue;
+        }
+
+        // Always scope the physical index by tenant + object so it never
+        // spans projects or other objects' records.
+        let mut keys = doc! { "projectId": 1, "object": 1 };
+        for key in &idx.fields {
+            keys.insert(format!("data.{key}"), 1);
+        }
+
+        let name = format!("sabcrm_{slug}_{}", idx.name);
+        let opts = IndexOptions::builder()
+            .name(Some(name.clone()))
+            .unique(idx.unique)
+            .build();
+        let model = IndexModel::builder().keys(keys).options(opts).build();
+
+        if let Err(e) = coll.create_index(model).await {
+            warn!(
+                project_id,
+                slug,
+                index = %idx.name,
+                error = %e,
+                "sabcrm_objects.ensure_record_indexes: index create failed (non-fatal)"
+            );
+        }
+    }
+}
+
+/// `PUT /v1/sabcrm/objects/{slug}/indexes` — replace the persisted `indexes`
+/// definitions for an object and best-effort reconcile real indexes on the
+/// `sabcrm_records` collection (scoped by `projectId` + object). For a
+/// standard slug with no persisted doc yet, an `extendsStandard` override
+/// doc is upserted to carry the index defs.
+#[instrument(skip_all, fields(slug = %slug))]
+pub async fn set_object_indexes(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(slug): Path<String>,
+    Json(body): Json<SetIndexesInput>,
+) -> Result<Json<ObjectResponse>> {
+    let project_id = require_project(&body.project_id)?;
+
+    let indexes_bson = bson::to_bson(&body.indexes).map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_objects.indexes.to_bson"))
+    })?;
+
+    let now = Utc::now().to_rfc3339();
+    let coll = mongo.collection::<Document>(OBJECTS_COLL);
+
+    // Upsert: if a custom/override doc exists, just $set indexes; otherwise
+    // create the override carrier (standard slugs get extendsStandard: true).
+    let on_insert = if is_standard_slug(&slug) {
+        doc! { "slug": &slug, "projectId": project_id, "extendsStandard": true, "createdAt": &now }
+    } else {
+        doc! { "slug": &slug, "projectId": project_id, "createdAt": &now }
+    };
+
+    let updated = coll
+        .find_one_and_update(
+            doc! { "projectId": project_id, "slug": &slug },
+            doc! {
+                "$set": { "indexes": indexes_bson, "updatedAt": &now },
+                "$setOnInsert": on_insert,
+            },
+        )
+        .upsert(true)
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_objects.indexes.find_one_and_update"),
+            )
+        })?;
+
+    // Best-effort physical index reconciliation.
+    ensure_record_indexes(&mongo, project_id, &slug, &body.indexes).await;
+
+    // Return the merged object (standard base + this override doc).
+    let object = match (standard_object(&slug).map(ObjectMetadata::from_core), updated) {
+        (Some(mut base), Some(ext_doc)) => {
+            let ext = doc_to_object(ext_doc)?;
+            merge_extra_fields(&mut base, &ext);
+            base.indexes = ext.indexes;
+            base
+        }
+        (Some(base), None) => base,
+        (None, Some(custom_doc)) => doc_to_object(custom_doc)?,
+        (None, None) => return Err(ApiError::NotFound("object".to_owned())),
+    };
+
+    Ok(Json(ObjectResponse { object }))
 }
 
 // ===========================================================================

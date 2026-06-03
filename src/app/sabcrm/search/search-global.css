@@ -1,0 +1,100 @@
+/**
+ * SabCRM — global cross-object search page (`/sabcrm/search`).
+ *
+ * Additive layer on top of the shared Twenty tokens (`--st-*`, defined in
+ * `src/styles/sabcrm-twenty.css`) and the base `.stw-*` search primitives that
+ * already live in `../my-work/my-work.css` (searchbox, groups, group, hits,
+ * hit, hit__label, hit__kind). This file ONLY adds what the global-search UX
+ * needs beyond those base classes:
+ *
+ *   - a results summary line (total hit count across every object)
+ *   - a two-line hit row (label + snippet) with highlighted match
+ *   - a per-group "view all in <object>" footer affordance
+ *
+ * Do NOT edit `sabcrm-twenty.css`. Twenty look only — no ZoruUI / Tailwind.
+ */
+
+/* Total-results summary, sits just under the search box. */
+.stsg-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+.stsg-summary strong {
+  color: var(--st-text);
+  font-weight: var(--st-fw-semibold);
+}
+
+/* The matched query term, echoed in the summary line. */
+.stsg-summary__term {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+/*
+ * Two-line hit row. Overrides the base `.stw-hit` single-row layout (which is
+ * a horizontal label/kind pair) so a per-object snippet can sit beneath the
+ * label without shifting the kind chip. Specificity matches `.stw-hit` so the
+ * later-loaded base file does not win the cascade.
+ */
+.stw-hit.stsg-hit {
+  align-items: flex-start;
+}
+
+.stsg-hit__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* Secondary line: a short context snippet returned by the engine. */
+.stsg-hit__snippet {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-regular);
+}
+
+/* Inline highlight for the matched substring inside a label or snippet. */
+.stsg-mark {
+  padding: 0 1px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-weight: var(--st-fw-medium);
+}
+
+/* Per-group footer affordance linking to the object's filtered index view. */
+.stsg-group__more {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-top: 1px solid var(--st-border-light);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-decoration: none;
+}
+
+.stsg-group__more:hover {
+  color: var(--st-accent);
+  background: var(--st-hover);
+}
+
+.stsg-group__more svg {
+  flex: 0 0 auto;
+}
+
+/* Degraded banner spacing when the engine is unreachable but search ran. */
+.stsg-degraded {
+  margin-top: var(--st-space-4);
+}

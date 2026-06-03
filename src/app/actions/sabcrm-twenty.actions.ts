@@ -309,9 +309,21 @@ export async function createSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Stamp Twenty-style ACTOR metadata (who created/updated this record).
+    // No display name is exposed by the gate/session, so fall back to the
+    // userId for `name`. Only fill fields the caller didn't already supply.
+    const actor = {
+      source: 'MANUAL' as const,
+      workspaceMemberId: g.ctx.userId,
+      name: g.ctx.userId,
+    };
+    const stampedData: Record<string, unknown> = { ...(data ?? {}) };
+    if (stampedData.createdBy === undefined) stampedData.createdBy = actor;
+    if (stampedData.updatedBy === undefined) stampedData.updatedBy = actor;
+
     const record = await sabcrmRecordsApi.create(object, {
       projectId: g.ctx.projectId,
-      data: data ?? {},
+      data: stampedData,
       createdBy: g.ctx.userId,
     });
 
@@ -360,9 +372,21 @@ export async function updateSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Stamp Twenty-style ACTOR metadata on the update (who last touched it).
+    // Fall back to the userId for `name` (no display name in the gate/session);
+    // don't clobber an `updatedBy` the caller explicitly supplied.
+    const stampedData: Record<string, unknown> = { ...(data ?? {}) };
+    if (stampedData.updatedBy === undefined) {
+      stampedData.updatedBy = {
+        source: 'MANUAL' as const,
+        workspaceMemberId: g.ctx.userId,
+        name: g.ctx.userId,
+      };
+    }
+
     const record = await sabcrmRecordsApi.update(object, id, {
       projectId: g.ctx.projectId,
-      data: data ?? {},
+      data: stampedData,
     });
 
     // Fire the stored engines inline (best-effort; never throws).

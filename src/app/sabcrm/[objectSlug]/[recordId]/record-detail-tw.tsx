@@ -96,6 +96,15 @@ import { listTemplatesTw } from '@/app/actions/sabcrm-templates.actions';
 import type { SabcrmRustTemplate } from '@/lib/rust-client/sabcrm-templates';
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
+// In-flight: the polymorphic-target actions are added in parallel by another
+// agent at `@/app/actions/sabcrm-targets.actions`. If tsc flags ONLY these
+// imports as missing during the port, that's the expected interim state — the
+// rest of this file stays clean and every call site degrades gracefully.
+import {
+  listTargetsForRecordTw,
+  linkTargetTw,
+  unlinkTargetTw,
+} from '@/app/actions/sabcrm-targets.actions';
 import type {
   SabcrmRustRecord,
   SabcrmRustActivity,
@@ -123,6 +132,7 @@ import './rich-text.css';
 import './show-widgets.css';
 import './detail-tags.css';
 import './composer-templates.css';
+import './targets.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -1734,6 +1744,253 @@ function TaskRow({ task, busy, onToggle }: TaskRowProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Polymorphic targets — notes/tasks LINKED to this record (Twenty fidelity)
+// ---------------------------------------------------------------------------
+
+/**
+ * The CRM object slugs whose records surface as record-page Notes / Tasks.
+ * `notes` records render in the Notes tab; `tasks` records in the Tasks tab.
+ */
+const TARGET_NOTE_OBJECT = 'notes';
+const TARGET_TASK_OBJECT = 'tasks';
+
+/**
+ * One note/task that is *linked to this record via a polymorphic target* (vs.
+ * an activity scoped to the record). Carries the source object slug + the
+ * source record so it can be merged into the activity-based list and detached.
+ */
+interface TargetLink {
+  sourceObject: string;
+  source: SabcrmRustRecord;
+}
+
+/**
+ * Normalize whatever `listTargetsForRecordTw` returns into `TargetLink[]`.
+ *
+ * The target actions are added in parallel (their exported row type is not
+ * settled yet), so we read each row defensively and accept the plausible
+ * shapes: a `{ sourceObject, source }` / `{ sourceObject, record }` wrapper,
+ * a bare `SabcrmRustRecord` (we fall back to its own `object` slug), or a row
+ * that carries the slug under `object`/`sourceSlug`. Anything unrecognizable
+ * is dropped rather than crashing the tab.
+ */
+function normalizeTargetLinks(raw: unknown): TargetLink[] {
+  if (!Array.isArray(raw)) return [];
+  const out: TargetLink[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') continue;
+    const row = item as Record<string, unknown>;
+
+    // Wrapper shapes: { sourceObject|object|sourceSlug, source|record }.
+    const wrapped =
+      (row.source as SabcrmRustRecord | undefined) ??
+      (row.record as SabcrmRustRecord | undefined);
+    if (wrapped && typeof wrapped === 'object' && 'id' in wrapped) {
+      const slug =
+        (typeof row.sourceObject === 'string' && row.sourceObject) ||
+        (typeof row.sourceSlug === 'string' && row.sourceSlug) ||
+        (typeof row.object === 'string' && row.object) ||
+        (typeof wrapped.object === 'string' && wrapped.object) ||
+        '';
+      if (slug) out.push({ sourceObject: slug, source: wrapped });
+      continue;
+    }
+
+    // Bare record shape: { id, object, data, ... }.
+    if ('id' in row && 'data' in row) {
+      const rec = row as unknown as SabcrmRustRecord;
+      const slug =
+        (typeof row.sourceObject === 'string' && row.sourceObject) ||
+        (typeof rec.object === 'string' && rec.object) ||
+        '';
+      if (slug) out.push({ sourceObject: slug, source: rec });
+    }
+  }
+  return out;
+}
+
+/** Read a string field off a linked source record (defensive). */
+function sourceText(record: SabcrmRustRecord, key: string): string {
+  const raw = record.data?.[key];
+  return typeof raw === 'string' ? raw : '';
+}
+
+/** Best-effort title for a linked note/task source record. */
+function sourceTitle(record: SabcrmRustRecord): string {
+  return (
+    sourceText(record, 'title').trim() ||
+    sourceText(record, 'name').trim() ||
+    relationRecordLabel(record)
+  );
+}
+
+/**
+ * A Twenty-style "Attach existing" control: a trigger that opens a debounced
+ * search popover over `targetObject` (notes or tasks) via
+ * `searchRecordsForPickerAction`, calling `onPick` with the chosen record.
+ * Already-linked ids are excluded. Dismisses on outside-click / Escape and
+ * degrades to muted empty / error states.
+ */
+interface LinkExistingProps {
+  targetObject: string;
+  projectId: string | null;
+  excludeIds: ReadonlySet<string>;
+  onPick: (option: SabcrmPickerOption) => Promise<void>;
+  label: string;
+  placeholder: string;
+}
+
+function LinkExisting({
+  targetObject,
+  projectId,
+  excludeIds,
+  onPick,
+  label,
+  placeholder,
+}: LinkExistingProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+  const [options, setOptions] = React.useState<SabcrmPickerOption[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Dismiss on outside-click / Escape while open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  // Focus on open; reset transient state on close.
+  React.useEffect(() => {
+    if (open) {
+      const id = window.setTimeout(() => inputRef.current?.focus(), 0);
+      return () => window.clearTimeout(id);
+    }
+    setQuery('');
+    setOptions([]);
+    setError(null);
+    setBusyId(null);
+    return undefined;
+  }, [open]);
+
+  // Debounced search whenever the query changes.
+  React.useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const handle = window.setTimeout(async () => {
+      const res = await searchRecordsForPickerAction(
+        targetObject,
+        query.trim(),
+        20,
+        projectId ?? undefined,
+      );
+      if (cancelled) return;
+      if (res.ok) setOptions(res.data);
+      else {
+        setOptions([]);
+        setError(res.error);
+      }
+      setLoading(false);
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [open, query, targetObject, projectId]);
+
+  const visible = options.filter((o) => !excludeIds.has(o.id));
+
+  const choose = async (option: SabcrmPickerOption) => {
+    if (busyId) return;
+    setBusyId(option.id);
+    await onPick(option);
+    setBusyId(null);
+    setOpen(false);
+  };
+
+  return (
+    <div className="tg-attach" ref={ref}>
+      <button
+        type="button"
+        className="tg-attach__trigger"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={label}
+        title={label}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Link2 size={13} aria-hidden="true" />
+        Attach existing
+      </button>
+      {open ? (
+        <div className="tg-pop" role="dialog" aria-label={label}>
+          <div className="tg-pop__search">
+            <Search size={14} className="tg-pop__search-icon" aria-hidden="true" />
+            <input
+              ref={inputRef}
+              className="tg-pop__input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={placeholder}
+              aria-label={placeholder}
+            />
+          </div>
+          <div className="tg-pop__list">
+            {loading ? (
+              <div className="tg-pop__state">
+                <Loader2 size={13} className="tg-spin" aria-hidden="true" />
+                Searching…
+              </div>
+            ) : error ? (
+              <div className="tg-pop__state is-error">{error}</div>
+            ) : visible.length === 0 ? (
+              <div className="tg-pop__state">
+                {query.trim() ? 'No matching records.' : 'Nothing to attach.'}
+              </div>
+            ) : (
+              visible.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="tg-pop__item"
+                  disabled={busyId !== null}
+                  onClick={() => void choose(option)}
+                >
+                  <span className="tg-pop__item-icon" aria-hidden="true">
+                    {busyId === option.id ? (
+                      <Loader2 size={13} className="tg-spin" />
+                    ) : (
+                      <Link2 size={13} />
+                    )}
+                  </span>
+                  <span className="tg-pop__item-label">{option.label}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Relation picker — search target records to attach
 // ---------------------------------------------------------------------------
 
@@ -2356,6 +2613,15 @@ export function RecordDetailTw({
   const [activities, setActivities] = React.useState<SabcrmRustActivity[]>([]);
   const [loadingTimeline, setLoadingTimeline] = React.useState(true);
 
+  // Polymorphic targets — notes/tasks LINKED to this record (Twenty's
+  // record-page Notes/Tasks tabs list everything that targets the record, not
+  // just activities scoped to it). Graceful: empty on failure / engine down.
+  const [targetLinks, setTargetLinks] = React.useState<TargetLink[]>([]);
+  // Per-source-id in-flight guard for a detach (unlink).
+  const [unlinkBusyId, setUnlinkBusyId] = React.useState<string | null>(null);
+  // Inline error for the link/unlink controls.
+  const [targetError, setTargetError] = React.useState<string | null>(null);
+
   // Favorite state.
   const [favorite, setFavorite] = React.useState(false);
   const [favBusy, setFavBusy] = React.useState(false);
@@ -2484,6 +2750,44 @@ export function RecordDetailTw({
     };
     // Only re-run when the record identity changes (not on every edit).
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [object.slug, record.id, projectId]);
+
+  // Re-fetch the notes/tasks linked to this record via polymorphic targets
+  // (graceful: empty on failure / engine down). Used on mount and after every
+  // link / unlink / composed-and-linked note or task.
+  const refreshTargets = React.useCallback(async () => {
+    try {
+      const res = await listTargetsForRecordTw({
+        targetObject: object.slug,
+        targetId: record.id,
+      });
+      setTargetLinks(res.ok ? normalizeTargetLinks(res.data) : []);
+    } catch {
+      setTargetLinks([]);
+    }
+  }, [object.slug, record.id]);
+
+  // Initial targets load (degrades silently — the tabs still show the
+  // activity-based notes/tasks if this fails).
+  React.useEffect(() => {
+    let cancelled = false;
+    setTargetLinks([]);
+    setTargetError(null);
+    (async () => {
+      try {
+        const res = await listTargetsForRecordTw({
+          targetObject: object.slug,
+          targetId: record.id,
+        });
+        if (cancelled) return;
+        setTargetLinks(res.ok ? normalizeTargetLinks(res.data) : []);
+      } catch {
+        if (!cancelled) setTargetLinks([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [object.slug, record.id, projectId]);
 
   // Load whether this record is favorited.
@@ -2874,14 +3178,54 @@ export function RecordDetailTw({
     ],
   );
 
-  // Add a NOTE-kind activity (Notes tab composer).
-  const handleAddNote = React.useCallback(
-    (title: string, body: string, attachments: SabcrmAttachment[]) =>
-      handleAddActivity('NOTE', title, body, attachments),
-    [handleAddActivity],
+  // Best-effort: also LINK a freshly-composed note/task to this record via a
+  // polymorphic target, so it shows up in the linked list (Twenty attaches the
+  // created activity to the record it was composed on). Failures are swallowed
+  // — the activity itself already persisted, so this only enriches the targets
+  // view; we refresh the linked list afterwards.
+  const linkComposed = React.useCallback(
+    async (sourceObject: string, sourceId: string) => {
+      try {
+        const res = await linkTargetTw({
+          sourceObject,
+          sourceId,
+          targetObject: object.slug,
+          targetId: record.id,
+        });
+        if (res.ok) await refreshTargets();
+      } catch {
+        /* graceful: the activity is already created */
+      }
+    },
+    [object.slug, record.id, refreshTargets],
   );
 
-  // Add a TASK-kind activity, defaulting status to TODO (Tasks tab composer).
+  // Add a NOTE-kind activity (Notes tab composer), then link it to this record
+  // via a target. Creates directly (not via `handleAddActivity`) so we can
+  // capture the new activity id to link.
+  const handleAddNote = React.useCallback(
+    async (title: string, body: string, attachments: SabcrmAttachment[]) => {
+      const res = await createSabcrmActivityTw(
+        {
+          targetObject: object.slug,
+          targetRecordId: record.id,
+          type: 'NOTE',
+          title,
+          body: body || undefined,
+          attachments: attachments.length ? attachments : undefined,
+        },
+        projectId ?? undefined,
+      );
+      if (!res.ok) return false;
+      setActivities((prev) => [res.data, ...prev]);
+      void linkComposed(TARGET_NOTE_OBJECT, res.data.id);
+      return true;
+    },
+    [object.slug, record.id, projectId, linkComposed],
+  );
+
+  // Add a TASK-kind activity, defaulting status to TODO (Tasks tab composer),
+  // then link it to this record via a target.
   const handleAddTask = React.useCallback(
     async (title: string) => {
       const res = await createSabcrmActivityTw(
@@ -2896,9 +3240,10 @@ export function RecordDetailTw({
       );
       if (!res.ok) return false;
       setActivities((prev) => [res.data, ...prev]);
+      void linkComposed(TARGET_TASK_OBJECT, res.data.id);
       return true;
     },
-    [object.slug, record.id, projectId],
+    [object.slug, record.id, projectId, linkComposed],
   );
 
   // Toggle a task between TODO and DONE (optimistic; rolls back on failure).
@@ -2933,6 +3278,82 @@ export function RecordDetailTw({
     [taskBusyId, projectId],
   );
 
+  // Attach an EXISTING note/task to this record via a polymorphic target
+  // (optimistic append + rollback). `sourceObject` is `notes` or `tasks`.
+  const handleLinkTarget = React.useCallback(
+    async (sourceObject: string, option: SabcrmPickerOption) => {
+      setTargetError(null);
+      const prev = targetLinks;
+      // Optimistically add the linked row (minimal source record).
+      setTargetLinks((links) => [
+        ...links,
+        {
+          sourceObject,
+          source: {
+            id: option.id,
+            projectId: '',
+            object: sourceObject,
+            data: { title: option.label },
+            createdAt: '',
+            updatedAt: '',
+          } as SabcrmRustRecord,
+        },
+      ]);
+      try {
+        const res = await linkTargetTw({
+          sourceObject,
+          sourceId: option.id,
+          targetObject: object.slug,
+          targetId: record.id,
+        });
+        if (!res.ok) {
+          setTargetLinks(prev);
+          setTargetError(res.error);
+          return;
+        }
+        await refreshTargets();
+      } catch {
+        setTargetLinks(prev);
+        setTargetError('Could not attach.');
+      }
+    },
+    [targetLinks, object.slug, record.id, refreshTargets],
+  );
+
+  // Detach a linked note/task from this record (optimistic drop + rollback).
+  const handleUnlinkTarget = React.useCallback(
+    async (sourceObject: string, sourceId: string) => {
+      if (unlinkBusyId) return;
+      setTargetError(null);
+      setUnlinkBusyId(sourceId);
+      const prev = targetLinks;
+      setTargetLinks((links) =>
+        links.filter(
+          (l) => !(l.sourceObject === sourceObject && l.source.id === sourceId),
+        ),
+      );
+      try {
+        const res = await unlinkTargetTw({
+          sourceObject,
+          sourceId,
+          targetObject: object.slug,
+          targetId: record.id,
+        });
+        if (!res.ok) {
+          setTargetLinks(prev);
+          setTargetError(res.error);
+        } else {
+          await refreshTargets();
+        }
+      } catch {
+        setTargetLinks(prev);
+        setTargetError('Could not detach.');
+      }
+      setUnlinkBusyId(null);
+    },
+    [unlinkBusyId, targetLinks, object.slug, record.id, refreshTargets],
+  );
+
   const notes = React.useMemo(
     () => activities.filter((a) => a.type.toUpperCase() === 'NOTE'),
     [activities],
@@ -2941,6 +3362,43 @@ export function RecordDetailTw({
     () => activities.filter((a) => a.type.toUpperCase() === 'TASK'),
     [activities],
   );
+
+  // Linked notes / tasks (the polymorphic-target sources), split by source
+  // object. These merge with the activity-based notes/tasks in their tabs.
+  const linkedNotes = React.useMemo(
+    () => targetLinks.filter((l) => l.sourceObject === TARGET_NOTE_OBJECT),
+    [targetLinks],
+  );
+  const linkedTasks = React.useMemo(
+    () => targetLinks.filter((l) => l.sourceObject === TARGET_TASK_OBJECT),
+    [targetLinks],
+  );
+
+  // Ids already present (activity ids ∪ linked source ids) — so "Attach
+  // existing" hides what's already on the record, and so the merged render
+  // dedupes a note/task that is both an activity AND a linked target.
+  const notesPresentIds = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const n of notes) s.add(n.id);
+    for (const l of linkedNotes) s.add(l.source.id);
+    return s;
+  }, [notes, linkedNotes]);
+  const tasksPresentIds = React.useMemo(() => {
+    const s = new Set<string>();
+    for (const t of tasks) s.add(t.id);
+    for (const l of linkedTasks) s.add(l.source.id);
+    return s;
+  }, [tasks, linkedTasks]);
+
+  // Linked rows minus any whose id already appears as an activity (dedupe).
+  const linkedNotesDeduped = React.useMemo(() => {
+    const activityIds = new Set(notes.map((n) => n.id));
+    return linkedNotes.filter((l) => !activityIds.has(l.source.id));
+  }, [linkedNotes, notes]);
+  const linkedTasksDeduped = React.useMemo(() => {
+    const activityIds = new Set(tasks.map((t) => t.id));
+    return linkedTasks.filter((l) => !activityIds.has(l.source.id));
+  }, [linkedTasks, tasks]);
 
   // Total attachments across all activities — drives the Files tab badge.
   const filesCount = React.useMemo(
@@ -2951,8 +3409,10 @@ export function RecordDetailTw({
   const tabCounts = React.useMemo<Partial<Record<TabKey, number>>>(
     () => ({
       fields: editableFields.length,
-      notes: notes.length,
-      tasks: tasks.length,
+      // Notes/Tasks counts reflect the MERGED set (activities ∪ linked targets),
+      // matching what the tab renders.
+      notes: notes.length + linkedNotesDeduped.length,
+      tasks: tasks.length + linkedTasksDeduped.length,
       activity: activities.length,
       files: filesCount,
     }),
@@ -2960,6 +3420,8 @@ export function RecordDetailTw({
       editableFields.length,
       notes.length,
       tasks.length,
+      linkedNotesDeduped.length,
+      linkedTasksDeduped.length,
       activities.length,
       filesCount,
     ],
@@ -3106,12 +3568,31 @@ export function RecordDetailTw({
                   recordLabel={label}
                   projectId={projectId}
                 />
-                {loadingTimeline ? (
+                {/* Attach an EXISTING note that targets this record. */}
+                <LinkExisting
+                  targetObject={TARGET_NOTE_OBJECT}
+                  projectId={projectId}
+                  excludeIds={notesPresentIds}
+                  onPick={(option) =>
+                    handleLinkTarget(TARGET_NOTE_OBJECT, option)
+                  }
+                  label="Attach an existing note to this record"
+                  placeholder="Search notes…"
+                />
+                {targetError ? (
+                  <div className="tg-error" role="alert">
+                    {targetError}
+                  </div>
+                ) : null}
+                {loadingTimeline &&
+                notes.length === 0 &&
+                linkedNotesDeduped.length === 0 ? (
                   <TwentyTimeline activities={[]} loading emptyLabel="" />
-                ) : notes.length === 0 ? (
+                ) : notes.length === 0 && linkedNotesDeduped.length === 0 ? (
                   <div className="rt-panel__empty">No notes yet.</div>
                 ) : (
                   <div className="rt-notes">
+                    {/* Notes created as activities on this record. */}
                     {notes.map((n) => (
                       <article className="rt-note" key={n.id}>
                         <div className="rt-note__head">
@@ -3126,6 +3607,50 @@ export function RecordDetailTw({
                         <AttachmentList attachments={activityAttachments(n)} />
                       </article>
                     ))}
+                    {/* Notes LINKED to this record via polymorphic targets. */}
+                    {linkedNotesDeduped.map((l) => {
+                      const busy = unlinkBusyId === l.source.id;
+                      const body = sourceText(l.source, 'body');
+                      return (
+                        <article
+                          className={`rt-note tg-note${busy ? ' is-busy' : ''}`}
+                          key={`tg-note-${l.source.id}`}
+                        >
+                          <div className="rt-note__head tg-note__head">
+                            <span className="rt-note__title">
+                              {sourceTitle(l.source)}
+                            </span>
+                            <span className="tg-linked-badge">
+                              <Link2 size={9} aria-hidden="true" />
+                              Linked
+                            </span>
+                            <span className="tg-note__spacer" />
+                            <button
+                              type="button"
+                              className="tg-detach"
+                              disabled={busy}
+                              onClick={() =>
+                                void handleUnlinkTarget(
+                                  TARGET_NOTE_OBJECT,
+                                  l.source.id,
+                                )
+                              }
+                              aria-label={`Detach ${sourceTitle(l.source)}`}
+                              title="Detach from this record"
+                            >
+                              {busy ? (
+                                <Loader2 size={13} className="tg-spin" />
+                              ) : (
+                                <X size={14} />
+                              )}
+                            </button>
+                          </div>
+                          {body ? (
+                            <RichTextView body={body} className="rt-note__body" />
+                          ) : null}
+                        </article>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -3134,12 +3659,31 @@ export function RecordDetailTw({
             {tab === 'tasks' && (
               <div className="rt-panel" role="tabpanel" aria-label="Tasks">
                 <TaskComposer onAdd={handleAddTask} />
-                {loadingTimeline ? (
+                {/* Attach an EXISTING task that targets this record. */}
+                <LinkExisting
+                  targetObject={TARGET_TASK_OBJECT}
+                  projectId={projectId}
+                  excludeIds={tasksPresentIds}
+                  onPick={(option) =>
+                    handleLinkTarget(TARGET_TASK_OBJECT, option)
+                  }
+                  label="Attach an existing task to this record"
+                  placeholder="Search tasks…"
+                />
+                {targetError ? (
+                  <div className="tg-error" role="alert">
+                    {targetError}
+                  </div>
+                ) : null}
+                {loadingTimeline &&
+                tasks.length === 0 &&
+                linkedTasksDeduped.length === 0 ? (
                   <TwentyTimeline activities={[]} loading emptyLabel="" />
-                ) : tasks.length === 0 ? (
+                ) : tasks.length === 0 && linkedTasksDeduped.length === 0 ? (
                   <div className="rt-panel__empty">No tasks yet.</div>
                 ) : (
                   <div className="rt-tasks">
+                    {/* Tasks created as activities on this record. */}
                     {tasks.map((t) => (
                       <TaskRow
                         key={t.id}
@@ -3148,6 +3692,72 @@ export function RecordDetailTw({
                         onToggle={handleToggleTask}
                       />
                     ))}
+                    {/* Tasks LINKED to this record via polymorphic targets. */}
+                    {linkedTasksDeduped.map((l) => {
+                      const busy = unlinkBusyId === l.source.id;
+                      const status = sourceText(l.source, 'status') || 'TODO';
+                      const statusLabel =
+                        TASK_STATUS_LABEL[status.toUpperCase()] ?? status;
+                      const dueRaw = sourceText(l.source, 'dueAt');
+                      const due = dueRaw ? formatDue(dueRaw) : null;
+                      const done = status.toUpperCase() === 'DONE';
+                      return (
+                        <div
+                          className={`rt-task tg-task${busy ? ' is-busy' : ''}`}
+                          key={`tg-task-${l.source.id}`}
+                        >
+                          <span
+                            className={`rt-task__check${done ? ' is-done' : ''}`}
+                            aria-hidden="true"
+                          >
+                            {done ? (
+                              <CheckCircle2 size={16} />
+                            ) : (
+                              <Circle size={16} />
+                            )}
+                          </span>
+                          <div className="rt-task__main">
+                            <span
+                              className={`rt-task__title${done ? ' is-done' : ''}`}
+                            >
+                              {sourceTitle(l.source)}
+                            </span>
+                            <span className="rt-task__meta">
+                              <TwentyChip label={statusLabel} />
+                              <span className="tg-linked-badge">
+                                <Link2 size={9} aria-hidden="true" />
+                                Linked
+                              </span>
+                              {due ? (
+                                <span className="rt-task__due">
+                                  <CalendarClock size={11} aria-hidden="true" />
+                                  {due}
+                                </span>
+                              ) : null}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            className="tg-detach"
+                            disabled={busy}
+                            onClick={() =>
+                              void handleUnlinkTarget(
+                                TARGET_TASK_OBJECT,
+                                l.source.id,
+                              )
+                            }
+                            aria-label={`Detach ${sourceTitle(l.source)}`}
+                            title="Detach from this record"
+                          >
+                            {busy ? (
+                              <Loader2 size={13} className="tg-spin" />
+                            ) : (
+                              <X size={14} />
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

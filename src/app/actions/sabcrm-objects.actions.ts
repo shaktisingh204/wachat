@@ -38,12 +38,14 @@ import { RustApiError } from '@/lib/rust-client/fetcher';
 import {
   sabcrmObjectsApi,
   type SabcrmObjectUpdateInput,
+  // Widened, Twenty-parity supersets of the native metadata shapes — they
+  // carry the additive object flags / `labelIdentifier` / `indexes` and the
+  // per-field `settings` / `isUnique` keys that the Rust surface round-trips.
+  type ObjectMetadata,
+  type SabcrmFieldMetadata as FieldMetadata,
+  type SabcrmIndexMetadata,
 } from '@/lib/rust-client/sabcrm-objects';
-import type {
-  ActionResult,
-  ObjectMetadata,
-  FieldMetadata,
-} from '@/lib/sabcrm/types';
+import type { ActionResult } from '@/lib/sabcrm/types';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -292,5 +294,52 @@ export async function removeFieldTw(
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to remove field.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Indexes — Twenty-parity IndexMetadata
+// ---------------------------------------------------------------------------
+
+/**
+ * `PUT /v1/sabcrm/objects/{slug}/indexes` — replace an object's index
+ * definitions. The engine persists the defs verbatim and best-effort
+ * reconciles real `sabcrm_records` indexes (scoped by `projectId` + object).
+ * Gates on `edit` (admin) like every mutation. Returns the merged object.
+ */
+export async function setObjectIndexesTw(
+  slug: string,
+  indexes: SabcrmIndexMetadata[],
+  projectId?: string,
+): Promise<ActionResult<ObjectMetadata>> {
+  if (!slug) return { ok: false, error: 'Object slug is required.' };
+  if (!Array.isArray(indexes)) {
+    return { ok: false, error: 'Indexes must be an array.' };
+  }
+  for (const idx of indexes) {
+    if (!idx?.name?.trim()) {
+      return { ok: false, error: 'Each index requires a name.' };
+    }
+    if (!Array.isArray(idx.fields) || idx.fields.length === 0) {
+      return {
+        ok: false,
+        error: `Index “${idx.name}” must reference at least one field.`,
+      };
+    }
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmObjectsApi.setIndexes(
+      g.ctx.projectId,
+      slug,
+      indexes,
+    );
+    revalidatePath(DATA_MODEL_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update indexes.');
   }
 }

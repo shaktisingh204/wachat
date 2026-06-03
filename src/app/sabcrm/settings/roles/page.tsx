@@ -11,6 +11,16 @@
  *       · editable name + description (saved via `updateRoleTw`),
  *       · a permission matrix — Twenty toggle rows for each capability key,
  *         persisted with `updateRoleTw({ permissions })`,
+ *       · Twenty permission depth (parallel role-shape additions):
+ *           - a **Defaults** card of workspace-wide CRUD grants
+ *             (`updateRoleTw({ defaults })`),
+ *           - an **Objects** matrix of per-object tri-state Read/Update/Delete/
+ *             Destroy overrides (`updateRoleTw({ objectPermissions })`),
+ *           - a **Fields** editor (pick object → per-field Read/Edit tri-state,
+ *             `updateRoleTw({ fieldPermissions })`),
+ *           - a **Capabilities** checklist of settings/tool permission flags
+ *             (`updateRoleTw({ permissionFlags })`),
+ *         all sourcing the object/field catalogue from `listSabcrmObjectsTw`,
  *       · a member roster (from `listMembersAction`) where each row toggles
  *         assignment to this role via `setRoleMemberTw`, with assigned members
  *         surfaced as TwentyAvatar chips,
@@ -42,6 +52,14 @@ import {
   Settings,
   Users,
   Database,
+  Boxes,
+  Columns3,
+  ToggleRight,
+  KeyRound,
+  Workflow,
+  Webhook,
+  Lock,
+  ChevronDown,
 } from 'lucide-react';
 
 import {
@@ -58,7 +76,9 @@ import {
   deleteRoleTw,
   setRoleMemberTw,
 } from '@/app/actions/sabcrm-roles.actions';
+import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { CrmMember } from '@/lib/sabcrm/members.server';
+import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
@@ -68,6 +88,31 @@ import './roles.css';
 // Role shape (mirrors the `sabcrm-roles.actions` payload).
 // ---------------------------------------------------------------------------
 
+/** A per-object CRUD override carried on the role. Absent flag = "Default". */
+interface ObjectPermission {
+  object: string;
+  read?: boolean;
+  update?: boolean;
+  softDelete?: boolean;
+  destroy?: boolean;
+}
+
+/** A per-field read/edit override carried on the role. */
+interface FieldPermission {
+  object: string;
+  field: string;
+  read?: boolean;
+  update?: boolean;
+}
+
+/** Workspace-level default CRUD grants the role falls back to. */
+interface RoleDefaults {
+  canReadAll?: boolean;
+  canUpdateAll?: boolean;
+  canSoftDeleteAll?: boolean;
+  canDestroyAll?: boolean;
+}
+
 interface CrmRole {
   id: string;
   name: string;
@@ -75,6 +120,28 @@ interface CrmRole {
   permissions: string[];
   memberIds: string[];
   isDefault?: boolean;
+  /** Twenty permission depth (added in parallel; may be absent on old docs). */
+  defaults?: RoleDefaults;
+  objectPermissions?: ObjectPermission[];
+  fieldPermissions?: FieldPermission[];
+  permissionFlags?: string[];
+}
+
+/** Tri-state for an object/field CRUD cell. */
+type TriState = 'default' | 'allow' | 'deny';
+
+/** Maps an optional boolean override to its tri-state. */
+function toTri(v: boolean | undefined): TriState {
+  if (v === true) return 'allow';
+  if (v === false) return 'deny';
+  return 'default';
+}
+
+/** Maps a tri-state back to the optional boolean stored on the wire. */
+function fromTri(t: TriState): boolean | undefined {
+  if (t === 'allow') return true;
+  if (t === 'deny') return false;
+  return undefined;
 }
 
 // ---------------------------------------------------------------------------
@@ -118,6 +185,129 @@ const PERMISSIONS: ReadonlyArray<PermissionInfo> = [
     label: 'Manage members',
     desc: 'Invite, assign roles to, and remove workspace members.',
     Icon: Users,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Defaults — workspace-wide fallback CRUD grants (Twenty "Defaults" card).
+// ---------------------------------------------------------------------------
+
+interface DefaultInfo {
+  key: keyof RoleDefaults;
+  label: string;
+  desc: string;
+  Icon: React.ElementType;
+}
+
+const DEFAULTS: ReadonlyArray<DefaultInfo> = [
+  {
+    key: 'canReadAll',
+    label: 'View all records',
+    desc: 'See records of every object unless an object override denies it.',
+    Icon: Eye,
+  },
+  {
+    key: 'canUpdateAll',
+    label: 'Edit all records',
+    desc: 'Create and update records of every object by default.',
+    Icon: Pencil,
+  },
+  {
+    key: 'canSoftDeleteAll',
+    label: 'Delete all records',
+    desc: 'Move records of every object to the trash by default.',
+    Icon: Trash2,
+  },
+  {
+    key: 'canDestroyAll',
+    label: 'Destroy all records',
+    desc: 'Permanently destroy records of every object by default.',
+    Icon: X,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Object-permission matrix — the four CRUD columns, each a tri-state cell.
+// ---------------------------------------------------------------------------
+
+interface CrudColumn {
+  key: keyof Omit<ObjectPermission, 'object'>;
+  label: string;
+  Icon: React.ElementType;
+}
+
+const CRUD_COLUMNS: ReadonlyArray<CrudColumn> = [
+  { key: 'read', label: 'Read', Icon: Eye },
+  { key: 'update', label: 'Update', Icon: Pencil },
+  { key: 'softDelete', label: 'Delete', Icon: Trash2 },
+  { key: 'destroy', label: 'Destroy', Icon: X },
+];
+
+/** Field-permission columns — Twenty exposes only read + edit at the field level. */
+const FIELD_COLUMNS: ReadonlyArray<CrudColumn> = [
+  { key: 'read', label: 'Read', Icon: Eye },
+  { key: 'update', label: 'Edit', Icon: Pencil },
+];
+
+// ---------------------------------------------------------------------------
+// Capability flags — Twenty's settings + tool permission flags checklist.
+// ---------------------------------------------------------------------------
+
+interface FlagInfo {
+  key: string;
+  label: string;
+  desc: string;
+  Icon: React.ElementType;
+}
+
+const PERMISSION_FLAGS: ReadonlyArray<FlagInfo> = [
+  {
+    key: 'WORKSPACE',
+    label: 'Workspace',
+    desc: 'Edit general workspace settings, identity and domains.',
+    Icon: Settings,
+  },
+  {
+    key: 'WORKSPACE_MEMBERS',
+    label: 'Members',
+    desc: 'Invite, manage and remove workspace members.',
+    Icon: Users,
+  },
+  {
+    key: 'ROLES',
+    label: 'Roles',
+    desc: 'Create roles and assign permissions to them.',
+    Icon: Shield,
+  },
+  {
+    key: 'DATA_MODEL',
+    label: 'Data model',
+    desc: 'Create and edit objects, fields and relations.',
+    Icon: Database,
+  },
+  {
+    key: 'API_KEYS_AND_WEBHOOKS',
+    label: 'API & Webhooks',
+    desc: 'Manage API keys and outgoing webhooks.',
+    Icon: Webhook,
+  },
+  {
+    key: 'WORKFLOWS',
+    label: 'Workflows',
+    desc: 'Build, edit and run automation workflows.',
+    Icon: Workflow,
+  },
+  {
+    key: 'SECURITY',
+    label: 'Security',
+    desc: 'Manage SSO, approved domains and security policies.',
+    Icon: Lock,
+  },
+  {
+    key: 'IMPERSONATE',
+    label: 'Impersonate',
+    desc: 'Sign in as another member for support and debugging.',
+    Icon: KeyRound,
   },
 ];
 
@@ -457,6 +647,625 @@ function PermissionBlock({
 }
 
 // ---------------------------------------------------------------------------
+// Right pane — Defaults card (workspace-wide fallback CRUD grants)
+// ---------------------------------------------------------------------------
+
+interface BlockProps {
+  role: CrmRole;
+  projectId: string | null;
+  onSaved: (next: CrmRole) => void;
+}
+
+function DefaultsBlock({
+  role,
+  projectId,
+  onSaved,
+}: BlockProps): React.JSX.Element {
+  const [state, setState] = React.useState<SaveState>('idle');
+  const [error, setError] = React.useState<string | null>(null);
+  const [busyKey, setBusyKey] = React.useState<string | null>(null);
+
+  const defaults = role.defaults ?? {};
+
+  const handleToggle = async (
+    key: keyof RoleDefaults,
+    next: boolean,
+  ): Promise<void> => {
+    if (role.isDefault) return;
+    setBusyKey(key);
+    setState('saving');
+    setError(null);
+    const res = await updateRoleTw(
+      role.id,
+      { defaults: { ...defaults, [key]: next } },
+      projectId ?? undefined,
+    );
+    setBusyKey(null);
+    if (res.ok) {
+      setState('saved');
+      onSaved(res.data as CrmRole);
+    } else {
+      setState('error');
+      setError(res.error);
+    }
+  };
+
+  return (
+    <section className="rp-block" aria-label="Defaults">
+      <div className="rp-block__head">
+        <div>
+          <h3 className="rp-block__title">Defaults</h3>
+          <p className="rp-block__sub">
+            Workspace-wide grants this role falls back to when no object or
+            field override applies.
+          </p>
+        </div>
+        <SaveStatus state={state} />
+      </div>
+      <div className="rp-block__body">
+        {role.isDefault ? (
+          <p className="rp-block__sub">
+            The default role&apos;s grants are managed by the system.
+          </p>
+        ) : null}
+        <div className="rp-matrix" role="group" aria-label="Default grants">
+          {DEFAULTS.map((d) => {
+            const { Icon } = d;
+            const checked = defaults[d.key] === true;
+            const busy = busyKey === d.key;
+            const disabled = role.isDefault || busy;
+            return (
+              <label
+                key={d.key}
+                className={`rp-perm${disabled ? ' rp-perm--disabled' : ''}`}
+              >
+                <span className="rp-perm__icon" aria-hidden="true">
+                  <Icon size={15} />
+                </span>
+                <span className="rp-perm__body">
+                  <span className="rp-perm__label">{d.label}</span>
+                  <span className="rp-perm__desc">{d.desc}</span>
+                </span>
+                {busy ? (
+                  <Loader2
+                    size={14}
+                    className="st-spin"
+                    style={{ color: 'var(--st-text-tertiary)' }}
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <span className="rp-switch">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={disabled}
+                    onChange={(e) => handleToggle(d.key, e.target.checked)}
+                    aria-label={d.label}
+                  />
+                  <span className="rp-switch__track" aria-hidden="true" />
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {error ? <p className="st-form-error">{error}</p> : null}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tri-state CRUD cell (Default / Allow / Deny) used by the object + field grids
+// ---------------------------------------------------------------------------
+
+interface TriCellProps {
+  value: TriState;
+  disabled: boolean;
+  busy: boolean;
+  label: string;
+  onChange: (next: TriState) => void;
+}
+
+const TRI_ORDER: ReadonlyArray<TriState> = ['default', 'allow', 'deny'];
+const TRI_GLYPH: Record<TriState, React.ReactNode> = {
+  default: <span className="rp-tri__dash" aria-hidden="true" />,
+  allow: <Check size={13} aria-hidden="true" />,
+  deny: <X size={13} aria-hidden="true" />,
+};
+const TRI_NEXT_LABEL: Record<TriState, string> = {
+  default: 'Default',
+  allow: 'Allow',
+  deny: 'Deny',
+};
+
+function TriCell({
+  value,
+  disabled,
+  busy,
+  label,
+  onChange,
+}: TriCellProps): React.JSX.Element {
+  const cycle = (): void => {
+    if (disabled) return;
+    const idx = TRI_ORDER.indexOf(value);
+    onChange(TRI_ORDER[(idx + 1) % TRI_ORDER.length]!);
+  };
+  return (
+    <button
+      type="button"
+      className={`rp-tri rp-tri--${value}${disabled ? ' rp-tri--disabled' : ''}`}
+      onClick={cycle}
+      disabled={disabled}
+      aria-label={`${label}: ${TRI_NEXT_LABEL[value]}`}
+      title={TRI_NEXT_LABEL[value]}
+    >
+      {busy ? (
+        <Loader2 size={12} className="st-spin" aria-hidden="true" />
+      ) : (
+        TRI_GLYPH[value]
+      )}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Right pane — Object-permission matrix (per object, tri-state CRUD)
+// ---------------------------------------------------------------------------
+
+interface ObjectFieldBlockProps extends BlockProps {
+  objects: ObjectMetadata[];
+  objectsLoading: boolean;
+  objectsError: string | null;
+}
+
+function ObjectPermissionBlock({
+  role,
+  projectId,
+  onSaved,
+  objects,
+  objectsLoading,
+  objectsError,
+}: ObjectFieldBlockProps): React.JSX.Element {
+  const [state, setState] = React.useState<SaveState>('idle');
+  const [error, setError] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState<string | null>(null);
+
+  const byObject = React.useMemo(() => {
+    const map = new Map<string, ObjectPermission>();
+    for (const op of role.objectPermissions ?? []) map.set(op.object, op);
+    return map;
+  }, [role.objectPermissions]);
+
+  const handleChange = async (
+    object: string,
+    column: keyof Omit<ObjectPermission, 'object'>,
+    next: TriState,
+  ): Promise<void> => {
+    if (role.isDefault) return;
+    const current = role.objectPermissions ?? [];
+    const existing = byObject.get(object) ?? { object };
+    const updatedEntry: ObjectPermission = {
+      ...existing,
+      [column]: fromTri(next),
+    };
+    // Drop the entry entirely if every column is back to "default".
+    const meaningful =
+      updatedEntry.read !== undefined ||
+      updatedEntry.update !== undefined ||
+      updatedEntry.softDelete !== undefined ||
+      updatedEntry.destroy !== undefined;
+    const without = current.filter((op) => op.object !== object);
+    const nextList = meaningful ? [...without, updatedEntry] : without;
+
+    setBusy(`${object}:${column}`);
+    setState('saving');
+    setError(null);
+    const res = await updateRoleTw(
+      role.id,
+      { objectPermissions: nextList },
+      projectId ?? undefined,
+    );
+    setBusy(null);
+    if (res.ok) {
+      setState('saved');
+      onSaved(res.data as CrmRole);
+    } else {
+      setState('error');
+      setError(res.error);
+    }
+  };
+
+  return (
+    <section className="rp-block" aria-label="Object permissions">
+      <div className="rp-block__head">
+        <div>
+          <h3 className="rp-block__title">
+            <Boxes
+              size={15}
+              aria-hidden="true"
+              style={{ verticalAlign: '-2px', marginRight: 6 }}
+            />
+            Objects
+          </h3>
+          <p className="rp-block__sub">
+            Override the defaults per object. Each cell cycles Default → Allow →
+            Deny.
+          </p>
+        </div>
+        <SaveStatus state={state} />
+      </div>
+      <div className="rp-block__body">
+        {objectsLoading ? (
+          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="st-skeleton st-skeleton-row" />
+            ))}
+          </div>
+        ) : objectsError ? (
+          <ErrorBanner message={objectsError} />
+        ) : objects.length === 0 ? (
+          <p className="rp-block__sub">No objects in this project yet.</p>
+        ) : (
+          <div className="rp-grid-wrap">
+            <table className="rp-grid" role="grid">
+              <thead>
+                <tr>
+                  <th scope="col" className="rp-grid__obj">
+                    Object
+                  </th>
+                  {CRUD_COLUMNS.map((c) => (
+                    <th key={c.key} scope="col" className="rp-grid__col">
+                      {c.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {objects.map((obj) => {
+                  const op = byObject.get(obj.slug);
+                  return (
+                    <tr key={obj.slug}>
+                      <th scope="row" className="rp-grid__obj">
+                        {obj.labelPlural || obj.labelSingular || obj.slug}
+                      </th>
+                      {CRUD_COLUMNS.map((c) => {
+                        const tri = toTri(op?.[c.key]);
+                        const cellBusy = busy === `${obj.slug}:${c.key}`;
+                        return (
+                          <td key={c.key} className="rp-grid__cell">
+                            <TriCell
+                              value={tri}
+                              disabled={role.isDefault}
+                              busy={cellBusy}
+                              label={`${obj.labelSingular || obj.slug} ${c.label}`}
+                              onChange={(next) =>
+                                handleChange(obj.slug, c.key, next)
+                              }
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {error ? <p className="st-form-error">{error}</p> : null}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Right pane — Field-permission editor (pick object → per-field read/edit)
+// ---------------------------------------------------------------------------
+
+function FieldPermissionBlock({
+  role,
+  projectId,
+  onSaved,
+  objects,
+  objectsLoading,
+  objectsError,
+}: ObjectFieldBlockProps): React.JSX.Element {
+  const [state, setState] = React.useState<SaveState>('idle');
+  const [error, setError] = React.useState<string | null>(null);
+  const [busy, setBusy] = React.useState<string | null>(null);
+  const [picked, setPicked] = React.useState<string>('');
+
+  // Default the picker to the first object once objects load / role changes.
+  React.useEffect(() => {
+    if (objects.length === 0) {
+      setPicked('');
+      return;
+    }
+    setPicked((prev) =>
+      prev && objects.some((o) => o.slug === prev) ? prev : objects[0]!.slug,
+    );
+  }, [objects, role.id]);
+
+  const activeObject = React.useMemo(
+    () => objects.find((o) => o.slug === picked) ?? null,
+    [objects, picked],
+  );
+
+  const byField = React.useMemo(() => {
+    const map = new Map<string, FieldPermission>();
+    for (const fp of role.fieldPermissions ?? [])
+      if (fp.object === picked) map.set(fp.field, fp);
+    return map;
+  }, [role.fieldPermissions, picked]);
+
+  const handleChange = async (
+    field: string,
+    column: 'read' | 'update',
+    next: TriState,
+  ): Promise<void> => {
+    if (role.isDefault || !picked) return;
+    const current = role.fieldPermissions ?? [];
+    const existing =
+      current.find((fp) => fp.object === picked && fp.field === field) ??
+      ({ object: picked, field } as FieldPermission);
+    const updatedEntry: FieldPermission = {
+      ...existing,
+      [column]: fromTri(next),
+    };
+    const meaningful =
+      updatedEntry.read !== undefined || updatedEntry.update !== undefined;
+    const without = current.filter(
+      (fp) => !(fp.object === picked && fp.field === field),
+    );
+    const nextList = meaningful ? [...without, updatedEntry] : without;
+
+    setBusy(`${field}:${column}`);
+    setState('saving');
+    setError(null);
+    const res = await updateRoleTw(
+      role.id,
+      { fieldPermissions: nextList },
+      projectId ?? undefined,
+    );
+    setBusy(null);
+    if (res.ok) {
+      setState('saved');
+      onSaved(res.data as CrmRole);
+    } else {
+      setState('error');
+      setError(res.error);
+    }
+  };
+
+  return (
+    <section className="rp-block" aria-label="Field permissions">
+      <div className="rp-block__head">
+        <div>
+          <h3 className="rp-block__title">
+            <Columns3
+              size={15}
+              aria-hidden="true"
+              style={{ verticalAlign: '-2px', marginRight: 6 }}
+            />
+            Fields
+          </h3>
+          <p className="rp-block__sub">
+            Restrict read or edit access to individual fields of an object.
+          </p>
+        </div>
+        <SaveStatus state={state} />
+      </div>
+      <div className="rp-block__body">
+        {objectsLoading ? (
+          <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="st-skeleton st-skeleton-row" />
+            ))}
+          </div>
+        ) : objectsError ? (
+          <ErrorBanner message={objectsError} />
+        ) : objects.length === 0 ? (
+          <p className="rp-block__sub">No objects in this project yet.</p>
+        ) : (
+          <>
+            <div className="st-field">
+              <span className="st-field__label">Object</span>
+              <div className="rp-select">
+                <select
+                  className="st-input"
+                  value={picked}
+                  onChange={(e) => {
+                    setPicked(e.target.value);
+                    setState('idle');
+                  }}
+                  aria-label="Pick an object to edit field permissions"
+                >
+                  {objects.map((o) => (
+                    <option key={o.slug} value={o.slug}>
+                      {o.labelPlural || o.labelSingular || o.slug}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  size={15}
+                  className="rp-select__chev"
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+
+            {activeObject && activeObject.fields.length > 0 ? (
+              <div className="rp-grid-wrap">
+                <table className="rp-grid" role="grid">
+                  <thead>
+                    <tr>
+                      <th scope="col" className="rp-grid__obj">
+                        Field
+                      </th>
+                      {FIELD_COLUMNS.map((c) => (
+                        <th key={c.key} scope="col" className="rp-grid__col">
+                          {c.label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeObject.fields.map((f) => {
+                      const fp = byField.get(f.key);
+                      return (
+                        <tr key={f.key}>
+                          <th scope="row" className="rp-grid__obj">
+                            {f.label || f.key}
+                            <span className="rp-grid__fieldkey">{f.key}</span>
+                          </th>
+                          {FIELD_COLUMNS.map((c) => {
+                            const col = c.key as 'read' | 'update';
+                            const tri = toTri(fp?.[col]);
+                            const cellBusy = busy === `${f.key}:${col}`;
+                            return (
+                              <td key={c.key} className="rp-grid__cell">
+                                <TriCell
+                                  value={tri}
+                                  disabled={role.isDefault}
+                                  busy={cellBusy}
+                                  label={`${f.label || f.key} ${c.label}`}
+                                  onChange={(next) =>
+                                    handleChange(f.key, col, next)
+                                  }
+                                />
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="rp-block__sub">This object has no fields.</p>
+            )}
+          </>
+        )}
+        {error ? <p className="st-form-error">{error}</p> : null}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Right pane — Capabilities checklist (Twenty permission flags)
+// ---------------------------------------------------------------------------
+
+function CapabilityBlock({
+  role,
+  projectId,
+  onSaved,
+}: BlockProps): React.JSX.Element {
+  const [state, setState] = React.useState<SaveState>('idle');
+  const [error, setError] = React.useState<string | null>(null);
+  const [busyKey, setBusyKey] = React.useState<string | null>(null);
+
+  const granted = React.useMemo(
+    () => new Set(role.permissionFlags ?? []),
+    [role.permissionFlags],
+  );
+
+  const handleToggle = async (key: string, next: boolean): Promise<void> => {
+    if (role.isDefault) return;
+    const set = new Set(role.permissionFlags ?? []);
+    if (next) set.add(key);
+    else set.delete(key);
+
+    setBusyKey(key);
+    setState('saving');
+    setError(null);
+    const res = await updateRoleTw(
+      role.id,
+      { permissionFlags: Array.from(set) },
+      projectId ?? undefined,
+    );
+    setBusyKey(null);
+    if (res.ok) {
+      setState('saved');
+      onSaved(res.data as CrmRole);
+    } else {
+      setState('error');
+      setError(res.error);
+    }
+  };
+
+  return (
+    <section className="rp-block" aria-label="Capabilities">
+      <div className="rp-block__head">
+        <div>
+          <h3 className="rp-block__title">
+            <ToggleRight
+              size={15}
+              aria-hidden="true"
+              style={{ verticalAlign: '-2px', marginRight: 6 }}
+            />
+            Capabilities
+          </h3>
+          <p className="rp-block__sub">
+            Settings and tools this role can access across the workspace.
+          </p>
+        </div>
+        <SaveStatus state={state} />
+      </div>
+      <div className="rp-block__body">
+        {role.isDefault ? (
+          <p className="rp-block__sub">
+            The default role&apos;s capabilities are managed by the system.
+          </p>
+        ) : null}
+        <div className="rp-caps" role="group" aria-label="Capability flags">
+          {PERMISSION_FLAGS.map((flag) => {
+            const { Icon } = flag;
+            const checked = granted.has(flag.key);
+            const busy = busyKey === flag.key;
+            const disabled = role.isDefault || busy;
+            return (
+              <label
+                key={flag.key}
+                className={`rp-cap${disabled ? ' rp-cap--disabled' : ''}${
+                  checked ? ' rp-cap--on' : ''
+                }`}
+              >
+                <span className="rp-cap__check">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={disabled}
+                    onChange={(e) => handleToggle(flag.key, e.target.checked)}
+                    aria-label={flag.label}
+                  />
+                  <span className="rp-cap__box" aria-hidden="true">
+                    {busy ? (
+                      <Loader2 size={11} className="st-spin" />
+                    ) : checked ? (
+                      <Check size={11} />
+                    ) : null}
+                  </span>
+                </span>
+                <span className="rp-cap__icon" aria-hidden="true">
+                  <Icon size={15} />
+                </span>
+                <span className="rp-cap__body">
+                  <span className="rp-cap__label">{flag.label}</span>
+                  <span className="rp-cap__desc">{flag.desc}</span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+        {error ? <p className="st-form-error">{error}</p> : null}
+      </div>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Right pane — member assignment
 // ---------------------------------------------------------------------------
 
@@ -699,6 +1508,10 @@ export default function RolesPage(): React.JSX.Element {
   const [membersLoading, setMembersLoading] = React.useState(true);
   const [membersError, setMembersError] = React.useState<string | null>(null);
 
+  const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
+  const [objectsLoading, setObjectsLoading] = React.useState(true);
+  const [objectsError, setObjectsError] = React.useState<string | null>(null);
+
   const [creating, setCreating] = React.useState(false);
   const [createError, setCreateError] = React.useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -759,6 +1572,36 @@ export default function RolesPage(): React.JSX.Element {
         }
       } finally {
         if (!cancelled) setMembersLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId, isLoadingProject]);
+
+  // ---- Load objects (for the object + field permission grids) ------------
+  React.useEffect(() => {
+    if (isLoadingProject) return;
+    if (!activeProjectId) {
+      setObjects([]);
+      setObjectsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setObjectsLoading(true);
+    setObjectsError(null);
+    (async () => {
+      try {
+        const res = await listSabcrmObjectsTw(activeProjectId);
+        if (cancelled) return;
+        if (res.ok) setObjects(res.data);
+        else setObjectsError(res.error);
+      } catch {
+        if (!cancelled) {
+          setObjectsError('Objects could not be loaded.');
+        }
+      } finally {
+        if (!cancelled) setObjectsLoading(false);
       }
     })();
     return () => {
@@ -909,6 +1752,36 @@ export default function RolesPage(): React.JSX.Element {
                   onSaved={upsertRole}
                 />
                 <PermissionBlock
+                  role={activeRole}
+                  projectId={activeProjectId}
+                  onSaved={upsertRole}
+                />
+                <DefaultsBlock
+                  key={`def-${activeRole.id}`}
+                  role={activeRole}
+                  projectId={activeProjectId}
+                  onSaved={upsertRole}
+                />
+                <ObjectPermissionBlock
+                  key={`obj-${activeRole.id}`}
+                  role={activeRole}
+                  projectId={activeProjectId}
+                  onSaved={upsertRole}
+                  objects={objects}
+                  objectsLoading={objectsLoading}
+                  objectsError={objectsError}
+                />
+                <FieldPermissionBlock
+                  key={`fld-${activeRole.id}`}
+                  role={activeRole}
+                  projectId={activeProjectId}
+                  onSaved={upsertRole}
+                  objects={objects}
+                  objectsLoading={objectsLoading}
+                  objectsError={objectsError}
+                />
+                <CapabilityBlock
+                  key={`cap-${activeRole.id}`}
                   role={activeRole}
                   projectId={activeProjectId}
                   onSaved={upsertRole}

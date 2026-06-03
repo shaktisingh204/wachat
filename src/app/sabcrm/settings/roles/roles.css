@@ -349,6 +349,255 @@
   outline-offset: 2px;
 }
 
+/* Optional secondary line under a permission/default row label. */
+.sabcrm-twenty .rp-perm__desc {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Object & field permission grids ---------------------------------- */
+
+.sabcrm-twenty .rp-grid-wrap {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: auto;
+}
+
+.sabcrm-twenty .rp-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--st-font-size);
+}
+
+.sabcrm-twenty .rp-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-tertiary);
+  text-align: center;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-grid thead th.rp-grid__obj {
+  text-align: left;
+}
+
+.sabcrm-twenty .rp-grid__col {
+  width: 76px;
+}
+
+.sabcrm-twenty .rp-grid tbody tr + tr th,
+.sabcrm-twenty .rp-grid tbody tr + tr td {
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .rp-grid tbody tr:hover th,
+.sabcrm-twenty .rp-grid tbody tr:hover td {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .rp-grid th.rp-grid__obj {
+  padding: var(--st-space-2) var(--st-space-3);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty tbody th.rp-grid__obj {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.sabcrm-twenty .rp-grid__fieldkey {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-regular, 400);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .rp-grid__cell {
+  padding: var(--st-space-2);
+  text-align: center;
+}
+
+/* Tri-state CRUD cell: Default (dash) / Allow (check) / Deny (cross). */
+.sabcrm-twenty .rp-tri {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease,
+    color 120ms ease;
+}
+
+.sabcrm-twenty .rp-tri:hover:not(.rp-tri--disabled) {
+  border-color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .rp-tri--allow {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .rp-tri--deny {
+  border-color: #b3261e;
+  background: rgba(179, 38, 30, 0.08);
+  color: #b3261e;
+}
+
+.sabcrm-twenty .rp-tri--disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.sabcrm-twenty .rp-tri:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+.sabcrm-twenty .rp-tri__dash {
+  width: 9px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+/* Object picker dropdown wrapper (Fields block). */
+.sabcrm-twenty .rp-select {
+  position: relative;
+  display: flex;
+}
+
+.sabcrm-twenty .rp-select select {
+  width: 100%;
+  appearance: none;
+  padding-right: 30px;
+  cursor: pointer;
+}
+
+.sabcrm-twenty .rp-select__chev {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: var(--st-text-tertiary);
+  pointer-events: none;
+}
+
+/* ----- Capabilities checklist ------------------------------------------- */
+
+.sabcrm-twenty .rp-caps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--st-space-2);
+}
+
+@media (max-width: 620px) {
+  .sabcrm-twenty .rp-caps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sabcrm-twenty .rp-cap {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .rp-cap:hover:not(.rp-cap--disabled) {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .rp-cap--on {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .rp-cap--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sabcrm-twenty .rp-cap__check {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.sabcrm-twenty .rp-cap__check input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: inherit;
+}
+
+.sabcrm-twenty .rp-cap__box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--st-border);
+  border-radius: 4px;
+  background: var(--st-bg);
+  color: var(--st-bg);
+}
+
+.sabcrm-twenty .rp-cap--on .rp-cap__box {
+  border-color: var(--st-accent);
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .rp-cap__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin-top: 1px;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .rp-cap__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.sabcrm-twenty .rp-cap__label {
+  display: block;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .rp-cap__desc {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
 /* ----- Members ----------------------------------------------------------- */
 
 /* Assigned-member avatar chip row above the roster. */

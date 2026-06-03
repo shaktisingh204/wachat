@@ -27,13 +27,96 @@ export const CANONICAL_PERMISSIONS = [
   'members:manage',
 ] as const;
 
+/**
+ * Canonical permission-flag keys — SabCRM's structured analogue of Twenty's
+ * `PermissionFlagType` (settings + tool capability families, 25 keys). Mirrors
+ * `CANONICAL_PERMISSION_FLAGS` in `rust/crates/sabcrm-roles/src/dto.rs`; the
+ * Rust engine rejects any `permissionFlags` value not in this set.
+ */
+export const CANONICAL_PERMISSION_FLAGS = [
+  // settings permissions
+  'API_KEYS_AND_WEBHOOKS',
+  'WORKSPACE',
+  'WORKSPACE_MEMBERS',
+  'ROLES',
+  'DATA_MODEL',
+  'SECURITY',
+  'WORKFLOWS',
+  'IMPERSONATE',
+  'SSO_BYPASS',
+  'APPLICATIONS',
+  'MARKETPLACE_APPS',
+  'LAYOUTS',
+  'BILLING',
+  'AI_SETTINGS',
+  // tool permissions
+  'AI',
+  'VIEWS',
+  'UPLOAD_FILE',
+  'DOWNLOAD_FILE',
+  'SEND_EMAIL_TOOL',
+  'HTTP_REQUEST_TOOL',
+  'CODE_INTERPRETER_TOOL',
+  'IMPORT_CSV',
+  'EXPORT_CSV',
+  'CONNECTED_ACCOUNTS',
+  'PROFILE_INFORMATION',
+] as const;
+
+/** A canonical SabCRM permission-flag key. */
+export type SabcrmPermissionFlag = (typeof CANONICAL_PERMISSION_FLAGS)[number];
+
+/**
+ * Role-level "all records" CRUD defaults (Twenty's
+ * `canReadAll/canUpdateAll/canSoftDeleteAll/canDestroyAll`). Workspace-wide
+ * default-allow per verb; per-object overrides refine it. All optional.
+ */
+export interface SabcrmRoleDefaults {
+  canReadAll?: boolean;
+  canUpdateAll?: boolean;
+  canSoftDeleteAll?: boolean;
+  canDestroyAll?: boolean;
+}
+
+/**
+ * Per-object tri-state CRUD override (Twenty's `ObjectPermissionEntity`).
+ * `true` grant / `false` deny / omitted (`undefined`) inherit the role default.
+ */
+export interface SabcrmObjectPermission {
+  object: string;
+  read?: boolean;
+  update?: boolean;
+  softDelete?: boolean;
+  destroy?: boolean;
+}
+
+/**
+ * Per-field tri-state read/update override (Twenty's `FieldPermissionEntity`).
+ * Layered on top of object permissions; tri-state via `undefined` = inherit.
+ */
+export interface SabcrmFieldPermission {
+  object: string;
+  field: string;
+  read?: boolean;
+  update?: boolean;
+}
+
 /** A SabCRM role as returned by the Rust engine (`_id` → `id` hex). */
 export interface SabcrmRustRole {
   id: string;
   projectId: string;
   name: string;
   description?: string;
+  /** Free-form permission keys (legacy / curated). */
   permissions: string[];
+  /** Structured capability flags (canonical set, validated server-side). */
+  permissionFlags?: SabcrmPermissionFlag[];
+  /** Role-level "all records" CRUD defaults. */
+  defaults?: SabcrmRoleDefaults;
+  /** Per-object tri-state CRUD overrides. */
+  objectPermissions?: SabcrmObjectPermission[];
+  /** Per-field tri-state read/update overrides. */
+  fieldPermissions?: SabcrmFieldPermission[];
   memberIds: string[];
   isDefault?: boolean;
   createdAt: string;
@@ -48,6 +131,14 @@ export interface SabcrmRoleCreateInput {
   name: string;
   description?: string;
   permissions?: string[];
+  /** Structured capability flags (canonical set; validated server-side). */
+  permissionFlags?: SabcrmPermissionFlag[];
+  /** Role-level "all records" CRUD defaults. */
+  defaults?: SabcrmRoleDefaults;
+  /** Per-object tri-state CRUD overrides. */
+  objectPermissions?: SabcrmObjectPermission[];
+  /** Per-field tri-state read/update overrides. */
+  fieldPermissions?: SabcrmFieldPermission[];
   memberIds?: string[];
   isDefault?: boolean;
 }

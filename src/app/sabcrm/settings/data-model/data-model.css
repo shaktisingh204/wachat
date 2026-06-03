@@ -620,3 +620,233 @@
   font-size: var(--st-font-size-sm);
   color: var(--st-accent);
 }
+
+/* =========================================================================
+   Twenty-depth object settings — label identifier · searchable · system ·
+   indexes editor · field uniqueness.
+   ========================================================================= */
+
+/* Badge cluster in the settings card head (System + Standard/Custom). */
+.sabcrm-twenty .dm-settings__badges {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.sabcrm-twenty .dm-badge--system {
+  gap: 3px;
+  border-color: var(--st-border-strong, var(--st-border));
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-badge--system svg {
+  display: block;
+}
+
+/* Inline icon next to a field label (Record label / Searchable). */
+.sabcrm-twenty .st-field__label svg {
+  vertical-align: -2px;
+  margin-right: 2px;
+  color: var(--st-text-tertiary);
+}
+
+/* Secondary note appended after a checkbox label. */
+.sabcrm-twenty .dm-checkbox-note {
+  margin-left: 4px;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-regular, 400);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-checkbox-row svg {
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Indexes subsection ------------------------------------------------ */
+
+.sabcrm-twenty .dm-indexes {
+  margin-top: var(--st-space-3);
+  padding-top: var(--st-space-3);
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .dm-indexes__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-2);
+}
+
+.sabcrm-twenty .dm-indexes__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-indexes__title svg {
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-indexes__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .dm-indexes__add:hover:not(:disabled) {
+  background: var(--st-hover);
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-indexes__add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .dm-indexes__empty {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-indexes__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+.sabcrm-twenty .dm-index {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .dm-index__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .dm-index__name {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .dm-index__fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.sabcrm-twenty .dm-index__unique {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: 10px;
+  font-weight: var(--st-fw-medium);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ----- Indexes: add composer -------------------------------------------- */
+
+.sabcrm-twenty .dm-index-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .dm-index-form__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .dm-index-chk {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+  cursor: pointer;
+}
+
+.sabcrm-twenty .dm-index-chk:hover {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-index-chk__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sabcrm-twenty .dm-index-chk__key {
+  margin-left: auto;
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-index-form__meta {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+}
+
+.sabcrm-twenty .dm-index-form__meta .st-field {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .dm-index-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--st-space-2);
+}

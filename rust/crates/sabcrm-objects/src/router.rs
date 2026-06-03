@@ -22,6 +22,7 @@
 //! GET    /{slug}      — get_object      (merged)
 //! PATCH  /{slug}      — update_object
 //! DELETE /{slug}      — delete_object
+//! PUT    /{slug}/indexes — set_object_indexes (Twenty-parity index defs)
 //! ```
 
 use std::sync::Arc;
@@ -29,7 +30,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::get,
+    routing::{get, put},
 };
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
@@ -55,4 +56,5 @@ where
                 .patch(handlers::update_object)
                 .delete(handlers::delete_object),
         )
+        .route("/{slug}/indexes", put(handlers::set_object_indexes))
 }

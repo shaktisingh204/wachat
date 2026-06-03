@@ -65,6 +65,49 @@
   background: var(--st-hover);
 }
 
+/* ACTOR read value: avatar/initials chip + name + a muted source tag. */
+.st-field-actor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  color: var(--st-text);
+  vertical-align: middle;
+  min-width: 0;
+}
+
+.st-field-actor__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-field-actor__source {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-hover);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+}
+
+/* RICH_TEXT_V2 read value: collapsed single-line markdown/plain preview. */
+.st-field-richtext {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  max-width: 480px;
+  color: var(--st-text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 /* RAW_JSON pretty block. */
 .st-field-json {
   margin: 0;

@@ -17,6 +17,7 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/records`):
 //!
 //! ```text
+//! GET    /search               — search_all       (cross-object global search)
 //! GET    /{object}             — list_records
 //! POST   /{object}             — create_record
 //! GET    /{object}/count       — count_records
@@ -58,6 +59,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
+        // Cross-object global search — a literal single-segment route. Axum's
+        // matchit router prioritises this over the `/{object}` wildcard so a
+        // record object literally named `search` is unreachable by design.
+        .route("/search", get(handlers::search_all))
         .route(
             "/{object}",
             get(handlers::list_records).post(handlers::create_record),

@@ -42,6 +42,9 @@ import {
   ArrowDown,
   Pencil,
   Settings2,
+  KeyRound,
+  Type,
+  Search,
   Users,
   User,
   Building2,
@@ -258,6 +261,104 @@ function camelKey(input: string): string {
       .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
       .join('')
   );
+}
+
+// ---------------------------------------------------------------------------
+// Twenty-depth object/field settings (label identifier · searchable · system ·
+// indexes · field uniqueness)
+//
+// The shared `ObjectMetadata` / `FieldMetadata` types in `@/lib/sabcrm/types`
+// don't yet declare these object-level flags, but the engine + the
+// `updateObjectTw(slug, patch)` action carry them (added in parallel). Rather
+// than touch the shared types from this page, we read/write them through small
+// local extension shapes — the patch input (`SabcrmObjectUpdateInput`) is an
+// open `Record<string, unknown>`, so the writes type-check; the reads narrow
+// off a cast. Index shape mirrors Twenty's `indexMetadata`:
+//   { name, fields: string[], isUnique }  (BTREE single/composite indexes).
+// ---------------------------------------------------------------------------
+
+/** One metadata index over an object's fields (Twenty `indexMetadata`). */
+interface ObjectIndex {
+  /** Index name — unique per object; auto-derived from its fields. */
+  name: string;
+  /** Field keys participating in the index, in order. */
+  fields: string[];
+  /** UNIQUE constraint — a single-field unique index drives `field.isUnique`. */
+  isUnique?: boolean;
+}
+
+/** Object-level Twenty-depth flags layered over `ObjectMetadata`. */
+interface ObjectTwExtras {
+  isSystem?: boolean;
+  isSearchable?: boolean;
+  /** Field key that acts as the record's display title. */
+  labelIdentifier?: string;
+  indexes?: ObjectIndex[];
+}
+
+/** Field-level Twenty-depth flags layered over `FieldMetadata`. */
+interface FieldTwExtras {
+  isUnique?: boolean;
+}
+
+/** Narrow an object to its Twenty-depth extras (safe, read-only view). */
+function objectExtras(object: ObjectMetadata): ObjectTwExtras {
+  return object as ObjectMetadata & ObjectTwExtras;
+}
+
+/** Read the index list off an object, normalised to a clean array. */
+function objectIndexes(object: ObjectMetadata): ObjectIndex[] {
+  const raw = objectExtras(object).indexes;
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((ix) => {
+      const rec = (ix ?? {}) as Partial<ObjectIndex>;
+      const fields = Array.isArray(rec.fields)
+        ? rec.fields.map((f) => String(f)).filter(Boolean)
+        : [];
+      return {
+        name: typeof rec.name === 'string' ? rec.name : indexNameFor(fields),
+        fields,
+        isUnique: rec.isUnique === true,
+      };
+    })
+    .filter((ix) => ix.fields.length > 0);
+}
+
+/** Read whether a field carries a UNIQUE constraint. */
+function fieldIsUnique(field: FieldMetadata): boolean {
+  return (field as FieldMetadata & FieldTwExtras).isUnique === true;
+}
+
+/**
+ * Resolve the object's current label-identifier field key (which field is the
+ * record title). Prefers the explicit `labelIdentifier` extra, falls back to
+ * the field flagged `isLabel`, then to the first field.
+ */
+function objectLabelIdentifier(object: ObjectMetadata): string {
+  const explicit = objectExtras(object).labelIdentifier;
+  if (explicit && object.fields.some((f) => f.key === explicit)) return explicit;
+  const labelled = object.fields.find((f) => f.isLabel);
+  if (labelled) return labelled.key;
+  return object.fields[0]?.key ?? '';
+}
+
+/**
+ * Field types eligible to be the record's label identifier (text-ish title).
+ * Mirrors Twenty: the display title must be a plain scalar text-like field.
+ */
+const LABEL_IDENTIFIER_TYPES: ReadonlySet<FieldType> = new Set([
+  'TEXT',
+  'EMAIL',
+  'PHONE',
+  'LINK',
+  'FULL_NAME',
+]);
+
+/** Derive a stable Twenty-style index name from its participating field keys. */
+function indexNameFor(fields: string[]): string {
+  const stem = fields.filter(Boolean).join('_').replace(/[^A-Za-z0-9_]+/g, '_');
+  return stem ? `IDX_${stem.toUpperCase()}` : 'IDX';
 }
 
 // ---------------------------------------------------------------------------
@@ -1072,6 +1173,233 @@ function objectDefaultView(object: ObjectMetadata): DefaultView {
   return object.views?.[0] === 'board' ? 'board' : 'table';
 }
 
+// ---------------------------------------------------------------------------
+// Indexes editor
+//
+// Twenty's per-object "Indexes" tab as an inline subsection. Lists existing
+// indexes (name · participating fields · UNIQUE chip) with remove, plus an
+// "add index" composer where the admin multi-selects one or more fields, flips
+// a unique checkbox, and the name auto-derives from the chosen fields (Twenty's
+// `IDX_…` convention). Persists the whole list through
+// `updateObjectTw(slug, { indexes })`. Self-contained: it owns its own
+// save/error/busy state so the parent settings form stays untouched.
+// ---------------------------------------------------------------------------
+
+interface IndexesEditorProps {
+  object: ObjectMetadata;
+  projectId: string | null;
+  onSaved: (object: ObjectMetadata) => void;
+}
+
+function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
+  const indexes = React.useMemo(() => objectIndexes(object), [object]);
+
+  // The "add index" composer (collapsed until "Add index" is pressed).
+  const [adding, setAdding] = React.useState(false);
+  const [draftFields, setDraftFields] = React.useState<string[]>([]);
+  const [draftUnique, setDraftUnique] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  // Reset the composer whenever the selected object changes.
+  React.useEffect(() => {
+    setAdding(false);
+    setDraftFields([]);
+    setDraftUnique(false);
+    setError(null);
+    setBusy(false);
+  }, [object.slug]);
+
+  const draftName = indexNameFor(draftFields);
+  const nameTaken = indexes.some(
+    (ix) => ix.name.toUpperCase() === draftName.toUpperCase(),
+  );
+  const canAdd = draftFields.length > 0 && !nameTaken && !busy;
+
+  const toggleDraftField = (key: string) => {
+    setDraftFields((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  };
+
+  const persist = async (next: ObjectIndex[]) => {
+    setBusy(true);
+    setError(null);
+    const res = await updateObjectTw(
+      object.slug,
+      { indexes: next },
+      projectId ?? undefined,
+    );
+    setBusy(false);
+    if (res.ok) {
+      onSaved(res.data);
+      return true;
+    }
+    setError(res.error);
+    return false;
+  };
+
+  const handleAdd = async () => {
+    if (!canAdd) return;
+    const next: ObjectIndex[] = [
+      ...indexes,
+      { name: draftName, fields: draftFields, isUnique: draftUnique },
+    ];
+    const ok = await persist(next);
+    if (ok) {
+      setAdding(false);
+      setDraftFields([]);
+      setDraftUnique(false);
+    }
+  };
+
+  const handleRemove = async (name: string) => {
+    const next = indexes.filter((ix) => ix.name !== name);
+    await persist(next);
+  };
+
+  /** Human label for a field key (falls back to the raw key). */
+  const labelFor = (key: string) =>
+    object.fields.find((f) => f.key === key)?.label ?? key;
+
+  return (
+    <div className="dm-indexes">
+      <div className="dm-indexes__head">
+        <span className="dm-indexes__title">
+          <KeyRound size={13} aria-hidden="true" />
+          Indexes
+        </span>
+        {!adding ? (
+          <button
+            type="button"
+            className="dm-indexes__add"
+            onClick={() => {
+              setAdding(true);
+              setError(null);
+            }}
+            disabled={busy}
+          >
+            <Plus size={13} />
+            Add index
+          </button>
+        ) : null}
+      </div>
+
+      {indexes.length === 0 && !adding ? (
+        <p className="dm-indexes__empty">
+          No indexes yet. Add one to speed up filters or enforce uniqueness.
+        </p>
+      ) : null}
+
+      {indexes.length > 0 ? (
+        <ul className="dm-indexes__list">
+          {indexes.map((ix) => (
+            <li className="dm-index" key={ix.name}>
+              <div className="dm-index__body">
+                <span className="dm-index__name">{ix.name}</span>
+                <span className="dm-index__fields">
+                  {ix.fields.map((key) => (
+                    <TwentyChip key={key} label={labelFor(key)} />
+                  ))}
+                  {ix.isUnique ? <span className="dm-index__unique">Unique</span> : null}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="dm-iconbtn dm-iconbtn--danger"
+                aria-label={`Remove index ${ix.name}`}
+                title={`Remove index ${ix.name}`}
+                disabled={busy}
+                onClick={() => handleRemove(ix.name)}
+              >
+                <Trash2 size={14} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {adding ? (
+        <div className="dm-index-form">
+          <span className="st-field__label">Fields</span>
+          {object.fields.length === 0 ? (
+            <p className="dm-indexes__empty">This object has no fields yet.</p>
+          ) : (
+            <div className="dm-index-form__fields">
+              {object.fields.map((f) => (
+                <label className="dm-index-chk" key={f.key}>
+                  <input
+                    type="checkbox"
+                    checked={draftFields.includes(f.key)}
+                    onChange={() => toggleDraftField(f.key)}
+                  />
+                  <span className="dm-index-chk__label">{f.label}</span>
+                  <span className="dm-index-chk__key">{f.key}</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          <div className="dm-index-form__meta">
+            <div className="st-field">
+              <span className="st-field__label">Name</span>
+              <input
+                className="st-input"
+                value={draftName}
+                readOnly
+                aria-invalid={nameTaken}
+                aria-label="Index name (auto-derived)"
+              />
+              {nameTaken ? (
+                <span className="st-field__label" style={{ color: '#d64545' }}>
+                  An index over these fields already exists.
+                </span>
+              ) : null}
+            </div>
+            <label className="st-checkbox-row">
+              <input
+                type="checkbox"
+                checked={draftUnique}
+                onChange={(e) => setDraftUnique(e.target.checked)}
+              />
+              Unique
+            </label>
+          </div>
+
+          {error ? <ErrorBanner message={error} /> : null}
+
+          <div className="dm-index-form__actions">
+            <button
+              type="button"
+              className="st-btn st-btn--secondary"
+              onClick={() => {
+                setAdding(false);
+                setDraftFields([]);
+                setDraftUnique(false);
+                setError(null);
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="st-btn st-btn--primary"
+              onClick={handleAdd}
+              disabled={!canAdd}
+            >
+              {busy ? <Loader2 size={14} className="st-spin" /> : null}
+              Add index
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {error && !adding ? <ErrorBanner message={error} /> : null}
+    </div>
+  );
+}
+
 interface ObjectSettingsCardProps {
   object: ObjectMetadata;
   projectId: string | null;
@@ -1092,12 +1420,26 @@ function ObjectSettingsCard({
   const [defaultView, setDefaultView] = React.useState<DefaultView>(
     objectDefaultView(object),
   );
+  const [labelIdentifier, setLabelIdentifier] = React.useState(
+    objectLabelIdentifier(object),
+  );
+  const [isSearchable, setIsSearchable] = React.useState(
+    objectExtras(object).isSearchable === true,
+  );
   const [iconOpen, setIconOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [savedTick, setSavedTick] = React.useState(false);
 
   const iconRef = React.useRef<HTMLDivElement>(null);
+
+  const isSystem = objectExtras(object).isSystem === true;
+
+  /** Text-ish fields eligible to be the record's label identifier (title). */
+  const labelCandidates = React.useMemo(
+    () => object.fields.filter((f) => LABEL_IDENTIFIER_TYPES.has(f.type)),
+    [object.fields],
+  );
 
   // Re-seed the form whenever the selected object changes.
   React.useEffect(() => {
@@ -1106,6 +1448,8 @@ function ObjectSettingsCard({
     setDescription(object.description ?? '');
     setIcon(object.icon || 'database');
     setDefaultView(objectDefaultView(object));
+    setLabelIdentifier(objectLabelIdentifier(object));
+    setIsSearchable(objectExtras(object).isSearchable === true);
     setIconOpen(false);
     setError(null);
     setSavedTick(false);
@@ -1128,7 +1472,9 @@ function ObjectSettingsCard({
     labelPlural.trim() !== object.labelPlural ||
     description.trim() !== (object.description ?? '').trim() ||
     icon !== (object.icon || 'database') ||
-    defaultView !== objectDefaultView(object);
+    defaultView !== objectDefaultView(object) ||
+    labelIdentifier !== objectLabelIdentifier(object) ||
+    isSearchable !== (objectExtras(object).isSearchable === true);
 
   const canSave =
     labelSingular.trim().length > 0 &&
@@ -1161,6 +1507,8 @@ function ObjectSettingsCard({
         description: description.trim(),
         defaultView,
         views,
+        labelIdentifier,
+        isSearchable,
       },
       projectId ?? undefined,
     );
@@ -1180,6 +1528,8 @@ function ObjectSettingsCard({
     setDescription(object.description ?? '');
     setIcon(object.icon || 'database');
     setDefaultView(objectDefaultView(object));
+    setLabelIdentifier(objectLabelIdentifier(object));
+    setIsSearchable(objectExtras(object).isSearchable === true);
     setError(null);
     setSavedTick(false);
   };
@@ -1191,7 +1541,18 @@ function ObjectSettingsCard({
           <Settings2 size={15} aria-hidden="true" />
           Object settings
         </h3>
-        <ObjectBadge standard={object.standard === true} />
+        <div className="dm-settings__badges">
+          {isSystem ? (
+            <span
+              className="dm-badge dm-badge--system"
+              title="System object — managed by the engine"
+            >
+              <Lock size={11} aria-hidden="true" />
+              System
+            </span>
+          ) : null}
+          <ObjectBadge standard={object.standard === true} />
+        </div>
       </div>
 
       <div className="dm-settings__grid">
@@ -1286,7 +1647,50 @@ function ObjectSettingsCard({
             <option value="board">Board (Kanban)</option>
           </select>
         </div>
+
+        <div className="st-field">
+          <span className="st-field__label">
+            <Type size={12} aria-hidden="true" /> Record label
+          </span>
+          <select
+            className="st-select"
+            value={labelIdentifier}
+            onChange={(e) => setLabelIdentifier(e.target.value)}
+            disabled={labelCandidates.length === 0}
+            aria-label="Label identifier field"
+          >
+            {labelCandidates.length === 0 ? (
+              <option value="">No text fields available</option>
+            ) : (
+              labelCandidates.map((f) => (
+                <option key={f.key} value={f.key}>
+                  {f.label}
+                </option>
+              ))
+            )}
+          </select>
+          <span className="st-field__hint">
+            Which field is shown as each record&apos;s title.
+          </span>
+        </div>
+
+        <div className="dm-field dm-settings__full">
+          <label className="st-checkbox-row">
+            <input
+              type="checkbox"
+              checked={isSearchable}
+              onChange={(e) => setIsSearchable(e.target.checked)}
+            />
+            <Search size={13} aria-hidden="true" />
+            Searchable
+            <span className="dm-checkbox-note">
+              Index this object into global search.
+            </span>
+          </label>
+        </div>
       </div>
+
+      <IndexesEditor object={object} projectId={projectId} onSaved={onSaved} />
 
       {error ? <ErrorBanner message={error} /> : null}
 
@@ -1402,6 +1806,7 @@ function ObjectDetail({
                     <span className="dm-flags">
                       {field.isLabel ? <TwentyChip label="Title" /> : null}
                       {field.required ? <TwentyChip label="Required" /> : null}
+                      {fieldIsUnique(field) ? <TwentyChip label="Unique" /> : null}
                       {field.inTable ? <TwentyChip label="In table" /> : null}
                       {field.type === 'RELATION' && field.relation ? (
                         <TwentyChip
@@ -1666,6 +2071,9 @@ function FieldDialog({
   const [keyTouched, setKeyTouched] = React.useState(Boolean(editing));
   const [type, setType] = React.useState<FieldType>(editing?.type ?? 'TEXT');
   const [required, setRequired] = React.useState(editing?.required ?? false);
+  const [isUnique, setIsUnique] = React.useState(
+    editing ? fieldIsUnique(editing) : false,
+  );
   const [options, setOptions] = React.useState<FieldOption[]>(
     editing?.options ? editing.options.map((o) => ({ ...o })) : [],
   );
@@ -1761,6 +2169,9 @@ function FieldDialog({
     if (defaultValue !== undefined && defaultValue !== null) {
       next.defaultValue = defaultValue;
     }
+    // `isUnique` is a Twenty-depth flag not yet on the shared FieldMetadata
+    // type; the engine + patch path carry it, so we attach it through a cast.
+    (next as FieldMetadata & FieldTwExtras).isUnique = isUnique;
     return next;
   };
 
@@ -1977,6 +2388,18 @@ function FieldDialog({
                 onChange={(e) => setRequired(e.target.checked)}
               />
               Required
+            </label>
+
+            <label className="st-checkbox-row">
+              <input
+                type="checkbox"
+                checked={isUnique}
+                onChange={(e) => setIsUnique(e.target.checked)}
+              />
+              Unique
+              <span className="dm-checkbox-note">
+                No two records may share this value.
+              </span>
             </label>
 
             {error && <ErrorBanner message={error} />}

@@ -28,12 +28,13 @@ use futures::TryStreamExt;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json, mongo::MongoHandle};
+use serde::Serialize;
 use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
     CreateRoleInput, ListResponse, OkResponse, RoleResponse, ScopeQuery, SetMemberInput,
-    UpdateRoleInput,
+    UpdateRoleInput, is_canonical_permission_flag,
 };
 
 /// The Mongo collection backing roles.
@@ -50,6 +51,22 @@ fn require_project(project_id: &str) -> Result<&str> {
         return Err(ApiError::Validation("projectId is required.".to_owned()));
     }
     Ok(p)
+}
+
+/// Reject any unknown permission-flag key so only the canonical set persists.
+fn validate_permission_flags(flags: &[String]) -> Result<()> {
+    if let Some(bad) = flags.iter().find(|f| !is_canonical_permission_flag(f)) {
+        return Err(ApiError::Validation(format!(
+            "unknown permission flag: {bad}"
+        )));
+    }
+    Ok(())
+}
+
+/// Serialize a value into `Bson`, mapping any error to a `400`.
+fn to_bson_field(value: &impl Serialize, ctx: &'static str) -> Result<Bson> {
+    bson::to_bson(value)
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context(ctx)))
 }
 
 /// Clean a stored document into the wire JSON, renaming `_id` → `id` (hex).
@@ -162,6 +179,8 @@ pub async fn create_role(
     }
 
     let permissions = body.permissions.unwrap_or_default();
+    let permission_flags = body.permission_flags.unwrap_or_default();
+    validate_permission_flags(&permission_flags)?;
     let member_ids = body.member_ids.unwrap_or_default();
     let now = Utc::now().to_rfc3339();
 
@@ -176,6 +195,25 @@ pub async fn create_role(
         "permissions",
         permissions.iter().map(Bson::from).collect::<Vec<_>>(),
     );
+    new_doc.insert(
+        "permissionFlags",
+        permission_flags.iter().map(Bson::from).collect::<Vec<_>>(),
+    );
+    if let Some(defaults) = body.defaults.as_ref() {
+        new_doc.insert("defaults", to_bson_field(defaults, "sabcrm_roles.defaults")?);
+    }
+    if let Some(object_permissions) = body.object_permissions.as_ref() {
+        new_doc.insert(
+            "objectPermissions",
+            to_bson_field(object_permissions, "sabcrm_roles.objectPermissions")?,
+        );
+    }
+    if let Some(field_permissions) = body.field_permissions.as_ref() {
+        new_doc.insert(
+            "fieldPermissions",
+            to_bson_field(field_permissions, "sabcrm_roles.fieldPermissions")?,
+        );
+    }
     new_doc.insert(
         "memberIds",
         member_ids.iter().map(Bson::from).collect::<Vec<_>>(),
@@ -212,6 +250,17 @@ pub async fn update_role(
     let oid = oid_from_str(&id)?;
 
     let mut set = payload_to_set(&body.patch)?;
+
+    // If the patch touches `permissionFlags`, validate against the canonical set
+    // before persisting (the generic patch round-trips every other key verbatim).
+    if let Some(Bson::Array(flags)) = set.get("permissionFlags") {
+        let keys: Vec<String> = flags
+            .iter()
+            .filter_map(|b| b.as_str().map(str::to_owned))
+            .collect();
+        validate_permission_flags(&keys)?;
+    }
+
     set.insert("updatedAt", Utc::now().to_rfc3339());
 
     let coll = mongo.collection::<Document>(ROLES_COLL);

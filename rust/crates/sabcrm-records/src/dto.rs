@@ -327,6 +327,49 @@ pub struct OkResponse {
     pub ok: bool,
 }
 
+/// `GET /search` query params — a project-wide, cross-object free-text search.
+/// Unlike the per-object endpoints there is no `{object}` path segment: the
+/// query fans out over EVERY object in `projectId`.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchQuery {
+    /// Tenant scope — required. Records are filtered by `{ projectId }` only.
+    pub project_id: String,
+    /// Free-text query — case-insensitive regex over the common `data.*`
+    /// text-ish fields. An empty / missing `q` yields no hits.
+    #[serde(default, alias = "query")]
+    pub q: Option<String>,
+    /// Hard cap on hits returned. Clamped at 50 by the handler; defaults to 50.
+    #[serde(default)]
+    pub limit: Option<u64>,
+}
+
+/// One cross-object search hit in the [`SearchResponse`] — a single matched
+/// record, identified by its object slug + id and labelled by its likely title
+/// field, with an optional matched-text `snippet`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchHit {
+    /// Object slug the record belongs to (e.g. `people`, `companies`).
+    pub object: String,
+    /// Hex `ObjectId` of the matched record.
+    pub id: String,
+    /// Human label derived from the record's likely title field
+    /// (name / title / firstName+lastName / email), falling back to the id.
+    pub label: String,
+    /// Optional matched-text snippet (the first text-ish field that matched `q`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub snippet: Option<String>,
+}
+
+/// Response body for `GET /search` — ranked cross-object record hits (capped
+/// at 50).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SearchResponse {
+    pub hits: Vec<SearchHit>,
+}
+
 /// `POST /{object}/bulk-delete` body. Deletes every record matching
 /// `{ projectId, object, _id ∈ ids }`. Ids that aren't valid ObjectIds are
 /// skipped (no error) rather than failing the whole batch.
