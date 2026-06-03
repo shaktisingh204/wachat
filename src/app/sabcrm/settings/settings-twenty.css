@@ -1,0 +1,225 @@
+/* =========================================================================
+   SabCRM Settings — Twenty-style supplemental classes
+   -------------------------------------------------------------------------
+   Companion sheet to `src/styles/sabcrm-twenty.css`. Lives here so the three
+   settings pages (Members, API Keys, Webhooks) can lean on a couple of shared
+   helpers without bloating the base `.st-*` vocabulary. All selectors are
+   scoped under `.sabcrm-twenty` (supplied by the SabCRM app frame layout) so
+   they never leak into the rest of SabNode.
+   ========================================================================= */
+
+/* Page intro under the header — short descriptive copy. */
+.sabcrm-twenty .st-settings__intro {
+  margin: calc(var(--st-space-2) * -1) 0 var(--st-space-5);
+  max-width: 640px;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+}
+
+/* Constrain settings content to a comfortable reading column. */
+.sabcrm-twenty .st-settings {
+  max-width: 880px;
+}
+
+/* Inline admin / info notice. */
+.sabcrm-twenty .st-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  margin-bottom: var(--st-space-5);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+}
+
+.sabcrm-twenty .st-note__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-note code {
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text);
+}
+
+/* Identity cell (avatar + name/email stack) used in the members table. */
+.sabcrm-twenty .st-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-identity__text {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-identity__name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-identity__sub {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-owner-tag {
+  margin-left: 6px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+}
+
+/* Monospace cell — masked keys, urls, secrets. */
+.sabcrm-twenty .st-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-muted {
+  color: var(--st-text-tertiary);
+}
+
+/* Right-aligned action cell. */
+.sabcrm-twenty .st-cell-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Small destructive ghost button. */
+.sabcrm-twenty .st-btn--danger {
+  color: #b3261e;
+}
+
+.sabcrm-twenty .st-btn--danger:hover:not(:disabled) {
+  background: #fdf3f3;
+  color: #9b1c1c;
+}
+
+/* Status chips. */
+.sabcrm-twenty .st-chip--ok .st-chip__dot {
+  background: #2e7d32;
+}
+
+.sabcrm-twenty .st-chip--off .st-chip__dot {
+  background: var(--st-text-tertiary);
+}
+
+/* "Reveal once" secret box surfaced after issuing a key / rotating a secret. */
+.sabcrm-twenty .st-secret {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-accent-soft);
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-secret__label {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-secret__hint {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-secret__value {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-secret__code {
+  flex: 1 1 auto;
+  padding: 6px var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  word-break: break-all;
+}
+
+/* Checkbox list for selecting webhook events. */
+.sabcrm-twenty .st-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+.sabcrm-twenty .st-checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+}
+
+.sabcrm-twenty .st-checklist__item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-checklist__item input {
+  margin-top: 2px;
+}
+
+.sabcrm-twenty .st-checklist__title {
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-checklist__desc {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+/* Wraps a group of chips on one line. */
+.sabcrm-twenty .st-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Generic inline error text inside dialogs. */
+.sabcrm-twenty .st-form-error {
+  font-size: var(--st-font-size-sm);
+  color: #b3261e;
+}
+
+/* Footer note row beneath a table. */
+.sabcrm-twenty .st-footnote {
+  margin-top: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}

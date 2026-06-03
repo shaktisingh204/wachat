@@ -1,153 +1,99 @@
 import Link from 'next/link';
+import {
+  Building2,
+  Users,
+  Briefcase,
+  StickyNote,
+  CheckCircle2,
+  Settings,
+  ArrowRight,
+  type LucideIcon,
+} from 'lucide-react';
 
-import {
-  listObjectsAction,
-  listRecordsAction,
-} from '@/app/actions/sabcrm.actions';
-import type { ObjectMetadata } from '@/lib/sabcrm/types';
-import {
-  Badge,
-  Card,
-  EmptyState,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-} from '@/components/zoruui';
+import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import './home.css';
 
 export const metadata = {
   title: 'SabCRM',
 };
 
-// Record counts are per-request, project-scoped and must never be cached.
-export const dynamic = 'force-dynamic';
-
 /**
- * SabCRM overview — the native SabNode entry for the metadata-driven CRM.
+ * SabCRM landing (`/sabcrm`).
  *
- * Replaces the previous embedded-engine iframe/fallback with a first-party
- * ZoruUI surface: every object the active project can see (standard +
- * custom) is rendered as a card linking to `/sabcrm/<slug>`, decorated with
- * a live record count.
+ * Twenty itself redirects to the first object; here we render a tidy,
+ * self-contained object grid instead — a clean entry surface that lets the
+ * user jump straight into any of the five standard objects, plus quick links
+ * to Settings, Tasks and Notes.
  *
- * Server Component. Auth / onboarding / RBAC / project context are enforced
- * by `./layout.tsx`; the server actions below independently re-run the full
- * session -> project -> RBAC -> plan gate, so this page fails closed (empty
- * state) for anyone who slips past the layout guard.
+ * Rendered inside the layout's `TwentyAppFrame` (`.sabcrm-twenty` scope), so
+ * all visuals come from the `.st-*` Twenty design system. No ZoruUI / Tailwind.
+ *
+ * The object list mirrors `twenty-app-frame.tsx`'s sidebar nav — hardcoded to
+ * the five standard objects so the page is fully static and self-contained.
  */
 
-/** An object paired with its resolved record count for the active project. */
-interface ObjectCard {
-  object: ObjectMetadata;
-  /** Total records, or `null` when the count could not be resolved. */
-  count: number | null;
-}
+type ObjectNavItem = {
+  slug: string;
+  label: string;
+  icon: LucideIcon;
+};
 
-/**
- * Resolve the record total for a single object. We ask for the smallest
- * possible page (the runtime still returns the full `total`) and degrade to
- * `null` rather than throwing if the count is unavailable.
- */
-async function resolveCount(slug: string): Promise<number | null> {
-  const res = await listRecordsAction({ object: slug, page: 1, pageSize: 1 });
-  return res.ok ? res.data.total : null;
-}
+const OBJECTS: readonly ObjectNavItem[] = [
+  { slug: 'companies', label: 'Companies', icon: Building2 },
+  { slug: 'people', label: 'People', icon: Users },
+  { slug: 'opportunities', label: 'Opportunities', icon: Briefcase },
+  { slug: 'notes', label: 'Notes', icon: StickyNote },
+  { slug: 'tasks', label: 'Tasks', icon: CheckCircle2 },
+] as const;
 
-function formatCount(count: number | null): string {
-  if (count === null) return '—';
-  return new Intl.NumberFormat().format(count);
-}
-
-function countLabel(count: number | null): string {
-  if (count === null) return 'Count unavailable';
-  if (count === 1) return '1 record';
-  return `${formatCount(count)} records`;
-}
-
-export default async function SabcrmPage() {
-  const objectsRes = await listObjectsAction();
-
-  // Permission / plan / project failures from the gate surface here — render
-  // a calm, on-brand empty state instead of crashing the route.
-  if (!objectsRes.ok) {
-    return (
-      <main className="mx-auto min-h-[100dvh] w-full max-w-5xl px-6 py-10 sm:px-8 sm:py-14">
-        <EmptyState
-          title="SabCRM is unavailable"
-          description={objectsRes.error}
-        />
-      </main>
-    );
-  }
-
-  const objects = objectsRes.data;
-
-  // Fetch counts in parallel — each call is independently gated and safe.
-  const cards: ObjectCard[] = await Promise.all(
-    objects.map(async (object) => ({
-      object,
-      count: await resolveCount(object.slug),
-    })),
-  );
-
+export default function SabcrmHomePage(): React.JSX.Element {
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-5xl px-6 py-10 sm:px-8 sm:py-14">
-      <PageHeader className="mb-8">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Customer relationships</ZoruPageEyebrow>
-          <ZoruPageTitle>SabCRM</ZoruPageTitle>
-          <ZoruPageDescription>
-            Your data, organised by object. Open any object to browse, filter
-            and manage its records.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
+    <div className="st-home">
+      <div className="st-home__inner">
+        <TwentyPageHeader title="SabCRM" icon={Building2} />
+        <p className="st-lead">
+          Your data, organised by object. Open any object to browse, filter and
+          manage its records.
+        </p>
 
-      {cards.length === 0 ? (
-        <EmptyState
-          title="No objects yet"
-          description="No CRM objects are available in this project."
-        />
-      ) : (
-        <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4 p-0">
-          {cards.map(({ object, count }) => (
-            <li key={object.slug} className="flex">
+        <ul className="st-obj-grid">
+          {OBJECTS.map(({ slug, label, icon: Icon }) => (
+            <li key={slug} style={{ display: 'flex' }}>
               <Link
-                href={`/sabcrm/${object.slug}`}
-                className="block w-full no-underline"
-                aria-label={`${object.labelPlural}, ${countLabel(count)}`}
+                href={`/sabcrm/${slug}`}
+                className="st-obj-card"
+                aria-label={`${label}, view all`}
               >
-                <Card
-                  variant="soft"
-                  interactive
-                  className="flex h-full flex-col gap-2"
-                >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-base font-semibold text-zoru-ink">
-                      {object.labelPlural}
-                    </span>
-                    <span className="text-base font-semibold tabular-nums text-zoru-ink">
-                      {formatCount(count)}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-zoru-ink-muted">
-                    {object.description ?? countLabel(count)}
-                  </p>
-                  <div className="mt-auto flex items-center gap-2 pt-2">
-                    <Badge variant={object.standard ? 'secondary' : 'info'}>
-                      {object.standard ? 'Standard' : 'Custom'}
-                    </Badge>
-                    <span className="text-xs text-zoru-ink-muted">
-                      {countLabel(count)}
-                    </span>
-                  </div>
-                </Card>
+                <div className="st-obj-card__top">
+                  <span className="st-obj-card__icon" aria-hidden="true">
+                    <Icon size={18} />
+                  </span>
+                  <span className="st-obj-card__label">{label}</span>
+                </div>
+                <span className="st-obj-card__cta">
+                  View all
+                  <ArrowRight size={13} aria-hidden="true" />
+                </span>
               </Link>
             </li>
           ))}
         </ul>
-      )}
-    </main>
+
+        <nav className="st-quick" aria-label="Quick links">
+          <Link href="/sabcrm/settings" className="st-quick-link">
+            <Settings size={14} aria-hidden="true" />
+            Settings
+          </Link>
+          <Link href="/sabcrm/tasks" className="st-quick-link">
+            <CheckCircle2 size={14} aria-hidden="true" />
+            Tasks
+          </Link>
+          <Link href="/sabcrm/notes" className="st-quick-link">
+            <StickyNote size={14} aria-hidden="true" />
+            Notes
+          </Link>
+        </nav>
+      </div>
+    </div>
   );
 }

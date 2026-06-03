@@ -1,123 +1,298 @@
+'use client';
+
 /**
- * SabCRM — API Settings page (`/sabcrm/settings/api`).
+ * SabCRM — API Keys settings (`/sabcrm/settings/api`), Twenty-style.
  *
- * Admin-gated server component shell that:
- *   1. Fetches the active project's API keys and webhook subscriptions via the
- *      gated server actions (`listApiKeysAction`, `listWebhooksAction`). Both
- *      actions run the full session → project → RBAC → plan pipeline, so the
- *      page fails closed (error state) even when the layout guard passes.
- *   2. Renders the read-only page chrome (heading, breadcrumb, admin notice)
- *      server-side for fast TTFB.
- *   3. Hands all interactivity to the `ApiSettingsClient` child, seeded with
- *      the pre-fetched data so it renders without a client-side loading state
- *      on first paint.
+ * Lists the active project's API keys (label, masked key, created, last used)
+ * and supports issuing a new key (secret shown exactly once) and revoking an
+ * existing key with confirmation. All three operations go through the
+ * admin-gated server actions, each of which independently re-runs the
+ * session → project → RBAC (`sabcrm:admin`) → plan pipeline, so the page fails
+ * closed even when the layout guard passes.
  *
- * Auth / onboarding / project context guards are enforced by
- * `../../layout.tsx`. Mutations (issue / revoke keys; create / update / delete
- * / rotate webhooks) run through the same gated actions and are handled
- * client-side with optimistic UI updates.
+ * Project scope comes from `useProject()`. States: skeleton while project /
+ * data load, "no project" notice, empty list, error banner, and graceful
+ * degradation when the backend is unreachable.
  */
 
 import * as React from 'react';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { KeyRound, Webhook, AlertTriangle } from 'lucide-react';
-
 import {
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Badge,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Separator,
-} from '@/components/zoruui';
+  KeyRound,
+  Plus,
+  X,
+  Copy,
+  Check,
+  AlertTriangle,
+} from 'lucide-react';
+
+import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { useProject } from '@/context/project-context';
 import {
   listApiKeysAction,
-  listWebhooksAction,
+  issueApiKeyAction,
+  revokeApiKeyAction,
 } from '@/app/actions/sabcrm.actions';
-import type { SabcrmApiKey } from '@/lib/sabcrm/apikeys.server';
-import type { WebhookSubscription } from '@/lib/sabcrm/webhooks.server';
+import type {
+  SabcrmApiKey,
+  IssuedSabcrmApiKey,
+} from '@/lib/sabcrm/apikeys.server';
 
-import { ApiSettingsClient } from './api-settings-client';
-
-// ---------------------------------------------------------------------------
-// Metadata
-// ---------------------------------------------------------------------------
-
-export const metadata: Metadata = {
-  title: 'API & Webhooks · SabCRM',
-  description:
-    'Manage SabCRM API keys and outbound webhook subscriptions for programmatic integration.',
-};
-
-// Per-request, tenant-scoped data — never cached.
-export const dynamic = 'force-dynamic';
+import '@/styles/sabcrm-twenty.css';
+import '../settings-twenty.css';
 
 // ---------------------------------------------------------------------------
-// Constants
+// Helpers
 // ---------------------------------------------------------------------------
 
-const CRM_BASE_PATH = '/sabcrm';
-const SETTINGS_PATH = `${CRM_BASE_PATH}/settings`;
+function formatDate(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+/** A safe-to-display masked representation of a key from its public prefix. */
+function maskedKey(prefix: string): string {
+  return `${prefix}${'•'.repeat(8)}`;
+}
 
 // ---------------------------------------------------------------------------
-// Admin capability notice (server-rendered, static)
+// Copyable code value (reveal-once secrets)
 // ---------------------------------------------------------------------------
 
-function AdminGuardNotice() {
+function CopyValue({ value }: { value: string }): React.JSX.Element {
+  const [copied, setCopied] = React.useState(false);
+
+  const copy = React.useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard unavailable — no-op */
+    }
+  }, [value]);
+
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
-      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" aria-hidden />
-      <p className="text-sm leading-relaxed text-zoru-ink-muted">
-        API keys and webhooks grant programmatic access to this project. Issuing
-        and revoking keys, and managing webhook subscriptions, requires the{' '}
-        <code className="rounded bg-zoru-surface-2 px-1 py-0.5 font-mono text-xs">
-          sabcrm:admin
-        </code>{' '}
-        RBAC capability.
-      </p>
+    <div className="st-secret__value">
+      <code className="st-secret__code">{value}</code>
+      <TwentyButton
+        variant="secondary"
+        icon={copied ? Check : Copy}
+        onClick={copy}
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </TwentyButton>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Error banner (server-rendered)
+// Create-key dialog
 // ---------------------------------------------------------------------------
 
-interface FetchErrorBannerProps {
-  section: string;
-  message: string;
+interface CreateKeyDialogProps {
+  projectId: string;
+  onClose: () => void;
+  onIssued: (issued: IssuedSabcrmApiKey) => void;
 }
 
-function FetchErrorBanner({ section, message }: FetchErrorBannerProps) {
+function CreateKeyDialog({
+  projectId,
+  onClose,
+  onIssued,
+}: CreateKeyDialogProps): React.JSX.Element {
+  const [label, setLabel] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [issued, setIssued] = React.useState<IssuedSabcrmApiKey | null>(null);
+
+  const submit = React.useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!label.trim() || submitting) return;
+      setSubmitting(true);
+      setError(null);
+      try {
+        const res = await issueApiKeyAction(label.trim(), projectId);
+        if (res.ok) {
+          setIssued(res.data);
+          onIssued(res.data);
+        } else {
+          setError(res.error);
+        }
+      } catch {
+        setError('Failed to issue the key. The service may be unavailable.');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [label, submitting, projectId, onIssued],
+  );
+
   return (
-    <Alert variant="destructive">
-      <AlertTriangle className="h-4 w-4" />
-      <ZoruAlertTitle>Unable to load {section}</ZoruAlertTitle>
-      <ZoruAlertDescription>{message}</ZoruAlertDescription>
-    </Alert>
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Create API key"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !issued) onClose();
+      }}
+    >
+      <div className="st-dialog">
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">
+            {issued ? 'API key created' : 'Create API key'}
+          </h2>
+          <button
+            type="button"
+            className="st-dialog__close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        {issued ? (
+          <>
+            <div className="st-dialog__body">
+              <div className="st-secret">
+                <span className="st-secret__label">Your new API key</span>
+                <CopyValue value={issued.rawKey} />
+                <span className="st-secret__hint">
+                  Copy this key now — for security it is shown only once and
+                  cannot be recovered afterwards.
+                </span>
+              </div>
+            </div>
+            <div className="st-dialog__footer">
+              <TwentyButton variant="primary" onClick={onClose}>
+                Done
+              </TwentyButton>
+            </div>
+          </>
+        ) : (
+          <form onSubmit={submit}>
+            <div className="st-dialog__body">
+              <div className="st-field">
+                <label className="st-field__label" htmlFor="api-key-label">
+                  Name
+                  <span className="st-field__req" aria-hidden="true">
+                    *
+                  </span>
+                </label>
+                <input
+                  id="api-key-label"
+                  className="st-input"
+                  value={label}
+                  onChange={(e) => setLabel(e.target.value)}
+                  placeholder="e.g. Zapier production"
+                  autoFocus
+                  maxLength={80}
+                />
+              </div>
+              {error ? <p className="st-form-error">{error}</p> : null}
+            </div>
+            <div className="st-dialog__footer">
+              <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
+                Cancel
+              </TwentyButton>
+              <TwentyButton
+                type="submit"
+                variant="primary"
+                disabled={submitting || !label.trim()}
+              >
+                {submitting ? 'Creating…' : 'Create key'}
+              </TwentyButton>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Stat chip (server-rendered, shows counts in the page heading area)
+// Revoke confirmation dialog
 // ---------------------------------------------------------------------------
 
-interface StatChipProps {
-  icon: React.ReactNode;
-  label: string;
+interface RevokeDialogProps {
+  apiKey: SabcrmApiKey;
+  onCancel: () => void;
+  onConfirm: () => void;
+  busy: boolean;
 }
 
-function StatChip({ icon, label }: StatChipProps) {
+function RevokeDialog({
+  apiKey,
+  onCancel,
+  onConfirm,
+  busy,
+}: RevokeDialogProps): React.JSX.Element {
   return (
-    <Badge variant="secondary" className="inline-flex items-center gap-1.5 text-xs font-normal">
-      {icon}
-      {label}
-    </Badge>
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Revoke API key"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+    >
+      <div className="st-dialog">
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">Revoke API key</h2>
+          <button
+            type="button"
+            className="st-dialog__close"
+            onClick={onCancel}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <div className="st-dialog__body">
+          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+            Revoke <strong style={{ color: 'var(--st-text)' }}>{apiKey.label}</strong>
+            ? Any integration using this key will immediately stop working. This
+            cannot be undone.
+          </p>
+        </div>
+        <div className="st-dialog__footer">
+          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+            Cancel
+          </TwentyButton>
+          <TwentyButton
+            variant="secondary"
+            className="st-btn--danger"
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? 'Revoking…' : 'Revoke key'}
+          </TwentyButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Loading skeleton
+// ---------------------------------------------------------------------------
+
+function KeysSkeleton(): React.JSX.Element {
+  return (
+    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="st-skeleton st-skeleton-row" />
+      ))}
+    </div>
   );
 }
 
@@ -125,82 +300,184 @@ function StatChip({ icon, label }: StatChipProps) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default async function SabcrmApiSettingsPage(): Promise<React.JSX.Element> {
-  // Fetch in parallel — both actions are independent reads.
-  const [keysRes, webhooksRes] = await Promise.all([
-    listApiKeysAction(undefined),
-    listWebhooksAction(undefined),
-  ]);
+export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
+  const { activeProjectId, isLoadingProject } = useProject();
 
-  const keys: SabcrmApiKey[] = keysRes.ok ? keysRes.data : [];
-  const webhooks: WebhookSubscription[] = webhooksRes.ok ? webhooksRes.data : [];
+  const [keys, setKeys] = React.useState<SabcrmApiKey[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const activeKeyCount = keys.filter((k) => !k.revoked).length;
-  const activeWebhookCount = webhooks.filter((w) => w.active).length;
+  const [createOpen, setCreateOpen] = React.useState(false);
+  const [revokeTarget, setRevokeTarget] = React.useState<SabcrmApiKey | null>(null);
+  const [revoking, setRevoking] = React.useState(false);
+
+  const load = React.useCallback(async (projectId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await listApiKeysAction(undefined, projectId);
+      if (res.ok) {
+        setKeys(res.data.filter((k) => !k.revoked));
+      } else {
+        setError(res.error);
+      }
+    } catch {
+      setError('API keys could not be loaded. The service may be unavailable.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (isLoadingProject) return;
+    if (!activeProjectId) {
+      setLoading(false);
+      return;
+    }
+    void load(activeProjectId);
+  }, [activeProjectId, isLoadingProject, load]);
+
+  const confirmRevoke = React.useCallback(async () => {
+    if (!revokeTarget || !activeProjectId) return;
+    setRevoking(true);
+    try {
+      const res = await revokeApiKeyAction(revokeTarget.id, activeProjectId);
+      if (res.ok) {
+        setKeys((prev) => prev.filter((k) => k.id !== revokeTarget.id));
+        setRevokeTarget(null);
+      } else {
+        setError(res.error);
+        setRevokeTarget(null);
+      }
+    } catch {
+      setError('Failed to revoke the key. The service may be unavailable.');
+      setRevokeTarget(null);
+    } finally {
+      setRevoking(false);
+    }
+  }, [revokeTarget, activeProjectId]);
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-4xl px-6 py-10 sm:px-8 sm:py-14">
-      {/* Page heading */}
-      <PageHeader className="mb-8">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>
-            <Link
-              href={CRM_BASE_PATH}
-              className="text-zoru-ink-muted hover:text-zoru-ink"
+    <div className="st-page">
+      <div className="st-settings">
+        <TwentyPageHeader
+          title="API Keys"
+          icon={KeyRound}
+          actions={
+            activeProjectId ? (
+              <TwentyButton
+                variant="primary"
+                icon={Plus}
+                onClick={() => setCreateOpen(true)}
+              >
+                Create key
+              </TwentyButton>
+            ) : null
+          }
+        />
+        <p className="st-settings__intro">
+          Bearer tokens for the SabCRM REST API, scoped to this project. Issuing
+          and revoking keys requires the <code>sabcrm:admin</code> capability.
+        </p>
+
+        {error ? (
+          <div className="st-banner">
+            <AlertTriangle className="st-banner__icon" size={16} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+
+        {isLoadingProject || loading ? (
+          <KeysSkeleton />
+        ) : !activeProjectId ? (
+          <div className="st-empty">
+            <span className="st-empty__icon">
+              <AlertTriangle size={20} />
+            </span>
+            <h2 className="st-empty__title">No project selected</h2>
+            <p className="st-empty__desc">
+              Select a project to manage its API keys.
+            </p>
+          </div>
+        ) : keys.length === 0 ? (
+          <div className="st-empty">
+            <span className="st-empty__icon">
+              <KeyRound size={20} />
+            </span>
+            <h2 className="st-empty__title">No API keys yet</h2>
+            <p className="st-empty__desc">
+              Create a key to authenticate requests to the SabCRM REST API.
+            </p>
+            <TwentyButton
+              variant="secondary"
+              icon={Plus}
+              onClick={() => setCreateOpen(true)}
             >
-              SabCRM
-            </Link>
-            <span className="mx-1 text-zoru-ink-muted">/</span>
-            <Link
-              href={SETTINGS_PATH}
-              className="text-zoru-ink-muted hover:text-zoru-ink"
-            >
-              Settings
-            </Link>
-            <span className="mx-1 text-zoru-ink-muted">/</span>
-            API &amp; Webhooks
-          </ZoruPageEyebrow>
-          <ZoruPageTitle className="flex flex-wrap items-center gap-3">
-            API &amp; Webhooks
-            {keysRes.ok && (
-              <StatChip
-                icon={<KeyRound className="h-3 w-3" aria-hidden />}
-                label={`${activeKeyCount} active ${activeKeyCount === 1 ? 'key' : 'keys'}`}
-              />
-            )}
-            {webhooksRes.ok && (
-              <StatChip
-                icon={<Webhook className="h-3 w-3" aria-hidden />}
-                label={`${activeWebhookCount} active ${activeWebhookCount === 1 ? 'webhook' : 'webhooks'}`}
-              />
-            )}
-          </ZoruPageTitle>
-          <ZoruPageDescription>
-            Issue and revoke bearer tokens for the SabCRM REST API, manage outbound
-            webhook subscriptions, and view integration reference documentation.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
+              Create key
+            </TwentyButton>
+          </div>
+        ) : (
+          <div className="st-table-wrap">
+            <table className="st-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Key</th>
+                  <th>Created</th>
+                  <th>Last used</th>
+                  <th aria-label="Actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {keys.map((key) => (
+                  <tr key={key.id} className="st-row">
+                    <td style={{ fontWeight: 'var(--st-fw-medium)' }}>{key.label}</td>
+                    <td className="st-mono">{maskedKey(key.prefix)}</td>
+                    <td style={{ color: 'var(--st-text-secondary)' }}>
+                      {formatDate(key.createdAt)}
+                    </td>
+                    <td style={{ color: 'var(--st-text-secondary)' }}>
+                      {key.lastUsedAt ? (
+                        formatDate(key.lastUsedAt)
+                      ) : (
+                        <span className="st-muted">Never</span>
+                      )}
+                    </td>
+                    <td className="st-cell-actions">
+                      <TwentyButton
+                        variant="ghost"
+                        className="st-btn--danger"
+                        onClick={() => setRevokeTarget(key)}
+                      >
+                        Revoke
+                      </TwentyButton>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-      {/* Admin guard notice */}
-      <AdminGuardNotice />
+      {createOpen && activeProjectId ? (
+        <CreateKeyDialog
+          projectId={activeProjectId}
+          onClose={() => setCreateOpen(false)}
+          onIssued={(issued) =>
+            setKeys((prev) => [issued.key, ...prev.filter((k) => k.id !== issued.key.id)])
+          }
+        />
+      ) : null}
 
-      <Separator className="my-6" />
-
-      {/* Fetch error banners (hard failures only — partial data is still shown) */}
-      {(!keysRes.ok || !webhooksRes.ok) && (
-        <div className="mb-6 flex flex-col gap-3">
-          {!keysRes.ok && (
-            <FetchErrorBanner section="API keys" message={keysRes.error} />
-          )}
-          {!webhooksRes.ok && (
-            <FetchErrorBanner section="webhooks" message={webhooksRes.error} />
-          )}
-        </div>
-      )}
-
-      {/* Interactive client — seeded with pre-fetched data */}
-      <ApiSettingsClient initialKeys={keys} initialWebhooks={webhooks} />
-    </main>
+      {revokeTarget ? (
+        <RevokeDialog
+          apiKey={revokeTarget}
+          busy={revoking}
+          onCancel={() => setRevokeTarget(null)}
+          onConfirm={confirmRevoke}
+        />
+      ) : null}
+    </div>
   );
 }

@@ -1,0 +1,191 @@
+/**
+ * SabCRM — Tasks & Notes page-local styles.
+ *
+ * Twenty look only. These classes EXTEND the shared `.st-*` system in
+ * `src/styles/sabcrm-twenty.css` (which is NOT edited) with the few extras the
+ * top-level Tasks board and Notes feed need: a status `<select>` that sits on a
+ * board card, a task card link/meta row, the notes composer, and the notes card
+ * list. Everything reuses the Twenty design tokens (`--st-*`) so it stays
+ * visually consistent with the rest of the SabCRM Twenty surface.
+ *
+ * NO ZoruUI / Tailwind / clay tokens here.
+ */
+
+/* =========================================================================
+   Task board card
+   ========================================================================= */
+
+/* The board column body needs to breathe a little more for task cards. */
+.stn-board-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2, 8px);
+  padding: var(--st-space-3, 12px);
+}
+
+/* Title row: a record link that fills the card head. */
+.stn-card-title {
+  display: block;
+  font-size: var(--st-font-sm, 13px);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--st-text, #1b1b1b);
+  text-decoration: none;
+}
+.stn-card-title:hover {
+  text-decoration: underline;
+}
+
+/* A single key→value meta line on a task card (due date, assignee…). */
+.stn-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2, 8px);
+  font-size: var(--st-font-xs, 12px);
+  color: var(--st-text-muted, #6b6b6b);
+}
+.stn-card-meta__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--st-text-light, #9b9b9b);
+}
+.stn-card-meta__label svg {
+  flex: 0 0 auto;
+}
+
+/* Footer row of a card — separates assignee/due metadata from the status. */
+.stn-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2, 8px);
+  margin-top: 2px;
+}
+
+/* Inline status <select> rendered ON a card (board) or row (table). */
+.stn-status-select {
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  font-size: var(--st-font-xs, 12px);
+  color: var(--st-text, #1b1b1b);
+  background: var(--st-surface, #fff);
+  border: 1px solid var(--st-border, #e4e4e4);
+  border-radius: var(--st-radius-sm, 4px);
+  padding: 3px 22px 3px 8px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+.stn-status-select:hover {
+  background-color: var(--st-surface-hover, #f7f7f7);
+}
+.stn-status-select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent, #1b1b1b);
+}
+.stn-status-select:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+/* The little inline spinner sometimes shown next to a card status. */
+.stn-card-busy {
+  display: inline-flex;
+  color: var(--st-text-light, #9b9b9b);
+}
+
+/* =========================================================================
+   Notes feed — card list + composer
+   ========================================================================= */
+
+/* Wrapper that pads + frames the global notes timeline like a Twenty panel. */
+.stn-feed {
+  margin-top: var(--st-space-4, 16px);
+}
+
+/* Composer — a Twenty card holding the "add a note" textarea + actions. */
+.stn-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3, 12px);
+  padding: var(--st-space-4, 16px);
+  background: var(--st-surface, #fff);
+  border: 1px solid var(--st-border, #e4e4e4);
+  border-radius: var(--st-radius, 8px);
+  margin-bottom: var(--st-space-4, 16px);
+}
+.stn-composer__row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--st-space-2, 8px);
+}
+.stn-composer__hint {
+  margin-right: auto;
+  font-size: var(--st-font-xs, 12px);
+  color: var(--st-text-light, #9b9b9b);
+}
+
+/* A flat list of `notes` records, each a Twenty card. */
+.stn-notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3, 12px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.stn-note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2, 8px);
+  padding: var(--st-space-4, 16px);
+  background: var(--st-surface, #fff);
+  border: 1px solid var(--st-border, #e4e4e4);
+  border-radius: var(--st-radius, 8px);
+}
+.stn-note__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2, 8px);
+}
+.stn-note__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-sm, 13px);
+  font-weight: 600;
+  color: var(--st-text, #1b1b1b);
+}
+.stn-note__title svg {
+  flex: 0 0 auto;
+  color: var(--st-text-muted, #6b6b6b);
+}
+.stn-note__time {
+  font-size: var(--st-font-xs, 12px);
+  color: var(--st-text-light, #9b9b9b);
+  white-space: nowrap;
+}
+.stn-note__body {
+  margin: 0;
+  font-size: var(--st-font-sm, 13px);
+  line-height: 1.55;
+  color: var(--st-text-muted, #4b4b4b);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* =========================================================================
+   Shared small bits
+   ========================================================================= */
+
+/* A muted inline error line under a composer / card action. */
+.stn-inline-error {
+  font-size: var(--st-font-xs, 12px);
+  color: var(--st-danger, #c0392b);
+}

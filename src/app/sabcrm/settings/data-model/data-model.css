@@ -1,0 +1,247 @@
+/* =========================================================================
+   SabCRM — Data Model settings (Twenty look).
+
+   Page-local classes layered on top of the shared `.st-*` kit
+   (`src/styles/sabcrm-twenty.css`). Everything here is scoped under
+   `.sabcrm-twenty` (the Twenty frame applies that class to the app shell) and
+   uses only the `--st-*` design tokens — no ZoruUI / Tailwind / clay.
+
+   Two-pane Data Model layout:
+     [ object list ]  |  [ selected object's field table ]
+   ========================================================================= */
+
+.sabcrm-twenty .dm-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--st-space-5);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .sabcrm-twenty .dm-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ----- Left pane: object list ------------------------------------------- */
+
+.sabcrm-twenty .dm-list {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .dm-list__group {
+  padding: var(--st-space-2) 0;
+}
+
+.sabcrm-twenty .dm-list__group + .dm-list__group {
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .dm-list__heading {
+  display: block;
+  padding: var(--st-space-1) var(--st-space-3);
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.02em;
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+}
+
+.sabcrm-twenty .dm-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sabcrm-twenty .dm-item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .dm-item.active {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .dm-item__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-item.active .dm-item__icon {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-item__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  flex: 1 1 auto;
+  line-height: 1.2;
+}
+
+.sabcrm-twenty .dm-item__label {
+  overflow: hidden;
+  font-weight: var(--st-fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .dm-item__slug {
+  overflow: hidden;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .dm-item__count {
+  flex: 0 0 auto;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .dm-list__empty {
+  padding: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Standard / custom badge ------------------------------------------ */
+
+.sabcrm-twenty .dm-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-size: 10px;
+  font-weight: var(--st-fw-medium);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .dm-badge--custom {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Right pane: object detail + field table -------------------------- */
+
+.sabcrm-twenty .dm-detail {
+  min-width: 0;
+}
+
+.sabcrm-twenty .dm-detail__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-4);
+}
+
+.sabcrm-twenty .dm-detail__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .dm-detail__sub {
+  margin: 2px 0 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-detail__sub code {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-detail__actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--st-space-2);
+}
+
+/* Field flags column (badges + remove control). */
+.sabcrm-twenty .dm-flags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.sabcrm-twenty .dm-key {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-rm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .dm-rm:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: #d64545;
+}
+
+.sabcrm-twenty .dm-rm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .dm-locked {
+  display: inline-flex;
+  align-items: center;
+  color: var(--st-text-tertiary);
+}
+
+/* Right-align the trailing flags/actions column of the field table. */
+.sabcrm-twenty .dm-col-flags {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .dm-detail__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
