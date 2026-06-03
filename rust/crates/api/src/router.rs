@@ -81,6 +81,29 @@ pub fn build(state: AppState) -> Router {
     let sabsense_heatmaps_r = sabsense_heatmaps::router::<AppState>();
     let sabsense_recordings_r = sabsense_recordings::router::<AppState>();
     let sabsense_sites_r = sabsense_sites::router::<AppState>();
+    let sabsense_publishers_r = sabsense_publishers::router::<AppState>();
+    let sabsense_apps_r = sabsense_apps::router::<AppState>();
+    let sabsense_ad_units_r = sabsense_ad_units::router::<AppState>();
+    let sabsense_placements_r = sabsense_placements::router::<AppState>();
+    let sabsense_advertisers_r = sabsense_advertisers::router::<AppState>();
+    let sabsense_campaigns_r = sabsense_campaigns::router::<AppState>();
+    let sabsense_creatives_r = sabsense_creatives::router::<AppState>();
+    let sabsense_targeting_r = sabsense_targeting::router::<AppState>();
+    let sabsense_budgeting_r = sabsense_budgeting::router::<AppState>();
+    let sabsense_payouts_r = sabsense_payouts::router::<AppState>();
+    let sabsense_advertiser_billing_r = sabsense_advertiser_billing::router::<AppState>();
+    let sabsense_revenue_share_r = sabsense_revenue_share::router::<AppState>();
+    let sabsense_tax_forms_r = sabsense_tax_forms::router::<AppState>();
+    let sabsense_bidding_r = sabsense_bidding::router::<AppState>();
+    let sabsense_direct_deals_r = sabsense_direct_deals::router::<AppState>();
+    let sabsense_floor_pricing_r = sabsense_floor_pricing::router::<AppState>();
+    let sabsense_yield_mgmt_r = sabsense_yield_mgmt::router::<AppState>();
+    let sabsense_native_ads_r = sabsense_native_ads::router::<AppState>();
+    let sabsense_analytics_r = sabsense_analytics::router::<AppState>();
+    let sabsense_fraud_detection_r = sabsense_fraud_detection::router::<AppState>();
+    let sabsense_viewability_r = sabsense_viewability::router::<AppState>();
+    let sabsense_consent_mgmt_r = sabsense_consent_mgmt::router::<AppState>();
+    let sabsense_brand_safety_r = sabsense_brand_safety::router::<AppState>();
     let sabshop_carts_r = sabshop_carts::router::<AppState>();
     let sabshop_checkouts_r = sabshop_checkouts::router::<AppState>();
     let sabshop_collections_r = sabshop_collections::router::<AppState>();
@@ -91,10 +114,10 @@ pub fn build(state: AppState) -> Router {
     let sabshop_tax_rules_r = sabshop_tax_rules::router::<AppState>();
     let sabshop_themes_r = sabshop_themes::router::<AppState>();
     //     let sabshop_analytics_r = sabshop_analytics::router::<AppState>();
-    let sabsign_audit_r = sabsign_audit::router::<AppState>();
-    let sabsign_envelopes_r = sabsign_envelopes::router::<AppState>();
+    let sabsign_audit_r = axum::Router::<AppState>::new(); // sabsign_audit::router::<AppState>();
+    let sabsign_envelopes_r = axum::Router::<AppState>::new(); // sabsign_envelopes::router::<AppState>();
     let sabsign_fields_r = sabsign_fields::router::<AppState>();
-    let sabsign_templates_r = sabsign_templates::router::<AppState>();
+    let sabsign_templates_r = axum::Router::<AppState>::new(); // sabsign_templates::router::<AppState>();
     //     let sabsprints_burndown_r = sabsprints_burndown::router::<AppState>();
     let sabsprints_epics_r = sabsprints_epics::router::<AppState>();
     let sabsprints_sprints_r = sabsprints_sprints::router::<AppState>();
@@ -728,7 +751,6 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/settings", telegram_settings_router)
         .nest("/v1/telegram/webhooks", telegram_webhooks_router)
         .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
-        .nest("/v1/sabcrm/pipelines", sabcrm_pipelines::router::<AppState>())
         .nest("/v1/email/templates", email_templates)
         .nest("/v1/email/inbox", email_inbox)
         .nest("/v1/email/inbound", email_inbound)
@@ -844,6 +866,29 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/pagesense/heatmaps", sabsense_heatmaps_r)
         .nest("/v1/pagesense/recordings", sabsense_recordings_r)
         .nest("/v1/pagesense/sites", sabsense_sites_r)
+        .nest("/v1/sabsense/publishers", sabsense_publishers_r)
+        .nest("/v1/sabsense/apps", sabsense_apps_r)
+        .nest("/v1/sabsense/ad-units", sabsense_ad_units_r)
+        .nest("/v1/sabsense/placements", sabsense_placements_r)
+        .nest("/v1/sabsense/advertisers", sabsense_advertisers_r)
+        .nest("/v1/sabsense/campaigns", sabsense_campaigns_r)
+        .nest("/v1/sabsense/creatives", sabsense_creatives_r)
+        .nest("/v1/sabsense/targeting", sabsense_targeting_r)
+        .nest("/v1/sabsense/budgeting", sabsense_budgeting_r)
+        .nest("/v1/sabsense/payouts", sabsense_payouts_r)
+        .nest("/v1/sabsense/advertiser-billing", sabsense_advertiser_billing_r)
+        .nest("/v1/sabsense/revenue-share", sabsense_revenue_share_r)
+        .nest("/v1/sabsense/tax-forms", sabsense_tax_forms_r)
+        .nest("/v1/sabsense/bidding", sabsense_bidding_r)
+        .nest("/v1/sabsense/direct-deals", sabsense_direct_deals_r)
+        .nest("/v1/sabsense/floor-pricing", sabsense_floor_pricing_r)
+        .nest("/v1/sabsense/yield-mgmt", sabsense_yield_mgmt_r)
+        .nest("/v1/sabsense/native-ads", sabsense_native_ads_r)
+        .nest("/v1/sabsense/analytics", sabsense_analytics_r)
+        .nest("/v1/sabsense/fraud-detection", sabsense_fraud_detection_r)
+        .nest("/v1/sabsense/viewability", sabsense_viewability_r)
+        .nest("/v1/sabsense/consent-mgmt", sabsense_consent_mgmt_r)
+        .nest("/v1/sabsense/brand-safety", sabsense_brand_safety_r)
         .nest("/v1/sabshop/carts", sabshop_carts_r)
         .nest("/v1/sabshop/checkouts", sabshop_checkouts_r)
         .nest("/v1/sabshop/collections", sabshop_collections_r)

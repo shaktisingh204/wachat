@@ -90,11 +90,8 @@ pub async fn list_tables(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabtablesTable>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.find"))
         })?;
     let mut rows: Vec<SabtablesTable> = cursor.try_collect().await.map_err(|e| {
@@ -248,9 +245,7 @@ pub async fn update_table(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch")))?
         .ok_or_else(|| ApiError::NotFound("table".to_owned()))?;
     Ok(Json(after))
 }
@@ -317,9 +312,7 @@ pub async fn add_field(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch")))?
         .ok_or_else(|| ApiError::NotFound("table".to_owned()))?;
     Ok(Json(after))
 }
@@ -364,9 +357,7 @@ pub async fn update_field(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch")))?
         .ok_or_else(|| ApiError::NotFound("table".to_owned()))?;
     Ok(Json(after))
 }
@@ -398,9 +389,7 @@ pub async fn delete_field(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_tables.refetch")))?
         .ok_or_else(|| ApiError::NotFound("table".to_owned()))?;
     Ok(Json(after))
 }

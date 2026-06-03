@@ -206,7 +206,11 @@ async fn write_audit(
         "after": value_to_bson(&after),
         "createdAt": bson::DateTime::from_chrono(Utc::now()),
     };
-    if let Err(e) = mongo.collection::<Document>(AUDIT_COLL).insert_one(event).await {
+    if let Err(e) = mongo
+        .collection::<Document>(AUDIT_COLL)
+        .insert_one(event)
+        .await
+    {
         tracing::error!(error = %e, action = action, "failed to write sabchat audit row");
     }
 }
@@ -378,9 +382,7 @@ pub async fn get_inbox(
     let inbox = coll
         .find_one(doc! { "_id": inbox_oid, "tenantId": tenant_id })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("inbox not found".to_owned()))?;
 
     Ok(Json(InboxResponse {
@@ -452,9 +454,7 @@ pub async fn update_inbox(
         doc! { "$set": set_doc },
     )
     .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.update_one"))
-    })?;
+    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.update_one")))?;
 
     // ---- Re-read for the response + audit `after` snapshot ---------
     let after_doc = coll
@@ -614,9 +614,7 @@ pub async fn delete_inbox(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_inboxes.update_one(soft_delete)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.update_one(soft_delete)"))
     })?;
 
     let after_doc = coll
@@ -642,4 +640,3 @@ pub async fn delete_inbox(
 
     Ok(Json(SuccessResponse::ok()))
 }
-

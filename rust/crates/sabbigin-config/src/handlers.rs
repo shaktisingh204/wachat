@@ -67,7 +67,10 @@ fn config_from_create(
     let allowed_features = input
         .allowed_features
         .unwrap_or_else(SabbiginConfig::default_features);
-    let pipeline_limit = input.pipeline_limit.unwrap_or(DEFAULT_PIPELINE_LIMIT).max(1);
+    let pipeline_limit = input
+        .pipeline_limit
+        .unwrap_or(DEFAULT_PIPELINE_LIMIT)
+        .max(1);
 
     Ok(SabbiginConfig {
         id: None,
@@ -143,11 +146,8 @@ pub async fn list_configs(
         .build();
 
     let coll = mongo.collection::<SabbiginConfig>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabbigin_configs.find"))
         })?;
     let mut rows: Vec<SabbiginConfig> = cursor.try_collect().await.map_err(|e| {
@@ -229,8 +229,7 @@ pub async fn create_config(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -276,9 +275,7 @@ pub async fn update_config(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabbigin_configs.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbigin_configs.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sabbigin_config".to_owned()))?;
 
     if let Some(event) = audit_for_update(

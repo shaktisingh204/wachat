@@ -32,22 +32,34 @@ async fn ensure_geospatial_indexes(mongo: &MongoHandle) -> Result<()> {
     let models = vec![
         IndexModel::builder()
             .keys(doc! { "punchIn.location": "2dsphere" })
-            .options(IndexOptions::builder().name("crm_attendance_punchIn_geo".to_string()).build())
+            .options(
+                IndexOptions::builder()
+                    .name("crm_attendance_punchIn_geo".to_string())
+                    .build(),
+            )
             .build(),
         IndexModel::builder()
             .keys(doc! { "punchOut.location": "2dsphere" })
-            .options(IndexOptions::builder().name("crm_attendance_punchOut_geo".to_string()).build())
+            .options(
+                IndexOptions::builder()
+                    .name("crm_attendance_punchOut_geo".to_string())
+                    .build(),
+            )
             .build(),
     ];
     // Ignore error if it fails (e.g. if field exists and is not GeoJSON)
     let _ = attendance_coll.create_indexes(models).await;
-    
+
     // Branches
     let branches_coll = mongo.collection::<bson::Document>("crm_branches");
     let branch_models = vec![
         IndexModel::builder()
             .keys(doc! { "location": "2dsphere" })
-            .options(IndexOptions::builder().name("crm_branches_location_geo".to_string()).build())
+            .options(
+                IndexOptions::builder()
+                    .name("crm_branches_location_geo".to_string())
+                    .build(),
+            )
             .build(),
     ];
     let _ = branches_coll.create_indexes(branch_models).await;

@@ -24,9 +24,17 @@ pub struct EmployeeDocument {
     pub doc_type: String,
     /// SabFiles file id.
     pub file_id: ObjectId,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub issued: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry: Option<DateTime<Utc>>,
     #[serde(default)]
     pub verified: bool,
@@ -122,7 +130,11 @@ pub struct AssetAssignment {
     pub employee_id: ObjectId,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub assigned_from: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub assigned_to: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub return_condition: Option<AssetCondition>,

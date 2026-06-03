@@ -83,9 +83,8 @@ async fn load_project_with_membership(
     project_id_hex: &str,
 ) -> Result<Document> {
     let project_oid = oid_from_str(project_id_hex)?;
-    let user_oid = ObjectId::parse_str(&user.user_id).map_err(|_| {
-        ApiError::Unauthorized("subject is not a valid ObjectId".to_owned())
-    })?;
+    let user_oid = ObjectId::parse_str(&user.user_id)
+        .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))?;
 
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let filter = doc! {
@@ -99,9 +98,7 @@ async fn load_project_with_membership(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("projects.find_one")))?
         .ok_or_else(|| {
-            ApiError::NotFound(
-                "Project not found or you do not have permission.".to_owned(),
-            )
+            ApiError::NotFound("Project not found or you do not have permission.".to_owned())
         })
 }
 
@@ -114,9 +111,8 @@ async fn load_project_strict_owner(
     project_id_hex: &str,
 ) -> Result<Document> {
     let project_oid = oid_from_str(project_id_hex)?;
-    let user_oid = ObjectId::parse_str(&user.user_id).map_err(|_| {
-        ApiError::Unauthorized("subject is not a valid ObjectId".to_owned())
-    })?;
+    let user_oid = ObjectId::parse_str(&user.user_id)
+        .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))?;
 
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let project = coll
@@ -214,9 +210,10 @@ pub async fn add_contact(
         "updatedAt": now,
         "tagIds": Bson::Array(tag_oids.into_iter().map(Bson::ObjectId).collect()),
     };
-    contacts.insert_one(new_doc).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("contacts.insert_one"))
-    })?;
+    contacts
+        .insert_one(new_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.insert_one")))?;
 
     Ok(Json(AddContactResponse {
         message: format!("Contact \"{}\" added successfully.", body.name),
@@ -444,9 +441,8 @@ pub async fn import_contacts(
         }
     }
 
-    let message = format!(
-        "Import complete. {imported} contacts imported/updated. {skipped} rows skipped."
-    );
+    let message =
+        format!("Import complete. {imported} contacts imported/updated. {skipped} rows skipped.");
     Ok(Json(ImportContactsResponse {
         message,
         imported,
@@ -516,11 +512,7 @@ pub async fn update_contact_status(
         return Err(ApiError::Validation("Invalid data provided.".to_owned()));
     }
 
-    let assigned: Bson = match body
-        .assigned_agent_id
-        .as_deref()
-        .filter(|s| !s.is_empty())
-    {
+    let assigned: Bson = match body.assigned_agent_id.as_deref().filter(|s| !s.is_empty()) {
         Some(id) => Bson::ObjectId(oid_from_str(id)?),
         None => Bson::Null,
     };
@@ -619,9 +611,8 @@ pub async fn delete_contact(
     // both not-found and forbidden — we keep that message but render
     // the error as 403 (more accurate; the contact already proved the
     // project exists).
-    let user_oid = ObjectId::parse_str(&user.user_id).map_err(|_| {
-        ApiError::Unauthorized("subject is not a valid ObjectId".to_owned())
-    })?;
+    let user_oid = ObjectId::parse_str(&user.user_id)
+        .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))?;
     let projects = state.mongo.collection::<Document>(PROJECTS_COLL);
     let project = projects
         .find_one(doc! {

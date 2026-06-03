@@ -96,7 +96,11 @@ pub async fn issue_token(
         return Err(ApiError::NotFound("sabassist_session".to_owned()));
     }
 
-    let ttl_secs = input.ttl_secs.unwrap_or(DEFAULT_TTL_SECS).max(30).min(86_400);
+    let ttl_secs = input
+        .ttl_secs
+        .unwrap_or(DEFAULT_TTL_SECS)
+        .max(30)
+        .min(86_400);
     let now = Utc::now();
     let expires_at = now + Duration::seconds(ttl_secs as i64);
 
@@ -222,9 +226,7 @@ pub async fn redeem_token(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabassist_access_tokens.flip_used"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabassist_access_tokens.flip_used"))
         })?;
 
     // Look up the session to surface its mode.
@@ -233,14 +235,13 @@ pub async fn redeem_token(
         .find_one(doc! { "_id": row.session_id })
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.lookup_for_redeem"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabassist_sessions.lookup_for_redeem"),
+            )
         })?
         .ok_or_else(|| ApiError::NotFound("sabassist_session".to_owned()))?;
 
-    let mode = session
-        .get_str("mode")
-        .unwrap_or("attended")
-        .to_owned();
+    let mode = session.get_str("mode").unwrap_or("attended").to_owned();
 
     Ok(Json(RedeemTokenResponse {
         ok: true,

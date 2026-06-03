@@ -66,7 +66,10 @@ pub async fn fetch(
     );
     let resp: Value = meta.get_json(&path, token).await?;
 
-    let node = resp.get("template_analytics").cloned().unwrap_or(Value::Null);
+    let node = resp
+        .get("template_analytics")
+        .cloned()
+        .unwrap_or(Value::Null);
     let data_points = node
         .get("data")
         .and_then(|d| d.get("data_points"))

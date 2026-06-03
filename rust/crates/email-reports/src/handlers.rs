@@ -30,7 +30,10 @@ fn parse_oid(s: &str, label: &'static str) -> Result<ObjectId> {
 }
 
 fn doc_metrics(d: &Document) -> ReportMetrics {
-    let m = d.get_document("metrics").cloned().unwrap_or_else(|_| Document::new());
+    let m = d
+        .get_document("metrics")
+        .cloned()
+        .unwrap_or_else(|_| Document::new());
     ReportMetrics {
         sent: get_u64(&m, "sent"),
         delivered: get_u64(&m, "delivered"),
@@ -325,40 +328,39 @@ pub async fn export(
     let format = body.format.to_lowercase();
     if format == "pdf" {
         // PDF export deferred — return 501 so the client can branch.
-        return Ok(
-            (StatusCode::NOT_IMPLEMENTED, "pdf export not yet implemented").into_response(),
-        );
+        return Ok((
+            StatusCode::NOT_IMPLEMENTED,
+            "pdf export not yet implemented",
+        )
+            .into_response());
     }
     if format != "csv" {
-        return Err(ApiError::BadRequest(
-            "format must be csv or pdf".to_owned(),
-        ));
+        return Err(ApiError::BadRequest("format must be csv or pdf".to_owned()));
     }
 
     let tenant = tenant_oid(&user)?;
     let scope = body.scope.as_str();
-    let metrics = match scope {
-        "campaign" => {
-            let id = body
-                .scope_id
-                .as_deref()
-                .ok_or_else(|| ApiError::BadRequest("scopeId required for campaign".to_owned()))?;
-            let oid = parse_oid(id, "campaign")?;
-            live_aggregate(&state.mongo, doc! { "userId": tenant, "campaignId": oid }).await?
-        }
-        "journey" => {
-            let id = body
-                .scope_id
-                .as_deref()
-                .ok_or_else(|| ApiError::BadRequest("scopeId required for journey".to_owned()))?;
-            let oid = parse_oid(id, "journey")?;
-            live_aggregate(&state.mongo, doc! { "userId": tenant, "journeyId": oid }).await?
-        }
-        "account" => live_aggregate(&state.mongo, doc! { "userId": tenant }).await?,
-        other => {
-            return Err(ApiError::BadRequest(format!("unknown scope `{other}`")));
-        }
-    };
+    let metrics =
+        match scope {
+            "campaign" => {
+                let id = body.scope_id.as_deref().ok_or_else(|| {
+                    ApiError::BadRequest("scopeId required for campaign".to_owned())
+                })?;
+                let oid = parse_oid(id, "campaign")?;
+                live_aggregate(&state.mongo, doc! { "userId": tenant, "campaignId": oid }).await?
+            }
+            "journey" => {
+                let id = body.scope_id.as_deref().ok_or_else(|| {
+                    ApiError::BadRequest("scopeId required for journey".to_owned())
+                })?;
+                let oid = parse_oid(id, "journey")?;
+                live_aggregate(&state.mongo, doc! { "userId": tenant, "journeyId": oid }).await?
+            }
+            "account" => live_aggregate(&state.mongo, doc! { "userId": tenant }).await?,
+            other => {
+                return Err(ApiError::BadRequest(format!("unknown scope `{other}`")));
+            }
+        };
 
     let csv = format!(
         "metric,value\nsent,{}\ndelivered,{}\nopened,{}\nuniqueOpens,{}\nclicked,{}\nuniqueClicks,{}\nbounced,{}\ncomplained,{}\nunsubscribed,{}\n",
@@ -388,4 +390,3 @@ pub async fn export(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("csv response build")))?;
     Ok(resp)
 }
-

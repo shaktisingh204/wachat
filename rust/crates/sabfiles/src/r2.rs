@@ -24,12 +24,8 @@ use anyhow::{Context, Result};
 use aws_config::{BehaviorVersion, Region};
 use aws_credential_types::Credentials;
 use aws_sdk_s3::{
-    Client,
-    config::Builder as S3ConfigBuilder,
-    presigning::PresigningConfig,
-    primitives::ByteStream,
-    types::Delete as S3Delete,
-    types::ObjectIdentifier,
+    Client, config::Builder as S3ConfigBuilder, presigning::PresigningConfig,
+    primitives::ByteStream, types::Delete as S3Delete, types::ObjectIdentifier,
 };
 
 #[derive(Clone)]
@@ -121,16 +117,11 @@ impl R2Client {
         content_type: Option<&str>,
         expires_in: Option<Duration>,
     ) -> Result<String> {
-        let presigning_cfg = PresigningConfig::expires_in(
-            expires_in.unwrap_or(Duration::from_secs(900)),
-        )
-        .context("invalid presigning duration")?;
+        let presigning_cfg =
+            PresigningConfig::expires_in(expires_in.unwrap_or(Duration::from_secs(900)))
+                .context("invalid presigning duration")?;
 
-        let mut builder = self
-            .client
-            .put_object()
-            .bucket(&self.bucket)
-            .key(key);
+        let mut builder = self.client.put_object().bucket(&self.bucket).key(key);
         if let Some(ct) = content_type {
             builder = builder.content_type(ct);
         }
@@ -150,24 +141,16 @@ impl R2Client {
         expires_in: Option<Duration>,
         download_filename: Option<&str>,
     ) -> Result<String> {
-        let presigning_cfg = PresigningConfig::expires_in(
-            expires_in.unwrap_or(Duration::from_secs(3600)),
-        )
-        .context("invalid presigning duration")?;
+        let presigning_cfg =
+            PresigningConfig::expires_in(expires_in.unwrap_or(Duration::from_secs(3600)))
+                .context("invalid presigning duration")?;
 
-        let mut builder = self
-            .client
-            .get_object()
-            .bucket(&self.bucket)
-            .key(key);
+        let mut builder = self.client.get_object().bucket(&self.bucket).key(key);
         if let Some(name) = download_filename {
             // Force "download" via response-content-disposition.
             let safe = name.replace('"', "");
-            builder = builder
-                .response_content_disposition(format!(
-                    "attachment; filename=\"{}\"",
-                    safe
-                ));
+            builder =
+                builder.response_content_disposition(format!("attachment; filename=\"{}\"", safe));
         }
 
         let presigned = builder
@@ -196,10 +179,7 @@ impl R2Client {
             builder = builder.content_type(ct);
         }
 
-        builder
-            .send()
-            .await
-            .context("R2 put_object failed")?;
+        builder.send().await.context("R2 put_object failed")?;
         Ok(())
     }
 
@@ -259,7 +239,11 @@ pub fn build_file_key(user_id: &str, file_name: &str) -> String {
         .chars()
         .take(120)
         .collect();
-    let safe = if safe.is_empty() { "file".to_owned() } else { safe };
+    let safe = if safe.is_empty() {
+        "file".to_owned()
+    } else {
+        safe
+    };
     let now = chrono::Utc::now();
     let rand_bytes: [u8; 8] = rand::thread_rng().r#gen();
     format!(

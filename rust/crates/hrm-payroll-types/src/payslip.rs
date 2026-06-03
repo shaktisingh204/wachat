@@ -68,7 +68,11 @@ pub struct PayslipEmployee {
     pub department: Option<String>,
     /// Public-facing employee code (e.g. "EMP-0042").
     pub employment_id: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub joining_date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub pan: Option<String>,
@@ -184,7 +188,11 @@ pub struct Payslip {
     pub locked: bool,
     #[serde(default, skip_serializing_if = "is_false")]
     pub sent: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sent_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub downloaded_log: Vec<DownloadedEntry>,

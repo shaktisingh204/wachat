@@ -20,5 +20,5 @@ pub mod handlers;
 pub mod router;
 pub mod types;
 
-pub use router::router;
 pub use compute::profile_rows;
+pub use router::router;

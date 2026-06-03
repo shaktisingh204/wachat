@@ -1,18 +1,15 @@
-//! # sabsign-audit
-//!
-//! Append-only audit log for SabSign envelopes. Each event is hash-chained
-//! against its JSON payload so any tampering is detectable. Writes are
-//! performed inline by `sabsign-envelopes`; this crate exposes only the
-//! read surface used by the UI + audit-trail PDF generator.
-//!
-//! Event kinds: `envelope_created`, `envelope_sent`, `envelope_updated`,
-//! `envelope_voided`, `envelope_completed`, `signer_notified`,
-//! `signer_viewed`, `signer_completed`, `signer_declined`,
-//! `field_filled`.
-
-pub mod dto;
 pub mod handlers;
-pub mod router;
-pub mod types;
+pub mod mock_db;
+pub mod models;
+pub mod routes;
 
-pub use router::router;
+pub use mock_db::AppState;
+pub use routes::create_router;
+
+pub async fn run() {
+    let state = AppState::new();
+    let app = create_router(state);
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+}

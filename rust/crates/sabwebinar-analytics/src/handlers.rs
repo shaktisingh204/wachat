@@ -68,7 +68,9 @@ pub async fn get_analytics(
     let owned = webinars
         .find_one(doc! { "_id": webinar_oid, "userId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.owncheck")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.owncheck"))
+        })?;
     if owned.is_none() {
         return Err(ApiError::NotFound("webinar".to_owned()));
     }
@@ -77,10 +79,9 @@ pub async fn get_analytics(
 
     // Registrations: count, attended (joined_at present), avg watch, by source.
     let regs = mongo.collection::<RegistrationLite>(REGISTRATIONS);
-    let cursor = regs
-        .find(scope.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.regs")))?;
+    let cursor = regs.find(scope.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.regs"))
+    })?;
     let reg_rows: Vec<RegistrationLite> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.regs.collect"))
     })?;
@@ -113,10 +114,9 @@ pub async fn get_analytics(
 
     // Sessions — peak concurrent.
     let sessions = mongo.collection::<SessionLite>(SESSIONS);
-    let cursor = sessions
-        .find(scope.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.sessions")))?;
+    let cursor = sessions.find(scope.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.sessions"))
+    })?;
     let session_rows: Vec<SessionLite> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.sessions.collect"))
     })?;
@@ -128,10 +128,9 @@ pub async fn get_analytics(
 
     // Polls — sum of vote counts across all polls/options.
     let polls = mongo.collection::<PollLite>(POLLS);
-    let cursor = polls
-        .find(scope.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.polls")))?;
+    let cursor = polls.find(scope.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.polls"))
+    })?;
     let poll_rows: Vec<PollLite> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.polls.collect"))
     })?;
@@ -143,11 +142,9 @@ pub async fn get_analytics(
 
     // QnA — count.
     let qna = mongo.collection::<Document>(QNA);
-    let qna_count = qna
-        .count_documents(scope.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.qna")))?
-        as u32;
+    let qna_count = qna.count_documents(scope.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_analytics.qna"))
+    })? as u32;
 
     let conversion_rate = if registered_count > 0 {
         attended_count as f64 / registered_count as f64

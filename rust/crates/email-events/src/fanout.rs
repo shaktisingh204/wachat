@@ -117,4 +117,3 @@ fn doc_to_record(d: &Document, tenant_id: &str) -> Option<WebhookConfigRecord> {
         active,
     })
 }
-

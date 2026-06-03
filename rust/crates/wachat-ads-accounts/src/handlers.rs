@@ -32,8 +32,7 @@ use serde_json::Value;
 use wachat_meta_client::{MetaClient, MetaError};
 
 use crate::dto::{
-    ActivitiesQuery, AdAccountsResp, DataResp, DeleteAdAccountResp, ListResp, PagesResp,
-    SpendQuery,
+    ActivitiesQuery, AdAccountsResp, DataResp, DeleteAdAccountResp, ListResp, PagesResp, SpendQuery,
 };
 use crate::state::WachatAdsAccountsState;
 
@@ -198,7 +197,7 @@ pub async fn sync_ad_accounts(
             let accounts = pull_data_array(&v);
             let user_oid = u.id;
             let coll = s.mongo.collection::<Document>(USERS_COLLECTION);
-            
+
             let mut bson_accounts = Vec::new();
             for acc in &accounts {
                 let id = acc.get("id").and_then(|v| v.as_str());
@@ -212,21 +211,21 @@ pub async fn sync_ad_accounts(
                     }));
                 }
             }
-            
+
             let res = coll
                 .update_one(
                     doc! { "_id": user_oid },
                     doc! { "$set": { "metaAdAccounts": bson::Bson::Array(bson_accounts) } },
                 )
                 .await;
-                
+
             if let Err(e) = res {
                 return Json(AdAccountsResp {
                     accounts,
                     error: Some(format!("Failed to sync ad accounts: {}", e)),
                 });
             }
-            
+
             Json(AdAccountsResp {
                 accounts,
                 ..Default::default()
@@ -455,8 +454,7 @@ pub async fn get_ad_account_spend(
         }
     };
 
-    let fields =
-        "amount_spent,balance,currency,funding_source_details,min_daily_budget,spend_cap";
+    let fields = "amount_spent,balance,currency,funding_source_details,min_daily_budget,spend_cap";
     let path = format!(
         "{}?fields={}",
         with_act_prefix(&ad_account_id),
@@ -637,7 +635,8 @@ pub async fn list_extended_credits(
         }
     };
 
-    let fields = "id,credit_type,credit_available,credit_used,legal_entity_name,max_balance,owner_business";
+    let fields =
+        "id,credit_type,credit_available,credit_used,legal_entity_name,max_balance,owner_business";
     let path = format!(
         "{business_id}/extendedcredits?fields={}",
         urlencoding::encode(fields)
@@ -801,7 +800,11 @@ pub async fn get_facebook_pages_for_ad_creation(
             // The TS code surfaces top-level Graph errors via `throw`.
             // `MetaClient` already does that for HTTP-level errors, but
             // mirror the explicit `data.error.message` check just in case.
-            if let Some(err) = v.get("error").and_then(|e| e.get("message")).and_then(|m| m.as_str()) {
+            if let Some(err) = v
+                .get("error")
+                .and_then(|e| e.get("message"))
+                .and_then(|m| m.as_str())
+            {
                 return Json(PagesResp {
                     error: Some(err.to_owned()),
                     ..Default::default()
@@ -912,4 +915,3 @@ pub async fn get_instagram_business_account(
         }),
     }
 }
-

@@ -45,13 +45,15 @@ pub async fn list_domains(
             filter.insert("$or", arr.clone());
         }
     }
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).limit(200).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .limit(200)
+        .build();
     let coll = mongo.collection::<SabopsAdDomain>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_domains.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_domains.find"))
+        })?;
     let rows: Vec<SabopsAdDomain> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_domains.collect"))
     })?;

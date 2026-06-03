@@ -13,7 +13,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Send, ArrowLeft } from 'lucide-react';
+import { Save, Send, ArrowLeft, Settings2 } from 'lucide-react';
 
 import {
   Button,
@@ -21,6 +21,11 @@ import {
   Input,
   Label,
   Textarea,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Switch
 } from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import type { SabFilePick } from '@/components/sabfiles';
@@ -51,6 +56,12 @@ export default function NewEnvelopePage() {
   const [routingRules, setRoutingRules] = React.useState<RoutingRule[]>([]);
   const [saving, setSaving] = React.useState(false);
 
+  // Advanced Options state
+  const [remindersEnabled, setRemindersEnabled] = React.useState(false);
+  const [reminderDays, setReminderDays] = React.useState(3);
+  const [expireEnabled, setExpireEnabled] = React.useState(false);
+  const [expireDays, setExpireDays] = React.useState(30);
+
   const roles = React.useMemo(
     () => Array.from(new Set(signers.map((s) => s.role).filter(Boolean))),
     [signers],
@@ -77,7 +88,12 @@ export default function NewEnvelopePage() {
         routingRules,
         signers,
         fields,
-      });
+        // Hypothetical new Rust backend params for the advanced settings:
+        remindersEnabled,
+        reminderDays,
+        expireEnabled,
+        expireDays,
+      } as any); // Cast as any temporarily until Rust Client is updated
       if (alsoSend) {
         await sendEnvelope(res.id);
       }
@@ -147,8 +163,45 @@ export default function NewEnvelopePage() {
         </div>
       </Card>
 
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="advanced" className="border border-zoru-line rounded-xl bg-white px-4">
+          <AccordionTrigger className="py-3 hover:no-underline text-sm font-medium text-zoru-ink">
+            <div className="flex items-center gap-2">
+              <Settings2 className="w-4 h-4 text-zoru-ink-muted" />
+              Advanced Settings (Reminders & Expirations)
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t border-zoru-line">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Send automatic reminders</Label>
+                  <Switch checked={remindersEnabled} onCheckedChange={setRemindersEnabled} />
+                </div>
+                {remindersEnabled && (
+                  <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    Remind every <Input type="number" className="w-20 inline-flex" value={reminderDays} onChange={(e)=>setReminderDays(parseInt(e.target.value))} /> days
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Envelope expiration</Label>
+                  <Switch checked={expireEnabled} onCheckedChange={setExpireEnabled} />
+                </div>
+                {expireEnabled && (
+                  <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    Void after <Input type="number" className="w-20 inline-flex" value={expireDays} onChange={(e)=>setExpireDays(parseInt(e.target.value))} /> days
+                  </div>
+                )}
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
       <Card className="p-4 border border-zoru-line">
-        <h3 className="text-sm font-medium text-zoru-ink mb-3">Signers</h3>
+        <h3 className="text-sm font-medium text-zoru-ink mb-3">Signers & Recipients</h3>
         <SignersEditor
           signers={signers}
           routingOrder={routingOrder}
@@ -186,3 +239,4 @@ export default function NewEnvelopePage() {
     </div>
   );
 }
+

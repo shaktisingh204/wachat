@@ -41,10 +41,16 @@ pub struct ListQuery {
     #[serde(default)]
     pub employee_id: Option<String>,
     /// Inclusive lower bound on `date`. ISO-8601 datetime.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub date_from: Option<DateTime<Utc>>,
     /// Inclusive upper bound on `date`. ISO-8601 datetime.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub date_to: Option<DateTime<Utc>>,
     /// Filter to a single attendance verdict (e.g. `"absent"`,
     /// `"half_day"`). Wire format must match the snake_case
@@ -131,7 +137,11 @@ pub struct CreateAttendanceInput {
 #[derive(Debug, Clone, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateAttendanceInput {
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub employee_id: Option<String>,
@@ -209,7 +219,10 @@ pub struct PunchInput {
     pub employee_id: String,
 
     /// Optional override of the punch instant. Defaults to `Utc::now()`.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub lat: Option<f64>,

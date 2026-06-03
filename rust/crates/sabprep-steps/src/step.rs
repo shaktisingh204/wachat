@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::ops::{
-    AggregateOp, DeriveOp, FillNullsOp, FilterOp, JoinOp, PivotOp, RenameOp,
-    ReplaceOp, SplitOp, TypeCastOp, UnionOp, UnpivotOp, DeduplicateOp,
+    AggregateOp, DeduplicateOp, DeriveOp, FillNullsOp, FilterOp, JoinOp, PivotOp, RenameOp,
+    ReplaceOp, SplitOp, TypeCastOp, UnionOp, UnpivotOp,
 };
 
 /// A single tabular row. Column → JSON scalar (or array/object). The engine

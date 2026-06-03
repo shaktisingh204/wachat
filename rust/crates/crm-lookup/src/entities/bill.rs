@@ -22,7 +22,11 @@ fn to_chip(d: &Document) -> LookupChip {
         .get_str("billNumber")
         .ok()
         .filter(|s| !s.is_empty())
-        .or_else(|| d.get_str("vendorInvoiceNumber").ok().filter(|s| !s.is_empty()))
+        .or_else(|| {
+            d.get_str("vendorInvoiceNumber")
+                .ok()
+                .filter(|s| !s.is_empty())
+        })
         .unwrap_or("(no number)")
         .to_owned();
     let secondary = d.get_f64("total").ok().map(|t| {

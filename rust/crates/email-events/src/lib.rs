@@ -76,10 +76,7 @@ where
             "/providers/sendgrid/{token}",
             post(handlers::ingest_sendgrid),
         )
-        .route(
-            "/providers/mailgun/{token}",
-            post(handlers::ingest_mailgun),
-        )
+        .route("/providers/mailgun/{token}", post(handlers::ingest_mailgun))
         .route("/providers/ses/{token}", post(handlers::ingest_ses))
         .route(
             "/providers/postmark/{token}",

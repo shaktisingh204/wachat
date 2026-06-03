@@ -116,7 +116,11 @@ pub async fn check_claim_rate_with_client(
 
     let cap = match plan_cap(plan) {
         // Unlimited plan — short-circuit without a Redis round-trip.
-        None => return Ok(RateCheck::Allowed { remaining: u32::MAX }),
+        None => {
+            return Ok(RateCheck::Allowed {
+                remaining: u32::MAX,
+            });
+        }
         Some(c) => c,
     };
 
@@ -260,6 +264,11 @@ mod tests {
     #[test]
     fn rate_check_is_allowed_helper() {
         assert!(RateCheck::Allowed { remaining: 3 }.is_allowed());
-        assert!(!RateCheck::Denied { retry_after_ms: 100 }.is_allowed());
+        assert!(
+            !RateCheck::Denied {
+                retry_after_ms: 100
+            }
+            .is_allowed()
+        );
     }
 }

@@ -193,12 +193,7 @@ fn default_version() -> u32 {
 impl NodeDescriptor {
     /// Construct a trigger descriptor. `event` is the canonical event
     /// name SabFlow's executor binds against.
-    pub fn trigger(
-        name: &str,
-        display_name: &str,
-        description: &str,
-        event: &str,
-    ) -> Self {
+    pub fn trigger(name: &str, display_name: &str, description: &str, event: &str) -> Self {
         Self {
             name: name.to_owned(),
             display_name: display_name.to_owned(),
@@ -364,10 +359,7 @@ pub struct ActionAck {
 
 impl ActionAck {
     pub fn ok() -> Self {
-        Self {
-            ok: true,
-            id: None,
-        }
+        Self { ok: true, id: None }
     }
     pub fn with_id(id: String) -> Self {
         Self {
@@ -408,10 +400,7 @@ mod tests {
         let v = serde_json::to_value(&d).unwrap();
         assert_eq!(v["category"], "action");
         assert_eq!(v["actionMethod"], "POST");
-        assert_eq!(
-            v["actionPath"],
-            "/v1/sabchat/sabflow/actions/send-message",
-        );
+        assert_eq!(v["actionPath"], "/v1/sabchat/sabflow/actions/send-message",);
         assert!(v.get("event").is_none());
     }
 

@@ -2,7 +2,7 @@
 name = "sabsprints-sprints"
 version = "0.1.0"
 edition = "2024"
-description = "SabSprints Sprint entity. Time-boxed iteration with goal, dates, capacity, status."
+description = "SabCheckout \u2014 sprint CRUD."
 license = "UNLICENSED"
 publish = false
 
@@ -26,7 +26,6 @@ crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
-sabnode-rbac = { path = "../rbac" }
 
 [lints]
 workspace = true

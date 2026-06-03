@@ -132,10 +132,7 @@ async fn drain_dlq(
             ok: true,
             pending,
             modified: result.modified_count,
-            message: format!(
-                "Cleaned up {} stale webhook logs.",
-                result.modified_count
-            ),
+            message: format!("Cleaned up {} stale webhook logs.", result.modified_count),
         }),
     )
         .into_response())
@@ -151,9 +148,7 @@ async fn drain_dlq(
 fn check_cron_secret(headers: &HeaderMap) -> Result<(), ApiError> {
     let configured = std::env::var(CRON_SECRET_ENV).unwrap_or_default();
     if configured.is_empty() {
-        warn!(
-            "{CRON_SECRET_ENV} unset; refusing to authorize cron drain request"
-        );
+        warn!("{CRON_SECRET_ENV} unset; refusing to authorize cron drain request");
         // Use Internal rather than Unauthorized so the 5xx flags an ops issue
         // (env not configured) distinct from a 4xx client mistake.
         return Err(ApiError::Internal(anyhow::anyhow!(
@@ -174,9 +169,7 @@ fn check_cron_secret(headers: &HeaderMap) -> Result<(), ApiError> {
         });
 
     let Some(presented) = presented else {
-        return Err(ApiError::Unauthorized(
-            "missing cron secret".to_owned(),
-        ));
+        return Err(ApiError::Unauthorized("missing cron secret".to_owned()));
     };
 
     if !constant_time_eq(presented.as_bytes(), configured.as_bytes()) {

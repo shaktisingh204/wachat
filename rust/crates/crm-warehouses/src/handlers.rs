@@ -198,14 +198,14 @@ pub async fn list_warehouses(
         .build();
 
     let coll = mongo.collection::<CrmWarehouse>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.find"))
+        })?;
+    let mut rows: Vec<CrmWarehouse> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.find")))?;
-    let mut rows: Vec<CrmWarehouse> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_warehouses.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -260,8 +260,7 @@ pub async fn create_warehouse(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

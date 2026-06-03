@@ -28,11 +28,7 @@ use crate::types::CrmPurchase;
 const COLL: &str = "crm_purchases";
 const ENTITY_KIND: &str = "purchase";
 
-fn list_filter(
-    user_id: ObjectId,
-    status: Option<&str>,
-    vendor_id: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, status: Option<&str>, vendor_id: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active_visible") {
         "all" => {}
@@ -66,10 +62,7 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn purchase_from_create(
-    input: CreatePurchaseInput,
-    user_id: ObjectId,
-) -> Result<CrmPurchase> {
+fn purchase_from_create(input: CreatePurchaseInput, user_id: ObjectId) -> Result<CrmPurchase> {
     let number = input.purchase_number.trim();
     if number.is_empty() {
         return Err(ApiError::Validation(
@@ -215,9 +208,7 @@ pub async fn get_purchase(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.find_one")))?
         .ok_or_else(|| ApiError::NotFound("purchase".to_owned()))?;
     Ok(Json(row))
 }
@@ -240,8 +231,7 @@ pub async fn create_purchase(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -264,9 +254,7 @@ pub async fn update_purchase(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.find_one")))?
         .ok_or_else(|| ApiError::NotFound("purchase".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
@@ -279,9 +267,7 @@ pub async fn update_purchase(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.refetch")))?
         .ok_or_else(|| ApiError::NotFound("purchase".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -313,9 +299,7 @@ pub async fn delete_purchase(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_purchases.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("purchase".to_owned()));
     }

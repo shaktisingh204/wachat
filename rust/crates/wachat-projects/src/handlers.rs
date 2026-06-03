@@ -38,11 +38,13 @@ pub async fn list_projects(
         ],
     };
 
-    if let Some(q) = filters.query.as_deref().map(str::trim).filter(|s: &&str| !s.is_empty()) {
-        filter.insert(
-            "name",
-            doc! { "$regex": q, "$options": "i" },
-        );
+    if let Some(q) = filters
+        .query
+        .as_deref()
+        .map(str::trim)
+        .filter(|s: &&str| !s.is_empty())
+    {
+        filter.insert("name", doc! { "$regex": q, "$options": "i" });
     }
 
     match filters.kind.as_deref() {

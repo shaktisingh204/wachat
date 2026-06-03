@@ -52,7 +52,11 @@ pub struct AutoFetchConfig {
     pub provider: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub credentials_ref: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_synced_at: Option<DateTime<Utc>>,
 }
 

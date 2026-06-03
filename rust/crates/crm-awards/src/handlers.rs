@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateProgramInput, CreateProgramResponse, DeleteProgramResponse, ListQuery,
-    UpdateProgramInput,
+    CreateProgramInput, CreateProgramResponse, DeleteProgramResponse, ListQuery, UpdateProgramInput,
 };
 use crate::types::CrmAwardProgram;
 
@@ -66,7 +65,9 @@ fn program_from_create(input: CreateProgramInput, user_id: ObjectId) -> Result<C
         id: None,
         user_id,
         name: input.name.trim().to_owned(),
-        program_type: input.program_type.unwrap_or_else(|| "recognition".to_owned()),
+        program_type: input
+            .program_type
+            .unwrap_or_else(|| "recognition".to_owned()),
         frequency: input.frequency.unwrap_or_else(|| "monthly".to_owned()),
         period_start: input.period_start.as_deref().and_then(parse_date),
         period_end: input.period_end.as_deref().and_then(parse_date),
@@ -220,8 +221,7 @@ pub async fn create_program(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

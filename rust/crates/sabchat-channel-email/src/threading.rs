@@ -71,9 +71,7 @@ pub(crate) async fn find_thread_conv_id(
         })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_messages.find_one(thread)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.find_one(thread)"))
         })?;
 
     Ok(hit.and_then(|d| d.get_object_id("conversationId").ok()))

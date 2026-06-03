@@ -181,7 +181,10 @@ mod tests {
         assert!(json.get("audit").is_none(), "audit must not nest");
 
         // Entity fields camelCased.
-        assert_eq!(json.get("name").and_then(|v| v.as_str()), Some("Mumbai Central"));
+        assert_eq!(
+            json.get("name").and_then(|v| v.as_str()),
+            Some("Mumbai Central")
+        );
         assert_eq!(json.get("code").and_then(|v| v.as_str()), Some("MUM-CEN"));
         assert!(json.get("managerId").is_some());
         assert!(json.get("managerPhone").is_some());
@@ -189,7 +192,10 @@ mod tests {
             json.get("climateControlled").and_then(|v| v.as_bool()),
             Some(true),
         );
-        assert!(json.get("defaultForProject").is_none(), "false bool skipped");
+        assert!(
+            json.get("defaultForProject").is_none(),
+            "false bool skipped"
+        );
 
         // Enum serialization: snake_case multi-word variant.
         assert_eq!(

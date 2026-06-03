@@ -31,10 +31,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn referral_from_create(
-    input: CreateReferralInput,
-    user_id: ObjectId,
-) -> Result<RewardsReferral> {
+fn referral_from_create(input: CreateReferralInput, user_id: ObjectId) -> Result<RewardsReferral> {
     let code = input.code.trim().to_string();
     if code.is_empty() {
         return Err(ApiError::Validation("code is required".to_owned()));
@@ -99,13 +96,9 @@ pub async fn list_referrals(
         .build();
 
     let coll = mongo.collection::<RewardsReferral>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabrewards_referrals.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabrewards_referrals.find"))
+    })?;
     let mut rows: Vec<RewardsReferral> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabrewards_referrals.collect"))
     })?;
@@ -159,8 +152,7 @@ pub async fn create_referral(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -57,14 +57,11 @@ pub async fn load_project_for(
         return Err(ApiError::Forbidden("not your project".to_owned()));
     }
 
-    let access_token = doc
-        .get_str("accessToken")
-        .map(str::to_owned)
-        .map_err(|_| {
-            ApiError::BadRequest(
-                "Project not found or is missing Facebook Page ID or access token.".to_owned(),
-            )
-        })?;
+    let access_token = doc.get_str("accessToken").map(str::to_owned).map_err(|_| {
+        ApiError::BadRequest(
+            "Project not found or is missing Facebook Page ID or access token.".to_owned(),
+        )
+    })?;
     let facebook_page_id = doc
         .get_str("facebookPageId")
         .map(str::to_owned)
@@ -88,5 +85,7 @@ pub async fn load_token_for(
     mongo: &MongoHandle,
     project_id_hex: &str,
 ) -> Result<String> {
-    Ok(load_project_for(user, mongo, project_id_hex).await?.access_token)
+    Ok(load_project_for(user, mongo, project_id_hex)
+        .await?
+        .access_token)
 }

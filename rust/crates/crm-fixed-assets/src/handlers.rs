@@ -93,9 +93,7 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
 /// offending field.
 fn parse_enum<T: serde::de::DeserializeOwned>(field: &str, raw: &str) -> Result<T> {
     serde_json::from_value::<T>(serde_json::Value::String(raw.to_owned())).map_err(|_| {
-        ApiError::Validation(format!(
-            "{field} value '{raw}' is not a recognised variant"
-        ))
+        ApiError::Validation(format!("{field} value '{raw}' is not a recognised variant"))
     })
 }
 
@@ -269,11 +267,8 @@ pub async fn list_assets(
         .build();
 
     let coll = mongo.collection::<FixedAsset>(FIXED_ASSETS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_fixed_assets.find"))
         })?;
     let assets: Vec<FixedAsset> = cursor.try_collect().await.map_err(|e| {
@@ -661,14 +656,9 @@ pub async fn depreciate_asset(
     };
 
     let coll = mongo.collection::<Document>(FIXED_ASSETS_COLL);
-    let res = coll
-        .update_one(filter.clone(), update)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_fixed_assets.depreciate_update"),
-            )
-        })?;
+    let res = coll.update_one(filter.clone(), update).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_fixed_assets.depreciate_update"))
+    })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("fixed_asset".to_owned()));
     }
@@ -825,8 +815,7 @@ mod tests {
 
     #[test]
     fn units_method_is_rejected() {
-        let err =
-            compute_depreciation(DepreciationMethod::Units, 1_000.0, 0.0, 12, 6).unwrap_err();
+        let err = compute_depreciation(DepreciationMethod::Units, 1_000.0, 0.0, 12, 6).unwrap_err();
         assert!(matches!(err, ApiError::Validation(_)));
     }
 

@@ -1,5 +1,4 @@
-//! Mountable router. Mount under `/v1/pagesense/sites` from the host
-//! `api` crate.
+//! Mountable router. Mount under `/v1/sabcheckout/sites`.
 
 use std::sync::Arc;
 
@@ -22,12 +21,5 @@ where
             get(handlers::get_site)
                 .patch(handlers::update_site)
                 .delete(handlers::delete_site),
-        )
-        // Public lookup keyed by snippet key. Mounted as a subroute on
-        // the same prefix; the host `api` crate is responsible for
-        // excluding it from auth middleware if needed.
-        .route(
-            "/by-snippet-key/{snippetKey}",
-            get(handlers::lookup_by_snippet_key),
         )
 }

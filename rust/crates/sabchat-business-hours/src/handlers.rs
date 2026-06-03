@@ -163,8 +163,7 @@ async fn load_calendar_scoped(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("sabchat_business_hours_calendars.find_one(scoped)"),
+                anyhow::Error::new(e).context("sabchat_business_hours_calendars.find_one(scoped)"),
             )
         })?
         .ok_or_else(|| ApiError::NotFound("Calendar not found.".to_owned()))
@@ -175,10 +174,7 @@ async fn load_calendar_scoped(
 /// missing / extra fields: anything unparseable downgrades to a sane
 /// default rather than erroring out.
 fn extract_calendar_inputs(doc: &Document) -> (String, Vec<CalendarWindow>, Vec<String>) {
-    let timezone = doc
-        .get_str("timezone")
-        .unwrap_or("UTC")
-        .to_owned();
+    let timezone = doc.get_str("timezone").unwrap_or("UTC").to_owned();
 
     let mut windows: Vec<CalendarWindow> = Vec::new();
     if let Ok(arr) = doc.get_array("windows") {
@@ -619,30 +615,30 @@ pub async fn evaluate_inbox(
     };
 
     // ---- 2. Resolve calendar vs. inline `businessHours` -------------------
-    let (tz_str, windows, mut holidays) =
-        if let Some(calendar_oid) = calendar_id_from_inbox(&inbox) {
-            let calendars = mongo.collection::<Document>(CALENDARS_COLL);
-            match calendars
-                .find_one(doc! { "_id": calendar_oid, "tenantId": tenant })
-                .await
-                .map_err(|e| {
-                    anyhow::Error::new(e).context("sabchat_business_hours_calendars.find_one")
-                })? {
-                Some(cal_doc) => extract_calendar_inputs(&cal_doc),
-                None => {
-                    // Dangling pointer — fall back to inline business hours.
-                    match extract_inline_business_hours(&inbox) {
-                        Some(bundle) => bundle,
-                        None => return Ok(None),
-                    }
+    let (tz_str, windows, mut holidays) = if let Some(calendar_oid) = calendar_id_from_inbox(&inbox)
+    {
+        let calendars = mongo.collection::<Document>(CALENDARS_COLL);
+        match calendars
+            .find_one(doc! { "_id": calendar_oid, "tenantId": tenant })
+            .await
+            .map_err(|e| {
+                anyhow::Error::new(e).context("sabchat_business_hours_calendars.find_one")
+            })? {
+            Some(cal_doc) => extract_calendar_inputs(&cal_doc),
+            None => {
+                // Dangling pointer — fall back to inline business hours.
+                match extract_inline_business_hours(&inbox) {
+                    Some(bundle) => bundle,
+                    None => return Ok(None),
                 }
             }
-        } else {
-            match extract_inline_business_hours(&inbox) {
-                Some(bundle) => bundle,
-                None => return Ok(None),
-            }
-        };
+        }
+    } else {
+        match extract_inline_business_hours(&inbox) {
+            Some(bundle) => bundle,
+            None => return Ok(None),
+        }
+    };
 
     let zone: Tz = tz_str.parse::<Tz>().unwrap_or(chrono_tz::UTC);
 

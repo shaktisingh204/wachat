@@ -207,8 +207,7 @@ impl ControlJobHandler {
             .await
             {
                 Ok(Some(uploaded)) => {
-                    working_broadcast
-                        .insert("headerMediaId", Bson::String(uploaded.id.clone()));
+                    working_broadcast.insert("headerMediaId", Bson::String(uploaded.id.clone()));
                     working_broadcast
                         .insert("headerMediaType", Bson::String(uploaded.media_type.clone()));
                     log_event(
@@ -292,10 +291,7 @@ impl ControlJobHandler {
             last_id_opt = Some(id);
 
             if buf.len() >= self.cfg.batch_size {
-                let batch = std::mem::replace(
-                    &mut buf,
-                    Vec::with_capacity(self.cfg.batch_size),
-                );
+                let batch = std::mem::replace(&mut buf, Vec::with_capacity(self.cfg.batch_size));
                 self.enqueue_batch(&broadcast_id, &batch, 0)
                     .await
                     .context("enqueue_batch")?;
@@ -369,10 +365,7 @@ impl ControlJobHandler {
             final_set.insert("lastEnqueuedContactId", last);
         }
         let _ = broadcasts
-            .update_one(
-                doc! { "_id": broadcast_id },
-                doc! { "$set": final_set },
-            )
+            .update_one(doc! { "_id": broadcast_id }, doc! { "$set": final_set })
             .await;
 
         log_event(

@@ -155,17 +155,13 @@ pub async fn list_pages(
         .build();
 
     let coll = mongo.collection::<SabcheckoutPage>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.find")))?;
-    let mut rows: Vec<SabcheckoutPage> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.collect"))
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.find"))
         })?;
+    let mut rows: Vec<SabcheckoutPage> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.collect"))
+    })?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -207,12 +203,9 @@ pub async fn create_page(
     let user_id = user_oid(&user)?;
     let mut entity = page_from_create(input, user_id)?;
     let coll = mongo.collection::<SabcheckoutPage>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_pages.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -295,10 +288,7 @@ pub async fn public_get_by_slug(
         })?
         .ok_or_else(|| ApiError::NotFound("sabcheckout_page".to_owned()))?;
 
-    let id = row
-        .id
-        .map(|o| o.to_hex())
-        .unwrap_or_default();
+    let id = row.id.map(|o| o.to_hex()).unwrap_or_default();
     let user_id = row.user_id.to_hex();
     Ok(Json(PublicPageView {
         id,

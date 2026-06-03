@@ -40,16 +40,16 @@ pub use inbox::{
     EmailInboxThreadStatus,
 };
 pub use journey::{
-    EmailJourney, EmailJourneyEdge, EmailJourneyNode, EmailJourneyRun, EmailJourneyStatus,
-    EmailJourneyTriggerKind, EmailJourneyNodeType,
+    EmailJourney, EmailJourneyEdge, EmailJourneyNode, EmailJourneyNodeType, EmailJourneyRun,
+    EmailJourneyStatus, EmailJourneyTriggerKind,
 };
-pub use reports::{
-    EmailReportBucket, EmailReportMetrics, EmailReportScope, EmailReportsCache,
+pub use reports::{EmailReportBucket, EmailReportMetrics, EmailReportScope, EmailReportsCache};
+pub use segment::{
+    EmailFilterGroup, EmailFilterLeaf, EmailFilterOp, EmailFilterTree, EmailSegment,
 };
-pub use segment::{EmailFilterGroup, EmailFilterLeaf, EmailFilterOp, EmailFilterTree, EmailSegment};
 pub use settings::EmailSenderProvider;
 pub use template::{
-    EmailBuilderBlock, EmailBuilderDocument, EmailBuilderBlockType, EmailTemplate,
+    EmailBuilderBlock, EmailBuilderBlockType, EmailBuilderDocument, EmailTemplate,
     EmailTemplateBlock,
 };
 pub use webhook::{EmailApiKey, EmailWebhookConfig};

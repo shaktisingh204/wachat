@@ -27,7 +27,11 @@ pub struct SabsheetWorkbook {
     /// Default sheet to open when the workbook is loaded. Optional because a
     /// newly-created workbook may not have its first sheet provisioned yet
     /// in the same transaction.
-    #[serde(default, rename = "defaultSheetId", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "defaultSheetId",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub default_sheet_id: Option<ObjectId>,
 
     /// Monotonic version for optimistic concurrency. Bumped on every

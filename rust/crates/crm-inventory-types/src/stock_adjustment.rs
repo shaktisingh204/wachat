@@ -172,14 +172,20 @@ mod tests {
         assert!(json.get("approvedBy").is_some());
 
         // multi-word enum variant serializes snake_case.
-        assert_eq!(json.get("reason").and_then(|v| v.as_str()), Some("transfer_out"));
+        assert_eq!(
+            json.get("reason").and_then(|v| v.as_str()),
+            Some("transfer_out")
+        );
 
         // line-item fields camelCase.
         let line0 = &json.get("items").unwrap().as_array().unwrap()[0];
         assert!(line0.get("itemId").is_some());
         assert!(line0.get("qtyBefore").is_some());
         assert!(line0.get("qtyAfter").is_some());
-        assert!(line0.get("serialNo").is_none(), "None should skip-serialize");
+        assert!(
+            line0.get("serialNo").is_none(),
+            "None should skip-serialize"
+        );
 
         // round-trip through serde_json.
         let back: StockAdjustment = serde_json::from_value(json).unwrap();

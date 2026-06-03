@@ -174,9 +174,8 @@ pub async fn create_pipeline(
     }
 
     let pipeline = pipeline_from_create(input);
-    let pipeline_doc = bson::to_document(&pipeline).map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("pipeline.to_document"))
-    })?;
+    let pipeline_doc = bson::to_document(&pipeline)
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("pipeline.to_document")))?;
 
     let coll = mongo.collection::<Document>(USERS_COLL);
     let result = coll
@@ -184,11 +183,7 @@ pub async fn create_pipeline(
             doc! { "_id": user_id },
             doc! { "$push": { "crmPipelines": pipeline_doc } },
         )
-        .with_options(
-            UpdateOptions::builder()
-                .upsert(false)
-                .build(),
-        )
+        .with_options(UpdateOptions::builder().upsert(false).build())
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.push_pipeline")))?;
 
@@ -250,9 +245,7 @@ pub async fn update_pipeline(
                 .build(),
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("users.update_pipeline"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.update_pipeline")))?;
 
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("pipeline".to_owned()));
@@ -291,9 +284,7 @@ pub async fn delete_pipeline(
             doc! { "$pull": { "crmPipelines": { "_id": pipeline_oid } } },
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("users.pull_pipeline"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.pull_pipeline")))?;
 
     // matched_count reports the user row; modified_count drops to 0 when the
     // pipeline wasn't present, so use that as the not-found signal.
@@ -412,9 +403,7 @@ pub async fn update_stage(
                     .build(),
             )
             .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("users.update_stage"))
-            })?;
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.update_stage")))?;
 
         if result.matched_count == 0 {
             return Err(ApiError::NotFound("pipeline".to_owned()));
@@ -584,8 +573,7 @@ mod tests {
     #[test]
     fn pull_pipeline_filter_targets_correct_id() {
         let pipeline_oid = ObjectId::new();
-        let pull: Document =
-            doc! { "$pull": { "crmPipelines": { "_id": pipeline_oid } } };
+        let pull: Document = doc! { "$pull": { "crmPipelines": { "_id": pipeline_oid } } };
         let inner = pull.get_document("$pull").unwrap();
         let crm = inner.get_document("crmPipelines").unwrap();
         assert_eq!(crm.get_object_id("_id").unwrap(), pipeline_oid);

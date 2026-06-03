@@ -70,11 +70,11 @@ use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{format_ident, quote};
 use syn::{
+    Expr, ExprLit, ImplItem, ItemImpl, Lit, LitBool, LitInt, LitStr, MetaNameValue, Token, Type,
     parse::{Parse, ParseStream},
     parse_macro_input,
     punctuated::Punctuated,
     spanned::Spanned,
-    Expr, ExprLit, ImplItem, ItemImpl, Lit, LitBool, LitInt, LitStr, MetaNameValue, Token, Type,
 };
 
 // ---------------------------------------------------------------------------
@@ -97,8 +97,7 @@ struct NodeAttrs {
 
 impl Parse for NodeAttrs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let nv: Punctuated<MetaNameValue, Token![,]> =
-            Punctuated::parse_terminated(input)?;
+        let nv: Punctuated<MetaNameValue, Token![,]> = Punctuated::parse_terminated(input)?;
         let mut out = NodeAttrs::default();
 
         for entry in nv {
@@ -112,9 +111,7 @@ impl Parse for NodeAttrs {
 
             match key.as_str() {
                 "name" => out.name = Some(expr_to_lit_str(&entry.value)?),
-                "display" | "display_name" => {
-                    out.display = Some(expr_to_lit_str(&entry.value)?)
-                }
+                "display" | "display_name" => out.display = Some(expr_to_lit_str(&entry.value)?),
                 "description" => out.description = Some(expr_to_lit_str(&entry.value)?),
                 "category" => out.category = Some(parse_category(&entry.value)?),
                 "icon" => out.icon = Some(expr_to_lit_str(&entry.value)?),
@@ -137,7 +134,10 @@ impl Parse for NodeAttrs {
 }
 
 fn expr_to_lit_str(expr: &Expr) -> syn::Result<LitStr> {
-    if let Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) = expr {
+    if let Expr::Lit(ExprLit {
+        lit: Lit::Str(s), ..
+    }) = expr
+    {
         Ok(s.clone())
     } else {
         Err(syn::Error::new(expr.span(), "expected string literal"))
@@ -145,7 +145,10 @@ fn expr_to_lit_str(expr: &Expr) -> syn::Result<LitStr> {
 }
 
 fn expr_to_lit_int(expr: &Expr) -> syn::Result<LitInt> {
-    if let Expr::Lit(ExprLit { lit: Lit::Int(i), .. }) = expr {
+    if let Expr::Lit(ExprLit {
+        lit: Lit::Int(i), ..
+    }) = expr
+    {
         Ok(i.clone())
     } else {
         Err(syn::Error::new(expr.span(), "expected integer literal"))
@@ -153,7 +156,10 @@ fn expr_to_lit_int(expr: &Expr) -> syn::Result<LitInt> {
 }
 
 fn expr_to_lit_bool(expr: &Expr) -> syn::Result<LitBool> {
-    if let Expr::Lit(ExprLit { lit: Lit::Bool(b), .. }) = expr {
+    if let Expr::Lit(ExprLit {
+        lit: Lit::Bool(b), ..
+    }) = expr
+    {
         Ok(b.clone())
     } else {
         Err(syn::Error::new(expr.span(), "expected bool literal"))
@@ -174,7 +180,9 @@ fn parse_category(expr: &Expr) -> syn::Result<TokenStream2> {
                 Ok(quote! { #path })
             }
         }
-        Expr::Lit(ExprLit { lit: Lit::Str(s), .. }) => {
+        Expr::Lit(ExprLit {
+            lit: Lit::Str(s), ..
+        }) => {
             let variant = normalise_category(&s.value()).ok_or_else(|| {
                 syn::Error::new(
                     s.span(),
@@ -248,24 +256,24 @@ pub fn node(args: TokenStream, item: TokenStream) -> TokenStream {
 
 fn expand(attrs: NodeAttrs, user_impl: ItemImpl) -> syn::Result<TokenStream2> {
     // Validate required attributes.
-    let name = attrs
-        .name
-        .as_ref()
-        .ok_or_else(|| syn::Error::new(proc_macro2::Span::call_site(), "missing `name = \"...\"`"))?;
-    let display = attrs
-        .display
-        .as_ref()
-        .ok_or_else(|| syn::Error::new(proc_macro2::Span::call_site(), "missing `display = \"...\"`"))?;
-    let description = attrs
-        .description
-        .as_ref()
-        .ok_or_else(|| {
-            syn::Error::new(proc_macro2::Span::call_site(), "missing `description = \"...\"`")
-        })?;
-    let category = attrs
-        .category
-        .clone()
-        .ok_or_else(|| syn::Error::new(proc_macro2::Span::call_site(), "missing `category = ...`"))?;
+    let name = attrs.name.as_ref().ok_or_else(|| {
+        syn::Error::new(proc_macro2::Span::call_site(), "missing `name = \"...\"`")
+    })?;
+    let display = attrs.display.as_ref().ok_or_else(|| {
+        syn::Error::new(
+            proc_macro2::Span::call_site(),
+            "missing `display = \"...\"`",
+        )
+    })?;
+    let description = attrs.description.as_ref().ok_or_else(|| {
+        syn::Error::new(
+            proc_macro2::Span::call_site(),
+            "missing `description = \"...\"`",
+        )
+    })?;
+    let category = attrs.category.clone().ok_or_else(|| {
+        syn::Error::new(proc_macro2::Span::call_site(), "missing `category = ...`")
+    })?;
 
     // Unwrap the implementing type.
     if user_impl.trait_.is_some() {
@@ -399,4 +407,3 @@ fn expand(attrs: NodeAttrs, user_impl: ItemImpl) -> syn::Result<TokenStream2> {
         }
     })
 }
-

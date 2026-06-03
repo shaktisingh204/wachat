@@ -228,7 +228,8 @@ impl BotApiClient {
         position: i64,
     ) -> Result<bool, BotApiError> {
         let body = serde_json::json!({ "sticker": sticker_file_id, "position": position });
-        self.post_json(token, "setStickerPositionInSet", &body).await
+        self.post_json(token, "setStickerPositionInSet", &body)
+            .await
     }
 
     pub async fn replace_sticker_in_set(
@@ -246,14 +247,8 @@ impl BotApiClient {
     ) -> Result<StickerSetInfo, BotApiError> {
         let url = self.url(token, "getStickerSet");
         let body = serde_json::json!({ "name": name });
-        let env: Envelope<StickerSetInfo> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<StickerSetInfo> =
+            self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -264,14 +259,7 @@ impl BotApiClient {
         body: &serde_json::Value,
     ) -> Result<bool, BotApiError> {
         let url = self.url(token, method);
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 }
@@ -282,7 +270,8 @@ fn unwrap_envelope<T>(env: Envelope<T>) -> Result<T, BotApiError> {
             .ok_or_else(|| BotApiError::Api("missing result".to_owned()))
     } else {
         Err(BotApiError::Api(
-            env.description.unwrap_or_else(|| "unknown error".to_owned()),
+            env.description
+                .unwrap_or_else(|| "unknown error".to_owned()),
         ))
     }
 }

@@ -1,19 +1,18 @@
 use axum::{
+    Router,
     extract::{Form, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::post,
-    Router,
 };
-use bson::{doc, DateTime as BsonDateTime};
+use bson::{DateTime as BsonDateTime, doc};
 use chrono::Utc;
-use mongodb::{options::UpdateOptions, Client as MongoClient};
+use mongodb::{Client as MongoClient, options::UpdateOptions};
 use redis::AsyncCommands;
 use sabsms_providers::twilio::verify_twilio_signature;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use tracing::{error, info};
-
 
 #[derive(Clone)]
 pub struct AppState {
@@ -114,7 +113,11 @@ async fn handle_inbound_sms(
     };
     let options = UpdateOptions::builder().upsert(true).build();
 
-    if let Err(e) = conversations.update_one(filter, update).with_options(options).await {
+    if let Err(e) = conversations
+        .update_one(filter, update)
+        .with_options(options)
+        .await
+    {
         error!("Failed to upsert conversation: {}", e);
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
@@ -155,7 +158,10 @@ async fn handle_inbound_sms(
         return StatusCode::INTERNAL_SERVER_ERROR;
     }
 
-    info!("Published sabsms.message.received event for contact: {}", from);
+    info!(
+        "Published sabsms.message.received event for contact: {}",
+        from
+    );
 
     StatusCode::OK
 }

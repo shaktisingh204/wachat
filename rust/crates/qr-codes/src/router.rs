@@ -37,7 +37,10 @@ where
         .route("/from-form/create", post(crate::from_form::create_qr_code))
         // Stats must come before the parameterised /{id} route so Axum sees it.
         .route("/{id}/stats", get(scan_stats))
-        .route("/{id}", get(get_one).patch(update_one).delete(delete_qr_code))
+        .route(
+            "/{id}",
+            get(get_one).patch(update_one).delete(delete_qr_code),
+        )
 }
 
 #[derive(serde::Serialize)]
@@ -45,30 +48,25 @@ struct CountResp {
     count: u64,
 }
 
-async fn count_user(
-    user: AuthUser,
-    State(s): State<QrCodesState>,
-) -> Result<Json<CountResp>> {
+async fn count_user(user: AuthUser, State(s): State<QrCodesState>) -> Result<Json<CountResp>> {
     let oid = oid_from_str(&user.user_id)?;
-    Ok(Json(CountResp { count: store::count_for_user(&s.mongo, oid).await? }))
+    Ok(Json(CountResp {
+        count: store::count_for_user(&s.mongo, oid).await?,
+    }))
 }
 
-async fn count_global(
-    user: AuthUser,
-    State(s): State<QrCodesState>,
-) -> Result<Json<CountResp>> {
+async fn count_global(user: AuthUser, State(s): State<QrCodesState>) -> Result<Json<CountResp>> {
     if !user.roles.iter().any(|r| r == "admin") {
         return Err(sabnode_common::ApiError::Forbidden(
             "admin role required".to_owned(),
         ));
     }
-    Ok(Json(CountResp { count: store::count_global(&s.mongo).await? }))
+    Ok(Json(CountResp {
+        count: store::count_global(&s.mongo).await?,
+    }))
 }
 
-async fn list_qr_codes(
-    user: AuthUser,
-    State(s): State<QrCodesState>,
-) -> Result<Json<Value>> {
+async fn list_qr_codes(user: AuthUser, State(s): State<QrCodesState>) -> Result<Json<Value>> {
     let oid = oid_from_str(&user.user_id)?;
     let docs = store::list(&s.mongo, oid).await?;
     Ok(Json(docs))

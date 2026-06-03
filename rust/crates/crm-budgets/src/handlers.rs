@@ -101,7 +101,11 @@ fn build_update_doc(patch: UpdateBudgetInput) -> Document {
     if let Some(v) = patch.department {
         set.insert("department", v);
     }
-    if let Some(v) = patch.project_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .project_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("projectId", v);
     }
     if let Some(v) = patch.period {
@@ -221,8 +225,7 @@ pub async fn create_budget(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

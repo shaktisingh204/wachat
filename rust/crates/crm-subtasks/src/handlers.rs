@@ -142,7 +142,12 @@ fn subtask_from_create(input: CreateSubtaskInput, user_id: ObjectId) -> Result<C
 fn build_update_doc(patch: UpdateSubtaskInput, before_status: &str) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
     let mut unset = Document::new();
-    if let Some(v) = patch.title.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .title
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("title", v);
     }
     if let Some(v) = patch.description {
@@ -253,9 +258,7 @@ pub async fn get_subtask(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_subtasks.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_subtasks.find_one")))?
         .ok_or_else(|| ApiError::NotFound("subtask".to_owned()))?;
     Ok(Json(row))
 }
@@ -278,8 +281,7 @@ pub async fn create_subtask(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -302,9 +304,7 @@ pub async fn update_subtask(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_subtasks.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_subtasks.find_one")))?
         .ok_or_else(|| ApiError::NotFound("subtask".to_owned()))?;
     let update = build_update_doc(patch, &before.status);
     let result = coll

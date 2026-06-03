@@ -100,7 +100,10 @@ where
             "/blocks",
             get(handlers::list_blocks).post(handlers::create_block),
         )
-        .route("/blocks/{block_id}", axum::routing::delete(handlers::delete_block))
+        .route(
+            "/blocks/{block_id}",
+            axum::routing::delete(handlers::delete_block),
+        )
         .route(
             "/brand-kits",
             get(handlers::list_brand_kits).post(handlers::create_brand_kit),

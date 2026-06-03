@@ -64,12 +64,20 @@ where
 {
     Router::new()
         // Lists
-        .route("/lists", get(handlers::list_lists).post(handlers::create_list))
+        .route(
+            "/lists",
+            get(handlers::list_lists).post(handlers::create_list),
+        )
         .route(
             "/lists/{id}",
-            get(handlers::get_list).patch(handlers::update_list).delete(handlers::archive_list),
+            get(handlers::get_list)
+                .patch(handlers::update_list)
+                .delete(handlers::archive_list),
         )
-        .route("/lists/{id}/subscribers", get(handlers::list_subscribers_in_list))
+        .route(
+            "/lists/{id}/subscribers",
+            get(handlers::list_subscribers_in_list),
+        )
         // Subscribers
         .route(
             "/subscribers",
@@ -84,16 +92,24 @@ where
                 .delete(handlers::archive_subscriber),
         )
         // Segments
-        .route("/segments", get(handlers::list_segments).post(handlers::create_segment))
+        .route(
+            "/segments",
+            get(handlers::list_segments).post(handlers::create_segment),
+        )
         .route("/segments/preview", post(handlers::preview_segment))
         .route(
             "/segments/{id}",
-            get(handlers::get_segment).patch(handlers::update_segment).delete(handlers::delete_segment),
+            get(handlers::get_segment)
+                .patch(handlers::update_segment)
+                .delete(handlers::delete_segment),
         )
         .route("/segments/{id}/recount", post(handlers::recount_segment))
         // Tags + fields
         .route("/tags", get(handlers::list_tags))
-        .route("/fields", get(handlers::get_fields).put(handlers::put_fields))
+        .route(
+            "/fields",
+            get(handlers::get_fields).put(handlers::put_fields),
+        )
         // Stub for routes wired later — keep compiler happy
         .route("/_health", get(handlers::health))
         .route("/_unused", patch(|| async { "" }).delete(|| async { "" }))

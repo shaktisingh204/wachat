@@ -53,7 +53,11 @@ pub struct ApproverStep {
     pub approver_id: ObjectId,
     #[serde(default)]
     pub status: LeaveApplicationStatus,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -211,8 +215,14 @@ mod tests {
             json.get("accrualRule").and_then(|v| v.as_str()),
             Some("monthly:1.25"),
         );
-        assert_eq!(json.get("carryForward").and_then(|v| v.as_bool()), Some(true));
-        assert_eq!(json.get("minServiceMonths").and_then(|v| v.as_u64()), Some(6));
+        assert_eq!(
+            json.get("carryForward").and_then(|v| v.as_bool()),
+            Some(true)
+        );
+        assert_eq!(
+            json.get("minServiceMonths").and_then(|v| v.as_u64()),
+            Some(6)
+        );
         // `paid: true` is the default and skips serialization.
         assert!(json.get("paid").is_none());
         // `gender_restricted: None` skips serialization.

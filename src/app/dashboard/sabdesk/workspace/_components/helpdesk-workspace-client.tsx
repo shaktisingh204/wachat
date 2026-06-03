@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * <HelpdeskWorkspaceClient> — three-pane Zoho-Desk-style helpdesk view.
@@ -13,9 +13,9 @@
  * the Rust BFF + Mongo dual-impl behind the scenes.
  */
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   ChevronDown,
@@ -28,7 +28,7 @@ import {
   StickyNote,
   Ticket as TicketIcon,
   User,
-} from 'lucide-react';
+} from "lucide-react";
 
 import {
   Badge,
@@ -46,28 +46,28 @@ import {
   Separator,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
-import { EmptyState } from '@/components/zoruui/empty-state';
+} from "@/components/zoruui";
+import { EmptyState } from "@/components/zoruui/empty-state";
 import {
   DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
-} from '@/components/zoruui/dropdown-menu';
+} from "@/components/zoruui/dropdown-menu";
 
-import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
-import type { CrmReplyTemplateDoc } from '@/lib/rust-client/crm-reply-templates';
+import type { CrmTicketDoc } from "@/lib/rust-client/crm-tickets";
+import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";
 import {
   addTicketReply,
   addTicketInternalNote,
   setTicketStatus,
   setTicketPriority,
   setTicketAssignee,
-} from '@/app/actions/helpdesk.actions';
+} from "@/app/actions/helpdesk.actions";
 
 /* ─── Types ───────────────────────────────────────────────────── */
 
-type TabKey = 'reply' | 'note';
+type TabKey = "reply" | "note";
 
 type Props = {
   initialTickets: CrmTicketDoc[];
@@ -79,20 +79,26 @@ type Props = {
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
 
-const STATUS_COLORS: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'ghost'> = {
-  open: 'info',
-  pending: 'warning',
-  on_hold: 'warning',
-  resolved: 'success',
-  closed: 'ghost',
-  reopened: 'danger',
+const STATUS_COLORS: Record<
+  string,
+  "success" | "warning" | "danger" | "info" | "ghost"
+> = {
+  open: "info",
+  pending: "warning",
+  on_hold: "warning",
+  resolved: "success",
+  closed: "ghost",
+  reopened: "danger",
 };
 
-const PRIORITY_COLORS: Record<string, 'success' | 'warning' | 'danger' | 'ghost'> = {
-  low: 'ghost',
-  medium: 'warning',
-  high: 'danger',
-  urgent: 'danger',
+const PRIORITY_COLORS: Record<
+  string,
+  "success" | "warning" | "danger" | "ghost"
+> = {
+  low: "ghost",
+  medium: "warning",
+  high: "danger",
+  urgent: "danger",
 };
 
 const CHANNEL_ICONS: Record<string, React.ReactNode> = {
@@ -107,31 +113,45 @@ const CHANNEL_ICONS: Record<string, React.ReactNode> = {
 };
 
 function formatRelative(iso?: string): string {
-  if (!iso) return '—';
+  if (!iso) return "—";
   const d = new Date(iso).getTime();
-  if (!Number.isFinite(d)) return '—';
+  if (!Number.isFinite(d)) return "—";
   const diff = Date.now() - d;
-  if (diff < 60_000) return 'just now';
+  if (diff < 60_000) return "just now";
   if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
   if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
   return `${Math.floor(diff / 86_400_000)}d ago`;
 }
 
-function slaState(dueBy?: string, status?: string): {
-  variant: 'success' | 'warning' | 'danger' | 'ghost';
+function slaState(
+  dueBy?: string,
+  status?: string,
+): {
+  variant: "success" | "warning" | "danger" | "ghost";
   label: string;
 } {
-  if (!dueBy || status === 'closed' || status === 'resolved') {
-    return { variant: 'ghost', label: 'No SLA' };
+  if (!dueBy || status === "closed" || status === "resolved") {
+    return { variant: "ghost", label: "No SLA" };
   }
   const now = Date.now();
   const due = new Date(dueBy).getTime();
-  if (!Number.isFinite(due)) return { variant: 'ghost', label: 'No SLA' };
+  if (!Number.isFinite(due)) return { variant: "ghost", label: "No SLA" };
   const diff = due - now;
-  if (diff <= 0) return { variant: 'danger', label: 'Breached' };
-  if (diff < 60 * 60_000) return { variant: 'warning', label: `Due in ${Math.floor(diff / 60_000)}m` };
-  if (diff < 24 * 60 * 60_000) return { variant: 'warning', label: `Due in ${Math.floor(diff / 3_600_000)}h` };
-  return { variant: 'success', label: `Due in ${Math.floor(diff / 86_400_000)}d` };
+  if (diff <= 0) return { variant: "danger", label: "Breached" };
+  if (diff < 60 * 60_000)
+    return {
+      variant: "warning",
+      label: `Due in ${Math.floor(diff / 60_000)}m`,
+    };
+  if (diff < 24 * 60 * 60_000)
+    return {
+      variant: "warning",
+      label: `Due in ${Math.floor(diff / 3_600_000)}h`,
+    };
+  return {
+    variant: "success",
+    label: `Due in ${Math.floor(diff / 86_400_000)}d`,
+  };
 }
 
 /* ─── Component ───────────────────────────────────────────────── */
@@ -140,14 +160,16 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
   const { toast } = useZoruToast();
   const router = useRouter();
 
-  const [tickets, setTickets] = React.useState<CrmTicketDoc[]>(props.initialTickets ?? []);
+  const [tickets, setTickets] = React.useState<CrmTicketDoc[]>(
+    props.initialTickets ?? [],
+  );
   const [selectedId, setSelectedId] = React.useState<string | null>(
     props.initialSelectedId ?? props.initialTickets[0]?._id ?? null,
   );
-  const [search, setSearch] = React.useState('');
+  const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState(props.initialStatus);
-  const [tab, setTab] = React.useState<TabKey>('reply');
-  const [composer, setComposer] = React.useState('');
+  const [tab, setTab] = React.useState<TabKey>("reply");
+  const [composer, setComposer] = React.useState("");
   const [isPending, startTransition] = React.useTransition();
 
   const selected = React.useMemo(
@@ -158,9 +180,12 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
     return tickets.filter((t) => {
-      if (statusFilter !== 'all' && (t.status ?? 'open') !== statusFilter) return false;
+      if (statusFilter !== "all" && (t.status ?? "open") !== statusFilter)
+        return false;
       if (!q) return true;
-      return `${t.subject ?? ''} ${t.requesterId ?? ''}`.toLowerCase().includes(q);
+      return `${t.subject ?? ""} ${t.requesterId ?? ""}`
+        .toLowerCase()
+        .includes(q);
     });
   }, [tickets, search, statusFilter]);
 
@@ -176,15 +201,15 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
   const handleSend = () => {
     if (!selected || !composer.trim()) return;
     const body = composer;
-    const action = tab === 'note' ? addTicketInternalNote : addTicketReply;
+    const action = tab === "note" ? addTicketInternalNote : addTicketReply;
     startTransition(async () => {
       const res = await action(selected._id, body);
       if (res.success) {
-        toast({ title: tab === 'note' ? 'Internal note added' : 'Reply sent' });
-        setComposer('');
+        toast({ title: tab === "note" ? "Internal note added" : "Reply sent" });
+        setComposer("");
         router.refresh();
       } else {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
       }
     });
   };
@@ -195,7 +220,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await setTicketStatus(selected._id, status);
       if (!res.success) {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
         router.refresh();
       }
     });
@@ -207,7 +232,7 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
     startTransition(async () => {
       const res = await setTicketPriority(selected._id, priority);
       if (!res.success) {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
         router.refresh();
       }
     });
@@ -215,19 +240,19 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
 
   const handleAssignee = (id: string) => {
     if (!selected) return;
-    const next = id === 'unassign' ? null : id;
+    const next = id === "unassign" ? null : id;
     patchSelected({ assigneeId: next ?? undefined });
     startTransition(async () => {
       const res = await setTicketAssignee(selected._id, next);
       if (!res.success) {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
         router.refresh();
       }
     });
   };
 
   const applyTemplate = (tpl: CrmReplyTemplateDoc) => {
-    setTab('reply');
+    setTab("reply");
     setComposer((prev) => (prev ? `${prev}\n\n${tpl.body}` : tpl.body));
   };
 
@@ -273,7 +298,9 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
 
         <ScrollArea className="flex-1">
           {props.initialError ? (
-            <div className="p-4 text-[13px] text-zoru-danger">{props.initialError}</div>
+            <div className="p-4 text-[13px] text-zoru-danger">
+              {props.initialError}
+            </div>
           ) : filtered.length === 0 ? (
             <div className="p-4 text-[13px] text-zoru-ink-muted">
               No tickets match these filters.
@@ -283,41 +310,49 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
               {filtered.map((t) => {
                 const isActive = t._id === selectedId;
                 const sla = slaState(t.dueBy, t.status);
-                const channel = (t.channel ?? 'web').toLowerCase();
+                const channel = (t.channel ?? "web").toLowerCase();
                 return (
                   <li key={t._id}>
                     <button
                       type="button"
                       onClick={() => setSelectedId(t._id)}
                       className={`flex w-full flex-col gap-1.5 px-3 py-3 text-left transition-colors hover:bg-zoru-surface-2 ${
-                        isActive ? 'bg-zoru-surface-2' : ''
+                        isActive ? "bg-zoru-surface-2" : ""
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <span className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
-                          {t.subject ?? '(no subject)'}
+                          {t.subject ?? "(no subject)"}
                         </span>
-                        <Badge variant={STATUS_COLORS[t.status ?? 'open'] ?? 'ghost'}>
-                          {t.status ?? 'open'}
+                        <Badge
+                          variant={STATUS_COLORS[t.status ?? "open"] ?? "ghost"}
+                        >
+                          {t.status ?? "open"}
                         </Badge>
                       </div>
                       <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-zoru-ink-muted">
                         <Badge variant="ghost" className="gap-1">
-                          {CHANNEL_ICONS[channel] ?? <MessageSquare className="h-3 w-3" />}
+                          {CHANNEL_ICONS[channel] ?? (
+                            <MessageSquare className="h-3 w-3" />
+                          )}
                           {channel}
                         </Badge>
                         {t.priority ? (
-                          <Badge variant={PRIORITY_COLORS[t.priority] ?? 'ghost'}>
+                          <Badge
+                            variant={PRIORITY_COLORS[t.priority] ?? "ghost"}
+                          >
                             {t.priority}
                           </Badge>
                         ) : null}
                         <Badge variant={sla.variant}>
-                          {sla.variant === 'danger' ? (
+                          {sla.variant === "danger" ? (
                             <AlertTriangle className="mr-1 h-3 w-3" />
                           ) : null}
                           {sla.label}
                         </Badge>
-                        <span className="ml-auto">{formatRelative(t.updatedAt)}</span>
+                        <span className="ml-auto">
+                          {formatRelative(t.updatedAt)}
+                        </span>
                       </div>
                     </button>
                   </li>
@@ -338,17 +373,24 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                   href={`/dashboard/sabdesk/${selected._id}`}
                   className="block truncate text-[15px] font-semibold text-zoru-ink hover:underline"
                 >
-                  {selected.subject ?? '(no subject)'}
+                  {selected.subject ?? "(no subject)"}
                 </Link>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-zoru-ink-muted">
                   <Badge variant="ghost" className="gap-1">
-                    {CHANNEL_ICONS[(selected.channel ?? 'web').toLowerCase()] ?? null}
-                    {selected.channel ?? 'web'}
+                    {CHANNEL_ICONS[(selected.channel ?? "web").toLowerCase()] ??
+                      null}
+                    {selected.channel ?? "web"}
                   </Badge>
-                  <Badge variant={STATUS_COLORS[selected.status ?? 'open'] ?? 'ghost'}>
-                    {selected.status ?? 'open'}
+                  <Badge
+                    variant={
+                      STATUS_COLORS[selected.status ?? "open"] ?? "ghost"
+                    }
+                  >
+                    {selected.status ?? "open"}
                   </Badge>
-                  <Badge variant={slaState(selected.dueBy, selected.status).variant}>
+                  <Badge
+                    variant={slaState(selected.dueBy, selected.status).variant}
+                  >
                     {slaState(selected.dueBy, selected.status).label}
                   </Badge>
                   <span>Updated {formatRelative(selected.updatedAt)}</span>
@@ -358,11 +400,17 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
 
             <ScrollArea className="flex-1">
               <div className="space-y-3 px-5 py-5">
-                {(selected.internalNotes as Array<Record<string, unknown>> | undefined)?.length ? (
-                  (selected.internalNotes as Array<Record<string, unknown>>).map((n, i) => (
+                {(
+                  selected.internalNotes as
+                    | Array<Record<string, unknown>>
+                    | undefined
+                )?.length ? (
+                  (
+                    selected.internalNotes as Array<Record<string, unknown>>
+                  ).map((n, i) => (
                     <Card
                       key={String(n._id ?? i)}
-                      className={n.isInternal ? 'border-zoru-line/30' : ''}
+                      className={n.isInternal ? "border-zoru-line/30" : ""}
                     >
                       <ZoruCardContent className="space-y-1 p-3 text-[13px]">
                         <div className="flex items-center gap-2 text-[11px] text-zoru-ink-muted">
@@ -371,9 +419,13 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                           ) : (
                             <Badge variant="info">Reply</Badge>
                           )}
-                          <span>{formatRelative(n.createdAt as string | undefined)}</span>
+                          <span>
+                            {formatRelative(n.createdAt as string | undefined)}
+                          </span>
                         </div>
-                        <p className="whitespace-pre-wrap text-zoru-ink">{String(n.body ?? '')}</p>
+                        <p className="whitespace-pre-wrap text-zoru-ink">
+                          {String(n.body ?? "")}
+                        </p>
                       </ZoruCardContent>
                     </Card>
                   ))
@@ -389,16 +441,16 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
             <footer className="border-t border-zoru-line bg-zoru-surface-2 px-5 py-3">
               <div className="mb-2 flex items-center gap-2">
                 <Button
-                  variant={tab === 'reply' ? 'default' : 'outline'}
+                  variant={tab === "reply" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setTab('reply')}
+                  onClick={() => setTab("reply")}
                 >
                   <Send className="mr-1 h-3 w-3" /> Reply
                 </Button>
                 <Button
-                  variant={tab === 'note' ? 'default' : 'outline'}
+                  variant={tab === "note" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setTab('note')}
+                  onClick={() => setTab("note")}
                 >
                   <StickyNote className="mr-1 h-3 w-3" /> Internal note
                 </Button>
@@ -409,10 +461,13 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         Templates <ChevronDown className="ml-1 h-3 w-3" />
                       </Button>
                     </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end" className="max-h-[300px] overflow-y-auto">
+                    <ZoruDropdownMenuContent
+                      align="end"
+                      className="max-h-[300px] overflow-y-auto"
+                    >
                       {props.templates.items.length === 0 ? (
                         <div className="px-3 py-2 text-[12px] text-zoru-ink-muted">
-                          No templates yet.{' '}
+                          No templates yet.{" "}
                           <Link
                             href="/dashboard/sabdesk/reply-templates/new"
                             className="underline"
@@ -427,7 +482,9 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                             onSelect={() => applyTemplate(tpl)}
                           >
                             <div className="flex flex-col">
-                              <span className="text-[13px] font-medium">{tpl.name}</span>
+                              <span className="text-[13px] font-medium">
+                                {tpl.name}
+                              </span>
                               {tpl.shortcut ? (
                                 <span className="text-[11px] text-zoru-ink-muted">
                                   /{tpl.shortcut}
@@ -445,23 +502,29 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 value={composer}
                 onChange={(e) => setComposer(e.target.value)}
                 placeholder={
-                  tab === 'reply'
-                    ? 'Type your reply to the requester...'
-                    : 'Internal note — visible to staff only.'
+                  tab === "reply"
+                    ? "Type your reply to the requester..."
+                    : "Internal note — visible to staff only."
                 }
                 rows={4}
               />
               <div className="mt-2 flex items-center justify-end">
-                <Button onClick={handleSend} disabled={isPending || !composer.trim()}>
+                <Button
+                  onClick={handleSend}
+                  disabled={isPending || !composer.trim()}
+                >
                   <Send className="mr-1 h-3 w-3" />
-                  {tab === 'reply' ? 'Send reply' : 'Save note'}
+                  {tab === "reply" ? "Send reply" : "Save note"}
                 </Button>
               </div>
             </footer>
           </>
         ) : (
           <div className="flex flex-1 items-center justify-center p-8">
-            <EmptyState title="Pick a ticket" description="Select a ticket from the list to view its conversation." />
+            <EmptyState
+              title="Pick a ticket"
+              description="Select a ticket from the list to view its conversation."
+            />
           </div>
         )}
       </section>
@@ -477,8 +540,13 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">Status</Label>
-                    <Select value={selected.status ?? 'open'} onValueChange={handleStatus}>
+                    <Label className="text-[12px] text-zoru-ink-muted">
+                      Status
+                    </Label>
+                    <Select
+                      value={selected.status ?? "open"}
+                      onValueChange={handleStatus}
+                    >
                       <ZoruSelectTrigger className="mt-1 h-8 text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
@@ -486,15 +554,24 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                         <ZoruSelectItem value="open">Open</ZoruSelectItem>
                         <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
                         <ZoruSelectItem value="on_hold">On hold</ZoruSelectItem>
-                        <ZoruSelectItem value="resolved">Resolved</ZoruSelectItem>
+                        <ZoruSelectItem value="resolved">
+                          Resolved
+                        </ZoruSelectItem>
                         <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-                        <ZoruSelectItem value="reopened">Reopened</ZoruSelectItem>
+                        <ZoruSelectItem value="reopened">
+                          Reopened
+                        </ZoruSelectItem>
                       </ZoruSelectContent>
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">Priority</Label>
-                    <Select value={selected.priority ?? 'medium'} onValueChange={handlePriority}>
+                    <Label className="text-[12px] text-zoru-ink-muted">
+                      Priority
+                    </Label>
+                    <Select
+                      value={selected.priority ?? "medium"}
+                      onValueChange={handlePriority}
+                    >
                       <ZoruSelectTrigger className="mt-1 h-8 text-[13px]">
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
@@ -507,14 +584,16 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                     </Select>
                   </div>
                   <div>
-                    <Label className="text-[12px] text-zoru-ink-muted">Assignee</Label>
+                    <Label className="text-[12px] text-zoru-ink-muted">
+                      Assignee
+                    </Label>
                     <Input
                       placeholder="Paste user id or 'unassign'"
-                      defaultValue={selected.assigneeId ?? ''}
+                      defaultValue={selected.assigneeId ?? ""}
                       onBlur={(e) => {
                         const v = e.target.value.trim();
-                        if (v === (selected.assigneeId ?? '')) return;
-                        handleAssignee(v || 'unassign');
+                        if (v === (selected.assigneeId ?? "")) return;
+                        handleAssignee(v || "unassign");
                       }}
                       className="mt-1 h-8 text-[13px]"
                     />
@@ -530,7 +609,9 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 </h3>
                 <div className="flex items-center justify-between">
                   <span className="text-zoru-ink-muted">Due by</span>
-                  <Badge variant={slaState(selected.dueBy, selected.status).variant}>
+                  <Badge
+                    variant={slaState(selected.dueBy, selected.status).variant}
+                  >
                     {slaState(selected.dueBy, selected.status).label}
                   </Badge>
                 </div>
@@ -550,19 +631,25 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
                 <dl className="space-y-1.5">
                   <div className="flex justify-between">
                     <dt className="text-zoru-ink-muted">Channel</dt>
-                    <dd className="text-zoru-ink">{selected.channel ?? '—'}</dd>
+                    <dd className="text-zoru-ink">{selected.channel ?? "—"}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-zoru-ink-muted">Severity</dt>
-                    <dd className="text-zoru-ink">{selected.severity ?? '—'}</dd>
+                    <dd className="text-zoru-ink">
+                      {selected.severity ?? "—"}
+                    </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-zoru-ink-muted">Category</dt>
-                    <dd className="text-zoru-ink">{selected.category ?? '—'}</dd>
+                    <dd className="text-zoru-ink">
+                      {selected.category ?? "—"}
+                    </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-zoru-ink-muted">Requester</dt>
-                    <dd className="truncate text-zoru-ink">{selected.requesterId ?? '—'}</dd>
+                    <dd className="truncate text-zoru-ink">
+                      {selected.requesterId ?? "—"}
+                    </dd>
                   </div>
                 </dl>
               </section>
@@ -570,7 +657,9 @@ export function HelpdeskWorkspaceClient(props: Props): React.JSX.Element {
               <Separator />
 
               <Button asChild variant="outline" className="w-full">
-                <Link href={`/dashboard/sabdesk/${selected._id}`}>Open full ticket</Link>
+                <Link href={`/dashboard/sabdesk/${selected._id}`}>
+                  Open full ticket
+                </Link>
               </Button>
             </div>
           </ScrollArea>

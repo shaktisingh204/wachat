@@ -7,7 +7,13 @@ use crate::segment::EmailFilterTree;
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailJourneyNodeType {
-    Trigger, Email, Wait, Condition, Action, Split, Exit,
+    Trigger,
+    Email,
+    Wait,
+    Condition,
+    Action,
+    Split,
+    Exit,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -27,13 +33,18 @@ pub enum EmailJourneyTriggerKind {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailJourneyStatus {
-    Draft, Active, Paused, Archived,
+    Draft,
+    Active,
+    Paused,
+    Archived,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailReentryPolicy {
-    Never, AfterExit, Always,
+    Never,
+    AfterExit,
+    Always,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -81,7 +92,11 @@ pub struct EmailJourneyWait {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum WaitUnit { Minutes, Hours, Days }
+pub enum WaitUnit {
+    Minutes,
+    Hours,
+    Days,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -94,7 +109,12 @@ pub struct EmailJourneyAction {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailJourneyActionKind {
-    TagAdd, TagRemove, ListMove, Webhook, UpdateField, Unsubscribe,
+    TagAdd,
+    TagRemove,
+    ListMove,
+    Webhook,
+    UpdateField,
+    Unsubscribe,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -153,7 +173,11 @@ pub struct EmailJourneyStats {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailJourneyRunStatus {
-    Active, Waiting, Completed, Exited, Errored,
+    Active,
+    Waiting,
+    Completed,
+    Exited,
+    Errored,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

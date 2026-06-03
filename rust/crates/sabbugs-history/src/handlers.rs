@@ -75,9 +75,10 @@ pub async fn list_history(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<BugHistoryEntry>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabbugs_history.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_history.find"))
+        })?;
     let mut rows: Vec<BugHistoryEntry> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabbugs_history.collect"))
     })?;
@@ -102,9 +103,10 @@ pub async fn create_history(
     let user_id = user_oid(&user)?;
     let mut entity = entry_from_create(input, user_id, user_id)?;
     let coll = mongo.collection::<BugHistoryEntry>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabbugs_history.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_history.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

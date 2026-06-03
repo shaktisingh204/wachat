@@ -17,9 +17,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    AnswerInput, AskInput, AskResponse, ListQuery, ListResponse, UpvoteInput,
-};
+use crate::dto::{AnswerInput, AskInput, AskResponse, ListQuery, ListResponse, UpvoteInput};
 use crate::types::QnaItem;
 
 const COLL: &str = "meet_qna";

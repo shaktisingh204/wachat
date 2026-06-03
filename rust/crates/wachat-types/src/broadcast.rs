@@ -69,8 +69,14 @@ pub struct Broadcast {
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub started_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub completed_at: Option<DateTime<Utc>>,
 }

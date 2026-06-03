@@ -61,7 +61,11 @@ pub struct MetaFlowDoc {
     pub preview: Option<Value>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub application_id: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_published_at: Option<DateTime<Utc>>,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub created_at: DateTime<Utc>,
@@ -101,11 +105,22 @@ pub struct MetaFlowOut {
     pub preview: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_id: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "lastPublishedAt", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "lastPublishedAt",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_published_at: Option<DateTime<Utc>>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 

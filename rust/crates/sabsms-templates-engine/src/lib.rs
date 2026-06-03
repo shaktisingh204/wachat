@@ -128,7 +128,8 @@ mod tests {
         vars.insert("name".to_string(), Value::String("Alice".to_string()));
         vars.insert("amount".to_string(), Value::Number(100.into()));
 
-        let result = render_template("Hello {{name}}, your balance is {{ amount }}.", &vars).unwrap();
+        let result =
+            render_template("Hello {{name}}, your balance is {{ amount }}.", &vars).unwrap();
         assert_eq!(result.content, "Hello Alice, your balance is 100.");
         assert_eq!(result.encoding, Encoding::Gsm7);
         assert_eq!(result.length, 33);

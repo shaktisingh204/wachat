@@ -330,7 +330,10 @@ async fn execute_runs_through_macro() {
     let input = NodeInput {
         items: vec![serde_json::json!({"hello": "world"})],
     };
-    let out = n.execute(&mut ctx, input, &serde_json::Value::Null).await.unwrap();
+    let out = n
+        .execute(&mut ctx, input, &serde_json::Value::Null)
+        .await
+        .unwrap();
     assert_eq!(out.branches.len(), 1);
     assert_eq!(out.branches[0].items.len(), 1);
 }

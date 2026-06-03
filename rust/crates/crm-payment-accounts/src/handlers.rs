@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery,
-    UpdateAccountInput,
+    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery, UpdateAccountInput,
 };
 use crate::types::CrmPaymentAccount;
 
@@ -58,10 +57,7 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn account_from_create(
-    input: CreateAccountInput,
-    user_id: ObjectId,
-) -> Result<CrmPaymentAccount> {
+fn account_from_create(input: CreateAccountInput, user_id: ObjectId) -> Result<CrmPaymentAccount> {
     if input.account_name.trim().is_empty() {
         return Err(ApiError::Validation("accountName is required".to_owned()));
     }
@@ -216,8 +212,7 @@ pub async fn create_account(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

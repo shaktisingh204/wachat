@@ -8,11 +8,9 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
-import {
-  notFound,
-  redirect } from 'next/navigation';
-import { Pencil } from 'lucide-react';
+} from "@/components/zoruui";
+import { notFound, redirect } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 /**
  * Custom form detail page.
@@ -21,22 +19,22 @@ import { Pencil } from 'lucide-react';
  * definitions (no JSON dump).
  */
 
-import Link from 'next/link';
+import Link from "next/link";
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
-import { getSession } from '@/app/actions/user.actions';
-import { getFormById } from '@/app/actions/crm-forms.actions';
-import type { CrmFormStatus } from '@/lib/rust-client/crm-forms';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { StatusPill, type StatusTone } from "@/components/crm/status-pill";
+import { getSession } from "@/app/actions/user.actions";
+import { getFormById } from "@/app/actions/crm-forms.actions";
+import type { CrmFormStatus } from "@/lib/rust-client/crm-forms";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const BASE = '/dashboard/sabdesk/custom-forms';
+const BASE = "/dashboard/sabdesk/custom-forms";
 
 const STATUS_TONE: Record<CrmFormStatus, StatusTone> = {
-  draft: 'amber',
-  published: 'green',
-  archived: 'neutral',
+  draft: "amber",
+  published: "green",
+  archived: "neutral",
 };
 
 export default async function CustomFormDetailPage({
@@ -47,13 +45,13 @@ export default async function CustomFormDetailPage({
   const { id } = await params;
 
   const session = await getSession();
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const form = await getFormById(id);
   if (!form) notFound();
 
-  const status = (form.status ?? 'draft') as CrmFormStatus;
-  const tone = STATUS_TONE[status] ?? 'neutral';
+  const status = (form.status ?? "draft") as CrmFormStatus;
+  const tone = STATUS_TONE[status] ?? "neutral";
   const fields = Array.isArray(form.fields) ? form.fields : [];
   const settings = (form.settings ?? {}) as Record<string, unknown>;
 
@@ -61,7 +59,7 @@ export default async function CustomFormDetailPage({
     <EntityDetailShell
       eyebrow="CUSTOM FORM"
       title={form.name}
-      back={{ href: BASE, label: 'Custom Forms' }}
+      back={{ href: BASE, label: "Custom Forms" }}
       actions={
         <Button asChild>
           <Link href={`${BASE}/${id}/edit`}>
@@ -71,7 +69,6 @@ export default async function CustomFormDetailPage({
         </Button>
       }
     >
-
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
@@ -80,7 +77,7 @@ export default async function CustomFormDetailPage({
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-3">
           <div>
             <div className="text-zoru-ink-muted">Slug</div>
-            <div className="font-mono text-zoru-ink">{form.slug || '—'}</div>
+            <div className="font-mono text-zoru-ink">{form.slug || "—"}</div>
           </div>
           <div>
             <div className="text-zoru-ink-muted">Submissions</div>
@@ -129,7 +126,9 @@ export default async function CustomFormDetailPage({
             <Table>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                  <ZoruTableHead className="text-zoru-ink-muted">#</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    #
+                  </ZoruTableHead>
                   <ZoruTableHead className="text-zoru-ink-muted">
                     Name
                   </ZoruTableHead>
@@ -149,7 +148,10 @@ export default async function CustomFormDetailPage({
               </ZoruTableHeader>
               <ZoruTableBody>
                 {fields.map((f, idx) => (
-                  <ZoruTableRow key={`${f.name}-${idx}`} className="border-zoru-line">
+                  <ZoruTableRow
+                    key={`${f.name}-${idx}`}
+                    className="border-zoru-line"
+                  >
                     <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
                       {idx + 1}
                     </ZoruTableCell>
@@ -157,10 +159,10 @@ export default async function CustomFormDetailPage({
                       {f.name}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">
-                      {f.label || '—'}
+                      {f.label || "—"}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">
-                      {f.type || 'text'}
+                      {f.type || "text"}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {f.required ? (

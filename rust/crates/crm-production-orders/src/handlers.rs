@@ -79,11 +79,14 @@ fn order_from_create(
             "plannedQty must be positive".to_owned(),
         ));
     }
-    let order_no = input.order_no.filter(|s| !s.trim().is_empty()).unwrap_or_else(|| {
-        let suffix = Utc::now().timestamp_millis().to_string();
-        let tail = suffix.chars().rev().take(6).collect::<String>();
-        format!("PO-{}", tail.chars().rev().collect::<String>())
-    });
+    let order_no = input
+        .order_no
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| {
+            let suffix = Utc::now().timestamp_millis().to_string();
+            let tail = suffix.chars().rev().take(6).collect::<String>();
+            format!("PO-{}", tail.chars().rev().collect::<String>())
+        });
     let material_cost = calc_material_cost(&input.components);
     let labour = input.labour_cost.unwrap_or(0.0);
     let overhead = input.overhead_cost.unwrap_or(0.0);
@@ -93,7 +96,10 @@ fn order_from_create(
         user_id,
         order_no,
         bom_ref: input.bom_ref,
-        bom_id: input.bom_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        bom_id: input
+            .bom_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         finished_good_id: input
             .finished_good_id
             .as_deref()
@@ -131,7 +137,11 @@ fn build_update_doc(patch: UpdateProductionOrderInput) -> Document {
     if let Some(v) = patch.bom_ref {
         set.insert("bomRef", v);
     }
-    if let Some(v) = patch.bom_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .bom_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("bomId", v);
     }
     if let Some(v) = patch
@@ -292,8 +302,7 @@ pub async fn create_order(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

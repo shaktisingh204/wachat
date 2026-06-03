@@ -116,10 +116,7 @@ where
                 .delete(handlers::delete_survey),
         )
         // ---- agent-triggered send ------------------------------------
-        .route(
-            "/send/{conversation_id}",
-            post(handlers::send_survey),
-        )
+        .route("/send/{conversation_id}", post(handlers::send_survey))
         // ---- read surfaces -------------------------------------------
         .route("/responses", get(handlers::list_responses))
         .route("/stats", get(handlers::survey_stats))

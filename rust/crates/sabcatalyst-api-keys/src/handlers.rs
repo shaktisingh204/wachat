@@ -1,4 +1,8 @@
-use axum::{Json, extract::{Path, Query, State}, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+    http::StatusCode,
+};
 use bson::{Document, doc, oid::ObjectId, to_bson};
 use chrono::Utc;
 use futures::TryStreamExt;
@@ -21,7 +25,9 @@ fn owner_oid(user: &AuthUser) -> Result<ObjectId> {
 
 #[instrument(skip_all)]
 pub async fn list_keys(
-    user: AuthUser, State(state): State<SabcatalystApiKeysState>, Query(q): Query<ListKeysQuery>,
+    user: AuthUser,
+    State(state): State<SabcatalystApiKeysState>,
+    Query(q): Query<ListKeysQuery>,
 ) -> Result<Json<ListKeysResponse>> {
     let owner = owner_oid(&user)?;
     let project = oid_from_str(&q.project_id)?;
@@ -30,14 +36,27 @@ pub async fn list_keys(
         filter.insert("_id", doc! { "$lt": oid_from_str(c)? });
     }
     let limit = q.limit.clamp(1, MAX_LIMIT);
-    let opts = FindOptions::builder().sort(doc! { "_id": -1 }).limit(limit).build();
-    let cur = state.mongo.collection::<Document>(API_KEYS_COLL)
-        .find(filter).with_options(opts).await
+    let opts = FindOptions::builder()
+        .sort(doc! { "_id": -1 })
+        .limit(limit)
+        .build();
+    let cur = state
+        .mongo
+        .collection::<Document>(API_KEYS_COLL)
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("api_keys.find")))?;
-    let docs: Vec<Document> = cur.try_collect().await
+    let docs: Vec<Document> = cur
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("api_keys.collect")))?;
-    let next_cursor = if (docs.len() as i64) < limit { None } else {
-        docs.last().and_then(|d| d.get_object_id("_id").ok()).map(|o| o.to_hex())
+    let next_cursor = if (docs.len() as i64) < limit {
+        None
+    } else {
+        docs.last()
+            .and_then(|d| d.get_object_id("_id").ok())
+            .map(|o| o.to_hex())
     };
     Ok(Json(ListKeysResponse {
         items: docs.into_iter().map(document_to_clean_json).collect(),
@@ -47,7 +66,9 @@ pub async fn list_keys(
 
 #[instrument(skip_all)]
 pub async fn create_key(
-    user: AuthUser, State(state): State<SabcatalystApiKeysState>, Json(body): Json<CreateKeyBody>,
+    user: AuthUser,
+    State(state): State<SabcatalystApiKeysState>,
+    Json(body): Json<CreateKeyBody>,
 ) -> Result<(StatusCode, Json<Value>)> {
     let owner = owner_oid(&user)?;
     if body.label.trim().is_empty() || body.key_hash.is_empty() {
@@ -65,25 +86,38 @@ pub async fn create_key(
         "status": "active",
         "createdAt": bson::DateTime::from_chrono(Utc::now()),
     };
-    if let Some(e) = body.expires_at { d.insert("expiresAt", bson::DateTime::from_chrono(e)); }
-    state.mongo.collection::<Document>(API_KEYS_COLL).insert_one(&d).await
+    if let Some(e) = body.expires_at {
+        d.insert("expiresAt", bson::DateTime::from_chrono(e));
+    }
+    state
+        .mongo
+        .collection::<Document>(API_KEYS_COLL)
+        .insert_one(&d)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("api_keys.insert")))?;
     Ok((StatusCode::CREATED, Json(document_to_clean_json(d))))
 }
 
 #[instrument(skip_all)]
 pub async fn revoke_key(
-    user: AuthUser, State(state): State<SabcatalystApiKeysState>, Path(id): Path<String>,
+    user: AuthUser,
+    State(state): State<SabcatalystApiKeysState>,
+    Path(id): Path<String>,
 ) -> Result<StatusCode> {
     let owner = owner_oid(&user)?;
     let oid = oid_from_str(&id)?;
-    let r = state.mongo.collection::<Document>(API_KEYS_COLL)
+    let r = state
+        .mongo
+        .collection::<Document>(API_KEYS_COLL)
         .update_one(
             doc! { "_id": oid, "userId": owner },
             doc! { "$set": { "status": "revoked" } },
-        ).await
+        )
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("api_keys.revoke")))?;
-    if r.matched_count == 0 { return Err(ApiError::NotFound("API key not found.".into())); }
+    if r.matched_count == 0 {
+        return Err(ApiError::NotFound("API key not found.".into()));
+    }
     Ok(StatusCode::NO_CONTENT)
 }
 
@@ -92,16 +126,21 @@ pub async fn revoke_key(
 /// an incoming API key. Caller is the SabNode JWT, scoped to the owner.
 #[instrument(skip_all)]
 pub async fn lookup_key(
-    user: AuthUser, State(state): State<SabcatalystApiKeysState>, Json(body): Json<LookupKeyBody>,
+    user: AuthUser,
+    State(state): State<SabcatalystApiKeysState>,
+    Json(body): Json<LookupKeyBody>,
 ) -> Result<Json<Value>> {
     let owner = owner_oid(&user)?;
     let project = oid_from_str(&body.project_id)?;
-    let d = state.mongo.collection::<Document>(API_KEYS_COLL)
+    let d = state
+        .mongo
+        .collection::<Document>(API_KEYS_COLL)
         .find_one(doc! {
             "userId": owner, "projectId": project,
             "keyHash": &body.key_hash,
             "status": "active",
-        }).await
+        })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("api_keys.lookup")))?
         .ok_or_else(|| ApiError::Unauthorized("invalid API key".into()))?;
     Ok(Json(document_to_clean_json(d)))

@@ -73,10 +73,7 @@ fn coerce_status(raw: Option<&str>, default: &str) -> String {
 ///
 /// Best-effort — race-free under low write rates only. Mongo `$regex`
 /// over the indexed `claim_number` keeps this O(1) per insert.
-async fn next_claim_number(
-    mongo: &MongoHandle,
-    user_id: ObjectId,
-) -> Result<String> {
+async fn next_claim_number(mongo: &MongoHandle, user_id: ObjectId) -> Result<String> {
     let now = Utc::now();
     let prefix = format!("EC-{:04}{:02}-", now.year(), now.month());
     let filter = doc! {
@@ -225,7 +222,12 @@ pub async fn list_claims(
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
-            &["employee_name", "employee_id", "claim_number", "description"],
+            &[
+                "employee_name",
+                "employee_id",
+                "claim_number",
+                "description",
+            ],
         );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
@@ -242,13 +244,9 @@ pub async fn list_claims(
         .build();
 
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.find"))
+    })?;
     let mut rows: Vec<CrmExpenseClaim> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.collect"))
     })?;
@@ -297,20 +295,16 @@ pub async fn create_claim(
     };
     let mut entity = claim_from_create(input, user_id, claim_number)?;
     let coll = mongo.collection::<CrmExpenseClaim>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_expense_claims.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

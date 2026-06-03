@@ -201,7 +201,10 @@ pub async fn list_assignments(
         q.employee_id.as_deref(),
     );
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        let or = build_q_filter(needle, &["asset_name", "employee_name", "asset_id", "employee_id"]);
+        let or = build_q_filter(
+            needle,
+            &["asset_name", "employee_name", "asset_id", "employee_id"],
+        );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
         }
@@ -217,13 +220,9 @@ pub async fn list_assignments(
         .build();
 
     let coll = mongo.collection::<CrmAssetAssignment>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_asset_assignments.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_asset_assignments.find"))
+    })?;
     let mut rows: Vec<CrmAssetAssignment> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_asset_assignments.collect"))
     })?;
@@ -277,8 +276,7 @@ pub async fn create_assignment(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -420,7 +418,10 @@ mod tests {
 
     #[test]
     fn condition_normaliser_drops_unknown_values() {
-        assert_eq!(normalise_condition(Some("good".into())).as_deref(), Some("good"));
+        assert_eq!(
+            normalise_condition(Some("good".into())).as_deref(),
+            Some("good")
+        );
         assert!(normalise_condition(Some("bogus".into())).is_none());
         assert!(normalise_condition(Some("  ".into())).is_none());
         assert!(normalise_condition(None).is_none());

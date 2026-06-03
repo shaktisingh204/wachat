@@ -57,7 +57,10 @@ where
             "/providers/{provider_id}",
             put(handlers::update_provider).delete(handlers::delete_provider),
         )
-        .route("/providers/{provider_id}/test", post(handlers::test_provider))
+        .route(
+            "/providers/{provider_id}/test",
+            post(handlers::test_provider),
+        )
         // Invoice templates
         .route(
             "/templates",

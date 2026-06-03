@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateTaskTagInput, CreateTaskTagResponse, DeleteTaskTagResponse, ListQuery,
-    UpdateTaskTagInput,
+    CreateTaskTagInput, CreateTaskTagResponse, DeleteTaskTagResponse, ListQuery, UpdateTaskTagInput,
 };
 use crate::types::CrmTaskTag;
 
@@ -190,9 +189,7 @@ pub async fn get_task_tag(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.find_one")))?
         .ok_or_else(|| ApiError::NotFound("task_tag".to_owned()))?;
     Ok(Json(row))
 }
@@ -231,8 +228,7 @@ pub async fn create_task_tag(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -257,9 +253,7 @@ pub async fn update_task_tag(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.find_one")))?
         .ok_or_else(|| ApiError::NotFound("task_tag".to_owned()))?;
 
     // Validate rename uniqueness (case-insensitive, excludes self).
@@ -294,9 +288,7 @@ pub async fn update_task_tag(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.refetch")))?
         .ok_or_else(|| ApiError::NotFound("task_tag".to_owned()))?;
 
     if let Some(event) = audit_for_update(
@@ -332,9 +324,7 @@ pub async fn delete_task_tag(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_tags.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("task_tag".to_owned()));
     }

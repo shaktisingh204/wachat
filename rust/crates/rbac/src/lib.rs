@@ -19,7 +19,7 @@ pub mod check;
 pub mod permissions;
 
 pub use action::Action;
-pub use check::{can, get_effective_permissions, require_permission, EffectivePermissions};
+pub use check::{EffectivePermissions, can, get_effective_permissions, require_permission};
 pub use permissions::ALL;
 
 #[cfg(test)]
@@ -29,7 +29,11 @@ mod tests {
 
     #[test]
     fn permissions_all_non_empty() {
-        assert!(ALL.len() >= 130, "expected ~140 permission keys, got {}", ALL.len());
+        assert!(
+            ALL.len() >= 130,
+            "expected ~140 permission keys, got {}",
+            ALL.len()
+        );
     }
 
     #[test]
@@ -47,11 +51,7 @@ mod tests {
     #[test]
     fn permissions_all_unique() {
         let set: HashSet<_> = ALL.iter().copied().collect();
-        assert_eq!(
-            set.len(),
-            ALL.len(),
-            "duplicate permission keys detected",
-        );
+        assert_eq!(set.len(), ALL.len(), "duplicate permission keys detected",);
     }
 
     #[test]

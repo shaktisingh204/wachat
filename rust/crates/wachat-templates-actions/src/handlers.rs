@@ -299,9 +299,7 @@ pub async fn library_delete(
         Err(e) => return Json(ActionState::err(e.to_string())),
     };
     match s.library.delete(&oid).await {
-        Ok(()) => Json(ActionState::ok(
-            "Custom template removed from the library.",
-        )),
+        Ok(()) => Json(ActionState::ok("Custom template removed from the library.")),
         Err(e) => Json(ActionState::err(e.to_string())),
     }
 }
@@ -315,7 +313,9 @@ pub async fn library_list(
     State(s): State<WachatTemplatesActionsState>,
 ) -> Result<Json<serde_json::Value>> {
     let items = s.reader.list_library().await?;
-    Ok(Json(serde_json::to_value(items).unwrap_or(serde_json::Value::Null)))
+    Ok(Json(
+        serde_json::to_value(items).unwrap_or(serde_json::Value::Null),
+    ))
 }
 
 // ===========================================================================

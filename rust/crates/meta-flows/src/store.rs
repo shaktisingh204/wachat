@@ -166,11 +166,7 @@ pub async fn get_flow(
     // 1) Pull the metadata projection from Meta.
     let fields = "id,name,status,categories,validation_errors,json_version,endpoint_uri,preview,health_status";
     let meta_resp = http
-        .get_json::<Value>(
-            &flow.meta_id,
-            token,
-            &[("fields", fields.to_owned())],
-        )
+        .get_json::<Value>(&flow.meta_id, token, &[("fields", fields.to_owned())])
         .await;
 
     let mut update = doc! { "updatedAt": bson::DateTime::from_chrono(Utc::now()) };
@@ -211,7 +207,10 @@ pub async fn get_flow(
         );
         latest_doc.validation_errors = Some(ve);
         if let Some(hs) = meta.get("health_status") {
-            update.insert("healthStatus", bson::to_bson(hs).unwrap_or(bson::Bson::Null));
+            update.insert(
+                "healthStatus",
+                bson::to_bson(hs).unwrap_or(bson::Bson::Null),
+            );
             latest_doc.health_status = Some(hs.clone());
         }
         if let Some(prev) = meta.get("preview") {
@@ -417,8 +416,8 @@ pub async fn save_draft(
     let token = require_token(project)?;
 
     // Caller has already cleaned the data on the TS side (cleanMetaFlowData).
-    let bytes = serde_json::to_vec(&req.flow_data)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let bytes =
+        serde_json::to_vec(&req.flow_data).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     let resp = match http.post_assets(&flow.meta_id, token, bytes).await {
         Ok(v) => v,
@@ -682,10 +681,8 @@ pub async fn get_preview(
     } else {
         "false"
     };
-    let mut params: Vec<(&str, String)> = vec![(
-        "fields",
-        format!("preview.invalidate({invalidate})"),
-    )];
+    let mut params: Vec<(&str, String)> =
+        vec![("fields", format!("preview.invalidate({invalidate})"))];
     if let Some(t) = req.flow_token.as_deref() {
         params.push(("flow_token", t.to_owned()));
     }
@@ -850,7 +847,10 @@ pub async fn sync_from_meta(
             set.insert("endpointUri", v);
         }
         let ve = f.get("validation_errors").cloned().unwrap_or(json!([]));
-        set.insert("validationErrors", bson::to_bson(&ve).unwrap_or(bson::Bson::Array(vec![])));
+        set.insert(
+            "validationErrors",
+            bson::to_bson(&ve).unwrap_or(bson::Bson::Array(vec![])),
+        );
 
         let res = coll
             .update_one(

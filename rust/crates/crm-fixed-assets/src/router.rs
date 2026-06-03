@@ -44,18 +44,12 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_assets).post(handlers::create_asset),
-        )
+        .route("/", get(handlers::list_assets).post(handlers::create_asset))
         .route(
             "/{assetId}",
             get(handlers::get_asset)
                 .patch(handlers::update_asset)
                 .delete(handlers::delete_asset),
         )
-        .route(
-            "/{assetId}/depreciate",
-            post(handlers::depreciate_asset),
-        )
+        .route("/{assetId}/depreciate", post(handlers::depreciate_asset))
 }

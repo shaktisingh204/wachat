@@ -303,7 +303,10 @@ mod tests {
         assert_eq!(q.limit, Some(50));
         assert_eq!(q.q.as_deref(), Some("asha"));
         assert_eq!(q.department_id.as_deref(), Some("507f1f77bcf86cd799439011"));
-        assert_eq!(q.designation_id.as_deref(), Some("507f1f77bcf86cd799439012"));
+        assert_eq!(
+            q.designation_id.as_deref(),
+            Some("507f1f77bcf86cd799439012")
+        );
         assert_eq!(q.status.as_deref(), Some("active"));
     }
 }

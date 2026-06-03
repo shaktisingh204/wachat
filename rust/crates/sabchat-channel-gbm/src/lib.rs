@@ -14,8 +14,8 @@ pub mod state;
 
 use axum::{Router, extract::FromRef, routing::post};
 
-pub use state::SabChatChannelGbmState;
 pub use sabchat_types::ChannelType;
+pub use state::SabChatChannelGbmState;
 
 pub fn router<S>() -> Router<S>
 where

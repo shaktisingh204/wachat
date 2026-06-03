@@ -229,7 +229,7 @@ impl UpdateInvoiceInput {
             && self.terms_and_conditions.is_none()
             && self.recurring.is_none()
             && self.status.is_none()
-        }
+    }
 }
 
 #[cfg(test)]
@@ -265,7 +265,10 @@ mod tests {
         assert_eq!(input.client_id, "65f00000000000000000abcd");
         assert_eq!(input.currency, "INR");
         assert_eq!(input.place_of_supply.as_deref(), Some("29-Karnataka"));
-        assert!(matches!(input.gst_treatment, Some(GstTreatment::Registered)));
+        assert!(matches!(
+            input.gst_treatment,
+            Some(GstTreatment::Registered)
+        ));
         assert_eq!(input.items.len(), 1);
         assert_eq!(input.totals.total, 1000.0);
         assert_eq!(input.tcs_pct, Some(0.1));

@@ -120,11 +120,8 @@ pub async fn list_folders(
         .build();
 
     let coll = mongo.collection::<SabvaultFolder>(FOLDERS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabvault_folders.find"))
         })?;
     let mut rows: Vec<SabvaultFolder> = cursor.try_collect().await.map_err(|e| {
@@ -171,12 +168,9 @@ pub async fn create_folder(
     let user_id = user_oid(&user)?;
     let mut folder = folder_from_create(input, user_id)?;
     let coll = mongo.collection::<SabvaultFolder>(FOLDERS_COLL);
-    let inserted = coll
-        .insert_one(&folder)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_folders.insert"))
-        })?;
+    let inserted = coll.insert_one(&folder).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabvault_folders.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -231,9 +225,7 @@ pub async fn update_folder(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_folders.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_folders.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sabvault_folder".to_owned()))?;
 
     if let Some(event) = audit_for_update(

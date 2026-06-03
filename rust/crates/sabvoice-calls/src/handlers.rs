@@ -35,9 +35,8 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 }
 
 fn parse_iso(s: &str) -> Result<BsonDateTime> {
-    let dt = DateTime::parse_from_rfc3339(s).map_err(|_| {
-        ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp"))
-    })?;
+    let dt = DateTime::parse_from_rfc3339(s)
+        .map_err(|_| ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp")))?;
     Ok(BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
@@ -173,7 +172,12 @@ pub async fn list_calls(
             filter.insert("status", s);
         }
     }
-    if let Some(d) = q.direction.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(d) = q
+        .direction
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("direction", d);
     }
     if let Some(a) = maybe_oid(q.agent_id.as_deref()) {
@@ -193,7 +197,10 @@ pub async fn list_calls(
         filter.insert("startedAt", range);
     }
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        let or = build_q_filter(needle, &["fromNumber", "toNumber", "notes", "providerCallSid"]);
+        let or = build_q_filter(
+            needle,
+            &["fromNumber", "toNumber", "notes", "providerCallSid"],
+        );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
         }
@@ -206,11 +213,10 @@ pub async fn list_calls(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<VoiceCall>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvoice_calls.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvoice_calls.find"))
+        })?;
     let mut rows: Vec<VoiceCall> = cursor
         .try_collect()
         .await
@@ -262,8 +268,7 @@ pub async fn create_call(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

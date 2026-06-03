@@ -163,13 +163,9 @@ pub async fn list_resources(
         .build();
 
     let coll = mongo.collection::<BookingResource>(RESOURCES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_booking_resources.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_booking_resources.find"))
+    })?;
     let rows: Vec<BookingResource> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_booking_resources.collect"))
     })?;
@@ -223,9 +219,7 @@ pub async fn create_resource(
         return Err(ApiError::Validation("name is required.".to_owned()));
     }
     if input.capacity == 0 {
-        return Err(ApiError::Validation(
-            "capacity must be >= 1.".to_owned(),
-        ));
+        return Err(ApiError::Validation("capacity must be >= 1.".to_owned()));
     }
 
     let user_id = user_oid(&user)?;
@@ -355,14 +349,9 @@ pub async fn delete_resource(
     };
 
     let coll = mongo.collection::<Document>(RESOURCES_COLL);
-    let res = coll
-        .update_one(filter, update)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_booking_resources.soft_delete"),
-            )
-        })?;
+    let res = coll.update_one(filter, update).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_booking_resources.soft_delete"))
+    })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("bookingResource".to_owned()));
     }
@@ -482,14 +471,10 @@ pub async fn create_booking(
     Json(input): Json<CreateBookingInput>,
 ) -> Result<Json<Booking>> {
     if input.resource_id.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "resourceId is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("resourceId is required.".to_owned()));
     }
     if input.customer_id.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "customerId is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("customerId is required.".to_owned()));
     }
     if input.slot_end <= input.slot_start {
         return Err(ApiError::Validation(
@@ -529,9 +514,9 @@ pub async fn create_booking(
     };
 
     let coll = mongo.collection::<Booking>(BOOKINGS_COLL);
-    coll.insert_one(&booking)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.insert_one")))?;
+    coll.insert_one(&booking).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.insert_one"))
+    })?;
 
     Ok(Json(booking))
 }
@@ -633,9 +618,7 @@ pub async fn update_booking(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_bookings.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("booking".to_owned()))?;
 
@@ -662,12 +645,9 @@ pub async fn delete_booking(
     let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(BOOKINGS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("booking".to_owned()));
     }
@@ -720,9 +700,7 @@ pub async fn check_in_booking(
     let res = coll
         .update_one(filter.clone(), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.check_in"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.check_in")))?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("booking".to_owned()));
     }
@@ -792,9 +770,7 @@ pub async fn cancel_booking(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_bookings.find_one(after-cancel)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_bookings.find_one(after-cancel)"))
         })?
         .ok_or_else(|| ApiError::NotFound("booking".to_owned()))?;
 

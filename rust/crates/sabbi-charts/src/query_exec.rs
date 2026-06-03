@@ -133,7 +133,8 @@ fn build_agg_pipeline(spec: &ChartSpec, dims: &[String], meas: &[Measure]) -> Ve
         group_id.insert(d.clone(), format!("${d}"));
     }
 
-    let mut group = doc! { "_id": if dims.is_empty() { Bson::Null } else { Bson::Document(group_id) } };
+    let mut group =
+        doc! { "_id": if dims.is_empty() { Bson::Null } else { Bson::Document(group_id) } };
     for m in meas {
         group.insert(m.alias.clone(), measure_accumulator(m));
     }
@@ -239,11 +240,12 @@ pub async fn run_chart(mongo: &MongoHandle, spec: ChartSpec) -> Result<RunChartR
         .aggregate(pipeline)
         .with_options(opts)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.run.aggregate")))?;
-    let rows: Vec<Document> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.run.collect")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.run.aggregate"))
+        })?;
+    let rows: Vec<Document> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.run.collect"))
+    })?;
 
     let columns = build_columns(&spec.chart_type, &dims, &meas);
 

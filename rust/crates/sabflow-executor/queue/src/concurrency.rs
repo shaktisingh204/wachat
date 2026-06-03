@@ -307,10 +307,7 @@ impl WorkspaceSemaphore {
     /// in-flight period and is reset to zero only by the matching
     /// [`Self::release`] (or by the stalled-job reaper, which DECRs
     /// the counter as it moves the job from `active` → `stalled`).
-    pub async fn acquire(
-        &self,
-        workspace_id: &str,
-    ) -> Result<SemaphoreGuard, SemaphoreError> {
+    pub async fn acquire(&self, workspace_id: &str) -> Result<SemaphoreGuard, SemaphoreError> {
         let cap = (self.cap_resolver)(workspace_id);
         if cap == 0 {
             return Err(SemaphoreError::ZeroCap);
@@ -319,11 +316,7 @@ impl WorkspaceSemaphore {
 
         let result = self
             .redis_client
-            .eval(
-                ACQUIRE_LUA,
-                &[key.clone()],
-                &[cap.to_string()],
-            )
+            .eval(ACQUIRE_LUA, &[key.clone()], &[cap.to_string()])
             .await
             .map_err(SemaphoreError::Backend)?;
 
@@ -618,11 +611,8 @@ mod tests {
     #[tokio::test(flavor = "current_thread")]
     async fn semaphore_acquires_up_to_cap_then_denies() {
         let exec = Arc::new(InMemoryLuaExecutor::new());
-        let sem = WorkspaceSemaphore::new(
-            exec.clone(),
-            Box::new(|_ws: &str| 2),
-            "sabflow:executions",
-        );
+        let sem =
+            WorkspaceSemaphore::new(exec.clone(), Box::new(|_ws: &str| 2), "sabflow:executions");
 
         let g1 = sem.acquire("ws_a").await.expect("first acquire");
         let g2 = sem.acquire("ws_a").await.expect("second acquire");
@@ -645,11 +635,7 @@ mod tests {
     #[tokio::test(flavor = "current_thread")]
     async fn semaphore_zero_cap_is_rejected_eagerly() {
         let exec = Arc::new(InMemoryLuaExecutor::new());
-        let sem = WorkspaceSemaphore::new(
-            exec,
-            Box::new(|_ws: &str| 0),
-            "sabflow:executions",
-        );
+        let sem = WorkspaceSemaphore::new(exec, Box::new(|_ws: &str| 0), "sabflow:executions");
         let r = sem.acquire("ws").await;
         assert!(matches!(r, Err(SemaphoreError::ZeroCap)));
     }

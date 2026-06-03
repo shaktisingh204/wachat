@@ -1,8 +1,11 @@
 //! # sabvault-breach-alerts
 //!
-//! Per-secret breach-status cache. Provider lookup happens CLIENT-SIDE
-//! (HIBP k-anonymity); this crate only stores results. Mount under
-//! `/v1/sabvault/breach-alerts`.
+//! HTTP surface for SabCheckout subscription SabvaultBreachAlerts. A SabvaultBreachAlert describes a
+//! recurring billing template (interval, amount, optional trial / setup
+//! fee). Pages reference alerts via item entries of type `"alert"`.
+//!
+//! Backs the `sabvault_breach_alerts` Mongo collection. Mounted under
+//! `/v1/sabcheckout/alerts`. Tenant-scoped by `userId`.
 
 pub mod dto;
 pub mod handlers;

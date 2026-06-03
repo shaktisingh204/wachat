@@ -310,7 +310,8 @@ fn delivery_challan_uses_dedicated_line_item_shape() {
     );
     assert!(json.get("ewayBillNo").is_some());
     assert_eq!(
-        json.pointer("/items/0/serialNos/1").and_then(|v| v.as_str()),
+        json.pointer("/items/0/serialNos/1")
+            .and_then(|v| v.as_str()),
         Some("SN-002")
     );
     assert!(json.get("dispatchWarehouseId").is_some());

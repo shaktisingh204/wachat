@@ -19,8 +19,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    DeleteDeviceResponse, ListQuery, RegisterDeviceInput, RegisterDeviceResponse,
-    UpdateDeviceInput,
+    DeleteDeviceResponse, ListQuery, RegisterDeviceInput, RegisterDeviceResponse, UpdateDeviceInput,
 };
 use crate::types::SablensDevice;
 
@@ -64,17 +63,13 @@ pub async fn list_devices(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SablensDevice>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.find")))?;
-    let mut rows: Vec<SablensDevice> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.collect"))
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.find"))
         })?;
+    let mut rows: Vec<SablensDevice> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -99,9 +94,7 @@ pub async fn get_device(
     let row = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.find_one")))?
         .ok_or_else(|| ApiError::NotFound("sablens_device".to_owned()))?;
     Ok(Json(row))
 }
@@ -141,9 +134,7 @@ pub async fn register_device(
     let inserted = coll
         .insert_one(&entity)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.insert"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -169,7 +160,11 @@ pub async fn update_device(
     if let Some(v) = patch.label {
         set.insert("label", v);
     }
-    if let Some(v) = patch.owner_user_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .owner_user_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("ownerUserId", v);
     }
     if let Some(v) = patch.online {
@@ -179,18 +174,14 @@ pub async fn update_device(
     let res = coll
         .update_one(ownership(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.update")))?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sablens_device".to_owned()));
     }
     let after = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_device".to_owned()))?;
     Ok(Json(after))
 }
@@ -207,9 +198,7 @@ pub async fn delete_device(
     let res = coll
         .delete_one(ownership(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.delete"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.delete")))?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("sablens_device".to_owned()));
     }
@@ -241,9 +230,7 @@ pub async fn heartbeat_device(
     let after = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_devices.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_device".to_owned()))?;
     Ok(Json(after))
 }

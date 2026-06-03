@@ -169,7 +169,11 @@ pub async fn list_dsr(
 
     // Clamp the page size — guard against `limit = 0` (default fallback)
     // and silly upper bounds in one place.
-    let limit = if query.limit <= 0 { DEFAULT_LIMIT } else { query.limit };
+    let limit = if query.limit <= 0 {
+        DEFAULT_LIMIT
+    } else {
+        query.limit
+    };
     let limit = limit.clamp(1, MAX_LIMIT);
 
     let opts = FindOptions::builder()
@@ -178,13 +182,9 @@ pub async fn list_dsr(
         .build();
 
     let coll = state.mongo.collection::<Document>(DSR_REQUESTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_dsr_requests.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_dsr_requests.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_dsr_requests.collect"))
     })?;
@@ -519,9 +519,7 @@ pub async fn create_retention_rule(
     // a future `target` value can be added without a Mongo migration.
     let _ = validate_retention_target(&body.target)?;
     if body.older_than_days <= 0 {
-        return Err(ApiError::Validation(
-            "olderThanDays must be > 0".to_owned(),
-        ));
+        return Err(ApiError::Validation("olderThanDays must be > 0".to_owned()));
     }
 
     let new_oid = ObjectId::new();
@@ -601,9 +599,7 @@ pub async fn update_retention_rule(
     }
     if let Some(days) = body.older_than_days {
         if days <= 0 {
-            return Err(ApiError::Validation(
-                "olderThanDays must be > 0".to_owned(),
-            ));
+            return Err(ApiError::Validation("olderThanDays must be > 0".to_owned()));
         }
         set_doc.insert("olderThanDays", days);
     }
@@ -692,14 +688,10 @@ pub async fn sweep_retention(
         .find(doc! { "tenantId": tenant, "active": true })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_retention_rules.find(sweep)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_retention_rules.find(sweep)"))
         })?;
     let rules: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_retention_rules.collect(sweep)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_retention_rules.collect(sweep)"))
     })?;
 
     let mut out: Vec<SweepEntry> = Vec::with_capacity(rules.len());
@@ -784,4 +776,3 @@ pub async fn redact_text(
         redacted: redact_pii(&body.text),
     }))
 }
-

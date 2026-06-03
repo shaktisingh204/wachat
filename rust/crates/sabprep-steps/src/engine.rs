@@ -13,9 +13,9 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use serde_json::{Number, Value};
 
 use crate::ops::{
-    AggregateFunc, AggregateOp, CastType, DeduplicateOp, DeriveOp, FillNullsOp,
-    FilterOp, FilterOperator, JoinOp, JoinType, PivotOp, RenameOp, ReplaceOp,
-    SplitOp, TypeCastOp, UnionOp, UnpivotOp,
+    AggregateFunc, AggregateOp, CastType, DeduplicateOp, DeriveOp, FillNullsOp, FilterOp,
+    FilterOperator, JoinOp, JoinType, PivotOp, RenameOp, ReplaceOp, SplitOp, TypeCastOp, UnionOp,
+    UnpivotOp,
 };
 use crate::step::{Row, Step, StepError, StepKind, StepRunSummary};
 
@@ -67,7 +67,11 @@ pub fn apply_steps(input: Vec<Row>, steps: &[Step]) -> ExecutionResult {
         });
     }
 
-    ExecutionResult { rows, summaries, total_errors }
+    ExecutionResult {
+        rows,
+        summaries,
+        total_errors,
+    }
 }
 
 fn step_kind_name(k: &StepKind) -> &'static str {
@@ -108,8 +112,7 @@ fn value_as_string(v: &Value) -> String {
 }
 
 fn is_null_like(v: Option<&Value>) -> bool {
-    matches!(v, None | Some(Value::Null))
-        || matches!(v, Some(Value::String(s)) if s.is_empty())
+    matches!(v, None | Some(Value::Null)) || matches!(v, Some(Value::String(s)) if s.is_empty())
 }
 
 fn compare_values(a: &Value, b: &Value) -> std::cmp::Ordering {
@@ -124,9 +127,7 @@ fn compare_values(a: &Value, b: &Value) -> std::cmp::Ordering {
 // ─── filter ──────────────────────────────────────────────────────────────
 
 fn apply_filter(rows: Vec<Row>, op: &FilterOp) -> Vec<Row> {
-    rows.into_iter()
-        .filter(|r| matches_filter(r, op))
-        .collect()
+    rows.into_iter().filter(|r| matches_filter(r, op)).collect()
 }
 
 fn matches_filter(row: &Row, op: &FilterOp) -> bool {
@@ -134,8 +135,20 @@ fn matches_filter(row: &Row, op: &FilterOp) -> bool {
     match op.operator {
         FilterOperator::IsNull => is_null_like(v),
         FilterOperator::IsNotNull => !is_null_like(v),
-        FilterOperator::Equals => v.and_then(|v| op.value.as_ref().map(|val| compare_values(v, val) == std::cmp::Ordering::Equal)).unwrap_or(false),
-        FilterOperator::NotEquals => v.and_then(|v| op.value.as_ref().map(|val| compare_values(v, val) != std::cmp::Ordering::Equal)).unwrap_or(true),
+        FilterOperator::Equals => v
+            .and_then(|v| {
+                op.value
+                    .as_ref()
+                    .map(|val| compare_values(v, val) == std::cmp::Ordering::Equal)
+            })
+            .unwrap_or(false),
+        FilterOperator::NotEquals => v
+            .and_then(|v| {
+                op.value
+                    .as_ref()
+                    .map(|val| compare_values(v, val) != std::cmp::Ordering::Equal)
+            })
+            .unwrap_or(true),
         FilterOperator::Gt => cmp_op(v, op.value.as_ref(), std::cmp::Ordering::Greater, false),
         FilterOperator::Gte => cmp_op(v, op.value.as_ref(), std::cmp::Ordering::Greater, true),
         FilterOperator::Lt => cmp_op(v, op.value.as_ref(), std::cmp::Ordering::Less, false),
@@ -147,7 +160,12 @@ fn matches_filter(row: &Row, op: &FilterOp) -> bool {
     }
 }
 
-fn cmp_op(lhs: Option<&Value>, rhs: Option<&Value>, target: std::cmp::Ordering, or_eq: bool) -> bool {
+fn cmp_op(
+    lhs: Option<&Value>,
+    rhs: Option<&Value>,
+    target: std::cmp::Ordering,
+    or_eq: bool,
+) -> bool {
     if let (Some(a), Some(b)) = (lhs, rhs) {
         let ord = compare_values(a, b);
         ord == target || (or_eq && ord == std::cmp::Ordering::Equal)
@@ -178,7 +196,12 @@ fn apply_rename(rows: Vec<Row>, op: &RenameOp) -> Vec<Row> {
 
 // ─── derive ──────────────────────────────────────────────────────────────
 
-fn apply_derive(rows: Vec<Row>, op: &DeriveOp, step_index: u32, errors: &mut Vec<StepError>) -> Vec<Row> {
+fn apply_derive(
+    rows: Vec<Row>,
+    op: &DeriveOp,
+    step_index: u32,
+    errors: &mut Vec<StepError>,
+) -> Vec<Row> {
     rows.into_iter()
         .enumerate()
         .map(|(i, mut r)| {
@@ -207,11 +230,17 @@ fn apply_derive(rows: Vec<Row>, op: &DeriveOp, step_index: u32, errors: &mut Vec
 ///     placeholder substitution.
 fn eval_expression(expr: &str, row: &Row) -> Result<Value, String> {
     let expr = expr.trim();
-    if let Some(rest) = expr.strip_prefix("upper(").and_then(|s| s.strip_suffix(')')) {
+    if let Some(rest) = expr
+        .strip_prefix("upper(")
+        .and_then(|s| s.strip_suffix(')'))
+    {
         let inner = substitute(rest, row);
         return Ok(Value::String(inner.to_uppercase()));
     }
-    if let Some(rest) = expr.strip_prefix("lower(").and_then(|s| s.strip_suffix(')')) {
+    if let Some(rest) = expr
+        .strip_prefix("lower(")
+        .and_then(|s| s.strip_suffix(')'))
+    {
         let inner = substitute(rest, row);
         return Ok(Value::String(inner.to_lowercase()));
     }
@@ -219,11 +248,11 @@ fn eval_expression(expr: &str, row: &Row) -> Result<Value, String> {
         let inner = substitute(rest, row);
         return Ok(Value::String(inner.trim().to_owned()));
     }
-    if let Some(rest) = expr.strip_prefix("concat(").and_then(|s| s.strip_suffix(')')) {
-        let parts: String = rest
-            .split(',')
-            .map(|p| substitute(p.trim(), row))
-            .collect();
+    if let Some(rest) = expr
+        .strip_prefix("concat(")
+        .and_then(|s| s.strip_suffix(')'))
+    {
+        let parts: String = rest.split(',').map(|p| substitute(p.trim(), row)).collect();
         return Ok(Value::String(parts));
     }
     Ok(Value::String(substitute(expr, row)))
@@ -257,7 +286,10 @@ fn apply_split(rows: Vec<Row>, op: &SplitOp) -> Vec<Row> {
             let src = r.get(&op.column).map(value_as_string).unwrap_or_default();
             let parts: Vec<&str> = src.split(&op.delimiter).collect();
             for (i, name) in op.into.iter().enumerate() {
-                let v = parts.get(i).map(|s| Value::String((*s).to_owned())).unwrap_or(Value::Null);
+                let v = parts
+                    .get(i)
+                    .map(|s| Value::String((*s).to_owned()))
+                    .unwrap_or(Value::Null);
                 r.insert(name.clone(), v);
             }
             if !op.keep_original {
@@ -362,7 +394,12 @@ fn apply_fill_nulls(rows: Vec<Row>, op: &FillNullsOp) -> Vec<Row> {
 
 // ─── typeCast ────────────────────────────────────────────────────────────
 
-fn apply_type_cast(rows: Vec<Row>, op: &TypeCastOp, step_index: u32, errors: &mut Vec<StepError>) -> Vec<Row> {
+fn apply_type_cast(
+    rows: Vec<Row>,
+    op: &TypeCastOp,
+    step_index: u32,
+    errors: &mut Vec<StepError>,
+) -> Vec<Row> {
     rows.into_iter()
         .enumerate()
         .map(|(i, mut r)| {
@@ -424,9 +461,7 @@ fn apply_join(left: Vec<Row>, op: &JoinOp) -> Vec<Row> {
         right_index.entry(key).or_default().push(r);
     }
     let left_keys: HashSet<String> = if matches!(op.join_type, JoinType::Right | JoinType::Outer) {
-        left.iter()
-            .map(|r| join_key(r, &op.on, false))
-            .collect()
+        left.iter().map(|r| join_key(r, &op.on, false)).collect()
     } else {
         HashSet::new()
     };
@@ -560,7 +595,9 @@ fn aggregate_one(group: &[Row], column: &str, func: AggregateFunc) -> Value {
                 .iter()
                 .filter_map(|r| r.get(column).and_then(value_as_f64))
                 .sum();
-            Number::from_f64(s).map(Value::Number).unwrap_or(Value::Null)
+            Number::from_f64(s)
+                .map(Value::Number)
+                .unwrap_or(Value::Null)
         }
         AggregateFunc::Avg => {
             let nums: Vec<f64> = group
@@ -571,7 +608,9 @@ fn aggregate_one(group: &[Row], column: &str, func: AggregateFunc) -> Value {
                 Value::Null
             } else {
                 let avg = nums.iter().sum::<f64>() / nums.len() as f64;
-                Number::from_f64(avg).map(Value::Number).unwrap_or(Value::Null)
+                Number::from_f64(avg)
+                    .map(Value::Number)
+                    .unwrap_or(Value::Null)
             }
         }
         AggregateFunc::Min => group
@@ -669,11 +708,19 @@ mod tests {
     use serde_json::json;
 
     fn row(pairs: &[(&str, Value)]) -> Row {
-        pairs.iter().map(|(k, v)| ((*k).to_owned(), v.clone())).collect()
+        pairs
+            .iter()
+            .map(|(k, v)| ((*k).to_owned(), v.clone()))
+            .collect()
     }
 
     fn step(kind: StepKind) -> Step {
-        Step { id: None, label: None, disabled: false, kind }
+        Step {
+            id: None,
+            label: None,
+            disabled: false,
+            kind,
+        }
     }
 
     #[test]
@@ -743,7 +790,10 @@ mod tests {
         let right = vec![row(&[("uid", json!(1)), ("score", json!(99))])];
         let s = step(StepKind::Join(JoinOp {
             right_dataset_id: "x".into(),
-            on: vec![JoinKey { left: "uid".into(), right: "uid".into() }],
+            on: vec![JoinKey {
+                left: "uid".into(),
+                right: "uid".into(),
+            }],
             join_type: JoinType::Inner,
             right_suffix: None,
             right_rows: right,

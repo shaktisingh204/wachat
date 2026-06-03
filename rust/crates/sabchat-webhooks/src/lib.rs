@@ -136,10 +136,7 @@ where
         .route("/endpoints/{id}", delete(handlers::delete_endpoint))
         .route("/endpoints/{id}/test", post(handlers::test_endpoint))
         .route("/deliveries", get(handlers::list_deliveries))
-        .route(
-            "/deliveries/{id}/retry",
-            post(handlers::retry_delivery),
-        )
+        .route("/deliveries/{id}/retry", post(handlers::retry_delivery))
         .route("/dlq", get(handlers::list_dlq))
 }
 

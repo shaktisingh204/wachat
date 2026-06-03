@@ -183,7 +183,12 @@ pub struct SubscriptionRow {
     pub drop_pending_updates: bool,
     #[serde(skip_serializing_if = "Option::is_none", rename = "ipAddress")]
     pub ip_address: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastSetAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastSetAt"
+    )]
     pub last_set_at: Option<DateTime<Utc>>,
     #[serde(
         skip_serializing_if = "Option::is_none",
@@ -192,9 +197,15 @@ pub struct SubscriptionRow {
     pub last_telegram_error_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "pendingUpdateCount")]
     pub pending_update_count: Option<i64>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -252,7 +263,10 @@ pub struct DeliveryRow {
     pub project_id: String,
     #[serde(rename = "botId")]
     pub bot_id: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "receivedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "receivedAt"
+    )]
     pub received_at: DateTime<Utc>,
     #[serde(rename = "updateId")]
     pub update_id: i64,
@@ -263,7 +277,10 @@ pub struct DeliveryRow {
     #[serde(skip_serializing_if = "Option::is_none", rename = "fromUserId")]
     pub from_user_id: Option<String>,
     pub status: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "processingDurationMs")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "processingDurationMs"
+    )]
     pub processing_duration_ms: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
@@ -358,7 +375,10 @@ pub struct DlqRow {
     pub attempts: i64,
     #[serde(skip_serializing_if = "Option::is_none", rename = "lastError")]
     pub last_error: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "lastAttemptAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "lastAttemptAt"
+    )]
     pub last_attempt_at: DateTime<Utc>,
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -474,8 +494,7 @@ pub async fn list_subscriptions(
         .iter()
         .filter_map(|d| d.get_object_id("botId").ok().map(Bson::ObjectId))
         .collect();
-    let mut usernames: std::collections::HashMap<String, String> =
-        std::collections::HashMap::new();
+    let mut usernames: std::collections::HashMap<String, String> = std::collections::HashMap::new();
     if !bot_oids.is_empty() {
         if let Ok(cur) = s
             .mongo
@@ -1058,7 +1077,11 @@ pub async fn list_deliveries(
             filter.insert("botId", oid);
         }
     }
-    if let Some(ev) = q.event_type.as_deref().filter(|s| !s.is_empty() && *s != "all") {
+    if let Some(ev) = q
+        .event_type
+        .as_deref()
+        .filter(|s| !s.is_empty() && *s != "all")
+    {
         filter.insert("eventType", ev);
     }
     if let Some(st) = q.status.as_deref().filter(|s| !s.is_empty() && *s != "all") {
@@ -1113,7 +1136,10 @@ pub async fn list_deliveries(
     } else {
         None
     };
-    let deliveries = docs.iter().filter_map(|d| doc_to_delivery(d, false)).collect();
+    let deliveries = docs
+        .iter()
+        .filter_map(|d| doc_to_delivery(d, false))
+        .collect();
     Json(ListDeliveriesResp {
         deliveries,
         next_cursor,
@@ -1288,7 +1314,10 @@ pub async fn replay_delivery(
 
     // Insert a new delivery row that records the replay.
     let now = bson::DateTime::now();
-    let event_type = original.get_str("eventType").unwrap_or("unknown").to_owned();
+    let event_type = original
+        .get_str("eventType")
+        .unwrap_or("unknown")
+        .to_owned();
     let update_id = original
         .get_i64("updateId")
         .or_else(|_| original.get_i32("updateId").map(i64::from))
@@ -1486,8 +1515,7 @@ pub async fn log_delivery(
     error_message: Option<&str>,
 ) -> Result<String, String> {
     let now = bson::DateTime::now();
-    let payload_bson = bson::to_bson(payload)
-        .map_err(|e| format!("payload encode: {e}"))?;
+    let payload_bson = bson::to_bson(payload).map_err(|e| format!("payload encode: {e}"))?;
     let payload_doc = match payload_bson {
         Bson::Document(d) => d,
         // Wrap non-object payloads so the schema is uniform.

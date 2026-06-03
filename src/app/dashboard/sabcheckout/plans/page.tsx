@@ -5,13 +5,14 @@
  * thin client component that owns the create/edit/archive forms.
  */
 import {
-  Badge,
-  Button,
   Card,
-  ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription
 } from '@/components/zoruui';
 
 import { listSabcheckoutPlans } from '@/app/actions/sabcheckout.actions';
@@ -24,13 +25,15 @@ export default async function SabcheckoutPlansPage() {
   const plans = res.ok ? res.data.items : [];
 
   return (
-    <div className="zoruui space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Plans</h1>
-        <p className="text-sm text-[var(--zoru-muted-fg)]">
-          Recurring billing templates referenced by your payment pages.
-        </p>
-      </header>
+    <div className="flex w-full flex-col gap-6">
+      <PageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Plans</ZoruPageTitle>
+          <ZoruPageDescription>
+            Recurring billing templates referenced by your payment pages.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </PageHeader>
 
       {!res.ok ? (
         <Card>

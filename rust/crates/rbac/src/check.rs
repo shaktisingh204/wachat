@@ -35,7 +35,11 @@ pub struct EffectivePermissions {
     /// `moduleKey` → granted actions.
     pub permissions: HashMap<String, Vec<Action>>,
     /// Optional plan ceiling — kept as opaque JSON until the TS shape lands.
-    #[serde(default, rename = "planCeiling", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "planCeiling",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub plan_ceiling: Option<serde_json::Value>,
 }
 
@@ -80,7 +84,10 @@ pub async fn get_effective_permissions(
     {
         // Tenant root has no membership row yet → treat as owner.
         return Ok(EffectivePermissions::owner(
-            user.roles.first().cloned().unwrap_or_else(|| "owner".into()),
+            user.roles
+                .first()
+                .cloned()
+                .unwrap_or_else(|| "owner".into()),
         ));
     }
 
@@ -92,7 +99,10 @@ pub async fn get_effective_permissions(
         "rbac::get_effective_permissions stubbed — TS path remains authoritative",
     );
     Ok(EffectivePermissions::non_owner(
-        user.roles.first().cloned().unwrap_or_else(|| "member".into()),
+        user.roles
+            .first()
+            .cloned()
+            .unwrap_or_else(|| "member".into()),
     ))
 }
 

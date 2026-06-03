@@ -5,19 +5,22 @@
  * shared `<KbArticleForm mode="create" />`.
  */
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { KbArticleForm } from '../_components/kb-article-form';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { KbArticleForm } from "../_components/kb-article-form";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function NewKbArticlePage() {
-    return (
-        <EntityDetailShell
-            eyebrow="KNOWLEDGE BASE"
-            title="New Knowledge Base article"
-            back={{ href: '/dashboard/sabdesk/knowledge-base', label: 'Knowledge Base' }}
-        >
-            <KbArticleForm mode="create" />
-        </EntityDetailShell>
-    );
+  return (
+    <EntityDetailShell
+      eyebrow="KNOWLEDGE BASE"
+      title="New Knowledge Base article"
+      back={{
+        href: "/dashboard/sabdesk/knowledge-base",
+        label: "Knowledge Base",
+      }}
+    >
+      <KbArticleForm mode="create" />
+    </EntityDetailShell>
+  );
 }

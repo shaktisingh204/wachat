@@ -253,13 +253,9 @@ pub async fn list_rubrics(
     }
     let opts = FindOptions::builder().sort(doc! { "_id": -1 }).build();
     let coll = state.mongo.collection::<Document>(RUBRICS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_rubrics.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_rubrics.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_rubrics.collect"))
     })?;
@@ -605,11 +601,8 @@ pub async fn list_scores(
         .limit(limit)
         .build();
     let coll = state.mongo.collection::<Document>(SCORES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_scores.find"))
         })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
@@ -705,20 +698,16 @@ pub async fn leaderboard(
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_scores.aggregate"))
     })?;
     let rows: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_qa_scores.aggregate.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_qa_scores.aggregate.collect"))
     })?;
 
     let entries: Vec<LeaderboardEntry> = rows
         .iter()
         .map(|d| {
-            let agent_id = d
-                .get("_id")
-                .and_then(|b| match b {
-                    Bson::ObjectId(o) => Some(o.to_hex()),
-                    _ => None,
-                });
+            let agent_id = d.get("_id").and_then(|b| match b {
+                Bson::ObjectId(o) => Some(o.to_hex()),
+                _ => None,
+            });
             let count = d
                 .get_i32("count")
                 .map(|v| v as u64)
@@ -757,9 +746,7 @@ async fn load_conversation(
         .find_one(doc! { "_id": oid, "tenantId": tenant })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find_one(qa)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find_one(qa)"))
         })?
         .ok_or_else(|| ApiError::NotFound("Conversation not found.".to_owned()))?;
     Ok((oid, doc_))

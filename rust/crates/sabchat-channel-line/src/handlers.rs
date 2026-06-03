@@ -44,9 +44,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
 use tracing::instrument;
 
-use crate::dto::{
-    FollowReq, FollowResp, IngestReq, IngestResp, PostbackReq, PostbackResp,
-};
+use crate::dto::{FollowReq, FollowResp, IngestReq, IngestResp, PostbackReq, PostbackResp};
 use crate::state::SabChatChannelLineState;
 
 /// Mongo collection names — kept inline so reviews against the
@@ -290,9 +288,16 @@ pub async fn follow(
         "userId": &body.user_id,
         "kind": "follow",
     };
-    let (message_oid, now_bson) =
-        insert_system_message(&state.mongo, &tenant_id, &conversation_id, &inbox_id, &contact_id, &text, provider_metadata)
-            .await?;
+    let (message_oid, now_bson) = insert_system_message(
+        &state.mongo,
+        &tenant_id,
+        &conversation_id,
+        &inbox_id,
+        &contact_id,
+        &text,
+        provider_metadata,
+    )
+    .await?;
     bump_conversation_no_unread(&state.mongo, &conversation_id, now_bson, &text).await?;
 
     Ok(Json(FollowResp {
@@ -371,9 +376,16 @@ pub async fn postback(
         "kind": "postback",
         "data": &body.data,
     };
-    let (message_oid, now_bson) =
-        insert_system_message(&state.mongo, &tenant_id, &conversation_id, &inbox_id, &contact_id, &text, provider_metadata)
-            .await?;
+    let (message_oid, now_bson) = insert_system_message(
+        &state.mongo,
+        &tenant_id,
+        &conversation_id,
+        &inbox_id,
+        &contact_id,
+        &text,
+        provider_metadata,
+    )
+    .await?;
     bump_conversation_no_unread(&state.mongo, &conversation_id, now_bson, &text).await?;
 
     Ok(Json(PostbackResp {

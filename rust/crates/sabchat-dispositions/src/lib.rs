@@ -102,7 +102,10 @@ where
 {
     Router::new()
         // ---- literal segments first -----------------------------------
-        .route("/apply/{conversation_id}", post(handlers::apply_disposition))
+        .route(
+            "/apply/{conversation_id}",
+            post(handlers::apply_disposition),
+        )
         .route("/stats", get(handlers::disposition_stats))
         // ---- collection root ------------------------------------------
         .route(

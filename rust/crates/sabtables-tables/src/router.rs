@@ -2,7 +2,11 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -24,5 +28,8 @@ where
         )
         .route("/{tableId}/fields", post(handlers::add_field))
         .route("/{tableId}/fields/update", post(handlers::update_field))
-        .route("/{tableId}/fields/{fieldId}/delete", post(handlers::delete_field))
+        .route(
+            "/{tableId}/fields/{fieldId}/delete",
+            post(handlers::delete_field),
+        )
 }

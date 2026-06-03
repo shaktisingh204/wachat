@@ -92,7 +92,11 @@ pub async fn list_public_pages(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(v) = q.event_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .event_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("eventId", v);
     }
     if let Some(s) = q.status.as_deref().filter(|s| *s != "all") {
@@ -113,14 +117,10 @@ pub async fn list_public_pages(
         .build();
     let coll = mongo.collection::<SabbackstagePublicPage>(COLL);
     let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_public_pages.find"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.find"))
     })?;
     let mut rows: Vec<SabbackstagePublicPage> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_public_pages.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.collect"))
     })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -147,9 +147,7 @@ pub async fn get_public_page(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_public_pages.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_public_page".to_owned()))?;
     Ok(Json(row))
@@ -165,9 +163,7 @@ pub async fn create_public_page(
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabbackstagePublicPage>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_public_pages.insert"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.insert"))
     })?;
     let new_id = inserted
         .inserted_id
@@ -195,9 +191,7 @@ pub async fn update_public_page(
         .update_one(ownership_filter(user_id, oid), update)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_public_pages.update"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.update"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("sabbackstage_public_page".to_owned()));
@@ -206,9 +200,7 @@ pub async fn update_public_page(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_public_pages.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_public_page".to_owned()))?;
     Ok(Json(after))
@@ -227,9 +219,7 @@ pub async fn delete_public_page(
         .delete_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_public_pages.delete"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_public_pages.delete"))
         })?;
     Ok(Json(DeletePublicPageResponse {
         deleted: result.deleted_count > 0,

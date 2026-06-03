@@ -67,9 +67,7 @@ fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
 /// clear error here beats silently swallowing the filter.
 fn parse_rfc3339(field: &str, raw: &str) -> Result<bson::DateTime> {
     let dt: DateTime<Utc> = DateTime::parse_from_rfc3339(raw)
-        .map_err(|e| {
-            ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}"))
-        })?
+        .map_err(|e| ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}")))?
         .with_timezone(&Utc);
     Ok(bson::DateTime::from_chrono(dt))
 }
@@ -89,7 +87,10 @@ fn envelope_from_doc(d: &Document) -> Result<EventEnvelope> {
         .get_str("kind")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("event row missing kind")))?
         .to_owned();
-    let source = d.get_str("source").unwrap_or(crate::SOURCE_SYSTEM).to_owned();
+    let source = d
+        .get_str("source")
+        .unwrap_or(crate::SOURCE_SYSTEM)
+        .to_owned();
     let payload: Value = d
         .get("payload")
         .cloned()
@@ -168,16 +169,14 @@ pub async fn list_events(
 
     // ---- Query ----------------------------------------------------------
     let coll = state.mongo.collection::<Document>(EVENTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabchat_events.find"))
         })?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_events.collect"))
-    })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_events.collect")))?;
 
     // Read the next cursor off the LAST document (oldest in the page,
     // since we sorted DESC) BEFORE we move the docs through the clean
@@ -223,9 +222,7 @@ pub async fn get_event(
             "tenantId": tenant,
         })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_events.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_events.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Event not found.".to_owned()))?;
 
     Ok(Json(document_to_clean_json(doc)))

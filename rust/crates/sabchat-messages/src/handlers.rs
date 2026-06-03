@@ -160,7 +160,8 @@ pub async fn append(
     Json(body): Json<AppendMessageBody>,
 ) -> Result<Json<AppendMessageResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conversation = load_conversation_for_tenant(&state.mongo, &body.conversation_id, tenant).await?;
+    let conversation =
+        load_conversation_for_tenant(&state.mongo, &body.conversation_id, tenant).await?;
 
     let conversation_oid = conversation
         .get_object_id("_id")
@@ -183,17 +184,17 @@ pub async fn append(
 
     // Resolve sender_id. For an agent fall back to the JWT subject; for
     // bot / visitor leave it None unless the caller passed an explicit id.
-    let sender_id: Option<ObjectId> = match (sender_type, body.sender_id.as_deref()) {
-        (_, Some(s)) if !s.is_empty() => Some(
-            ObjectId::parse_str(s)
-                .map_err(|_| ApiError::BadRequest("Invalid sender id.".to_owned()))?,
-        ),
-        (SenderType::Agent, _) => Some(
-            ObjectId::parse_str(&auth.user_id)
-                .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()))?,
-        ),
-        _ => None,
-    };
+    let sender_id: Option<ObjectId> =
+        match (sender_type, body.sender_id.as_deref()) {
+            (_, Some(s)) if !s.is_empty() => Some(
+                ObjectId::parse_str(s)
+                    .map_err(|_| ApiError::BadRequest("Invalid sender id.".to_owned()))?,
+            ),
+            (SenderType::Agent, _) => Some(ObjectId::parse_str(&auth.user_id).map_err(|_| {
+                ApiError::Unauthorized("subject is not a valid ObjectId".to_owned())
+            })?),
+            _ => None,
+        };
 
     // ---- Insert the message --------------------------------------------
     let now = Utc::now();
@@ -224,10 +225,9 @@ pub async fn append(
     }
 
     let messages = state.mongo.collection::<Document>(MESSAGES_COLL);
-    messages
-        .insert_one(new_doc.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.insert_one")))?;
+    messages.insert_one(new_doc.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.insert_one"))
+    })?;
 
     // ---- Patch the parent conversation ---------------------------------
     //
@@ -344,11 +344,10 @@ pub async fn list(
         .build();
 
     let coll = state.mongo.collection::<Document>(MESSAGES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.find"))
+        })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.collect"))
     })?;

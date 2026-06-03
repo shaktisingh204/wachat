@@ -52,7 +52,8 @@ pub fn bson_to_clean_json(bson: Bson) -> Value {
         Bson::Symbol(s) => Value::String(s),
         Bson::Binary(b) => Value::String(hex::encode(b.bytes)),
         Bson::RegularExpression(r) => Value::String(r.pattern),
-        Bson::JavaScriptCode(c) | Bson::JavaScriptCodeWithScope(bson::JavaScriptCodeWithScope { code: c, .. }) => {
+        Bson::JavaScriptCode(c)
+        | Bson::JavaScriptCodeWithScope(bson::JavaScriptCodeWithScope { code: c, .. }) => {
             Value::String(c)
         }
         Bson::Decimal128(d) => Value::String(d.to_string()),

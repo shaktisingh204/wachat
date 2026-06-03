@@ -19,9 +19,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateBugInput, CreateBugResponse, DeleteBugResponse, ListQuery, UpdateBugInput,
-};
+use crate::dto::{CreateBugInput, CreateBugResponse, DeleteBugResponse, ListQuery, UpdateBugInput};
 use crate::types::Bug;
 
 const COLL: &str = "sabbugs_bugs";
@@ -309,7 +307,10 @@ pub async fn list_bugs(
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, &q, user_id);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        let or = build_q_filter(needle, &["title", "description", "reproSteps", "environment"]);
+        let or = build_q_filter(
+            needle,
+            &["title", "description", "reproSteps", "environment"],
+        );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
         }
@@ -327,9 +328,10 @@ pub async fn list_bugs(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.find")))?;
-    let mut rows: Vec<Bug> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.collect"))
-    })?;
+    let mut rows: Vec<Bug> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -354,9 +356,7 @@ pub async fn get_bug(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("bug".to_owned()))?;
     Ok(Json(row))
 }
@@ -379,8 +379,7 @@ pub async fn create_bug(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -403,9 +402,7 @@ pub async fn update_bug(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("bug".to_owned()))?;
     let update = build_update_doc(patch, &before);
     let result = coll
@@ -418,9 +415,7 @@ pub async fn update_bug(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_bugs.refetch")))?
         .ok_or_else(|| ApiError::NotFound("bug".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

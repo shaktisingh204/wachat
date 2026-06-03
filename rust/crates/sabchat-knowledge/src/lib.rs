@@ -198,10 +198,7 @@ where
     SabChatKnowledgeState: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/portals/{slug}",
-            get(public_handlers::public_get_portal),
-        )
+        .route("/portals/{slug}", get(public_handlers::public_get_portal))
         .route(
             "/portals/{slug}/articles",
             get(public_handlers::public_list_articles),

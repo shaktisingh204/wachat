@@ -91,9 +91,7 @@ impl LlmClient for StubClient {
         // reached the client untouched without needing an upstream
         // dependency.
         let preview: String = user.chars().take(80).collect();
-        let text = format!(
-            "[stub] suggested response based on the last messages — {preview}",
-        );
+        let text = format!("[stub] suggested response based on the last messages — {preview}",);
 
         let tokens_in = Self::approx_tokens(system) + Self::approx_tokens(user);
         let tokens_out = Self::approx_tokens(&text);

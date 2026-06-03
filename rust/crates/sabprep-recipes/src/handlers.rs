@@ -15,12 +15,12 @@ use crm_common::{
     search::build_q_filter,
     tenant::user_oid,
 };
-use sabprep_steps::{Row, Step, StepKind, apply_steps};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
+use sabprep_steps::{Row, Step, StepKind, apply_steps};
 use tracing::instrument;
 
 use crate::dto::{
@@ -103,7 +103,10 @@ fn build_update_doc(patch: UpdateRecipeInput) -> Result<Document> {
         }
     }
     if let Some(v) = patch.source_columns {
-        set.insert("sourceColumns", bson::to_bson(&v).unwrap_or(bson::Bson::Null));
+        set.insert(
+            "sourceColumns",
+            bson::to_bson(&v).unwrap_or(bson::Bson::Null),
+        );
     }
     if let Some(v) = patch.steps {
         set.insert("steps", bson::to_bson(&v).unwrap_or(bson::Bson::Null));
@@ -147,11 +150,10 @@ pub async fn list_recipes(
         .build();
 
     let coll = mongo.collection::<SabprepRecipe>(RECIPES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_recipes.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_recipes.find"))
+        })?;
     let mut rows: Vec<SabprepRecipe> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabprep_recipes.collect"))
     })?;
@@ -210,8 +212,7 @@ pub async fn create_recipe(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     recipe.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&recipe)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&recipe)))
     {
         write_audit(&mongo, event).await;
     }
@@ -282,7 +283,9 @@ pub async fn delete_recipe(
     let res = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_recipes.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_recipes.archive"))
+        })?;
     let deleted = res.matched_count > 0;
     if deleted {
         if let Some(event) = audit_for_delete(&user, ENTITY_KIND, oid) {
@@ -353,7 +356,11 @@ pub async fn run_recipe(
     let result = apply_steps(source_rows, &steps);
     let rows_out = result.rows.len() as u32;
     let finished = Utc::now();
-    let status_str = if result.total_errors == 0 { "ok" } else { "partial" };
+    let status_str = if result.total_errors == 0 {
+        "ok"
+    } else {
+        "partial"
+    };
 
     // Persist output rows (if requested).
     let output_dataset_id: Option<ObjectId> = if input.persist_output {
@@ -395,9 +402,10 @@ pub async fn run_recipe(
         "summaries": bson::to_bson(&result.summaries).unwrap_or(bson::Bson::Array(vec![])),
         "outputDatasetId": output_dataset_id.map(bson::Bson::ObjectId).unwrap_or(bson::Bson::Null),
     };
-    let inserted_run = runs_coll.insert_one(run_doc).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabprep_runs.insert"))
-    })?;
+    let inserted_run = runs_coll
+        .insert_one(run_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_runs.insert")))?;
     let run_id = inserted_run
         .inserted_id
         .as_object_id()
@@ -430,16 +438,20 @@ async fn fetch_source_rows(
     user_id: ObjectId,
     source_id: Option<ObjectId>,
 ) -> Result<Vec<Row>> {
-    let Some(source_id) = source_id else { return Ok(vec![]); };
+    let Some(source_id) = source_id else {
+        return Ok(vec![]);
+    };
     let coll = mongo.collection::<Document>(OUTPUTS_COLL);
     if let Some(doc) = coll
         .find_one(doc! { "_id": source_id, "userId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_outputs.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_outputs.find_one"))
+        })?
     {
         if let Ok(rows_bson) = doc.get_array("rows") {
-            let rows: Vec<Row> = bson::from_bson(bson::Bson::Array(rows_bson.clone()))
-                .unwrap_or_default();
+            let rows: Vec<Row> =
+                bson::from_bson(bson::Bson::Array(rows_bson.clone())).unwrap_or_default();
             return Ok(rows);
         }
     }

@@ -1,16 +1,19 @@
-'use client';
+"use client";
 
-import { Button, Card, Input, Label, Switch, Textarea, useZoruToast } from '@/components/zoruui';
 import {
-  useActionState,
-  useEffect,
-  useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  LoaderCircle,
-  Save } from 'lucide-react';
+  Button,
+  Card,
+  Input,
+  Label,
+  Switch,
+  Textarea,
+  useZoruToast,
+} from "@/components/zoruui";
+import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { ArrowLeft, LoaderCircle, Save } from "lucide-react";
 
 /**
  * <CustomFormForm /> — create + edit form for a tickets custom-form
@@ -21,22 +24,16 @@ import { ArrowLeft,
  * structured — no free-text JSON paste.
  */
 
-import * as React from 'react';
+import * as React from "react";
 
-import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EnumFormField } from "@/components/crm/enum-form-field";
 
-import {
-  saveForm,
-  type SaveFormState,
-} from '@/app/actions/crm-forms.actions';
-import type {
-  CrmFormDoc,
-  CrmFormStatus,
-} from '@/lib/rust-client/crm-forms';
+import { saveForm, type SaveFormState } from "@/app/actions/crm-forms.actions";
+import type { CrmFormDoc, CrmFormStatus } from "@/lib/rust-client/crm-forms";
 
-import { FormFieldsRepeater } from './form-fields-repeater';
+import { FormFieldsRepeater } from "./form-fields-repeater";
 
-const BASE = '/dashboard/sabdesk/custom-forms';
+const BASE = "/dashboard/sabdesk/custom-forms";
 
 const initialState: SaveFormState = {};
 
@@ -49,7 +46,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
-      {isEditing ? 'Save changes' : 'Create form'}
+      {isEditing ? "Save changes" : "Create form"}
     </Button>
   );
 }
@@ -66,24 +63,27 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
   const [state, formAction] = useActionState(saveForm, initialState);
 
   const [status, setStatus] = useState<CrmFormStatus>(
-    initialData?.status ?? 'draft',
+    initialData?.status ?? "draft",
   );
-  const initialSettings = (initialData?.settings ?? {}) as Record<string, unknown>;
+  const initialSettings = (initialData?.settings ?? {}) as Record<
+    string,
+    unknown
+  >;
   const [captcha, setCaptcha] = useState<boolean>(
     Boolean(initialSettings.captcha),
   );
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Saved', description: state.message });
+      toast({ title: "Saved", description: state.message });
       const id = state.id ?? initialData?._id;
       router.push(id ? `${BASE}/${id}` : BASE);
     }
     if (state?.error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: state.error,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   }, [state, toast, router, initialData?._id]);
@@ -94,11 +94,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
         <input type="hidden" name="formId" value={initialData!._id} />
       ) : null}
       <input type="hidden" name="status" value={status} />
-      <input
-        type="hidden"
-        name="captcha"
-        value={captcha ? 'true' : 'false'}
-      />
+      <input type="hidden" name="captcha" value={captcha ? "true" : "false"} />
 
       <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
@@ -111,7 +107,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               id="name"
               name="name"
               required
-              defaultValue={initialData?.name ?? ''}
+              defaultValue={initialData?.name ?? ""}
               placeholder="e.g. Contact us form"
             />
           </div>
@@ -120,7 +116,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             <Input
               id="slug"
               name="slug"
-              defaultValue={initialData?.slug ?? ''}
+              defaultValue={initialData?.slug ?? ""}
               placeholder="auto-generated-from-name"
               className="font-mono"
             />
@@ -132,7 +128,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               name="statusPicker"
               initialId={status}
               placeholder="Status"
-              onChange={(next) => setStatus((next ?? 'draft') as CrmFormStatus)}
+              onChange={(next) => setStatus((next ?? "draft") as CrmFormStatus)}
             />
           </div>
         </div>
@@ -151,7 +147,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               id="successMessage"
               name="successMessage"
               rows={2}
-              defaultValue={String(initialSettings.successMessage ?? '')}
+              defaultValue={String(initialSettings.successMessage ?? "")}
               placeholder="Shown to the submitter after a successful submission."
             />
           </div>
@@ -161,7 +157,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
               id="redirectUrl"
               name="redirectUrl"
               type="url"
-              defaultValue={String(initialSettings.redirectUrl ?? '')}
+              defaultValue={String(initialSettings.redirectUrl ?? "")}
               placeholder="https://example.com/thanks (optional)"
             />
           </div>
@@ -169,8 +165,7 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
             <div className="flex flex-col">
               <Label htmlFor="captcha-toggle">Require CAPTCHA</Label>
               <span className="text-xs text-zoru-ink-muted">
-                Recommended for public-facing forms to deter bot
-                submissions.
+                Recommended for public-facing forms to deter bot submissions.
               </span>
             </div>
             <Switch
@@ -186,7 +181,9 @@ export function CustomFormForm({ initialData }: CustomFormFormProps) {
         <Button variant="ghost" asChild>
           <Link
             href={
-              isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
+              isEditing && initialData?._id
+                ? `${BASE}/${initialData._id}`
+                : BASE
             }
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

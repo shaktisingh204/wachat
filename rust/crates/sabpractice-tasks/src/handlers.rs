@@ -165,15 +165,13 @@ pub async fn list_tasks(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeTask>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.find")))?;
-    let mut rows: Vec<SabPracticeTask> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.find"))
+        })?;
+    let mut rows: Vec<SabPracticeTask> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -198,7 +196,9 @@ pub async fn get_task(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("task".to_owned()))?;
     Ok(Json(row))
 }
@@ -215,10 +215,9 @@ pub async fn create_task(
     }
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabPracticeTask>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -244,14 +243,18 @@ pub async fn update_task(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("task".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("task".to_owned()))?;
     Ok(Json(after))
 }
@@ -268,7 +271,9 @@ pub async fn delete_task(
     let result = coll
         .delete_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_tasks.delete"))
+        })?;
     Ok(Json(DeleteTaskResponse {
         deleted: result.deleted_count > 0,
     }))

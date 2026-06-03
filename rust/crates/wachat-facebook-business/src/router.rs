@@ -89,10 +89,7 @@ where
         // BUSINESS ADMIN
         .route("/projects/{id}", get(business_details))
         .route("/projects/{id}/owned-pages", get(owned_pages))
-        .route(
-            "/projects/{id}/owned-ad-accounts",
-            get(owned_ad_accounts),
-        )
+        .route("/projects/{id}/owned-ad-accounts", get(owned_ad_accounts))
         .route(
             "/projects/{id}/owned-instagram",
             get(owned_instagram_accounts),
@@ -102,10 +99,7 @@ where
         .route("/projects/{id}/pending-users", get(pending_users))
         .route("/projects/{id}/users/invite", post(invite_user))
         // COMMERCE
-        .route(
-            "/projects/{id}/commerce/settings",
-            get(commerce_settings),
-        )
+        .route("/projects/{id}/commerce/settings", get(commerce_settings))
         .route("/projects/{id}/commerce/orders", get(orders))
         .route(
             "/projects/{id}/commerce/orders/{order_id}/fulfill",

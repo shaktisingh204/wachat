@@ -1,6 +1,6 @@
 use axum::{
-    extract::{Path, Query, State},
     Json,
+    extract::{Path, Query, State},
 };
 use bson::{doc, oid::ObjectId};
 use chrono::Utc;
@@ -19,9 +19,7 @@ use sabchat_types::{
 };
 
 use crate::{
-    dto::{
-        EndCobrowseResponse, ListCobrowseQuery, ListCobrowseResponse, RequestCobrowseResponse,
-    },
+    dto::{EndCobrowseResponse, ListCobrowseQuery, ListCobrowseResponse, RequestCobrowseResponse},
     state::SabChatCobrowseState,
 };
 
@@ -38,7 +36,9 @@ pub async fn request_session(
         .map_err(|_| ApiError::BadRequest("Invalid user_id".into()))?;
 
     // Verify conversation belongs to tenant and extract contactId
-    let conv_coll = state.mongo.collection::<bson::Document>("sabchat_conversations");
+    let conv_coll = state
+        .mongo
+        .collection::<bson::Document>("sabchat_conversations");
     let conv_doc = conv_coll
         .find_one(doc! { "_id": conv_id, "tenantId": tenant_id })
         .await
@@ -105,14 +105,14 @@ pub async fn end_session(
     let sessions_coll = state
         .mongo
         .collection::<bson::Document>("sabchat_cobrowse_sessions");
-    
+
     let now = Utc::now();
 
     // End session
     let res = sessions_coll
         .find_one_and_update(
             doc! { "_id": sess_id, "tenantId": tenant_id },
-            doc! { "$set": { "status": "ended", "endedAt": bson::DateTime::from_chrono(now) } }
+            doc! { "$set": { "status": "ended", "endedAt": bson::DateTime::from_chrono(now) } },
         )
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
@@ -122,18 +122,18 @@ pub async fn end_session(
     let conv_id = res
         .get_object_id("conversationId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("Missing conversationId")))?;
-    let contact_id = res
-        .get_object_id("contactId")
-        .unwrap_or(ObjectId::new()); // Fallback just in case
+    let contact_id = res.get_object_id("contactId").unwrap_or(ObjectId::new()); // Fallback just in case
 
     // We need inbox_id for the message. Fetch it from the conversation.
-    let conv_coll = state.mongo.collection::<bson::Document>("sabchat_conversations");
+    let conv_coll = state
+        .mongo
+        .collection::<bson::Document>("sabchat_conversations");
     let conv_doc = conv_coll
         .find_one(doc! { "_id": conv_id, "tenantId": tenant_id })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Conversation not found".into()))?;
-    
+
     let inbox_id = conv_doc
         .get_object_id("inboxId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("Missing inboxId on conversation")))?;
@@ -158,8 +158,12 @@ pub async fn end_session(
     };
 
     let msgs_coll = state.mongo.collection::<bson::Document>("sabchat_messages");
-    let msg_doc = bson::to_document(&message).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    msgs_coll.insert_one(msg_doc).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    let msg_doc =
+        bson::to_document(&message).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    msgs_coll
+        .insert_one(msg_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     // Audit event
     let event = SabChatAuditEvent {
@@ -176,9 +180,15 @@ pub async fn end_session(
         created_at: now,
     };
 
-    let audit_coll = state.mongo.collection::<bson::Document>("sabchat_audit_log");
-    let audit_doc = bson::to_document(&event).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    audit_coll.insert_one(audit_doc).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    let audit_coll = state
+        .mongo
+        .collection::<bson::Document>("sabchat_audit_log");
+    let audit_doc =
+        bson::to_document(&event).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    audit_coll
+        .insert_one(audit_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(EndCobrowseResponse::ok()))
 }
@@ -193,7 +203,7 @@ pub async fn list_sessions(
         .map_err(|_| ApiError::BadRequest("Invalid tenant_id".into()))?;
 
     let mut filter = doc! { "tenantId": tenant_id };
-    
+
     if let Some(cid_str) = query.conversation_id {
         let cid = ObjectId::parse_str(&cid_str)
             .map_err(|_| ApiError::BadRequest("Invalid conversation_id".into()))?;
@@ -203,7 +213,7 @@ pub async fn list_sessions(
     let sessions_coll = state
         .mongo
         .collection::<bson::Document>("sabchat_cobrowse_sessions");
-    
+
     let options = FindOptions::builder()
         .sort(doc! { "createdAt": -1 })
         .build();

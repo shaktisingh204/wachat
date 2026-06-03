@@ -92,11 +92,13 @@ fn criterion_from_input(c: ProbationCriterionInput) -> Option<ProbationCriterion
     })
 }
 
-fn probation_from_create(
-    input: CreateProbationInput,
-    user_id: ObjectId,
-) -> Result<CrmProbation> {
-    if input.employee_id.as_deref().map(str::trim).unwrap_or("").is_empty()
+fn probation_from_create(input: CreateProbationInput, user_id: ObjectId) -> Result<CrmProbation> {
+    if input
+        .employee_id
+        .as_deref()
+        .map(str::trim)
+        .unwrap_or("")
+        .is_empty()
         && input
             .employee_name
             .as_deref()
@@ -111,8 +113,14 @@ fn probation_from_create(
     Ok(CrmProbation {
         id: None,
         user_id,
-        employee_id: input.employee_id.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
-        employee_name: input.employee_name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        employee_id: input
+            .employee_id
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
+        employee_name: input
+            .employee_name
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         start_date: input.start_date.as_deref().and_then(parse_date),
         end_date: input.end_date.as_deref().and_then(parse_date),
         evaluator_id: input.evaluator_id,
@@ -230,9 +238,10 @@ pub async fn list_probations(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.find")))?;
-    let mut rows: Vec<CrmProbation> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_probation.collect"))
-    })?;
+    let mut rows: Vec<CrmProbation> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -258,9 +267,7 @@ pub async fn get_probation(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_probation.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.find_one")))?
         .ok_or_else(|| ApiError::NotFound("probation".to_owned()))?;
     Ok(Json(row))
 }
@@ -284,8 +291,7 @@ pub async fn create_probation(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -310,9 +316,7 @@ pub async fn update_probation(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_probation.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.find_one")))?
         .ok_or_else(|| ApiError::NotFound("probation".to_owned()))?;
 
     let update = build_update_doc(patch);
@@ -327,9 +331,7 @@ pub async fn update_probation(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_probation.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.refetch")))?
         .ok_or_else(|| ApiError::NotFound("probation".to_owned()))?;
 
     if let Some(event) = audit_for_update(
@@ -364,9 +366,7 @@ pub async fn delete_probation(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_probation.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_probation.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("probation".to_owned()));
     }

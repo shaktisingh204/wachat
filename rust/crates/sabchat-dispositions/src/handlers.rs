@@ -2,7 +2,7 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{doc, oid::ObjectId, Bson, Document};
+use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -13,10 +13,9 @@ use tracing::instrument;
 
 use crate::dto::{
     ApplyDispositionBody, ApplyDispositionResponse, CreateDispositionBody,
-    CreateDispositionResponse, DispositionPointer, DispositionStatRow,
-    DispositionStatsQuery, DispositionStatsResponse, GetDispositionResponse,
-    ListDispositionsQuery, ListDispositionsResponse, SuccessResponse,
-    UpdateDispositionBody,
+    CreateDispositionResponse, DispositionPointer, DispositionStatRow, DispositionStatsQuery,
+    DispositionStatsResponse, GetDispositionResponse, ListDispositionsQuery,
+    ListDispositionsResponse, SuccessResponse, UpdateDispositionBody,
 };
 use crate::state::SabChatDispositionsState;
 
@@ -71,7 +70,9 @@ pub async fn create_disposition(
     };
 
     let coll = state.mongo.collection::<Document>("sabchat_dispositions");
-    coll.insert_one(doc).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    coll.insert_one(doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(CreateDispositionResponse {
         disposition_id: new_oid.to_hex(),
@@ -91,7 +92,7 @@ pub async fn list_dispositions(
     let tenant_id = tenant_oid(&user)?;
 
     let mut filter = doc! { "tenantId": tenant_id };
-    
+
     if let Some(active) = query.active {
         filter.insert("active", active);
     }
@@ -110,13 +111,17 @@ pub async fn list_dispositions(
         .with_options(
             FindOptions::builder()
                 .sort(doc! { "sortOrder": 1, "code": 1 })
-                .build()
+                .build(),
         )
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut dispositions = Vec::new();
-    while let Some(doc) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
+    while let Some(doc) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
+    {
         dispositions.push(document_to_clean_json(doc));
     }
 
@@ -196,7 +201,10 @@ pub async fn update_disposition(
 
     let coll = state.mongo.collection::<Document>("sabchat_dispositions");
     let res = coll
-        .update_one(doc! { "_id": oid, "tenantId": tenant_id }, doc! { "$set": set_doc })
+        .update_one(
+            doc! { "_id": oid, "tenantId": tenant_id },
+            doc! { "$set": set_doc },
+        )
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
@@ -255,30 +263,32 @@ pub async fn apply_disposition(
     let conv_oid = oid_from_str(&conversation_id)?;
 
     let db = &state.mongo;
-    
+
     let disp_coll = db.collection::<Document>("sabchat_dispositions");
     let disposition = disp_coll
         .find_one(doc! { "code": &body.code, "tenantId": tenant_id, "active": true })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("Disposition code not found or inactive".to_owned()))?;
-    
+
     let req_note = disposition.get_bool("requiredNote").unwrap_or(false);
     let note = body.note.filter(|n| !n.trim().is_empty());
     if req_note && note.is_none() {
-        return Err(ApiError::Validation("A note is required for this disposition".to_owned()));
+        return Err(ApiError::Validation(
+            "A note is required for this disposition".to_owned(),
+        ));
     }
 
     let now_utc = Utc::now();
     let now_bson = bson::DateTime::from_chrono(now_utc);
-    
+
     let pointer = DispositionPointer {
         code: body.code.clone(),
         note: note.clone(),
         set_by: actor_id.to_hex(),
         set_at: now_utc,
     };
-    
+
     let mut pointer_doc = doc! {
         "code": &pointer.code,
         "setBy": pointer.set_by.clone(),
@@ -287,12 +297,12 @@ pub async fn apply_disposition(
     if let Some(n) = &pointer.note {
         pointer_doc.insert("note", n);
     }
-    
+
     let mut set_doc = doc! {
         "customAttrs.disposition": pointer_doc,
         "updatedAt": now_bson,
     };
-    
+
     if body.also_resolve {
         set_doc.insert("status", "resolved");
         set_doc.insert("resolvedAt", now_bson);
@@ -302,11 +312,11 @@ pub async fn apply_disposition(
     let res = conv_coll
         .update_one(
             doc! { "_id": conv_oid, "tenantId": tenant_id },
-            doc! { "$set": set_doc }
+            doc! { "$set": set_doc },
         )
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-        
+
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("Conversation not found".to_owned()));
     }
@@ -351,7 +361,7 @@ pub async fn disposition_stats(
         "customAttrs.disposition.code": { "$exists": true },
         "status": "resolved"
     };
-    
+
     let mut date_filter = doc! {};
     if let Some(from) = query.from {
         date_filter.insert("$gte", bson::DateTime::from_chrono(from));
@@ -359,11 +369,11 @@ pub async fn disposition_stats(
     if let Some(to) = query.to {
         date_filter.insert("$lte", bson::DateTime::from_chrono(to));
     }
-    
+
     if !date_filter.is_empty() {
         match_stage.insert("resolvedAt", date_filter);
     }
-    
+
     let pipeline = vec![
         doc! { "$match": match_stage },
         doc! {
@@ -377,7 +387,7 @@ pub async fn disposition_stats(
                 "from": "sabchat_dispositions",
                 "let": { "code": "$_id" },
                 "pipeline": [
-                    { "$match": { 
+                    { "$match": {
                         "$expr": { "$and": [
                             { "$eq": ["$code", "$$code"] },
                             { "$eq": ["$tenantId", tenant_id] }
@@ -401,14 +411,21 @@ pub async fn disposition_stats(
                 "_id": 0
             }
         },
-        doc! { "$sort": { "count": -1, "code": 1 } }
+        doc! { "$sort": { "count": -1, "code": 1 } },
     ];
 
     let conv_coll = db.collection::<Document>("sabchat_conversations");
-    let mut cursor = conv_coll.aggregate(pipeline).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    
+    let mut cursor = conv_coll
+        .aggregate(pipeline)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+
     let mut stats = Vec::new();
-    while let Some(doc) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
+    while let Some(doc) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
+    {
         let code = doc.get_str("code").unwrap_or("").to_owned();
         let label = doc.get_str("label").unwrap_or(&code).to_owned();
         let count = match doc.get("count") {

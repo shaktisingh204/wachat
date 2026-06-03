@@ -450,7 +450,10 @@ mod tests {
         assert_eq!(json.get("itemType").and_then(|v| v.as_str()), Some("goods"));
 
         // Default `active = true` is skip-serialized (helper `is_true`).
-        assert!(json.get("active").is_none(), "default `active=true` must skip");
+        assert!(
+            json.get("active").is_none(),
+            "default `active=true` must skip"
+        );
 
         // Round-trip back through serde.
         let back: Item = serde_json::from_value(json).unwrap();

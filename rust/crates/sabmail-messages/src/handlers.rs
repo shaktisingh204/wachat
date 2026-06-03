@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateMessageInput, CreateMessageResponse, DeleteMessageResponse, ListQuery,
-    UpdateMessageInput,
+    CreateMessageInput, CreateMessageResponse, DeleteMessageResponse, ListQuery, UpdateMessageInput,
 };
 use crate::types::SabmailMessage;
 
@@ -90,15 +89,13 @@ pub async fn list_messages(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabmailMessage>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find")))?;
-    let mut rows: Vec<SabmailMessage> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find"))
+        })?;
+    let mut rows: Vec<SabmailMessage> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -123,7 +120,9 @@ pub async fn get_message(
     let row = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabmail_message".to_owned()))?;
     Ok(Json(row))
 }
@@ -164,10 +163,9 @@ pub async fn create_message(
         updated_at: None,
     };
     let coll = mongo.collection::<SabmailMessage>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -200,7 +198,9 @@ pub async fn update_message(
     let before = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabmail_message".to_owned()))?;
 
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
@@ -219,7 +219,9 @@ pub async fn update_message(
     }
     coll.update_one(ownership(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.update"))
+        })?;
     let after = coll
         .find_one(ownership(user_id, oid))
         .await
@@ -249,7 +251,9 @@ pub async fn delete_message(
     let res = coll
         .delete_one(ownership(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_messages.delete"))
+        })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("sabmail_message".to_owned()));
     }

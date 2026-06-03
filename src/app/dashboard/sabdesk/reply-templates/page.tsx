@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Ticket Reply Templates — full list page with KPI strip, filters,
@@ -7,9 +7,16 @@
  * RBAC: crm_reply_template (view / edit / delete).
  */
 
-import * as React from 'react';
-import Link from 'next/link';
-import { MessageSquareText, Plus, Trash2, ToggleLeft, ToggleRight, Download } from 'lucide-react';
+import * as React from "react";
+import Link from "next/link";
+import {
+  MessageSquareText,
+  Plus,
+  Trash2,
+  ToggleLeft,
+  ToggleRight,
+  Download,
+} from "lucide-react";
 
 import {
   Badge,
@@ -31,12 +38,12 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-} from '@/components/zoruui';
+} from "@/components/zoruui";
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { StatusPill } from '@/components/crm/status-pill';
-import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
+import { EntityListShell } from "@/components/crm/entity-list-shell";
+import { EntityRowLink } from "@/components/crm/entity-row-link";
+import { StatusPill } from "@/components/crm/status-pill";
+import { downloadCsv, dateStamp } from "@/lib/crm-list-export";
 
 import {
   getReplyTemplates,
@@ -44,25 +51,25 @@ import {
   bulkUpdateReplyTemplates,
   bulkDeleteReplyTemplates,
   type ReplyTemplateKpis,
-} from '@/app/actions/crm-reply-templates.actions';
-import type { CrmReplyTemplateDoc } from '@/lib/rust-client/crm-reply-templates';
+} from "@/app/actions/crm-reply-templates.actions";
+import type { CrmReplyTemplateDoc } from "@/lib/rust-client/crm-reply-templates";
 
 /* ─── Constants ──────────────────────────────────────────────────── */
 
-const BASE = '/dashboard/sabdesk/reply-templates';
+const BASE = "/dashboard/sabdesk/reply-templates";
 
 const CATEGORY_OPTIONS = [
-  { value: 'all', label: 'All categories' },
-  { value: 'email', label: 'Email' },
-  { value: 'chat', label: 'Chat' },
-  { value: 'sms', label: 'SMS' },
-  { value: 'other', label: 'Other' },
+  { value: "all", label: "All categories" },
+  { value: "email", label: "Email" },
+  { value: "chat", label: "Chat" },
+  { value: "sms", label: "SMS" },
+  { value: "other", label: "Other" },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
+  { value: "all", label: "All statuses" },
+  { value: "active", label: "Active" },
+  { value: "inactive", label: "Inactive" },
 ];
 
 /* ─── KPI strip ──────────────────────────────────────────────────── */
@@ -76,14 +83,14 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
   const categoryCount = Object.keys(kpis.byCategory).length;
 
   const tiles = [
-    { label: 'Total templates', value: kpis.total },
-    { label: 'Active', value: kpis.active },
-    { label: 'Categories', value: categoryCount },
+    { label: "Total templates", value: kpis.total },
+    { label: "Active", value: kpis.active },
+    { label: "Categories", value: categoryCount },
     {
-      label: 'Most used',
+      label: "Most used",
       value: kpis.mostUsedName
         ? `${kpis.mostUsedName} (${kpis.mostUsedCount}×)`
-        : '—',
+        : "—",
       wide: true,
     },
   ];
@@ -91,7 +98,10 @@ function KpiStrip({ kpis, loading }: KpiStripProps) {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {tiles.map((t) => (
-        <Card key={t.label} className={t.wide ? 'col-span-2 sm:col-span-1' : ''}>
+        <Card
+          key={t.label}
+          className={t.wide ? "col-span-2 sm:col-span-1" : ""}
+        >
           <ZoruCardHeader className="pb-1 pt-4">
             <ZoruCardTitle className="text-[12px] font-medium text-zoru-ink-muted">
               {t.label}
@@ -122,19 +132,18 @@ interface BulkBarProps {
   busy: boolean;
 }
 
-function BulkBar({ selectedIds, onActivate, onDeactivate, onDelete, busy }: BulkBarProps) {
+function BulkBar({
+  selectedIds,
+  onActivate,
+  onDeactivate,
+  onDelete,
+  busy,
+}: BulkBarProps) {
   const n = selectedIds.length;
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-medium text-zoru-ink">
-        {n} selected
-      </span>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onActivate}
-        disabled={busy}
-      >
+      <span className="text-sm font-medium text-zoru-ink">{n} selected</span>
+      <Button variant="outline" size="sm" onClick={onActivate} disabled={busy}>
         <ToggleRight className="mr-1.5 h-3.5 w-3.5" />
         Activate
       </Button>
@@ -176,9 +185,9 @@ export default function TicketReplyTemplatesPage() {
   const [loadError, setLoadError] = React.useState<string | null>(null);
 
   // Filters
-  const [search, setSearch] = React.useState('');
-  const [categoryFilter, setCategoryFilter] = React.useState('all');
-  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [search, setSearch] = React.useState("");
+  const [categoryFilter, setCategoryFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState("all");
 
   // Selection
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -228,11 +237,11 @@ export default function TicketReplyTemplatesPage() {
         const inBody = t.body.toLowerCase().includes(q);
         if (!inName && !inBody) return false;
       }
-      if (categoryFilter !== 'all') {
-        if ((t.category ?? 'other') !== categoryFilter) return false;
+      if (categoryFilter !== "all") {
+        if ((t.category ?? "other") !== categoryFilter) return false;
       }
-      if (statusFilter !== 'all') {
-        const isActive = statusFilter === 'active';
+      if (statusFilter !== "all") {
+        const isActive = statusFilter === "active";
         if (t.isActive !== isActive) return false;
       }
       return true;
@@ -242,8 +251,7 @@ export default function TicketReplyTemplatesPage() {
   /* Selection helpers */
   const allVisibleIds = filtered.map((t) => t._id);
   const allChecked =
-    allVisibleIds.length > 0 &&
-    allVisibleIds.every((id) => selected.has(id));
+    allVisibleIds.length > 0 && allVisibleIds.every((id) => selected.has(id));
   const someChecked =
     !allChecked && allVisibleIds.some((id) => selected.has(id));
 
@@ -279,10 +287,12 @@ export default function TicketReplyTemplatesPage() {
     );
     setKpis((prev) => ({
       ...prev,
-      active: prev.active + ids.filter((id) => {
-        const t = templates.find((x) => x._id === id);
-        return t && !t.isActive;
-      }).length,
+      active:
+        prev.active +
+        ids.filter((id) => {
+          const t = templates.find((x) => x._id === id);
+          return t && !t.isActive;
+        }).length,
     }));
     setSelected(new Set());
     setBusy(false);
@@ -319,13 +329,13 @@ export default function TicketReplyTemplatesPage() {
 
   /* Export CSV */
   function handleExport() {
-    const headers = ['name', 'category', 'usageCount', 'status', 'createdAt'];
+    const headers = ["name", "category", "usageCount", "status", "createdAt"];
     const rows = filtered.map((t) => ({
       name: t.name,
-      category: t.category ?? '',
+      category: t.category ?? "",
       usageCount: t.usageCount,
-      status: t.isActive ? 'active' : 'inactive',
-      createdAt: t.createdAt ?? '',
+      status: t.isActive ? "active" : "inactive",
+      createdAt: t.createdAt ?? "",
     }));
     downloadCsv(`reply-templates-${dateStamp()}.csv`, headers, rows);
   }
@@ -405,8 +415,8 @@ export default function TicketReplyTemplatesPage() {
         <div className="rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-3 text-sm text-zoru-ink dark:border-zoru-line dark:bg-zoru-ink/30 dark:text-zoru-ink-muted">
           <span className="font-medium">Confirm delete:</span> This will
           permanently delete {selectedIds.length} template
-          {selectedIds.length !== 1 ? 's' : ''}. Click Delete again to confirm
-          or{' '}
+          {selectedIds.length !== 1 ? "s" : ""}. Click Delete again to confirm
+          or{" "}
           <button
             type="button"
             className="underline"
@@ -426,17 +436,31 @@ export default function TicketReplyTemplatesPage() {
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="w-10">
                   <Checkbox
-                    checked={allChecked || (someChecked ? 'indeterminate' : false)}
+                    checked={
+                      allChecked || (someChecked ? "indeterminate" : false)
+                    }
                     onCheckedChange={toggleAll}
                     aria-label="Select all visible"
                   />
                 </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Preview</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted text-right">Used</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Actions</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">
+                  Name
+                </ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">
+                  Category
+                </ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">
+                  Preview
+                </ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted text-right">
+                  Used
+                </ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">
+                  Status
+                </ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">
+                  Actions
+                </ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>
@@ -493,16 +517,16 @@ export default function TicketReplyTemplatesPage() {
                       )}
                     </ZoruTableCell>
                     <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] text-zoru-ink-muted">
-                      {(t.body ?? '').slice(0, 50)}
-                      {(t.body ?? '').length > 50 ? '…' : ''}
+                      {(t.body ?? "").slice(0, 50)}
+                      {(t.body ?? "").length > 50 ? "…" : ""}
                     </ZoruTableCell>
                     <ZoruTableCell className="text-right tabular-nums text-zoru-ink">
                       {t.usageCount}
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <StatusPill
-                        label={t.isActive ? 'Active' : 'Inactive'}
-                        tone={t.isActive ? 'green' : 'neutral'}
+                        label={t.isActive ? "Active" : "Inactive"}
+                        tone={t.isActive ? "green" : "neutral"}
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>

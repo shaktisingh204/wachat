@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SabcatalystRecord {
-    #[serde(rename = "_id")] pub id: ObjectId,
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
     pub table_id: ObjectId,
     pub project_id: ObjectId,
     pub user_id: ObjectId,

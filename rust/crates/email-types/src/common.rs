@@ -21,8 +21,12 @@ pub struct PageQuery {
     pub limit: u64,
 }
 
-fn default_page() -> u64 { 1 }
-fn default_limit() -> u64 { 20 }
+fn default_page() -> u64 {
+    1
+}
+fn default_limit() -> u64 {
+    20
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -37,6 +41,12 @@ pub struct PageResponse<T> {
 impl<T> PageResponse<T> {
     pub fn new(items: Vec<T>, total: u64, page: u64, limit: u64) -> Self {
         let has_more = page * limit < total;
-        Self { items, total, page, limit, has_more }
+        Self {
+            items,
+            total,
+            page,
+            limit,
+            has_more,
+        }
     }
 }

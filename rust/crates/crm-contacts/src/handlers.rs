@@ -23,8 +23,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateContactInput, CreateContactResponse, DeleteContactResponse, ListQuery,
-    UpdateContactInput,
+    CreateContactInput, CreateContactResponse, DeleteContactResponse, ListQuery, UpdateContactInput,
 };
 use crate::types::CrmContact;
 
@@ -196,9 +195,10 @@ pub async fn list_contacts(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.find")))?;
-    let mut rows: Vec<CrmContact> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.collect"))
-    })?;
+    let mut rows: Vec<CrmContact> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -269,8 +269,7 @@ pub async fn create_contact(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     contact.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&contact)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&contact)))
     {
         write_audit(&mongo, event).await;
     }

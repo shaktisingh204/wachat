@@ -25,10 +25,7 @@
 //! safe. `status` updates are also idempotent by definition since they
 //! only `$set` a status string.
 
-use axum::{
-    Json,
-    extract::State,
-};
+use axum::{Json, extract::State};
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{DateTime, Utc};
 use sabchat_types::ContentBlock;
@@ -115,14 +112,9 @@ pub async fn ingest(
             ],
         })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| {
-            ApiError::NotFound(format!(
-                "No SMS inbox is bound to the number {}.",
-                body.to
-            ))
+            ApiError::NotFound(format!("No SMS inbox is bound to the number {}.", body.to))
         })?;
 
     if !inbox.get_bool("enabled").unwrap_or(true) {
@@ -214,9 +206,7 @@ pub async fn ingest(
                 "updatedAt": now_bson,
             };
             contacts.insert_one(new_doc).await.map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("sabchat_contacts.insert_one"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.insert_one"))
             })?;
             new_oid
         }
@@ -237,9 +227,7 @@ pub async fn ingest(
         })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find_one"))
         })?;
 
     let conversation_oid = match existing_convo {
@@ -279,9 +267,8 @@ pub async fn ingest(
     let content = ContentBlock::Text {
         text: body.text.clone(),
     };
-    let content_bson = bson::to_bson(&content).map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("serialize ContentBlock"))
-    })?;
+    let content_bson = bson::to_bson(&content)
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("serialize ContentBlock")))?;
 
     let mut provider_metadata = doc! {
         "provider": &body.provider,
@@ -331,9 +318,7 @@ pub async fn ingest(
         .update_one(doc! { "_id": conversation_oid }, convo_update)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.update_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.update_one"))
         })?;
 
     // Bump contact `lastSeenAt` so cross-channel presence stays fresh.
@@ -410,7 +395,9 @@ pub async fn status(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.update_many(status)"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_messages.update_many(status)"),
+            )
         })?;
 
     Ok(Json(SuccessResponse::ok()))

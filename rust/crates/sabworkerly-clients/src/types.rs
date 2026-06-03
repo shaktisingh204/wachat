@@ -37,4 +37,6 @@ pub struct SabworkerlyClient {
     pub updated_at: Option<BsonDateTime>,
 }
 
-fn default_payment_terms() -> u32 { 30 }
+fn default_payment_terms() -> u32 {
+    30
+}

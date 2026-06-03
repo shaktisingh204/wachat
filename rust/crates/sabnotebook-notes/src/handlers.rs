@@ -36,12 +36,22 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 
 fn list_filter(user_id: ObjectId, q: &ListQuery) -> Document {
     let mut filter = doc! { "userId": user_id };
-    if let Some(p) = q.section_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(p) = q
+        .section_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if let Ok(oid) = ObjectId::parse_str(p) {
             filter.insert("sectionId", oid);
         }
     }
-    if let Some(p) = q.notebook_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(p) = q
+        .notebook_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if let Ok(oid) = ObjectId::parse_str(p) {
             filter.insert("notebookId", oid);
         }
@@ -104,7 +114,10 @@ fn note_from_create(input: CreateNoteInput, user_id: ObjectId) -> Result<Sabnote
         user_id,
         section_id: section_oid,
         notebook_id: notebook_oid,
-        title: input.title.map(|t| t.trim().to_owned()).filter(|s| !s.is_empty()),
+        title: input
+            .title
+            .map(|t| t.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         kind,
         blocks_json: input.blocks_json,
         preview: input.preview,
@@ -122,10 +135,18 @@ fn note_from_create(input: CreateNoteInput, user_id: ObjectId) -> Result<Sabnote
 fn build_update_doc(patch: UpdateNoteInput) -> Result<Document> {
     let now = BsonDateTime::from_chrono(Utc::now());
     let mut set = doc! { "updatedAt": now };
-    if let Some(v) = patch.section_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .section_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("sectionId", v);
     }
-    if let Some(v) = patch.notebook_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .notebook_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("notebookId", v);
     }
     if let Some(v) = patch.title {
@@ -202,9 +223,10 @@ pub async fn list_notes(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabnotebookNote>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_notes.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_notes.find"))
+        })?;
     let mut rows: Vec<SabnotebookNote> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_notes.collect"))
     })?;
@@ -256,8 +278,7 @@ pub async fn create_note(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -362,9 +383,7 @@ pub async fn pin_note(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_notes.pin"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_notes.pin")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("note".to_owned()));
     }
@@ -433,7 +452,12 @@ pub async fn search_notes(
         "userId": user_id,
         "trashed": doc! { "$ne": true },
     };
-    if let Some(p) = q.notebook_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(p) = q
+        .notebook_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if let Ok(oid) = ObjectId::parse_str(p) {
             filter.insert("notebookId", oid);
         }

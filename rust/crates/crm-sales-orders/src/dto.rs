@@ -233,7 +233,10 @@ mod tests {
         assert_eq!(input.client_id, "507f1f77bcf86cd799439011");
         assert_eq!(input.currency, "INR");
         assert_eq!(input.po_no.as_deref(), Some("PO-7821"));
-        assert!(matches!(input.delivery_method, Some(DeliveryMethod::Courier)));
+        assert!(matches!(
+            input.delivery_method,
+            Some(DeliveryMethod::Courier)
+        ));
         assert_eq!(input.payment_terms.as_deref(), Some("Net 30"));
         assert_eq!(input.from_kind.as_deref(), Some("quotation"));
     }

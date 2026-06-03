@@ -19,5 +19,8 @@ where
             "/",
             get(handlers::list_participants).post(handlers::join_room),
         )
-        .route("/{participantId}/leave", axum::routing::post(handlers::leave_room))
+        .route(
+            "/{participantId}/leave",
+            axum::routing::post(handlers::leave_room),
+        )
 }

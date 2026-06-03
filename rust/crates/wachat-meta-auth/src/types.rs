@@ -53,7 +53,10 @@ pub struct TokenRecord {
 
     /// Optional expiry. `None` means "non-expiring" (typical for system-user
     /// tokens) or "unknown — never introspected".
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub expires_at: Option<DateTime<Utc>>,
 
     /// First write timestamp.

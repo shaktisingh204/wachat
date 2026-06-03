@@ -59,7 +59,9 @@ pub struct SmtpConfig {
     pub use_tls: Option<bool>,
 }
 
-fn default_smtp_port() -> u16 { 587 }
+fn default_smtp_port() -> u16 {
+    587
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]

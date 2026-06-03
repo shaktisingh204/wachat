@@ -1,21 +1,19 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { notFound, redirect } from "next/navigation";
 
 /**
  * Edit SLA — server wrapper that loads the SLA by id and hands it to
  * `<SlaForm />` as `initialData`.
  */
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getSlaById } from '@/app/actions/crm-sla.actions';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { getSession } from "@/app/actions/user.actions";
+import { getSlaById } from "@/app/actions/crm-sla.actions";
 
-import { SlaForm } from '../../_components/sla-form';
+import { SlaForm } from "../../_components/sla-form";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const BASE = '/dashboard/sabdesk/sla';
+const BASE = "/dashboard/sabdesk/sla";
 
 export default async function EditSlaPage({
   params,
@@ -25,7 +23,7 @@ export default async function EditSlaPage({
   const { id } = await params;
 
   const session = await getSession();
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const sla = await getSlaById(id);
   if (!sla) notFound();
@@ -34,7 +32,7 @@ export default async function EditSlaPage({
     <EntityDetailShell
       eyebrow="SLA POLICY"
       title={`Edit · ${sla.name}`}
-      back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+      back={{ href: `${BASE}/${id}`, label: "Back to detail" }}
     >
       <SlaForm initialData={sla} />
     </EntityDetailShell>

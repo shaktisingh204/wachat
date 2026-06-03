@@ -1,18 +1,18 @@
 use axum::{
+    Router,
     extract::{Json, State},
     http::StatusCode,
     response::IntoResponse,
     routing::post,
-    Router,
 };
 use bson::doc;
 use chrono::Utc;
 use mongodb::options::{FindOneAndUpdateOptions, ReturnDocument, UpdateOptions};
 use sabnode_db::MongoHandle;
 use sabsms_types::{DlrEvent, SabsmsMessageStatus};
-use tracing::{error, info};
-use tokio::sync::mpsc;
 use std::time::Duration;
+use tokio::sync::mpsc;
+use tracing::{error, info};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -22,14 +22,11 @@ pub struct AppState {
 
 pub fn router(db: MongoHandle) -> Router<AppState> {
     let (tx, rx) = mpsc::channel(10_000);
-    
+
     // Spawn background worker for high-throughput batch processing
     tokio::spawn(dlr_worker(db.clone(), rx));
 
-    let state = AppState {
-        db,
-        dlr_tx: tx,
-    };
+    let state = AppState { db, dlr_tx: tx };
 
     Router::new()
         .route("/dlr", post(handle_dlr))
@@ -55,7 +52,7 @@ async fn dlr_worker(db: MongoHandle, mut rx: mpsc::Receiver<DlrEvent>) {
     let batch_size = 500;
     let mut batch = Vec::with_capacity(batch_size);
     let mut interval = tokio::time::interval(Duration::from_millis(500));
-    
+
     loop {
         tokio::select! {
             _ = interval.tick() => {
@@ -89,7 +86,7 @@ async fn dlr_worker(db: MongoHandle, mut rx: mpsc::Receiver<DlrEvent>) {
 
 async fn process_batch(db: &MongoHandle, batch: &[DlrEvent]) {
     info!("Processing batch of {} DLRs", batch.len());
-    
+
     let mut tasks = Vec::with_capacity(batch.len());
     for event in batch {
         let db_clone = db.clone();
@@ -112,7 +109,7 @@ pub async fn process_dlr(db: &MongoHandle, event: DlrEvent) -> Result<(), DlrErr
     let messages_coll = db.collection::<bson::Document>("sms_messages");
 
     let filter = doc! { "id": event.message_id.to_string() };
-    
+
     let status_str = match event.status {
         SabsmsMessageStatus::Pending => "Pending",
         SabsmsMessageStatus::Sent => "Sent",
@@ -132,15 +129,23 @@ pub async fn process_dlr(db: &MongoHandle, event: DlrEvent) -> Result<(), DlrErr
         .return_document(ReturnDocument::After)
         .build();
 
-    let result = messages_coll.find_one_and_update(filter, update).with_options(opts).await?;
+    let result = messages_coll
+        .find_one_and_update(filter, update)
+        .with_options(opts)
+        .await?;
 
     if let Some(doc) = result {
-        if matches!(event.status, SabsmsMessageStatus::Failed | SabsmsMessageStatus::Undelivered) {
+        if matches!(
+            event.status,
+            SabsmsMessageStatus::Failed | SabsmsMessageStatus::Undelivered
+        ) {
             if let Ok(to) = doc.get_str("to") {
                 let suppressions_coll = db.collection::<bson::Document>("sms_suppressions");
                 let filter = doc! { "phone_number": to };
-                let reason = event.error_code.unwrap_or_else(|| "Permanent failure".to_string());
-                
+                let reason = event
+                    .error_code
+                    .unwrap_or_else(|| "Permanent failure".to_string());
+
                 let update = doc! {
                     "$setOnInsert": {
                         "phone_number": to,
@@ -149,7 +154,10 @@ pub async fn process_dlr(db: &MongoHandle, event: DlrEvent) -> Result<(), DlrErr
                     }
                 };
                 let update_opts = UpdateOptions::builder().upsert(true).build();
-                suppressions_coll.update_one(filter, update).with_options(update_opts).await?;
+                suppressions_coll
+                    .update_one(filter, update)
+                    .with_options(update_opts)
+                    .await?;
                 info!("Added {} to suppressions due to permanent failure", to);
             }
         }

@@ -77,19 +77,12 @@ pub async fn list_sessions(
         .build();
 
     let coll = mongo.collection::<SabcheckoutSession>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.find"))
-        })?;
-    let mut rows: Vec<SabcheckoutSession> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.find"))
+    })?;
+    let mut rows: Vec<SabcheckoutSession> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.collect"))
+    })?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -175,12 +168,9 @@ pub async fn public_create_session(
     };
 
     let coll = mongo.collection::<SabcheckoutSession>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_sessions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

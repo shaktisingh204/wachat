@@ -42,8 +42,9 @@ impl MetaAuthSdk {
     /// Fetches an app-level access token from Meta using client credentials.
     pub async fn fetch_app_access_token(&self) -> Result<String, ApiError> {
         let url = format!("https://graph.facebook.com/{GRAPH_API_VERSION}/oauth/access_token");
-        
-        let resp = self.http
+
+        let resp = self
+            .http
             .get(&url)
             .query(&[
                 ("client_id", self.app_id.as_str()),
@@ -67,8 +68,8 @@ impl MetaAuthSdk {
             )));
         }
 
-        let parsed: OauthTokenResp = serde_json::from_str(&body)
-            .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+        let parsed: OauthTokenResp =
+            serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
         Ok(parsed.access_token)
     }
@@ -79,10 +80,11 @@ impl MetaAuthSdk {
         short_lived: &str,
     ) -> Result<(String, Option<i64>), ApiError> {
         debug!(short = %mask(short_lived), "meta auth sdk: exchanging short-lived token");
-        
+
         let url = format!("https://graph.facebook.com/{GRAPH_API_VERSION}/oauth/access_token");
-        
-        let resp = self.http
+
+        let resp = self
+            .http
             .get(&url)
             .query(&[
                 ("grant_type", "fb_exchange_token"),
@@ -107,8 +109,8 @@ impl MetaAuthSdk {
             )));
         }
 
-        let parsed: OauthTokenResp = serde_json::from_str(&body)
-            .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+        let parsed: OauthTokenResp =
+            serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
         Ok((parsed.access_token, parsed.expires_in))
     }

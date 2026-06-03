@@ -15,10 +15,7 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_hires).post(handlers::create_hire),
-        )
+        .route("/", get(handlers::list_hires).post(handlers::create_hire))
         .route(
             "/{hireId}",
             get(handlers::get_hire)

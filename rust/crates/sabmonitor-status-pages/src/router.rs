@@ -1,8 +1,8 @@
-use std::sync::Arc;
+use crate::handlers;
 use axum::{Router, extract::FromRef, routing::get};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
-use crate::handlers;
+use std::sync::Arc;
 
 /// Authenticated CRUD router. Mount at `/v1/sabmonitor/status-pages`.
 pub fn router<S>() -> Router<S>
@@ -13,7 +13,12 @@ where
 {
     Router::new()
         .route("/", get(handlers::list_pages).post(handlers::create_page))
-        .route("/{pageId}", get(handlers::get_page).patch(handlers::update_page).delete(handlers::delete_page))
+        .route(
+            "/{pageId}",
+            get(handlers::get_page)
+                .patch(handlers::update_page)
+                .delete(handlers::delete_page),
+        )
 }
 
 /// **Unauthenticated** public router. Mount at

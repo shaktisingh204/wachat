@@ -21,18 +21,34 @@ pub struct CrmAssetAssignment {
     /// assets use string `_id`s in the existing crate.
     #[serde(rename = "asset_id")]
     pub asset_id: String,
-    #[serde(rename = "asset_name", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "asset_name",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub asset_name: Option<String>,
 
     /// Reference to an employee — also a string for symmetry with TS.
     #[serde(rename = "employee_id")]
     pub employee_id: String,
-    #[serde(rename = "employee_name", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "employee_name",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub employee_name: Option<String>,
 
-    #[serde(rename = "assigned_at", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "assigned_at",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub assigned_at: Option<BsonDateTime>,
-    #[serde(rename = "returned_at", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "returned_at",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub returned_at: Option<BsonDateTime>,
 
     /// `"new" | "good" | "fair" | "poor" | "damaged"`.

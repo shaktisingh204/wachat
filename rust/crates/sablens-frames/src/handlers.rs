@@ -17,9 +17,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateFrameInput, CreateFrameResponse, DeleteFrameResponse, ListQuery,
-};
+use crate::dto::{CreateFrameInput, CreateFrameResponse, DeleteFrameResponse, ListQuery};
 use crate::types::SablensFrame;
 
 const COLL: &str = "sablens_frames";
@@ -57,17 +55,14 @@ pub async fn list_frames(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SablensFrame>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.find"))
+        })?;
     let mut rows: Vec<SablensFrame> = cursor
         .try_collect()
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.collect"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -92,9 +87,7 @@ pub async fn get_frame(
     let row = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_frames.find_one")))?
         .ok_or_else(|| ApiError::NotFound("sablens_frame".to_owned()))?;
     Ok(Json(row))
 }

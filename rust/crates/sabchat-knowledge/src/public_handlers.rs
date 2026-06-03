@@ -108,20 +108,14 @@ pub async fn public_get_portal(
     let portal = load_active_portal_by_slug(&state.mongo, &slug).await?;
 
     let name = portal.get_str("name").unwrap_or_default().to_owned();
-    let default_language = portal
-        .get_str("defaultLanguage")
-        .unwrap_or("en")
-        .to_owned();
+    let default_language = portal.get_str("defaultLanguage").unwrap_or("en").to_owned();
 
-    let theme = portal
-        .get_document("theme")
-        .ok()
-        .and_then(|d| {
-            d.get_str("color")
-                .ok()
-                .filter(|s| !s.is_empty())
-                .map(|s| s.to_owned())
-        });
+    let theme = portal.get_document("theme").ok().and_then(|d| {
+        d.get_str("color")
+            .ok()
+            .filter(|s| !s.is_empty())
+            .map(|s| s.to_owned())
+    });
 
     Ok(Json(PublicPortalResponse {
         name,
@@ -173,8 +167,7 @@ pub async fn public_list_articles(
             .await
             .map_err(|e| {
                 ApiError::Internal(
-                    anyhow::Error::new(e)
-                        .context("sabchat_kb_categories.find_one(public_slug)"),
+                    anyhow::Error::new(e).context("sabchat_kb_categories.find_one(public_slug)"),
                 )
             })?;
         match cat.and_then(|d| d.get_object_id("_id").ok()) {
@@ -192,7 +185,12 @@ pub async fn public_list_articles(
         }
     }
 
-    if let Some(tag) = query.tag.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(tag) = query
+        .tag
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("tags", tag.to_owned());
     }
     if let Some(q) = query.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
@@ -200,14 +198,11 @@ pub async fn public_list_articles(
     }
 
     let coll = state.mongo.collection::<Document>(ARTICLES_COLL);
-    let total = coll
-        .count_documents(filter.clone())
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_articles.count_documents(public)"),
-            )
-        })?;
+    let total = coll.count_documents(filter.clone()).await.map_err(|e| {
+        ApiError::Internal(
+            anyhow::Error::new(e).context("sabchat_kb_articles.count_documents(public)"),
+        )
+    })?;
 
     // Project just what the summary needs — bandwidth + cache-friendly.
     let opts = FindOptions::builder()
@@ -222,19 +217,11 @@ pub async fn public_list_articles(
         })
         .build();
 
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_articles.find(public)"),
-            )
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.find(public)"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_articles.collect(public)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.collect(public)"))
     })?;
 
     let articles = docs
@@ -259,9 +246,7 @@ pub async fn public_list_articles(
             let updated_at = d.get("updatedAt").cloned().and_then(|b| {
                 let mut wrap = Document::new();
                 wrap.insert("updatedAt", b);
-                document_to_clean_json(wrap)
-                    .get("updatedAt")
-                    .cloned()
+                document_to_clean_json(wrap).get("updatedAt").cloned()
             });
             PublicArticleSummary {
                 title,
@@ -325,9 +310,7 @@ pub async fn public_get_article(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_articles.$inc(viewCount)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.$inc(viewCount)"))
     })?;
 
     // Reflect the +1 in the response so clients don't see a stale count.
@@ -389,9 +372,7 @@ pub async fn public_helpful_vote(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_articles.$inc(helpful)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.$inc(helpful)"))
         })?;
 
     if res.matched_count == 0 {

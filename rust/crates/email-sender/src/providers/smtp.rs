@@ -17,7 +17,8 @@ use crate::settings::SmtpConfig;
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
 
-static TRANSPORT_POOL: OnceLock<Mutex<HashMap<SmtpConfig, AsyncSmtpTransport<Tokio1Executor>>>> = OnceLock::new();
+static TRANSPORT_POOL: OnceLock<Mutex<HashMap<SmtpConfig, AsyncSmtpTransport<Tokio1Executor>>>> =
+    OnceLock::new();
 
 pub struct SmtpProvider {
     cfg: SmtpConfig,
@@ -32,8 +33,11 @@ impl SmtpProvider {
     /// The connection pool inside lettre persists behind the scenes
     /// because we cache and clone the `AsyncSmtpTransport` per config.
     fn get_transport(&self) -> Result<AsyncSmtpTransport<Tokio1Executor>> {
-        let mut map = TRANSPORT_POOL.get_or_init(|| Mutex::new(HashMap::new())).lock().unwrap();
-        
+        let mut map = TRANSPORT_POOL
+            .get_or_init(|| Mutex::new(HashMap::new()))
+            .lock()
+            .unwrap();
+
         if let Some(transport) = map.get(&self.cfg) {
             return Ok(transport.clone());
         }
@@ -52,7 +56,7 @@ impl SmtpProvider {
             }
             _ => builder,
         };
-        
+
         let transport = builder.build();
         map.insert(self.cfg.clone(), transport.clone());
         Ok(transport)
@@ -75,10 +79,7 @@ impl EmailProvider for SmtpProvider {
             .header(header::ContentType::TEXT_PLAIN)
             .body(strip_tags(&msg.html));
 
-        let mut builder = Message::builder()
-            .from(from)
-            .to(to)
-            .subject(msg.subject);
+        let mut builder = Message::builder().from(from).to(to).subject(msg.subject);
         if let Some(reply) = msg.reply_to.as_deref() {
             if let Ok(rt) = mailbox(reply, None) {
                 builder = builder.reply_to(rt);

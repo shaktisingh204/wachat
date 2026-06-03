@@ -133,12 +133,12 @@ fn run_fixture(name: &str) {
                 "fixture `{name}`: evaluator output mismatch.\n  expression: {expression}\n  got: {actual}\n  want: {want}",
             );
         }
-        ("value", Err(code)) => panic!(
-            "fixture `{name}`: expected success but evaluator returned error `{code}`"
-        ),
-        ("error", Ok(actual)) => panic!(
-            "fixture `{name}`: expected error but evaluator returned value `{actual}`"
-        ),
+        ("value", Err(code)) => {
+            panic!("fixture `{name}`: expected success but evaluator returned error `{code}`")
+        }
+        ("error", Ok(actual)) => {
+            panic!("fixture `{name}`: expected error but evaluator returned value `{actual}`")
+        }
         ("error", Err(code)) => {
             let want_code = expected
                 .get("errorCode")
@@ -162,8 +162,8 @@ fn run_fixture(name: &str) {
 #[test]
 fn fixtures_corpus_is_well_formed() {
     let dir = fixtures_dir();
-    let entries = fs::read_dir(&dir)
-        .unwrap_or_else(|e| panic!("missing fixtures dir {dir:?}: {e}"));
+    let entries =
+        fs::read_dir(&dir).unwrap_or_else(|e| panic!("missing fixtures dir {dir:?}: {e}"));
 
     let mut count = 0usize;
     for entry in entries {
@@ -202,8 +202,7 @@ fn fixtures_corpus_is_well_formed() {
 // lands. The reason string explains WHY at `cargo test -- --ignored`.
 // ---------------------------------------------------------------------
 
-const REASON_SCAFFOLD: &str =
-    "sabflow-executor-expression is a scaffold (lib.rs returns a stub string). \
+const REASON_SCAFFOLD: &str = "sabflow-executor-expression is a scaffold (lib.rs returns a stub string). \
      Tests light up once the evaluator implements `eval_template`. \
      See docs/adr/sabflow-expression-parity.md for the gap list.";
 

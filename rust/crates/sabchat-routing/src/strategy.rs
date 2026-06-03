@@ -145,7 +145,9 @@ pub(crate) async fn pick_sticky(
                 )
             })?;
         let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.collect(sticky)"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_conversations.collect(sticky)"),
+            )
         })?;
         docs.into_iter()
             .filter_map(|d| d.get_object_id("_id").ok())
@@ -156,7 +158,10 @@ pub(crate) async fn pick_sticky(
     }
 
     let assignments = mongo.collection::<Document>(ASSIGNMENTS_COLL);
-    let opts = FindOptions::builder().sort(doc! { "at": -1 }).limit(1_i64).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "at": -1 })
+        .limit(1_i64)
+        .build();
     let cursor = assignments
         .find(doc! {
             "tenantId": tenant_id,

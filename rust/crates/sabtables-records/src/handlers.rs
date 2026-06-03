@@ -47,7 +47,10 @@ fn json_map_to_doc(map: &HashMap<String, serde_json::Value>) -> Result<Document>
 async fn bump_records_count(mongo: &MongoHandle, table_id: ObjectId, delta: i32) {
     let coll = mongo.collection::<bson::Document>(TABLES_COLL);
     let _ = coll
-        .update_one(doc! { "_id": table_id }, doc! { "$inc": { "recordsCount": delta } })
+        .update_one(
+            doc! { "_id": table_id },
+            doc! { "$inc": { "recordsCount": delta } },
+        )
         .await;
 }
 
@@ -86,11 +89,8 @@ pub async fn list_records(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabtablesRecord>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabtables_records.find"))
         })?;
     let mut rows: Vec<SabtablesRecord> = cursor.try_collect().await.map_err(|e| {
@@ -253,8 +253,7 @@ pub async fn evaluate_formula(
     for (k, v) in input.fields.iter() {
         fields.insert(k.clone(), Value::from_json(v));
     }
-    let v = evaluate(&input.expression, &fields)
-        .map_err(|e| ApiError::Validation(e.0))?;
+    let v = evaluate(&input.expression, &fields).map_err(|e| ApiError::Validation(e.0))?;
     Ok(Json(EvaluateFormulaResponse { value: v.to_json() }))
 }
 

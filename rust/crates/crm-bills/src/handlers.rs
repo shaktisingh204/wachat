@@ -103,9 +103,8 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
 /// Convert a `serde_json::Value` into a `Bson` for `$set`. Rejects
 /// payloads that can't round-trip into BSON (NaN floats, etc.).
 fn json_to_bson(v: &serde_json::Value, ctx: &'static str) -> Result<Bson> {
-    bson::to_bson(v).map_err(|e| {
-        ApiError::Validation(format!("{ctx} did not serialise to BSON: {e}"))
-    })
+    bson::to_bson(v)
+        .map_err(|e| ApiError::Validation(format!("{ctx} did not serialise to BSON: {e}")))
 }
 
 /// Resolve a logical lineage parent kind to the backing Mongo
@@ -304,8 +303,16 @@ pub async fn create_bill(
     let mut linked_po_oid: Option<ObjectId> = None;
     let mut linked_grn_oids: Vec<ObjectId> = Vec::new();
     if let (Some(kind), Some(parent_id)) = (
-        input.from_kind.as_deref().map(str::trim).filter(|s| !s.is_empty()),
-        input.from_id.as_deref().map(str::trim).filter(|s| !s.is_empty()),
+        input
+            .from_kind
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
+        input
+            .from_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
     ) {
         match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
             Ok(Some((lineage, parent_oid, parent_coll))) => {
@@ -365,7 +372,12 @@ pub async fn create_bill(
     new_doc.extend(identity_doc);
     new_doc.extend(audit_doc);
     new_doc.extend(assignment_doc);
-    if let Some(bn) = input.bill_no.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(bn) = input
+        .bill_no
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         new_doc.insert("billNo", bn);
     }
     if let Some(vin) = input
@@ -436,7 +448,13 @@ pub async fn create_bill(
     if !linked_grn_oids.is_empty() {
         new_doc.insert(
             "linkedGrnIds",
-            Bson::Array(linked_grn_oids.iter().copied().map(Bson::ObjectId).collect()),
+            Bson::Array(
+                linked_grn_oids
+                    .iter()
+                    .copied()
+                    .map(Bson::ObjectId)
+                    .collect(),
+            ),
         );
     }
     if let Some(la) = lineage_array {
@@ -522,7 +540,11 @@ pub async fn update_bill(
         "updatedBy": user_id,
     };
 
-    set_opt_str(&mut set, "vendorInvoiceNo", input.vendor_invoice_no.as_ref());
+    set_opt_str(
+        &mut set,
+        "vendorInvoiceNo",
+        input.vendor_invoice_no.as_ref(),
+    );
     if let Some(d) = input.bill_date {
         set.insert("billDate", bson::DateTime::from_chrono(d));
     }
@@ -532,8 +554,7 @@ pub async fn update_bill(
     set_opt_oid(&mut set, "vendorId", input.vendor_id.as_ref())?;
 
     if let Some(items) = input.items.as_ref() {
-        let bson_items =
-            json_to_bson(&serde_json::Value::Array(items.clone()), "items")?;
+        let bson_items = json_to_bson(&serde_json::Value::Array(items.clone()), "items")?;
         set.insert("items", bson_items);
     }
     if let Some(expense_lines) = input.expense_lines.as_ref() {
@@ -567,7 +588,12 @@ pub async fn update_bill(
 
     set_opt_str(&mut set, "notes", input.notes.as_ref());
 
-    if let Some(status) = input.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(status) = input
+        .status
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if !ALLOWED_STATUSES.contains(&status) {
             return Err(ApiError::Validation(format!(
                 "status must be one of: {}",
@@ -595,9 +621,7 @@ pub async fn update_bill(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_bills.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_bills.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("bill".to_owned()))?;
 
@@ -692,7 +716,10 @@ mod tests {
 
     #[test]
     fn parent_collection_known_kinds() {
-        assert_eq!(parent_collection("purchaseOrder"), Some(PURCHASE_ORDERS_COLL));
+        assert_eq!(
+            parent_collection("purchaseOrder"),
+            Some(PURCHASE_ORDERS_COLL)
+        );
         assert_eq!(parent_collection("grn"), Some(GRNS_COLL));
         assert_eq!(parent_collection("rfq"), None);
         assert_eq!(parent_collection(""), None);

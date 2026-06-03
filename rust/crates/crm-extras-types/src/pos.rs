@@ -51,7 +51,11 @@ pub struct PosSession {
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub shift_start: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub shift_end: Option<DateTime<Utc>>,
 
     pub opening_cash: f64,
@@ -278,10 +282,7 @@ mod tests {
         assert!(json.get("sessionId").is_some());
         assert!(json.get("appliedPromotions").is_some());
         assert!(json.get("changeReturned").is_some());
-        assert!(
-            json.get("held").is_none(),
-            "held=false must skip-serialize"
-        );
+        assert!(json.get("held").is_none(), "held=false must skip-serialize");
 
         let back: PosSale = serde_json::from_value(json).unwrap();
         assert_eq!(back.payments.len(), 1);

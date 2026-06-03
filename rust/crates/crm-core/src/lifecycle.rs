@@ -48,7 +48,11 @@ impl<S: Into<String>> From<S> for Status {
 pub struct SoftDelete {
     #[serde(default, skip_serializing_if = "is_false")]
     pub archived: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deleted_at: Option<DateTime<Utc>>,
 }
 

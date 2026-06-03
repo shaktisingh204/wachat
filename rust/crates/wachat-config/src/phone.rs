@@ -53,7 +53,9 @@ pub async fn sync_numbers(
     struct ListResp {
         data: Vec<Value>,
     }
-    let path = format!("{waba_id}/phone_numbers?fields=id,display_phone_number,verified_name,code_verification_status,quality_rating,platform_type,throughput");
+    let path = format!(
+        "{waba_id}/phone_numbers?fields=id,display_phone_number,verified_name,code_verification_status,quality_rating,platform_type,throughput"
+    );
     let resp: ListResp = meta.get_json(&path, token).await?;
     let count = resp.data.len();
 
@@ -88,12 +90,24 @@ pub async fn update_profile(
 
     let mut payload = json!({ "messaging_product": "whatsapp" });
     let m = payload.as_object_mut().expect("object literal");
-    if let Some(v) = body.about { m.insert("about".into(), json!(v)); }
-    if let Some(v) = body.address { m.insert("address".into(), json!(v)); }
-    if let Some(v) = body.description { m.insert("description".into(), json!(v)); }
-    if let Some(v) = body.email { m.insert("email".into(), json!(v)); }
-    if let Some(v) = body.vertical { m.insert("vertical".into(), json!(v)); }
-    if let Some(v) = body.websites { m.insert("websites".into(), json!(v)); }
+    if let Some(v) = body.about {
+        m.insert("about".into(), json!(v));
+    }
+    if let Some(v) = body.address {
+        m.insert("address".into(), json!(v));
+    }
+    if let Some(v) = body.description {
+        m.insert("description".into(), json!(v));
+    }
+    if let Some(v) = body.email {
+        m.insert("email".into(), json!(v));
+    }
+    if let Some(v) = body.vertical {
+        m.insert("vertical".into(), json!(v));
+    }
+    if let Some(v) = body.websites {
+        m.insert("websites".into(), json!(v));
+    }
     if let Some(v) = body.profile_picture_handle {
         m.insert("profile_picture_handle".into(), json!(v));
     }

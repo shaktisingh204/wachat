@@ -93,11 +93,17 @@ pub struct CreateSubscriptionInput {
     pub started_at: DateTime<Utc>,
     pub renewal_mode: RenewalMode,
     /// While `now < trialUntil`, no invoice is generated.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub trial_until: Option<DateTime<Utc>>,
     /// Time of the next invoice. Engine advances this on each
     /// successful renewal; callers may seed it on create.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub next_billing_at: Option<DateTime<Utc>>,
 
     /* ----- line items + billing rules (★ items required) ----- */
@@ -127,9 +133,17 @@ pub struct UpdateSubscriptionInput {
     pub frequency: Option<BillingFrequency>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub renewal_mode: Option<RenewalMode>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub trial_until: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_billing_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<SubscriptionItem>>,
@@ -164,7 +178,10 @@ impl UpdateSubscriptionInput {
 #[serde(rename_all = "camelCase")]
 pub struct PauseSubscriptionInput {
     /// Resume-by timestamp. `None` means an indefinite pause.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub paused_until: Option<DateTime<Utc>>,
     /// Free-form note attached to the audit history event.
     #[serde(default)]

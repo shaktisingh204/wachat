@@ -16,11 +16,7 @@ use serde::Deserialize;
 use serde_json::Value;
 use wachat_types::Project;
 
-use crate::{
-    phone, project, qr, register,
-    state::WachatConfigState,
-    waba_setup, webhook, widget,
-};
+use crate::{phone, project, qr, register, state::WachatConfigState, waba_setup, webhook, widget};
 
 const PROJECTS_COLL: &str = "projects";
 
@@ -63,7 +59,10 @@ where
         .route("/projects/{id}/public", get(get_public))
         .route("/projects/manual-setup", post(manual_setup))
         .route("/projects/by-waba/{waba_id}", get(get_project_by_waba))
-        .route("/projects/{id}/phone-numbers/sync", post(sync_phone_numbers))
+        .route(
+            "/projects/{id}/phone-numbers/sync",
+            post(sync_phone_numbers),
+        )
         .route(
             "/projects/{id}/phone-numbers/{pnid}/profile",
             post(update_phone_profile),
@@ -102,10 +101,7 @@ where
             "/projects/{id}/phone-numbers/{pnid}/qr-codes/{code}",
             post(update_qr_code).delete(delete_qr_code),
         )
-        .route(
-            "/projects/{id}/widget-settings",
-            post(save_widget_settings),
-        )
+        .route("/projects/{id}/widget-settings", post(save_widget_settings))
         // WABA setup proxies — pre-project Meta calls used by the
         // legacy `_createProjectFromWaba` helper and the project-rename
         // flow. The accessToken is taken from the query string because

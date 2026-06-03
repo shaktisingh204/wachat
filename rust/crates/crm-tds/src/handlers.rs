@@ -35,9 +35,8 @@ fn parse_iso_date(s: &str) -> Result<BsonDateTime> {
     DateTime::parse_from_rfc3339(s)
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
         .or_else(|_| {
-            chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d").map(|nd| {
-                BsonDateTime::from_chrono(nd.and_hms_opt(0, 0, 0).unwrap().and_utc())
-            })
+            chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
+                .map(|nd| BsonDateTime::from_chrono(nd.and_hms_opt(0, 0, 0).unwrap().and_utc()))
         })
         .map_err(|_| ApiError::Validation(format!("invalid date '{s}'")))
 }
@@ -74,14 +73,9 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(
-    input: CreateTdsRecordInput,
-    user_id: ObjectId,
-) -> Result<CrmTdsRecord> {
+fn entity_from_create(input: CreateTdsRecordInput, user_id: ObjectId) -> Result<CrmTdsRecord> {
     if input.employee_name.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "employee_name is required".to_owned(),
-        ));
+        return Err(ApiError::Validation("employee_name is required".to_owned()));
     }
     if input.financial_year.trim().is_empty() {
         return Err(ApiError::Validation(
@@ -271,8 +265,7 @@ pub async fn create_tds(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

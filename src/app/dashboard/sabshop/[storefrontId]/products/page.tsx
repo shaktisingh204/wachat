@@ -1,114 +1,228 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-
+import React, { useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Plus, Search, MoreHorizontal, Filter } from "lucide-react";
 import {
-    Button,
-    Card,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    Checkbox,
-    Input,
-    useZoruToast,
-} from '@/components/zoruui';
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruPageActions,
+  Button,
+  Input,
+  Card,
+  CardContent,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  Badge,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/zoruui";
 
-import {
-    getStorefront,
-    listAvailableProducts,
-    setPublishedProducts,
-} from '@/app/actions/sabshop.actions';
+const MOCK_PRODUCTS = [
+  {
+    id: "PROD-1001",
+    title: "Premium Wireless Headphones",
+    price: "$299.99",
+    inventory: 45,
+    status: "active",
+    type: "Electronics",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80",
+  },
+  {
+    id: "PROD-1002",
+    title: "Minimalist Mechanical Keyboard",
+    price: "$149.00",
+    inventory: 12,
+    status: "active",
+    type: "Electronics",
+    image: "https://images.unsplash.com/photo-1595225476474-87563907a212?w=800&q=80",
+  },
+  {
+    id: "PROD-1003",
+    title: "Ergonomic Office Chair",
+    price: "$399.00",
+    inventory: 0,
+    status: "out_of_stock",
+    type: "Furniture",
+    image: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=800&q=80",
+  },
+  {
+    id: "PROD-1004",
+    title: "Leather Messenger Bag",
+    price: "$129.50",
+    inventory: 8,
+    status: "draft",
+    type: "Accessories",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=80",
+  },
+  {
+    id: "PROD-1005",
+    title: "Smart Home Security Camera",
+    price: "$199.99",
+    inventory: 156,
+    status: "active",
+    type: "Smart Home",
+    image: "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=800&q=80",
+  },
+];
 
-interface ProductRow {
-    _id: string;
-    name?: string;
-    sku?: string;
-    price?: number;
-}
+export default function ProductsPage() {
+  const params = useParams();
+  const storefrontId = params.storefrontId as string;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-export default function StorefrontProductsPage(): React.JSX.Element {
-    const params = useParams<{ storefrontId: string }>();
-    const { toast } = useZoruToast();
-    const id = params.storefrontId;
+  const filteredProducts = MOCK_PRODUCTS.filter((product) => {
+    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || product.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-    const [items, setItems] = React.useState<ProductRow[]>([]);
-    const [selected, setSelected] = React.useState<Set<string>>(new Set());
-    const [search, setSearch] = React.useState('');
-    const [loading, setLoading] = React.useState(true);
-    const [busy, setBusy] = React.useState(false);
-
-    React.useEffect(() => {
-        (async () => {
-            const [sfRes, prodRes] = await Promise.all([getStorefront(id), listAvailableProducts()]);
-            if (prodRes.ok) setItems(prodRes.items as ProductRow[]);
-            if (sfRes.ok) {
-                const sf = sfRes.item as { publishedProductIds?: string[] };
-                setSelected(new Set(sf.publishedProductIds ?? []));
-            }
-            setLoading(false);
-        })();
-    }, [id]);
-
-    const filtered = React.useMemo(() => {
-        if (!search.trim()) return items;
-        const n = search.toLowerCase();
-        return items.filter((p) => (p.name ?? '').toLowerCase().includes(n) || (p.sku ?? '').toLowerCase().includes(n));
-    }, [items, search]);
-
-    async function onSave() {
-        setBusy(true);
-        const res = await setPublishedProducts(id, Array.from(selected));
-        setBusy(false);
-        toast({ title: res.ok ? `${selected.size} products published` : res.error, variant: res.ok ? 'default' : 'destructive' });
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "active":
+        return <Badge variant="success">Active</Badge>;
+      case "draft":
+        return <Badge variant="secondary">Draft</Badge>;
+      case "out_of_stock":
+        return <Badge variant="destructive">Out of Stock</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
+  };
 
-    function toggle(pid: string) {
-        setSelected((prev) => {
-            const next = new Set(prev);
-            if (next.has(pid)) next.delete(pid); else next.add(pid);
-            return next;
-        });
-    }
+  return (
+    <div className="flex-1 space-y-6 p-8 w-full max-w-7xl mx-auto">
+      <PageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Products</ZoruPageTitle>
+          <ZoruPageDescription>
+            Manage your product inventory, pricing, and variants.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+        <ZoruPageActions>
+          <Button variant="outline" className="mr-2">
+            Export
+          </Button>
+          <Link href={`/dashboard/sabshop/${storefrontId}/products/new`}>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
+          </Link>
+        </ZoruPageActions>
+      </PageHeader>
 
-    return (
-        <div className="zoruui flex flex-col gap-4 p-6">
-            <header className="flex items-end justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">Publish products</h1>
-                    <p className="text-sm text-zoru-ink-muted">
-                        Choose which CRM products are listed on this storefront.
-                    </p>
-                </div>
-                <Button onClick={onSave} disabled={busy}>{busy ? 'Saving…' : 'Save selection'}</Button>
-            </header>
-
-            <Card>
-                <ZoruCardHeader className="flex flex-row items-center gap-3">
-                    <ZoruCardTitle className="flex-1">Available CRM products</ZoruCardTitle>
-                    <Input placeholder="Search…" value={search} onChange={(e) => setSearch(e.target.value)} className="max-w-xs" />
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                    {loading ? (
-                        <div className="text-sm text-zoru-ink-muted">Loading…</div>
-                    ) : filtered.length === 0 ? (
-                        <div className="text-sm text-zoru-ink-muted">No products yet. Create some in /dashboard/crm/products.</div>
-                    ) : (
-                        <ul className="divide-y divide-zoru-border">
-                            {filtered.map((p) => (
-                                <li key={p._id} className="flex items-center gap-3 py-2">
-                                    <Checkbox checked={selected.has(p._id)} onCheckedChange={() => toggle(p._id)} />
-                                    <div className="flex-1">
-                                        <div className="text-sm font-medium text-zoru-ink">{p.name ?? 'Untitled'}</div>
-                                        <div className="text-xs text-zoru-ink-muted">{p.sku ?? ''}</div>
-                                    </div>
-                                    <div className="text-sm text-zoru-ink">{p.price != null ? `₹${p.price}` : '—'}</div>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </ZoruCardContent>
-            </Card>
-        </div>
-    );
+      <Card>
+        <CardContent className="p-0">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-zoru-line gap-4">
+            <div className="relative w-full sm:max-w-sm">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-subtle" />
+              <Input
+                placeholder="Search products..."
+                className="pl-9 w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <Filter className="w-4 h-4 mr-2 text-zoru-ink-subtle" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px]">Image</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Inventory</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredProducts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center h-32 text-zoru-ink-muted">
+                      No products found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>
+                        <img 
+                          src={product.image} 
+                          alt={product.title}
+                          className="w-12 h-12 rounded-md object-cover border border-zoru-line"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium text-zoru-ink">{product.title}</div>
+                        <div className="text-xs text-zoru-ink-subtle">{product.id}</div>
+                      </TableCell>
+                      <TableCell>{getStatusBadge(product.status)}</TableCell>
+                      <TableCell>
+                        <span className={product.inventory === 0 ? "text-zoru-error font-medium" : "text-zoru-ink"}>
+                          {product.inventory} in stock
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-zoru-ink-muted">{product.type}</TableCell>
+                      <TableCell className="text-right font-medium">{product.price}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>Edit Product</DropdownMenuItem>
+                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-zoru-error">Delete</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

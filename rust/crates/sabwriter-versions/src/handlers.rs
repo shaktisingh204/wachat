@@ -43,7 +43,9 @@ async fn assert_doc_access(
             ]
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     Ok(doc)
 }
@@ -71,11 +73,12 @@ pub async fn list_versions(
         .find(doc! { "documentId": doc_oid })
         .with_options(opts)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.find")))?;
-    let mut rows: Vec<SabwriterDocumentVersion> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.collect")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.find"))
+        })?;
+    let mut rows: Vec<SabwriterDocumentVersion> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -100,7 +103,9 @@ pub async fn get_version(
     let row = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_version".to_owned()))?;
     // Access check via parent document.
     assert_doc_access(&mongo, user_id, row.document_id).await?;
@@ -147,10 +152,9 @@ pub async fn create_version(
     };
 
     let coll = mongo.collection::<SabwriterDocumentVersion>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_versions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

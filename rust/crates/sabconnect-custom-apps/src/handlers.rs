@@ -143,13 +143,9 @@ pub async fn list_apps(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabConnectCustomApp>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabconnect_custom_apps.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabconnect_custom_apps.find"))
+    })?;
     let mut rows: Vec<SabConnectCustomApp> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabconnect_custom_apps.collect"))
     })?;

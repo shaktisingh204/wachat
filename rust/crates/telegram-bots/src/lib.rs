@@ -75,10 +75,7 @@ where
 {
     Router::new()
         // listTelegramBots / connectTelegramBot
-        .route(
-            "/",
-            get(handlers::list_bots).post(handlers::connect_bot),
-        )
+        .route("/", get(handlers::list_bots).post(handlers::connect_bot))
         // CSV export — must come before /{bot_id}
         .route("/export", get(handlers::export_csv))
         // bulk disconnect

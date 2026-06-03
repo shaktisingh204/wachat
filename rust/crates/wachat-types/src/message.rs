@@ -90,6 +90,9 @@ pub struct MessageLog {
 
     /// Set every time `status` transitions. Used by health/analytics queries
     /// to compute "time-to-deliver" / "time-to-read" buckets.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub status_updated_at: Option<DateTime<Utc>>,
 }

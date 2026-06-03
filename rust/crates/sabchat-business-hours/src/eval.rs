@@ -160,8 +160,8 @@ fn next_open_after(
     // an opening when at least one window exists and that window isn't
     // permanently holiday-shadowed.
     for offset in 0..=7i64 {
-        let candidate_date: NaiveDate = (local_now.date_naive())
-            .checked_add_signed(Duration::days(offset))?;
+        let candidate_date: NaiveDate =
+            (local_now.date_naive()).checked_add_signed(Duration::days(offset))?;
         let candidate_ymd = candidate_date.format("%Y-%m-%d").to_string();
         if holidays.iter().any(|h| h == &candidate_ymd) {
             continue;

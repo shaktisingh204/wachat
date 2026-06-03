@@ -134,11 +134,7 @@ pub async fn update_profile(
     }
     if let Some(short) = body.short_description.as_deref() {
         let truncated: String = short.chars().take(120).collect();
-        if let Err(e) = s
-            .bot_api
-            .set_my_short_description(&token, &truncated)
-            .await
-        {
+        if let Err(e) = s.bot_api.set_my_short_description(&token, &truncated).await {
             return err(format!("{e}"));
         }
     }
@@ -214,7 +210,11 @@ pub async fn set_menu_button(
         ),
     };
 
-    if let Err(e) = s.bot_api.set_chat_menu_button(&token, &telegram_payload).await {
+    if let Err(e) = s
+        .bot_api
+        .set_chat_menu_button(&token, &telegram_payload)
+        .await
+    {
         return err(format!("{e}"));
     }
 

@@ -135,7 +135,9 @@ pub async fn list_catalogs(meta: &MetaClient, project: &Project) -> Result<Catal
     }
     let path = format!("{business_id}/owned_product_catalogs");
     let resp: Resp = meta.get_json(&path, token).await?;
-    Ok(CatalogList { catalogs: resp.data })
+    Ok(CatalogList {
+        catalogs: resp.data,
+    })
 }
 
 pub async fn list_products(

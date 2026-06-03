@@ -80,9 +80,7 @@ pub async fn public_config(
     let inbox = inboxes
         .find_one(doc! { "_id": inbox_oid })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("inbox not found".to_owned()))?;
 
     let enabled = inbox.get_bool("enabled").unwrap_or(true);
@@ -148,9 +146,7 @@ pub async fn start_session(
         .collection::<Document>(INBOXES_COLL)
         .find_one(doc! { "_id": inbox_oid })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("inbox not found".to_owned()))?;
 
     if !inbox.get_bool("enabled").unwrap_or(true) {
@@ -199,11 +195,7 @@ pub async fn start_session(
     // supplied `identityHmac` before trusting `externalUserId`.
     let identity_secret: Option<&str> = settings.and_then(|s| s.get_str("identity_secret").ok());
 
-    if let Some(ext_id) = body
-        .external_user_id
-        .as_deref()
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(ext_id) = body.external_user_id.as_deref().filter(|s| !s.is_empty()) {
         if let Some(secret) = identity_secret {
             let hash = body
                 .identity_hmac
@@ -233,11 +225,7 @@ pub async fn start_session(
     // Build a $or query that matches on either external id or email
     // within this tenant. The contact graph is tenant-scoped.
     let mut or_clauses: Vec<Document> = Vec::new();
-    if let Some(ext_id) = body
-        .external_user_id
-        .as_deref()
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(ext_id) = body.external_user_id.as_deref().filter(|s| !s.is_empty()) {
         or_clauses.push(doc! {
             "socialIds": { "$elemMatch": {
                 "provider": "website",
@@ -286,11 +274,7 @@ pub async fn start_session(
             if let Some(name) = body.name.as_deref().filter(|s| !s.is_empty()) {
                 new_doc.insert("name", name);
             }
-            if let Some(ext_id) = body
-                .external_user_id
-                .as_deref()
-                .filter(|s| !s.is_empty())
-            {
+            if let Some(ext_id) = body.external_user_id.as_deref().filter(|s| !s.is_empty()) {
                 new_doc.insert(
                     "socialIds",
                     Bson::Array(vec![Bson::Document(doc! {
@@ -341,9 +325,7 @@ pub async fn start_session(
         .insert_one(convo_doc)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.insert_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.insert_one"))
         })?;
     audit(
         mongo,
@@ -375,9 +357,7 @@ pub async fn start_session(
         .insert_one(session_doc)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_widget_sessions.insert_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_widget_sessions.insert_one"))
         })?;
 
     Ok(Json(StartSessionResponse {
@@ -424,9 +404,8 @@ pub async fn post_message(
     // Lift attachments out of File / Image blocks for fast indexing,
     // mirroring what `sabchat-messages::handlers::append` does.
     let attachments_bson = attachments_for(&body.content);
-    let content_bson: Bson = bson::to_bson(&body.content).map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("serialize ContentBlock"))
-    })?;
+    let content_bson: Bson = bson::to_bson(&body.content)
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("serialize ContentBlock")))?;
 
     let message_doc = doc! {
         "_id": message_oid,
@@ -470,9 +449,7 @@ pub async fn post_message(
         .update_one(doc! { "_id": session.conversation_id }, convo_update)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.update_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.update_one"))
         })?;
 
     audit(
@@ -528,9 +505,7 @@ pub async fn fetch_history(
         .find(filter)
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.find"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.find")))?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.collect"))
     })?;
@@ -672,4 +647,3 @@ async fn audit(
         })?;
     Ok(())
 }
-

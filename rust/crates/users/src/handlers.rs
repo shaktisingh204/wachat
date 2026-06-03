@@ -98,7 +98,13 @@ pub async fn session(
 
     // Initialize credits if missing — mirrors the legacy self-heal write so
     // a freshly-signed-up user lands on a usable allowance on first call.
-    let needs_credit_init = !matches!(user_doc.get("credits"), Some(Bson::Document(_)) | Some(Bson::Int32(_)) | Some(Bson::Int64(_)) | Some(Bson::Double(_)));
+    let needs_credit_init = !matches!(
+        user_doc.get("credits"),
+        Some(Bson::Document(_))
+            | Some(Bson::Int32(_))
+            | Some(Bson::Int64(_))
+            | Some(Bson::Double(_))
+    );
     if needs_credit_init {
         if let Some(plan) = plan_doc.as_ref() {
             let mut initial = doc! { "broadcast": 0, "sms": 0, "meta": 0, "email": 0 };
@@ -109,7 +115,10 @@ pub async fn session(
             }
             // Best-effort write; failure here doesn't fail the request.
             let _ = users
-                .update_one(doc! { "_id": oid }, doc! { "$set": { "credits": initial.clone() } })
+                .update_one(
+                    doc! { "_id": oid },
+                    doc! { "$set": { "credits": initial.clone() } },
+                )
                 .await;
             user_doc.insert("credits", initial);
         }
@@ -163,9 +172,7 @@ pub async fn session(
         );
     }
 
-    Ok(Json(SessionResponse {
-        user: user_value,
-    }))
+    Ok(Json(SessionResponse { user: user_value }))
 }
 
 fn document_to_me(raw: &Document) -> Result<MeResponse> {

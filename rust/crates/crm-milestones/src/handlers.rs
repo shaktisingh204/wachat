@@ -98,10 +98,7 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn milestone_from_create(
-    input: CreateMilestoneInput,
-    user_id: ObjectId,
-) -> Result<CrmMilestone> {
+fn milestone_from_create(input: CreateMilestoneInput, user_id: ObjectId) -> Result<CrmMilestone> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -239,12 +236,14 @@ pub async fn list_milestones(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmMilestone>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find"))
-    })?;
-    let mut rows: Vec<CrmMilestone> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find"))
+        })?;
+    let mut rows: Vec<CrmMilestone> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -269,9 +268,7 @@ pub async fn get_milestone(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find_one")))?
         .ok_or_else(|| ApiError::NotFound("milestone".to_owned()))?;
     Ok(Json(row))
 }
@@ -285,16 +282,16 @@ pub async fn create_milestone(
     let user_id = user_oid(&user)?;
     let mut entity = milestone_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmMilestone>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -317,26 +314,20 @@ pub async fn update_milestone(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.find_one")))?
         .ok_or_else(|| ApiError::NotFound("milestone".to_owned()))?;
     let update = build_update_doc(patch, &before.status);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("milestone".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.refetch")))?
         .ok_or_else(|| ApiError::NotFound("milestone".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -368,9 +359,7 @@ pub async fn delete_milestone(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_milestones.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("milestone".to_owned()));
     }

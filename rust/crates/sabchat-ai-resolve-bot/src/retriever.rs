@@ -102,10 +102,7 @@ pub async fn retrieve(
             Ok(o) => o.to_hex(),
             Err(_) => continue,
         };
-        let title = d
-            .get_str("title")
-            .map(str::to_owned)
-            .unwrap_or_default();
+        let title = d.get_str("title").map(str::to_owned).unwrap_or_default();
         if title.is_empty() {
             // Untitled articles aren't useful as citations.
             continue;

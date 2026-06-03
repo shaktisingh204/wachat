@@ -12728,6 +12728,7 @@ dependencies = [
  "sabcreator-role-assignments",
  "sabcreator-roles",
  "sabcreator-workflows",
+ "sabcrm-records",
  "sabdesk-automations",
  "sabdesk-kb",
  "sabfiles",
@@ -13942,6 +13943,46 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabsense-ad-units"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabsense-apps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "sabsense-form-analytics"
 version = "0.1.0"
 dependencies = [
@@ -14022,6 +14063,46 @@ dependencies = [
 
 [[package]]
 name = "sabsense-heatmaps"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabsense-placements"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "crm-common",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabsense-publishers"
 version = "0.1.0"
 dependencies = [
  "anyhow",

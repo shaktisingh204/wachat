@@ -46,10 +46,7 @@ pub fn render_for_subscriber(
         .get_object_id("_id")
         .map(|o| o.to_hex())
         .unwrap_or_default();
-    let subscriber_id = subscriber
-        .get_object_id("_id")
-        .map(|o| o.to_hex())
-        .ok();
+    let subscriber_id = subscriber.get_object_id("_id").map(|o| o.to_hex()).ok();
     let subscriber_id_ref = subscriber_id.as_deref();
 
     // Build the merge-tag table once and reuse for subject + body.
@@ -78,7 +75,14 @@ pub fn render_for_subscriber(
     let track_clicks = campaign.get_bool("trackClicks").unwrap_or(true);
 
     if track_clicks {
-        html = rewrite_links(&html, &campaign_id, subscriber_id_ref, base_url, tracking_secret, now_unix_s);
+        html = rewrite_links(
+            &html,
+            &campaign_id,
+            subscriber_id_ref,
+            base_url,
+            tracking_secret,
+            now_unix_s,
+        );
     }
     if track_opens {
         let pixel = tracking::open_pixel_url(
@@ -154,16 +158,14 @@ impl MergeContext {
             other => {
                 // `{{ custom_<key> }}` reaches into the customFields blob.
                 if let Some(key) = other.strip_prefix("custom_") {
-                    self.custom
-                        .get(key)
-                        .and_then(|v| match v {
-                            bson::Bson::String(s) => Some(s.clone()),
-                            bson::Bson::Int32(i) => Some(i.to_string()),
-                            bson::Bson::Int64(i) => Some(i.to_string()),
-                            bson::Bson::Double(f) => Some(f.to_string()),
-                            bson::Bson::Boolean(b) => Some(b.to_string()),
-                            _ => None,
-                        })
+                    self.custom.get(key).and_then(|v| match v {
+                        bson::Bson::String(s) => Some(s.clone()),
+                        bson::Bson::Int32(i) => Some(i.to_string()),
+                        bson::Bson::Int64(i) => Some(i.to_string()),
+                        bson::Bson::Double(f) => Some(f.to_string()),
+                        bson::Bson::Boolean(b) => Some(b.to_string()),
+                        _ => None,
+                    })
                 } else {
                     None
                 }
@@ -202,8 +204,14 @@ fn rewrite_links(
     let re = Regex::new(r#"href="(https?://[^"]+)""#).expect("href regex");
     re.replace_all(html, |caps: &regex::Captures<'_>| {
         let target = caps.get(1).map(|m| m.as_str()).unwrap_or("");
-        let wrapped =
-            tracking::click_wrap_url(base_url, secret, campaign_id, subscriber_id, now_unix_s, target);
+        let wrapped = tracking::click_wrap_url(
+            base_url,
+            secret,
+            campaign_id,
+            subscriber_id,
+            now_unix_s,
+            target,
+        );
         format!(r#"href="{wrapped}""#)
     })
     .into_owned()

@@ -233,8 +233,7 @@ pub async fn create_role(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -320,9 +319,7 @@ pub async fn delete_role(
                 }},
             )
             .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("crm_roles.archive"))
-            })?;
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_roles.archive")))?;
         if result.matched_count == 0 {
             return Err(ApiError::NotFound("role".to_owned()));
         }

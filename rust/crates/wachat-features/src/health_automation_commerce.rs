@@ -145,9 +145,8 @@ pub async fn phone_health(
     let project = load_project_by_phone(&user, &state.mongo, &phone_id).await?;
     let token = require_token(&project)?;
 
-    let path = format!(
-        "{phone_id}?fields=health_status,messaging_limit_tier,name_status,quality_rating"
-    );
+    let path =
+        format!("{phone_id}?fields=health_status,messaging_limit_tier,name_status,quality_rating");
     let resp: Value = state
         .meta
         .get_json(&path, token)
@@ -186,10 +185,7 @@ pub async fn get_conversational_automation(
         .await
         .map_err(|e| ApiError::BadRequest(e.to_string()))?;
 
-    let automation = resp
-        .get("data")
-        .cloned()
-        .unwrap_or_else(|| resp.clone());
+    let automation = resp.get("data").cloned().unwrap_or_else(|| resp.clone());
 
     Ok(Json(AutomationResp { automation }))
 }

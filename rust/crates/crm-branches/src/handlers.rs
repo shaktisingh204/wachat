@@ -188,9 +188,10 @@ pub async fn list_branches(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_branches.find")))?;
-    let mut rows: Vec<CrmBranch> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_branches.collect"))
-    })?;
+    let mut rows: Vec<CrmBranch> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_branches.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -245,8 +246,7 @@ pub async fn create_branch(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

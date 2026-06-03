@@ -65,7 +65,10 @@ pub async fn upload_header_media_if_needed(
         .map_err(|_| anyhow!("broadcast.accessToken missing"))?;
 
     let name = file.get_str("name").unwrap_or("upload.bin").to_owned();
-    let content_type = file.get_str("type").unwrap_or("application/octet-stream").to_owned();
+    let content_type = file
+        .get_str("type")
+        .unwrap_or("application/octet-stream")
+        .to_owned();
 
     // Header media bytes can be stored as a Mongo Binary or as a nested
     // `{ buffer: Binary }` envelope (Node's `Buffer.from(buffer.buffer || buffer)`).
@@ -88,9 +91,7 @@ pub async fn upload_header_media_if_needed(
         .text("messaging_product", "whatsapp")
         .part("file", part);
 
-    let url = format!(
-        "https://graph.facebook.com/{api_version}/{phone_number_id}/media",
-    );
+    let url = format!("https://graph.facebook.com/{api_version}/{phone_number_id}/media",);
 
     let resp = http
         .post(&url)
@@ -109,8 +110,8 @@ pub async fn upload_header_media_if_needed(
         ));
     }
 
-    let body: serde_json::Value = serde_json::from_str(&body_text)
-        .context("parse Meta /media response as JSON")?;
+    let body: serde_json::Value =
+        serde_json::from_str(&body_text).context("parse Meta /media response as JSON")?;
     let id = body
         .get("id")
         .and_then(|v| v.as_str())
@@ -196,7 +197,10 @@ async fn persist_media_id(
         .await
         .context("broadcasts.updateOne(headerMediaId)")?;
     if res.matched_count == 0 {
-        warn!(?broadcast_id, "broadcast disappeared while persisting headerMediaId");
+        warn!(
+            ?broadcast_id,
+            "broadcast disappeared while persisting headerMediaId"
+        );
     }
     Ok(())
 }

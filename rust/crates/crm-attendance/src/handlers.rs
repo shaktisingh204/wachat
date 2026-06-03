@@ -92,8 +92,7 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
 /// validation errors instead of panicking — same pattern as
 /// `crm-tickets`.
 fn to_bson_val<T: serde::Serialize>(label: &str, value: &T) -> Result<Bson> {
-    bson::to_bson(value)
-        .map_err(|e| ApiError::Validation(format!("{label} shape is invalid: {e}")))
+    bson::to_bson(value).map_err(|e| ApiError::Validation(format!("{label} shape is invalid: {e}")))
 }
 
 /// Compute `[start_of_day, start_of_next_day)` (UTC) from an instant.
@@ -159,14 +158,14 @@ pub async fn list_attendance(
         .build();
 
     let coll = mongo.collection::<Attendance>(ATTENDANCE_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.find"))
+        })?;
+    let rows: Vec<Attendance> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.find")))?;
-    let rows: Vec<Attendance> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.collect")))?;
 
     Ok(Json(rows))
 }
@@ -193,9 +192,7 @@ pub async fn get_attendance(
     let row = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.find_one")))?
         .ok_or_else(|| ApiError::NotFound("attendance".to_owned()))?;
 
     Ok(Json(row))
@@ -218,9 +215,7 @@ pub async fn create_attendance(
     Json(input): Json<CreateAttendanceInput>,
 ) -> Result<Json<Attendance>> {
     if input.employee_id.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "employeeId is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("employeeId is required.".to_owned()));
     }
 
     let user_id = user_oid(&user)?;
@@ -386,7 +381,7 @@ pub async fn delete_attendance(
     let att_oid = oid_from_str(&attendance_id)?;
 
     let filter = doc! { "_id": att_oid, "userId": user_id };
-    
+
     let update = doc! {
         "$set": {
             "archived": true,
@@ -397,12 +392,9 @@ pub async fn delete_attendance(
     };
 
     let coll = mongo.collection::<Document>(ATTENDANCE_COLL);
-    let res = coll
-        .update_one(filter, update)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.delete_one"))
-        })?;
+    let res = coll.update_one(filter, update).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_attendance.delete_one"))
+    })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("attendance".to_owned()));
     }
@@ -438,9 +430,7 @@ async fn punch_impl(
     kind: PunchKind,
 ) -> Result<Json<Attendance>> {
     if input.employee_id.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "employeeId is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("employeeId is required.".to_owned()));
     }
 
     let user_id = user_oid(&user)?;
@@ -534,11 +524,15 @@ async fn punch_impl(
     // Calculate totalHours if we have both in and out punches.
     let pi_time = match kind {
         PunchKind::In => Some(stamp_at),
-        PunchKind::Out => existing.as_ref().and_then(|a| a.punch_in.as_ref().map(|p| p.at)),
+        PunchKind::Out => existing
+            .as_ref()
+            .and_then(|a| a.punch_in.as_ref().map(|p| p.at)),
     };
     let po_time = match kind {
         PunchKind::Out => Some(stamp_at),
-        PunchKind::In => existing.as_ref().and_then(|a| a.punch_out.as_ref().map(|p| p.at)),
+        PunchKind::In => existing
+            .as_ref()
+            .and_then(|a| a.punch_out.as_ref().map(|p| p.at)),
     };
 
     if let (Some(pi), Some(po)) = (pi_time, po_time) {

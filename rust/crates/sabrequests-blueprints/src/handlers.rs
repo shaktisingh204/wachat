@@ -65,10 +65,20 @@ pub async fn list_blueprints(
             ]),
         );
     }
-    if let Some(cat) = q.category.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(cat) = q
+        .category
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("category", cat);
     }
-    if let Some(team) = q.owner_team_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(team) = q
+        .owner_team_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("ownerTeamId", oid_from_str(team)?);
     }
     if let Some(p) = q.published {
@@ -185,10 +195,18 @@ pub async fn update_blueprint(
         "updatedAt": bson::DateTime::from_chrono(Utc::now()),
         "updatedBy": user_id,
     };
-    if let Some(v) = input.name { set.insert("name", v); }
-    if let Some(v) = input.description { set.insert("description", v); }
-    if let Some(v) = input.category { set.insert("category", v); }
-    if let Some(v) = input.icon { set.insert("icon", v); }
+    if let Some(v) = input.name {
+        set.insert("name", v);
+    }
+    if let Some(v) = input.description {
+        set.insert("description", v);
+    }
+    if let Some(v) = input.category {
+        set.insert("category", v);
+    }
+    if let Some(v) = input.icon {
+        set.insert("icon", v);
+    }
     if let Some(v) = input.form_schema {
         let b = bson::to_bson(&v).map_err(|e| ApiError::Validation(format!("formSchema: {e}")))?;
         set.insert("formSchema", b);
@@ -198,14 +216,19 @@ pub async fn update_blueprint(
         set.insert("stages", b);
     }
     if let Some(v) = input.routing_rules {
-        let b = bson::to_bson(&v).map_err(|e| ApiError::Validation(format!("routingRules: {e}")))?;
+        let b =
+            bson::to_bson(&v).map_err(|e| ApiError::Validation(format!("routingRules: {e}")))?;
         set.insert("routingRules", b);
     }
     if let Some(v) = input.owner_team_id {
         set.insert("ownerTeamId", oid_from_str(&v)?);
     }
-    if let Some(v) = input.sla_mins { set.insert("slaMins", v as i64); }
-    if let Some(v) = input.published { set.insert("published", v); }
+    if let Some(v) = input.sla_mins {
+        set.insert("slaMins", v as i64);
+    }
+    if let Some(v) = input.published {
+        set.insert("published", v);
+    }
 
     let mut filter = base_filter(user_id);
     filter.insert("_id", oid);
@@ -222,7 +245,9 @@ pub async fn update_blueprint(
     let doc = typed
         .find_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("blueprints.find_one(after-update)")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("blueprints.find_one(after-update)"))
+        })?
         .ok_or_else(|| ApiError::NotFound("blueprint".to_owned()))?;
     Ok(Json(doc))
 }

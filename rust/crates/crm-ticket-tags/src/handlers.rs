@@ -72,7 +72,10 @@ fn tag_from_create(input: CreateTicketTagInput, user_id: ObjectId) -> Result<Crm
         id: None,
         user_id,
         name: name.to_owned(),
-        slug: input.slug.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        slug: input
+            .slug
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         description: input.description,
         color: input.color,
         icon: input.icon,
@@ -148,11 +151,10 @@ pub async fn list_ticket_tags(
         .build();
 
     let coll = mongo.collection::<CrmTicketTag>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find"))
+        })?;
     let mut rows: Vec<CrmTicketTag> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.collect"))
     })?;
@@ -182,9 +184,7 @@ pub async fn get_ticket_tag(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find_one")))?
         .ok_or_else(|| ApiError::NotFound("ticket_tag".to_owned()))?;
     Ok(Json(row))
 }
@@ -214,17 +214,17 @@ pub async fn create_ticket_tag(
         )));
     }
 
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -249,9 +249,7 @@ pub async fn update_ticket_tag(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.find_one")))?
         .ok_or_else(|| ApiError::NotFound("ticket_tag".to_owned()))?;
 
     // Validate name (non-empty + unique among non-archived tags excluding self).
@@ -264,9 +262,7 @@ pub async fn update_ticket_tag(
                 .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("crm_ticket_tags.dup_check"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.dup_check"))
                 })?;
             if dup.is_some() {
                 return Err(ApiError::Validation(format!(
@@ -280,9 +276,7 @@ pub async fn update_ticket_tag(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("ticket_tag".to_owned()));
     }
@@ -290,9 +284,7 @@ pub async fn update_ticket_tag(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_tags.refetch")))?
         .ok_or_else(|| ApiError::NotFound("ticket_tag".to_owned()))?;
 
     if let Some(event) = audit_for_update(

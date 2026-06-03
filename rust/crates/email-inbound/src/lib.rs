@@ -37,11 +37,7 @@
 //! distinguish missing-secret from wrong-secret to avoid revealing which
 //! tokens map to active tenants).
 
-use axum::{
-    Router,
-    extract::FromRef,
-    routing::post,
-};
+use axum::{Router, extract::FromRef, routing::post};
 
 pub mod dto;
 pub mod handlers;

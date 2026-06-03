@@ -54,9 +54,17 @@ pub struct PettyCashFloat {
     pub custodian_employee_id: Option<ObjectId>,
 
     /* ----- lifecycle stamps ------------------------------------- */
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_topup_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_reconciled_at: Option<DateTime<Utc>>,
 
     /// Closed floats are kept (not deleted) so historic vouchers stay
@@ -204,9 +212,18 @@ mod tests {
             kind: "expense".to_string(),
             amount: 850.0,
             denominations: vec![
-                Denomination { value: 500.0, count: 1 },
-                Denomination { value: 100.0, count: 3 },
-                Denomination { value: 50.0, count: 1 },
+                Denomination {
+                    value: 500.0,
+                    count: 1,
+                },
+                Denomination {
+                    value: 100.0,
+                    count: 3,
+                },
+                Denomination {
+                    value: 50.0,
+                    count: 1,
+                },
             ],
             expense_account_id: Some(ObjectId::new()),
             employee_id: None,

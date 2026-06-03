@@ -18,9 +18,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateSoftwareInput, CreateSoftwareResponse, DeleteSoftwareResponse, ListQuery,
-};
+use crate::dto::{CreateSoftwareInput, CreateSoftwareResponse, DeleteSoftwareResponse, ListQuery};
 use crate::types::SabopsSoftware;
 
 const COLL: &str = "sabops_software";
@@ -73,13 +71,13 @@ pub async fn list_software(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabopsSoftware>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabops_software.find"))
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_software.find"))
+        })?;
+    let mut rows: Vec<SabopsSoftware> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabops_software.collect"))
     })?;
-    let mut rows: Vec<SabopsSoftware> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_software.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);

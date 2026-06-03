@@ -21,9 +21,12 @@ pub struct CartLineItem {
 #[serde(rename_all = "camelCase")]
 pub struct CartTotals {
     pub subtotal: f64,
-    #[serde(default)] pub tax: f64,
-    #[serde(default)] pub shipping: f64,
-    #[serde(default)] pub discount: f64,
+    #[serde(default)]
+    pub tax: f64,
+    #[serde(default)]
+    pub shipping: f64,
+    #[serde(default)]
+    pub discount: f64,
     pub total: f64,
 }
 

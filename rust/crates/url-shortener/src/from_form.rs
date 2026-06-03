@@ -3,7 +3,10 @@
 //! parts directly. Eliminates the per-field `formData.get(...)` boilerplate
 //! that used to sit in `url-shortener.actions.ts`.
 
-use axum::{Json, extract::{Multipart, State}};
+use axum::{
+    Json,
+    extract::{Multipart, State},
+};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::bson_helpers::oid_from_str;
@@ -16,9 +19,7 @@ use crate::{
 
 /// Parse multipart text fields into a `(name → value)` map. Files are
 /// ignored — callers that need binary parts use `next_field()` directly.
-pub(crate) async fn collect_text_fields(
-    mut mp: Multipart,
-) -> Result<HashMap<String, String>> {
+pub(crate) async fn collect_text_fields(mut mp: Multipart) -> Result<HashMap<String, String>> {
     let mut out = HashMap::new();
     while let Some(field) = mp
         .next_field()

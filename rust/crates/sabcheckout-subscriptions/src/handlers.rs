@@ -75,19 +75,12 @@ pub async fn list_subscriptions(
         .build();
 
     let coll = mongo.collection::<SabcheckoutSubscription>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.find"))
-        })?;
-    let mut rows: Vec<SabcheckoutSubscription> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.find"))
+    })?;
+    let mut rows: Vec<SabcheckoutSubscription> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -146,14 +139,9 @@ pub async fn create_subscription(
     };
 
     let coll = mongo.collection::<SabcheckoutSubscription>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcheckout_subscriptions.insert"),
-            )
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -195,9 +183,7 @@ pub async fn update_subscription(
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcheckout_subscriptions.update"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.update"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("sabcheckout_subscription".to_owned()));
@@ -206,9 +192,7 @@ pub async fn update_subscription(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcheckout_subscriptions.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabcheckout_subscription".to_owned()))?;
     Ok(Json(after))
@@ -237,9 +221,7 @@ pub async fn cancel_subscription(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcheckout_subscriptions.cancel"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.cancel"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("sabcheckout_subscription".to_owned()));
@@ -248,9 +230,7 @@ pub async fn cancel_subscription(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcheckout_subscriptions.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_subscriptions.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabcheckout_subscription".to_owned()))?;
     Ok(Json(CancelResponse {
@@ -267,7 +247,10 @@ mod tests {
     fn parse_iso_round_trips() {
         let dt = parse_iso("2026-05-27T12:00:00Z").unwrap();
         let chrono_dt: chrono::DateTime<Utc> = dt.to_chrono();
-        assert_eq!(chrono_dt.to_rfc3339_opts(chrono::SecondsFormat::Secs, true), "2026-05-27T12:00:00Z");
+        assert_eq!(
+            chrono_dt.to_rfc3339_opts(chrono::SecondsFormat::Secs, true),
+            "2026-05-27T12:00:00Z"
+        );
     }
 
     #[test]

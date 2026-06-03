@@ -31,10 +31,7 @@ where
 {
     Router::new()
         .route("/", get(handlers::list).post(handlers::create))
-        .route(
-            "/validate-init-data",
-            post(handlers::validate_init_data),
-        )
+        .route("/validate-init-data", post(handlers::validate_init_data))
         .route(
             "/{app_id}",
             get(handlers::get_one)
@@ -42,10 +39,7 @@ where
                 .delete(handlers::delete_one),
         )
         .route("/{app_id}/send", post(handlers::send_to_chat))
-        .route(
-            "/{app_id}/set-menu-button",
-            post(handlers::set_menu_button),
-        )
+        .route("/{app_id}/set-menu-button", post(handlers::set_menu_button))
         .route("/{app_id}/sessions", get(handlers::list_sessions))
         .route("/{app_id}/analytics", get(handlers::analytics))
 }

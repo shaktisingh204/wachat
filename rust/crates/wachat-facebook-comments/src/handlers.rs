@@ -143,11 +143,7 @@ pub async fn handle_post_comment(
 
     let path = format!("{object_id}/comments");
     let payload = json!({ "message": body.message });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, token, &payload).await {
         Ok(_) => Json(AckResult {
             success: Some(true),
             error: None,
@@ -255,11 +251,7 @@ pub async fn handle_like_object(
 
     let path = format!("{object_id}/likes");
     let payload = Value::Object(serde_json::Map::new());
-    match s
-        .meta
-        .post_json::<_, Value>(&path, token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, token, &payload).await {
         Ok(_) => Json(AckResult {
             success: Some(true),
             error: None,
@@ -430,9 +422,7 @@ pub async fn get_object_reactions(
         }
     };
 
-    let path = format!(
-        "{object_id}/reactions?summary=total_count&limit=100"
-    );
+    let path = format!("{object_id}/reactions?summary=total_count&limit=100");
     match s.meta.get_json::<Value>(&path, token).await {
         Ok(v) => Json(ReactionsResp {
             reactions: Some(v),
@@ -483,11 +473,7 @@ pub async fn send_private_reply(
 
     let path = format!("{comment_id}/private_replies");
     let payload = json!({ "message": body.message });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, token, &payload).await {
         Ok(_) => Json(AckResult {
             success: Some(true),
             error: None,

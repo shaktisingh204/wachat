@@ -54,13 +54,9 @@ pub async fn list_publications(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorPublication>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.find"))
+    })?;
     let mut rows: Vec<SabcreatorPublication> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.collect"))
     })?;
@@ -89,9 +85,7 @@ pub async fn get_publication(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcreator_publications.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("publication".to_owned()))?;
     Ok(Json(row))
@@ -114,9 +108,7 @@ pub async fn get_latest_for_app(
         .with_options(opts)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcreator_publications.latest"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.latest"))
         })?
         .ok_or_else(|| ApiError::NotFound("publication".to_owned()))?;
     Ok(Json(row))
@@ -141,9 +133,7 @@ pub async fn publish(
         .with_options(opts)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcreator_publications.nextVersion"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_publications.nextVersion"))
         })? {
         Some(prev) => prev.version + 1,
         None => 1,

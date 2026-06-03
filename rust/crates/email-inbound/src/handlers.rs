@@ -22,9 +22,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
 use tracing::{instrument, warn};
 
-use crate::dto::{
-    IngestResponse, MailgunInboundForm, SesMessage, SnsEnvelope, TokenQuery,
-};
+use crate::dto::{IngestResponse, MailgunInboundForm, SesMessage, SnsEnvelope, TokenQuery};
 use crate::state::EmailInboundState;
 
 const SETTINGS_COLL: &str = "email_settings";
@@ -46,9 +44,7 @@ async fn resolve_tenant(mongo: &MongoHandle, token: &str) -> Result<(ObjectId, O
     let doc_ = settings
         .find_one(doc! { "inboundSecret": token })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("email_settings.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_settings.find_one")))?
         .ok_or_else(|| ApiError::NotFound("inbound endpoint".into()))?;
 
     let user_id = doc_
@@ -434,7 +430,10 @@ fn first_addr(a: &Address<'_>) -> Option<(String, Option<String>)> {
     match a {
         Address::List(list) => list.first().map(|x| {
             (
-                x.address.as_ref().map(|s| s.to_string()).unwrap_or_default(),
+                x.address
+                    .as_ref()
+                    .map(|s| s.to_string())
+                    .unwrap_or_default(),
                 x.name.as_ref().map(|s| s.to_string()),
             )
         }),
@@ -444,7 +443,10 @@ fn first_addr(a: &Address<'_>) -> Option<(String, Option<String>)> {
             .next()
             .map(|x| {
                 (
-                    x.address.as_ref().map(|s| s.to_string()).unwrap_or_default(),
+                    x.address
+                        .as_ref()
+                        .map(|s| s.to_string())
+                        .unwrap_or_default(),
                     x.name.as_ref().map(|s| s.to_string()),
                 )
             }),
@@ -596,9 +598,10 @@ async fn persist_inbound(
             "createdAt": now_bson,
             "updatedAt": now_bson,
         };
-        threads.insert_one(thread_doc).await.map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("threads.insert_one"))
-        })?;
+        threads
+            .insert_one(thread_doc)
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("threads.insert_one")))?;
         (new_oid, true)
     };
 
@@ -641,7 +644,13 @@ async fn persist_inbound(
     if !parsed.references.is_empty() {
         message_doc.insert(
             "references",
-            Bson::Array(parsed.references.iter().map(|s| Bson::String(s.clone())).collect()),
+            Bson::Array(
+                parsed
+                    .references
+                    .iter()
+                    .map(|s| Bson::String(s.clone()))
+                    .collect(),
+            ),
         );
     }
     messages.insert_one(message_doc).await.map_err(|e| {

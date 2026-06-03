@@ -41,8 +41,8 @@ pub async fn save(
     settings: &WidgetSettings,
 ) -> Result<()> {
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
-    let bson_settings = bson::to_bson(settings)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let bson_settings =
+        bson::to_bson(settings).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     coll.update_one(
         doc! { "_id": project_id },
         doc! { "$set": { "widgetSettings": bson_settings } },

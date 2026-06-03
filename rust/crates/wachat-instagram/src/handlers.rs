@@ -182,14 +182,8 @@ pub async fn conversation_messages(
     Path((project_id, conversation_id)): Path<(String, String)>,
 ) -> Result<Json<InstagramMessagesResp>> {
     Ok(Json(
-        instagram::conversation_messages(
-            &user,
-            &s.mongo,
-            &s.meta,
-            &project_id,
-            &conversation_id,
-        )
-        .await?,
+        instagram::conversation_messages(&user, &s.mongo, &s.meta, &project_id, &conversation_id)
+            .await?,
     ))
 }
 

@@ -39,9 +39,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{
-    CreateRfqInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateRfqInput,
-};
+use crate::dto::{CreateRfqInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateRfqInput};
 
 /// Mongo collection name. Must match the canonical collection literal in
 /// `crm-extras-types::rfq` so the Rust BFF and the legacy Next.js action
@@ -397,7 +395,12 @@ pub async fn update_rfq(
         "updatedBy": user_id,
     };
 
-    if let Some(t) = input.title.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(t) = input
+        .title
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("title", t);
     }
     if let Some(items) = input.items.as_ref() {

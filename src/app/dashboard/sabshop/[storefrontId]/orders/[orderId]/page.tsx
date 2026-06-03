@@ -1,127 +1,292 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useParams } from 'next/navigation';
-
+import React from "react";
 import {
-    Button, Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle,
-    Badge, Select, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+  Badge,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Separator,
+  Avatar,
+  AvatarFallback,
+} from "@/components/zoruui";
+import { 
+  ArrowLeft, 
+  Package, 
+  Truck, 
+  CheckCircle2, 
+  CreditCard,
+  MapPin,
+  Mail,
+  Phone,
+  Calendar,
+  MoreHorizontal,
+  Printer
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { getOrder, updateOrder } from '@/app/actions/sabshop.actions';
+// Mock Order Details
+const ORDER_DETAILS = {
+  id: "ORD-7352",
+  date: "June 3, 2026 at 2:30 PM",
+  status: "Unfulfilled",
+  payment: "Paid",
+  customer: {
+    name: "Liam Smith",
+    email: "liam.smith@example.com",
+    phone: "+1 (555) 123-4567",
+    avatar: "LS",
+  },
+  shippingAddress: {
+    line1: "123 Main Street",
+    line2: "Apt 4B",
+    city: "New York",
+    state: "NY",
+    zip: "10001",
+    country: "United States"
+  },
+  items: [
+    { id: "ITEM-1", name: "Premium Wireless Headphones", sku: "WH-1000", price: 299.00, quantity: 1, total: 299.00, image: "🎧" },
+    { id: "ITEM-2", name: "Ergonomic Mouse", sku: "EM-200", price: 79.00, quantity: 2, total: 158.00, image: "🖱️" }
+  ],
+  subtotal: 457.00,
+  tax: 38.85,
+  shipping: 15.00,
+  total: 510.85,
+  timeline: [
+    { id: 1, status: "Order Placed", date: "June 3, 2026, 2:30 PM", icon: Package, done: true },
+    { id: 2, status: "Payment Confirmed", date: "June 3, 2026, 2:32 PM", icon: CreditCard, done: true },
+    { id: 3, status: "Processing", date: "June 3, 2026, 3:00 PM", icon: Truck, done: false },
+    { id: 4, status: "Delivered", date: "Pending", icon: CheckCircle2, done: false },
+  ]
+};
 
-interface OrderShape {
-    _id: string;
-    orderCode: string;
-    paymentStatus?: string;
-    fulfillmentStatus?: string;
-    totals?: { subtotal?: number; tax?: number; shipping?: number; total?: number };
-    currency?: string;
-    lineItems?: Array<{ name: string; quantity: number; unitPrice: number; lineTotal: number }>;
-    shippingAddress?: Record<string, string>;
-    paymentRef?: string;
-}
+export default function OrderDetailsPage({ params }: { params: { storefrontId: string, orderId: string } }) {
+  const router = useRouter();
+  
+  // Use params.orderId to fetch real data later, using mock for now
+  const orderId = params.orderId || ORDER_DETAILS.id;
 
-export default function OrderDetailPage(): React.JSX.Element {
-    const params = useParams<{ storefrontId: string; orderId: string }>();
-    const { toast } = useZoruToast();
-    const [order, setOrder] = React.useState<OrderShape | null>(null);
-    const [loading, setLoading] = React.useState(true);
-
-    const load = React.useCallback(async () => {
-        const r = await getOrder(params.orderId);
-        if (r.ok) setOrder(r.item as OrderShape);
-        setLoading(false);
-    }, [params.orderId]);
-
-    React.useEffect(() => { load(); }, [load]);
-
-    if (loading) return <div className="zoruui p-6 text-zoru-ink-muted">Loading…</div>;
-    if (!order) return <div className="zoruui p-6 text-zoru-ink">Order not found.</div>;
-
-    async function setStatus(field: 'paymentStatus' | 'fulfillmentStatus', value: string) {
-        const r = await updateOrder(params.orderId, { [field]: value });
-        if (r.ok) { toast({ title: 'Order updated' }); load(); }
-        else toast({ title: r.error, variant: 'destructive' });
-    }
-
-    return (
-        <div className="zoruui flex flex-col gap-4 p-6">
-            <header className="flex items-end justify-between">
-                <div>
-                    <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Order</p>
-                    <h1 className="text-2xl font-semibold text-zoru-ink">{order.orderCode}</h1>
-                </div>
-                <div className="flex gap-2">
-                    <Badge variant={order.paymentStatus === 'paid' ? 'success' : 'warning'}>{order.paymentStatus}</Badge>
-                    <Badge variant="ghost">{order.fulfillmentStatus}</Badge>
-                </div>
-            </header>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-                <Card className="lg:col-span-2">
-                    <ZoruCardHeader><ZoruCardTitle>Line items</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent>
-                        <ul className="divide-y divide-zoru-border">
-                            {(order.lineItems ?? []).map((li, i) => (
-                                <li key={i} className="flex items-center justify-between py-2 text-sm">
-                                    <div>
-                                        <div className="font-medium text-zoru-ink">{li.name}</div>
-                                        <div className="text-xs text-zoru-ink-muted">{li.quantity} × {li.unitPrice}</div>
-                                    </div>
-                                    <div className="font-medium">{order.currency ?? '₹'} {li.lineTotal}</div>
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="mt-4 space-y-1 text-sm">
-                            <div className="flex justify-between"><span className="text-zoru-ink-muted">Subtotal</span><span>{order.totals?.subtotal ?? 0}</span></div>
-                            <div className="flex justify-between"><span className="text-zoru-ink-muted">Tax</span><span>{order.totals?.tax ?? 0}</span></div>
-                            <div className="flex justify-between"><span className="text-zoru-ink-muted">Shipping</span><span>{order.totals?.shipping ?? 0}</span></div>
-                            <div className="flex justify-between text-base font-semibold"><span>Total</span><span>{order.currency ?? '₹'} {order.totals?.total ?? 0}</span></div>
-                        </div>
-                    </ZoruCardContent>
-                </Card>
-
-                <Card>
-                    <ZoruCardHeader><ZoruCardTitle>Actions</ZoruCardTitle></ZoruCardHeader>
-                    <ZoruCardContent className="flex flex-col gap-3 text-sm">
-                        <div>
-                            <p className="mb-1 text-zoru-ink-muted">Payment status</p>
-                            <Select value={order.paymentStatus} onValueChange={(v) => setStatus('paymentStatus', v)}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="unpaid">Unpaid</ZoruSelectItem>
-                                    <ZoruSelectItem value="paid">Paid</ZoruSelectItem>
-                                    <ZoruSelectItem value="refunded">Refunded</ZoruSelectItem>
-                                    <ZoruSelectItem value="failed">Failed</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </Select>
-                        </div>
-                        <div>
-                            <p className="mb-1 text-zoru-ink-muted">Fulfillment</p>
-                            <Select value={order.fulfillmentStatus} onValueChange={(v) => setStatus('fulfillmentStatus', v)}>
-                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="unfulfilled">Unfulfilled</ZoruSelectItem>
-                                    <ZoruSelectItem value="processing">Processing</ZoruSelectItem>
-                                    <ZoruSelectItem value="shipped">Shipped</ZoruSelectItem>
-                                    <ZoruSelectItem value="delivered">Delivered</ZoruSelectItem>
-                                    <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </Select>
-                        </div>
-                        {order.shippingAddress && (
-                            <div className="space-y-1">
-                                <p className="text-zoru-ink-muted">Ship to</p>
-                                <p>{order.shippingAddress.name}</p>
-                                <p>{order.shippingAddress.line1}</p>
-                                <p>{order.shippingAddress.city} {order.shippingAddress.postalCode}</p>
-                            </div>
-                        )}
-                    </ZoruCardContent>
-                </Card>
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={() => router.back()} className="shrink-0">
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-zoru-ink">Order {orderId}</h1>
+              <Badge variant="secondary">{ORDER_DETAILS.status}</Badge>
+              <Badge variant="default">{ORDER_DETAILS.payment}</Badge>
             </div>
+            <p className="text-zoru-ink-muted mt-1 text-sm flex items-center gap-2">
+              <Calendar className="w-4 h-4" /> {ORDER_DETAILS.date}
+            </p>
+          </div>
         </div>
-    );
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2">
+            <Printer className="w-4 h-4" /> Print
+          </Button>
+          <Button variant="outline" size="icon">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
+          <Button className="gap-2">
+            Fulfill Order
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content - Left Column */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Order Items */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Order Items</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border border-zoru-line overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-zoru-surface">
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead>SKU</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-center">Qty</TableHead>
+                      <TableHead className="text-right">Total</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ORDER_DETAILS.items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded bg-zoru-surface flex items-center justify-center text-xl border border-zoru-line">
+                              {item.image}
+                            </div>
+                            <span className="font-medium text-zoru-ink">{item.name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-zoru-ink-muted">{item.sku}</TableCell>
+                        <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
+                        <TableCell className="text-center">{item.quantity}</TableCell>
+                        <TableCell className="text-right font-medium">${item.total.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              
+              <div className="mt-6 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-zoru-ink-muted">Subtotal</span>
+                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zoru-ink-muted">Shipping</span>
+                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.shipping.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zoru-ink-muted">Tax</span>
+                  <span className="text-zoru-ink font-medium">${ORDER_DETAILS.tax.toFixed(2)}</span>
+                </div>
+                <Separator className="my-3" />
+                <div className="flex justify-between font-semibold text-lg text-zoru-ink">
+                  <span>Total</span>
+                  <span>${ORDER_DETAILS.total.toFixed(2)}</span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="bg-zoru-surface/50 border-t border-zoru-line flex justify-end">
+              <Button variant="outline">Refund Order</Button>
+            </CardFooter>
+          </Card>
+
+          {/* Timeline */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Timeline</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-0">
+                {ORDER_DETAILS.timeline.map((event, index) => {
+                  const Icon = event.icon;
+                  return (
+                    <div key={event.id} className="flex gap-4 relative mb-6 last:mb-0">
+                      {/* Timeline connecting line */}
+                      {index !== ORDER_DETAILS.timeline.length - 1 && (
+                        <div className={`absolute top-8 left-4 w-px h-[calc(100%+1.5rem)] -ml-[0.5px] ${event.done ? 'bg-zoru-brand' : 'bg-zoru-line'}`} />
+                      )}
+                      
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 border-2 ${
+                        event.done 
+                          ? 'bg-zoru-brand border-zoru-brand text-white' 
+                          : 'bg-zoru-surface border-zoru-line text-zoru-ink-muted'
+                      }`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      
+                      <div className="flex-1 pt-1">
+                        <p className={`font-medium ${event.done ? 'text-zoru-ink' : 'text-zoru-ink-muted'}`}>
+                          {event.status}
+                        </p>
+                        <p className="text-sm text-zoru-ink-muted mt-1">{event.date}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Sidebar - Right Column */}
+        <div className="space-y-6">
+          {/* Customer info */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarFallback className="bg-zoru-surface text-zoru-ink font-semibold border border-zoru-line">
+                    {ORDER_DETAILS.customer.avatar}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-zoru-ink">{ORDER_DETAILS.customer.name}</p>
+                  <p className="text-sm text-zoru-ink-muted">12 Orders</p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm text-zoru-ink">Contact Info</h4>
+                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                  <Mail className="w-4 h-4 shrink-0" />
+                  <a href={`mailto:${ORDER_DETAILS.customer.email}`} className="hover:text-zoru-brand hover:underline transition-colors truncate">
+                    {ORDER_DETAILS.customer.email}
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                  <Phone className="w-4 h-4 shrink-0" />
+                  <span>{ORDER_DETAILS.customer.phone}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Shipping Address */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle>Shipping Address</CardTitle>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                <MoreHorizontal className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-start gap-3 mt-2">
+                <MapPin className="w-4 h-4 text-zoru-ink-muted mt-1 shrink-0" />
+                <div className="text-sm text-zoru-ink-muted space-y-1">
+                  <p className="text-zoru-ink font-medium">{ORDER_DETAILS.customer.name}</p>
+                  <p>{ORDER_DETAILS.shippingAddress.line1}</p>
+                  <p>{ORDER_DETAILS.shippingAddress.line2}</p>
+                  <p>
+                    {ORDER_DETAILS.shippingAddress.city}, {ORDER_DETAILS.shippingAddress.state} {ORDER_DETAILS.shippingAddress.zip}
+                  </p>
+                  <p>{ORDER_DETAILS.shippingAddress.country}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Billing Address */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle>Billing Address</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zoru-ink-muted mt-2">
+                Same as shipping address
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 }

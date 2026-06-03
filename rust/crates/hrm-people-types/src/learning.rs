@@ -17,7 +17,11 @@ pub struct TrainingAttendance {
     pub employee_id: ObjectId,
     #[serde(default)]
     pub attended: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub attended_at: Option<DateTime<Utc>>,
 }
 
@@ -76,7 +80,11 @@ pub struct EmployeeCertification {
     pub issuer: Option<String>,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub issued: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub file_id: Option<ObjectId>,
@@ -132,7 +140,11 @@ pub struct LearningPathProgress {
     pub completion_pct: f32,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub started_at: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub completed_at: Option<DateTime<Utc>>,
 }
 

@@ -166,6 +166,9 @@ async fn refund_transaction(
     Path((id, transaction_id)): Path<(String, String)>,
 ) -> Result<Json<serde_json::Value>> {
     let p = load_project_for(&user, &s.mongo, &id).await?;
-    let (success, message) = transactions::refund_transaction(&s.mongo, &p.id, &transaction_id).await?;
-    Ok(Json(serde_json::json!({ "success": success, "message": message })))
+    let (success, message) =
+        transactions::refund_transaction(&s.mongo, &p.id, &transaction_id).await?;
+    Ok(Json(
+        serde_json::json!({ "success": success, "message": message }),
+    ))
 }

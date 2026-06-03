@@ -126,19 +126,54 @@ pub struct InboxThread {
     #[serde(skip_serializing_if = "Option::is_none", rename = "assignedAgentId")]
     pub assigned_agent_id: Option<String>,
     pub tags: Vec<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "firstResponseAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "firstResponseAt"
+    )]
     pub first_response_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastInboundAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastInboundAt"
+    )]
     pub last_inbound_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastOutboundAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastOutboundAt"
+    )]
     pub last_outbound_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastAgentReplyAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastAgentReplyAt"
+    )]
     pub last_agent_reply_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "slaDueAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "slaDueAt"
+    )]
     pub sla_due_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "snoozedUntil")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "snoozedUntil"
+    )]
     pub snoozed_until: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "resolvedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "resolvedAt"
+    )]
     pub resolved_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "resolvedById")]
     pub resolved_by_id: Option<String>,
@@ -148,13 +183,22 @@ pub struct InboxThread {
     pub unread_count: i64,
     #[serde(rename = "lastMessagePreview", skip_serializing_if = "Option::is_none")]
     pub last_message_preview: Option<String>,
-    #[serde(rename = "lastMessageDirection", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "lastMessageDirection",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_message_direction: Option<String>,
     #[serde(rename = "slaBreached")]
     pub sla_breached: bool,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -894,7 +938,10 @@ pub struct InboxMessage {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1026,8 +1073,11 @@ pub async fn list_messages(
         }
     };
     let next_cursor = if (docs.len() as i64) >= limit {
-        docs.last()
-            .and_then(|d| d.get_i64("messageId").ok().or_else(|| d.get_i32("messageId").ok().map(i64::from)))
+        docs.last().and_then(|d| {
+            d.get_i64("messageId")
+                .ok()
+                .or_else(|| d.get_i32("messageId").ok().map(i64::from))
+        })
     } else {
         None
     };
@@ -1053,7 +1103,10 @@ pub struct InboxNote {
     pub author_id: String,
     pub body: String,
     pub mentions: Vec<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1232,7 +1285,9 @@ pub async fn create_note(
         .filter(|m| !m.trim().is_empty())
         .map(|m| Bson::String(m.trim().to_owned()))
         .collect();
-    let author_id = parse_user_oid(&user).map(|o| o.to_hex()).unwrap_or_default();
+    let author_id = parse_user_oid(&user)
+        .map(|o| o.to_hex())
+        .unwrap_or_default();
     let note_doc = doc! {
         "threadId": thread_oid,
         "projectId": project_oid,
@@ -1243,7 +1298,11 @@ pub async fn create_note(
     };
     let coll = s.mongo.collection::<Document>(NOTES);
     let inserted_id = match coll.insert_one(note_doc).await {
-        Ok(r) => r.inserted_id.as_object_id().map(|o| o.to_hex()).unwrap_or_default(),
+        Ok(r) => r
+            .inserted_id
+            .as_object_id()
+            .map(|o| o.to_hex())
+            .unwrap_or_default(),
         Err(e) => return ack_err(format!("mongo: {e}")),
     };
     let _ = threads
@@ -1285,9 +1344,7 @@ pub async fn delete_note(
     let res = match s
         .mongo
         .collection::<Document>(NOTES)
-        .delete_one(
-            doc! { "_id": note_oid, "threadId": thread_oid, "projectId": project_oid },
-        )
+        .delete_one(doc! { "_id": note_oid, "threadId": thread_oid, "projectId": project_oid })
         .await
     {
         Ok(r) => r,
@@ -1478,9 +1535,15 @@ pub struct AutoAssignRule {
     pub set_priority: Option<String>,
     #[serde(rename = "setSlaSeconds", skip_serializing_if = "Option::is_none")]
     pub set_sla_seconds: Option<i64>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1504,10 +1567,11 @@ fn doc_to_rule(d: &Document) -> Option<AutoAssignRule> {
             .ok()
             .map(|m| serde_json::to_value(m).unwrap_or(serde_json::Value::Null))
             .unwrap_or(serde_json::Value::Null),
-        apply_tags: d
-            .get_array("applyTags")
-            .ok()
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_owned)).collect()),
+        apply_tags: d.get_array("applyTags").ok().map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_owned))
+                .collect()
+        }),
         set_priority: d.get_str("setPriority").ok().map(str::to_owned),
         set_sla_seconds: d
             .get_i64("setSlaSeconds")
@@ -1787,9 +1851,15 @@ pub struct SlaPolicy {
     pub business_hours_only: bool,
     #[serde(rename = "applyToTags", skip_serializing_if = "Option::is_none")]
     pub apply_to_tags: Option<Vec<String>>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1807,10 +1877,11 @@ fn doc_to_sla(d: &Document) -> Option<SlaPolicy> {
             .or_else(|_| d.get_i32("resolutionSeconds").map(i64::from))
             .unwrap_or(86400),
         business_hours_only: d.get_bool("businessHoursOnly").unwrap_or(false),
-        apply_to_tags: d
-            .get_array("applyToTags")
-            .ok()
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_owned)).collect()),
+        apply_to_tags: d.get_array("applyToTags").ok().map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_owned))
+                .collect()
+        }),
         created_at: dt(d.get_datetime("createdAt").ok().copied()),
         updated_at: dt(d.get_datetime("updatedAt").ok().copied()),
     })
@@ -2086,7 +2157,11 @@ pub async fn evaluate_slas(
         };
         let tags: Vec<String> = d
             .get_array("tags")
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_owned)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|v| v.as_str().map(str::to_owned))
+                    .collect()
+            })
             .unwrap_or_default();
         let last_inbound = dt_opt(d.get_datetime("lastInboundAt").ok().copied())
             .unwrap_or_else(|| dt(d.get_datetime("createdAt").ok().copied()));
@@ -2337,19 +2412,35 @@ pub async fn analytics(
     let threads = s.mongo.collection::<Document>(THREADS);
 
     let open = threads
-        .count_documents({ let mut f = base.clone(); f.insert("status", "open"); f })
+        .count_documents({
+            let mut f = base.clone();
+            f.insert("status", "open");
+            f
+        })
         .await
         .unwrap_or(0) as i64;
     let pending = threads
-        .count_documents({ let mut f = base.clone(); f.insert("status", "pending"); f })
+        .count_documents({
+            let mut f = base.clone();
+            f.insert("status", "pending");
+            f
+        })
         .await
         .unwrap_or(0) as i64;
     let snoozed = threads
-        .count_documents({ let mut f = base.clone(); f.insert("status", "snoozed"); f })
+        .count_documents({
+            let mut f = base.clone();
+            f.insert("status", "snoozed");
+            f
+        })
         .await
         .unwrap_or(0) as i64;
     let resolved = threads
-        .count_documents({ let mut f = base.clone(); f.insert("status", "resolved"); f })
+        .count_documents({
+            let mut f = base.clone();
+            f.insert("status", "resolved");
+            f
+        })
         .await
         .unwrap_or(0) as i64;
     let total = threads.count_documents(base.clone()).await.unwrap_or(0) as i64;
@@ -2400,7 +2491,8 @@ pub async fn analytics(
         let docs: Vec<Document> = cur.try_collect().await.unwrap_or_default();
         for d in &docs {
             let created = dt(d.get_datetime("createdAt").ok().copied());
-            let last_inbound = dt_opt(d.get_datetime("lastInboundAt").ok().copied()).unwrap_or(created);
+            let last_inbound =
+                dt_opt(d.get_datetime("lastInboundAt").ok().copied()).unwrap_or(created);
             let first_resp = dt_opt(d.get_datetime("firstResponseAt").ok().copied());
             let resolved_at = dt_opt(d.get_datetime("resolvedAt").ok().copied());
             let sla_due = dt_opt(d.get_datetime("slaDueAt").ok().copied());
@@ -2428,20 +2520,13 @@ pub async fn analytics(
             }
             if let Some(due) = sla_due {
                 if resolved_at.is_none() && due < now {
-                    let bkey = format!(
-                        "{:04}-{:02}-{:02}",
-                        due.year(),
-                        due.month(),
-                        due.day()
-                    );
+                    let bkey = format!("{:04}-{:02}-{:02}", due.year(), due.month(), due.day());
                     let e3 = by_day_map.entry(bkey).or_insert((0, 0, 0));
                     e3.2 += 1;
                 }
             }
             if let Some(agent) = d.get_str("assignedAgentId").ok() {
-                let entry = leaderboard_map
-                    .entry(agent.to_owned())
-                    .or_insert((0, 0, 0));
+                let entry = leaderboard_map.entry(agent.to_owned()).or_insert((0, 0, 0));
                 if resolved_at.is_some() {
                     entry.0 += 1;
                 }
@@ -2689,11 +2774,7 @@ pub async fn upsert_thread_from_message(
             let bot_match = m
                 .get("botId")
                 .and_then(|v| v.as_str())
-                .map(|b| {
-                    parse_oid(b)
-                        .map(|o| o == bot_oid)
-                        .unwrap_or(false)
-                })
+                .map(|b| parse_oid(b).map(|o| o == bot_oid).unwrap_or(false))
                 .unwrap_or(true);
             let type_match = m
                 .get("chatType")
@@ -2720,11 +2801,18 @@ pub async fn upsert_thread_from_message(
                 .get_document("assignTo")
                 .map(|d| serde_json::to_value(d).unwrap_or(serde_json::Value::Null))
                 .unwrap_or(serde_json::Value::Null);
-            let kind = assign.get("kind").and_then(|v| v.as_str()).unwrap_or("agent");
+            let kind = assign
+                .get("kind")
+                .and_then(|v| v.as_str())
+                .unwrap_or("agent");
             let agent_ids: Vec<String> = assign
                 .get("agentIds")
                 .and_then(|v| v.as_array())
-                .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_owned)).collect())
+                .map(|a| {
+                    a.iter()
+                        .filter_map(|v| v.as_str().map(str::to_owned))
+                        .collect()
+                })
                 .unwrap_or_default();
             match kind {
                 "agent" | "random" => {
@@ -2821,7 +2909,11 @@ pub async fn upsert_thread_from_message(
             for d in &docs {
                 let policy_tags: Vec<String> = d
                     .get_array("applyToTags")
-                    .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_owned)).collect())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str().map(str::to_owned))
+                            .collect()
+                    })
                     .unwrap_or_default();
                 let score: i64 = if policy_tags.is_empty() {
                     0

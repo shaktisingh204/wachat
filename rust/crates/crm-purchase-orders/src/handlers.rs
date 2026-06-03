@@ -102,9 +102,8 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
 /// Convert a `serde_json::Value` into a `Bson` for `$set`. Rejects
 /// payloads that can't round-trip into BSON (NaN floats, etc.).
 fn json_to_bson(v: &serde_json::Value, ctx: &'static str) -> Result<Bson> {
-    bson::to_bson(v).map_err(|e| {
-        ApiError::Validation(format!("{ctx} did not serialise to BSON: {e}"))
-    })
+    bson::to_bson(v)
+        .map_err(|e| ApiError::Validation(format!("{ctx} did not serialise to BSON: {e}")))
 }
 
 /// Resolve a logical lineage parent kind to the backing Mongo
@@ -138,7 +137,9 @@ async fn seed_lineage_from_parent(
         .find_one(doc! { "_id": parent_oid, "userId": user_oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context(format!("{coll_name}.find_one(lineage)")))
+            ApiError::Internal(
+                anyhow::Error::new(e).context(format!("{coll_name}.find_one(lineage)")),
+            )
         })? {
         Some(d) => d,
         None => return Ok(None),
@@ -181,10 +182,7 @@ pub async fn list_purchase_orders(
 
     let mut filter = base_ownership_filter(user_id);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        filter.insert(
-            "poNo",
-            doc! { "$regex": needle, "$options": "i" },
-        );
+        filter.insert("poNo", doc! { "$regex": needle, "$options": "i" });
     }
     if let Some(vid) = q.vendor_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("vendorId", oid_from_str(vid)?);
@@ -210,13 +208,9 @@ pub async fn list_purchase_orders(
         .build();
 
     let coll = mongo.collection::<PurchaseOrder>(PURCHASE_ORDERS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_purchase_orders.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_purchase_orders.find"))
+    })?;
     let pos: Vec<PurchaseOrder> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_purchase_orders.collect"))
     })?;
@@ -297,7 +291,10 @@ pub async fn create_purchase_order(
         None => ObjectId::new(),
     };
     let vendor_oid = oid_from_str(&input.vendor_id)?;
-    let ship_to_warehouse_oid = match input.ship_to_warehouse_id.as_deref().filter(|s| !s.is_empty())
+    let ship_to_warehouse_oid = match input
+        .ship_to_warehouse_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
     {
         Some(s) => Some(oid_from_str(s)?),
         None => None,
@@ -311,8 +308,16 @@ pub async fn create_purchase_order(
     let mut lineage_array: Option<Vec<Bson>> = None;
     let mut parent_backlink: Option<(ObjectId, &'static str)> = None;
     if let (Some(kind), Some(parent_id)) = (
-        input.from_kind.as_deref().map(str::trim).filter(|s| !s.is_empty()),
-        input.from_id.as_deref().map(str::trim).filter(|s| !s.is_empty()),
+        input
+            .from_kind
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
+        input
+            .from_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty()),
     ) {
         match seed_lineage_from_parent(&mongo, user_id, kind, parent_id).await {
             Ok(Some((lineage, parent_oid, parent_coll))) => {
@@ -374,7 +379,11 @@ pub async fn create_purchase_order(
     new_doc.insert("currency", input.currency.trim());
     new_doc.insert("items", items_bson);
     new_doc.insert("totals", totals_bson);
-    if let Some(t) = input.terms_and_conditions.as_deref().filter(|s| !s.is_empty()) {
+    if let Some(t) = input
+        .terms_and_conditions
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    {
         new_doc.insert("termsAndConditions", t);
     }
     if let Some(n) = input.notes.as_deref().filter(|s| !s.is_empty()) {
@@ -499,7 +508,11 @@ pub async fn update_purchase_order(
         "shipToWarehouseId",
         input.ship_to_warehouse_id.as_ref(),
     )?;
-    set_opt_oid(&mut set, "billingBranchId", input.billing_branch_id.as_ref())?;
+    set_opt_oid(
+        &mut set,
+        "billingBranchId",
+        input.billing_branch_id.as_ref(),
+    )?;
     set_opt_str(&mut set, "paymentTerms", input.payment_terms.as_ref());
     set_opt_str(&mut set, "currency", input.currency.as_ref());
     set_opt_str(
@@ -510,15 +523,19 @@ pub async fn update_purchase_order(
     set_opt_str(&mut set, "notes", input.notes.as_ref());
 
     if let Some(items) = input.items.as_ref() {
-        let bson_items =
-            json_to_bson(&serde_json::Value::Array(items.clone()), "items")?;
+        let bson_items = json_to_bson(&serde_json::Value::Array(items.clone()), "items")?;
         set.insert("items", bson_items);
     }
     if let Some(totals) = input.totals.as_ref() {
         set.insert("totals", json_to_bson(totals, "totals")?);
     }
 
-    if let Some(status) = input.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(status) = input
+        .status
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if !ALLOWED_STATUSES.contains(&status) {
             return Err(ApiError::Validation(format!(
                 "status must be one of: {}",

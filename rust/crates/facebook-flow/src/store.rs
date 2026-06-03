@@ -58,10 +58,7 @@ pub async fn list_flows(
             Ok(o) => o.to_hex(),
             Err(_) => continue,
         };
-        let name = d
-            .get_str("name")
-            .map(|s| s.to_owned())
-            .unwrap_or_default();
+        let name = d.get_str("name").map(|s| s.to_owned()).unwrap_or_default();
         let trigger_keywords: Vec<String> = d
             .get_array("triggerKeywords")
             .map(|arr| {
@@ -147,10 +144,10 @@ pub async fn save_flow(
     let now = bson::DateTime::from_chrono(Utc::now());
     let coll = mongo.collection::<Document>(FLOWS_COLL);
 
-    let nodes_bson = bson::to_bson(&req.nodes)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
-    let edges_bson = bson::to_bson(&req.edges)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let nodes_bson =
+        bson::to_bson(&req.nodes).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let edges_bson =
+        bson::to_bson(&req.edges).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     let base_set = doc! {
         "name": &req.name,

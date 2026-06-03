@@ -14,11 +14,7 @@
 
 use std::sync::Arc;
 
-use axum::{
-    Router,
-    extract::FromRef,
-    routing::get,
-};
+use axum::{Router, extract::FromRef, routing::get};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 

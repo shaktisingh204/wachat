@@ -161,7 +161,10 @@ fn doc_to_row(d: &Document) -> Option<ContactRow> {
         .or_else(|_| d.get_i32("chatId").map(i64::from))
         .unwrap_or(0);
     let tags: Vec<String> = match d.get_array("tags") {
-        Ok(arr) => arr.iter().filter_map(|b| b.as_str().map(str::to_owned)).collect(),
+        Ok(arr) => arr
+            .iter()
+            .filter_map(|b| b.as_str().map(str::to_owned))
+            .collect(),
         Err(_) => Vec::new(),
     };
     Some(ContactRow {
@@ -745,7 +748,11 @@ pub async fn bulk_tag(
         });
     }
     let add_norm = body.add.as_deref().map(normalize_tags).unwrap_or_default();
-    let remove_norm = body.remove.as_deref().map(normalize_tags).unwrap_or_default();
+    let remove_norm = body
+        .remove
+        .as_deref()
+        .map(normalize_tags)
+        .unwrap_or_default();
     if add_norm.is_empty() && remove_norm.is_empty() {
         return Json(BulkResultResp {
             success: false,
@@ -1098,8 +1105,12 @@ pub async fn import_csv(
     let i_first = idx("firstname").or_else(|| idx("first_name"));
     let i_last = idx("lastname").or_else(|| idx("last_name"));
     let i_user = idx("username");
-    let i_phone = idx("phonenumber").or_else(|| idx("phone_number")).or_else(|| idx("phone"));
-    let i_lang = idx("languagecode").or_else(|| idx("language_code")).or_else(|| idx("language"));
+    let i_phone = idx("phonenumber")
+        .or_else(|| idx("phone_number"))
+        .or_else(|| idx("phone"));
+    let i_lang = idx("languagecode")
+        .or_else(|| idx("language_code"))
+        .or_else(|| idx("language"));
     let i_tags = idx("tags");
     let i_notes = idx("notes");
 
@@ -1133,7 +1144,10 @@ pub async fn import_csv(
             .and_then(|i| rec.get(i))
             .map(|s| s.trim().to_owned())
             .filter(|s| !s.is_empty());
-        let phone = phone_raw.as_deref().map(normalize_phone).filter(|s| !s.is_empty());
+        let phone = phone_raw
+            .as_deref()
+            .map(normalize_phone)
+            .filter(|s| !s.is_empty());
         let language = i_lang
             .and_then(|i| rec.get(i))
             .map(|s| s.trim().to_owned())
@@ -1297,11 +1311,15 @@ pub async fn export_csv(
         .await
     {
         Ok(c) => c,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response(),
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response();
+        }
     };
     let docs: Vec<Document> = match cursor.try_collect().await {
         Ok(v) => v,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response(),
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response();
+        }
     };
     let rows: Vec<ContactRow> = docs.iter().filter_map(doc_to_row).collect();
 
@@ -1520,18 +1538,10 @@ pub async fn create_segment(
     if let Some(desc) = body.description {
         d.insert("description", desc);
     }
-    match s
-        .mongo
-        .collection::<Document>(SEGMENTS)
-        .insert_one(d)
-        .await
-    {
+    match s.mongo.collection::<Document>(SEGMENTS).insert_one(d).await {
         Ok(r) => Json(SegmentAckResult {
             success: true,
-            segment_id: r
-                .inserted_id
-                .as_object_id()
-                .map(|o| o.to_hex()),
+            segment_id: r.inserted_id.as_object_id().map(|o| o.to_hex()),
             message: Some("Saved.".to_owned()),
             error: None,
         }),
@@ -1672,12 +1682,7 @@ pub async fn segment_contacts(
     count_filter.remove("_id");
     let total = coll.count_documents(count_filter).await.unwrap_or(0) as i64;
 
-    let cursor = match coll
-        .find(f)
-        .sort(doc! { "_id": -1 })
-        .limit(limit)
-        .await
-    {
+    let cursor = match coll.find(f).sort(doc! { "_id": -1 }).limit(limit).await {
         Ok(c) => c,
         Err(e) => {
             return Json(SegmentContactsResp {
@@ -1695,7 +1700,10 @@ pub async fn segment_contacts(
             });
         }
     };
-    let next_cursor = docs.last().and_then(|d| d.get_object_id("_id").ok()).map(|o| o.to_hex());
+    let next_cursor = docs
+        .last()
+        .and_then(|d| d.get_object_id("_id").ok())
+        .map(|o| o.to_hex());
     let has_more = docs.len() as i64 == limit;
     let contacts: Vec<ContactRow> = docs.iter().filter_map(doc_to_row).collect();
     Json(SegmentContactsResp {
@@ -1781,10 +1789,7 @@ pub async fn analytics(
     let churned = coll.count_documents(churned_filter).await.unwrap_or(0) as i64;
 
     // Fetch contacts in range for tag + language breakdown + day series.
-    let cursor = match coll
-        .find(created_filter)
-        .await
-    {
+    let cursor = match coll.find(created_filter).await {
         Ok(c) => c,
         Err(e) => {
             return Json(AnalyticsResp {

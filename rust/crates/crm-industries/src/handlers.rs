@@ -69,7 +69,10 @@ fn industry_from_create(input: CreateIndustryInput, user_id: ObjectId) -> Result
         id: None,
         user_id,
         name: input.name.trim().to_owned(),
-        slug: input.slug.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        slug: input
+            .slug
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         parent_id: input
             .parent_id
             .as_deref()
@@ -84,7 +87,11 @@ fn industry_from_create(input: CreateIndustryInput, user_id: ObjectId) -> Result
 
 fn build_update_doc(patch: UpdateIndustryInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.slug {
@@ -160,14 +167,14 @@ pub async fn list_industries(
         .build();
 
     let coll = mongo.collection::<CrmIndustry>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find"))
+        })?;
+    let mut rows: Vec<CrmIndustry> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find")))?;
-    let mut rows: Vec<CrmIndustry> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_industries.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -194,9 +201,7 @@ pub async fn get_industry(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find_one")))?
         .ok_or_else(|| ApiError::NotFound("industry".to_owned()))?;
     Ok(Json(row))
 }
@@ -210,17 +215,17 @@ pub async fn create_industry(
     let user_id = user_oid(&user)?;
     let mut entity = industry_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmIndustry>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_industries.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -245,18 +250,14 @@ pub async fn update_industry(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.find_one")))?
         .ok_or_else(|| ApiError::NotFound("industry".to_owned()))?;
 
     let update = build_update_doc(patch);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("industry".to_owned()));
     }
@@ -264,9 +265,7 @@ pub async fn update_industry(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.refetch")))?
         .ok_or_else(|| ApiError::NotFound("industry".to_owned()))?;
 
     if let Some(event) = audit_for_update(
@@ -302,9 +301,7 @@ pub async fn delete_industry(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_industries.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_industries.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("industry".to_owned()));
     }

@@ -77,12 +77,7 @@ async fn read_value(mongo: &MongoHandle, key: &str, op: &'static str) -> Result<
 }
 
 /// Upsert `{ key, value, updatedAt }` into the settings collection.
-async fn write_value(
-    mongo: &MongoHandle,
-    key: &str,
-    value: Bson,
-    op: &'static str,
-) -> Result<()> {
+async fn write_value(mongo: &MongoHandle, key: &str, value: Bson, op: &'static str) -> Result<()> {
     let now = bson::DateTime::from_chrono(Utc::now());
     mongo
         .collection::<Document>(SETTINGS_COLL)
@@ -223,5 +218,8 @@ where
             get(get_webhook_processing).post(set_webhook_processing),
         )
         .route("/app-logo", get(get_app_logo).post(set_app_logo))
-        .route("/diwali-theme", get(get_diwali_theme).post(set_diwali_theme))
+        .route(
+            "/diwali-theme",
+            get(get_diwali_theme).post(set_diwali_theme),
+        )
 }

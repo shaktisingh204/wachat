@@ -1,9 +1,16 @@
 //! HTTP handlers for SabWorkerly clients.
 
-use axum::{Json, extract::{Path, Query, State}};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId, to_bson};
 use chrono::Utc;
-use crm_common::{pagination::{clamp_limit, skip_for}, search::build_q_filter, tenant::user_oid};
+use crm_common::{
+    pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
+    tenant::user_oid,
+};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -20,8 +27,12 @@ fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active") {
         "all" => {}
-        s @ ("active" | "inactive") => { filter.insert("status", s); }
-        _ => { filter.insert("status", doc! { "$ne": "inactive" }); }
+        s @ ("active" | "inactive") => {
+            filter.insert("status", s);
+        }
+        _ => {
+            filter.insert("status", doc! { "$ne": "inactive" });
+        }
     }
     filter
 }
@@ -41,7 +52,9 @@ pub struct ListResponse {
 
 #[instrument(skip_all)]
 pub async fn list_clients(
-    user: AuthUser, State(mongo): State<MongoHandle>, Query(q): Query<ListQuery>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, q.status.as_deref());
@@ -59,23 +72,39 @@ pub async fn list_clients(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabworkerlyClient>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let mut rows: Vec<SabworkerlyClient> = cursor.try_collect().await
+    let mut rows: Vec<SabworkerlyClient> = cursor
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
-    Ok(Json(ListResponse { items: rows, page: q.page.unwrap_or(0), limit: limit as u32, has_more }))
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn get_client(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<SabworkerlyClient>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyClient>(COLL);
-    let row = coll.find_one(own(user_id, oid)).await
+    let row = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("client".to_owned()))?;
     Ok(Json(row))
@@ -83,7 +112,9 @@ pub async fn get_client(
 
 #[instrument(skip_all)]
 pub async fn create_client(
-    user: AuthUser, State(mongo): State<MongoHandle>, Json(input): Json<CreateClientInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreateClientInput>,
 ) -> Result<Json<CreateClientResponse>> {
     let user_id = user_oid(&user)?;
     if input.name.trim().is_empty() {
@@ -103,37 +134,64 @@ pub async fn create_client(
         updated_at: None,
     };
     let coll = mongo.collection::<SabworkerlyClient>(COLL);
-    let inserted = coll.insert_one(&client).await
+    let inserted = coll
+        .insert_one(&client)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let new_id = inserted.inserted_id.as_object_id()
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     client.id = Some(new_id);
-    Ok(Json(CreateClientResponse { id: new_id.to_hex(), entity: client }))
+    Ok(Json(CreateClientResponse {
+        id: new_id.to_hex(),
+        entity: client,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn update_client(
-    user: AuthUser, State(mongo): State<MongoHandle>,
-    Path(id): Path<String>, Json(patch): Json<UpdateClientInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(patch): Json<UpdateClientInput>,
 ) -> Result<Json<SabworkerlyClient>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name { set.insert("name", v); }
-    if let Some(v) = patch.contact_name { set.insert("contactName", v); }
-    if let Some(v) = patch.contact_email { set.insert("contactEmail", v); }
-    if let Some(v) = patch.contact_phone { set.insert("contactPhone", v); }
+    if let Some(v) = patch.name {
+        set.insert("name", v);
+    }
+    if let Some(v) = patch.contact_name {
+        set.insert("contactName", v);
+    }
+    if let Some(v) = patch.contact_email {
+        set.insert("contactEmail", v);
+    }
+    if let Some(v) = patch.contact_phone {
+        set.insert("contactPhone", v);
+    }
     if let Some(v) = patch.billing_address_json {
         let b = to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         set.insert("billingAddressJson", b);
     }
-    if let Some(v) = patch.payment_terms_days { set.insert("paymentTermsDays", v as i64); }
-    if let Some(v) = patch.status { set.insert("status", v); }
+    if let Some(v) = patch.payment_terms_days {
+        set.insert("paymentTermsDays", v as i64);
+    }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
     let coll = mongo.collection::<SabworkerlyClient>(COLL);
-    let result = coll.update_one(own(user_id, oid), doc! { "$set": set }).await
+    let result = coll
+        .update_one(own(user_id, oid), doc! { "$set": set })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    if result.matched_count == 0 { return Err(ApiError::NotFound("client".to_owned())); }
-    let after = coll.find_one(own(user_id, oid)).await
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("client".to_owned()));
+    }
+    let after = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("client".to_owned()))?;
     Ok(Json(after))
@@ -141,7 +199,9 @@ pub async fn update_client(
 
 #[instrument(skip_all)]
 pub async fn delete_client(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<DeleteClientResponse>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
@@ -149,6 +209,8 @@ pub async fn delete_client(
     let result = coll.update_one(own(user_id, oid),
         doc! { "$set": { "status": "inactive", "updatedAt": BsonDateTime::from_chrono(Utc::now()) } }
     ).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    if result.matched_count == 0 { return Err(ApiError::NotFound("client".to_owned())); }
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("client".to_owned()));
+    }
     Ok(Json(DeleteClientResponse { deleted: true }))
 }

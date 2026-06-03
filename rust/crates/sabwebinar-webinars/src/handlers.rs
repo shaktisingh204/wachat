@@ -59,11 +59,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 
 fn list_filter(user_id: ObjectId, q: &ListQuery) -> Document {
     let mut filter = doc! { "userId": user_id };
-    if let Some(s) = q
-        .status
-        .as_deref()
-        .filter(|s| STATUS_VARIANTS.contains(s))
-    {
+    if let Some(s) = q.status.as_deref().filter(|s| STATUS_VARIANTS.contains(s)) {
         filter.insert("status", s);
     }
     let now = BsonDateTime::from_chrono(Utc::now());
@@ -106,7 +102,12 @@ fn webinar_from_create(input: CreateWebinarInput, user_id: ObjectId) -> Result<W
         .and_then(|s| ObjectId::parse_str(s).ok())
         .unwrap_or(user_id);
 
-    let slug = match input.slug.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let slug = match input
+        .slug
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => slugify(s),
         None => {
             let base = slugify(&input.title);

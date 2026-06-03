@@ -126,7 +126,9 @@ pub async fn set_cell(
     let sheet_doc = sheets
         .find_one(doc! { "_id": sheet_id, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.sheet_lookup")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.sheet_lookup"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sheet".to_owned()))?;
     let workbook_id = sheet_doc
         .get_object_id("workbookId")
@@ -208,7 +210,10 @@ pub async fn set_cell(
         "ownerUserId": user_id,
     };
     cells
-        .update_one(filter.clone(), doc! { "$set": set_doc, "$setOnInsert": { "createdAt": now } })
+        .update_one(
+            filter.clone(),
+            doc! { "$set": set_doc, "$setOnInsert": { "createdAt": now } },
+        )
         .upsert(true)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.upsert")))?;
@@ -230,10 +235,9 @@ pub async fn set_cell(
             "col": input.col as i64,
         }},
     };
-    let dep_cursor = typed
-        .find(dependents_filter)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.dependents")))?;
+    let dep_cursor = typed.find(dependents_filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.dependents"))
+    })?;
     let dep_rows: Vec<SabsheetCell> = dep_cursor.try_collect().await.unwrap_or_default();
     let affected = dep_rows
         .into_iter()
@@ -260,7 +264,9 @@ async fn build_ctx(
     let cursor = cells
         .find(doc! { "workbookId": workbook_id, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.ctx_scan")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.ctx_scan"))
+        })?;
     let rows: Vec<SabsheetCell> = cursor.try_collect().await.unwrap_or_default();
     let mut by_addr = HashMap::new();
     for r in &rows {
@@ -273,7 +279,9 @@ async fn build_ctx(
     let sheet_cursor = sheets
         .find(doc! { "workbookId": workbook_id, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.sheet_scan")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_cells.sheet_scan"))
+        })?;
     let sheet_docs: Vec<Document> = sheet_cursor.try_collect().await.unwrap_or_default();
     let mut sheet_id_by_name = HashMap::new();
     for d in &sheet_docs {
@@ -321,7 +329,11 @@ pub async fn evaluate_formula(
                     Value::Error(_) => "error",
                 }
                 .to_owned(),
-                error: if let Value::Error(e) = v { Some(e) } else { None },
+                error: if let Value::Error(e) = v {
+                    Some(e)
+                } else {
+                    None
+                },
             }))
         }
         Err(e) => Ok(Json(EvaluateFormulaResponse {
@@ -355,9 +367,13 @@ pub async fn recompute(
     let formula_rows: Vec<SabsheetCell> = formula_cursor.try_collect().await.unwrap_or_default();
     let mut updated: u32 = 0;
     for c in formula_rows {
-        let Some(src) = c.formula.clone() else { continue };
+        let Some(src) = c.formula.clone() else {
+            continue;
+        };
         let ctx = build_ctx(&mongo, workbook_id, user_id, c.sheet_id).await?;
-        let Ok(ast) = formula::parse(&src) else { continue };
+        let Ok(ast) = formula::parse(&src) else {
+            continue;
+        };
         let v = formula::eval(&ast, &ctx);
         let new_val = eval_to_cell_value(&v);
         let raw_coll = mongo.collection::<Document>(COLL);
@@ -372,5 +388,7 @@ pub async fn recompute(
             .await;
         updated += 1;
     }
-    Ok(Json(RecomputeResponse { recomputed: updated }))
+    Ok(Json(RecomputeResponse {
+        recomputed: updated,
+    }))
 }

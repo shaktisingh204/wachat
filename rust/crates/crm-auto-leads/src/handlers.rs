@@ -87,7 +87,11 @@ fn rule_from_create(input: CreateRuleInput, user_id: ObjectId) -> Result<CrmAuto
 
 fn build_update_doc(patch: UpdateRuleInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.conditions {
@@ -212,8 +216,7 @@ pub async fn create_rule(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

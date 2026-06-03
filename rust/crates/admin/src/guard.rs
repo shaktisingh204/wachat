@@ -16,9 +16,7 @@ pub fn require_admin(user: &AuthUser) -> Result<()> {
     if user.roles.iter().any(|r| r == "admin") {
         Ok(())
     } else {
-        Err(ApiError::Forbidden(
-            "admin role required".to_owned(),
-        ))
+        Err(ApiError::Forbidden("admin role required".to_owned()))
     }
 }
 

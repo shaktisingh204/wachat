@@ -1,19 +1,22 @@
-'use client';
+"use client";
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
 import {
-  useActionState,
-  useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+  Button,
+  Card,
+  Input,
+  Label,
+  Textarea,
+  useZoruToast,
+} from "@/components/zoruui";
+import { useActionState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
+import { ArrowLeft, Save, LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { updateKbArticle } from '@/app/actions/crm-knowledge-base.actions';
-import { EntityFormField } from '@/components/crm/entity-form-field';
-import { EnumFormField } from '@/components/crm/enum-form-field';
+import { updateKbArticle } from "@/app/actions/crm-knowledge-base.actions";
+import { EntityFormField } from "@/components/crm/entity-form-field";
+import { EnumFormField } from "@/components/crm/enum-form-field";
 
 const initialState: { message?: string; error?: string } = {};
 
@@ -44,11 +47,15 @@ export default function KbArticleEditForm({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Updated', description: state.message });
+      toast({ title: "Updated", description: state.message });
       router.push(`/dashboard/sabdesk/knowledge-base/${articleId}`);
     }
     if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
     }
   }, [state, toast, router, articleId]);
 
@@ -58,7 +65,9 @@ export default function KbArticleEditForm({
 
       {/* Article Details Card */}
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Article Details</h2>
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
+          Article Details
+        </h2>
         <div className="flex flex-col gap-5">
           {/* Title */}
           <div className="space-y-1.5">
@@ -66,7 +75,7 @@ export default function KbArticleEditForm({
             <Input
               id="title"
               name="title"
-              defaultValue={article.title ?? ''}
+              defaultValue={article.title ?? ""}
               placeholder="Article title"
               required
             />
@@ -78,7 +87,7 @@ export default function KbArticleEditForm({
             <Input
               id="slug"
               name="slug"
-              defaultValue={article.slug ?? ''}
+              defaultValue={article.slug ?? ""}
               placeholder="auto-generated-from-title"
             />
           </div>
@@ -90,7 +99,7 @@ export default function KbArticleEditForm({
               <EntityFormField
                 entity="category"
                 name="category"
-                initialLabel={article.category ?? ''}
+                initialLabel={article.category ?? ""}
                 placeholder="e.g. Billing, Onboarding"
               />
             </div>
@@ -99,7 +108,7 @@ export default function KbArticleEditForm({
               <EnumFormField
                 enumName="kbVisibility"
                 name="visibility"
-                initialId={article.visibility ?? 'internal'}
+                initialId={article.visibility ?? "internal"}
                 placeholder="Select visibility"
               />
             </div>
@@ -113,7 +122,9 @@ export default function KbArticleEditForm({
                 id="tags"
                 name="tags"
                 defaultValue={
-                  Array.isArray(article.tags) ? article.tags.join(', ') : (article.tags ?? '')
+                  Array.isArray(article.tags)
+                    ? article.tags.join(", ")
+                    : (article.tags ?? "")
                 }
                 placeholder="Comma-separated tags"
               />
@@ -123,7 +134,7 @@ export default function KbArticleEditForm({
               <EnumFormField
                 enumName="kbStatus"
                 name="status"
-                initialId={article.status ?? 'draft'}
+                initialId={article.status ?? "draft"}
                 placeholder="Select status"
               />
             </div>
@@ -139,7 +150,7 @@ export default function KbArticleEditForm({
           <Textarea
             id="body"
             name="body"
-            defaultValue={article.body ?? ''}
+            defaultValue={article.body ?? ""}
             placeholder="Write the article content here…"
             rows={15}
             required
@@ -148,7 +159,11 @@ export default function KbArticleEditForm({
       </Card>
 
       <div className="flex items-center justify-between">
-        <Button variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
+        <Button
+          variant="ghost"
+          asChild
+          className="text-zoru-ink-muted hover:text-zoru-ink"
+        >
           <Link href={`/dashboard/sabdesk/knowledge-base/${articleId}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Cancel

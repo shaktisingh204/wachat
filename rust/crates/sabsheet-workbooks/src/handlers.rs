@@ -77,7 +77,11 @@ fn from_create(input: CreateWorkbookInput, user_id: ObjectId) -> Result<Sabsheet
 
 fn build_update_doc(patch: UpdateWorkbookInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.title.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .title
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("title", v);
     }
     if let Some(v) = patch.shared_with_user_ids {
@@ -86,7 +90,10 @@ fn build_update_doc(patch: UpdateWorkbookInput) -> Document {
     if let Some(v) = patch.status {
         set.insert("status", v);
     }
-    if let Some(v) = patch.default_sheet_id.and_then(|s| ObjectId::parse_str(&s).ok()) {
+    if let Some(v) = patch
+        .default_sheet_id
+        .and_then(|s| ObjectId::parse_str(&s).ok())
+    {
         set.insert("defaultSheetId", v);
     }
     doc! { "$set": set, "$inc": { "version": 1 } }
@@ -124,15 +131,12 @@ pub async fn list_workbooks(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabsheetWorkbook>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.find")))?;
-    let mut rows: Vec<SabsheetWorkbook> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.find"))
+    })?;
+    let mut rows: Vec<SabsheetWorkbook> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -165,7 +169,9 @@ pub async fn get_workbook(
     let row = coll
         .find_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("workbook".to_owned()))?;
     Ok(Json(row))
 }
@@ -179,10 +185,9 @@ pub async fn create_workbook(
     let user_id = user_oid(&user)?;
     let mut entity = from_create(input, user_id)?;
     let coll = mongo.collection::<SabsheetWorkbook>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -208,14 +213,18 @@ pub async fn update_workbook(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("workbook".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("workbook".to_owned()))?;
     Ok(Json(after))
 }
@@ -238,7 +247,9 @@ pub async fn delete_workbook(
             }, "$inc": { "version": 1 } },
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_workbooks.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("workbook".to_owned()));
     }

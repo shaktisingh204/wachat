@@ -57,16 +57,11 @@ pub async fn subscribe_one(
     user_access_token: &str,
 ) -> Result<()> {
     let path = format!("{waba_id}/subscribed_apps");
-    let _: Value = meta
-        .post_json(&path, user_access_token, &json!({}))
-        .await?;
+    let _: Value = meta.post_json(&path, user_access_token, &json!({})).await?;
     Ok(())
 }
 
-pub async fn subscribe_all(
-    mongo: &MongoHandle,
-    meta: &MetaClient,
-) -> Result<SubscribeAllOutcome> {
+pub async fn subscribe_all(mongo: &MongoHandle, meta: &MetaClient) -> Result<SubscribeAllOutcome> {
     use futures::TryStreamExt;
     let cursor = mongo
         .collection::<Project>(PROJECTS_COLL)

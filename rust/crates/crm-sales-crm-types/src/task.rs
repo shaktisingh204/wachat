@@ -66,7 +66,11 @@ pub struct ChecklistItem {
     pub text: String,
     #[serde(default)]
     pub done: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub completed_at: Option<DateTime<Utc>>,
 }
 

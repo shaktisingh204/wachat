@@ -31,11 +31,20 @@ pub enum ConversationPriority {
 #[derive(Debug, Clone, Default, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SlaPolicy {
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub first_response_due_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub next_response_due_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub resolution_due_at: Option<DateTime<Utc>>,
     /// Has any clock already breached? Cached for cheap inbox filters.
     #[serde(default)]
@@ -76,14 +85,20 @@ pub struct SabChatConversation {
     pub labels: Vec<String>,
 
     /// Snooze release time, if `status == Snoozed`.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub snooze_until: Option<DateTime<Utc>>,
 
     #[serde(default)]
     pub sla: SlaPolicy,
 
     /// Last message timestamp for inbox sort order.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub last_message_at: Option<DateTime<Utc>>,
 
     /// Short text preview of the last message for inbox row display.
@@ -101,11 +116,17 @@ pub struct SabChatConversation {
 
     /// First-response timestamp (used by SLA reports). Set once by the first
     /// outbound agent/bot message.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub first_response_at: Option<DateTime<Utc>>,
 
     /// Resolution timestamp.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub resolved_at: Option<DateTime<Utc>>,
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]

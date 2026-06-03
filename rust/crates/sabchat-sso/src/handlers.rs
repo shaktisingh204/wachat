@@ -1,22 +1,21 @@
 use axum::{
-    extract::{Path, State},
     Json,
+    extract::{Path, State},
 };
-use mongodb::bson::{doc, oid::ObjectId, Document};
-use futures::stream::StreamExt;
 use chrono::Utc;
+use futures::stream::StreamExt;
+use mongodb::bson::{Document, doc, oid::ObjectId};
 use serde_json::Value;
 
+use sabnode_auth::AuthUser;
 use sabnode_common::error::{ApiError, Result};
 use sabnode_db::document_to_clean_json;
-use sabnode_auth::AuthUser;
 
-use crate::state::SabChatSsoState;
 use crate::dto::{
-    CreateSsoConfigBody, UpdateSsoConfigBody,
-    CreateScimTokenBody, CreateScimTokenResponse,
-    TestSamlResponseBody, TestSamlResponseResult,
+    CreateScimTokenBody, CreateScimTokenResponse, CreateSsoConfigBody, TestSamlResponseBody,
+    TestSamlResponseResult, UpdateSsoConfigBody,
 };
+use crate::state::SabChatSsoState;
 
 // ===========================================================================
 // SSO Configs
@@ -30,7 +29,9 @@ pub async fn list_sso_configs(
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
-    let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
+    let mut cursor = coll
+        .find(doc! { "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut out = vec![];
@@ -64,13 +65,24 @@ pub async fn create_sso_config(
         "createdAt": now.clone(),
         "updatedAt": now,
     };
-    if let Some(val) = body.sso_url { doc.insert("ssoUrl", val); }
-    if let Some(val) = body.certificate_pem { doc.insert("certificatePem", val); }
-    if let Some(val) = body.client_id { doc.insert("clientId", val); }
-    if let Some(val) = body.client_secret { doc.insert("clientSecret", val); }
-    if let Some(val) = body.domain { doc.insert("domain", val); }
+    if let Some(val) = body.sso_url {
+        doc.insert("ssoUrl", val);
+    }
+    if let Some(val) = body.certificate_pem {
+        doc.insert("certificatePem", val);
+    }
+    if let Some(val) = body.client_id {
+        doc.insert("clientId", val);
+    }
+    if let Some(val) = body.client_secret {
+        doc.insert("clientSecret", val);
+    }
+    if let Some(val) = body.domain {
+        doc.insert("domain", val);
+    }
 
-    coll.insert_one(&doc).await
+    coll.insert_one(&doc)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(document_to_clean_json(doc.clone())))
@@ -83,11 +95,13 @@ pub async fn get_sso_config(
 ) -> Result<Json<Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("config not found".into()))?;
+    let oid =
+        ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("config not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
-    let doc = coll.find_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let doc = coll
+        .find_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("config not found".into()))?;
 
@@ -102,26 +116,45 @@ pub async fn update_sso_config(
 ) -> Result<Json<Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("config not found".into()))?;
+    let oid =
+        ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("config not found".into()))?;
 
     let mut set_doc = doc! {
         "updatedAt": Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true)
     };
-    if let Some(v) = body.kind { set_doc.insert("kind", v); }
-    if let Some(v) = body.issuer { set_doc.insert("issuer", v); }
-    if let Some(v) = body.sso_url { set_doc.insert("ssoUrl", v); }
-    if let Some(v) = body.certificate_pem { set_doc.insert("certificatePem", v); }
-    if let Some(v) = body.client_id { set_doc.insert("clientId", v); }
-    if let Some(v) = body.client_secret { set_doc.insert("clientSecret", v); }
-    if let Some(v) = body.domain { set_doc.insert("domain", v); }
-    if let Some(v) = body.active { set_doc.insert("active", v); }
+    if let Some(v) = body.kind {
+        set_doc.insert("kind", v);
+    }
+    if let Some(v) = body.issuer {
+        set_doc.insert("issuer", v);
+    }
+    if let Some(v) = body.sso_url {
+        set_doc.insert("ssoUrl", v);
+    }
+    if let Some(v) = body.certificate_pem {
+        set_doc.insert("certificatePem", v);
+    }
+    if let Some(v) = body.client_id {
+        set_doc.insert("clientId", v);
+    }
+    if let Some(v) = body.client_secret {
+        set_doc.insert("clientSecret", v);
+    }
+    if let Some(v) = body.domain {
+        set_doc.insert("domain", v);
+    }
+    if let Some(v) = body.active {
+        set_doc.insert("active", v);
+    }
 
     let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
-    let res = coll.find_one_and_update(
-        doc! { "_id": oid, "tenantId": tenant_id },
-        doc! { "$set": set_doc }
-    ).return_document(mongodb::options::ReturnDocument::After).await
+    let res = coll
+        .find_one_and_update(
+            doc! { "_id": oid, "tenantId": tenant_id },
+            doc! { "$set": set_doc },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("config not found".into()))?;
 
@@ -135,11 +168,13 @@ pub async fn delete_sso_config(
 ) -> Result<Json<serde_json::Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("config not found".into()))?;
+    let oid =
+        ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("config not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_sso_configs");
-    let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let res = coll
+        .delete_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {
@@ -176,7 +211,9 @@ pub async fn list_scim_tokens(
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
-    let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
+    let mut cursor = coll
+        .find(doc! { "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut out = vec![];
@@ -213,7 +250,8 @@ pub async fn create_scim_token(
         "createdAt": now,
     };
 
-    coll.insert_one(&doc).await
+    coll.insert_one(&doc)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(CreateScimTokenResponse {
@@ -231,11 +269,12 @@ pub async fn delete_scim_token(
 ) -> Result<Json<serde_json::Value>> {
     let tenant_id = ObjectId::parse_str(&auth.tenant_id)
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("invalid tenant oid")))?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("token not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("token not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
-    let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let res = coll
+        .delete_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {

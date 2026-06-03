@@ -30,11 +30,23 @@ pub struct AckResult {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ToSchema)]
 pub struct Cooldown {
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "perChatSeconds")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "perChatSeconds"
+    )]
     pub per_chat_seconds: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "perRuleSeconds")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "perRuleSeconds"
+    )]
     pub per_rule_seconds: Option<i64>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "perDayLimit")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "perDayLimit"
+    )]
     pub per_day_limit: Option<i64>,
 }
 
@@ -57,13 +69,24 @@ pub struct RuleRow {
     pub run_count: i64,
     #[serde(rename = "errorCount")]
     pub error_count: i64,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "lastRunAt", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "lastRunAt",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_run_at: Option<DateTime<Utc>>,
     #[serde(rename = "fired7d")]
     pub fired_7d: i64,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -154,15 +177,31 @@ pub struct SimulatedMessage {
     pub is_group: Option<bool>,
     #[serde(default, skip_serializing_if = "Option::is_none", rename = "chatId")]
     pub chat_id: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "fromUserId")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "fromUserId"
+    )]
     pub from_user_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none", rename = "senderTag")]
     pub sender_tag: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "senderRole")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "senderRole"
+    )]
     pub sender_role: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "languageCode")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "languageCode"
+    )]
     pub language_code: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "isFirstMessage")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "isFirstMessage"
+    )]
     pub is_first_message: Option<bool>,
 }
 
@@ -225,7 +264,10 @@ pub struct RunRow {
     #[serde(rename = "actionsCount")]
     pub actions_count: i64,
     pub status: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "firedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "firedAt"
+    )]
     pub fired_at: DateTime<Utc>,
 }
 

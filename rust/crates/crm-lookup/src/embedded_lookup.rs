@@ -17,7 +17,9 @@ use sabnode_db::MongoHandle;
 /// `mongo_lookup::build_regex` query path, applied in-memory because
 /// embedded vectors aren't worth the round-trip per stage.
 fn matches(haystack: &str, needle: &str) -> bool {
-    haystack.to_ascii_lowercase().contains(&needle.to_ascii_lowercase())
+    haystack
+        .to_ascii_lowercase()
+        .contains(&needle.to_ascii_lowercase())
 }
 
 async fn fetch_pipelines(mongo: &MongoHandle, ctx: &TenantCtx) -> Result<Vec<Document>> {

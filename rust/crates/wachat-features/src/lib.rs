@@ -144,7 +144,8 @@ where
         // ---- messaging: scheduled broadcasts ------------------------------
         .route(
             "/projects/{project_id}/scheduled-broadcasts",
-            get(messaging::scheduled_broadcasts::list).post(messaging::scheduled_broadcasts::create),
+            get(messaging::scheduled_broadcasts::list)
+                .post(messaging::scheduled_broadcasts::create),
         )
         .route(
             "/scheduled-broadcasts/{schedule_id}/cancel",
@@ -187,10 +188,7 @@ where
             "/projects/{project_id}/message-tags",
             get(messaging::tags::list).post(messaging::tags::save),
         )
-        .route(
-            "/message-tags/{tag_id}",
-            delete(messaging::tags::delete),
-        )
+        .route("/message-tags/{tag_id}", delete(messaging::tags::delete))
         // ---- messaging: bulk send -----------------------------------------
         .route(
             "/projects/{project_id}/bulk-send",

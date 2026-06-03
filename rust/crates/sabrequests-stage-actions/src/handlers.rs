@@ -51,7 +51,12 @@ pub async fn list_actions(
     let req_oid = oid_from_str(req_id)?;
 
     let mut filter: Document = doc! { "userId": user_id, "requestId": req_oid };
-    if let Some(actor) = q.actor_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(actor) = q
+        .actor_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("actorId", oid_from_str(actor)?);
     }
 

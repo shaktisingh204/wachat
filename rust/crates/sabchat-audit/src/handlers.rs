@@ -62,9 +62,7 @@ fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
 /// clear error here beats silently swallowing the filter.
 fn parse_rfc3339(field: &str, raw: &str) -> Result<bson::DateTime> {
     let dt: DateTime<Utc> = DateTime::parse_from_rfc3339(raw)
-        .map_err(|e| {
-            ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}"))
-        })?
+        .map_err(|e| ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}")))?
         .with_timezone(&Utc);
     Ok(bson::DateTime::from_chrono(dt))
 }
@@ -91,11 +89,7 @@ pub async fn list_events(
     // ---- Build filter ---------------------------------------------------
     let mut filter = doc! { "tenantId": tenant };
 
-    if let Some(id) = query
-        .conversation_id
-        .as_deref()
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(id) = query.conversation_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("conversationId", oid_from_str(id)?);
     }
     if let Some(id) = query.contact_id.as_deref().filter(|s| !s.is_empty()) {
@@ -144,11 +138,8 @@ pub async fn list_events(
 
     // ---- Query ----------------------------------------------------------
     let coll = state.mongo.collection::<Document>(AUDIT_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabchat_audit_log.find"))
         })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {

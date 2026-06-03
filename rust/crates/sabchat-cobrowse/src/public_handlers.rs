@@ -1,8 +1,8 @@
 use axum::{
-    extract::{Path, State},
     Json,
+    extract::{Path, State},
 };
-use bson::{doc, Document};
+use bson::{Document, doc};
 use chrono::Utc;
 
 use sabnode_common::{ApiError, Result};

@@ -43,16 +43,18 @@ fn is_valid_month(m: &str) -> bool {
     if !(year_ok && month_ok) {
         return false;
     }
-    matches!(&m[5..], "01" | "02" | "03" | "04" | "05" | "06" | "07" | "08" | "09" | "10" | "11" | "12")
+    matches!(
+        &m[5..],
+        "01" | "02" | "03" | "04" | "05" | "06" | "07" | "08" | "09" | "10" | "11" | "12"
+    )
 }
 
 fn parse_iso_date(s: &str) -> Result<BsonDateTime> {
     DateTime::parse_from_rfc3339(s)
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
         .or_else(|_| {
-            chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d").map(|nd| {
-                BsonDateTime::from_chrono(nd.and_hms_opt(0, 0, 0).unwrap().and_utc())
-            })
+            chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
+                .map(|nd| BsonDateTime::from_chrono(nd.and_hms_opt(0, 0, 0).unwrap().and_utc()))
         })
         .map_err(|_| ApiError::Validation(format!("invalid date '{s}'")))
 }
@@ -86,14 +88,9 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(
-    input: CreatePfEsiRecordInput,
-    user_id: ObjectId,
-) -> Result<CrmPfEsiRecord> {
+fn entity_from_create(input: CreatePfEsiRecordInput, user_id: ObjectId) -> Result<CrmPfEsiRecord> {
     if input.employee_name.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "employee_name is required".to_owned(),
-        ));
+        return Err(ApiError::Validation("employee_name is required".to_owned()));
     }
     if !is_valid_month(&input.month) {
         return Err(ApiError::Validation(
@@ -206,7 +203,13 @@ pub async fn list_pf_esi(
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
-            &["employeeName", "pfUan", "esiIcNumber", "challanNumber", "month"],
+            &[
+                "employeeName",
+                "pfUan",
+                "esiIcNumber",
+                "challanNumber",
+                "month",
+            ],
         );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
@@ -281,8 +284,7 @@ pub async fn create_pf_esi(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

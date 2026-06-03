@@ -40,9 +40,10 @@ pub async fn list_fields(
         .find(doc! { "userId": user_id, "locationId": loc })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("profile_fields.find")))?;
-    let items: Vec<SabpublishProfileField> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("profile_fields.collect"))
-    })?;
+    let items: Vec<SabpublishProfileField> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("profile_fields.collect")))?;
     Ok(Json(ListResponse { items }))
 }
 

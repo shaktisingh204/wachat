@@ -83,7 +83,7 @@ pub async fn ingest(
         "accountId": &body.account_id,
         "userId": &body.user_id,
     };
-    
+
     let attachments = attachments_from_content(&body);
     let message_doc = doc! {
         "_id": message_oid,
@@ -164,14 +164,17 @@ pub async fn delivered(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"),
+            )
         })?;
 
     if result.matched_count == 0 {
         return Ok(Json(DeliveredResp { message_id: None }));
     }
 
-    let existing = find_message_by_token(&state.mongo, &inbox_id, &body.provider_message_id).await?;
+    let existing =
+        find_message_by_token(&state.mongo, &inbox_id, &body.provider_message_id).await?;
     let msg_id = existing.and_then(|d| d.get_object_id("_id").ok().map(|oid| oid.to_hex()));
 
     Ok(Json(DeliveredResp { message_id: msg_id }))

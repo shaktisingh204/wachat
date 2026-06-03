@@ -105,10 +105,7 @@ fn validate_rating(r: Option<i32>) -> Result<Option<i32>> {
     }
 }
 
-fn candidate_from_create(
-    input: CreateCandidateInput,
-    user_id: ObjectId,
-) -> Result<CrmCandidate> {
+fn candidate_from_create(input: CreateCandidateInput, user_id: ObjectId) -> Result<CrmCandidate> {
     if input.first_name.trim().is_empty() {
         return Err(ApiError::Validation("firstName is required".to_owned()));
     }
@@ -272,12 +269,14 @@ pub async fn list_candidates(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmCandidate>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find"))
-    })?;
-    let mut rows: Vec<CrmCandidate> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find"))
+        })?;
+    let mut rows: Vec<CrmCandidate> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -302,9 +301,7 @@ pub async fn get_candidate(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find_one")))?
         .ok_or_else(|| ApiError::NotFound("candidate".to_owned()))?;
     Ok(Json(row))
 }
@@ -332,16 +329,16 @@ pub async fn create_candidate(
         ));
     }
 
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -364,9 +361,7 @@ pub async fn update_candidate(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.find_one")))?
         .ok_or_else(|| ApiError::NotFound("candidate".to_owned()))?;
 
     // If email is being changed, enforce uniqueness per tenant.
@@ -399,18 +394,14 @@ pub async fn update_candidate(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("candidate".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.refetch")))?
         .ok_or_else(|| ApiError::NotFound("candidate".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -442,9 +433,7 @@ pub async fn delete_candidate(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_candidates.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("candidate".to_owned()));
     }
@@ -486,7 +475,13 @@ mod tests {
     #[test]
     fn candidate_from_create_rejects_invalid_email() {
         let user_id = ObjectId::new();
-        let bad = ["", "noatsign", "missing@tld", "@nolocal.com", "spaces in@email.com"];
+        let bad = [
+            "",
+            "noatsign",
+            "missing@tld",
+            "@nolocal.com",
+            "spaces in@email.com",
+        ];
         for email in bad {
             let input = CreateCandidateInput {
                 first_name: "Ada".into(),

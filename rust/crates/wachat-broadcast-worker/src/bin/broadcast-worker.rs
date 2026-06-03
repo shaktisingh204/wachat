@@ -19,9 +19,7 @@ use wachat_queue::BullProducer;
 use wachat_rate_limit::{BroadcastLimiter, TokenBucket};
 
 use wachat_broadcast_worker::queue_compat::{Worker, WorkerOptions};
-use wachat_broadcast_worker::{
-    ControlConfig, ControlJobHandler, SendConfig, SendJobHandler,
-};
+use wachat_broadcast_worker::{ControlConfig, ControlJobHandler, SendConfig, SendJobHandler};
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<()> {
@@ -146,12 +144,8 @@ async fn main() -> Result<()> {
 
 /// Initialize `tracing` from `RUST_LOG` (defaults to `info`).
 fn init_tracing() {
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
-    let _ = fmt()
-        .with_env_filter(filter)
-        .with_target(false)
-        .try_init();
+    let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let _ = fmt().with_env_filter(filter).with_target(false).try_init();
 }
 
 /// Resolve every env-driven knob this worker reads. Defaults match the
@@ -179,8 +173,8 @@ impl AppConfig {
     fn from_env() -> Result<Self> {
         let mongo_uri = std::env::var("MONGODB_URI").context("MONGODB_URI not set")?;
         let mongo_db = std::env::var("MONGODB_DB").context("MONGODB_DB not set")?;
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or_else(|_| "redis://localhost:6379".to_owned());
+        let redis_url =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://localhost:6379".to_owned());
 
         Ok(Self {
             mongo_uri,
@@ -196,8 +190,7 @@ impl AppConfig {
             retry_delay_ms: env_u64("BROADCAST_RETRY_DELAY_MS", 5_000),
             checkpoint_every: env_usize("BROADCAST_CHECKPOINT_EVERY", 10),
             cancel_check_every: env_usize("BROADCAST_CANCEL_CHECK_EVERY", 50),
-            api_version: std::env::var("META_GRAPH_VERSION")
-                .unwrap_or_else(|_| "v23.0".to_owned()),
+            api_version: std::env::var("META_GRAPH_VERSION").unwrap_or_else(|_| "v23.0".to_owned()),
             http_connections: env_usize("BROADCAST_HTTP_CONNECTIONS", 256),
         })
     }
@@ -228,8 +221,7 @@ async fn wait_for_shutdown() {
     #[cfg(unix)]
     {
         use tokio::signal::unix::{SignalKind, signal};
-        let mut sigterm =
-            signal(SignalKind::terminate()).expect("install SIGTERM handler");
+        let mut sigterm = signal(SignalKind::terminate()).expect("install SIGTERM handler");
         let mut sigint = signal(SignalKind::interrupt()).expect("install SIGINT handler");
         tokio::select! {
             _ = sigterm.recv() => info!("SIGTERM received"),

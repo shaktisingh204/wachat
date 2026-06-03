@@ -126,7 +126,11 @@ pub struct Subscription {
     pub frequency: BillingFrequency,
     /// While `now < trial_until`, no invoice is generated. Status flips
     /// from `Trial` to `Active` on the first post-trial cycle.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub trial_until: Option<DateTime<Utc>>,
     pub renewal_mode: RenewalMode,
 
@@ -149,13 +153,25 @@ pub struct Subscription {
     pub started_at: DateTime<Utc>,
     /// Time at which the next invoice should be generated. Engine
     /// advances this on each successful renewal.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_billing_at: Option<DateTime<Utc>>,
     /// Resume the subscription automatically once `now >= paused_until`.
     /// `None` while in `Paused` status means an indefinite pause.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub paused_until: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cancelled_at: Option<DateTime<Utc>>,
 
     /* ----- audit history ----------------------------------------- */
@@ -232,9 +248,18 @@ mod tests {
         assert!(json.get("startedAt").is_some());
 
         // Enum encodings: lowercase singles, snake_case multi-word.
-        assert_eq!(json.get("frequency").and_then(|v| v.as_str()), Some("monthly"));
-        assert_eq!(json.get("renewalMode").and_then(|v| v.as_str()), Some("auto"));
-        assert_eq!(json.get("status").and_then(|v| v.as_str()), Some("past_due"));
+        assert_eq!(
+            json.get("frequency").and_then(|v| v.as_str()),
+            Some("monthly")
+        );
+        assert_eq!(
+            json.get("renewalMode").and_then(|v| v.as_str()),
+            Some("auto")
+        );
+        assert_eq!(
+            json.get("status").and_then(|v| v.as_str()),
+            Some("past_due")
+        );
 
         // Round-trip back.
         let back: Subscription = serde_json::from_value(json).unwrap();

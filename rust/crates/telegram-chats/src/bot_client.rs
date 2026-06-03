@@ -27,7 +27,9 @@ fn unwrap_env<T>(env: Envelope<T>) -> Result<T, String> {
     if env.ok {
         env.result.ok_or_else(|| "missing result".to_owned())
     } else {
-        Err(env.description.unwrap_or_else(|| "unknown error".to_owned()))
+        Err(env
+            .description
+            .unwrap_or_else(|| "unknown error".to_owned()))
     }
 }
 

@@ -289,22 +289,20 @@ pub async fn deposit(
         )
     });
 
-    let (published, subscriber_count) = match redis
-        .publish::<i64, _, _>(&channel, notice_json)
-        .await
-    {
-        Ok(n) => (n > 0, n),
-        Err(e) => {
-            tracing::warn!(
-                queue = %queue,
-                job_id = %job_id,
-                channel = %channel,
-                error = ?e,
-                "dlq: PUBLISH failed; alert dispatcher will only see this entry on admin poll"
-            );
-            (false, 0)
-        }
-    };
+    let (published, subscriber_count) =
+        match redis.publish::<i64, _, _>(&channel, notice_json).await {
+            Ok(n) => (n > 0, n),
+            Err(e) => {
+                tracing::warn!(
+                    queue = %queue,
+                    job_id = %job_id,
+                    channel = %channel,
+                    error = ?e,
+                    "dlq: PUBLISH failed; alert dispatcher will only see this entry on admin poll"
+                );
+                (false, 0)
+            }
+        };
 
     Ok(DepositOutcome {
         enlisted: true,
@@ -325,10 +323,7 @@ mod tests {
     // and quietly break the JS reader.
     #[test]
     fn dlq_list_key_layout() {
-        assert_eq!(
-            dlq_list_key("executions"),
-            "sabflow:queue:executions:dlq"
-        );
+        assert_eq!(dlq_list_key("executions"), "sabflow:queue:executions:dlq");
         assert_eq!(dlq_list_key("cron"), "sabflow:queue:cron:dlq");
     }
 
@@ -361,7 +356,9 @@ mod tests {
         };
         let s = serde_json::to_string(&outcome).unwrap();
         assert!(s.contains("\"enlisted\":true"));
-        assert!(s.contains("\"job_hash_annotated\":true") || s.contains("\"jobHashAnnotated\":true"));
+        assert!(
+            s.contains("\"job_hash_annotated\":true") || s.contains("\"jobHashAnnotated\":true")
+        );
         // We accept either form because this is a Rust-only struct passed
         // through `DepositOutcome` to the dispatcher, not over the wire —
         // the wire format is `DlqNotice`, which has explicit rename_all.

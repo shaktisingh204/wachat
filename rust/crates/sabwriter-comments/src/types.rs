@@ -67,6 +67,9 @@ mod tests {
         let d = bson::to_document(&c).unwrap();
         assert!(d.contains_key("documentId"));
         assert!(d.contains_key("anchor"));
-        assert_eq!(d.get_document("anchor").unwrap().get_i32("from").unwrap(), 5);
+        assert_eq!(
+            d.get_document("anchor").unwrap().get_i32("from").unwrap(),
+            5
+        );
     }
 }

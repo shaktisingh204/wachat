@@ -1,6 +1,8 @@
+//! Request DTOs for sabvault-breach-alerts.
+
 use serde::{Deserialize, Serialize};
 
-use crate::types::{BreachStatus, SabvaultBreachAlert};
+use crate::types::SabvaultBreachAlert;
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -10,44 +12,63 @@ pub struct ListQuery {
     #[serde(default)]
     pub limit: Option<u32>,
     #[serde(default)]
-    pub secret_id: Option<String>,
+    pub q: Option<String>,
     #[serde(default)]
-    pub status: Option<BreachStatus>,
+    pub status: Option<String>,
 }
 
-/// `POST /v1/sabvault/breach-alerts` body — upsert a breach result for a
-/// secret. Caller must be the secret's owner.
-///
-/// **Privacy note:** the provider integration (HIBP k-anonymity range API or
-/// equivalent) happens client-side. The client sends us only the
-/// **result** — never the raw credential.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpsertBreachInput {
-    pub secret_id: String,
-    pub status: BreachStatus,
+pub struct CreateSabvaultBreachAlertInput {
+    pub name: String,
+    pub interval_unit: String,
     #[serde(default)]
-    pub source: Option<String>,
+    pub interval_count: Option<i32>,
+    pub amount_minor: i64,
     #[serde(default)]
-    pub breach_source_url: Option<String>,
+    pub currency: Option<String>,
     #[serde(default)]
-    pub breach_count: Option<u32>,
+    pub trial_days: Option<i32>,
     #[serde(default)]
-    pub note: Option<String>,
+    pub setup_fee_minor: Option<i64>,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateSabvaultBreachAlertInput {
+    #[serde(default)]
+    pub name: Option<String>,
+    #[serde(default)]
+    pub interval_unit: Option<String>,
+    #[serde(default)]
+    pub interval_count: Option<i32>,
+    #[serde(default)]
+    pub amount_minor: Option<i64>,
+    #[serde(default)]
+    pub currency: Option<String>,
+    #[serde(default)]
+    pub trial_days: Option<i32>,
+    #[serde(default)]
+    pub setup_fee_minor: Option<i64>,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpsertBreachResponse {
+pub struct CreateSabvaultBreachAlertResponse {
     pub id: String,
     pub entity: SabvaultBreachAlert,
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ListResponse {
-    pub items: Vec<SabvaultBreachAlert>,
-    pub page: u32,
-    pub limit: u32,
-    pub has_more: bool,
+pub struct DeleteSabvaultBreachAlertResponse {
+    pub deleted: bool,
 }

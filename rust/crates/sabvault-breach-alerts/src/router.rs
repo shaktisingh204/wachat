@@ -1,4 +1,4 @@
-//! Mountable router for `/v1/sabvault/breach-alerts`.
+//! Mountable router. Mount under `/v1/sabcheckout/alerts`.
 
 use std::sync::Arc;
 
@@ -15,9 +15,11 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
+        .route("/", get(handlers::list_alerts).post(handlers::create_alert))
         .route(
-            "/",
-            get(handlers::list_breaches).post(handlers::upsert_breach),
+            "/{alertId}",
+            get(handlers::get_alert)
+                .patch(handlers::update_alert)
+                .delete(handlers::delete_alert),
         )
-        .route("/{secretId}", get(handlers::get_breach_for_secret))
 }

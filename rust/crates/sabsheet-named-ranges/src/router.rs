@@ -21,7 +21,6 @@ where
         )
         .route(
             "/{id}",
-            axum::routing::patch(handlers::update_named_range)
-                .delete(handlers::delete_named_range),
+            axum::routing::patch(handlers::update_named_range).delete(handlers::delete_named_range),
         )
 }

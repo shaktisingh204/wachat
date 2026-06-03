@@ -74,11 +74,8 @@ pub async fn list_roles(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorRole>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcreator_roles.find"))
         })?;
     let mut rows: Vec<SabcreatorRole> = cursor.try_collect().await.map_err(|e| {
@@ -211,9 +208,7 @@ pub async fn update_role(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_roles.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_roles.refetch")))?
         .ok_or_else(|| ApiError::NotFound("role".to_owned()))?;
     Ok(Json(after))
 }

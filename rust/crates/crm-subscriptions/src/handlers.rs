@@ -170,9 +170,10 @@ pub async fn list_subscriptions(
         .build();
 
     let coll = mongo.collection::<Subscription>(SUBS_COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.find"))
+        })?;
     let subs: Vec<Subscription> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.collect"))
     })?;
@@ -232,9 +233,7 @@ pub async fn create_subscription(
     Json(input): Json<CreateSubscriptionInput>,
 ) -> Result<Json<Subscription>> {
     if input.customer_id.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "customerId is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("customerId is required.".to_owned()));
     }
     if input.items.is_empty() {
         return Err(ApiError::Validation(
@@ -355,7 +354,10 @@ pub async fn update_subscription(
         set.insert("nextBillingAt", bson::DateTime::from_chrono(when));
     }
     if let Some(items) = input.items.as_ref() {
-        let docs: Vec<Bson> = items.iter().map(|i| Bson::Document(item_to_doc(i))).collect();
+        let docs: Vec<Bson> = items
+            .iter()
+            .map(|i| Bson::Document(item_to_doc(i)))
+            .collect();
         set.insert("items", Bson::Array(docs));
     }
     if let Some(pr) = input.proration_enabled {
@@ -419,12 +421,9 @@ pub async fn delete_subscription(
     let filter = doc! { "_id": oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(SUBS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("subscription".to_owned()));
     }
@@ -495,12 +494,9 @@ pub async fn pause_subscription(
     };
 
     let coll = mongo.collection::<Document>(SUBS_COLL);
-    let res = coll
-        .update_one(filter.clone(), update)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.pause"))
-        })?;
+    let res = coll.update_one(filter.clone(), update).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_subscriptions.pause"))
+    })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("subscription".to_owned()));
     }

@@ -304,9 +304,12 @@ mod tests {
     #[test]
     fn update_input_is_empty_detects_unset() {
         assert!(UpdateRequestInput::default().is_empty());
-        assert!(!UpdateRequestInput {
-            cancel: Some(true),
-            ..Default::default()
-        }.is_empty());
+        assert!(
+            !UpdateRequestInput {
+                cancel: Some(true),
+                ..Default::default()
+            }
+            .is_empty()
+        );
     }
 }

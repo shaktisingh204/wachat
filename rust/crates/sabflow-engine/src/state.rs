@@ -19,6 +19,11 @@ impl SabflowEngineState {
         bull: BullProducer,
         auth: Arc<AuthConfig>,
     ) -> Self {
-        Self { mongo, redis, bull, auth }
+        Self {
+            mongo,
+            redis,
+            bull,
+            auth,
+        }
     }
 }

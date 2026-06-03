@@ -1,4 +1,8 @@
-use axum::{Json, extract::{Path, Query, State}, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+    http::StatusCode,
+};
 use bson::{Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
@@ -20,7 +24,8 @@ fn owner_oid(user: &AuthUser) -> Result<ObjectId> {
 
 #[instrument(skip_all)]
 pub async fn list_sessions(
-    user: AuthUser, State(state): State<SabcatalystAuthSessionsState>,
+    user: AuthUser,
+    State(state): State<SabcatalystAuthSessionsState>,
     Query(q): Query<ListSessionsQuery>,
 ) -> Result<Json<ListSessionsResponse>> {
     let owner = owner_oid(&user)?;
@@ -35,14 +40,27 @@ pub async fn list_sessions(
         filter.insert("_id", doc! { "$lt": oid_from_str(c)? });
     }
     let limit = q.limit.clamp(1, MAX_LIMIT);
-    let opts = FindOptions::builder().sort(doc! { "_id": -1 }).limit(limit).build();
-    let cur = state.mongo.collection::<Document>(SESSIONS_COLL)
-        .find(filter).with_options(opts).await
+    let opts = FindOptions::builder()
+        .sort(doc! { "_id": -1 })
+        .limit(limit)
+        .build();
+    let cur = state
+        .mongo
+        .collection::<Document>(SESSIONS_COLL)
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sessions.find")))?;
-    let docs: Vec<Document> = cur.try_collect().await
+    let docs: Vec<Document> = cur
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sessions.collect")))?;
-    let next_cursor = if (docs.len() as i64) < limit { None } else {
-        docs.last().and_then(|d| d.get_object_id("_id").ok()).map(|o| o.to_hex())
+    let next_cursor = if (docs.len() as i64) < limit {
+        None
+    } else {
+        docs.last()
+            .and_then(|d| d.get_object_id("_id").ok())
+            .map(|o| o.to_hex())
     };
     Ok(Json(ListSessionsResponse {
         items: docs.into_iter().map(document_to_clean_json).collect(),
@@ -52,7 +70,8 @@ pub async fn list_sessions(
 
 #[instrument(skip_all)]
 pub async fn issue_session(
-    user: AuthUser, State(state): State<SabcatalystAuthSessionsState>,
+    user: AuthUser,
+    State(state): State<SabcatalystAuthSessionsState>,
     Json(body): Json<IssueSessionBody>,
 ) -> Result<(StatusCode, Json<Value>)> {
     let owner = owner_oid(&user)?;
@@ -68,23 +87,34 @@ pub async fn issue_session(
         "userAgent": body.user_agent,
         "createdAt": bson::DateTime::from_chrono(Utc::now()),
     };
-    state.mongo.collection::<Document>(SESSIONS_COLL).insert_one(&d).await
+    state
+        .mongo
+        .collection::<Document>(SESSIONS_COLL)
+        .insert_one(&d)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sessions.insert")))?;
     Ok((StatusCode::CREATED, Json(document_to_clean_json(d))))
 }
 
 #[instrument(skip_all)]
 pub async fn revoke_session(
-    user: AuthUser, State(state): State<SabcatalystAuthSessionsState>, Path(id): Path<String>,
+    user: AuthUser,
+    State(state): State<SabcatalystAuthSessionsState>,
+    Path(id): Path<String>,
 ) -> Result<StatusCode> {
     let owner = owner_oid(&user)?;
     let oid = oid_from_str(&id)?;
-    let r = state.mongo.collection::<Document>(SESSIONS_COLL)
+    let r = state
+        .mongo
+        .collection::<Document>(SESSIONS_COLL)
         .update_one(
             doc! { "_id": oid, "userId": owner },
             doc! { "$set": { "revoked": true } },
-        ).await
+        )
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sessions.revoke")))?;
-    if r.matched_count == 0 { return Err(ApiError::NotFound("Session not found.".into())); }
+    if r.matched_count == 0 {
+        return Err(ApiError::NotFound("Session not found.".into()));
+    }
     Ok(StatusCode::NO_CONTENT)
 }

@@ -69,8 +69,7 @@ pub fn hash_key(plain: &str) -> String {
 /// because Rust 2024 reserved `gen` as a keyword; the free function form
 /// sidesteps the issue without losing CSPRNG quality.
 fn generate_plaintext() -> String {
-    const ALPHABET: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
     let mut out = String::with_capacity(KEY_PREFIX.len() + 32);
     out.push_str(KEY_PREFIX);
     for _ in 0..32 {

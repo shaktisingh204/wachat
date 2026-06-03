@@ -61,11 +61,19 @@ pub struct SalesOrder {
     /// Customer-side PO number (their internal ref).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub po_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub po_date: Option<DateTime<Utc>>,
 
     /* ----- delivery ---------------------------------------------- */
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expected_shipment_date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub delivery_method: Option<DeliveryMethod>,

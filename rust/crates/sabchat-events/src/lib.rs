@@ -235,8 +235,7 @@ impl EventEnvelope {
     /// `sabchat_events`. `_id` is freshly allocated so the caller can
     /// read it back for the replay route.
     pub(crate) fn to_doc(&self, id: ObjectId) -> Document {
-        let payload_bson = bson::Bson::try_from(self.payload.clone())
-            .unwrap_or(bson::Bson::Null);
+        let payload_bson = bson::Bson::try_from(self.payload.clone()).unwrap_or(bson::Bson::Null);
         doc! {
             "_id": id,
             "tenantId": self.tenant_id,

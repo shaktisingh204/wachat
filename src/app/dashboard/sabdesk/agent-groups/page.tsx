@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Ticket Agent Groups — settings-list mapping agents to support groups.
@@ -10,22 +10,25 @@
  * `worksuite/tickets-ext.actions.ts`.
  */
 
-import * as React from 'react';
+import * as React from "react";
 
 import {
   SettingsDeepPage,
   type SettingsColumn,
-} from '../../crm/_components/settings-deep-page';
+} from "../../crm/_components/settings-deep-page";
 import {
   bulkDeleteTicketAgentGroups,
   deleteTicketAgentGroup,
   getTicketAgentGroupKpis,
   getTicketAgentGroups,
   saveTicketAgentGroup,
-} from '@/app/actions/worksuite/tickets-ext.actions';
-import type { WsTicketAgentGroup } from '@/lib/worksuite/tickets-ext-types';
+} from "@/app/actions/worksuite/tickets-ext.actions";
+import type { WsTicketAgentGroup } from "@/lib/worksuite/tickets-ext-types";
 
-type Row = Omit<WsTicketAgentGroup, '_id' | 'userId' | 'createdAt' | 'updatedAt'> & {
+type Row = Omit<
+  WsTicketAgentGroup,
+  "_id" | "userId" | "createdAt" | "updatedAt"
+> & {
   _id: string;
   userId?: string;
   createdAt?: string;
@@ -35,13 +38,13 @@ type Row = Omit<WsTicketAgentGroup, '_id' | 'userId' | 'createdAt' | 'updatedAt'
 
 const columns: SettingsColumn<Row>[] = [
   {
-    key: 'agent_user_id',
-    label: 'Agent',
+    key: "agent_user_id",
+    label: "Agent",
     exportValue: (r) => r.agent_user_id,
   },
   {
-    key: 'group_id',
-    label: 'Group',
+    key: "group_id",
+    label: "Group",
     exportValue: (r) => r.group_id,
   },
 ];
@@ -57,16 +60,16 @@ export default function TicketAgentGroupsPage(): React.JSX.Element {
       columns={columns}
       fields={[
         {
-          name: 'agent_user_id',
-          label: 'Agent (user id)',
+          name: "agent_user_id",
+          label: "Agent (user id)",
           required: true,
-          placeholder: 'User id',
+          placeholder: "User id",
         },
         {
-          name: 'group_id',
-          label: 'Group id',
+          name: "group_id",
+          label: "Group id",
           required: true,
-          placeholder: 'Ticket group id',
+          placeholder: "Ticket group id",
         },
       ]}
       getAllAction={getTicketAgentGroups as unknown as () => Promise<Row[]>}
@@ -74,10 +77,8 @@ export default function TicketAgentGroupsPage(): React.JSX.Element {
       saveAction={saveTicketAgentGroup}
       deleteAction={deleteTicketAgentGroup}
       bulkDeleteAction={bulkDeleteTicketAgentGroups}
-      displayName={(r) =>
-        `${r.agent_user_id ?? '—'} → ${r.group_id ?? '—'}`
-      }
-      searchText={(r) => `${r.agent_user_id ?? ''} ${r.group_id ?? ''}`}
+      displayName={(r) => `${r.agent_user_id ?? "—"} → ${r.group_id ?? "—"}`}
+      searchText={(r) => `${r.agent_user_id ?? ""} ${r.group_id ?? ""}`}
     />
   );
 }

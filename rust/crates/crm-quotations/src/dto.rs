@@ -172,9 +172,17 @@ pub struct CreateQuotationInput {
 pub struct UpdateQuotationInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quotation_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub date: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub valid_until: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -254,7 +262,10 @@ mod tests {
         assert_eq!(input.currency, "INR");
         assert_eq!(input.place_of_supply.as_deref(), Some("27"));
         assert_eq!(input.subject.as_deref(), Some("Q3 hosting renewal"));
-        assert_eq!(input.notes.as_deref(), Some("Pricing valid till month-end."));
+        assert_eq!(
+            input.notes.as_deref(),
+            Some("Pricing valid till month-end.")
+        );
         assert_eq!(input.items.len(), 1);
         assert_eq!(input.items[0].qty, 2.0);
         assert_eq!(input.items[0].rate, 1500.0);

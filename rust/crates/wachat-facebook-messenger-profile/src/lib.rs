@@ -62,8 +62,7 @@ where
         // Messenger Profile fields
         .route(
             "/{project_id}/profile",
-            get(handlers::get_messenger_profile)
-                .delete(handlers::delete_messenger_profile_fields),
+            get(handlers::get_messenger_profile).delete(handlers::delete_messenger_profile_fields),
         )
         .route(
             "/{project_id}/profile/greeting",

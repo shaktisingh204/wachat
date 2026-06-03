@@ -91,9 +91,17 @@ pub enum ReportFormat {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportFilters {
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub from: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub to: Option<DateTime<Utc>>,
     /// e.g. "day" | "week" | "month" | "agent" | "client" | "branch".
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -134,7 +142,11 @@ pub struct ReportSchedule {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub timezone: Option<String>,
     /// Next computed run. Maintained by the scheduler, not the user.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_run: Option<DateTime<Utc>>,
     pub active: bool,
 }
@@ -177,7 +189,11 @@ pub struct ReportDefinition {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub recipients: Vec<ReportRecipient>,
     /// Last successful render timestamp. `None` until the first run.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_run_at: Option<DateTime<Utc>>,
 }
 
@@ -285,7 +301,10 @@ mod tests {
         assert!(json.get("audit").is_none(), "audit not nested");
 
         // camelCase / enum casing
-        assert_eq!(json.get("kind").and_then(|v| v.as_str()), Some("profit_and_loss"));
+        assert_eq!(
+            json.get("kind").and_then(|v| v.as_str()),
+            Some("profit_and_loss")
+        );
         assert_eq!(json.get("format").and_then(|v| v.as_str()), Some("xlsx"));
         let sched = json.get("schedule").expect("schedule");
         assert_eq!(sched.get("cadence").and_then(|v| v.as_str()), Some("cron"));

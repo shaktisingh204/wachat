@@ -180,10 +180,10 @@ pub async fn save_flow(
     let now = bson::DateTime::from_chrono(Utc::now());
     let coll = mongo.collection::<Document>(FLOWS_COLL);
 
-    let nodes_bson = bson::to_bson(&req.nodes)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
-    let edges_bson = bson::to_bson(&req.edges)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let nodes_bson =
+        bson::to_bson(&req.nodes).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let edges_bson =
+        bson::to_bson(&req.edges).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     let status = req
         .status

@@ -277,8 +277,7 @@ mod tests {
 
     #[test]
     fn list_departments_query_defaults_are_none() {
-        let q: ListDepartmentsQuery =
-            serde_json::from_value(serde_json::json!({})).unwrap();
+        let q: ListDepartmentsQuery = serde_json::from_value(serde_json::json!({})).unwrap();
         assert!(q.page.is_none());
         assert!(q.limit.is_none());
         assert!(q.q.is_none());
@@ -320,9 +319,6 @@ mod tests {
             serde_json::json!({ "departmentId": "65a0a0a0a0a0a0a0a0a0a0a0" }),
         )
         .unwrap();
-        assert_eq!(
-            q.department_id.as_deref(),
-            Some("65a0a0a0a0a0a0a0a0a0a0a0")
-        );
+        assert_eq!(q.department_id.as_deref(), Some("65a0a0a0a0a0a0a0a0a0a0a0"));
     }
 }

@@ -39,9 +39,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{
-    CreateDebitNoteInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateDebitNoteInput,
-};
+use crate::dto::{CreateDebitNoteInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateDebitNoteInput};
 
 /// Mongo collection name. Must match the §2.4 spec (and the TS literal
 /// in `src/lib/definitions.ts`) so the Rust BFF and the legacy Next.js
@@ -192,11 +190,10 @@ pub async fn list_debit_notes(
         .build();
 
     let coll = mongo.collection::<DebitNote>(DEBIT_NOTES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.find"))
+        })?;
     let notes: Vec<DebitNote> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.collect"))
     })?;
@@ -227,9 +224,7 @@ pub async fn get_debit_note(
     let dn = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("debit_note".to_owned()))?;
 
     Ok(Json(dn))
@@ -391,7 +386,8 @@ pub async fn create_debit_note(
     // debit note is already persisted, so a failed back-link is logged
     // and swallowed.
     if let Some((parent_coll, parent_oid)) = parent_back_link {
-        if let Err(e) = backlink_parent(&mongo, parent_coll, parent_oid, user_id, new_oid, now).await
+        if let Err(e) =
+            backlink_parent(&mongo, parent_coll, parent_oid, user_id, new_oid, now).await
         {
             warn!(error = %e, "parent back-link failed; debit note already saved");
         }
@@ -569,7 +565,10 @@ pub async fn update_debit_note(
         set.insert("date", bson::DateTime::from_chrono(when));
     }
     if let Some(reason_raw) = input.reason.as_deref() {
-        set.insert("reason", normalize_enum("reason", reason_raw, ALLOWED_REASONS)?);
+        set.insert(
+            "reason",
+            normalize_enum("reason", reason_raw, ALLOWED_REASONS)?,
+        );
     }
     if let Some(rm_raw) = input.refund_mode.as_deref() {
         set.insert(
@@ -584,9 +583,9 @@ pub async fn update_debit_note(
         );
     }
     if let Some(items) = input.items.as_ref() {
-        let arr = items.as_array().ok_or_else(|| {
-            ApiError::Validation("items must be an array.".to_owned())
-        })?;
+        let arr = items
+            .as_array()
+            .ok_or_else(|| ApiError::Validation("items must be an array.".to_owned()))?;
         if arr.is_empty() {
             return Err(ApiError::Validation(
                 "items must contain at least one row.".to_owned(),
@@ -653,12 +652,9 @@ pub async fn delete_debit_note(
     let filter = doc! { "_id": dn_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(DEBIT_NOTES_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_debit_notes.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("debit_note".to_owned()));
     }
@@ -743,8 +739,7 @@ mod tests {
 
     #[test]
     fn normalize_enum_rejects_unknown() {
-        let err =
-            normalize_enum("status", "shipped", ALLOWED_STATUSES).expect_err("must reject");
+        let err = normalize_enum("status", "shipped", ALLOWED_STATUSES).expect_err("must reject");
         assert!(matches!(err, ApiError::Validation(_)));
     }
 

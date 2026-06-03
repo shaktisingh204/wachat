@@ -102,7 +102,14 @@ fn filter_attachments(items: Vec<ProposalAttachmentInput>) -> Vec<ProposalAttach
 /// shape (`PROP-XXXXXXXX`).
 fn generate_proposal_number() -> String {
     let ms = Utc::now().timestamp_millis().to_string();
-    let tail: String = ms.chars().rev().take(8).collect::<String>().chars().rev().collect();
+    let tail: String = ms
+        .chars()
+        .rev()
+        .take(8)
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect();
     // 3-char base36 suffix from the low bits of the timestamp + nanos so it
     // matches the TS shape (`Math.random().toString(36).slice(2,5)`).
     let nanos = (Utc::now().timestamp_subsec_nanos() % (36u32.pow(3))) as u32;
@@ -155,7 +162,9 @@ fn doc_from_create(input: CreateProposalInput, user_id: ObjectId) -> Result<CrmP
         status,
         sections: filter_sections(input.sections),
         attachments: filter_attachments(input.attachments),
-        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
+        design_metadata: input
+            .design_metadata
+            .and_then(|v| bson::to_document(&v).ok()),
         signs_count: 0,
         sent_at,
         responded_at: None,
@@ -338,8 +347,7 @@ pub async fn create_proposal(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

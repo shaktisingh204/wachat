@@ -11,9 +11,7 @@
 //! requests round-trip with the TS clients.
 
 use chrono::{DateTime, Utc};
-use crm_extras_types::booking::{
-    BookingResourceKind, BookingStatus, PaymentStatus, Reminder,
-};
+use crm_extras_types::booking::{BookingResourceKind, BookingStatus, PaymentStatus, Reminder};
 use serde::{Deserialize, Serialize};
 
 /// Default page size if the caller doesn't send `limit`.
@@ -145,10 +143,16 @@ pub struct ListBookingsQuery {
     #[serde(default)]
     pub status: Option<BookingStatus>,
     /// Inclusive lower bound on `slotStart`.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub date_from: Option<DateTime<Utc>>,
     /// Exclusive upper bound on `slotStart`.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub date_to: Option<DateTime<Utc>>,
 }
 
@@ -225,9 +229,17 @@ pub struct UpdateBookingInput {
     pub customer_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub service: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub slot_start: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub slot_end: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub recurring_rule: Option<String>,

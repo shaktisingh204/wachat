@@ -23,9 +23,7 @@ use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use email_types::{
     EmailBrandKit,
-    collections::{
-        BRAND_KITS, CAMPAIGNS, EVENTS, SETTINGS, SUBSCRIBERS, SUPPRESSIONS,
-    },
+    collections::{BRAND_KITS, CAMPAIGNS, EVENTS, SETTINGS, SUBSCRIBERS, SUPPRESSIONS},
 };
 use futures::TryStreamExt;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
@@ -78,7 +76,10 @@ pub async fn run(state: EmailSenderState) -> Result<()> {
         WorkerOptions::default(),
     );
     info!(queue = SEND_QUEUE, "email-sender worker starting");
-    worker.run().await.map_err(|e| anyhow!("worker failed: {e}"))?;
+    worker
+        .run()
+        .await
+        .map_err(|e| anyhow!("worker failed: {e}"))?;
     info!(queue = SEND_QUEUE, "email-sender worker stopped");
     Ok(())
 }
@@ -97,11 +98,7 @@ impl SendHandler {
 #[async_trait]
 impl JobHandler for SendHandler {
     async fn process(&self, job: &BullJob) -> Result<JobOutcome> {
-        let kind = job
-            .data
-            .get("kind")
-            .and_then(|v| v.as_str())
-            .unwrap_or("");
+        let kind = job.data.get("kind").and_then(|v| v.as_str()).unwrap_or("");
         let result = match kind {
             "test" => handle_test(&self.state, &job.data).await,
             "start-campaign" => handle_start(&self.state, &job.data).await,
@@ -244,7 +241,10 @@ async fn handle_start(state: &EmailSenderState, data: &Value) -> Result<Value> {
         .find(doc! { "userId": tenant_oid })
         .await
         .context("suppressions.find")?;
-    let supp_docs: Vec<Document> = supp_cursor.try_collect().await.context("suppressions.collect")?;
+    let supp_docs: Vec<Document> = supp_cursor
+        .try_collect()
+        .await
+        .context("suppressions.collect")?;
     let suppressed: std::collections::HashSet<String> = supp_docs
         .iter()
         .filter_map(|d| d.get_str("email").ok().map(|s| s.to_ascii_lowercase()))
@@ -379,7 +379,10 @@ async fn handle_deliver(state: &EmailSenderState, data: &Value) -> Result<Value>
         })
         .await
         .context("subscribers.find_batch")?;
-    let subs: Vec<Document> = cursor.try_collect().await.context("subscribers.collect_batch")?;
+    let subs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .context("subscribers.collect_batch")?;
 
     let now_unix = Utc::now().timestamp();
     let mut delivered = 0u64;

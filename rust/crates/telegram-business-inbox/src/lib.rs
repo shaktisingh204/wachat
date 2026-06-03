@@ -38,7 +38,10 @@ where
         // ------------------------------------------------------------------ threads
         .route("/threads", get(handlers::list_threads))
         .route("/threads/bulk", post(handlers::bulk_threads))
-        .route("/threads/upsert-from-message", post(handlers::upsert_thread_endpoint))
+        .route(
+            "/threads/upsert-from-message",
+            post(handlers::upsert_thread_endpoint),
+        )
         .route("/threads/{id}", get(handlers::get_thread))
         .route("/threads/{id}/assign", post(handlers::assign_thread))
         .route("/threads/{id}/status", post(handlers::set_status))
@@ -46,8 +49,14 @@ where
         .route("/threads/{id}/priority", post(handlers::set_priority))
         .route("/threads/{id}/mark-read", post(handlers::mark_read))
         .route("/threads/{id}/messages", get(handlers::list_messages))
-        .route("/threads/{id}/notes", get(handlers::list_notes).post(handlers::create_note))
-        .route("/threads/{id}/notes/{note_id}", delete(handlers::delete_note))
+        .route(
+            "/threads/{id}/notes",
+            get(handlers::list_notes).post(handlers::create_note),
+        )
+        .route(
+            "/threads/{id}/notes/{note_id}",
+            delete(handlers::delete_note),
+        )
         // ------------------------------------------------------------------ auto-assign rules
         .route(
             "/auto-assign",
@@ -59,10 +68,7 @@ where
         )
         .route("/auto-assign/reorder", post(handlers::reorder_auto_assign))
         // ------------------------------------------------------------------ SLA policies
-        .route(
-            "/sla",
-            get(handlers::list_sla).post(handlers::create_sla),
-        )
+        .route("/sla", get(handlers::list_sla).post(handlers::create_sla))
         .route(
             "/sla/{id}",
             put(handlers::update_sla).delete(handlers::delete_sla),

@@ -38,9 +38,8 @@ fn validate_action(s: &str) -> Result<()> {
 }
 
 fn parse_iso(s: &str) -> Result<BsonDateTime> {
-    let dt = DateTime::parse_from_rfc3339(s).map_err(|_| {
-        ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp"))
-    })?;
+    let dt = DateTime::parse_from_rfc3339(s)
+        .map_err(|_| ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp")))?;
     Ok(BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
@@ -82,13 +81,9 @@ pub async fn list_actions(
         .limit(limit)
         .build();
     let coll = mongo.collection::<SabassistActionLog>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabassist_actions_log.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabassist_actions_log.find"))
+    })?;
     let rows: Vec<SabassistActionLog> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabassist_actions_log.collect"))
     })?;

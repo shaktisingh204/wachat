@@ -64,15 +64,13 @@ pub async fn list_dialins(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<DialIn>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.find")))?;
-    let mut rows: Vec<DialIn> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.find"))
+        })?;
+    let mut rows: Vec<DialIn> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -209,7 +207,9 @@ pub async fn delete_dialin(
             doc! { "$set": { "active": false, "updatedAt": BsonDateTime::from_chrono(Utc::now()) }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmeet_dialins.archive"))
+        })?;
     Ok(Json(DeleteDialInResponse {
         deleted: result.matched_count > 0,
     }))

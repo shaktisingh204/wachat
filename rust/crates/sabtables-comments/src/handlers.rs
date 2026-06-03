@@ -15,8 +15,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateCommentInput, CreateCommentResponse, DeleteCommentResponse, ListQuery,
-    UpdateCommentInput,
+    CreateCommentInput, CreateCommentResponse, DeleteCommentResponse, ListQuery, UpdateCommentInput,
 };
 use crate::types::SabtablesComment;
 
@@ -47,13 +46,9 @@ pub async fn list_comments(
     };
     let opts = FindOptions::builder().sort(doc! { "createdAt": 1 }).build();
     let coll = mongo.collection::<SabtablesComment>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_comments.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabtables_comments.find"))
+    })?;
     let items: Vec<SabtablesComment> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabtables_comments.collect"))
     })?;

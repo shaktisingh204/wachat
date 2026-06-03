@@ -89,7 +89,11 @@ pub struct DisciplinaryCase {
     pub hearings: Vec<Hearing>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub decided_at: Option<DateTime<Utc>>,
     /// Free-form appeal status (`"pending"`, `"upheld"`, `"overturned"`,
     /// …). `None` when no appeal has been raised.

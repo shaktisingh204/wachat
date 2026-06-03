@@ -1,8 +1,8 @@
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
-    Json,
 };
 use std::collections::HashMap;
 
@@ -35,7 +35,10 @@ fn check_auth(
         }
         "query" => {
             let expected = auth_header_value.unwrap_or("");
-            query.get("token").map(|t| t.as_str() == expected).unwrap_or(false)
+            query
+                .get("token")
+                .map(|t| t.as_str() == expected)
+                .unwrap_or(false)
         }
         "basic" => {
             let header = headers
@@ -64,8 +67,7 @@ fn base64_decode(s: &str) -> Option<String> {
 }
 
 fn base64_chars_to_bytes(s: &str) -> Option<Vec<u8>> {
-    const TABLE: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const TABLE: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let s = s.trim_end_matches('=');
     let mut out = Vec::with_capacity(s.len() * 3 / 4);
     let mut acc: u32 = 0;
@@ -180,7 +182,11 @@ async fn do_trigger(
     };
 
     let execution_id = match store
-        .insert_execution(&webhook.flow_id, &webhook.user_id, Some(trigger_data.clone()))
+        .insert_execution(
+            &webhook.flow_id,
+            &webhook.user_id,
+            Some(trigger_data.clone()),
+        )
         .await
     {
         Ok(id) => id,
@@ -229,7 +235,15 @@ pub async fn handle_get(
     Query(query): Query<HashMap<String, String>>,
     headers: HeaderMap,
 ) -> axum::response::Response {
-    do_trigger(state, webhook_id, "GET".to_string(), headers, query, axum::body::Bytes::new()).await
+    do_trigger(
+        state,
+        webhook_id,
+        "GET".to_string(),
+        headers,
+        query,
+        axum::body::Bytes::new(),
+    )
+    .await
 }
 
 /// POST /v1/sabflow/webhook/:webhookId
@@ -282,7 +296,10 @@ pub async fn deactivate_webhooks(
 ) -> impl IntoResponse {
     let store = WebhookStore::new(state.mongo.clone());
 
-    match store.deactivate_flow_webhooks(&flow_id, &auth.tenant_id).await {
+    match store
+        .deactivate_flow_webhooks(&flow_id, &auth.tenant_id)
+        .await
+    {
         Ok(()) => Json(serde_json::json!({ "ok": true })).into_response(),
         Err(e) => {
             tracing::error!(error = %e, "failed to deactivate webhooks");

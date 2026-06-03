@@ -70,7 +70,10 @@ fn sum_lines(lines: &[VoucherLine]) -> f64 {
 }
 
 fn convert_lines(inputs: Vec<VoucherLineInput>) -> Result<Vec<VoucherLine>> {
-    inputs.into_iter().map(VoucherLineInput::into_line).collect()
+    inputs
+        .into_iter()
+        .map(VoucherLineInput::into_line)
+        .collect()
 }
 
 fn entry_from_create(input: CreateEntryInput, user_id: ObjectId) -> Result<CrmVoucherEntry> {
@@ -78,9 +81,7 @@ fn entry_from_create(input: CreateEntryInput, user_id: ObjectId) -> Result<CrmVo
         .map_err(|_| ApiError::Validation("voucherBookId must be a valid ObjectId".to_owned()))?;
 
     if input.voucher_number.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "voucherNumber is required".to_owned(),
-        ));
+        return Err(ApiError::Validation("voucherNumber is required".to_owned()));
     }
     let date = parse_date(input.date.trim())
         .ok_or_else(|| ApiError::Validation("date must be a valid RFC3339 string".to_owned()))?;
@@ -278,8 +279,7 @@ pub async fn create_entry(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -22,9 +22,7 @@ use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use serde_json::Value;
 
-use crate::dto::{
-    AckResult, BuilderDataResult, ProjectIdQuery, SaveFlowReq, SaveFlowResult,
-};
+use crate::dto::{AckResult, BuilderDataResult, ProjectIdQuery, SaveFlowReq, SaveFlowResult};
 use crate::state::WachatFlowsState;
 use crate::store;
 

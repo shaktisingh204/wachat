@@ -36,18 +36,16 @@ fn token_for(project: &Project) -> Result<&str> {
         .ok_or_else(|| ApiError::BadRequest("project missing accessToken".to_owned()))
 }
 
-pub async fn list(
-    meta: &MetaClient,
-    project: &Project,
-    phone_number_id: &str,
-) -> Result<QrList> {
+pub async fn list(meta: &MetaClient, project: &Project, phone_number_id: &str) -> Result<QrList> {
     #[derive(Deserialize)]
     struct Resp {
         data: Vec<Value>,
     }
     let path = format!("{phone_number_id}/message_qrdls");
     let resp: Resp = meta.get_json(&path, token_for(project)?).await?;
-    Ok(QrList { qr_codes: resp.data })
+    Ok(QrList {
+        qr_codes: resp.data,
+    })
 }
 
 pub async fn create(

@@ -176,11 +176,7 @@ pub async fn create_pixel(
 
     let path = format!("{}/adspixels", with_act_prefix(&ad_account_id));
     let payload = json!({ "name": body.name });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, &token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, &token, &payload).await {
         Ok(v) => Json(AckResult {
             success: Some(true),
             data: Some(v),
@@ -212,10 +208,7 @@ pub async fn get_pixel_stats(
     };
 
     let agg = q.aggregation.as_deref().unwrap_or("event");
-    let path = format!(
-        "{pixel_id}/stats?aggregation={}",
-        urlencoding::encode(agg)
-    );
+    let path = format!("{pixel_id}/stats?aggregation={}", urlencoding::encode(agg));
     match graph_get(&s.meta, &path, &token).await {
         Ok(v) => Json(ValueResp {
             data: Some(v),
@@ -248,11 +241,7 @@ pub async fn share_pixel_with_ad_account(
 
     let path = format!("{pixel_id}/shared_accounts");
     let payload = json!({ "account_id": strip_act_prefix(&body.ad_account_id) });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, &token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, &token, &payload).await {
         Ok(v) => Json(AckResult {
             success: Some(true),
             data: Some(v),
@@ -446,11 +435,7 @@ pub async fn send_conversion_api_event(
 
     let path = format!("{pixel_id}/events");
     let payload = json!({ "data": data_str });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, &token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, &token, &payload).await {
         Ok(v) => Json(AckResult {
             success: Some(true),
             data: Some(v),
@@ -530,11 +515,7 @@ pub async fn upload_offline_events(
         "upload_tag": upload_tag,
         "data": data_str,
     });
-    match s
-        .meta
-        .post_json::<_, Value>(&path, &token, &payload)
-        .await
-    {
+    match s.meta.post_json::<_, Value>(&path, &token, &payload).await {
         Ok(v) => Json(AckResult {
             success: Some(true),
             data: Some(v),
@@ -600,10 +581,7 @@ pub async fn get_leads_from_form(
     };
 
     let fields = "id,created_time,field_data,form_id,ad_id,adset_id,campaign_id";
-    let mut path = format!(
-        "{form_id}/leads?fields={}",
-        urlencoding::encode(fields)
-    );
+    let mut path = format!("{form_id}/leads?fields={}", urlencoding::encode(fields));
     if let Some(since) = q.since {
         let filtering = json!([{
             "field": "time_created",

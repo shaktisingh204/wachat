@@ -70,7 +70,11 @@ pub struct Bill {
     pub vendor_invoice_no: Option<String>,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub bill_date: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub due_date: Option<DateTime<Utc>>,
 
     /* ----- parties ----------------------------------------------- */

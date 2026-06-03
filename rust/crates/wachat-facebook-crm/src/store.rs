@@ -111,7 +111,10 @@ pub async fn list_subscribers(mongo: &MongoHandle, project: &Document) -> Result
 /// each column (status defaults to `"new"` when absent).
 ///
 /// Sorted by `updated_time` desc to match the TS.
-pub async fn get_kanban_data(mongo: &MongoHandle, project: &Document) -> Result<crate::dto::KanbanResult> {
+pub async fn get_kanban_data(
+    mongo: &MongoHandle,
+    project: &Document,
+) -> Result<crate::dto::KanbanResult> {
     let project_id = project_id_of(project)?;
     let coll = mongo.collection::<Document>(FACEBOOK_SUBSCRIBERS_COLL);
     let mut cursor = coll
@@ -131,7 +134,10 @@ pub async fn get_kanban_data(mongo: &MongoHandle, project: &Document) -> Result<
 
     // Build the ordered status list: defaults first, then any custom
     // statuses on the project, deduped while preserving order.
-    let mut all_statuses: Vec<String> = DEFAULT_KANBAN_STATUSES.iter().map(|s| (*s).to_owned()).collect();
+    let mut all_statuses: Vec<String> = DEFAULT_KANBAN_STATUSES
+        .iter()
+        .map(|s| (*s).to_owned())
+        .collect();
     if let Ok(arr) = project.get_array("facebookKanbanStatuses") {
         for v in arr {
             if let Some(s) = v.as_str() {
@@ -208,7 +214,10 @@ pub async fn update_subscriber_status(
             });
         }
     };
-    if load_project_for(user_tenant_id, mongo, &proj_oid.to_hex()).await.is_err() {
+    if load_project_for(user_tenant_id, mongo, &proj_oid.to_hex())
+        .await
+        .is_err()
+    {
         return Ok(crate::dto::SuccessResult {
             success: false,
             error: Some("Access denied".to_owned()),

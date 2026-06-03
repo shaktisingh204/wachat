@@ -82,10 +82,7 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn document_from_create(
-    input: CreateDocumentInput,
-    user_id: ObjectId,
-) -> Result<CrmDocument> {
+fn document_from_create(input: CreateDocumentInput, user_id: ObjectId) -> Result<CrmDocument> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -264,12 +261,15 @@ pub async fn list_documents(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmDocument>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find"))
-    })?;
-    let mut rows: Vec<CrmDocument> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_documents.collect"))
-    })?;
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find")))?;
+    let mut rows: Vec<CrmDocument> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -294,9 +294,7 @@ pub async fn get_document(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find_one")))?
         .ok_or_else(|| ApiError::NotFound("document".to_owned()))?;
     Ok(Json(row))
 }
@@ -310,16 +308,16 @@ pub async fn create_document(
     let user_id = user_oid(&user)?;
     let mut entity = document_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmDocument>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_documents.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -342,26 +340,20 @@ pub async fn update_document(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.find_one")))?
         .ok_or_else(|| ApiError::NotFound("document".to_owned()))?;
     let update = build_update_doc(patch, user_id);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_documents.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("document".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_documents.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.refetch")))?
         .ok_or_else(|| ApiError::NotFound("document".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -393,9 +385,7 @@ pub async fn delete_document(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_documents.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_documents.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("document".to_owned()));
     }

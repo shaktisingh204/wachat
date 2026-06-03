@@ -129,9 +129,7 @@ pub async fn get_attachment(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabnotebook_attachments.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabnotebook_attachments.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("attachment".to_owned()))?;
     Ok(Json(row))
@@ -154,8 +152,7 @@ pub async fn create_attachment(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

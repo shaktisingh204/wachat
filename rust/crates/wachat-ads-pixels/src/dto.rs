@@ -151,4 +151,3 @@ pub struct CreateProductSetBody {
     #[schema(value_type = Object)]
     pub filter: Option<Value>,
 }
-

@@ -27,7 +27,11 @@ pub struct SabsheetComment {
     #[serde(default)]
     pub resolved: bool,
 
-    #[serde(default, rename = "parentCommentId", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "parentCommentId",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub parent_comment_id: Option<ObjectId>,
 
     #[serde(rename = "createdAt")]

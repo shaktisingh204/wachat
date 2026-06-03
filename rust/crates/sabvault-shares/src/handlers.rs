@@ -1,9 +1,4 @@
-//! SabVault share-grant CRUD.
-//!
-//! Only the **owner** of a secret can grant or revoke shares. When a grant
-//! is created/revoked, the parent secret's `sharedWithUserIds` /
-//! `sharedWithTeamIds` array is kept in sync so the visibility filter in
-//! `sabvault-secrets` Just Works.
+//! HTTP handlers for SabCheckout SabvaultShares.
 
 use axum::{
     Json,
@@ -12,8 +7,8 @@ use axum::{
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_common::{
-    audit::{audit_for_create, audit_for_delete, audit_for_update, write_audit},
     pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
     tenant::user_oid,
 };
 use futures::TryStreamExt;
@@ -24,101 +19,97 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateShareInput, CreateShareResponse, ListQuery, ListResponse, RevokeShareResponse,
-    UpdateShareInput,
+    CreateSabvaultShareInput, CreateSabvaultShareResponse, DeleteSabvaultShareResponse, ListQuery,
+    UpdateSabvaultShareInput,
 };
-use crate::types::{GranteeType, SabvaultShare, SharePermission};
+use crate::types::SabvaultShare;
 
-pub const SHARES_COLL: &str = "sabvault_shares";
-const SECRETS_COLL: &str = "sabvault_secrets";
-const ENTITY_KIND: &str = "sabvault_share";
-
-fn permission_str(p: &SharePermission) -> &'static str {
-    match p {
-        SharePermission::Read => "read",
-        SharePermission::Use => "use",
-        SharePermission::Edit => "edit",
-    }
-}
-
-fn grantee_field(t: &GranteeType) -> &'static str {
-    match t {
-        GranteeType::User => "sharedWithUserIds",
-        GranteeType::Team => "sharedWithTeamIds",
-    }
-}
-
-/// Verifies the caller owns the secret referenced in a share request.
-async fn assert_secret_owner(
-    mongo: &MongoHandle,
-    user_id: ObjectId,
-    secret_oid: ObjectId,
-) -> Result<()> {
-    let coll = mongo.collection::<Document>(SECRETS_COLL);
-    let found = coll
-        .find_one(doc! { "_id": secret_oid, "userId": user_id })
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("secret.owner_check")))?;
-    if found.is_none() {
-        return Err(ApiError::Forbidden(
-            "only the secret owner may grant or revoke shares".to_owned(),
-        ));
-    }
-    Ok(())
-}
-
-/// Push grantee into the secret's denormalized array so visibility filters
-/// in `sabvault-secrets` can keep using a single Mongo query.
-async fn sync_secret_grantees_add(
-    mongo: &MongoHandle,
-    secret_oid: ObjectId,
-    grantee_type: &GranteeType,
-    grantee_oid: ObjectId,
-) -> Result<()> {
-    let coll = mongo.collection::<Document>(SECRETS_COLL);
-    let field = grantee_field(grantee_type);
-    coll.update_one(
-        doc! { "_id": secret_oid },
-        doc! { "$addToSet": { field: grantee_oid } },
-    )
-    .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("secret.sync_grantees_add"))
-    })?;
-    Ok(())
-}
-
-async fn sync_secret_grantees_remove(
-    mongo: &MongoHandle,
-    secret_oid: ObjectId,
-    grantee_type: &GranteeType,
-    grantee_oid: ObjectId,
-) -> Result<()> {
-    let coll = mongo.collection::<Document>(SECRETS_COLL);
-    let field = grantee_field(grantee_type);
-    coll.update_one(
-        doc! { "_id": secret_oid },
-        doc! { "$pull": { field: grantee_oid } },
-    )
-    .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("secret.sync_grantees_remove"))
-    })?;
-    Ok(())
-}
+const COLL: &str = "sabvault_shares";
 
 fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
-    match status.unwrap_or("active") {
-        "all" => {}
-        "revoked" => {
-            filter.insert("revokedAt", doc! { "$exists": true });
-        }
-        _ => {
-            filter.insert("revokedAt", doc! { "$exists": false });
+    match status {
+        Some("all") | None => {}
+        Some(s) => {
+            filter.insert("status", s);
         }
     }
     filter
+}
+
+fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
+    doc! { "_id": oid, "userId": user_id }
+}
+
+fn share_from_create(input: CreateSabvaultShareInput, user_id: ObjectId) -> Result<SabvaultShare> {
+    if input.name.trim().is_empty() {
+        return Err(ApiError::Validation("name is required".to_owned()));
+    }
+    if input.amount_minor <= 0 {
+        return Err(ApiError::Validation("amountMinor must be > 0".to_owned()));
+    }
+    let interval_unit = input.interval_unit.trim().to_lowercase();
+    if !matches!(interval_unit.as_str(), "day" | "week" | "month" | "year") {
+        return Err(ApiError::Validation(
+            "intervalUnit must be one of day|week|month|year".to_owned(),
+        ));
+    }
+    Ok(SabvaultShare {
+        id: None,
+        user_id,
+        name: input.name.trim().to_owned(),
+        interval_unit,
+        interval_count: input.interval_count.unwrap_or(1).max(1),
+        amount_minor: input.amount_minor,
+        currency: input.currency.unwrap_or_else(|| "INR".to_owned()),
+        trial_days: input.trial_days,
+        setup_fee_minor: input.setup_fee_minor,
+        description: input.description,
+        status: input.status.unwrap_or_else(|| "draft".to_owned()),
+        created_at: BsonDateTime::from_chrono(Utc::now()),
+        updated_at: None,
+    })
+}
+
+fn build_update_doc(patch: UpdateSabvaultShareInput) -> Document {
+    let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
+    if let Some(v) = patch.name {
+        set.insert("name", v);
+    }
+    if let Some(v) = patch.interval_unit {
+        set.insert("intervalUnit", v.to_lowercase());
+    }
+    if let Some(v) = patch.interval_count {
+        set.insert("intervalCount", v.max(1));
+    }
+    if let Some(v) = patch.amount_minor {
+        set.insert("amountMinor", v);
+    }
+    if let Some(v) = patch.currency {
+        set.insert("currency", v);
+    }
+    if let Some(v) = patch.trial_days {
+        set.insert("trialDays", v);
+    }
+    if let Some(v) = patch.setup_fee_minor {
+        set.insert("setupFeeMinor", v);
+    }
+    if let Some(v) = patch.description {
+        set.insert("description", v);
+    }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    doc! { "$set": set }
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListResponse {
+    pub items: Vec<SabvaultShare>,
+    pub page: u32,
+    pub limit: u32,
+    pub has_more: bool,
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
@@ -129,31 +120,24 @@ pub async fn list_shares(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, q.status.as_deref());
-    if let Some(s) = q.secret_id.as_deref().filter(|s| !s.is_empty()) {
-        if let Ok(oid) = ObjectId::parse_str(s) {
-            filter.insert("secretId", oid);
+    if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let or = build_q_filter(needle, &["name", "description"]);
+        if let Ok(arr) = or.get_array("$or") {
+            filter.insert("$or", arr.clone());
         }
     }
-    if let Some(g) = q.grantee_id.as_deref().filter(|s| !s.is_empty()) {
-        if let Ok(oid) = ObjectId::parse_str(g) {
-            filter.insert("granteeId", oid);
-        }
-    }
-
     let limit = clamp_limit(q.limit);
     let skip = skip_for(q.page, limit);
     let opts = FindOptions::builder()
-        .sort(doc! { "grantedAt": -1 })
+        .sort(doc! { "createdAt": -1 })
         .skip(skip)
         .limit(limit + 1)
         .build();
-
-    let coll = mongo.collection::<SabvaultShare>(SHARES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.find")))?;
+    let coll = mongo.collection::<SabvaultShare>(COLL);
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.find"))
+        })?;
     let mut rows: Vec<SabvaultShare> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.collect"))
     })?;
@@ -169,57 +153,44 @@ pub async fn list_shares(
     }))
 }
 
+#[instrument(skip_all, fields(user_id = %user.user_id, share_id = %share_id))]
+pub async fn get_share(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(share_id): Path<String>,
+) -> Result<Json<SabvaultShare>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&share_id)?;
+    let coll = mongo.collection::<SabvaultShare>(COLL);
+    let row = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("sabvault_share".to_owned()))?;
+    Ok(Json(row))
+}
+
 #[instrument(skip_all, fields(user_id = %user.user_id))]
 pub async fn create_share(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
-    Json(input): Json<CreateShareInput>,
-) -> Result<Json<CreateShareResponse>> {
+    Json(input): Json<CreateSabvaultShareInput>,
+) -> Result<Json<CreateSabvaultShareResponse>> {
     let user_id = user_oid(&user)?;
-    let secret_oid = oid_from_str(&input.secret_id)?;
-    let grantee_oid = oid_from_str(&input.grantee_id)?;
-
-    assert_secret_owner(&mongo, user_id, secret_oid).await?;
-
-    let mut share = SabvaultShare {
-        id: None,
-        user_id,
-        secret_id: secret_oid,
-        grantee_type: input.grantee_type.clone(),
-        grantee_id: grantee_oid,
-        permission: input.permission,
-        granted_by: user_id,
-        granted_at: BsonDateTime::from_chrono(Utc::now()),
-        expires_at: input.expires_at.map(BsonDateTime::from_chrono),
-        revoked_at: None,
-        revoked_by: None,
-        rewrapped_payload_b64: input.rewrapped_payload_b64,
-    };
-
-    let coll = mongo.collection::<SabvaultShare>(SHARES_COLL);
-    let inserted = coll.insert_one(&share).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.insert"))
-    })?;
+    let mut entity = share_from_create(input, user_id)?;
+    let coll = mongo.collection::<SabvaultShare>(COLL);
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
-    share.id = Some(new_id);
-
-    sync_secret_grantees_add(&mongo, secret_oid, &input.grantee_type, grantee_oid).await?;
-
-    if let Some(event) = audit_for_create(
-        &user,
-        ENTITY_KIND,
-        new_id,
-        Some(bson::to_document(&share).unwrap_or_default()),
-    ) {
-        write_audit(&mongo, event).await;
-    }
-
-    Ok(Json(CreateShareResponse {
+    entity.id = Some(new_id);
+    Ok(Json(CreateSabvaultShareResponse {
         id: new_id.to_hex(),
-        entity: share,
+        entity,
     }))
 }
 
@@ -228,99 +199,51 @@ pub async fn update_share(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
     Path(share_id): Path<String>,
-    Json(patch): Json<UpdateShareInput>,
+    Json(patch): Json<UpdateSabvaultShareInput>,
 ) -> Result<Json<SabvaultShare>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&share_id)?;
-    let coll = mongo.collection::<SabvaultShare>(SHARES_COLL);
-
-    let before = coll
-        .find_one(doc! { "_id": oid, "userId": user_id })
+    let coll = mongo.collection::<SabvaultShare>(COLL);
+    let update = build_update_doc(patch);
+    let result = coll
+        .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.find_one"))
-        })?
-        .ok_or_else(|| ApiError::NotFound("sabvault_share".to_owned()))?;
-
-    let mut set = doc! {};
-    if let Some(p) = patch.permission {
-        set.insert("permission", permission_str(&p));
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.update")))?;
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("sabvault_share".to_owned()));
     }
-    if let Some(v) = patch.expires_at {
-        set.insert("expiresAt", BsonDateTime::from_chrono(v));
-    }
-    if let Some(v) = patch.rewrapped_payload_b64 {
-        set.insert("rewrappedPayloadB64", v);
-    }
-    if !set.is_empty() {
-        coll.update_one(
-            doc! { "_id": oid, "userId": user_id },
-            doc! { "$set": set },
-        )
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.update"))
-        })?;
-    }
-
     let after = coll
-        .find_one(doc! { "_id": oid, "userId": user_id })
+        .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sabvault_share".to_owned()))?;
-
-    if let Some(event) = audit_for_update(
-        &user,
-        ENTITY_KIND,
-        oid,
-        Some(bson::to_document(&before).unwrap_or_default()),
-        Some(bson::to_document(&after).unwrap_or_default()),
-    ) {
-        write_audit(&mongo, event).await;
-    }
-
     Ok(Json(after))
 }
 
-/// Revoke (soft delete) — stamps `revokedAt`, pulls grantee from the
-/// secret's denormalized array.
 #[instrument(skip_all, fields(user_id = %user.user_id, share_id = %share_id))]
-pub async fn revoke_share(
+pub async fn delete_share(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
     Path(share_id): Path<String>,
-) -> Result<Json<RevokeShareResponse>> {
+) -> Result<Json<DeleteSabvaultShareResponse>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&share_id)?;
-    let coll = mongo.collection::<SabvaultShare>(SHARES_COLL);
-
-    let row = coll
-        .find_one(doc! { "_id": oid, "userId": user_id })
+    let coll = mongo.collection::<SabvaultShare>(COLL);
+    let result = coll
+        .update_one(
+            ownership_filter(user_id, oid),
+            doc! { "$set": {
+                "status": "archived",
+                "updatedAt": BsonDateTime::from_chrono(Utc::now()),
+            }},
+        )
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.find_one"))
-        })?
-        .ok_or_else(|| ApiError::NotFound("sabvault_share".to_owned()))?;
-
-    coll.update_one(
-        doc! { "_id": oid, "userId": user_id },
-        doc! { "$set": {
-            "revokedAt": BsonDateTime::from_chrono(Utc::now()),
-            "revokedBy": user_id,
-        }},
-    )
-    .await
-    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.revoke")))?;
-
-    sync_secret_grantees_remove(&mongo, row.secret_id, &row.grantee_type, row.grantee_id).await?;
-
-    if let Some(event) = audit_for_delete(&user, ENTITY_KIND, oid) {
-        write_audit(&mongo, event).await;
-    }
-
-    Ok(Json(RevokeShareResponse { revoked: true }))
+            ApiError::Internal(anyhow::Error::new(e).context("sabvault_shares.archive"))
+        })?;
+    Ok(Json(DeleteSabvaultShareResponse {
+        deleted: result.matched_count > 0,
+    }))
 }
 
 #[cfg(test)]
@@ -328,21 +251,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn permission_strs() {
-        assert_eq!(permission_str(&SharePermission::Read), "read");
-        assert_eq!(permission_str(&SharePermission::Use), "use");
-        assert_eq!(permission_str(&SharePermission::Edit), "edit");
+    fn create_rejects_bad_interval() {
+        let input = CreateSabvaultShareInput {
+            name: "Pro".into(),
+            interval_unit: "decade".into(),
+            amount_minor: 1000,
+            ..Default::default()
+        };
+        assert!(share_from_create(input, ObjectId::new()).is_err());
     }
 
     #[test]
-    fn grantee_field_routes_to_right_array() {
-        assert_eq!(grantee_field(&GranteeType::User), "sharedWithUserIds");
-        assert_eq!(grantee_field(&GranteeType::Team), "sharedWithTeamIds");
-    }
-
-    #[test]
-    fn list_filter_defaults_to_active() {
-        let f = list_filter(ObjectId::new(), None);
-        assert!(f.contains_key("revokedAt"));
+    fn create_defaults_count_and_status() {
+        let input = CreateSabvaultShareInput {
+            name: "Pro".into(),
+            interval_unit: "MONTH".into(),
+            amount_minor: 1999_00,
+            ..Default::default()
+        };
+        let p = share_from_create(input, ObjectId::new()).unwrap();
+        assert_eq!(p.interval_unit, "month");
+        assert_eq!(p.interval_count, 1);
+        assert_eq!(p.status, "draft");
+        assert_eq!(p.currency, "INR");
     }
 }

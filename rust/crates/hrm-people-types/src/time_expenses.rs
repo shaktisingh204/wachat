@@ -60,7 +60,11 @@ pub struct Timesheet {
     pub status: TimesheetStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approver_id: Option<ObjectId>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -109,7 +113,11 @@ pub struct TravelRequest {
     pub to_location: String,
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub depart_on: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub return_on: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub advance_amount: Option<f64>,
@@ -168,7 +176,11 @@ pub struct ExpenseClaim {
     pub status: ExpenseClaimStatus,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub approver_id: Option<ObjectId>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub reimbursed_at: Option<DateTime<Utc>>,
     /// Bank / payroll txn id once the claim is paid out.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -15,10 +15,7 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_frames).post(handlers::create_frame),
-        )
+        .route("/", get(handlers::list_frames).post(handlers::create_frame))
         .route(
             "/{frameId}",
             get(handlers::get_frame).delete(handlers::delete_frame),

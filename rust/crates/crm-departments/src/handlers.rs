@@ -142,9 +142,10 @@ pub async fn list_departments(
         .build();
 
     let coll = mongo.collection::<Department>(DEPARTMENTS_COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_departments.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_departments.find"))
+        })?;
     let rows: Vec<Department> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_departments.collect"))
     })?;
@@ -169,9 +170,7 @@ pub async fn get_department(
     let row = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_departments.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_departments.find_one")))?
         .ok_or_else(|| ApiError::NotFound("department".to_owned()))?;
 
     Ok(Json(row))
@@ -249,7 +248,11 @@ pub async fn update_department(
     set_opt_str(&mut set, "costCenter", input.cost_center.as_ref());
     set_opt_str(&mut set, "description", input.description.as_ref());
     set_opt_str(&mut set, "color", input.color.as_ref());
-    set_opt_oid(&mut set, "parentDepartmentId", input.parent_department_id.as_ref())?;
+    set_opt_oid(
+        &mut set,
+        "parentDepartmentId",
+        input.parent_department_id.as_ref(),
+    )?;
     set_opt_oid(&mut set, "headId", input.head_id.as_ref())?;
     if let Some(active) = input.active {
         set.insert("active", active);
@@ -352,9 +355,10 @@ pub async fn list_designations(
         .build();
 
     let coll = mongo.collection::<Designation>(DESIGNATIONS_COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_designations.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_designations.find"))
+        })?;
     let rows: Vec<Designation> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_designations.collect"))
     })?;

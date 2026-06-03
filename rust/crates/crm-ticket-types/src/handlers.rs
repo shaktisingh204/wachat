@@ -197,11 +197,10 @@ pub async fn list_ticket_types(
         .build();
 
     let coll = mongo.collection::<CrmTicketType>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.find"))
+        })?;
     let mut rows: Vec<CrmTicketType> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.collect"))
     })?;
@@ -282,8 +281,7 @@ pub async fn create_ticket_type(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -323,9 +321,7 @@ pub async fn update_ticket_type(
                 .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("crm_ticket_types.dup_check"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.dup_check"))
                 })?;
             if dup.is_some() {
                 return Err(ApiError::Validation(format!(
@@ -359,9 +355,7 @@ pub async fn update_ticket_type(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_types.refetch")))?
         .ok_or_else(|| ApiError::NotFound("ticket_type".to_owned()))?;
 
     if let Some(event) = audit_for_update(

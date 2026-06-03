@@ -318,8 +318,8 @@ pub async fn sync_local(
 ) -> Result<()> {
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let now = bson::DateTime::from_chrono(Utc::now());
-    let new_value = bson::to_bson(&body.update_value)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let new_value =
+        bson::to_bson(&body.update_value).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     // Try to update an existing array element matching the configuration_name.
     let updated = coll

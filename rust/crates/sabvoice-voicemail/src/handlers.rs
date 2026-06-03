@@ -20,8 +20,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateVoicemailInput, CreateVoicemailResponse, DeleteVoicemailResponse, ListQuery,
-    ListenInput, UpdateVoicemailInput,
+    CreateVoicemailInput, CreateVoicemailResponse, DeleteVoicemailResponse, ListQuery, ListenInput,
+    UpdateVoicemailInput,
 };
 use crate::types::VoiceVoicemail;
 
@@ -173,8 +173,7 @@ pub async fn create_voicemail(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

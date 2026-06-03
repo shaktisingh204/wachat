@@ -114,7 +114,14 @@ mod tests {
 
     #[test]
     fn verify_rejects_mismatched_secret() {
-        let token = sign(b"k1", &TrackingClaims { c: "a".into(), s: None, t: 0 });
+        let token = sign(
+            b"k1",
+            &TrackingClaims {
+                c: "a".into(),
+                s: None,
+                t: 0,
+            },
+        );
         assert!(verify(b"k2", &token).is_none());
     }
 

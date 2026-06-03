@@ -83,7 +83,11 @@ pub struct KbArticle {
     /* ----- cross-links + ownership ------------------------------- */
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub related_article_ids: Vec<ObjectId>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_reviewed_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<ObjectId>,
@@ -177,8 +181,14 @@ mod tests {
             json.get("slug").and_then(|v| v.as_str()),
             Some("how-to-update-card")
         );
-        assert_eq!(json.get("status").and_then(|v| v.as_str()), Some("published"));
-        assert_eq!(json.get("visibility").and_then(|v| v.as_str()), Some("portal"));
+        assert_eq!(
+            json.get("status").and_then(|v| v.as_str()),
+            Some("published")
+        );
+        assert_eq!(
+            json.get("visibility").and_then(|v| v.as_str()),
+            Some("portal")
+        );
         assert_eq!(json.get("helpfulCount").and_then(|v| v.as_u64()), Some(12));
         assert_eq!(json.get("viewCount").and_then(|v| v.as_u64()), Some(4321));
         assert!(json.get("lastReviewedAt").is_some());
@@ -214,7 +224,10 @@ mod tests {
         assert!(json.get("audit").is_none());
 
         assert_eq!(json.get("slug").and_then(|v| v.as_str()), Some("billing"));
-        assert_eq!(json.get("visibility").and_then(|v| v.as_str()), Some("portal"));
+        assert_eq!(
+            json.get("visibility").and_then(|v| v.as_str()),
+            Some("portal")
+        );
         assert_eq!(json.get("articleCount").and_then(|v| v.as_u64()), Some(7));
 
         let back: KbCategory = serde_json::from_value(json).unwrap();

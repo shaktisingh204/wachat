@@ -150,7 +150,11 @@ pub struct Integration {
     /// its receiver.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub webhook_url: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_sync_at: Option<DateTime<Utc>>,
     /// Most-recent error message (auth failure, 4xx from provider, etc.).
     /// Cleared on the next successful sync.
@@ -216,8 +220,14 @@ mod tests {
         assert!(json.get("audit").is_none());
 
         // camelCase and enum casing.
-        assert_eq!(json.get("provider").and_then(|v| v.as_str()), Some("google_calendar"));
-        assert_eq!(json.get("status").and_then(|v| v.as_str()), Some("connected"));
+        assert_eq!(
+            json.get("provider").and_then(|v| v.as_str()),
+            Some("google_calendar")
+        );
+        assert_eq!(
+            json.get("status").and_then(|v| v.as_str()),
+            Some("connected")
+        );
 
         // Tagged credential shape. Variant tag uses enum-level
         // snake_case ("o_auth2"); inner fields keep Rust's default
@@ -241,8 +251,14 @@ mod tests {
                 ..
             } => {
                 assert_eq!(access_token_ref, "secret://google/access/abc");
-                assert_eq!(refresh_token_ref.as_deref(), Some("secret://google/refresh/abc"));
-                assert_eq!(scope.as_deref(), Some("https://www.googleapis.com/auth/calendar"));
+                assert_eq!(
+                    refresh_token_ref.as_deref(),
+                    Some("secret://google/refresh/abc")
+                );
+                assert_eq!(
+                    scope.as_deref(),
+                    Some("https://www.googleapis.com/auth/calendar")
+                );
             }
             other => panic!("expected OAuth2 variant, got {other:?}"),
         }

@@ -82,11 +82,7 @@ fn lookup_var(vars: &Value, key: &str) -> Option<String> {
         Value::String(s) => s.clone(),
         other => other.to_string(),
     };
-    if s.trim().is_empty() {
-        None
-    } else {
-        Some(s)
-    }
+    if s.trim().is_empty() { None } else { Some(s) }
 }
 
 /// Configuration used by `build_template_payload` — split out so callers
@@ -139,10 +135,7 @@ pub struct ContactRef<'a> {
 ///   * `sent_payload` — the `template` sub-object stored on
 ///     `outgoing_messages.content.template` (matches Node's
 ///     `sentPayload = payload.template`).
-pub fn build_template_payload(
-    ctx: &TemplateContext,
-    contact: &ContactRef<'_>,
-) -> (Value, Value) {
+pub fn build_template_payload(ctx: &TemplateContext, contact: &ContactRef<'_>) -> (Value, Value) {
     // Merge global + per-contact vars; per-contact wins (matches Node
     // `{ ...globalBodyVars, ...contact.variables }`).
     let mut effective = Map::new();
@@ -172,9 +165,18 @@ pub fn build_template_payload(
             let mut clone = raw.clone();
             if let Some(Value::Array(params)) = clone.get_mut("parameters") {
                 for p in params.iter_mut() {
-                    if let Some(Value::String(s)) = p.get_mut("type").map(|v| &*v).cloned()
+                    if let Some(Value::String(s)) = p
+                        .get_mut("type")
+                        .map(|v| &*v)
+                        .cloned()
                         .as_ref()
-                        .and_then(|v| if v == "text" { p.get("text").cloned() } else { None })
+                        .and_then(|v| {
+                            if v == "text" {
+                                p.get("text").cloned()
+                            } else {
+                                None
+                            }
+                        })
                     {
                         // Scope: re-borrow `p` mutably to overwrite text.
                         let interpolated = interpolate_text(&s, &effective_value);
@@ -244,16 +246,10 @@ pub fn build_template_payload(
                             .map(|n| {
                                 let val = lookup_var(&effective_value, n)
                                     .or_else(|| {
-                                        lookup_var(
-                                            &effective_value,
-                                            &format!("variable_body_{n}"),
-                                        )
+                                        lookup_var(&effective_value, &format!("variable_body_{n}"))
                                     })
                                     .or_else(|| {
-                                        lookup_var(
-                                            &effective_value,
-                                            &format!("{{{{{n}}}}}"),
-                                        )
+                                        lookup_var(&effective_value, &format!("{{{{{n}}}}}"))
                                     })
                                     .unwrap_or_else(|| ZWSP.to_owned());
                                 json!({
@@ -295,10 +291,7 @@ pub fn build_template_payload(
 
     let mut template = Map::new();
     template.insert("name".into(), Value::String(ctx.template_name.clone()));
-    template.insert(
-        "language".into(),
-        json!({ "code": ctx.language.clone() }),
-    );
+    template.insert("language".into(), json!({ "code": ctx.language.clone() }));
     if !final_components.is_empty() {
         template.insert("components".into(), Value::Array(final_components));
     }
@@ -316,10 +309,7 @@ pub fn build_template_payload(
 
 /// Build the Meta `messages` payload for a FLOW broadcast send. Mirrors
 /// the `broadcastType === 'flow'` branch in `buildPayload` (lines 80-105).
-pub fn build_flow_payload(
-    ctx: &FlowContext,
-    contact: &ContactRef<'_>,
-) -> (Value, Value) {
+pub fn build_flow_payload(ctx: &FlowContext, contact: &ContactRef<'_>) -> (Value, Value) {
     let header = ctx
         .flow_config
         .as_ref()
@@ -427,7 +417,10 @@ mod tests {
     fn interpolate_falls_back_to_zwsp() {
         let v = json!({});
         // ZWSP fallback for missing vars.
-        assert_eq!(interpolate_text("Hi {{name}}!", &v), format!("Hi {}!", ZWSP));
+        assert_eq!(
+            interpolate_text("Hi {{name}}!", &v),
+            format!("Hi {}!", ZWSP)
+        );
     }
 
     #[test]

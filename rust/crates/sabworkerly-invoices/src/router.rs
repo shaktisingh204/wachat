@@ -15,7 +15,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_invoices).post(handlers::create_invoice))
+        .route(
+            "/",
+            get(handlers::list_invoices).post(handlers::create_invoice),
+        )
         .route(
             "/{invoiceId}",
             get(handlers::get_invoice)

@@ -113,10 +113,13 @@ fn asset_from_create(input: CreateAssetInput, user_id: ObjectId) -> Result<CrmAs
         .and_then(|s| ObjectId::parse_str(s).ok());
     let has_assignee = assignee_oid.is_some();
 
-    let status = input
-        .status
-        .clone()
-        .unwrap_or_else(|| if has_assignee { "assigned".to_owned() } else { "available".to_owned() });
+    let status = input.status.clone().unwrap_or_else(|| {
+        if has_assignee {
+            "assigned".to_owned()
+        } else {
+            "available".to_owned()
+        }
+    });
 
     Ok(CrmAsset {
         id: None,
@@ -381,8 +384,7 @@ pub async fn create_asset(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -408,7 +410,12 @@ pub async fn update_asset(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_assets.find_one")))?
         .ok_or_else(|| ApiError::NotFound("asset".to_owned()))?;
 
-    if let Some(tag) = patch.asset_tag.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(tag) = patch
+        .asset_tag
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if tag != before.asset_tag {
             ensure_tag_unique(&mongo, user_id, tag, Some(oid)).await?;
         }
@@ -504,7 +511,10 @@ mod tests {
             name: "MBP 14".into(),
             ..Default::default()
         };
-        assert_eq!(asset_from_create(unassigned, user_id).unwrap().status, "available");
+        assert_eq!(
+            asset_from_create(unassigned, user_id).unwrap().status,
+            "available"
+        );
 
         let assigned = CreateAssetInput {
             asset_tag: "LAP-002".into(),
@@ -512,7 +522,10 @@ mod tests {
             current_assignee_id: Some(ObjectId::new().to_hex()),
             ..Default::default()
         };
-        assert_eq!(asset_from_create(assigned, user_id).unwrap().status, "assigned");
+        assert_eq!(
+            asset_from_create(assigned, user_id).unwrap().status,
+            "assigned"
+        );
     }
 
     #[test]

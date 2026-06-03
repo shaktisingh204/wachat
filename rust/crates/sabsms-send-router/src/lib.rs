@@ -110,15 +110,20 @@ where
             RoutingStrategy::LeastCost => {
                 // Sort by cost ascending, then priority descending
                 routes.sort_by(|a, b| {
-                    a.cost.partial_cmp(&b.cost).unwrap_or(std::cmp::Ordering::Equal)
+                    a.cost
+                        .partial_cmp(&b.cost)
+                        .unwrap_or(std::cmp::Ordering::Equal)
                         .then_with(|| b.priority.cmp(&a.priority))
                 });
             }
             RoutingStrategy::Priority => {
                 // Sort by priority descending, then cost ascending
                 routes.sort_by(|a, b| {
-                    b.priority.cmp(&a.priority)
-                        .then_with(|| a.cost.partial_cmp(&b.cost).unwrap_or(std::cmp::Ordering::Equal))
+                    b.priority.cmp(&a.priority).then_with(|| {
+                        a.cost
+                            .partial_cmp(&b.cost)
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    })
                 });
             }
         }
@@ -159,7 +164,7 @@ where
     }
 }
 
-/// Simple segment estimator. 
+/// Simple segment estimator.
 /// In real scenarios, needs GSM-7 / UCS-2 detection.
 pub fn estimate_segments(body: &str) -> usize {
     let chars = body.chars().count();
@@ -237,7 +242,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_least_cost_routing() {
-        let store = MockStore { saved: Arc::new(Mutex::new(Vec::new())) };
+        let store = MockStore {
+            saved: Arc::new(Mutex::new(Vec::new())),
+        };
         let router = SendRouter::new(
             MockPool,
             MockCredits,
@@ -263,7 +270,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_priority_routing() {
-        let store = MockStore { saved: Arc::new(Mutex::new(Vec::new())) };
+        let store = MockStore {
+            saved: Arc::new(Mutex::new(Vec::new())),
+        };
         let router = SendRouter::new(
             MockPool,
             MockCredits,

@@ -31,9 +31,15 @@ const ENTITY_KIND: &str = "sabshop_storefront";
 fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("all") {
-        "live" => { filter.insert("status", "live"); }
-        "draft" => { filter.insert("status", "draft"); }
-        "paused" => { filter.insert("status", "paused"); }
+        "live" => {
+            filter.insert("status", "live");
+        }
+        "draft" => {
+            filter.insert("status", "draft");
+        }
+        "paused" => {
+            filter.insert("status", "paused");
+        }
         _ => {}
     }
     filter
@@ -43,7 +49,10 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(input: CreateStorefrontInput, user_id: ObjectId) -> Result<SabshopStorefront> {
+fn entity_from_create(
+    input: CreateStorefrontInput,
+    user_id: ObjectId,
+) -> Result<SabshopStorefront> {
     if input.slug.trim().is_empty() {
         return Err(ApiError::Validation("slug is required".to_owned()));
     }
@@ -57,7 +66,10 @@ fn entity_from_create(input: CreateStorefrontInput, user_id: ObjectId) -> Result
         slug: input.slug.trim().to_lowercase(),
         display_name: input.display_name.trim().to_owned(),
         description: input.description,
-        theme_id: input.theme_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        theme_id: input
+            .theme_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         currency: input.currency.unwrap_or_else(|| "INR".to_owned()),
         shipping_zone_ids: Vec::new(),
         tax_rule_ids: Vec::new(),
@@ -84,25 +96,61 @@ fn ids_to_bson(ids: Vec<String>) -> Vec<Bson> {
 
 fn build_update_doc(patch: UpdateStorefrontInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.slug { set.insert("slug", v.trim().to_lowercase()); }
-    if let Some(v) = patch.display_name { set.insert("displayName", v); }
-    if let Some(v) = patch.description { set.insert("description", v); }
-    if let Some(v) = patch.currency { set.insert("currency", v); }
-    if let Some(v) = patch.theme_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch.slug {
+        set.insert("slug", v.trim().to_lowercase());
+    }
+    if let Some(v) = patch.display_name {
+        set.insert("displayName", v);
+    }
+    if let Some(v) = patch.description {
+        set.insert("description", v);
+    }
+    if let Some(v) = patch.currency {
+        set.insert("currency", v);
+    }
+    if let Some(v) = patch
+        .theme_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("themeId", v);
     }
-    if let Some(v) = patch.status { set.insert("status", v); }
-    if let Some(v) = patch.custom_css { set.insert("customCss", v); }
-    if let Some(v) = patch.logo_url { set.insert("logoUrl", v); }
-    if let Some(v) = patch.favicon_url { set.insert("faviconUrl", v); }
-    if let Some(v) = patch.hero_image_url { set.insert("heroImageUrl", v); }
-    if let Some(v) = patch.hero_title { set.insert("heroTitle", v); }
-    if let Some(v) = patch.hero_subtitle { set.insert("heroSubtitle", v); }
-    if let Some(v) = patch.shipping_zone_ids { set.insert("shippingZoneIds", ids_to_bson(v)); }
-    if let Some(v) = patch.tax_rule_ids { set.insert("taxRuleIds", ids_to_bson(v)); }
-    if let Some(v) = patch.featured_product_ids { set.insert("featuredProductIds", ids_to_bson(v)); }
-    if let Some(v) = patch.featured_collection_ids { set.insert("featuredCollectionIds", ids_to_bson(v)); }
-    if let Some(v) = patch.published_product_ids { set.insert("publishedProductIds", ids_to_bson(v)); }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.custom_css {
+        set.insert("customCss", v);
+    }
+    if let Some(v) = patch.logo_url {
+        set.insert("logoUrl", v);
+    }
+    if let Some(v) = patch.favicon_url {
+        set.insert("faviconUrl", v);
+    }
+    if let Some(v) = patch.hero_image_url {
+        set.insert("heroImageUrl", v);
+    }
+    if let Some(v) = patch.hero_title {
+        set.insert("heroTitle", v);
+    }
+    if let Some(v) = patch.hero_subtitle {
+        set.insert("heroSubtitle", v);
+    }
+    if let Some(v) = patch.shipping_zone_ids {
+        set.insert("shippingZoneIds", ids_to_bson(v));
+    }
+    if let Some(v) = patch.tax_rule_ids {
+        set.insert("taxRuleIds", ids_to_bson(v));
+    }
+    if let Some(v) = patch.featured_product_ids {
+        set.insert("featuredProductIds", ids_to_bson(v));
+    }
+    if let Some(v) = patch.featured_collection_ids {
+        set.insert("featuredCollectionIds", ids_to_bson(v));
+    }
+    if let Some(v) = patch.published_product_ids {
+        set.insert("publishedProductIds", ids_to_bson(v));
+    }
     doc! { "$set": set }
 }
 
@@ -142,12 +190,16 @@ pub async fn list_storefronts(
         .build();
 
     let coll = mongo.collection::<SabshopStorefront>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find")))?;
-    let mut rows: Vec<SabshopStorefront> = cursor.try_collect().await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find"))
+    })?;
+    let mut rows: Vec<SabshopStorefront> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
+    if has_more {
+        rows.truncate(limit as usize);
+    }
     Ok(Json(ListResponse {
         items: rows,
         page: q.page.unwrap_or(0),
@@ -165,8 +217,12 @@ pub async fn get_storefront(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&storefront_id)?;
     let coll = mongo.collection::<SabshopStorefront>(COLL);
-    let row = coll.find_one(ownership_filter(user_id, oid)).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find_one")))?
+    let row = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("storefront".to_owned()))?;
     Ok(Json(row))
 }
@@ -180,15 +236,22 @@ pub async fn create_storefront(
     let user_id = user_oid(&user)?;
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabshopStorefront>(COLL);
-    let inserted = coll.insert_one(&entity).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.insert")))?;
-    let new_id = inserted.inserted_id.as_object_id()
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.insert"))
+    })?;
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity))) {
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    {
         write_audit(&mongo, event).await;
     }
-    Ok(Json(CreateStorefrontResponse { id: new_id.to_hex(), entity }))
+    Ok(Json(CreateStorefrontResponse {
+        id: new_id.to_hex(),
+        entity,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id, storefront_id = %storefront_id))]
@@ -201,21 +264,36 @@ pub async fn update_storefront(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&storefront_id)?;
     let coll = mongo.collection::<SabshopStorefront>(COLL);
-    let before = coll.find_one(ownership_filter(user_id, oid)).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find_one")))?
+    let before = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("storefront".to_owned()))?;
     let update = build_update_doc(patch);
-    let result = coll.update_one(ownership_filter(user_id, oid), update).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.update")))?;
+    let result = coll
+        .update_one(ownership_filter(user_id, oid), update)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("storefront".to_owned()));
     }
-    let after = coll.find_one(ownership_filter(user_id, oid)).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.refetch")))?
+    let after = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("storefront".to_owned()))?;
     if let Some(event) = audit_for_update(
-        &user, ENTITY_KIND, oid,
-        Some(doc_for_audit(&before)), Some(doc_for_audit(&after)),
+        &user,
+        ENTITY_KIND,
+        oid,
+        Some(doc_for_audit(&before)),
+        Some(doc_for_audit(&after)),
     ) {
         write_audit(&mongo, event).await;
     }
@@ -231,8 +309,12 @@ pub async fn delete_storefront(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&storefront_id)?;
     let coll = mongo.collection::<SabshopStorefront>(COLL);
-    let result = coll.delete_one(ownership_filter(user_id, oid)).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.delete")))?;
+    let result = coll
+        .delete_one(ownership_filter(user_id, oid))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabshop_storefronts.delete"))
+        })?;
     if result.deleted_count == 0 {
         return Err(ApiError::NotFound("storefront".to_owned()));
     }
@@ -270,7 +352,11 @@ mod tests {
     #[test]
     fn entity_from_create_rejects_empty_display_name() {
         let user_id = ObjectId::new();
-        let input = CreateStorefrontInput { slug: "x".into(), display_name: " ".into(), ..Default::default() };
+        let input = CreateStorefrontInput {
+            slug: "x".into(),
+            display_name: " ".into(),
+            ..Default::default()
+        };
         assert!(entity_from_create(input, user_id).is_err());
     }
 }

@@ -17,9 +17,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateInvoiceInput, CreateInvoiceResponse, ListQuery, MarkPaidInput,
-};
+use crate::dto::{CreateInvoiceInput, CreateInvoiceResponse, ListQuery, MarkPaidInput};
 use crate::types::SabcheckoutInvoice;
 
 const COLL: &str = "sabcheckout_invoices";
@@ -65,19 +63,12 @@ pub async fn list_invoices(
         .build();
 
     let coll = mongo.collection::<SabcheckoutInvoice>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.find"))
-        })?;
-    let mut rows: Vec<SabcheckoutInvoice> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.find"))
+    })?;
+    let mut rows: Vec<SabcheckoutInvoice> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -120,9 +111,7 @@ pub async fn create_invoice(
     let start = parse_iso(&input.period_start)?;
     let end = parse_iso(&input.period_end)?;
     if input.amount_minor < 0 {
-        return Err(ApiError::Validation(
-            "amountMinor must be >= 0".to_owned(),
-        ));
+        return Err(ApiError::Validation("amountMinor must be >= 0".to_owned()));
     }
 
     let mut entity = SabcheckoutInvoice {
@@ -141,12 +130,9 @@ pub async fn create_invoice(
     };
 
     let coll = mongo.collection::<SabcheckoutInvoice>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -179,10 +165,7 @@ pub async fn mark_paid(
     }
     let coll = mongo.collection::<SabcheckoutInvoice>(COLL);
     let result = coll
-        .update_one(
-            doc! { "_id": oid, "userId": user_id },
-            doc! { "$set": set },
-        )
+        .update_one(doc! { "_id": oid, "userId": user_id }, doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_invoices.mark_paid"))

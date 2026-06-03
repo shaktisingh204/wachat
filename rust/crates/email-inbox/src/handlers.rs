@@ -271,7 +271,10 @@ pub async fn update_thread(
         set.insert("starred", starred);
     }
     if let Some(labels) = body.labels.as_ref() {
-        set.insert("labels", Bson::Array(labels.iter().map(|s| Bson::String(s.clone())).collect()));
+        set.insert(
+            "labels",
+            Bson::Array(labels.iter().map(|s| Bson::String(s.clone())).collect()),
+        );
     }
     if let Some(assigned) = body.assigned_to.as_deref() {
         if assigned.is_empty() {
@@ -464,9 +467,9 @@ pub async fn send_reply(
     }
 
     let msgs = state.mongo.collection::<Document>(MESSAGES_COLL);
-    msgs.insert_one(message_doc).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("messages.insert_one"))
-    })?;
+    msgs.insert_one(message_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("messages.insert_one")))?;
 
     // Bump thread preview / counters.
     let threads = state.mongo.collection::<Document>(THREADS_COLL);
@@ -633,9 +636,7 @@ pub async fn assign_thread(
     assignments
         .insert_one(assignment_doc)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("assignments.insert_one"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("assignments.insert_one")))?;
 
     let threads = state.mongo.collection::<Document>(THREADS_COLL);
     threads
@@ -717,9 +718,7 @@ pub async fn release_assignment(
                 )
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("threads.clear_assigned_to"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("threads.clear_assigned_to"))
                 })?;
         }
     }

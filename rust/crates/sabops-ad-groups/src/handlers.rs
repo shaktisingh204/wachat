@@ -39,7 +39,11 @@ pub async fn list_ad_groups(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(d) = q.domain_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(d) = q
+        .domain_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("domainId", d);
     }
     if let Some(k) = q.kind.as_deref() {
@@ -61,11 +65,10 @@ pub async fn list_ad_groups(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabopsAdGroup>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_groups.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_groups.find"))
+        })?;
     let mut rows: Vec<SabopsAdGroup> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_groups.collect"))
     })?;
@@ -124,8 +127,5 @@ pub async fn upsert_ad_group(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_groups.upsert")))?
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("upsert returned None")))?;
     let id_hex = entity.id.map(|o| o.to_hex()).unwrap_or_default();
-    Ok(Json(UpsertAdGroupResponse {
-        id: id_hex,
-        entity,
-    }))
+    Ok(Json(UpsertAdGroupResponse { id: id_hex, entity }))
 }

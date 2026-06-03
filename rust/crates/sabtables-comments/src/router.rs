@@ -15,7 +15,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_comments).post(handlers::create_comment))
+        .route(
+            "/",
+            get(handlers::list_comments).post(handlers::create_comment),
+        )
         .route(
             "/{commentId}",
             get(handlers::get_comment)

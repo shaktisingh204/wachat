@@ -15,17 +15,14 @@ use futures::TryStreamExt;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
 
-use crate::handlers::{KEYS_COLL, KEY_PREFIX};
+use crate::handlers::{KEY_PREFIX, KEYS_COLL};
 
 /// Verify `raw_key` against the `email_api_keys` collection.
 ///
 /// On success returns `(tenant_id, scopes)`. On failure surfaces a
 /// `ApiError::Unauthorized` — keys that exist but have been revoked
 /// (i.e. their row has been deleted) look identical from the outside.
-pub async fn verify_api_key(
-    mongo: &MongoHandle,
-    raw_key: &str,
-) -> Result<(String, Vec<String>)> {
+pub async fn verify_api_key(mongo: &MongoHandle, raw_key: &str) -> Result<(String, Vec<String>)> {
     let suffix = raw_key
         .strip_prefix(KEY_PREFIX)
         .ok_or_else(|| ApiError::Unauthorized("invalid api key format".to_owned()))?;
@@ -38,9 +35,10 @@ pub async fn verify_api_key(
         .find(doc! { "prefix": &prefix })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.find")))?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.collect"))
-    })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.collect")))?;
 
     for d in docs {
         let Ok(hash_str) = d.get_str("keyHash") else {

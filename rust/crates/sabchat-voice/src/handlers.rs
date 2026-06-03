@@ -226,10 +226,9 @@ pub async fn start(
     }
 
     let calls = state.mongo.collection::<Document>(CALLS_COLL);
-    calls
-        .insert_one(new_doc)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_calls.insert_one")))?;
+    calls.insert_one(new_doc).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_calls.insert_one"))
+    })?;
 
     Ok(Json(StartCallResponse {
         call_id: new_oid.to_hex(),
@@ -253,8 +252,8 @@ pub async fn answer(
 ) -> Result<Json<SuccessResponse>> {
     let tenant = tenant_oid(&auth)?;
     let _ = load_call_for_tenant(&state.mongo, &call_id, tenant).await?;
-    let oid = oid_from_str(&call_id)
-        .map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
+    let oid =
+        oid_from_str(&call_id).map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
 
     let now_bson = bson::DateTime::from_chrono(Utc::now());
     let calls = state.mongo.collection::<Document>(CALLS_COLL);
@@ -269,9 +268,7 @@ pub async fn answer(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_calls.update_one(answer)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_calls.update_one(answer)"))
         })?;
 
     Ok(Json(SuccessResponse::ok()))
@@ -296,8 +293,8 @@ pub async fn end(
 ) -> Result<Json<SuccessResponse>> {
     let tenant = tenant_oid(&auth)?;
     let existing = load_call_for_tenant(&state.mongo, &call_id, tenant).await?;
-    let oid = oid_from_str(&call_id)
-        .map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
+    let oid =
+        oid_from_str(&call_id).map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
 
     let conversation_oid = existing
         .get_object_id("conversationId")
@@ -311,7 +308,10 @@ pub async fn end(
 
     // Derive durationS from startedAt when present. We compute against
     // the stored value rather than trusting client clock skew.
-    let started_at = existing.get_datetime("startedAt").ok().map(|dt| dt.to_chrono());
+    let started_at = existing
+        .get_datetime("startedAt")
+        .ok()
+        .map(|dt| dt.to_chrono());
     let duration_s: Option<i64> = started_at.map(|s| (ended_at - s).num_seconds().max(0));
 
     let mut set_doc = doc! {
@@ -429,8 +429,8 @@ pub async fn fail(
 ) -> Result<Json<SuccessResponse>> {
     let tenant = tenant_oid(&auth)?;
     let _ = load_call_for_tenant(&state.mongo, &call_id, tenant).await?;
-    let oid = oid_from_str(&call_id)
-        .map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
+    let oid =
+        oid_from_str(&call_id).map_err(|_| ApiError::BadRequest("Invalid call id.".to_owned()))?;
 
     let now_bson = bson::DateTime::from_chrono(Utc::now());
     let calls = state.mongo.collection::<Document>(CALLS_COLL);
@@ -477,8 +477,8 @@ pub async fn list(
         filter.insert("status", status);
     }
     if let Some(cursor) = query.cursor.as_deref().filter(|s| !s.is_empty()) {
-        let cursor_oid = oid_from_str(cursor)
-            .map_err(|_| ApiError::BadRequest("Invalid cursor.".to_owned()))?;
+        let cursor_oid =
+            oid_from_str(cursor).map_err(|_| ApiError::BadRequest("Invalid cursor.".to_owned()))?;
         filter.insert("_id", doc! { "$lt": cursor_oid });
     }
 

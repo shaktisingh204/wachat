@@ -106,9 +106,17 @@ pub struct FixedAsset {
     pub condition: AssetCondition,
 
     /* ----- contracts --------------------------------------------- */
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub warranty_until: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub insurance_until: Option<DateTime<Utc>>,
     /// FK into the §12.18 service-contracts collection covering the
     /// asset's annual maintenance contract.

@@ -186,10 +186,7 @@ impl BroadcastContact {
         let id = d
             .get_object_id("_id")
             .map_err(|_| anyhow!("broadcast_contact missing _id"))?;
-        let phone = d
-            .get_str("phone")
-            .map(|s| s.to_owned())
-            .unwrap_or_default();
+        let phone = d.get_str("phone").map(|s| s.to_owned()).unwrap_or_default();
         let name = d.get_str("name").ok().map(|s| s.to_owned());
         let attempts = d
             .get_i32("attempts")
@@ -239,11 +236,7 @@ fn bson_to_json(b: Bson) -> Value {
 }
 
 impl SendJobHandler {
-    async fn run(
-        &self,
-        broadcast_id: ObjectId,
-        contact_ids: Vec<ObjectId>,
-    ) -> Result<Value> {
+    async fn run(&self, broadcast_id: ObjectId, contact_ids: Vec<ObjectId>) -> Result<Value> {
         let broadcasts = self.mongo.collection::<Document>(BROADCASTS_COLL);
         let bcontacts = self.mongo.collection::<Document>(BROADCAST_CONTACTS_COLL);
         let crm_contacts = self.mongo.collection::<Document>(CONTACTS_COLL);
@@ -392,14 +385,8 @@ impl SendJobHandler {
 
         let template_ctx = if broadcast_type != "flow" {
             Some(TemplateContext {
-                template_name: broadcast
-                    .get_str("templateName")
-                    .unwrap_or("")
-                    .to_owned(),
-                language: broadcast
-                    .get_str("language")
-                    .unwrap_or("en_US")
-                    .to_owned(),
+                template_name: broadcast.get_str("templateName").unwrap_or("").to_owned(),
+                language: broadcast.get_str("language").unwrap_or("en_US").to_owned(),
                 components: broadcast
                     .get_array("components")
                     .map(|arr| arr.iter().cloned().map(bson_to_json).collect())
@@ -492,7 +479,10 @@ impl SendJobHandler {
 
         for SendAttempt { contact, result } in attempts {
             match result {
-                SendResult::Ok { wamid, sent_payload } => {
+                SendResult::Ok {
+                    wamid,
+                    sent_payload,
+                } => {
                     success += 1;
                     bulk_ops.push(doc! {
                         "updateOne": {
@@ -515,8 +505,7 @@ impl SendJobHandler {
                     retry_after_ms,
                 } => {
                     let new_attempts = contact.attempts + 1;
-                    if matches!(kind, ErrorKind::Permanent)
-                        || new_attempts >= self.cfg.max_retries
+                    if matches!(kind, ErrorKind::Permanent) || new_attempts >= self.cfg.max_retries
                     {
                         failed += 1;
                         let final_err = if matches!(kind, ErrorKind::Permanent) {
@@ -564,7 +553,8 @@ impl SendJobHandler {
         }
 
         if !success_results.is_empty() {
-            self.sync_successful_sends(&broadcast, &success_results).await;
+            self.sync_successful_sends(&broadcast, &success_results)
+                .await;
         }
 
         if success > 0 || failed > 0 {
@@ -634,10 +624,7 @@ impl SendJobHandler {
             .get_str("broadcastType")
             .unwrap_or("template")
             .to_owned();
-        let template_name = broadcast
-            .get_str("templateName")
-            .unwrap_or("")
-            .to_owned();
+        let template_name = broadcast.get_str("templateName").unwrap_or("").to_owned();
         let flow_name = broadcast.get_str("flowName").unwrap_or("").to_owned();
         let phone_number_id = broadcast.get_str("phoneNumberId").unwrap_or("").to_owned();
 
@@ -667,14 +654,17 @@ impl SendJobHandler {
         let crm = self.mongo.collection::<Document>(CONTACTS_COLL);
         if create_contacts {
             for (phone, c) in &unique_phones {
-                let name = c
-                    .name
-                    .clone()
-                    .unwrap_or_else(|| {
-                        let suffix: String =
-                            phone.chars().rev().take(4).collect::<String>().chars().rev().collect();
-                        format!("User ({suffix})")
-                    });
+                let name = c.name.clone().unwrap_or_else(|| {
+                    let suffix: String = phone
+                        .chars()
+                        .rev()
+                        .take(4)
+                        .collect::<String>()
+                        .chars()
+                        .rev()
+                        .collect();
+                    format!("User ({suffix})")
+                });
                 let opts = FindOneAndUpdateOptions::builder()
                     .upsert(true)
                     .return_document(ReturnDocument::After)
@@ -878,7 +868,11 @@ fn resolve_mps(broadcast: &Document, default: u32) -> u32 {
     let from_project = broadcast
         .get_i32("projectMessagesPerSecond")
         .map(|n| n as u32)
-        .or_else(|_| broadcast.get_i64("projectMessagesPerSecond").map(|n| n as u32))
+        .or_else(|_| {
+            broadcast
+                .get_i64("projectMessagesPerSecond")
+                .map(|n| n as u32)
+        })
         .ok();
     let resolved = from_broadcast
         .filter(|n| *n > 0)
@@ -1006,8 +1000,10 @@ async fn send_one(
         let mut message = String::new();
         if let Some(e) = api_err.and_then(|v| v.as_object()) {
             if let Some(t) = e.get("error_user_title").and_then(Value::as_str) {
-                let m =
-                    e.get("error_user_msg").and_then(Value::as_str).unwrap_or("");
+                let m = e
+                    .get("error_user_msg")
+                    .and_then(Value::as_str)
+                    .unwrap_or("");
                 message.push_str(&format!("{t}: {m}"));
             } else if let Some(m) = e.get("message").and_then(Value::as_str) {
                 message.push_str(m);

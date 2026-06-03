@@ -18,9 +18,17 @@ pub struct CrmCertification {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub issuer: Option<String>,
 
-    #[serde(rename = "employee_id", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "employee_id",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub employee_id: Option<String>,
-    #[serde(rename = "employee_name", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "employee_name",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub employee_name: Option<String>,
     #[serde(
         rename = "certification_number",
@@ -28,9 +36,17 @@ pub struct CrmCertification {
         skip_serializing_if = "Option::is_none"
     )]
     pub certification_number: Option<String>,
-    #[serde(rename = "issue_date", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "issue_date",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub issue_date: Option<BsonDateTime>,
-    #[serde(rename = "expiry_date", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "expiry_date",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry_date: Option<BsonDateTime>,
     #[serde(
         rename = "certificate_url",

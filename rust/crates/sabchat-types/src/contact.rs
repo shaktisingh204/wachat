@@ -61,7 +61,10 @@ pub struct SabChatContact {
     pub tags: Vec<String>,
 
     /// Cross-channel last-seen for visitor-presence and re-engagement.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub last_seen_at: Option<DateTime<Utc>>,
 
     /// Optional foreign key into the CRM `contacts` collection once the

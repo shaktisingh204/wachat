@@ -6,7 +6,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Edit3, MoreHorizontal, Copy, RefreshCw } from 'lucide-react';
 
 import {
   Badge,
@@ -15,6 +15,7 @@ import {
   ZoruCardContent,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruCardDescription,
   Input,
   Label,
   Select,
@@ -23,6 +24,10 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   useZoruToast,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from '@/components/zoruui';
 
 import {
@@ -113,126 +118,148 @@ export function SabcheckoutPlansClient({
     <div className="space-y-6">
       {/* Create row */}
       <Card>
-        <ZoruCardHeader>
+        <ZoruCardHeader className="pb-4 border-b border-zoru-line">
           <ZoruCardTitle>New plan</ZoruCardTitle>
+          <ZoruCardDescription>Create a new recurring subscription tier</ZoruCardDescription>
         </ZoruCardHeader>
-        <ZoruCardContent className="grid gap-3 sm:grid-cols-[1.5fr_120px_100px_140px_120px_100px_auto]">
-          <div className="space-y-1">
-            <Label className="text-xs">Name</Label>
-            <Input
-              value={draft.name}
-              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Interval</Label>
-            <Select
-              value={draft.intervalUnit}
-              onValueChange={(v) =>
-                setDraft({
-                  ...draft,
-                  intervalUnit: v as SabcheckoutPlanIntervalUnit,
-                })
-              }
-            >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="day">day</ZoruSelectItem>
-                <ZoruSelectItem value="week">week</ZoruSelectItem>
-                <ZoruSelectItem value="month">month</ZoruSelectItem>
-                <ZoruSelectItem value="year">year</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Every</Label>
-            <Input
-              type="number"
-              min={1}
-              value={draft.intervalCount}
-              onChange={(e) =>
-                setDraft({ ...draft, intervalCount: Number(e.target.value) })
-              }
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Amount (minor)</Label>
-            <Input
-              type="number"
-              value={draft.amountMinor}
-              onChange={(e) =>
-                setDraft({ ...draft, amountMinor: Number(e.target.value) })
-              }
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Currency</Label>
-            <Input
-              value={draft.currency}
-              onChange={(e) =>
-                setDraft({ ...draft, currency: e.target.value.toUpperCase() })
-              }
-              maxLength={3}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Trial days</Label>
-            <Input
-              type="number"
-              value={draft.trialDays ?? ''}
-              onChange={(e) =>
-                setDraft({
-                  ...draft,
-                  trialDays: e.target.value
-                    ? Number(e.target.value)
-                    : undefined,
-                })
-              }
-            />
-          </div>
-          <div className="flex items-end">
-            <Button onClick={onCreate} disabled={busy}>
-              <Plus className="mr-1 size-4" />
-              Add
+        <ZoruCardContent className="pt-6">
+          <div className="grid gap-4 sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto] items-end">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Name</Label>
+              <Input
+                placeholder="e.g. Pro Monthly"
+                value={draft.name}
+                onChange={(e) => setDraft({ ...draft, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Interval</Label>
+              <Select
+                value={draft.intervalUnit}
+                onValueChange={(v) =>
+                  setDraft({
+                    ...draft,
+                    intervalUnit: v as SabcheckoutPlanIntervalUnit,
+                  })
+                }
+              >
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="day">day</ZoruSelectItem>
+                  <ZoruSelectItem value="week">week</ZoruSelectItem>
+                  <ZoruSelectItem value="month">month</ZoruSelectItem>
+                  <ZoruSelectItem value="year">year</ZoruSelectItem>
+                </ZoruSelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Every</Label>
+              <Input
+                type="number"
+                min={1}
+                value={draft.intervalCount}
+                onChange={(e) =>
+                  setDraft({ ...draft, intervalCount: Number(e.target.value) })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Amount</Label>
+              <Input
+                type="number"
+                placeholder="e.g. 99900"
+                value={draft.amountMinor}
+                onChange={(e) =>
+                  setDraft({ ...draft, amountMinor: Number(e.target.value) })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Cur</Label>
+              <Input
+                value={draft.currency}
+                onChange={(e) =>
+                  setDraft({ ...draft, currency: e.target.value.toUpperCase() })
+                }
+                maxLength={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Trial</Label>
+              <Input
+                type="number"
+                placeholder="Days"
+                value={draft.trialDays ?? ''}
+                onChange={(e) =>
+                  setDraft({
+                    ...draft,
+                    trialDays: e.target.value
+                      ? Number(e.target.value)
+                      : undefined,
+                  })
+                }
+              />
+            </div>
+            <Button onClick={onCreate} disabled={busy} className="h-10">
+              <Plus className="mr-1.5 size-4" />
+              Add Plan
             </Button>
           </div>
         </ZoruCardContent>
       </Card>
 
       {/* List */}
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="bg-zoru-surface border-b border-zoru-line px-6 py-4 flex justify-between items-center">
+          <h3 className="font-semibold text-zoru-ink">Available Plans</h3>
+          <Badge variant="secondary" className="font-mono">{initial.length} total</Badge>
+        </div>
         <ZoruCardContent className="p-0">
           {initial.length === 0 ? (
-            <p className="p-6 text-center text-sm text-[var(--zoru-muted-fg)]">
-              No plans yet.
-            </p>
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+                <RefreshCw className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-zoru-ink">No plans found</p>
+              <p className="text-xs text-zoru-ink-muted mt-1">Add your first subscription plan above.</p>
+            </div>
           ) : (
             <ul className="divide-y divide-[var(--zoru-border)]">
               {initial.map((p) => (
                 <li
                   key={p._id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
+                  className="group flex items-center justify-between gap-4 px-6 py-4 hover:bg-zoru-surface-hover/50 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="truncate text-sm font-medium">
+                    <div className="flex items-center gap-3">
+                      <span className="truncate text-[15px] font-medium text-zoru-ink">
                         {p.name}
                       </span>
                       <Badge
                         variant={p.status === 'active' ? 'default' : 'secondary'}
+                        className="h-5 text-[11px]"
                       >
                         {p.status}
                       </Badge>
                     </div>
-                    <p className="truncate text-xs text-[var(--zoru-muted-fg)]">
-                      {p.currency} {(p.amountMinor / 100).toFixed(2)} every{' '}
-                      {p.intervalCount} {p.intervalUnit}
-                      {p.trialDays ? ` · ${p.trialDays}d trial` : ''}
-                    </p>
+                    <div className="mt-1 flex items-center gap-3 text-sm text-[var(--zoru-muted-fg)]">
+                      <span className="font-semibold text-zoru-ink">
+                        {p.currency} {(p.amountMinor / 100).toFixed(2)}
+                      </span>
+                      <span>
+                        every {p.intervalCount} {p.intervalUnit}
+                      </span>
+                      {p.trialDays && (
+                        <>
+                          <span className="h-1 w-1 rounded-full bg-zoru-ink-subtle"></span>
+                          <span>{p.trialDays} days trial</span>
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex shrink-0 items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     {p.status === 'archived' ? (
                       <Button
                         variant="outline"
@@ -242,14 +269,29 @@ export function SabcheckoutPlansClient({
                         Reactivate
                       </Button>
                     ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onArchive(p._id)}
-                        aria-label="Archive plan"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      <>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Edit3 className="mr-2 h-4 w-4" /> Edit Plan
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Copy className="mr-2 h-4 w-4" /> Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-zoru-danger focus:text-zoru-danger"
+                              onClick={() => onArchive(p._id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Archive
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </>
                     )}
                   </div>
                 </li>

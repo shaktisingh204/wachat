@@ -65,10 +65,7 @@ where
         // (under /post/ to disambiguate from /{comment_id}/replies)
         .route("/post/{post_id}", get(handlers::get_post_comments))
         // getCommentReplies — GET /{comment_id}/replies
-        .route(
-            "/{comment_id}/replies",
-            get(handlers::get_comment_replies),
-        )
+        .route("/{comment_id}/replies", get(handlers::get_comment_replies))
         // getObjectReactions — GET /{object_id}/reactions
         .route(
             "/{object_id}/reactions",

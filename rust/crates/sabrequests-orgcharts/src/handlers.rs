@@ -132,9 +132,7 @@ pub async fn upsert_chart(
         coll_doc
             .update_one(filter.clone(), doc! { "$set": set })
             .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("orgcharts.update"))
-            })?;
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("orgcharts.update")))?;
         let updated = coll
             .find_one(filter)
             .await
@@ -191,9 +189,7 @@ pub async fn update_chart(
         }
         if !per_key.is_empty() {
             // Merge into the existing $set rather than creating a second.
-            let merged_set = update
-                .get_document_mut("$set")
-                .expect("we just built this");
+            let merged_set = update.get_document_mut("$set").expect("we just built this");
             for (k, v) in per_key {
                 merged_set.insert(k, v);
             }
@@ -221,7 +217,9 @@ pub async fn update_chart(
     let doc = typed
         .find_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("orgcharts.find_one(after)")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("orgcharts.find_one(after)"))
+        })?
         .ok_or_else(|| ApiError::NotFound("orgchart".to_owned()))?;
     Ok(Json(doc))
 }

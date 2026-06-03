@@ -120,9 +120,8 @@ fn parse_entity(raw: &str) -> Result<EntityKey> {
 /// builds via `cfg(debug_assertions)`.
 fn resolve_user_id(auth: Option<&AuthUser>, q_user_id: Option<&str>) -> Result<ObjectId> {
     if let Some(user) = auth {
-        return ObjectId::parse_str(&user.user_id).map_err(|_| {
-            ApiError::Unauthorized("subject is not a valid ObjectId".to_owned())
-        });
+        return ObjectId::parse_str(&user.user_id)
+            .map_err(|_| ApiError::Unauthorized("subject is not a valid ObjectId".to_owned()));
     }
 
     // Test-only fallback: only available in debug builds so production
@@ -169,7 +168,12 @@ pub async fn lookup_route(
     let ids: Vec<String> = q
         .ids
         .as_deref()
-        .map(|s| s.split(',').filter(|x| !x.is_empty()).map(str::to_owned).collect())
+        .map(|s| {
+            s.split(',')
+                .filter(|x| !x.is_empty())
+                .map(str::to_owned)
+                .collect()
+        })
         .unwrap_or_default();
 
     let filter = q

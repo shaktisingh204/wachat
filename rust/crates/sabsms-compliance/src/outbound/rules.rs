@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Timelike, Utc};
-use std::sync::Arc;
 use regex::Regex;
+use std::sync::Arc;
 
 use crate::error::{ComplianceError, Result};
 use crate::models::{MessageContext, OptStatus};
@@ -32,7 +32,7 @@ impl ComplianceRule for TenDlcRule {
         if ctx.country_code != "US" && ctx.country_code != "CA" {
             return Ok(());
         }
-        
+
         if self.forbidden_pattern.is_match(&ctx.content) {
             return Err(ComplianceError::TenDlcViolation(
                 "Message contains forbidden SHAFT keywords.".to_string(),
@@ -77,7 +77,7 @@ impl TcpaGdprRule {
     fn is_quiet_hours(&self, timestamp: DateTime<Utc>, country_code: &str) -> bool {
         // Strict TCPA quiet hours: Before 8 AM or after 9 PM.
         let hour = timestamp.hour();
-        
+
         if country_code == "US" {
             // Simplified check based on UTC (assuming EST - 5 hours)
             // 9 PM EST = 2 AM UTC next day
@@ -87,14 +87,15 @@ impl TcpaGdprRule {
                 return true;
             }
         }
-        
+
         false
     }
-    
+
     fn is_eu(&self, country_code: &str) -> bool {
-        let eu = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", 
-                  "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", 
-                  "PL", "PT", "RO", "SK", "SI", "ES", "SE", "GB"];
+        let eu = [
+            "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
+            "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "GB",
+        ];
         eu.contains(&country_code)
     }
 }
@@ -112,7 +113,8 @@ impl ComplianceRule for TcpaGdprRule {
         if ctx.metadata.is_promotional && self.is_eu(&ctx.country_code) {
             if status != OptStatus::OptedIn {
                 return Err(ComplianceError::TcpaGdprViolation(
-                    "Strict GDPR: Explicit opt-in required for promotional messages in EU.".to_string(),
+                    "Strict GDPR: Explicit opt-in required for promotional messages in EU."
+                        .to_string(),
                 ));
             }
         }

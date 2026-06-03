@@ -408,22 +408,15 @@ async fn upsert_contact(
         },
     };
 
-    if let Some(existing) = coll
-        .find_one(filter.clone())
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.find_one"))
-        })?
-    {
+    if let Some(existing) = coll.find_one(filter.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.find_one"))
+    })? {
         let existing_oid = existing
             .get_object_id("_id")
             .map_err(|_| ApiError::Internal(anyhow::anyhow!("contact missing _id")))?;
 
         // Refresh `lastSeenAt`; opportunistically fill `name` if empty.
-        let needs_name_patch = existing
-            .get_str("name")
-            .map(str::is_empty)
-            .unwrap_or(true);
+        let needs_name_patch = existing.get_str("name").map(str::is_empty).unwrap_or(true);
 
         let mut set_doc = doc! {
             "lastSeenAt": now_bson,
@@ -608,7 +601,10 @@ async fn bump_conversation_after_inbound(
     };
     mongo
         .collection::<Document>(CONVERSATIONS_COLL)
-        .update_one(doc! { "_id": conversation_oid, "tenantId": tenant_oid }, update)
+        .update_one(
+            doc! { "_id": conversation_oid, "tenantId": tenant_oid },
+            update,
+        )
         .await
         .map_err(|e| {
             ApiError::Internal(
@@ -734,7 +730,10 @@ mod tests {
 
     #[test]
     fn guess_file_name_basic() {
-        assert_eq!(guess_file_name("https://cdn.example/x/y/file.pdf"), "file.pdf");
+        assert_eq!(
+            guess_file_name("https://cdn.example/x/y/file.pdf"),
+            "file.pdf"
+        );
         assert_eq!(
             guess_file_name("https://cdn.example/x/y/file.pdf?sig=abc"),
             "file.pdf",

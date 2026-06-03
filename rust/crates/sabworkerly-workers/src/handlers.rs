@@ -64,9 +64,15 @@ fn worker_from_create(input: CreateWorkerInput, user_id: ObjectId) -> Result<Sab
 
 fn build_update_doc(patch: UpdateWorkerInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name { set.insert("name", v); }
-    if let Some(v) = patch.email { set.insert("email", v); }
-    if let Some(v) = patch.phone { set.insert("phone", v); }
+    if let Some(v) = patch.name {
+        set.insert("name", v);
+    }
+    if let Some(v) = patch.email {
+        set.insert("email", v);
+    }
+    if let Some(v) = patch.phone {
+        set.insert("phone", v);
+    }
     if let Some(v) = patch.skills {
         let arr: Vec<Bson> = v.into_iter().map(Bson::String).collect();
         set.insert("skills", arr);
@@ -75,9 +81,15 @@ fn build_update_doc(patch: UpdateWorkerInput) -> Result<Document> {
         let b = to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         set.insert("availabilityJson", b);
     }
-    if let Some(v) = patch.status { set.insert("status", v); }
-    if let Some(v) = patch.hourly_rate_minor { set.insert("hourlyRateMinor", v); }
-    if let Some(v) = patch.currency { set.insert("currency", v); }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.hourly_rate_minor {
+        set.insert("hourlyRateMinor", v);
+    }
+    if let Some(v) = patch.currency {
+        set.insert("currency", v);
+    }
     if let Some(v) = patch.address_json {
         let b = to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         set.insert("addressJson", b);
@@ -112,12 +124,19 @@ pub async fn list_workers(
         .build();
 
     let coll = mongo.collection::<SabworkerlyWorker>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let mut rows: Vec<SabworkerlyWorker> = cursor.try_collect().await
+    let mut rows: Vec<SabworkerlyWorker> = cursor
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
+    if has_more {
+        rows.truncate(limit as usize);
+    }
     Ok(Json(ListResponse {
         items: rows,
         page: q.page.unwrap_or(0),
@@ -144,7 +163,9 @@ pub async fn get_worker(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyWorker>(COLL);
-    let row = coll.find_one(ownership_filter(user_id, oid)).await
+    let row = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("worker".to_owned()))?;
     Ok(Json(row))
@@ -165,12 +186,19 @@ pub async fn create_worker(
     }
     let mut worker = worker_from_create(input, user_id)?;
     let coll = mongo.collection::<SabworkerlyWorker>(COLL);
-    let inserted = coll.insert_one(&worker).await
+    let inserted = coll
+        .insert_one(&worker)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let new_id = inserted.inserted_id.as_object_id()
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     worker.id = Some(new_id);
-    Ok(Json(CreateWorkerResponse { id: new_id.to_hex(), entity: worker }))
+    Ok(Json(CreateWorkerResponse {
+        id: new_id.to_hex(),
+        entity: worker,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
@@ -184,12 +212,16 @@ pub async fn update_worker(
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyWorker>(COLL);
     let update = build_update_doc(patch)?;
-    let result = coll.update_one(ownership_filter(user_id, oid), update).await
+    let result = coll
+        .update_one(ownership_filter(user_id, oid), update)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("worker".to_owned()));
     }
-    let after = coll.find_one(ownership_filter(user_id, oid)).await
+    let after = coll
+        .find_one(ownership_filter(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("worker".to_owned()))?;
     Ok(Json(after))

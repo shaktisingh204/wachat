@@ -60,10 +60,7 @@ where
             "/subscribers/{subscriber_id}/status",
             post(handlers::update_subscriber_status),
         )
-        .route(
-            "/projects/{project_id}/kanban",
-            get(handlers::get_kanban),
-        )
+        .route("/projects/{project_id}/kanban", get(handlers::get_kanban))
         .route(
             "/projects/{project_id}/kanban/statuses",
             post(handlers::save_kanban_statuses),
@@ -84,13 +81,11 @@ where
         )
         .route(
             "/projects/{project_id}/labels/{label_id}/users",
-            post(handlers::assign_label_to_user)
-                .delete(handlers::remove_label_from_user),
+            post(handlers::assign_label_to_user).delete(handlers::remove_label_from_user),
         )
         // Profile block / unblock
         .route(
             "/projects/{project_id}/blocked",
-            post(handlers::block_profile)
-                .delete(handlers::unblock_profile),
+            post(handlers::block_profile).delete(handlers::unblock_profile),
         )
 }

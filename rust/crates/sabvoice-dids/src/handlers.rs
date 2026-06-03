@@ -90,9 +90,14 @@ fn did_from_create(input: CreateDidInput, user_id: ObjectId) -> Result<VoiceDid>
         user_id,
         number: input.number.trim().to_owned(),
         country: input.country.trim().to_lowercase(),
-        capabilities: input.capabilities.unwrap_or_else(|| vec!["voice".to_owned()]),
+        capabilities: input
+            .capabilities
+            .unwrap_or_else(|| vec!["voice".to_owned()]),
         status,
-        label: input.label.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        label: input
+            .label
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         provider: input.provider.trim().to_owned(),
         provider_ref: input.provider_ref,
         monthly_cost: input.monthly_cost,
@@ -132,7 +137,11 @@ fn build_update_doc(patch: UpdateDidInput) -> Result<Document> {
     if let Some(v) = patch.currency {
         set.insert("currency", v);
     }
-    if let Some(v) = patch.route_to_ivr_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .route_to_ivr_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("routeToIvrId", v);
     }
     if let Some(v) = patch
@@ -192,12 +201,15 @@ pub async fn list_dids(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<VoiceDid>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvoice_dids.find"))
-    })?;
-    let mut rows: Vec<VoiceDid> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvoice_dids.collect"))
-    })?;
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvoice_dids.find")))?;
+    let mut rows: Vec<VoiceDid> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvoice_dids.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -256,8 +268,7 @@ pub async fn create_did(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

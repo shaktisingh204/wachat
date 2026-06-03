@@ -43,12 +43,13 @@ fn list_filter(
     date_to: Option<&str>,
 ) -> Document {
     let mut filter = doc! { "userId": user_id };
-    if let Some(s) = status.map(str::trim).filter(|s| !s.is_empty() && *s != "all") {
+    if let Some(s) = status
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "all")
+    {
         filter.insert("status", s);
     }
-    if let Some(wid) = warehouse_id
-        .and_then(|s| ObjectId::parse_str(s).ok())
-    {
+    if let Some(wid) = warehouse_id.and_then(|s| ObjectId::parse_str(s).ok()) {
         filter.insert("warehouseId", wid);
     }
     if let Some(pid) = product_id.and_then(|s| ObjectId::parse_str(s).ok()) {
@@ -149,10 +150,18 @@ fn build_update_doc(patch: UpdateStockAdjustmentInput) -> Document {
     if let Some(v) = patch.reference_number {
         set.insert("referenceNumber", v);
     }
-    if let Some(v) = patch.warehouse_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .warehouse_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("warehouseId", v);
     }
-    if let Some(v) = patch.product_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .product_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("productId", v);
     }
     if let Some(v) = patch.quantity {
@@ -279,8 +288,7 @@ pub async fn create_adjustment(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

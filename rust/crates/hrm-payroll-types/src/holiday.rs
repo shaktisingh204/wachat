@@ -109,7 +109,10 @@ mod tests {
         );
 
         // camelCase + array field appear at root.
-        assert_eq!(json.get("name").and_then(|v| v.as_str()), Some("Maharashtra Day"));
+        assert_eq!(
+            json.get("name").and_then(|v| v.as_str()),
+            Some("Maharashtra Day")
+        );
         assert!(json.get("applicableLocations").is_some());
         assert_eq!(json.get("recurring").and_then(|v| v.as_bool()), Some(true));
 

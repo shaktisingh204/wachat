@@ -20,8 +20,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateSurveyInput, CreateSurveyResponse, DeleteSurveyResponse, ListQuery,
-    SurveyQuestionInput, UpdateSurveyInput,
+    CreateSurveyInput, CreateSurveyResponse, DeleteSurveyResponse, ListQuery, SurveyQuestionInput,
+    UpdateSurveyInput,
 };
 use crate::types::{CrmSurvey, CrmSurveyQuestion};
 
@@ -166,7 +166,12 @@ pub async fn list_surveys(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, q.status.as_deref());
-    if let Some(t) = q.survey_type.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(t) = q
+        .survey_type
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("type", t);
     }
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
@@ -191,9 +196,10 @@ pub async fn list_surveys(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_surveys.find")))?;
-    let mut rows: Vec<CrmSurvey> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_surveys.collect"))
-    })?;
+    let mut rows: Vec<CrmSurvey> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_surveys.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -243,8 +249,7 @@ pub async fn create_survey(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

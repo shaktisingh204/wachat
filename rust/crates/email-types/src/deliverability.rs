@@ -4,7 +4,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum EmailWarmupStatus { Pending, Running, Paused, Completed }
+pub enum EmailWarmupStatus {
+    Pending,
+    Running,
+    Paused,
+    Completed,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -89,7 +94,11 @@ pub struct EmailDmarcRecord {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-pub enum EmailDmarcPolicy { None, Quarantine, Reject }
+pub enum EmailDmarcPolicy {
+    None,
+    Quarantine,
+    Reject,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

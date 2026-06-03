@@ -65,14 +65,14 @@ pub async fn list_qna(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<QnaItem>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.find"))
+        })?;
+    let mut rows: Vec<QnaItem> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.find")))?;
-    let mut rows: Vec<QnaItem> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -101,9 +101,10 @@ pub async fn list_qna_public(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.public")))?;
-    let rows: Vec<QnaItem> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.collect"))
-    })?;
+    let rows: Vec<QnaItem> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.collect")))?;
     Ok(Json(ListResponse {
         items: rows,
         page: 0,
@@ -191,9 +192,7 @@ pub async fn answer_question(
     let after = coll
         .find_one(doc! { "_id": oid, "userId": user_id })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_qna.refetch")))?
         .ok_or_else(|| ApiError::NotFound("qna item".to_owned()))?;
     Ok(Json(after))
 }

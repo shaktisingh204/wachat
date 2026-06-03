@@ -1,10 +1,4 @@
-//! SabVault breach-alert cache handlers.
-//!
-//! The actual breach lookup (HIBP / pwnedpasswords) is performed CLIENT-SIDE
-//! using k-anonymity so the cleartext credential never leaves the browser.
-//! This crate just records the resulting `{ clean | breached | unknown }`
-//! verdict per secret, and propagates `breached: bool` onto the parent
-//! `sabvault_secrets` row so the health dashboard can filter cheaply.
+//! HTTP handlers for SabCheckout SabvaultBreachAlerts.
 
 use axum::{
     Json,
@@ -13,8 +7,8 @@ use axum::{
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_common::{
-    audit::{audit_for_create, write_audit},
     pagination::{clamp_limit, skip_for},
+    search::build_q_filter,
     tenant::user_oid,
 };
 use futures::TryStreamExt;
@@ -24,74 +18,128 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{ListQuery, ListResponse, UpsertBreachInput, UpsertBreachResponse};
-use crate::types::{BreachStatus, SabvaultBreachAlert};
+use crate::dto::{
+    CreateSabvaultBreachAlertInput, CreateSabvaultBreachAlertResponse,
+    DeleteSabvaultBreachAlertResponse, ListQuery, UpdateSabvaultBreachAlertInput,
+};
+use crate::types::SabvaultBreachAlert;
 
-pub const BREACH_COLL: &str = "sabvault_breach_alerts";
-const SECRETS_COLL: &str = "sabvault_secrets";
-const ENTITY_KIND: &str = "sabvault_breach_alert";
+const COLL: &str = "sabvault_breach_alerts";
 
-fn status_str(s: &BreachStatus) -> &'static str {
-    match s {
-        BreachStatus::Clean => "clean",
-        BreachStatus::Breached => "breached",
-        BreachStatus::Unknown => "unknown",
+fn list_filter(user_id: ObjectId, status: Option<&str>) -> Document {
+    let mut filter = doc! { "userId": user_id };
+    match status {
+        Some("all") | None => {}
+        Some(s) => {
+            filter.insert("status", s);
+        }
     }
+    filter
 }
 
-async fn assert_secret_owner(
-    mongo: &MongoHandle,
+fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
+    doc! { "_id": oid, "userId": user_id }
+}
+
+fn alert_from_create(
+    input: CreateSabvaultBreachAlertInput,
     user_id: ObjectId,
-    secret_oid: ObjectId,
-) -> Result<()> {
-    let coll = mongo.collection::<Document>(SECRETS_COLL);
-    let found = coll
-        .find_one(doc! { "_id": secret_oid, "userId": user_id })
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("breach.owner_check"))
-        })?;
-    if found.is_none() {
-        return Err(ApiError::Forbidden(
-            "only the secret owner may record a breach result".to_owned(),
+) -> Result<SabvaultBreachAlert> {
+    if input.name.trim().is_empty() {
+        return Err(ApiError::Validation("name is required".to_owned()));
+    }
+    if input.amount_minor <= 0 {
+        return Err(ApiError::Validation("amountMinor must be > 0".to_owned()));
+    }
+    let interval_unit = input.interval_unit.trim().to_lowercase();
+    if !matches!(interval_unit.as_str(), "day" | "week" | "month" | "year") {
+        return Err(ApiError::Validation(
+            "intervalUnit must be one of day|week|month|year".to_owned(),
         ));
     }
-    Ok(())
+    Ok(SabvaultBreachAlert {
+        id: None,
+        user_id,
+        name: input.name.trim().to_owned(),
+        interval_unit,
+        interval_count: input.interval_count.unwrap_or(1).max(1),
+        amount_minor: input.amount_minor,
+        currency: input.currency.unwrap_or_else(|| "INR".to_owned()),
+        trial_days: input.trial_days,
+        setup_fee_minor: input.setup_fee_minor,
+        description: input.description,
+        status: input.status.unwrap_or_else(|| "draft".to_owned()),
+        created_at: BsonDateTime::from_chrono(Utc::now()),
+        updated_at: None,
+    })
+}
+
+fn build_update_doc(patch: UpdateSabvaultBreachAlertInput) -> Document {
+    let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
+    if let Some(v) = patch.name {
+        set.insert("name", v);
+    }
+    if let Some(v) = patch.interval_unit {
+        set.insert("intervalUnit", v.to_lowercase());
+    }
+    if let Some(v) = patch.interval_count {
+        set.insert("intervalCount", v.max(1));
+    }
+    if let Some(v) = patch.amount_minor {
+        set.insert("amountMinor", v);
+    }
+    if let Some(v) = patch.currency {
+        set.insert("currency", v);
+    }
+    if let Some(v) = patch.trial_days {
+        set.insert("trialDays", v);
+    }
+    if let Some(v) = patch.setup_fee_minor {
+        set.insert("setupFeeMinor", v);
+    }
+    if let Some(v) = patch.description {
+        set.insert("description", v);
+    }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    doc! { "$set": set }
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ListResponse {
+    pub items: Vec<SabvaultBreachAlert>,
+    pub page: u32,
+    pub limit: u32,
+    pub has_more: bool,
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
-pub async fn list_breaches(
+pub async fn list_alerts(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
-    let mut filter = doc! { "userId": user_id };
-    if let Some(s) = q.secret_id.as_deref().filter(|s| !s.is_empty()) {
-        if let Ok(oid) = ObjectId::parse_str(s) {
-            filter.insert("secretId", oid);
+    let mut filter = list_filter(user_id, q.status.as_deref());
+    if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        let or = build_q_filter(needle, &["name", "description"]);
+        if let Ok(arr) = or.get_array("$or") {
+            filter.insert("$or", arr.clone());
         }
     }
-    if let Some(s) = q.status {
-        filter.insert("status", status_str(&s));
-    }
-
     let limit = clamp_limit(q.limit);
     let skip = skip_for(q.page, limit);
     let opts = FindOptions::builder()
-        .sort(doc! { "lastCheckedAt": -1 })
+        .sort(doc! { "createdAt": -1 })
         .skip(skip)
         .limit(limit + 1)
         .build();
-
-    let coll = mongo.collection::<SabvaultBreachAlert>(BREACH_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.find"))
-        })?;
+    let coll = mongo.collection::<SabvaultBreachAlert>(COLL);
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.find"))
+    })?;
     let mut rows: Vec<SabvaultBreachAlert> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.collect"))
     })?;
@@ -107,115 +155,102 @@ pub async fn list_breaches(
     }))
 }
 
-#[instrument(skip_all, fields(user_id = %user.user_id))]
-pub async fn get_breach_for_secret(
+#[instrument(skip_all, fields(user_id = %user.user_id, alert_id = %alert_id))]
+pub async fn get_alert(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
-    Path(secret_id): Path<String>,
+    Path(alert_id): Path<String>,
 ) -> Result<Json<SabvaultBreachAlert>> {
     let user_id = user_oid(&user)?;
-    let oid = oid_from_str(&secret_id)?;
-    let coll = mongo.collection::<SabvaultBreachAlert>(BREACH_COLL);
+    let oid = oid_from_str(&alert_id)?;
+    let coll = mongo.collection::<SabvaultBreachAlert>(COLL);
     let row = coll
-        .find_one(doc! { "userId": user_id, "secretId": oid })
+        .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.find_one"))
         })?
-        .ok_or_else(|| ApiError::NotFound("sabvault_breach_alert".to_owned()))?;
+        .ok_or_else(|| ApiError::NotFound("sabvault_alert".to_owned()))?;
     Ok(Json(row))
 }
 
-/// Upsert — one row per `(userId, secretId)`. Also propagates `breached`
-/// onto the parent secret for cheap health-dashboard filtering.
 #[instrument(skip_all, fields(user_id = %user.user_id))]
-pub async fn upsert_breach(
+pub async fn create_alert(
     user: AuthUser,
     State(mongo): State<MongoHandle>,
-    Json(input): Json<UpsertBreachInput>,
-) -> Result<Json<UpsertBreachResponse>> {
+    Json(input): Json<CreateSabvaultBreachAlertInput>,
+) -> Result<Json<CreateSabvaultBreachAlertResponse>> {
     let user_id = user_oid(&user)?;
-    let secret_oid = oid_from_str(&input.secret_id)?;
-    assert_secret_owner(&mongo, user_id, secret_oid).await?;
-
-    let now = BsonDateTime::from_chrono(Utc::now());
-    let status_s = status_str(&input.status);
-
-    let mut set = doc! {
-        "userId": user_id,
-        "secretId": secret_oid,
-        "status": status_s,
-        "lastCheckedAt": now,
-    };
-    if let Some(v) = input.source.clone() {
-        set.insert("source", v);
-    }
-    if let Some(v) = input.breach_source_url.clone() {
-        set.insert("breachSourceUrl", v);
-    }
-    if let Some(v) = input.breach_count {
-        set.insert("breachCount", v as i64);
-    }
-    if let Some(v) = input.note.clone() {
-        set.insert("note", v);
-    }
-
-    let coll = mongo.collection::<Document>(BREACH_COLL);
-    use mongodb::options::UpdateOptions;
-    let update_opts = UpdateOptions::builder().upsert(true).build();
-    coll.update_one(
-        doc! { "userId": user_id, "secretId": secret_oid },
-        doc! { "$set": set },
-    )
-    .with_options(update_opts)
-    .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.upsert"))
+    let mut entity = alert_from_create(input, user_id)?;
+    let coll = mongo.collection::<SabvaultBreachAlert>(COLL);
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.insert"))
     })?;
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
+        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
+    entity.id = Some(new_id);
+    Ok(Json(CreateSabvaultBreachAlertResponse {
+        id: new_id.to_hex(),
+        entity,
+    }))
+}
 
-    // Propagate to parent secret.
-    let secrets = mongo.collection::<Document>(SECRETS_COLL);
-    secrets
-        .update_one(
-            doc! { "_id": secret_oid, "userId": user_id },
-            doc! { "$set": {
-                "breached": matches!(input.status, BreachStatus::Breached),
-                "updatedAt": now,
-            }},
-        )
+#[instrument(skip_all, fields(user_id = %user.user_id, alert_id = %alert_id))]
+pub async fn update_alert(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(alert_id): Path<String>,
+    Json(patch): Json<UpdateSabvaultBreachAlertInput>,
+) -> Result<Json<SabvaultBreachAlert>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&alert_id)?;
+    let coll = mongo.collection::<SabvaultBreachAlert>(COLL);
+    let update = build_update_doc(patch);
+    let result = coll
+        .update_one(ownership_filter(user_id, oid), update)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabvault_breach_alerts.propagate"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.update"))
         })?;
-
-    // Re-read for response.
-    let typed = mongo.collection::<SabvaultBreachAlert>(BREACH_COLL);
-    let row = typed
-        .find_one(doc! { "userId": user_id, "secretId": secret_oid })
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("sabvault_alert".to_owned()));
+    }
+    let after = coll
+        .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.refetch"))
         })?
-        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("upsert vanished")))?;
+        .ok_or_else(|| ApiError::NotFound("sabvault_alert".to_owned()))?;
+    Ok(Json(after))
+}
 
-    let id = row
-        .id
-        .as_ref()
-        .map(|o| o.to_hex())
-        .unwrap_or_default();
-
-    if let Some(event) = audit_for_create(
-        &user,
-        ENTITY_KIND,
-        row.id.unwrap_or_else(ObjectId::new),
-        Some(bson::to_document(&row).unwrap_or_default()),
-    ) {
-        write_audit(&mongo, event).await;
-    }
-
-    Ok(Json(UpsertBreachResponse { id, entity: row }))
+#[instrument(skip_all, fields(user_id = %user.user_id, alert_id = %alert_id))]
+pub async fn delete_alert(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(alert_id): Path<String>,
+) -> Result<Json<DeleteSabvaultBreachAlertResponse>> {
+    let user_id = user_oid(&user)?;
+    let oid = oid_from_str(&alert_id)?;
+    let coll = mongo.collection::<SabvaultBreachAlert>(COLL);
+    let result = coll
+        .update_one(
+            ownership_filter(user_id, oid),
+            doc! { "$set": {
+                "status": "archived",
+                "updatedAt": BsonDateTime::from_chrono(Utc::now()),
+            }},
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvault_breach_alerts.archive"))
+        })?;
+    Ok(Json(DeleteSabvaultBreachAlertResponse {
+        deleted: result.matched_count > 0,
+    }))
 }
 
 #[cfg(test)]
@@ -223,9 +258,28 @@ mod tests {
     use super::*;
 
     #[test]
-    fn status_strs() {
-        assert_eq!(status_str(&BreachStatus::Clean), "clean");
-        assert_eq!(status_str(&BreachStatus::Breached), "breached");
-        assert_eq!(status_str(&BreachStatus::Unknown), "unknown");
+    fn create_rejects_bad_interval() {
+        let input = CreateSabvaultBreachAlertInput {
+            name: "Pro".into(),
+            interval_unit: "decade".into(),
+            amount_minor: 1000,
+            ..Default::default()
+        };
+        assert!(alert_from_create(input, ObjectId::new()).is_err());
+    }
+
+    #[test]
+    fn create_defaults_count_and_status() {
+        let input = CreateSabvaultBreachAlertInput {
+            name: "Pro".into(),
+            interval_unit: "MONTH".into(),
+            amount_minor: 1999_00,
+            ..Default::default()
+        };
+        let p = alert_from_create(input, ObjectId::new()).unwrap();
+        assert_eq!(p.interval_unit, "month");
+        assert_eq!(p.interval_count, 1);
+        assert_eq!(p.status, "draft");
+        assert_eq!(p.currency, "INR");
     }
 }

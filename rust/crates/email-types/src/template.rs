@@ -7,8 +7,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailBuilderBlockType {
-    Text, Image, Button, Columns, Divider,
-    Spacer, Social, Video, Footer, Html, Amp,
+    Text,
+    Image,
+    Button,
+    Columns,
+    Divider,
+    Spacer,
+    Social,
+    Video,
+    Footer,
+    Html,
+    Amp,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,7 +84,9 @@ pub struct EmailTemplate {
     pub updated_at: DateTime<Utc>,
 }
 
-fn default_version() -> u32 { 1 }
+fn default_version() -> u32 {
+    1
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

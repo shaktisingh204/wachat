@@ -103,7 +103,10 @@ fn task_from_create(input: CreateTaskInput, user_id: ObjectId) -> Result<CrmTask
         assigned_to: Some(assigned),
         created_by: Some(user_id),
         linked_kind: input.linked_kind,
-        linked_id: input.linked_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        linked_id: input
+            .linked_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
     })
@@ -153,7 +156,11 @@ fn build_update_doc(patch: UpdateTaskInput) -> Document {
     if let Some(v) = patch.linked_kind {
         set.insert("linkedKind", v);
     }
-    if let Some(v) = patch.linked_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .linked_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("linkedId", v);
     }
     doc! { "$set": set }
@@ -257,8 +264,7 @@ pub async fn create_task(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

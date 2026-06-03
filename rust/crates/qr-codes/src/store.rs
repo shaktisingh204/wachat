@@ -132,8 +132,7 @@ fn generate_short_code() -> String {
     // pulling in an extra crate. Bytes from successive `ObjectId::new()` give
     // us OS-RNG-quality randomness without an external `rand` dep — same
     // technique used by `wachat-features::misc::api_keys`.
-    let alphabet =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+    let alphabet = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
     let mut out = String::with_capacity(7);
     while out.len() < 7 {
         let oid = ObjectId::new();
@@ -213,15 +212,23 @@ pub async fn create(
     }
     if let Some(style) = &body.style {
         let mut style_doc = Document::new();
-        if let Some(v) = &style.dot_type { style_doc.insert("dotType", v.as_str()); }
-        if let Some(v) = &style.corner_square_type { style_doc.insert("cornerSquareType", v.as_str()); }
-        if let Some(v) = &style.corner_dot_type { style_doc.insert("cornerDotType", v.as_str()); }
+        if let Some(v) = &style.dot_type {
+            style_doc.insert("dotType", v.as_str());
+        }
+        if let Some(v) = &style.corner_square_type {
+            style_doc.insert("cornerSquareType", v.as_str());
+        }
+        if let Some(v) = &style.corner_dot_type {
+            style_doc.insert("cornerDotType", v.as_str());
+        }
         if let Some(grad) = &style.gradient {
             let mut g = Document::new();
             g.insert("type", grad.r#type.as_str());
             g.insert("colorStart", grad.color_start.as_str());
             g.insert("colorEnd", grad.color_end.as_str());
-            if let Some(rot) = grad.rotation { g.insert("rotation", rot); }
+            if let Some(rot) = grad.rotation {
+                g.insert("rotation", rot);
+            }
             style_doc.insert("gradient", g);
         }
         qr_doc.insert("style", style_doc);
@@ -231,8 +238,12 @@ pub async fn create(
             "template": frame.template.as_str(),
             "text": frame.text.as_str(),
         };
-        if let Some(v) = &frame.text_color { frame_doc.insert("textColor", v.as_str()); }
-        if let Some(v) = &frame.bg_color { frame_doc.insert("bgColor", v.as_str()); }
+        if let Some(v) = &frame.text_color {
+            frame_doc.insert("textColor", v.as_str());
+        }
+        if let Some(v) = &frame.bg_color {
+            frame_doc.insert("bgColor", v.as_str());
+        }
         qr_doc.insert("frame", frame_doc);
     }
     if let Some(logo) = &body.logo_data_uri {
@@ -416,11 +427,7 @@ pub async fn delete_one(
 }
 
 /// Fetch a single QR code by id (user-scoped).
-pub async fn get_one(
-    mongo: &MongoHandle,
-    user_oid: ObjectId,
-    id: &str,
-) -> Result<Option<Value>> {
+pub async fn get_one(mongo: &MongoHandle, user_oid: ObjectId, id: &str) -> Result<Option<Value>> {
     let oid = match ObjectId::parse_str(id) {
         Ok(o) => o,
         Err(_) => return Ok(None),
@@ -468,11 +475,7 @@ pub async fn update(
 }
 
 /// Retrieve scan stats for a QR code by looking up its linked short URL.
-pub async fn get_scan_stats(
-    mongo: &MongoHandle,
-    user_oid: ObjectId,
-    qr_id: &str,
-) -> Result<Value> {
+pub async fn get_scan_stats(mongo: &MongoHandle, user_oid: ObjectId, qr_id: &str) -> Result<Value> {
     let oid = match ObjectId::parse_str(qr_id) {
         Ok(o) => o,
         Err(_) => return Err(ApiError::BadRequest("Invalid QR code ID.".to_owned())),

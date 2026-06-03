@@ -192,7 +192,11 @@ pub struct TestSamlResponseResult {
 pub struct ScimName {
     #[serde(rename = "givenName", default, skip_serializing_if = "Option::is_none")]
     pub given_name: Option<String>,
-    #[serde(rename = "familyName", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "familyName",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub family_name: Option<String>,
     #[serde(rename = "formatted", default, skip_serializing_if = "Option::is_none")]
     pub formatted: Option<String>,

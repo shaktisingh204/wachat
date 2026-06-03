@@ -5,13 +5,23 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailCampaignType {
-    Regular, Ab, Rss, Plain, Transactional,
+    Regular,
+    Ab,
+    Rss,
+    Plain,
+    Transactional,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailCampaignStatus {
-    Draft, Scheduled, Sending, Sent, Paused, Cancelled, Failed,
+    Draft,
+    Scheduled,
+    Sending,
+    Sent,
+    Paused,
+    Cancelled,
+    Failed,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,7 +56,7 @@ pub struct EmailVariantMetrics {
 #[serde(rename_all = "camelCase")]
 pub struct EmailCampaignAbConfig {
     pub test_what: AbTestField,
-    pub sample_size: u8,            // %
+    pub sample_size: u8, // %
     pub winner_metric: AbWinnerMetric,
     pub winner_after_hours: u32,
     #[serde(default)]
@@ -55,11 +65,19 @@ pub struct EmailCampaignAbConfig {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum AbTestField { Subject, From, Content, SendTime }
+pub enum AbTestField {
+    Subject,
+    From,
+    Content,
+    SendTime,
+}
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum AbWinnerMetric { OpenRate, ClickRate }
+pub enum AbWinnerMetric {
+    OpenRate,
+    ClickRate,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -102,4 +120,6 @@ pub struct EmailCampaign {
     pub updated_at: DateTime<Utc>,
 }
 
-fn default_true() -> bool { true }
+fn default_true() -> bool {
+    true
+}

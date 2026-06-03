@@ -1,8 +1,6 @@
-import { Button, Card } from '@/components/zoruui';
-import {
-  notFound,
-  redirect } from 'next/navigation';
-import { Pencil } from 'lucide-react';
+import { Button, Card } from "@/components/zoruui";
+import { notFound, redirect } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 /**
  * SLA policy detail page.
@@ -12,32 +10,32 @@ import { Pencil } from 'lucide-react';
  * notes.
  */
 
-import Link from 'next/link';
+import Link from "next/link";
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
-import { getSession } from '@/app/actions/user.actions';
-import { getSlaById } from '@/app/actions/crm-sla.actions';
-import type { CrmSlaStatus } from '@/lib/rust-client/crm-slas';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { StatusPill, type StatusTone } from "@/components/crm/status-pill";
+import { getSession } from "@/app/actions/user.actions";
+import { getSlaById } from "@/app/actions/crm-sla.actions";
+import type { CrmSlaStatus } from "@/lib/rust-client/crm-slas";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const BASE = '/dashboard/sabdesk/sla';
+const BASE = "/dashboard/sabdesk/sla";
 
 const STATUS_TONE: Record<CrmSlaStatus, StatusTone> = {
-  active: 'green',
-  archived: 'neutral',
+  active: "green",
+  archived: "neutral",
 };
 
 const PRIORITY_TONE: Record<string, StatusTone> = {
-  low: 'neutral',
-  medium: 'blue',
-  high: 'amber',
-  urgent: 'red',
+  low: "neutral",
+  medium: "blue",
+  high: "amber",
+  urgent: "red",
 };
 
 function fmtMins(mins: number | undefined): string {
-  if (mins == null) return '—';
+  if (mins == null) return "—";
   if (mins < 60) return `${mins} min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
@@ -52,21 +50,21 @@ export default async function SlaDetailPage({
   const { id } = await params;
 
   const session = await getSession();
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const sla = await getSlaById(id);
   if (!sla) notFound();
 
-  const status = (sla.status ?? 'active') as CrmSlaStatus;
-  const tone = STATUS_TONE[status] ?? 'neutral';
-  const priority = String(sla.priority ?? 'medium');
-  const priorityTone = PRIORITY_TONE[priority] ?? 'neutral';
+  const status = (sla.status ?? "active") as CrmSlaStatus;
+  const tone = STATUS_TONE[status] ?? "neutral";
+  const priority = String(sla.priority ?? "medium");
+  const priorityTone = PRIORITY_TONE[priority] ?? "neutral";
 
   return (
     <EntityDetailShell
       eyebrow="SLA POLICY"
       title={sla.name}
-      back={{ href: BASE, label: 'SLA Policies' }}
+      back={{ href: BASE, label: "SLA Policies" }}
       actions={
         <Button asChild>
           <Link href={`${BASE}/${id}/edit`}>
@@ -76,7 +74,6 @@ export default async function SlaDetailPage({
         </Button>
       }
     >
-
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
@@ -99,7 +96,7 @@ export default async function SlaDetailPage({
           <div>
             <div className="text-zoru-ink-muted">Business hours only</div>
             <div className="text-zoru-ink">
-              {sla.businessHoursOnly ? 'Yes' : 'No'}
+              {sla.businessHoursOnly ? "Yes" : "No"}
             </div>
           </div>
         </div>
@@ -120,7 +117,7 @@ export default async function SlaDetailPage({
             <div>
               <div className="text-zoru-ink-muted">Escalate to</div>
               <div className="font-mono text-zoru-ink">
-                {sla.escalateTo || '—'}
+                {sla.escalateTo || "—"}
               </div>
             </div>
           </div>
@@ -129,7 +126,9 @@ export default async function SlaDetailPage({
 
       {sla.description || sla.notes ? (
         <Card className="p-6">
-          <div className="mb-3 text-[15px] font-medium text-zoru-ink">Notes</div>
+          <div className="mb-3 text-[15px] font-medium text-zoru-ink">
+            Notes
+          </div>
           {sla.description ? (
             <div className="mb-4 space-y-1">
               <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">

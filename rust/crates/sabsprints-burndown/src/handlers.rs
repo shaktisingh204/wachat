@@ -43,12 +43,14 @@ pub async fn list_burndown(
     let filter = doc! { "userId": user_id, "sprintId": sprint_id };
     let opts = FindOptions::builder().sort(doc! { "day": 1 }).build();
     let coll = mongo.collection::<AgileBurndownSample>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.find"))
-    })?;
-    let rows: Vec<AgileBurndownSample> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.find"))
+        })?;
+    let rows: Vec<AgileBurndownSample> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.collect")))?;
     Ok(Json(ListResponse { items: rows }))
 }
 
@@ -91,9 +93,7 @@ pub async fn record_sample(
         .update_one(filter, update)
         .upsert(true)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.upsert"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agile_burndown.upsert")))?;
     let new_id = result
         .upserted_id
         .and_then(|b| b.as_object_id())

@@ -217,10 +217,7 @@ pub async fn list(
         // Mongo doesn't accept special-regex characters; we escape the common
         // ones so a user pasting `foo.bar` doesn't blow up the query.
         let escaped = regex_escape(search);
-        filter.insert(
-            "name",
-            doc! { "$regex": escaped, "$options": "i" },
-        );
+        filter.insert("name", doc! { "$regex": escaped, "$options": "i" });
     }
 
     let coll = s.mongo.collection::<Document>(FLOWS);
@@ -251,7 +248,9 @@ pub async fn list(
 }
 
 fn regex_escape(s: &str) -> String {
-    let specials = ['.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|', '\\', '^', '$'];
+    let specials = [
+        '.', '*', '+', '?', '(', ')', '[', ']', '{', '}', '|', '\\', '^', '$',
+    ];
     let mut out = String::with_capacity(s.len() + 4);
     for ch in s.chars() {
         if specials.contains(&ch) {
@@ -395,7 +394,10 @@ pub async fn update(
     if status == "published" {
         return Json(AckResult {
             success: false,
-            error: Some("Cannot edit a published flow. Disable it first or create a new version.".to_owned()),
+            error: Some(
+                "Cannot edit a published flow. Disable it first or create a new version."
+                    .to_owned(),
+            ),
             ..Default::default()
         });
     }
@@ -687,7 +689,11 @@ pub async fn test(
         "simulated": true,
         "botId": body.bot_id.clone().unwrap_or_default(),
     };
-    let _ = s.mongo.collection::<Document>(RUNS).insert_one(run_doc).await;
+    let _ = s
+        .mongo
+        .collection::<Document>(RUNS)
+        .insert_one(run_doc)
+        .await;
     let _ = coll
         .update_one(
             doc! { "_id": flow_oid, "projectId": project_oid },

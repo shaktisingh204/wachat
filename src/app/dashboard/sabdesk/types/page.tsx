@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * Ticket Types — §1D.4 bar:
@@ -9,7 +9,7 @@
  *  - RowDrawer on type name
  */
 
-import * as React from 'react';
+import * as React from "react";
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -41,7 +41,7 @@ import {
   ZoruTableRow,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
+} from "@/components/zoruui";
 import {
   useActionState,
   useCallback,
@@ -49,7 +49,7 @@ import {
   useMemo,
   useState,
   useTransition,
-} from 'react';
+} from "react";
 import {
   Download,
   LoaderCircle,
@@ -60,43 +60,43 @@ import {
   Tag,
   Trash2,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { RowDrawer } from '@/components/crm/row-drawer';
+import { EntityListShell } from "@/components/crm/entity-list-shell";
+import { RowDrawer } from "@/components/crm/row-drawer";
 import {
   getTicketTypes,
   saveTicketType,
   deleteTicketType,
-} from '@/app/actions/worksuite/tickets-ext.actions';
-import type { WsTicketType } from '@/lib/worksuite/tickets-ext-types';
+} from "@/app/actions/worksuite/tickets-ext.actions";
+import type { WsTicketType } from "@/lib/worksuite/tickets-ext-types";
 
 type Row = WsTicketType & { _id: string };
 
 function buildCsv(rows: Row[]): string {
-  const header = ['Type', 'Colour'];
-  const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const header = ["Type", "Colour"];
+  const escape = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   return [
-    header.join(','),
-    ...rows.map((r) => [escape(r.type), escape(r.color ?? '')].join(',')),
-  ].join('\n');
+    header.join(","),
+    ...rows.map((r) => [escape(r.type), escape(r.color ?? "")].join(",")),
+  ].join("\n");
 }
 
 export default function TicketTypesPage() {
   const { toast } = useZoruToast();
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
-  const [color, setColor] = useState('#6B7280');
+  const [color, setColor] = useState("#6B7280");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = useState(false);
-  const [saveState, saveFormAction, isSaving] = useActionState(
-    saveTicketType,
-    { message: '', error: '' } as { message: string; error: string },
-  );
+  const [saveState, saveFormAction, isSaving] = useActionState(saveTicketType, {
+    message: "",
+    error: "",
+  } as { message: string; error: string });
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -111,25 +111,29 @@ export default function TicketTypesPage() {
 
   useEffect(() => {
     if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
+      toast({ title: "Saved", description: saveState.message });
       setDialogOpen(false);
       setEditing(null);
       refresh();
     }
     if (saveState?.error) {
-      toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: saveState.error,
+        variant: "destructive",
+      });
     }
   }, [saveState, refresh, toast]);
 
   const openAdd = () => {
     setEditing(null);
-    setColor('#6B7280');
+    setColor("#6B7280");
     setDialogOpen(true);
   };
 
   const openEdit = (row: Row) => {
     setEditing(row);
-    setColor(row.color || '#6B7280');
+    setColor(row.color || "#6B7280");
     setDialogOpen(true);
   };
 
@@ -143,16 +147,23 @@ export default function TicketTypesPage() {
 
   /* ── KPIs ─────────────────────────────────────────────────────── */
 
-  const kpis = useMemo(() => ({
-    total: rows.length,
-    withColour: rows.filter((r) => (r.color || '').trim().length > 0).length,
-    distinctColours: new Set(rows.map((r) => (r.color || '').toLowerCase()).filter(Boolean)).size,
-  }), [rows]);
+  const kpis = useMemo(
+    () => ({
+      total: rows.length,
+      withColour: rows.filter((r) => (r.color || "").trim().length > 0).length,
+      distinctColours: new Set(
+        rows.map((r) => (r.color || "").toLowerCase()).filter(Boolean),
+      ).size,
+    }),
+    [rows],
+  );
 
   /* ── Selection ────────────────────────────────────────────────── */
 
-  const allSelected = filtered.length > 0 && filtered.every((r) => selected.has(r._id));
-  const someSelected = !allSelected && filtered.some((r) => selected.has(r._id));
+  const allSelected =
+    filtered.length > 0 && filtered.every((r) => selected.has(r._id));
+  const someSelected =
+    !allSelected && filtered.some((r) => selected.has(r._id));
 
   const toggleOne = (id: string) =>
     setSelected((prev) => {
@@ -171,7 +182,7 @@ export default function TicketTypesPage() {
     if (!deletingId) return;
     const res = await deleteTicketType(deletingId);
     if (res.success) {
-      toast({ title: 'Deleted', description: 'Type removed.' });
+      toast({ title: "Deleted", description: "Type removed." });
       setDeletingId(null);
       setSelected((prev) => {
         const next = new Set(prev);
@@ -181,9 +192,9 @@ export default function TicketTypesPage() {
       refresh();
     } else {
       toast({
-        title: 'Error',
-        description: res.error || 'Failed to delete',
-        variant: 'destructive',
+        title: "Error",
+        description: res.error || "Failed to delete",
+        variant: "destructive",
       });
     }
   };
@@ -206,9 +217,9 @@ export default function TicketTypesPage() {
     setBulkDeleting(false);
     setSelected(new Set());
     toast({
-      title: 'Bulk delete',
-      description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
-      variant: failed > 0 ? 'destructive' : undefined,
+      title: "Bulk delete",
+      description: `${ok} removed${failed ? `, ${failed} failed` : ""}.`,
+      variant: failed > 0 ? "destructive" : undefined,
     });
     refresh();
   };
@@ -217,15 +228,17 @@ export default function TicketTypesPage() {
 
   const handleExportCsv = () => {
     const src =
-      selected.size > 0 ? filtered.filter((r) => selected.has(r._id)) : filtered;
+      selected.size > 0
+        ? filtered.filter((r) => selected.has(r._id))
+        : filtered;
     if (!src.length) {
-      toast({ title: 'Nothing to export' });
+      toast({ title: "Nothing to export" });
       return;
     }
     const csv = buildCsv(src);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `ticket-types-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
@@ -239,7 +252,7 @@ export default function TicketTypesPage() {
       search={{
         value: search,
         onChange: setSearch,
-        placeholder: 'Search types…',
+        placeholder: "Search types…",
       }}
       primaryAction={
         <Button onClick={openAdd}>
@@ -250,7 +263,9 @@ export default function TicketTypesPage() {
       bulkBar={
         selected.size > 0 ? (
           <div className="flex flex-wrap items-center gap-2 text-[13px]">
-            <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+            <span className="font-medium text-zoru-ink">
+              {selected.size} selected
+            </span>
             <span className="text-zoru-ink-muted">·</span>
             <Button
               variant="ghost"
@@ -320,13 +335,23 @@ export default function TicketTypesPage() {
                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                   <ZoruTableHead className="w-10">
                     <Checkbox
-                      checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                      checked={
+                        allSelected
+                          ? true
+                          : someSelected
+                            ? "indeterminate"
+                            : false
+                      }
                       onCheckedChange={(v) => toggleAll(v === true)}
                       aria-label="Select all"
                     />
                   </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Type</ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">Colour</ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Type
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Colour
+                  </ZoruTableHead>
                   <ZoruTableHead className="w-[120px] text-right text-zoru-ink-muted">
                     Actions
                   </ZoruTableHead>
@@ -348,15 +373,18 @@ export default function TicketTypesPage() {
                       className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
                       {rows.length === 0
-                        ? 'No types yet — click Add Type to get started.'
-                        : 'No types match this search.'}
+                        ? "No types yet — click Add Type to get started."
+                        : "No types match this search."}
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : (
                   filtered.map((row) => (
                     <ZoruTableRow
                       key={row._id}
-                      className={cn('border-zoru-line', selected.has(row._id) && 'bg-zoru-surface')}
+                      className={cn(
+                        "border-zoru-line",
+                        selected.has(row._id) && "bg-zoru-surface",
+                      )}
                     >
                       <ZoruTableCell>
                         <Checkbox
@@ -374,18 +402,24 @@ export default function TicketTypesPage() {
                         >
                           <div className="space-y-3 text-sm">
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">Type name</div>
+                              <div className="text-zoru-ink-muted text-xs">
+                                Type name
+                              </div>
                               <div>{row.type}</div>
                             </div>
                             <div>
-                              <div className="text-zoru-ink-muted text-xs">Colour</div>
+                              <div className="text-zoru-ink-muted text-xs">
+                                Colour
+                              </div>
                               {row.color ? (
                                 <div className="flex items-center gap-2">
                                   <span
                                     className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
                                     style={{ backgroundColor: row.color }}
                                   />
-                                  <code className="text-[12px]">{row.color}</code>
+                                  <code className="text-[12px]">
+                                    {row.color}
+                                  </code>
                                 </div>
                               ) : (
                                 <div>—</div>
@@ -398,17 +432,21 @@ export default function TicketTypesPage() {
                         <div className="flex items-center gap-2">
                           <span
                             className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
-                            style={{ backgroundColor: row.color || '#6B7280' }}
-                            aria-label={`Colour ${row.color || ''}`}
+                            style={{ backgroundColor: row.color || "#6B7280" }}
+                            aria-label={`Colour ${row.color || ""}`}
                           />
                           <code className="text-[12px] text-zoru-ink-muted">
-                            {row.color || '—'}
+                            {row.color || "—"}
                           </code>
                         </div>
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="sm" onClick={() => openEdit(row)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEdit(row)}
+                          >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button
@@ -433,14 +471,16 @@ export default function TicketTypesPage() {
         <ZoruDialogContent>
           <ZoruDialogHeader>
             <ZoruDialogTitle className="text-zoru-ink">
-              {editing ? 'Edit Type' : 'Add Type'}
+              {editing ? "Edit Type" : "Add Type"}
             </ZoruDialogTitle>
             <ZoruDialogDescription className="text-zoru-ink-muted">
               Assign a colour hex code to visually distinguish the type.
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <form action={saveFormAction} className="space-y-4">
-            {editing?._id ? <input type="hidden" name="_id" value={editing._id} /> : null}
+            {editing?._id ? (
+              <input type="hidden" name="_id" value={editing._id} />
+            ) : null}
             <div>
               <Label htmlFor="type" className="text-zoru-ink">
                 Type <span className="text-zoru-danger-ink">*</span>
@@ -449,7 +489,7 @@ export default function TicketTypesPage() {
                 id="type"
                 name="type"
                 required
-                defaultValue={editing?.type || ''}
+                defaultValue={editing?.type || ""}
                 className="mt-1.5 h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
               />
             </div>
@@ -461,12 +501,19 @@ export default function TicketTypesPage() {
               </div>
             </div>
             <ZoruDialogFooter className="gap-2">
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSaving}>
                 {isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.75} />
+                  <LoaderCircle
+                    className="h-4 w-4 animate-spin"
+                    strokeWidth={1.75}
+                  />
                 ) : null}
                 Save
               </Button>
@@ -481,14 +528,18 @@ export default function TicketTypesPage() {
       >
         <ZoruAlertDialogContent>
           <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle className="text-zoru-ink">Delete Type?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogTitle className="text-zoru-ink">
+              Delete Type?
+            </ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription className="text-zoru-ink-muted">
               This action cannot be undone.
             </ZoruAlertDialogDescription>
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+            <ZoruAlertDialogAction onClick={handleDelete}>
+              Delete
+            </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>

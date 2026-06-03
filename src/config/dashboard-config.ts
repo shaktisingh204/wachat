@@ -6,8 +6,9 @@ import {
     Video, ShieldCheck, Key, BookCopy, Rss, TrendingUp, Calendar,
     Newspaper, Clapperboard, BarChart2, Landmark, Users as UsersIcon,
     LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText,
-    Cable, Activity, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
-    Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness,
+    Cable, Activity, Share2, ShieldAlert, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
+    Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness, FileSignature, FileKey, Shield,
+    Smartphone, LayoutGrid, LayoutPanelTop, Zap, PieChart, Eye, CheckSquare,
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import React from 'react';
@@ -39,7 +40,10 @@ export const appIcons = [
     { id: 'telegram', href: '/dashboard/telegram', icon: TelegramIcon, label: 'Telegram' },
     { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram' },
     { id: 'crm', href: '/dashboard/crm', icon: CrmIcon, label: 'CRM' },
+    { id: 'sabcheckout', href: '/dashboard/sabcheckout', icon: CreditCard, label: 'SabCheckout' },
+    { id: 'sabcreator', href: '/dashboard/sabcreator', icon: LayoutTemplate, label: 'SabCreator' },
     { id: 'hrm', href: '/dashboard/hrm', icon: BriefcaseBusiness, label: 'HRM' },
+    { id: 'sabdesk', href: '/dashboard/sabdesk', icon: Target, label: 'SabDesk' },
     { id: 'sabflow', icon: Workflow, label: 'SabFlow', href: '/dashboard/sabflow/flow-builder' },
     { id: 'team', icon: UsersRound, label: 'Team', href: '/dashboard/team/manage-users' },
     { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
@@ -49,6 +53,39 @@ export const appIcons = [
     { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
     { id: 'qr-code-maker', icon: QrCode, label: 'QR Codes', href: '/dashboard/qr-code-maker' },
     { id: 'seo-suite', icon: SeoIcon, label: 'SEO', href: '/dashboard/seo' },
+    { id: 'sabshop', icon: ShoppingBag, label: 'SabShop', href: '/dashboard/sabshop' },
+    { id: 'sabsense', icon: LayoutPanelTop, label: 'SabSense', href: '/dashboard/sabsense' },
+    { id: 'sabmeet', icon: Video, label: 'SabMeet', href: '/dashboard/sabmeet/rooms' },
+    { id: 'sabwebinar', icon: Clapperboard, label: 'SabWebinar', href: '/dashboard/sabwebinar/webinars' },
+    { id: 'sabsprints', icon: FolderKanban, label: 'SabSprints', href: '/dashboard/sabsprints/sprints' },
+    { id: 'sabvault', icon: ShieldAlert, label: 'SabVault', href: '/dashboard/sabvault' },
+    { id: 'sabsign', icon: FileSignature, label: 'SabSign', href: '/dashboard/sabsign' },
+    { id: 'sabpractice', icon: Briefcase, label: 'SabPractice', href: '/dashboard/sabpractice/clients' },
+    { id: 'sabtables', icon: Database, label: 'SabTables', href: '/dashboard/sabtables/bases' },
+    { id: 'sabbi', icon: BarChart2, label: 'SabBI', href: '/dashboard/sabbi/datasets' },
+    { id: 'sabops', icon: ShieldCheck, label: 'SabOps', href: '/dashboard/sabops' },
+];
+
+export const sabPracticeMenuGroups: MenuGroup[] = [
+    {
+        title: "Practice Management",
+        items: [
+            { href: "/dashboard/sabpractice/clients", label: "Clients", icon: Building2, permissionKey: 'sabpractice_view' },
+            { href: "/dashboard/sabpractice/engagements", label: "Engagements", icon: BriefcaseBusiness, permissionKey: 'sabpractice_view' },
+            { href: "/dashboard/sabpractice/deadlines", label: "Deadlines", icon: Calendar, permissionKey: 'sabpractice_view' },
+        ]
+    }
+];
+
+export const sabtablesMenuGroups: MenuGroup[] = [
+    {
+        title: "Relational Databases",
+        items: [
+            { href: "/dashboard/sabtables/bases", label: "Bases", icon: Database, permissionKey: 'sabtables_bases' },
+            { href: "/dashboard/sabtables/views", label: "Views", icon: Layers, permissionKey: 'sabtables_views' },
+            { href: "/dashboard/sabtables/automations", label: "Automations", icon: Bolt, permissionKey: 'sabtables_automations' },
+        ]
+    }
 ];
 
 export const wachatMenuItems: MenuItem[] = [
@@ -142,14 +179,29 @@ export const sabcrmMenuItems: MenuItem[] = [
     { href: '/sabcrm/settings/views',        label: 'Views',        icon: Layers,         permissionKey: 'sabcrm:admin' },
     { href: '/sabcrm/settings/api',          label: 'API Keys',     icon: Key,            permissionKey: 'sabcrm:admin' },
     { href: '/sabcrm/settings/automations',  label: 'Automations',  icon: Bolt,           permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/webhooks',     label: 'Webhooks',     icon: Webhook,        permissionKey: 'sabcrm:admin' },
+    { href: '/sabcrm/settings/import-export', label: 'Import / Export', icon: Repeat,      permissionKey: 'sabcrm:admin' },
     // `/sabcrm/settings` covers any future settings sub-route not listed above.
     { href: '/sabcrm/settings',              label: 'Settings',     icon: Settings,       permissionKey: 'sabcrm:admin' },
     // ── Main views (view-level) — specific named routes before root ────────
     { href: '/sabcrm/dashboard',             label: 'Dashboard',    icon: LayoutDashboard, permissionKey: 'sabcrm:view' },
+    { href: '/sabcrm/reports/builder',       label: 'Report Builder', icon: BarChart2,    permissionKey: 'sabcrm:view' },
     { href: '/sabcrm/reports',               label: 'Reports',      icon: BarChart,        permissionKey: 'sabcrm:view' },
+    { href: '/sabcrm/notes',                 label: 'Notes',        icon: FileText,       permissionKey: 'sabcrm:view' },
     { href: '/sabcrm/tasks',                 label: 'Tasks',        icon: ClipboardList,   permissionKey: 'sabcrm:view' },
     // `/sabcrm` catches all remaining object and record routes via prefix match.
     { href: '/sabcrm', label: 'SabCRM', icon: CrmIcon, exact: false, permissionKey: 'sabcrm:view' },
+];
+
+export const sabbiMenuGroups: MenuGroup[] = [
+    {
+        title: "Data Intelligence",
+        items: [
+            { href: "/dashboard/sabbi/datasets", label: "Datasets", icon: Database, exact: true, permissionKey: 'sabbi_datasets' },
+            { href: "/dashboard/sabbi/charts", label: "Charts", icon: BarChart2, exact: true, permissionKey: 'sabbi_charts' },
+            { href: "/dashboard/sabbi/embeds", label: "Embeds", icon: LayoutDashboard, exact: true, permissionKey: 'sabbi_embeds' },
+        ]
+    }
 ];
 
 export const crmMenuGroups: MenuGroup[] = [
@@ -572,4 +624,396 @@ export const userSettingsItems: MenuItem[] = [
     { href: '/dashboard/user/settings/profile', label: 'Profile', icon: UsersIcon },
     { href: '/dashboard/user/settings/ui', label: 'UI Preferences', icon: Brush },
     { href: '/dashboard/user/billing', label: 'Billing & Plans', icon: CreditCard },
+];
+
+export const sabdeskMenuGroups: MenuGroup[] = [
+    {
+        title: 'Tickets',
+        items: [
+            { href: '/dashboard/sabdesk', label: 'All Tickets', icon: Inbox, permissionKey: 'sabdesk_tickets' },
+            { href: '/dashboard/sabdesk/my-tickets', label: 'My Tickets', icon: UserCog, permissionKey: 'sabdesk_tickets' },
+            { href: '/dashboard/sabdesk/unassigned', label: 'Unassigned', icon: FolderKanban, permissionKey: 'sabdesk_tickets' },
+            { href: '/dashboard/sabdesk/views', label: 'Custom Views', icon: Layers, permissionKey: 'sabdesk_tickets' },
+        ]
+    },
+    {
+        title: 'Help Center',
+        items: [
+            { href: '/dashboard/sabdesk/knowledge-base', label: 'Knowledge Base', icon: BookCopy, permissionKey: 'sabdesk_kb' },
+            { href: '/dashboard/sabdesk/community', label: 'Community Forum', icon: Users, permissionKey: 'sabdesk_kb' },
+            { href: '/dashboard/sabdesk/announcements', label: 'Announcements', icon: Megaphone, permissionKey: 'sabdesk_kb' },
+        ]
+    },
+    {
+        title: 'Automation & Routing',
+        items: [
+            { href: '/dashboard/sabdesk/routing', label: 'Ticket Routing', icon: GitFork, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/macros', label: 'Macros', icon: Bot, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/triggers', label: 'Triggers', icon: Bolt, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/sla', label: 'SLA Policies', icon: ShieldCheck, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'AI Copilot',
+        items: [
+            { href: '/dashboard/sabdesk/ai-copilot/training-data', label: 'Training Data', icon: BookCopy, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/ai-copilot/suggested-replies', label: 'Suggested Replies', icon: MessageSquare, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/ai-copilot/sentiment-analysis', label: 'Sentiment Analysis', icon: Users, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Workforce',
+        items: [
+            { href: '/dashboard/sabdesk/workforce/scheduling', label: 'Scheduling', icon: UsersRound, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/workforce/forecast', label: 'Forecast', icon: Target, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/workforce/time-off', label: 'Time Off', icon: UserCog, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Quality Assurance',
+        items: [
+            { href: '/dashboard/sabdesk/quality-assurance/scorecards', label: 'Scorecards', icon: FileText, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/quality-assurance/evaluations', label: 'Evaluations', icon: Check, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Analytics',
+        items: [
+            { href: '/dashboard/sabdesk/analytics/overview', label: 'Overview', icon: LayoutDashboard, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/analytics/agent-performance', label: 'Agent Performance', icon: Users, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/analytics/live-dashboards', label: 'Live Dashboards', icon: Target, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Integrations',
+        items: [
+            { href: '/dashboard/sabdesk/integrations/app-directory', label: 'App Directory', icon: Layers, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/integrations/webhooks', label: 'Webhooks', icon: LinkIcon, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/integrations/api-logs', label: 'API Logs', icon: Settings, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Settings',
+        items: [
+            { href: '/dashboard/sabdesk/channels', label: 'Channels', icon: Cable, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/teams', label: 'Teams & Agents', icon: UsersRound, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/custom-forms', label: 'Custom Forms', icon: FileText, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/settings', label: 'Settings', icon: Settings, permissionKey: 'sabdesk_admin' },
+        ]
+    },
+    {
+        title: 'Enterprise Add-ons',
+        items: [
+            { href: '/dashboard/sabdesk/field-service', label: 'Field Service', icon: UsersRound, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/itsm', label: 'IT Asset Mgmt', icon: Settings, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/voice-center', label: 'Voice & Call Center', icon: Cable, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/customer-success', label: 'Customer Success', icon: Target, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/incident-mgmt', label: 'Incident Mgmt', icon: Settings, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/surveys', label: 'Surveys & Feedback', icon: FileText, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/gamification', label: 'Gamification', icon: Target, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/billing', label: 'Billing', icon: CreditCard, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/social-inbox', label: 'Social Inbox', icon: UsersRound, permissionKey: 'sabdesk_admin' },
+            { href: '/dashboard/sabdesk/localization', label: 'Localization', icon: Globe, permissionKey: 'sabdesk_admin' },
+        ]
+    }
+];
+
+export const sabcheckoutMenuGroups: MenuGroup[] = [
+    {
+        title: 'Overview',
+        items: [
+            { href: '/dashboard/sabcheckout', label: 'Dashboard', icon: LayoutDashboard, permissionKey: 'sabcheckout_view' },
+            { href: '/dashboard/sabcheckout/live', label: 'Live Revenue Feed', icon: Activity, permissionKey: 'sabcheckout_view' },
+            { href: '/dashboard/sabcheckout/customer-portal', label: 'Customer Portal', icon: Globe, permissionKey: 'sabcheckout_view' },
+        ]
+    },
+    {
+        title: 'Growth & Optimization',
+        items: [
+            { href: '/dashboard/sabcheckout/upsells', label: '1-Click Upsells', icon: TrendingUp, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/order-bumps', label: 'Order Bumps', icon: ShoppingBag, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/ab-testing', label: 'A/B Testing', icon: Activity, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/affiliates', label: 'Affiliates', icon: Users, permissionKey: 'sabcheckout_products' },
+        ]
+    },
+    {
+        title: 'Products & Pricing',
+        items: [
+            { href: '/dashboard/sabcheckout/products', label: 'Products', icon: Package, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/plans', label: 'Subscription Plans', icon: Repeat, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/tiered-pricing', label: 'Tiered Pricing', icon: Layers, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/metered-billing', label: 'Metered Billing', icon: Activity, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/coupons', label: 'Coupons & Discounts', icon: ShoppingBag, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/gift-cards', label: 'Gift Cards', icon: CreditCard, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/store-credit', label: 'Store Credit', icon: Landmark, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/loyalty', label: 'Loyalty & Rewards', icon: Target, permissionKey: 'sabcheckout_products' },
+        ]
+    },
+    {
+        title: 'Digital & Fulfillment',
+        items: [
+            { href: '/dashboard/sabcheckout/license-keys', label: 'License Keys', icon: Key, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/digital-watermarking', label: 'Digital Watermarks', icon: ShieldCheck, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/preorders', label: 'Pre-Orders', icon: Calendar, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/inventory', label: 'Inventory Sync', icon: Database, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/fulfillment', label: 'Fulfillment & Shipping', icon: Package, permissionKey: 'sabcheckout_products' },
+        ]
+    },
+    {
+        title: 'Customers & Revenue',
+        items: [
+            { href: '/dashboard/sabcheckout/customers', label: 'Customers', icon: Users, permissionKey: 'sabcheckout_customers' },
+            { href: '/dashboard/sabcheckout/subscriptions', label: 'Subscriptions', icon: Calendar, permissionKey: 'sabcheckout_customers' },
+            { href: '/dashboard/sabcheckout/invoices', label: 'Invoices', icon: FileText, permissionKey: 'sabcheckout_customers' },
+            { href: '/dashboard/sabcheckout/sessions', label: 'Sessions', icon: FolderKanban, permissionKey: 'sabcheckout_customers' },
+        ]
+    },
+    {
+        title: 'Checkout Experience',
+        items: [
+            { href: '/dashboard/sabcheckout/pages', label: 'Payment Pages', icon: LayoutTemplate, permissionKey: 'sabcheckout_pages' },
+            { href: '/dashboard/sabcheckout/links', label: 'Payment Links', icon: LinkIcon, permissionKey: 'sabcheckout_pages' },
+            { href: '/dashboard/sabcheckout/custom-domains', label: 'Custom Domains', icon: Globe, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/multi-currency', label: 'Multi-Currency', icon: DollarSign, permissionKey: 'sabcheckout_settings' },
+        ]
+    },
+    {
+        title: 'Risk & Recovery',
+        items: [
+            { href: '/dashboard/sabcheckout/abandoned', label: 'Abandoned Carts', icon: ShoppingBag, permissionKey: 'sabcheckout_recovery' },
+            { href: '/dashboard/sabcheckout/dunning', label: 'Dunning Management', icon: ShieldCheck, permissionKey: 'sabcheckout_recovery' },
+            { href: '/dashboard/sabcheckout/fraud-prevention', label: 'Fraud Prevention', icon: ShieldCheck, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/disputes', label: 'Disputes & Chargebacks', icon: Activity, permissionKey: 'sabcheckout_recovery' },
+        ]
+    },
+    {
+        title: 'Enterprise & Finances',
+        items: [
+            { href: '/dashboard/sabcheckout/reseller', label: 'Reseller Portal', icon: Briefcase, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/payouts', label: 'Payouts', icon: Landmark, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/taxes', label: 'Tax Rules', icon: FileText, permissionKey: 'sabcheckout_products' },
+            { href: '/dashboard/sabcheckout/tax-exemptions', label: 'Tax Exemptions', icon: ShieldCheck, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/payment-gateways', label: 'Payment Gateways', icon: CreditCard, permissionKey: 'sabcheckout_settings' },
+        ]
+    },
+    {
+        title: 'Analytics & Reports',
+        items: [
+            { href: '/dashboard/sabcheckout/analytics', label: 'Revenue Analytics', icon: BarChart, permissionKey: 'sabcheckout_analytics' },
+            { href: '/dashboard/sabcheckout/reports/mrr', label: 'MRR Tracking', icon: TrendingUp, permissionKey: 'sabcheckout_analytics' },
+            { href: '/dashboard/sabcheckout/reports/churn', label: 'Churn Analysis', icon: Activity, permissionKey: 'sabcheckout_analytics' },
+        ]
+    },
+    {
+        title: 'Developers & Settings',
+        items: [
+            { href: '/dashboard/sabcheckout/webhooks', label: 'Webhooks', icon: Webhook, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/api-keys', label: 'API Keys', icon: Key, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/integrations', label: 'Integrations', icon: Bolt, permissionKey: 'sabcheckout_settings' },
+            { href: '/dashboard/sabcheckout/settings', label: 'Settings', icon: Settings, permissionKey: 'sabcheckout_settings' },
+        ]
+    }
+];
+
+export const sabsenseMenuGroups: MenuGroup[] = [
+    {
+        title: 'Publishers & Inventory',
+        items: [
+            { href: '/dashboard/sabsense/publishers', label: 'Publishers', icon: Users, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/sites', label: 'Sites', icon: Globe, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/apps', label: 'Apps', icon: Smartphone, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/ad-units', label: 'Ad Units', icon: LayoutGrid, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/placements', label: 'Placements', icon: LayoutPanelTop, permissionKey: 'sabsense_overview' },
+        ]
+    },
+    {
+        title: 'Advertisers & Campaigns',
+        items: [
+            { href: '/dashboard/sabsense/advertisers', label: 'Advertisers', icon: Briefcase, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/campaigns', label: 'Campaigns', icon: Megaphone, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/creatives', label: 'Creatives', icon: Brush, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/targeting', label: 'Targeting', icon: Target, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/budgeting', label: 'Budgeting', icon: DollarSign, permissionKey: 'sabsense_overview' },
+        ]
+    },
+    {
+        title: 'Yield & Monetization',
+        items: [
+            { href: '/dashboard/sabsense/bidding', label: 'Header Bidding', icon: Zap, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/direct-deals', label: 'Direct Deals', icon: Handshake, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/floor-pricing', label: 'Floor Pricing', icon: TrendingUp, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/yield-mgmt', label: 'Yield Mgmt', icon: BarChart, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/native-ads', label: 'Native Ads', icon: LayoutTemplate, permissionKey: 'sabsense_overview' },
+        ]
+    },
+    {
+        title: 'Billing & Payments',
+        items: [
+            { href: '/dashboard/sabsense/payouts', label: 'Publisher Payouts', icon: CreditCard, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/advertiser-billing', label: 'Adv. Billing', icon: FileText, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/revenue-share', label: 'Revenue Share', icon: PieChart, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/tax-forms', label: 'Tax Forms', icon: FileSignature, permissionKey: 'sabsense_overview' },
+        ]
+    },
+    {
+        title: 'Analytics & Compliance',
+        items: [
+            { href: '/dashboard/sabsense/analytics', label: 'Analytics', icon: BarChart2, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/fraud-detection', label: 'Fraud Detection', icon: ShieldAlert, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/viewability', label: 'Viewability', icon: Eye, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/consent-mgmt', label: 'Consent Mgmt', icon: CheckSquare, permissionKey: 'sabsense_overview' },
+            { href: '/dashboard/sabsense/brand-safety', label: 'Brand Safety', icon: ShieldCheck, permissionKey: 'sabsense_overview' },
+        ]
+    }
+];
+
+export const sabshopMenuGroups: MenuGroup[] = [
+    {
+        title: 'Core E-Commerce',
+        items: [
+            { href: '/dashboard/sabshop', label: 'Storefronts', icon: LayoutDashboard, permissionKey: 'sabshop_overview' },
+            { href: '/dashboard/sabshop/default/orders', label: 'Orders', icon: Package, permissionKey: 'sabshop_orders' },
+            { href: '/dashboard/sabshop/default/products', label: 'Products', icon: ShoppingBag, permissionKey: 'sabshop_products' },
+            { href: '/dashboard/sabshop/default/collections', label: 'Collections', icon: Layers, permissionKey: 'sabshop_products' },
+            { href: '/dashboard/sabshop/default/customers', label: 'Customers', icon: Users, permissionKey: 'sabshop_customers' },
+        ]
+    },
+    {
+        title: 'Advanced Analytics',
+        items: [
+            { href: '/dashboard/sabshop/default/analytics/live', label: 'Live View', icon: Activity, permissionKey: 'sabshop_analytics' },
+            { href: '/dashboard/sabshop/default/analytics/cohorts', label: 'Cohorts', icon: PieChart, permissionKey: 'sabshop_analytics' },
+            { href: '/dashboard/sabshop/default/analytics/funnels', label: 'Funnels', icon: Target, permissionKey: 'sabshop_analytics' },
+        ]
+    },
+    {
+        title: 'Supply Chain',
+        items: [
+            { href: '/dashboard/sabshop/default/inventory/locations', label: 'Locations', icon: Building2, permissionKey: 'sabshop_inventory' },
+            { href: '/dashboard/sabshop/default/inventory/purchase-orders', label: 'Purchase Orders', icon: FileText, permissionKey: 'sabshop_inventory' },
+            { href: '/dashboard/sabshop/default/inventory/transfers', label: 'Transfers', icon: Repeat, permissionKey: 'sabshop_inventory' },
+            { href: '/dashboard/sabshop/default/inventory/suppliers', label: 'Suppliers', icon: Network, permissionKey: 'sabshop_inventory' },
+        ]
+    },
+    {
+        title: 'Omnichannel',
+        items: [
+            { href: '/dashboard/sabshop/default/channels/pos', label: 'Point of Sale', icon: Store, permissionKey: 'sabshop_channels' },
+            { href: '/dashboard/sabshop/default/channels/b2b', label: 'B2B Wholesale', icon: Globe, permissionKey: 'sabshop_channels' },
+            { href: '/dashboard/sabshop/default/channels/marketplaces', label: 'Marketplaces', icon: Smartphone, permissionKey: 'sabshop_channels' },
+        ]
+    },
+    {
+        title: 'CRM & Loyalty',
+        items: [
+            { href: '/dashboard/sabshop/default/customers/segments', label: 'Segments', icon: UsersRound, permissionKey: 'sabshop_crm' },
+            { href: '/dashboard/sabshop/default/customers/loyalty', label: 'Loyalty Program', icon: Heart, permissionKey: 'sabshop_crm' },
+            { href: '/dashboard/sabshop/default/customers/reviews', label: 'Reviews', icon: Star, permissionKey: 'sabshop_crm' },
+        ]
+    },
+    {
+        title: 'Marketing & Flow',
+        items: [
+            { href: '/dashboard/sabshop/default/discounts', label: 'Discounts', icon: Gift, permissionKey: 'sabshop_marketing' },
+            { href: '/dashboard/sabshop/default/gift-cards', label: 'Gift Cards', icon: Gift, permissionKey: 'sabshop_marketing' },
+            { href: '/dashboard/sabshop/default/automations', label: 'Automations', icon: Zap, permissionKey: 'sabshop_marketing' },
+            { href: '/dashboard/sabshop/default/webhooks', label: 'Webhooks', icon: Webhook, permissionKey: 'sabshop_marketing' },
+        ]
+    },
+    {
+        title: 'Operations',
+        items: [
+            { href: '/dashboard/sabshop/default/shipping', label: 'Shipping', icon: Truck, permissionKey: 'sabshop_settings' },
+            { href: '/dashboard/sabshop/default/taxes', label: 'Taxes', icon: Receipt, permissionKey: 'sabshop_settings' },
+            { href: '/dashboard/sabshop/default/settings', label: 'Settings', icon: Settings, permissionKey: 'sabshop_settings' },
+        ]
+    }
+];
+
+export const sabmeetMenuGroups: MenuGroup[] = [
+    {
+        title: 'SabMeet',
+        items: [
+            { href: '/dashboard/sabmeet/rooms', label: 'Rooms', icon: Video, permissionKey: 'sabmeet_rooms' },
+            { href: '/dashboard/sabmeet/recordings', label: 'Recordings', icon: Clapperboard, permissionKey: 'sabmeet_recordings' },
+            { href: '/dashboard/sabmeet/polls', label: 'Polls', icon: BarChart, permissionKey: 'sabmeet_polls' },
+        ]
+    }
+];
+
+export const sabvaultMenuGroups: MenuGroup[] = [
+    {
+        title: 'Vault Management',
+        items: [
+            { href: '/dashboard/sabvault', label: 'Secrets', icon: Key, permissionKey: 'sabvault_secrets' },
+            { href: '/dashboard/sabvault/shares', label: 'Shares', icon: Share2, permissionKey: 'sabvault_shares' },
+            { href: '/dashboard/sabvault/breach-alerts', label: 'Breach Alerts', icon: ShieldAlert, permissionKey: 'sabvault_breach_alerts' },
+        ]
+    }
+];
+
+export const sabsprintsMenuGroups: MenuGroup[] = [
+    {
+        title: 'Agile Management',
+        items: [
+            { href: '/dashboard/sabsprints/sprints', label: 'Sprints', icon: Repeat, permissionKey: 'sabsprints_sprints' },
+            { href: '/dashboard/sabsprints/epics', label: 'Epics', icon: Layers, permissionKey: 'sabsprints_epics' },
+            { href: '/dashboard/sabsprints/velocity', label: 'Velocity', icon: Activity, permissionKey: 'sabsprints_velocity' },
+        ]
+    }
+];
+
+export const sabopsMenuGroups: MenuGroup[] = [
+    {
+        title: "Overview",
+        items: [
+            { href: "/dashboard/sabops", label: "Dashboard", icon: BarChart, exact: true },
+        ]
+    },
+    {
+        title: "Management",
+        items: [
+            { href: "/dashboard/sabops/mdm-profiles", label: "MDM Profiles", icon: ShieldCheck },
+            { href: "/dashboard/sabops/inventory", label: "Inventory", icon: Package },
+            { href: "/dashboard/sabops/alerts", label: "Alerts", icon: Server },
+        ]
+    }
+];
+
+export const sabsignMenuGroups: MenuGroup[] = [
+    {
+        title: 'Core',
+        items: [
+            { href: '/dashboard/sabsign', label: 'Envelopes', icon: FileSignature, permissionKey: 'sabsign_envelopes' },
+            { href: '/dashboard/sabsign/templates', label: 'Templates', icon: FileKey, permissionKey: 'sabsign_templates' },
+            { href: '/dashboard/sabsign/form-builder', label: 'Form Builder', icon: LayoutTemplate, permissionKey: 'sabsign_envelopes' },
+        ]
+    },
+    {
+        title: 'Compliance & Identity',
+        items: [
+            { href: '/dashboard/sabsign/audit', label: 'Audit Trail', icon: Shield, permissionKey: 'sabsign_audit' },
+            { href: '/dashboard/sabsign/notary', label: 'Remote Notary', icon: Video, permissionKey: 'sabsign_audit' },
+        ]
+    },
+    {
+        title: 'Administration',
+        items: [
+            { href: '/dashboard/sabsign/integrations', label: 'Integrations & API', icon: Cable, permissionKey: 'sabsign_admin' },
+            { href: '/dashboard/sabsign/settings', label: 'Settings & Branding', icon: Settings, permissionKey: 'sabsign_admin' },
+            { href: '/dashboard/sabsign/signer-portal', label: 'Signer Portal (Preview)', icon: Globe, permissionKey: 'sabsign_admin' },
+        ]
+    }
+];
+
+
+export const sabwebinarMenuGroups: MenuGroup[] = [
+    {
+        title: 'SabWebinar',
+        items: [
+            { href: '/dashboard/sabwebinar/webinars', label: 'Webinars', icon: Clapperboard, permissionKey: 'sabwebinar_webinars' },
+            { href: '/dashboard/sabwebinar/registrations', label: 'Registrations', icon: Users, permissionKey: 'sabwebinar_registrations' },
+            { href: '/dashboard/sabwebinar/analytics', label: 'Analytics', icon: BarChart, permissionKey: 'sabwebinar_analytics' }
+        ]
+    }
 ];

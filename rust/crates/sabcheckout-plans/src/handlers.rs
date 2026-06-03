@@ -45,9 +45,7 @@ fn plan_from_create(input: CreatePlanInput, user_id: ObjectId) -> Result<Sabchec
         return Err(ApiError::Validation("name is required".to_owned()));
     }
     if input.amount_minor <= 0 {
-        return Err(ApiError::Validation(
-            "amountMinor must be > 0".to_owned(),
-        ));
+        return Err(ApiError::Validation("amountMinor must be > 0".to_owned()));
     }
     let interval_unit = input.interval_unit.trim().to_lowercase();
     if !matches!(interval_unit.as_str(), "day" | "week" | "month" | "year") {
@@ -135,17 +133,13 @@ pub async fn list_plans(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcheckoutPlan>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.find")))?;
-    let mut rows: Vec<SabcheckoutPlan> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.collect"))
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.find"))
         })?;
+    let mut rows: Vec<SabcheckoutPlan> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -186,12 +180,9 @@ pub async fn create_plan(
     let user_id = user_oid(&user)?;
     let mut entity = plan_from_create(input, user_id)?;
     let coll = mongo.collection::<SabcheckoutPlan>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_plans.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

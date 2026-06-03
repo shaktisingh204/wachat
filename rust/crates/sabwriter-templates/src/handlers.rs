@@ -34,11 +34,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn list_filter(
-    user_id: ObjectId,
-    scope: Option<&str>,
-    category: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, scope: Option<&str>, category: Option<&str>) -> Document {
     let mut filter = match scope.unwrap_or("all") {
         "mine" => doc! { "userId": user_id, "status": "active" },
         "public" => doc! { "public": true, "status": "active" },
@@ -79,15 +75,12 @@ pub async fn list_templates(
         .build();
 
     let coll = mongo.collection::<SabwriterTemplate>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.find")))?;
-    let mut rows: Vec<SabwriterTemplate> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.find"))
+    })?;
+    let mut rows: Vec<SabwriterTemplate> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -118,7 +111,9 @@ pub async fn get_template(
             ]
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_template".to_owned()))?;
     Ok(Json(row))
 }
@@ -147,10 +142,9 @@ pub async fn create_template(
         updated_at: None,
     };
     let coll = mongo.collection::<SabwriterTemplate>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -196,14 +190,18 @@ pub async fn update_template(
     let res = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.update"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabwriter_template".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_template".to_owned()))?;
     Ok(Json(after))
 }
@@ -223,7 +221,9 @@ pub async fn delete_template(
             doc! { "$set": { "status": "archived", "updatedAt": now_bson() }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_templates.archive"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabwriter_template".to_owned()));
     }

@@ -100,7 +100,7 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-            
+
         manager
             .create_index(
                 Index::create()

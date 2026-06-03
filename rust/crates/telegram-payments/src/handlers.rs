@@ -133,7 +133,14 @@ fn mask_provider_token(token: &str) -> String {
     if n <= 4 {
         return "•".repeat(n);
     }
-    let tail: String = token.chars().rev().take(4).collect::<Vec<_>>().into_iter().rev().collect();
+    let tail: String = token
+        .chars()
+        .rev()
+        .take(4)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
     let hidden = n.saturating_sub(4);
     format!("{}{tail}", "•".repeat(hidden.min(12)))
 }
@@ -155,9 +162,15 @@ pub struct ProviderRow {
     pub currency: String,
     #[serde(rename = "testMode")]
     pub test_mode: bool,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -276,7 +289,10 @@ pub async fn create_provider(
         Ok(b) => b,
         Err(e) => return err(e),
     };
-    let bot_oid = bot.get_object_id("_id").map_err(|_| "bot missing _id").unwrap();
+    let bot_oid = bot
+        .get_object_id("_id")
+        .map_err(|_| "bot missing _id")
+        .unwrap();
 
     let now = bson::DateTime::now();
     let doc = doc! {
@@ -291,9 +307,18 @@ pub async fn create_provider(
         "createdAt": now,
         "updatedAt": now,
     };
-    match s.mongo.collection::<Document>(PROVIDERS).insert_one(doc).await {
+    match s
+        .mongo
+        .collection::<Document>(PROVIDERS)
+        .insert_one(doc)
+        .await
+    {
         Ok(r) => {
-            let id = r.inserted_id.as_object_id().map(|o| o.to_hex()).unwrap_or_default();
+            let id = r
+                .inserted_id
+                .as_object_id()
+                .map(|o| o.to_hex())
+                .unwrap_or_default();
             Json(AckResult {
                 success: true,
                 id: Some(id),
@@ -510,9 +535,15 @@ pub struct TemplateRow {
     pub provider_id: Option<String>,
     #[serde(default, rename = "shippingOptions")]
     pub shipping_options: Vec<ShippingOptionConfig>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -699,7 +730,10 @@ fn shipping_options_to_bson(items: &[ShippingOptionConfig]) -> Bson {
     )
 }
 
-fn build_template_set(body: &UpsertTemplateBody, project_oid: ObjectId) -> Result<Document, String> {
+fn build_template_set(
+    body: &UpsertTemplateBody,
+    project_oid: ObjectId,
+) -> Result<Document, String> {
     if body.name.trim().is_empty() {
         return Err("name is required".to_owned());
     }
@@ -761,9 +795,18 @@ pub async fn create_template(
         Err(e) => return err(e),
     };
     set.insert("createdAt", bson::DateTime::now());
-    match s.mongo.collection::<Document>(TEMPLATES).insert_one(set).await {
+    match s
+        .mongo
+        .collection::<Document>(TEMPLATES)
+        .insert_one(set)
+        .await
+    {
         Ok(r) => {
-            let id = r.inserted_id.as_object_id().map(|o| o.to_hex()).unwrap_or_default();
+            let id = r
+                .inserted_id
+                .as_object_id()
+                .map(|o| o.to_hex())
+                .unwrap_or_default();
             Json(AckResult {
                 success: true,
                 id: Some(id),
@@ -884,12 +927,18 @@ pub struct InvoiceLinkBody {
 
 /// Merge a template with overrides into the Telegram invoice payload.
 fn build_invoice_payload(t: &TemplateRow, ov: Option<&InvoiceOverrides>) -> serde_json::Value {
-    let title = ov.and_then(|o| o.title.clone()).unwrap_or_else(|| t.title.clone());
+    let title = ov
+        .and_then(|o| o.title.clone())
+        .unwrap_or_else(|| t.title.clone());
     let description = ov
         .and_then(|o| o.description.clone())
         .unwrap_or_else(|| t.description.clone());
-    let payload = ov.and_then(|o| o.payload.clone()).unwrap_or_else(|| t.payload.clone());
-    let currency = ov.and_then(|o| o.currency.clone()).unwrap_or_else(|| t.currency.clone());
+    let payload = ov
+        .and_then(|o| o.payload.clone())
+        .unwrap_or_else(|| t.payload.clone());
+    let currency = ov
+        .and_then(|o| o.currency.clone())
+        .unwrap_or_else(|| t.currency.clone());
     let prices_src: Vec<PriceItem> = ov
         .and_then(|o| o.prices.clone())
         .unwrap_or_else(|| t.prices.clone());
@@ -976,7 +1025,8 @@ pub async fn send_invoice(
         .unwrap_or("XTR")
         .to_owned();
     if currency != "XTR" {
-        let pt = lookup_provider_token(&s.mongo, project_oid, template.provider_id.as_deref()).await;
+        let pt =
+            lookup_provider_token(&s.mongo, project_oid, template.provider_id.as_deref()).await;
         if let Some(tok) = pt {
             payload["provider_token"] = serde_json::Value::String(tok);
         } else {
@@ -1004,7 +1054,10 @@ pub async fn send_invoice(
         .and_then(|r| r.get("message_id"))
         .and_then(|v| v.as_i64());
 
-    let bot_oid = bot.get_object_id("_id").map_err(|_| "bot missing _id").unwrap();
+    let bot_oid = bot
+        .get_object_id("_id")
+        .map_err(|_| "bot missing _id")
+        .unwrap();
     let now = bson::DateTime::now();
     let mut doc_in = doc! {
         "projectId": project_oid,
@@ -1022,9 +1075,17 @@ pub async fn send_invoice(
     if let Some(mid) = message_id {
         doc_in.insert("messageId", mid);
     }
-    let inserted = s.mongo.collection::<Document>(INVOICES).insert_one(doc_in).await;
+    let inserted = s
+        .mongo
+        .collection::<Document>(INVOICES)
+        .insert_one(doc_in)
+        .await;
     let id = match inserted {
-        Ok(r) => r.inserted_id.as_object_id().map(|o| o.to_hex()).unwrap_or_default(),
+        Ok(r) => r
+            .inserted_id
+            .as_object_id()
+            .map(|o| o.to_hex())
+            .unwrap_or_default(),
         Err(e) => return err(format!("mongo: {e}")),
     };
     Json(AckResult {
@@ -1125,7 +1186,10 @@ pub async fn create_invoice_link(
         .unwrap_or("")
         .to_owned();
 
-    let bot_oid = bot_doc.get_object_id("_id").map_err(|_| "bot missing _id").unwrap();
+    let bot_oid = bot_doc
+        .get_object_id("_id")
+        .map_err(|_| "bot missing _id")
+        .unwrap();
     let now = bson::DateTime::now();
     let doc_in = doc! {
         "projectId": project_oid,
@@ -1140,9 +1204,17 @@ pub async fn create_invoice_link(
         "createdAt": now,
         "updatedAt": now,
     };
-    let inserted = s.mongo.collection::<Document>(INVOICES).insert_one(doc_in).await;
+    let inserted = s
+        .mongo
+        .collection::<Document>(INVOICES)
+        .insert_one(doc_in)
+        .await;
     let id = match inserted {
-        Ok(r) => r.inserted_id.as_object_id().map(|o| o.to_hex()).unwrap_or_default(),
+        Ok(r) => r
+            .inserted_id
+            .as_object_id()
+            .map(|o| o.to_hex())
+            .unwrap_or_default(),
         Err(e) => return err(format!("mongo: {e}")),
     };
     Json(AckResult {
@@ -1179,7 +1251,10 @@ pub struct InvoiceRow {
     pub message_id: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "paymentId")]
     pub payment_id: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1290,9 +1365,15 @@ pub struct PaymentRow {
     pub currency: String,
     pub amount: i64,
     pub status: String,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "telegramPaymentChargeId")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "telegramPaymentChargeId"
+    )]
     pub telegram_payment_charge_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "providerPaymentChargeId")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "providerPaymentChargeId"
+    )]
     pub provider_payment_charge_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payload: Option<String>,
@@ -1300,9 +1381,15 @@ pub struct PaymentRow {
     pub order_info: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "shippingAddress")]
     pub shipping_address: Option<serde_json::Value>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -1327,14 +1414,8 @@ fn payment_doc_to_row(d: &Document) -> Option<PaymentRow> {
             .or_else(|_| d.get_i32("amount").map(i64::from))
             .unwrap_or(0),
         status: d.get_str("status").unwrap_or("succeeded").to_owned(),
-        telegram_payment_charge_id: d
-            .get_str("telegramPaymentChargeId")
-            .ok()
-            .map(str::to_owned),
-        provider_payment_charge_id: d
-            .get_str("providerPaymentChargeId")
-            .ok()
-            .map(str::to_owned),
+        telegram_payment_charge_id: d.get_str("telegramPaymentChargeId").ok().map(str::to_owned),
+        provider_payment_charge_id: d.get_str("providerPaymentChargeId").ok().map(str::to_owned),
         payload: d.get_str("payload").ok().map(str::to_owned),
         order_info: bson_to_json_value(d.get("orderInfo")),
         shipping_address: bson_to_json_value(d.get("shippingAddress")),
@@ -1405,9 +1486,7 @@ fn build_payment_filter(project_oid: ObjectId, q: &ListPaymentsQuery) -> Documen
         let or: Vec<Bson> = vec![
             Bson::Document(doc! { "chatId": { "$regex": s, "$options": "i" } }),
             Bson::Document(doc! { "username": { "$regex": s, "$options": "i" } }),
-            Bson::Document(
-                doc! { "telegramPaymentChargeId": { "$regex": s, "$options": "i" } },
-            ),
+            Bson::Document(doc! { "telegramPaymentChargeId": { "$regex": s, "$options": "i" } }),
             Bson::Document(doc! { "userId": { "$eq": s.parse::<i64>().unwrap_or(-1) } }),
         ];
         filter.insert("$or", or);
@@ -1703,9 +1782,13 @@ pub async fn export_csv(
         body.push(',');
         body.push_str(&csv_escape(&d.status));
         body.push(',');
-        body.push_str(&csv_escape(d.telegram_payment_charge_id.as_deref().unwrap_or("")));
+        body.push_str(&csv_escape(
+            d.telegram_payment_charge_id.as_deref().unwrap_or(""),
+        ));
         body.push(',');
-        body.push_str(&csv_escape(d.provider_payment_charge_id.as_deref().unwrap_or("")));
+        body.push_str(&csv_escape(
+            d.provider_payment_charge_id.as_deref().unwrap_or(""),
+        ));
         body.push(',');
         body.push_str(&csv_escape(d.payload.as_deref().unwrap_or("")));
         body.push(',');
@@ -1811,12 +1894,7 @@ pub async fn analytics(
     if !date_filter.is_empty() {
         filter.insert("createdAt", date_filter);
     }
-    let cursor = match s
-        .mongo
-        .collection::<Document>(PAYMENTS)
-        .find(filter)
-        .await
-    {
+    let cursor = match s.mongo.collection::<Document>(PAYMENTS).find(filter).await {
         Ok(c) => c,
         Err(e) => {
             return Json(AnalyticsResp {
@@ -1885,7 +1963,11 @@ pub async fn analytics(
 
     let by_currency = by_currency
         .into_iter()
-        .map(|(currency, (revenue, count))| CurrencyTotal { currency, revenue, count })
+        .map(|(currency, (revenue, count))| CurrencyTotal {
+            currency,
+            revenue,
+            count,
+        })
         .collect::<Vec<_>>();
     let mut top_templates = by_template
         .into_iter()
@@ -1900,7 +1982,11 @@ pub async fn analytics(
 
     let by_day = by_day_map
         .into_iter()
-        .map(|(date, (revenue, count))| DayPoint { date, revenue, count })
+        .map(|(date, (revenue, count))| DayPoint {
+            date,
+            revenue,
+            count,
+        })
         .collect::<Vec<_>>();
 
     let success_rate = if total > 0 {

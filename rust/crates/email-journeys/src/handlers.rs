@@ -22,7 +22,7 @@ use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use email_types::{
     EmailJourneyStatus, EmailJourneyTriggerKind,
-    collections::{JOURNEYS, JOURNEY_RUNS, SUBSCRIBERS},
+    collections::{JOURNEY_RUNS, JOURNEYS, SUBSCRIBERS},
 };
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -154,7 +154,10 @@ pub async fn list_journeys(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("journeys.collect")))?;
 
-    let items: Vec<Value> = docs.into_iter().filter_map(|d| doc_to_json(d).ok()).collect();
+    let items: Vec<Value> = docs
+        .into_iter()
+        .filter_map(|d| doc_to_json(d).ok())
+        .collect();
     let has_more = q.page * q.limit < total;
     Ok(Json(ListResponse {
         items,
@@ -314,9 +317,9 @@ pub async fn delete_journey(
                 message: "Journey archived.".into(),
             }))
         }
-        EmailJourneyStatus::Archived => Err(ApiError::Conflict(
-            "journey is already archived".into(),
-        )),
+        EmailJourneyStatus::Archived => {
+            Err(ApiError::Conflict("journey is already archived".into()))
+        }
     }
 }
 
@@ -391,7 +394,8 @@ pub async fn pause_journey(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("journeys.pause")))?;
 
     Ok(Json(MessageResponse {
-        message: "Journey paused. Existing runs will continue ticking; the trigger is ignored.".into(),
+        message: "Journey paused. Existing runs will continue ticking; the trigger is ignored."
+            .into(),
     }))
 }
 
@@ -474,7 +478,10 @@ pub async fn list_runs(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("runs.collect")))?;
 
-    let items: Vec<Value> = docs.into_iter().filter_map(|d| doc_to_json(d).ok()).collect();
+    let items: Vec<Value> = docs
+        .into_iter()
+        .filter_map(|d| doc_to_json(d).ok())
+        .collect();
     let has_more = q.page * q.limit < total;
     Ok(Json(ListResponse {
         items,
@@ -636,9 +643,8 @@ pub async fn enroll_subscriber(
 
     // Pick the entry node — the unique `type=trigger` node, falling back
     // to the first node in the array.
-    let entry_node_id = entry_node_id_of(&journey).ok_or_else(|| {
-        ApiError::Validation("journey has no trigger / entry node".into())
-    })?;
+    let entry_node_id = entry_node_id_of(&journey)
+        .ok_or_else(|| ApiError::Validation("journey has no trigger / entry node".into()))?;
 
     // Create the run doc.
     let journey_oid = oid_from_str(&id)?;
@@ -679,10 +685,7 @@ pub async fn enroll_subscriber(
         .await?;
 
     Ok(Json(MessageResponse {
-        message: format!(
-            "Subscriber {} enrolled in journey.",
-            body.subscriber_id
-        ),
+        message: format!("Subscriber {} enrolled in journey.", body.subscriber_id),
     }))
 }
 
@@ -709,12 +712,12 @@ pub async fn list_templates(
 /// check is intentionally conservative — a node with zero outgoing
 /// edges that isn't itself an exit will trip the second rule.
 fn validate_for_activate(journey: &Document) -> Result<()> {
-    let nodes = journey.get_array("nodes").map_err(|_| {
-        ApiError::Validation("journey has no nodes array".into())
-    })?;
-    let edges = journey.get_array("edges").map_err(|_| {
-        ApiError::Validation("journey has no edges array".into())
-    })?;
+    let nodes = journey
+        .get_array("nodes")
+        .map_err(|_| ApiError::Validation("journey has no nodes array".into()))?;
+    let edges = journey
+        .get_array("edges")
+        .map_err(|_| ApiError::Validation("journey has no edges array".into()))?;
 
     if nodes.is_empty() {
         return Err(ApiError::Validation(

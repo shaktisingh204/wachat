@@ -1,8 +1,8 @@
 //! # sabsprints-sprints
 //!
-//! HTTP surface for the Sprint entity. A time-boxed iteration tied to a
-//! project, with a goal, start/end dates, capacity (story points), and a
-//! lifecycle status (planned | active | completed | cancelled).
+//! HTTP surface for SabCheckout Sprints.
+//! Backs the `sabsprints_sprints` Mongo collection. Mounted under
+//! `/v1/sabcheckout/sprints`. Tenant-scoped by `userId`.
 
 pub mod dto;
 pub mod handlers;

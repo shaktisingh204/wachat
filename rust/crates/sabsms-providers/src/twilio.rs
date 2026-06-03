@@ -1,9 +1,9 @@
-use hmac::{Hmac, Mac};
-use sha1::Sha1;
-use base64::{Engine as _, engine::general_purpose::STANDARD};
-use std::collections::BTreeMap;
 use crate::{SmsProvider, SmsStatus};
 use async_trait::async_trait;
+use base64::{Engine as _, engine::general_purpose::STANDARD};
+use hmac::{Hmac, Mac};
+use sha1::Sha1;
+use std::collections::BTreeMap;
 
 type HmacSha1 = Hmac<Sha1>;
 
@@ -37,8 +37,6 @@ pub fn verify_twilio_signature(
 
     signature == expected_signature
 }
-
-
 
 /// Maps a Twilio status string to the unified `SmsStatus` enum
 pub fn map_twilio_status(status: &str) -> SmsStatus {
@@ -80,7 +78,10 @@ mod tests {
         assert_eq!(map_twilio_status("queued"), SmsStatus::Queued);
         assert_eq!(map_twilio_status("delivered"), SmsStatus::Delivered);
         assert_eq!(map_twilio_status("FAILED"), SmsStatus::Failed);
-        assert_eq!(map_twilio_status("unknown"), SmsStatus::Unknown("unknown".to_string()));
+        assert_eq!(
+            map_twilio_status("unknown"),
+            SmsStatus::Unknown("unknown".to_string())
+        );
     }
 
     #[test]
@@ -101,15 +102,24 @@ mod tests {
             data.push_str(k);
             data.push_str(v);
         }
+        use base64::{Engine as _, engine::general_purpose::STANDARD};
         use hmac::{Hmac, Mac};
         use sha1::Sha1;
-        use base64::{Engine as _, engine::general_purpose::STANDARD};
         let mut mac = Hmac::<Sha1>::new_from_slice(auth_token.as_bytes()).unwrap();
         mac.update(data.as_bytes());
         let expected_signature = STANDARD.encode(mac.finalize().into_bytes());
 
-        assert!(verify_twilio_signature(auth_token, &expected_signature, url, &post_params));
-        assert!(!verify_twilio_signature("wrong_token", &expected_signature, url, &post_params));
+        assert!(verify_twilio_signature(
+            auth_token,
+            &expected_signature,
+            url,
+            &post_params
+        ));
+        assert!(!verify_twilio_signature(
+            "wrong_token",
+            &expected_signature,
+            url,
+            &post_params
+        ));
     }
 }
-

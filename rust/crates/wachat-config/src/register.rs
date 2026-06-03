@@ -65,13 +65,11 @@ pub async fn verify_code(
     Ok(())
 }
 
-pub async fn deregister(
-    meta: &MetaClient,
-    project: &Project,
-    phone_number_id: &str,
-) -> Result<()> {
+pub async fn deregister(meta: &MetaClient, project: &Project, phone_number_id: &str) -> Result<()> {
     let path = format!("{phone_number_id}/deregister");
-    let _: Value = meta.post_json(&path, token_for(project)?, &json!({})).await?;
+    let _: Value = meta
+        .post_json(&path, token_for(project)?, &json!({}))
+        .await?;
     Ok(())
 }
 

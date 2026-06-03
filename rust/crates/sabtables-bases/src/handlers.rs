@@ -88,11 +88,8 @@ pub async fn list_bases(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabtablesBase>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.find"))
         })?;
     let mut rows: Vec<SabtablesBase> = cursor.try_collect().await.map_err(|e| {
@@ -122,9 +119,7 @@ pub async fn get_base(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.find_one")))?
         .ok_or_else(|| ApiError::NotFound("base".to_owned()))?;
     Ok(Json(row))
 }
@@ -154,9 +149,10 @@ pub async fn create_base(
         updated_at: None,
     };
     let coll = mongo.collection::<SabtablesBase>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -198,18 +194,14 @@ pub async fn update_base(
     let result = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("base".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_bases.refetch")))?
         .ok_or_else(|| ApiError::NotFound("base".to_owned()))?;
     Ok(Json(after))
 }

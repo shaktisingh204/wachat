@@ -18,9 +18,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateAppInput, CreateAppResponse, DeleteAppResponse, ListQuery, UpdateAppInput,
-};
+use crate::dto::{CreateAppInput, CreateAppResponse, DeleteAppResponse, ListQuery, UpdateAppInput};
 use crate::types::SabcreatorApp;
 
 const COLL: &str = "sabcreator_apps";
@@ -101,11 +99,8 @@ pub async fn list_apps(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorApp>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.find"))
         })?;
     let mut rows: Vec<SabcreatorApp> = cursor.try_collect().await.map_err(|e| {
@@ -135,9 +130,7 @@ pub async fn get_app(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.find_one")))?
         .ok_or_else(|| ApiError::NotFound("app".to_owned()))?;
     Ok(Json(row))
 }
@@ -178,9 +171,10 @@ pub async fn create_app(
         updated_at: None,
     };
     let coll = mongo.collection::<SabcreatorApp>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -231,18 +225,14 @@ pub async fn update_app(
     let result = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("app".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_apps.refetch")))?
         .ok_or_else(|| ApiError::NotFound("app".to_owned()))?;
     Ok(Json(after))
 }

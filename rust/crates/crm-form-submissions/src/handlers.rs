@@ -130,7 +130,12 @@ pub async fn list_submissions(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
-    let form_id = match q.form_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let form_id = match q
+        .form_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(raw) => Some(
             ObjectId::parse_str(raw)
                 .map_err(|_| ApiError::Validation("formId must be a valid ObjectId".to_owned()))?,
@@ -206,8 +211,7 @@ pub async fn create_submission(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -392,9 +392,8 @@ pub async fn get_publishing_auth_status(
         }
     };
 
-    let path = format!(
-        "{page}?fields=publishing_authorization_status,is_published,verification_status"
-    );
+    let path =
+        format!("{page}?fields=publishing_authorization_status,is_published,verification_status");
     match graph_get(&s.meta, &path, token).await {
         Ok(v) => Json(PublishingAuthStatusResp {
             data: Some(v),

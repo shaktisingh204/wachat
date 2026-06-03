@@ -41,7 +41,11 @@ pub struct CrmBranch {
     /// `true` if this branch is the tenant's head office. At most one
     /// branch per tenant should carry this flag — enforcement lives at
     /// the action layer (Mongo unique partial index recommended).
-    #[serde(rename = "isHeadOffice", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "isHeadOffice",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub is_head_office: Option<bool>,
     /// Tenant-toggleable activation flag — independent of `status`
     /// soft-delete. Lets a tenant disable a branch from being picked

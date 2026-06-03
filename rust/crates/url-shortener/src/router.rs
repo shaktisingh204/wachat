@@ -13,8 +13,7 @@ use sabnode_db::bson_helpers::oid_from_str;
 use serde::Deserialize;
 
 use crate::{
-    from_form,
-    redirect,
+    from_form, redirect,
     state::UrlShortenerState,
     store::{
         self, AddDomainBody, AddDomainResult, BulkCreateBody, BulkCreateResult, CreateBody,
@@ -51,7 +50,10 @@ where
         // Password verification — public (caller provides the hash to compare).
         .route("/verify-password", post(verify_password_handler))
         // Admin helpers.
-        .route("/admin/activate-scheduled", post(activate_scheduled_handler))
+        .route(
+            "/admin/activate-scheduled",
+            post(activate_scheduled_handler),
+        )
         // Custom domains live on the user doc but are exposed here.
         .route("/domains", get(list_domains).post(add_domain))
         .route("/domains/{domain_id}/verify", post(verify_domain))
@@ -219,9 +221,7 @@ async fn delete_domain(
     Path(domain_id): Path<String>,
 ) -> Result<Json<DeleteDomainResult>> {
     let oid = oid_from_str(&user.user_id)?;
-    Ok(Json(
-        store::delete_domain(&s.mongo, oid, &domain_id).await?,
-    ))
+    Ok(Json(store::delete_domain(&s.mongo, oid, &domain_id).await?))
 }
 
 // ---------------------------------------------------------------------------
@@ -301,7 +301,8 @@ async fn verify_password_handler(
     State(s): State<UrlShortenerState>,
     Json(body): Json<VerifyPasswordBody>,
 ) -> Result<Json<VerifyPasswordResult>> {
-    let valid = store::verify_link_password(&s.mongo, &body.short_code, &body.password_hash).await?;
+    let valid =
+        store::verify_link_password(&s.mongo, &body.short_code, &body.password_hash).await?;
     Ok(Json(VerifyPasswordResult { valid }))
 }
 

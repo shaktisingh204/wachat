@@ -107,7 +107,12 @@ pub async fn list_deals(
     // ---- Filter --------------------------------------------------------
     let mut filter = user_scope(user_oid);
 
-    if let Some(q) = filters.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(q) = filters
+        .q
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("title", doc! { "$regex": q, "$options": "i" });
     }
     if let Some(pid) = filters.pipeline_id.as_deref().filter(|s| !s.is_empty()) {
@@ -238,9 +243,7 @@ pub async fn create_deal(
                     lineage_array = Some(
                         lineage
                             .into_iter()
-                            .map(|r| {
-                                Bson::Document(doc! { "kind": r.kind, "id": r.id })
-                            })
+                            .map(|r| Bson::Document(doc! { "kind": r.kind, "id": r.id }))
                             .collect(),
                     );
                     parent_lead_oid = Some(lead_oid);
@@ -385,7 +388,12 @@ pub async fn update_deal(
 
     let mut set = Document::new();
 
-    if let Some(t) = body.title.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(t) = body
+        .title
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("title", t);
     }
     if let Some(p) = body.pipeline_id.as_deref().filter(|s| !s.is_empty()) {
@@ -427,7 +435,11 @@ pub async fn update_deal(
     if let Some(ac) = body.actual_close {
         set.insert("actualClose", bson::DateTime::from_chrono(ac));
     }
-    if let Some(s) = body.status.as_deref().map(|s| s.trim().to_ascii_lowercase()) {
+    if let Some(s) = body
+        .status
+        .as_deref()
+        .map(|s| s.trim().to_ascii_lowercase())
+    {
         if !matches!(s.as_str(), "open" | "won" | "lost" | "abandoned") {
             return Err(ApiError::Validation(
                 "status must be one of: open, won, lost, abandoned.".to_owned(),

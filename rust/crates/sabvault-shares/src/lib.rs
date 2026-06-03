@@ -1,7 +1,11 @@
 //! # sabvault-shares
 //!
-//! HTTP surface for SabVault share-grant records. Only the secret's owner
-//! may grant/revoke. Mount under `/v1/sabvault/shares`.
+//! HTTP surface for SabCheckout subscription SabvaultShares. A SabvaultShare describes a
+//! recurring billing template (interval, amount, optional trial / setup
+//! fee). Pages reference shares via item entries of type `"share"`.
+//!
+//! Backs the `sabvault_shares` Mongo collection. Mounted under
+//! `/v1/sabcheckout/shares`. Tenant-scoped by `userId`.
 
 pub mod dto;
 pub mod handlers;

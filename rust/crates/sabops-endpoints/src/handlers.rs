@@ -144,7 +144,12 @@ pub async fn list_endpoints(
     Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
-    let mut filter = list_filter(user_id, q.os.as_deref(), q.status.as_deref(), q.tag.as_deref());
+    let mut filter = list_filter(
+        user_id,
+        q.os.as_deref(),
+        q.status.as_deref(),
+        q.tag.as_deref(),
+    );
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["hostname", "serialNumber", "model"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -162,11 +167,10 @@ pub async fn list_endpoints(
         .build();
 
     let coll = mongo.collection::<SabopsEndpoint>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.find"))
+        })?;
     let mut rows: Vec<SabopsEndpoint> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.collect"))
     })?;
@@ -194,7 +198,9 @@ pub async fn get_endpoint(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("endpoint".to_owned()))?;
     Ok(Json(row))
 }
@@ -253,9 +259,7 @@ pub async fn update_endpoint(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.refetch")))?
         .ok_or_else(|| ApiError::NotFound("endpoint".to_owned()))?;
     Ok(Json(after))
 }

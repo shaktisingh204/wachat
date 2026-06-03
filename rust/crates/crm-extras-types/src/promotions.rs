@@ -85,7 +85,11 @@ pub struct Coupon {
     /* ----- validity window --------------------------------------- */
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub valid_from: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub valid_until: Option<DateTime<Utc>>,
 
     /* ----- applicability scopes (empty = "any") ------------------ */
@@ -196,7 +200,11 @@ pub struct GiftCard {
     /// Remaining balance after redemptions.
     pub balance: f64,
     pub currency: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry: Option<DateTime<Utc>>,
 
     /// Whether the card can be reassigned to another recipient after
@@ -367,10 +375,7 @@ mod tests {
 
         let tiers = v.get("tiers").and_then(|x| x.as_array()).unwrap();
         assert_eq!(tiers.len(), 2);
-        assert_eq!(
-            tiers[1].get("name").and_then(|x| x.as_str()),
-            Some("Gold")
-        );
+        assert_eq!(tiers[1].get("name").and_then(|x| x.as_str()), Some("Gold"));
         assert_eq!(
             tiers[1].get("thresholdPoints").and_then(|x| x.as_u64()),
             Some(5_000)
@@ -412,10 +417,7 @@ mod tests {
         assert!(v.get("audit").is_none());
 
         // camelCase fields.
-        assert_eq!(
-            v.get("code").and_then(|x| x.as_str()),
-            Some("GC-ABCD-1234")
-        );
+        assert_eq!(v.get("code").and_then(|x| x.as_str()), Some("GC-ABCD-1234"));
         assert_eq!(
             v.get("issuedToEmail").and_then(|x| x.as_str()),
             Some("recipient@example.com")

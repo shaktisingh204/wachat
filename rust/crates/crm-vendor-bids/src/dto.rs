@@ -192,8 +192,7 @@ pub const ALLOWED_STATUSES: &[&str] = &[
 /// Lower-case status strings accepted on the parent RFQ during the
 /// award cascade. Mirrors [`crm_extras_types::RfqStatus`]. Exposed for
 /// the test that verifies the cascade target string is legal.
-pub const ALLOWED_RFQ_STATUSES: &[&str] =
-    &["draft", "open", "closed", "awarded", "cancelled"];
+pub const ALLOWED_RFQ_STATUSES: &[&str] = &["draft", "open", "closed", "awarded", "cancelled"];
 
 #[cfg(test)]
 mod tests {

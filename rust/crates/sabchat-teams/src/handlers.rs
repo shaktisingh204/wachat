@@ -112,7 +112,9 @@ pub async fn create_team(
         .collection::<Document>(TEAMS_COLL)
         .insert_one(team_doc)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_teams.insert_one")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_teams.insert_one"))
+        })?;
 
     Ok(Json(CreateTeamResponse {
         team_id: new_oid.to_hex(),
@@ -132,7 +134,9 @@ pub async fn list_teams(
 ) -> Result<Json<ListTeamsResponse>> {
     let tenant_id = tenant_oid(&user)?;
 
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
 
     let cursor = state
         .mongo
@@ -169,9 +173,7 @@ pub async fn get_team(
         .collection::<Document>(TEAMS_COLL)
         .find_one(doc! { "_id": team_oid, "tenantId": tenant_id })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_teams.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_teams.find_one")))?
         .ok_or_else(|| ApiError::NotFound("team not found".to_owned()))?;
 
     Ok(Json(GetTeamResponse {
@@ -197,7 +199,12 @@ pub async fn update_team(
     let team_oid = oid_from_str(&id)?;
 
     let mut set_doc = doc! { "updatedAt": bson::DateTime::from_chrono(Utc::now()) };
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set_doc.insert("name", name);
     }
 
@@ -359,9 +366,7 @@ pub async fn add_team_inbox(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_teams.update_one(add_inbox)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_teams.update_one(add_inbox)"))
         })?;
 
     if res.matched_count == 0 {
@@ -503,9 +508,7 @@ pub async fn get_skill(
         .collection::<Document>(SKILLS_COLL)
         .find_one(doc! { "_id": skill_oid, "tenantId": tenant_id })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_skills.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_skills.find_one")))?
         .ok_or_else(|| ApiError::NotFound("skill not found".to_owned()))?;
 
     Ok(Json(GetSkillResponse {
@@ -530,7 +533,12 @@ pub async fn update_skill(
     let skill_oid = oid_from_str(&id)?;
 
     let mut set_doc = doc! { "updatedAt": bson::DateTime::from_chrono(Utc::now()) };
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set_doc.insert("name", name);
     }
     if let Some(desc) = body.description.as_ref() {
@@ -702,9 +710,7 @@ pub async fn remove_agent_skill(
         })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_agent_skills.delete_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_agent_skills.delete_one"))
         })?;
 
     if res.deleted_count == 0 {
@@ -764,7 +770,9 @@ pub async fn list_agent_skills(
             "_id": { "$in": Bson::Array(skill_oids) },
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_skills.find($in)")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_skills.find($in)"))
+        })?;
     let skill_docs: Vec<Document> = skill_cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_skills.collect($in)"))
     })?;

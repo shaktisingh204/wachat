@@ -64,10 +64,7 @@ pub async fn inspect_token(
     let url = graph_url("debug_token");
     let resp = http
         .get(&url)
-        .query(&[
-            ("input_token", access_token),
-            ("access_token", app_token),
-        ])
+        .query(&[("input_token", access_token), ("access_token", app_token)])
         .send()
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
@@ -82,8 +79,8 @@ pub async fn inspect_token(
             status.as_u16()
         )));
     }
-    let env: DebugTokenEnvelope = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let env: DebugTokenEnvelope =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     env.data
         .ok_or_else(|| ApiError::BadRequest("debug_token response missing `data`".to_owned()))
 }
@@ -167,8 +164,8 @@ pub async fn exchange_short_lived_token(
             status.as_u16()
         )));
     }
-    let parsed: OauthTokenResp = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let parsed: OauthTokenResp =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok((parsed.access_token, parsed.expires_in))
 }
 
@@ -200,8 +197,8 @@ pub async fn fetch_app_access_token(
             status.as_u16()
         )));
     }
-    let parsed: OauthTokenResp = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let parsed: OauthTokenResp =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok(parsed.access_token)
 }
 
@@ -276,8 +273,8 @@ pub async fn get_page_token_from_user_token(
             status.as_u16()
         )));
     }
-    let parsed: PageTokenResp = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let parsed: PageTokenResp =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok(parsed.access_token)
 }
 
@@ -307,8 +304,8 @@ pub async fn list_granted_permissions(
             status.as_u16()
         )));
     }
-    let parsed: PermissionsEnvelope = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let parsed: PermissionsEnvelope =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok(parsed.data)
 }
 
@@ -414,8 +411,8 @@ pub async fn batch_graph_requests(
         .ok_or_else(|| ApiError::Forbidden("Access denied.".to_owned()))?;
 
     // Meta wants `batch` as a JSON-serialized **string**, not a JSON array.
-    let batch_str = serde_json::to_string(&requests)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let batch_str =
+        serde_json::to_string(&requests).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
 
     let url = graph_url("");
     let resp = http
@@ -496,8 +493,8 @@ pub async fn fetch_me_accounts(http: &reqwest::Client, access_token: &str) -> Re
             status.as_u16()
         )));
     }
-    let env: DataEnvelope = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let env: DataEnvelope =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok(env.data)
 }
 
@@ -523,8 +520,8 @@ pub async fn fetch_me_businesses(http: &reqwest::Client, access_token: &str) -> 
             status.as_u16()
         )));
     }
-    let env: DataEnvelope = serde_json::from_str(&body)
-        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let env: DataEnvelope =
+        serde_json::from_str(&body).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
     Ok(env.data)
 }
 
@@ -532,10 +529,7 @@ pub async fn fetch_me_businesses(http: &reqwest::Client, access_token: &str) -> 
 //  internals
 // =================================================================
 
-pub(crate) async fn load_project(
-    mongo: &MongoHandle,
-    project_id: &ObjectId,
-) -> Result<Project> {
+pub(crate) async fn load_project(mongo: &MongoHandle, project_id: &ObjectId) -> Result<Project> {
     mongo
         .collection::<Project>(PROJECTS_COLL)
         .find_one(doc! { "_id": project_id })

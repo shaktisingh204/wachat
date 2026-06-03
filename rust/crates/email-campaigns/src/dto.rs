@@ -16,8 +16,12 @@ use serde_json::Value;
 // Pagination + list query
 // ---------------------------------------------------------------------------
 
-fn default_page() -> u64 { 1 }
-fn default_limit() -> u64 { 20 }
+fn default_page() -> u64 {
+    1
+}
+fn default_limit() -> u64 {
+    20
+}
 
 /// `GET /` — list campaigns with optional filters.
 #[derive(Debug, Clone, Deserialize)]

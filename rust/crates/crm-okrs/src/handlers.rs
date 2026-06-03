@@ -19,9 +19,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateOkrInput, CreateOkrResponse, DeleteOkrResponse, ListQuery, UpdateOkrInput,
-};
+use crate::dto::{CreateOkrInput, CreateOkrResponse, DeleteOkrResponse, ListQuery, UpdateOkrInput};
 use crate::types::{CrmOkr, KeyResult};
 
 const COLL: &str = "crm_okrs";
@@ -346,10 +344,7 @@ pub async fn list_okrs(
         q.department_id.as_deref(),
     );
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        let or = build_q_filter(
-            needle,
-            &["objective", "description", "ownerName", "period"],
-        );
+        let or = build_q_filter(needle, &["objective", "description", "ownerName", "period"]);
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
         }
@@ -418,8 +413,7 @@ pub async fn create_okr(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

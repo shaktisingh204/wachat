@@ -38,7 +38,11 @@ pub async fn list_ad_users(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(d) = q.domain_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(d) = q
+        .domain_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("domainId", d);
     }
     if let Some(e) = q.enabled {
@@ -58,9 +62,10 @@ pub async fn list_ad_users(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabopsAdUser>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_users.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_users.find"))
+        })?;
     let mut rows: Vec<SabopsAdUser> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_users.collect"))
     })?;
@@ -116,8 +121,5 @@ pub async fn upsert_ad_user(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_ad_users.upsert")))?
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("upsert returned None")))?;
     let id_hex = entity.id.map(|o| o.to_hex()).unwrap_or_default();
-    Ok(Json(UpsertAdUserResponse {
-        id: id_hex,
-        entity,
-    }))
+    Ok(Json(UpsertAdUserResponse { id: id_hex, entity }))
 }

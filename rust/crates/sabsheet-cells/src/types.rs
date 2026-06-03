@@ -51,7 +51,11 @@ pub struct SabsheetCell {
 
     /// Free-form cell formatting blob — numFmt, bg, color, bold, italic,
     /// align, borders, etc. Kept as a BSON Document to stay schema-light.
-    #[serde(default, rename = "formatJson", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "formatJson",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub format_json: Option<Document>,
 
     /// Cells this formula references (for the recompute graph).

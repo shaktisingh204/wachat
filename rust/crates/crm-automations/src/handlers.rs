@@ -132,9 +132,10 @@ pub async fn list_automations(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmAutomation>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find"))
+        })?;
     let mut rows: Vec<CrmAutomation> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_automations.collect"))
     })?;
@@ -162,9 +163,7 @@ pub async fn get_automation(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find_one")))?
         .ok_or_else(|| ApiError::NotFound("automation".to_owned()))?;
     Ok(Json(row))
 }
@@ -178,16 +177,16 @@ pub async fn create_automation(
     let user_id = user_oid(&user)?;
     let mut entity = automation_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmAutomation>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_automations.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_automations.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -210,26 +209,20 @@ pub async fn update_automation(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_automations.find_one")))?
         .ok_or_else(|| ApiError::NotFound("automation".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_automations.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_automations.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("automation".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_automations.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_automations.refetch")))?
         .ok_or_else(|| ApiError::NotFound("automation".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

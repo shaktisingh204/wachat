@@ -108,10 +108,7 @@ pub async fn list_projects(
     let mut filter = Document::new();
     if let Some(query) = q.query.as_deref().map(str::trim) {
         if !query.is_empty() {
-            filter.insert(
-                "name",
-                doc! { "$regex": query, "$options": "i" },
-            );
+            filter.insert("name", doc! { "$regex": query, "$options": "i" });
         }
     }
 
@@ -201,7 +198,11 @@ pub async fn get_project(
     let project = match cursor.try_next().await {
         Ok(Some(d)) => Some(document_to_clean_json(d)),
         Ok(None) => None,
-        Err(e) => return Err(ApiError::Internal(anyhow::Error::new(e).context("projects.next"))),
+        Err(e) => {
+            return Err(ApiError::Internal(
+                anyhow::Error::new(e).context("projects.next"),
+            ));
+        }
     };
 
     Ok(Json(ProjectResponse { project }))
@@ -247,7 +248,9 @@ pub async fn update_credits(
             doc! { "$set": { "credits": body.credits } },
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("projects.update_credits")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("projects.update_credits"))
+        })?;
     Ok(Json(crate::dto::AdminOk::new()))
 }
 
@@ -302,10 +305,7 @@ where
 {
     Router::new()
         .route("/projects", get(list_projects))
-        .route(
-            "/projects/{id}",
-            get(get_project).delete(delete_project),
-        )
+        .route("/projects/{id}", get(get_project).delete(delete_project))
         .route("/projects/{id}/credits", patch(update_credits))
         .route("/projects/{id}/mps", patch(update_mps))
         .route("/projects/{id}/plan", patch(update_plan))

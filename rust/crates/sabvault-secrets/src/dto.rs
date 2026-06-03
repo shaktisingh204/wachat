@@ -1,10 +1,9 @@
-//! Request DTOs — what callers send IN.
+//! Request DTOs for sabvault-secrets.
 
 use serde::{Deserialize, Serialize};
 
-use crate::types::{EncryptionAlg, SabvaultSecret, SecretKind};
+use crate::types::SabvaultSecret;
 
-/// `GET /v1/sabvault/secrets?…`
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
@@ -12,100 +11,64 @@ pub struct ListQuery {
     pub page: Option<u32>,
     #[serde(default)]
     pub limit: Option<u32>,
-    /// Searched across `name`, `url`, `tags`.
     #[serde(default)]
     pub q: Option<String>,
-    /// `"active"` | `"archived"` | `"all"`. Defaults to `"active"`.
     #[serde(default)]
     pub status: Option<String>,
-    /// Filter by folder.
-    #[serde(default)]
-    pub folder_id: Option<String>,
-    /// Filter by kind.
-    #[serde(default)]
-    pub kind: Option<SecretKind>,
 }
 
-/// `POST /v1/sabvault/secrets` body.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateSecretInput {
+pub struct CreateSabvaultSecretInput {
     pub name: String,
-    pub kind: SecretKind,
-    /// Opaque base64 ciphertext envelope. NEVER plaintext.
-    pub encrypted_payload_b64: String,
+    pub interval_unit: String,
     #[serde(default)]
-    pub encryption_alg: EncryptionAlg,
+    pub interval_count: Option<i32>,
+    pub amount_minor: i64,
     #[serde(default)]
-    pub key_salt_b64: Option<String>,
+    pub currency: Option<String>,
     #[serde(default)]
-    pub url: Option<String>,
+    pub trial_days: Option<i32>,
     #[serde(default)]
-    pub folder_id: Option<String>,
+    pub setup_fee_minor: Option<i64>,
     #[serde(default)]
-    pub tags: Vec<String>,
+    pub description: Option<String>,
     #[serde(default)]
-    pub attachments: Vec<String>,
-    #[serde(default)]
-    pub expires_at: Option<chrono::DateTime<chrono::Utc>>,
+    pub status: Option<String>,
 }
 
-/// `PATCH /v1/sabvault/secrets/:id` body. Every field optional.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateSecretInput {
+pub struct UpdateSabvaultSecretInput {
     #[serde(default)]
     pub name: Option<String>,
     #[serde(default)]
-    pub kind: Option<SecretKind>,
+    pub interval_unit: Option<String>,
     #[serde(default)]
-    pub encrypted_payload_b64: Option<String>,
+    pub interval_count: Option<i32>,
     #[serde(default)]
-    pub encryption_alg: Option<EncryptionAlg>,
+    pub amount_minor: Option<i64>,
     #[serde(default)]
-    pub url: Option<String>,
+    pub currency: Option<String>,
     #[serde(default)]
-    pub folder_id: Option<String>,
+    pub trial_days: Option<i32>,
     #[serde(default)]
-    pub tags: Option<Vec<String>>,
+    pub setup_fee_minor: Option<i64>,
     #[serde(default)]
-    pub attachments: Option<Vec<String>>,
-    #[serde(default)]
-    pub expires_at: Option<chrono::DateTime<chrono::Utc>>,
-    #[serde(default)]
-    pub strength: Option<String>,
-    #[serde(default)]
-    pub reused: Option<bool>,
-    #[serde(default)]
-    pub breached: Option<bool>,
-    /// If `true`, server stamps `lastRotatedAt = now()`.
-    #[serde(default)]
-    pub mark_rotated: Option<bool>,
+    pub description: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
 }
 
-/// `POST /v1/sabvault/secrets` response.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateSecretResponse {
+pub struct CreateSabvaultSecretResponse {
     pub id: String,
     pub entity: SabvaultSecret,
 }
 
-/// `DELETE /v1/sabvault/secrets/:id` response.
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteSecretResponse {
+pub struct DeleteSabvaultSecretResponse {
     pub deleted: bool,
-}
-
-/// `GET /v1/sabvault/secrets` response envelope.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ListResponse {
-    pub items: Vec<SabvaultSecret>,
-    pub page: u32,
-    pub limit: u32,
-    pub has_more: bool,
 }

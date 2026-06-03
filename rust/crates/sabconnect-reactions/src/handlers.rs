@@ -34,9 +34,7 @@ pub async fn list_reactions(
     let item_id = ObjectId::parse_str(&q.item_id)
         .map_err(|_| ApiError::Validation("itemId must be ObjectId".to_owned()))?;
     let coll = mongo.collection::<SabConnectReaction>(COLL);
-    let opts = FindOptions::builder()
-        .sort(doc! { "createdAt": 1 })
-        .build();
+    let opts = FindOptions::builder().sort(doc! { "createdAt": 1 }).build();
     let cursor = coll
         .find(ownership(user_id, item_id))
         .with_options(opts)

@@ -1,4 +1,7 @@
-use axum::{Json, extract::{Query, State}};
+use axum::{
+    Json,
+    extract::{Query, State},
+};
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::{TimeZone, Utc};
 use futures::TryStreamExt;
@@ -15,11 +18,16 @@ const COLL: &str = "sabmonitor_trace_spans";
 const TRACES_COLL: &str = "sabmonitor_traces";
 
 fn user_oid(u: &AuthUser) -> Result<ObjectId> {
-    ObjectId::parse_str(&u.user_id).map_err(|e| ApiError::Validation(format!("invalid userId: {e}")))
+    ObjectId::parse_str(&u.user_id)
+        .map_err(|e| ApiError::Validation(format!("invalid userId: {e}")))
 }
 
 #[instrument(skip_all)]
-pub async fn list_spans(user: AuthUser, State(mongo): State<MongoHandle>, Query(q): Query<ListQuery>) -> Result<Json<ListResponse>> {
+pub async fn list_spans(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<ListResponse>> {
     let uid = user_oid(&user)?;
     let mut filter = doc! { "userId": uid };
     if let Some(t) = q.trace_id.as_deref().filter(|s| !s.is_empty()) {
@@ -30,21 +38,40 @@ pub async fn list_spans(user: AuthUser, State(mongo): State<MongoHandle>, Query(
     }
     let limit = q.limit.unwrap_or(200).min(2000) as i64;
     let skip = q.page.unwrap_or(0) as u64 * limit as u64;
-    let opts = FindOptions::builder().sort(doc! { "startedAt": 1 }).skip(skip).limit(limit + 1).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "startedAt": 1 })
+        .skip(skip)
+        .limit(limit + 1)
+        .build();
     let coll = mongo.collection::<SabmonitorTraceSpan>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.find")))?;
-    let mut rows: Vec<SabmonitorTraceSpan> = cursor.try_collect().await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.find"))
+    })?;
+    let mut rows: Vec<SabmonitorTraceSpan> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
-    Ok(Json(ListResponse { items: rows, page: q.page.unwrap_or(0), limit: limit as u32, has_more }))
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
 #[instrument(skip_all)]
-pub async fn ingest_span(user: AuthUser, State(mongo): State<MongoHandle>, Json(input): Json<IngestSpanInput>) -> Result<Json<IngestSpanResponse>> {
+pub async fn ingest_span(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<IngestSpanInput>,
+) -> Result<Json<IngestSpanResponse>> {
     let uid = user_oid(&user)?;
-    let started = Utc.timestamp_millis_opt(input.started_at_ms).single()
+    let started = Utc
+        .timestamp_millis_opt(input.started_at_ms)
+        .single()
         .ok_or_else(|| ApiError::Validation("invalid startedAtMs".into()))?;
     let entity = SabmonitorTraceSpan {
         id: None,
@@ -60,9 +87,13 @@ pub async fn ingest_span(user: AuthUser, State(mongo): State<MongoHandle>, Json(
         errored: input.errored,
     };
     let coll = mongo.collection::<SabmonitorTraceSpan>(COLL);
-    let r = coll.insert_one(&entity).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.insert")))?;
-    let id = r.inserted_id.as_object_id().ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id missing")))?;
+    let r = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_trace_spans.insert"))
+    })?;
+    let id = r
+        .inserted_id
+        .as_object_id()
+        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id missing")))?;
 
     // Upsert a rolling trace summary. Only the root span (no parent) seeds
     // rootService / rootOperation; every span bumps spanCount and OR-s
@@ -80,8 +111,11 @@ pub async fn ingest_span(user: AuthUser, State(mongo): State<MongoHandle>, Json(
         "$max": { "errored": input.errored },
         "$set": { "userId": uid, "traceId": input.trace_id.clone(), "updatedAt": BsonDateTime::from_chrono(Utc::now()) },
     };
-    let opts = mongodb::options::UpdateOptions::builder().upsert(true).build();
-    let _ = mongo.collection::<Document>(TRACES_COLL)
+    let opts = mongodb::options::UpdateOptions::builder()
+        .upsert(true)
+        .build();
+    let _ = mongo
+        .collection::<Document>(TRACES_COLL)
         .update_one(doc! { "traceId": &input.trace_id, "userId": uid }, update)
         .with_options(opts)
         .await;

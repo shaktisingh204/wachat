@@ -51,11 +51,7 @@ fn list_filter(user_id: ObjectId, status: Option<&str>, include_shared: bool) ->
         "shared" => {
             filter = doc! { "sharedWithUserIds": user_id };
         }
-        s if matches!(
-            s,
-            "draft" | "in_review" | "approved" | "sent_for_signature"
-        ) =>
-        {
+        s if matches!(s, "draft" | "in_review" | "approved" | "sent_for_signature") => {
             filter.insert("status", s);
         }
         _ => {}
@@ -139,15 +135,12 @@ pub async fn list_documents(
         .build();
 
     let coll = mongo.collection::<SabwriterDocument>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find")))?;
-    let mut rows: Vec<SabwriterDocument> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find"))
+    })?;
+    let mut rows: Vec<SabwriterDocument> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -172,7 +165,9 @@ pub async fn get_document(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     Ok(Json(row))
 }
@@ -187,16 +182,16 @@ pub async fn create_document(
     let created_by = user_oid(&user).ok();
     let mut entity = entity_from_create(input, user_id, created_by)?;
     let coll = mongo.collection::<SabwriterDocument>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity))) {
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    {
         write_audit(&mongo, event).await;
     }
     Ok(Json(CreateDocumentResponse {
@@ -218,7 +213,9 @@ pub async fn update_document(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
 
     let mut set = doc! { "updatedAt": now_bson(), "updatedBy": user_id };
@@ -264,11 +261,15 @@ pub async fn update_document(
 
     coll.update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.update"))
+        })?;
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -295,7 +296,9 @@ pub async fn delete_document(
     let res = coll
         .delete_one(owner_only_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.delete"))
+        })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("sabwriter_document".to_owned()));
     }
@@ -329,14 +332,18 @@ pub async fn share_document(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.share")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.share"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabwriter_document".to_owned()));
     }
     let after = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     Ok(Json(after))
 }

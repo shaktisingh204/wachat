@@ -61,10 +61,7 @@ where
             "/{bot_id}/{chat_tg_id}/messages",
             get(handlers::list_messages_legacy).post(handlers::send_text_legacy),
         )
-        .route(
-            "/{bot_id}/{chat_tg_id}/read",
-            post(handlers::mark_read),
-        )
+        .route("/{bot_id}/{chat_tg_id}/read", post(handlers::mark_read))
         // New chat-scoped surface — chat id is a hex ObjectId.
         .route("/c/{chat_id}", get(handlers::get_chat))
         .route("/c/{chat_id}/refresh", post(handlers::refresh_chat))

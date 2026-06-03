@@ -12,7 +12,12 @@ use crm_lookup_types::{
 use sabnode_common::Result;
 
 /// (id, primary, secondary, tertiary)
-type StaticRow = (&'static str, &'static str, Option<&'static str>, Option<&'static str>);
+type StaticRow = (
+    &'static str,
+    &'static str,
+    Option<&'static str>,
+    Option<&'static str>,
+);
 
 /// 12 ISO 4217 currency codes — matches the TS lookup-registry static
 /// list. Tuple shape: (code, code, symbol, name).
@@ -106,7 +111,12 @@ const STATES: &[StaticRow] = &[
     ("WB", "West Bengal", Some("East"), None),
     ("AN", "Andaman & Nicobar Islands", Some("UT"), None),
     ("CH", "Chandigarh", Some("UT"), None),
-    ("DN", "Dadra & Nagar Haveli and Daman & Diu", Some("UT"), None),
+    (
+        "DN",
+        "Dadra & Nagar Haveli and Daman & Diu",
+        Some("UT"),
+        None,
+    ),
     ("DL", "Delhi", Some("UT"), None),
     ("JK", "Jammu & Kashmir", Some("UT"), None),
     ("LA", "Ladakh", Some("UT"), None),
@@ -164,7 +174,9 @@ const VENDOR_TYPES: &[StaticRow] = &[
 ];
 
 fn matches(haystack: &str, needle: &str) -> bool {
-    haystack.to_ascii_lowercase().contains(&needle.to_ascii_lowercase())
+    haystack
+        .to_ascii_lowercase()
+        .contains(&needle.to_ascii_lowercase())
 }
 
 fn search_static(rows: &[StaticRow], params: &LookupParams) -> Result<LookupResult> {

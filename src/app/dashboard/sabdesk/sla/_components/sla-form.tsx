@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Button,
@@ -8,19 +8,14 @@ import {
   Switch,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import { EntityFormField } from '@/components/crm/entity-form-field';
-import {
-  useActionState,
-  useEffect,
-  useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  LoaderCircle,
-  Save } from 'lucide-react';
+} from "@/components/zoruui";
+import { EnumFormField } from "@/components/crm/enum-form-field";
+import { EntityFormField } from "@/components/crm/entity-form-field";
+import { useActionState, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useFormStatus } from "react-dom";
+import { ArrowLeft, LoaderCircle, Save } from "lucide-react";
 
 /**
  * <SlaForm /> — create + edit form for a CRM SLA policy.
@@ -30,19 +25,16 @@ import { ArrowLeft,
  * minutes), notes (description + internal notes).
  */
 
-import * as React from 'react';
+import * as React from "react";
 
-import {
-  saveSla,
-  type SaveSlaState,
-} from '@/app/actions/crm-sla.actions';
+import { saveSla, type SaveSlaState } from "@/app/actions/crm-sla.actions";
 import type {
   CrmSlaDoc,
   CrmSlaPriority,
   CrmSlaStatus,
-} from '@/lib/rust-client/crm-slas';
+} from "@/lib/rust-client/crm-slas";
 
-const BASE = '/dashboard/sabdesk/sla';
+const BASE = "/dashboard/sabdesk/sla";
 
 const initialState: SaveSlaState = {};
 
@@ -55,7 +47,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
       ) : (
         <Save className="mr-2 h-4 w-4" />
       )}
-      {isEditing ? 'Save changes' : 'Create SLA'}
+      {isEditing ? "Save changes" : "Create SLA"}
     </Button>
   );
 }
@@ -72,10 +64,10 @@ export function SlaForm({ initialData }: SlaFormProps) {
   const [state, formAction] = useActionState(saveSla, initialState);
 
   const [priority, setPriority] = useState<CrmSlaPriority>(
-    (initialData?.priority as CrmSlaPriority) ?? 'medium',
+    (initialData?.priority as CrmSlaPriority) ?? "medium",
   );
   const [status, setStatus] = useState<CrmSlaStatus>(
-    initialData?.status ?? 'active',
+    initialData?.status ?? "active",
   );
   const [businessHoursOnly, setBusinessHoursOnly] = useState<boolean>(
     initialData?.businessHoursOnly ?? false,
@@ -83,15 +75,15 @@ export function SlaForm({ initialData }: SlaFormProps) {
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Saved', description: state.message });
+      toast({ title: "Saved", description: state.message });
       const id = state.id ?? initialData?._id;
       router.push(id ? `${BASE}/${id}` : BASE);
     }
     if (state?.error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: state.error,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   }, [state, toast, router, initialData?._id]);
@@ -105,11 +97,9 @@ export function SlaForm({ initialData }: SlaFormProps) {
       <input
         type="hidden"
         name="businessHoursOnly"
-        value={businessHoursOnly ? 'true' : 'false'}
+        value={businessHoursOnly ? "true" : "false"}
       />
-      {isEditing ? (
-        <input type="hidden" name="status" value={status} />
-      ) : null}
+      {isEditing ? <input type="hidden" name="status" value={status} /> : null}
 
       <Card className="p-6">
         <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Basics</h2>
@@ -123,7 +113,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               name="name"
               required
               placeholder="e.g. Critical 1-hour SLA"
-              defaultValue={initialData?.name ?? ''}
+              defaultValue={initialData?.name ?? ""}
             />
           </div>
           <div className="space-y-1.5">
@@ -131,7 +121,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
             <EnumFormField
               enumName="ticketPriority"
               initialId={priority}
-              onChange={(v) => setPriority((v ?? 'medium') as CrmSlaPriority)}
+              onChange={(v) => setPriority((v ?? "medium") as CrmSlaPriority)}
             />
           </div>
           {isEditing ? (
@@ -140,7 +130,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               <EnumFormField
                 enumName="replyTemplateStatus"
                 initialId={status}
-                onChange={(v) => setStatus((v ?? 'active') as CrmSlaStatus)}
+                onChange={(v) => setStatus((v ?? "active") as CrmSlaStatus)}
               />
             </div>
           ) : null}
@@ -163,13 +153,11 @@ export function SlaForm({ initialData }: SlaFormProps) {
               min={1}
               required
               placeholder="e.g. 60"
-              defaultValue={initialData?.firstResponseMinutes ?? ''}
+              defaultValue={initialData?.firstResponseMinutes ?? ""}
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="resolutionMinutes">
-              Resolution (minutes) *
-            </Label>
+            <Label htmlFor="resolutionMinutes">Resolution (minutes) *</Label>
             <Input
               id="resolutionMinutes"
               name="resolutionMinutes"
@@ -177,7 +165,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               min={1}
               required
               placeholder="e.g. 480"
-              defaultValue={initialData?.resolutionMinutes ?? ''}
+              defaultValue={initialData?.resolutionMinutes ?? ""}
             />
           </div>
           <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
@@ -211,7 +199,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               type="number"
               min={1}
               placeholder="Optional"
-              defaultValue={initialData?.escalateAfterMinutes ?? ''}
+              defaultValue={initialData?.escalateAfterMinutes ?? ""}
             />
           </div>
           <div className="space-y-1.5">
@@ -227,9 +215,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
       </Card>
 
       <Card className="p-6">
-        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">
-          Notes
-        </h2>
+        <h2 className="mb-4 text-[14px] font-medium text-zoru-ink">Notes</h2>
         <div className="grid grid-cols-1 gap-5">
           <div className="space-y-1.5">
             <Label htmlFor="description">Description</Label>
@@ -238,7 +224,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               name="description"
               rows={3}
               placeholder="Optional — describe when this SLA applies."
-              defaultValue={initialData?.description ?? ''}
+              defaultValue={initialData?.description ?? ""}
             />
           </div>
           <div className="space-y-1.5">
@@ -248,7 +234,7 @@ export function SlaForm({ initialData }: SlaFormProps) {
               name="notes"
               rows={3}
               placeholder="Optional — only visible to your team."
-              defaultValue={initialData?.notes ?? ''}
+              defaultValue={initialData?.notes ?? ""}
             />
           </div>
         </div>
@@ -258,7 +244,9 @@ export function SlaForm({ initialData }: SlaFormProps) {
         <Button variant="ghost" asChild>
           <Link
             href={
-              isEditing && initialData?._id ? `${BASE}/${initialData._id}` : BASE
+              isEditing && initialData?._id
+                ? `${BASE}/${initialData._id}`
+                : BASE
             }
           >
             <ArrowLeft className="mr-2 h-4 w-4" />

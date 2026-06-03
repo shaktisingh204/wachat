@@ -12,9 +12,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::settings::{
     AUDIT_COLL, EffectiveSettings, GDPR_COLL, OVERRIDES_COLL, PROJECT_SETTINGS_COLL,
-    ProjectSettings, deep_merge, default_project_settings, diff_settings,
-    get_effective_settings, is_within_business_hours, load_project_settings, parse_iso_utc,
-    record_audit, settings_to_bson,
+    ProjectSettings, deep_merge, default_project_settings, diff_settings, get_effective_settings,
+    is_within_business_hours, load_project_settings, parse_iso_utc, record_audit, settings_to_bson,
 };
 use crate::state::TelegramSettingsState;
 
@@ -315,7 +314,14 @@ pub async fn put_project(
     // Write the audit rows (best-effort).
     let mut audit_rows: Vec<Document> = vec![];
     for (field, old_v, new_v) in diff_settings(&prev_json, &merged_json) {
-        record_audit(&mut audit_rows, user_oid, project_oid, &field, &old_v, &new_v);
+        record_audit(
+            &mut audit_rows,
+            user_oid,
+            project_oid,
+            &field,
+            &old_v,
+            &new_v,
+        );
     }
     if !audit_rows.is_empty() {
         let _ = s
@@ -639,7 +645,14 @@ pub async fn export_data(
         Ok(o) => o,
         Err(e) => return err(e),
     };
-    enqueue_gdpr(&s.mongo, project_oid, &user.user_id, "export", body.reason.as_deref()).await
+    enqueue_gdpr(
+        &s.mongo,
+        project_oid,
+        &user.user_id,
+        "export",
+        body.reason.as_deref(),
+    )
+    .await
 }
 
 pub async fn delete_data(
@@ -658,7 +671,14 @@ pub async fn delete_data(
         Ok(o) => o,
         Err(e) => return err(e),
     };
-    enqueue_gdpr(&s.mongo, project_oid, &user.user_id, "delete", body.reason.as_deref()).await
+    enqueue_gdpr(
+        &s.mongo,
+        project_oid,
+        &user.user_id,
+        "delete",
+        body.reason.as_deref(),
+    )
+    .await
 }
 
 async fn enqueue_gdpr(
@@ -679,7 +699,11 @@ async fn enqueue_gdpr(
     if let Some(r) = reason {
         row.insert("reason", r);
     }
-    match mongo.collection::<Document>(GDPR_COLL).insert_one(row).await {
+    match mongo
+        .collection::<Document>(GDPR_COLL)
+        .insert_one(row)
+        .await
+    {
         Ok(res) => {
             let id = res
                 .inserted_id
@@ -906,7 +930,11 @@ pub async fn list_audit(
             })
         })
         .collect();
-    let next_cursor = if has_more { rows.last().map(|r| r._id.clone()) } else { None };
+    let next_cursor = if has_more {
+        rows.last().map(|r| r._id.clone())
+    } else {
+        None
+    };
     Json(AuditListResp {
         rows,
         next_cursor,

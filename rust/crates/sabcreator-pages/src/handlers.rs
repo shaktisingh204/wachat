@@ -128,11 +128,8 @@ pub async fn list_pages(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorPage>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcreator_pages.find"))
         })?;
     let mut rows: Vec<SabcreatorPage> = cursor.try_collect().await.map_err(|e| {
@@ -202,7 +199,9 @@ pub async fn create_page(
         name: input.name.trim().to_owned(),
         slug,
         kind: input.kind.trim().to_owned(),
-        config_json: input.config_json.unwrap_or_else(|| Value::Object(Default::default())),
+        config_json: input
+            .config_json
+            .unwrap_or_else(|| Value::Object(Default::default())),
         role_visibility: input.role_visibility.unwrap_or_else(|| "all".to_owned()),
         allowed_role_ids: allowed,
         status: "draft".to_owned(),
@@ -271,9 +270,7 @@ pub async fn update_page(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_pages.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_pages.refetch")))?
         .ok_or_else(|| ApiError::NotFound("page".to_owned()))?;
     Ok(Json(after))
 }

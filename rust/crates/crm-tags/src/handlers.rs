@@ -19,9 +19,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateTagInput, CreateTagResponse, DeleteTagResponse, ListQuery, UpdateTagInput,
-};
+use crate::dto::{CreateTagInput, CreateTagResponse, DeleteTagResponse, ListQuery, UpdateTagInput};
 use crate::types::CrmTag;
 
 const COLL: &str = "crm_tags";
@@ -38,7 +36,10 @@ fn list_filter(user_id: ObjectId, status: Option<&str>, scope: Option<&str>) -> 
             filter.insert("status", doc! { "$ne": "archived" });
         }
     }
-    if let Some(s) = scope.map(str::trim).filter(|s| !s.is_empty() && *s != "all") {
+    if let Some(s) = scope
+        .map(str::trim)
+        .filter(|s| !s.is_empty() && *s != "all")
+    {
         filter.insert("scope", s);
     }
     filter
@@ -183,8 +184,7 @@ pub async fn create_tag(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

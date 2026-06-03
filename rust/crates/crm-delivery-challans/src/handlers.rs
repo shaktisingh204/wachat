@@ -31,8 +31,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
 use crate::dto::{
-    CreateChallanInput, CreateChallanResponse, DeleteChallanResponse, ListQuery,
-    UpdateChallanInput,
+    CreateChallanInput, CreateChallanResponse, DeleteChallanResponse, ListQuery, UpdateChallanInput,
 };
 use crate::types::CrmDeliveryChallan;
 
@@ -84,14 +83,9 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn challan_from_create(
-    input: CreateChallanInput,
-    user_id: ObjectId,
-) -> Result<CrmDeliveryChallan> {
+fn challan_from_create(input: CreateChallanInput, user_id: ObjectId) -> Result<CrmDeliveryChallan> {
     if input.challan_number.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "challanNumber is required".to_owned(),
-        ));
+        return Err(ApiError::Validation("challanNumber is required".to_owned()));
     }
     if input.line_items.is_empty() {
         return Err(ApiError::Validation(
@@ -117,7 +111,9 @@ fn challan_from_create(
         lineage: Vec::new(),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
-        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
+        design_metadata: input
+            .design_metadata
+            .and_then(|v| bson::to_document(&v).ok()),
     })
 }
 
@@ -348,8 +344,7 @@ pub async fn create_challan(
             .await;
     }
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -498,7 +493,10 @@ mod tests {
 
     #[test]
     fn parent_collection_lookup_matches_ts_table() {
-        assert_eq!(parent_collection_for("salesOrder"), Some("crm_sales_orders"));
+        assert_eq!(
+            parent_collection_for("salesOrder"),
+            Some("crm_sales_orders")
+        );
         assert_eq!(parent_collection_for("invoice"), Some("crm_invoices"));
         assert_eq!(parent_collection_for("quotation"), Some("crm_quotations"));
         assert_eq!(parent_collection_for("lead"), None);
@@ -508,6 +506,9 @@ mod tests {
     #[test]
     fn allowed_parent_kinds_align_with_ts_whitelist() {
         // Mirrors `ALLOWED_PARENT_KINDS` in TS `saveDeliveryChallan`.
-        assert_eq!(ALLOWED_PARENT_KINDS, &["salesOrder", "invoice", "quotation"]);
+        assert_eq!(
+            ALLOWED_PARENT_KINDS,
+            &["salesOrder", "invoice", "quotation"]
+        );
     }
 }

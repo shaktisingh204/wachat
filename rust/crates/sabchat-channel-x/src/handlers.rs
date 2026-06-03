@@ -41,12 +41,8 @@ pub async fn ingest(
     let inbox_id = doc_object_id(&inbox, "_id")?;
     let tenant_id = doc_object_id(&inbox, "tenantId")?;
 
-    if let Some(existing) = find_message_by_update_id(
-        &state.mongo,
-        &inbox_id,
-        &body.provider_update_id,
-    )
-    .await?
+    if let Some(existing) =
+        find_message_by_update_id(&state.mongo, &inbox_id, &body.provider_update_id).await?
     {
         let conversation_id = existing
             .get_object_id("conversationId")
@@ -174,7 +170,9 @@ pub async fn delivered(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"),
+            )
         })?;
 
     Ok(Json(DeliveredResp {
@@ -194,11 +192,7 @@ async fn resolve_inbox(mongo: &MongoHandle, account_id: &str) -> Result<Document
     })
     .await
     .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
-    .ok_or_else(|| {
-        ApiError::NotFound(format!(
-            "No x inbox configured for account {account_id}."
-        ))
-    })
+    .ok_or_else(|| ApiError::NotFound(format!("No x inbox configured for account {account_id}.")))
 }
 
 async fn find_message_by_update_id(

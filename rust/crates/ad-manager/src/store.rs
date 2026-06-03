@@ -87,10 +87,7 @@ pub struct UpdateLocalStatusBody {
 // metaAdAccounts (lives on the user doc)
 // ---------------------------------------------------------------------------
 
-pub async fn get_ad_accounts(
-    mongo: &MongoHandle,
-    user_oid: ObjectId,
-) -> Result<AdAccountsResult> {
+pub async fn get_ad_accounts(mongo: &MongoHandle, user_oid: ObjectId) -> Result<AdAccountsResult> {
     let users = mongo.collection::<Document>(USERS_COLL);
     let user = users
         .find_one(doc! { "_id": user_oid })
@@ -236,10 +233,7 @@ pub async fn count_local_campaigns_for_user(
 
 pub async fn count_local_campaigns_global(mongo: &MongoHandle) -> Result<CountResult> {
     let coll = mongo.collection::<Document>(AD_CAMPAIGNS_COLL);
-    let n = coll
-        .count_documents(doc! {})
-        .await
-        .map_err(internal)?;
+    let n = coll.count_documents(doc! {}).await.map_err(internal)?;
     Ok(CountResult { count: n })
 }
 

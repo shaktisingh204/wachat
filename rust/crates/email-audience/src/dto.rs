@@ -2,9 +2,7 @@
 
 use bson::oid::ObjectId;
 use chrono::{DateTime, Utc};
-use email_types::{
-    EmailFilterTree, EmailSubscriber, EmailSubscriberStatus,
-};
+use email_types::{EmailFilterTree, EmailSubscriber, EmailSubscriberStatus};
 use serde::{Deserialize, Serialize};
 
 // ---------- pagination ----------
@@ -37,8 +35,12 @@ pub struct SubscribersQuery {
     pub tag: Option<String>,
 }
 
-fn default_page() -> u64 { 1 }
-fn default_limit() -> u64 { 50 }
+fn default_page() -> u64 {
+    1
+}
+fn default_limit() -> u64 {
+    50
+}
 
 // ---------- input bodies ----------
 
@@ -131,7 +133,9 @@ pub struct PreviewSegmentBody {
     pub sample_size: u64,
 }
 
-fn default_preview_limit() -> u64 { 10 }
+fn default_preview_limit() -> u64 {
+    10
+}
 
 // ---------- field schema ----------
 
@@ -151,7 +155,14 @@ pub struct CustomFieldDef {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum CustomFieldType {
-    Text, Number, Date, Boolean, Select, Multiselect, Url, Phone,
+    Text,
+    Number,
+    Date,
+    Boolean,
+    Select,
+    Multiselect,
+    Url,
+    Phone,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -202,7 +213,10 @@ pub struct TagWithCount {
 }
 
 // Re-exports so handlers don't have to bring email_types in twice.
-pub use email_types::{EmailFilterTree as Filter, EmailList as ListDoc, EmailSegment as SegmentDoc, EmailSubscriber as SubscriberDoc};
+pub use email_types::{
+    EmailFilterTree as Filter, EmailList as ListDoc, EmailSegment as SegmentDoc,
+    EmailSubscriber as SubscriberDoc,
+};
 
 // Defensive use to silence unused-import warnings if a future commit drops one.
 #[allow(dead_code)]

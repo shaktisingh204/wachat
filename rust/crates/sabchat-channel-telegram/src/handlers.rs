@@ -107,12 +107,8 @@ pub async fn ingest(
     let tenant_id = doc_object_id(&inbox, "tenantId")?;
 
     // ---- Idempotency check --------------------------------------------
-    if let Some(existing) = find_message_by_update_id(
-        &state.mongo,
-        &inbox_id,
-        &body.provider_update_id,
-    )
-    .await?
+    if let Some(existing) =
+        find_message_by_update_id(&state.mongo, &inbox_id, &body.provider_update_id).await?
     {
         let conversation_id = existing
             .get_object_id("conversationId")
@@ -248,12 +244,8 @@ pub async fn callback(
     let tenant_id = doc_object_id(&inbox, "tenantId")?;
 
     // ---- Idempotency check --------------------------------------------
-    if let Some(existing) = find_message_by_update_id(
-        &state.mongo,
-        &inbox_id,
-        &body.provider_update_id,
-    )
-    .await?
+    if let Some(existing) =
+        find_message_by_update_id(&state.mongo, &inbox_id, &body.provider_update_id).await?
     {
         let conversation_id = existing
             .get_object_id("conversationId")
@@ -296,14 +288,11 @@ pub async fn callback(
     let contact_id = doc_object_id(&contact, "_id")?;
 
     // ---- Look up the most-recent open conversation --------------------
-    let conversation_id =
-        latest_open_conversation(&state.mongo, &inbox_id, &contact_id)
-            .await?
-            .ok_or_else(|| {
-                ApiError::NotFound(
-                    "No open SabChat conversation for this Telegram contact.".to_owned(),
-                )
-            })?;
+    let conversation_id = latest_open_conversation(&state.mongo, &inbox_id, &contact_id)
+        .await?
+        .ok_or_else(|| {
+            ApiError::NotFound("No open SabChat conversation for this Telegram contact.".to_owned())
+        })?;
 
     // ---- Insert the System message ------------------------------------
     let messages = state.mongo.collection::<Document>(MESSAGES_COLL);

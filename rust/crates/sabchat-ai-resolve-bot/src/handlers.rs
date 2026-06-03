@@ -34,9 +34,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    AnswerBody, AnswerResponse, AnswerSource, AutoReplyBody, AutoReplyResponse,
-};
+use crate::dto::{AnswerBody, AnswerResponse, AnswerSource, AutoReplyBody, AutoReplyResponse};
 use crate::llm::BotAnswer;
 use crate::retriever::{Retrieval, retrieve};
 use crate::state::SabChatAiResolveBotState;
@@ -111,9 +109,7 @@ async fn load_inbox_and_config(
     let inbox = coll
         .find_one(doc! { "_id": oid, "tenantId": tenant })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Inbox not found.".to_owned()))?;
 
     let cfg = parse_bot_config(&inbox);
@@ -127,15 +123,17 @@ fn parse_bot_config(inbox: &Document) -> BotConfig {
     // `channelConfig.settings` is `serde_json::Value` on the wire, so
     // we round-trip the inbox doc to JSON for easy nested-path access.
     // Doing it once per request is cheap; this is not on the hot path.
-    let value: serde_json::Value =
-        serde_json::to_value(inbox).unwrap_or(serde_json::Value::Null);
+    let value: serde_json::Value = serde_json::to_value(inbox).unwrap_or(serde_json::Value::Null);
 
     let bot = value
         .pointer("/channelConfig/settings/bot")
         .cloned()
         .unwrap_or(serde_json::Value::Null);
 
-    let enabled = bot.get("enabled").and_then(|v| v.as_bool()).unwrap_or(false);
+    let enabled = bot
+        .get("enabled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
     let confidence_threshold = bot
         .get("confidence_threshold")
         .or_else(|| bot.get("confidenceThreshold"))
@@ -309,7 +307,9 @@ async fn last_visitor_text(
     let content = d.get_document("content").ok();
     let kind = content.and_then(|c| c.get_str("kind").ok());
     let text = match kind {
-        Some("text") => content.and_then(|c| c.get_str("text").ok()).map(str::to_owned),
+        Some("text") => content
+            .and_then(|c| c.get_str("text").ok())
+            .map(str::to_owned),
         _ => None,
     };
     Ok(text)
@@ -543,8 +543,7 @@ pub async fn auto_reply(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("sabchat_conversations.update_one(bot auto-reply)"),
+                anyhow::Error::new(e).context("sabchat_conversations.update_one(bot auto-reply)"),
             )
         })?;
 

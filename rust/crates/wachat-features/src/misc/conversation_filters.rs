@@ -53,7 +53,9 @@ pub async fn list(
 ) -> Result<Json<FiltersResp>> {
     let project = load_project_for(&user, &state.mongo, &project_id).await?;
     let coll = state.mongo.collection::<Document>(COLL);
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
     let cursor = coll
         .find(doc! { "projectId": project.id })
         .with_options(opts)

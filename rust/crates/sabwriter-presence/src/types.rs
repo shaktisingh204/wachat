@@ -45,7 +45,10 @@ mod tests {
             id: None,
             document_id: ObjectId::new(),
             user_id: ObjectId::new(),
-            cursor: Some(PresenceCursor { anchor: 5, head: 12 }),
+            cursor: Some(PresenceCursor {
+                anchor: 5,
+                head: 12,
+            }),
             color: "#7C5CFF".into(),
             display_name: Some("R".into()),
             last_seen_at: BsonDateTime::from_chrono(Utc::now()),

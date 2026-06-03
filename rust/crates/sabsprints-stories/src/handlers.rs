@@ -267,7 +267,9 @@ pub async fn get_story(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("story".to_owned()))?;
     Ok(Json(row))
 }
@@ -289,8 +291,7 @@ pub async fn create_story(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -313,20 +314,26 @@ pub async fn update_story(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("story".to_owned()))?;
     let update = build_update_doc(patch, &before.status);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("story".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("story".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -358,7 +365,9 @@ pub async fn delete_story(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_stories.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("story".to_owned()));
     }

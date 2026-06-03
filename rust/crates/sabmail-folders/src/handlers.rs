@@ -64,15 +64,13 @@ pub async fn list_folders(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabmailFolder>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.find")))?;
-    let mut rows: Vec<SabmailFolder> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.find"))
+        })?;
+    let mut rows: Vec<SabmailFolder> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -225,7 +223,9 @@ pub async fn delete_folder(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_folders.archive"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabmail_folder".to_owned()));
     }

@@ -126,7 +126,10 @@ mod tests {
         let json = serde_json::to_value(&req).expect("serialize");
 
         // Kind should be snake_case.
-        assert_eq!(json.get("kind").and_then(|v| v.as_str()), Some("profit_and_loss"));
+        assert_eq!(
+            json.get("kind").and_then(|v| v.as_str()),
+            Some("profit_and_loss")
+        );
 
         // Format should be snake_case (TForm -> "t_form").
         let format = json
@@ -136,11 +139,14 @@ mod tests {
         assert_eq!(format, Some("t_form"));
 
         // camelCase field name should appear.
-        assert!(json.get("filters").and_then(|f| f.get("drillDownLevel")).is_some());
+        assert!(
+            json.get("filters")
+                .and_then(|f| f.get("drillDownLevel"))
+                .is_some()
+        );
 
         // Round-trip back.
-        let back: AccountingReportRequest =
-            serde_json::from_value(json).expect("deserialize");
+        let back: AccountingReportRequest = serde_json::from_value(json).expect("deserialize");
         assert!(matches!(back.kind, AccountingReportKind::ProfitAndLoss));
         assert!(matches!(back.filters.format, AccountingReportFormat::TForm));
     }

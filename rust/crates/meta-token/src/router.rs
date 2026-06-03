@@ -306,8 +306,8 @@ async fn page_token(
     State(s): State<MetaTokenState>,
     Json(body): Json<PageTokenBody>,
 ) -> Result<Json<PageTokenResp>> {
-    let token = graph::get_page_token_from_user_token(&s.http, &body.user_token, &body.page_id)
-        .await?;
+    let token =
+        graph::get_page_token_from_user_token(&s.http, &body.user_token, &body.page_id).await?;
     Ok(Json(PageTokenResp { page_token: token }))
 }
 

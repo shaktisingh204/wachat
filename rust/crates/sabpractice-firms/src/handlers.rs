@@ -133,15 +133,13 @@ pub async fn list_firms(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeFirm>(FIRMS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.find")))?;
-    let mut rows: Vec<SabPracticeFirm> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.find"))
+        })?;
+    let mut rows: Vec<SabPracticeFirm> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -166,7 +164,9 @@ pub async fn get_firm(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("firm".to_owned()))?;
     Ok(Json(row))
 }
@@ -183,10 +183,9 @@ pub async fn create_firm(
     }
     let mut firm = firm_from_create(input, user_id);
     let coll = mongo.collection::<SabPracticeFirm>(FIRMS_COLL);
-    let inserted = coll
-        .insert_one(&firm)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.insert")))?;
+    let inserted = coll.insert_one(&firm).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -212,14 +211,18 @@ pub async fn update_firm(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("firm".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("firm".to_owned()))?;
     Ok(Json(after))
 }
@@ -242,7 +245,9 @@ pub async fn delete_firm(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_firms.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("firm".to_owned()));
     }

@@ -96,7 +96,9 @@ fn category_from_create(
         .parent_id
         .as_deref()
         .map(str::trim)
-        .filter(|s| !s.is_empty() && !s.eq_ignore_ascii_case("none") && !s.eq_ignore_ascii_case("null"))
+        .filter(|s| {
+            !s.is_empty() && !s.eq_ignore_ascii_case("none") && !s.eq_ignore_ascii_case("null")
+        })
         .and_then(|s| ObjectId::parse_str(s).ok());
     let default_account = input
         .default_account_id
@@ -282,9 +284,7 @@ pub async fn get_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
     Ok(Json(row))
@@ -306,9 +306,7 @@ pub async fn create_category(
         .find_one(duplicate_name_filter(user_id, &entity.name, None))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.dup_check"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.dup_check"))
         })?;
     if dup.is_some() {
         return Err(ApiError::Validation(format!(
@@ -326,8 +324,7 @@ pub async fn create_category(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -353,9 +350,7 @@ pub async fn update_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
 
@@ -386,9 +381,7 @@ pub async fn update_category(
         .update_one(ownership_filter(user_id, oid), update)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.update"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.update"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("expense_category".to_owned()));
@@ -398,9 +391,7 @@ pub async fn update_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("expense_category".to_owned()))?;
 
@@ -438,9 +429,7 @@ pub async fn delete_category(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_expense_categories.archive"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_expense_categories.archive"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("expense_category".to_owned()));

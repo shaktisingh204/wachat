@@ -34,5 +34,8 @@ where
             "/public/{joinToken}/join",
             post(handlers::mark_joined_public),
         )
-        .route("/public/{joinToken}/leave", post(handlers::mark_left_public))
+        .route(
+            "/public/{joinToken}/leave",
+            post(handlers::mark_left_public),
+        )
 }

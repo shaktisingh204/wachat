@@ -179,10 +179,7 @@ mod tests {
         // Multi-word enum variant snake_case.
         assert_eq!(json.get("bookType").unwrap().as_str(), Some("credit_note"));
         // Single-word enum variant lowercase.
-        assert_eq!(
-            json.get("resetFrequency").unwrap().as_str(),
-            Some("yearly"),
-        );
+        assert_eq!(json.get("resetFrequency").unwrap().as_str(), Some("yearly"),);
 
         // Default-false bools skipped, default-true skipped.
         assert!(json.get("defaultForModule").is_none());

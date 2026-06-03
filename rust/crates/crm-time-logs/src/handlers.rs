@@ -110,8 +110,7 @@ fn validate_duration(
     let is_running_open = ended_at.is_none() && status == "running";
     if !(duration_minutes > 0.0 || is_running_open) {
         return Err(ApiError::Validation(
-            "durationMinutes must be > 0, or status must be \"running\" with no endedAt"
-                .to_owned(),
+            "durationMinutes must be > 0, or status must be \"running\" with no endedAt".to_owned(),
         ));
     }
     Ok(())
@@ -127,21 +126,21 @@ fn log_from_create(input: CreateTimeLogInput, user_id: ObjectId) -> Result<CrmTi
     let ended_at = input.ended_at.as_deref().and_then(parse_date);
     let status = input.status.unwrap_or_else(|| "stopped".to_owned());
     if !is_valid_status(&status) {
-        return Err(ApiError::Validation(format!(
-            "invalid status \"{status}\""
-        )));
+        return Err(ApiError::Validation(format!("invalid status \"{status}\"")));
     }
     if let Some(k) = input.entity_kind.as_deref() {
         if !is_valid_entity_kind(k) {
-            return Err(ApiError::Validation(format!(
-                "invalid entityKind \"{k}\""
-            )));
+            return Err(ApiError::Validation(format!("invalid entityKind \"{k}\"")));
         }
     }
     let duration_minutes = input.duration_minutes.unwrap_or(0.0);
     validate_duration(duration_minutes, ended_at, &status)?;
 
-    let approved_at = if status == "approved" { Some(now) } else { None };
+    let approved_at = if status == "approved" {
+        Some(now)
+    } else {
+        None
+    };
 
     Ok(CrmTimeLog {
         id: None,
@@ -175,9 +174,7 @@ fn build_update_doc(patch: UpdateTimeLogInput, before: &CrmTimeLog) -> Result<Do
     // Validate entityKind / status up-front so we don't half-mutate.
     if let Some(k) = patch.entity_kind.as_deref() {
         if !is_valid_entity_kind(k) {
-            return Err(ApiError::Validation(format!(
-                "invalid entityKind \"{k}\""
-            )));
+            return Err(ApiError::Validation(format!("invalid entityKind \"{k}\"")));
         }
     }
     if let Some(s) = patch.status.as_deref() {
@@ -348,9 +345,7 @@ pub async fn get_time_log(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     Ok(Json(row))
 }
@@ -377,8 +372,7 @@ pub async fn create_time_log(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -405,9 +399,7 @@ pub async fn update_time_log(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.find_one")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     let update = build_update_doc(patch, &before)?;
     let result = coll
@@ -420,9 +412,7 @@ pub async fn update_time_log(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.refetch")))?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -458,9 +448,7 @@ pub async fn delete_time_log(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_time_logs.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("time_log".to_owned()));
     }

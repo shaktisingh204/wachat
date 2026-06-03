@@ -57,13 +57,9 @@ pub async fn list_snapshots(
         .build();
 
     let coll = mongo.collection::<HeatmapSnapshot>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmaps.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmaps.find"))
+    })?;
     let mut rows: Vec<HeatmapSnapshot> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmaps.collect"))
     })?;

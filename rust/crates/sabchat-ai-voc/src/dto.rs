@@ -146,9 +146,5 @@ pub struct ListTopicMessagesResponse {
 /// endpoint so the clamp semantics stay consistent.
 pub fn clamp_limit(raw: Option<i64>, default: i64, max: i64) -> i64 {
     let v = raw.unwrap_or(default);
-    if v <= 0 {
-        default
-    } else {
-        v.min(max)
-    }
+    if v <= 0 { default } else { v.min(max) }
 }

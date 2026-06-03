@@ -57,11 +57,7 @@ pub async fn find_credentials(mongo: &MongoHandle) -> Result<Option<AdminCredent
 
 /// Upsert the admin credentials singleton. Refuses to overwrite an existing
 /// admin so this endpoint can't be used to hijack a configured deployment.
-pub async fn create_initial_admin(
-    mongo: &MongoHandle,
-    email: &str,
-    password: &str,
-) -> Result<()> {
+pub async fn create_initial_admin(mongo: &MongoHandle, email: &str, password: &str) -> Result<()> {
     if find_credentials(mongo).await?.is_some() {
         return Err(ApiError::Conflict(
             "An admin already exists. Setup is disabled.".to_owned(),
@@ -124,9 +120,9 @@ pub async fn revoke_token(
     }
 
     let coll = mongo.collection::<Document>(REVOKED_TOKENS_COLL);
-    coll.insert_one(doc)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("revoked_tokens.insert_one")))?;
+    coll.insert_one(doc).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("revoked_tokens.insert_one"))
+    })?;
 
     Ok(())
 }
@@ -162,8 +158,7 @@ pub fn normalize_and_validate_email(raw: &str) -> Result<String> {
 /// `ObjectId` and return a uniform `BadRequest` on failure.
 #[allow(dead_code)]
 pub fn parse_object_id(raw: &str, field: &str) -> Result<ObjectId> {
-    ObjectId::parse_str(raw)
-        .map_err(|_| ApiError::BadRequest(format!("Invalid {field} ID.")))
+    ObjectId::parse_str(raw).map_err(|_| ApiError::BadRequest(format!("Invalid {field} ID.")))
 }
 
 #[cfg(test)]

@@ -124,10 +124,7 @@ fn parse_iso(s: Option<&str>) -> Option<DateTime<Utc>> {
 }
 
 /// Resolve a `(from, to)` window with a 30-day default and a 1-year cap.
-fn resolve_range(
-    from: Option<&str>,
-    to: Option<&str>,
-) -> (DateTime<Utc>, DateTime<Utc>) {
+fn resolve_range(from: Option<&str>, to: Option<&str>) -> (DateTime<Utc>, DateTime<Utc>) {
     let now = Utc::now();
     let mut to_dt = parse_iso(to).unwrap_or(now);
     let mut from_dt = parse_iso(from).unwrap_or_else(|| to_dt - Duration::days(30));
@@ -345,7 +342,10 @@ pub struct OverviewResp {
     pub bots_breakdown: Option<BotsBreakdown>,
     #[serde(rename = "messagesBreakdown", skip_serializing_if = "Option::is_none")]
     pub messages_breakdown: Option<MessagesBreakdown>,
-    #[serde(rename = "broadcastsBreakdown", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "broadcastsBreakdown",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub broadcasts_breakdown: Option<BroadcastsBreakdown>,
     #[serde(rename = "paymentsBreakdown", skip_serializing_if = "Option::is_none")]
     pub payments_breakdown: Option<PaymentsBreakdown>,
@@ -549,12 +549,10 @@ pub async fn overview(
     // ---- commands: top commands invoked. We don't have an
     // invocation log, so we surface the commands declared per bot
     // weighted by bot count as a best-effort.
-    let (commands_top, commands_total) =
-        commands_summary(&s.mongo, project_oid, bot_oid).await;
+    let (commands_top, commands_total) = commands_summary(&s.mongo, project_oid, bot_oid).await;
 
     // ---- auto-reply: rules fired (proxy = active rules) + top by name ----
-    let (ar_fired, ar_top) =
-        auto_reply_summary(&s.mongo, project_oid, bot_oid).await;
+    let (ar_fired, ar_top) = auto_reply_summary(&s.mongo, project_oid, bot_oid).await;
 
     // ---- contacts: total / new / lost ----
     let contacts_coll = s.mongo.collection::<Document>(CHATS);
@@ -902,10 +900,7 @@ async fn auto_reply_summary(
 
     let mut active_filter = match_doc.clone();
     active_filter.insert("isActive", doc! { "$ne": false });
-    let fired = rules_coll
-        .count_documents(active_filter)
-        .await
-        .unwrap_or(0) as i64;
+    let fired = rules_coll.count_documents(active_filter).await.unwrap_or(0) as i64;
 
     let pipeline = vec![
         doc! { "$match": match_doc },
@@ -979,16 +974,16 @@ pub async fn messages_timeseries(
             });
         }
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => {
-                return Json(TimeseriesResp {
-                    error: Some(e),
-                    ..Default::default()
-                });
-            }
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Json(TimeseriesResp {
+                error: Some(e),
+                ..Default::default()
+            });
+        }
+    };
 
     let granularity = q.granularity.unwrap_or_default();
     let (from_dt, to_dt) = resolve_range(q.from.as_deref(), q.to.as_deref());
@@ -998,9 +993,12 @@ pub async fn messages_timeseries(
         doc! { "$gte": bson::DateTime::from_chrono(from_dt), "$lte": bson::DateTime::from_chrono(to_dt) },
     );
 
-    let series =
-        aggregate_message_buckets(&s.mongo.collection::<Document>(MESSAGES), &match_doc, granularity)
-            .await;
+    let series = aggregate_message_buckets(
+        &s.mongo.collection::<Document>(MESSAGES),
+        &match_doc,
+        granularity,
+    )
+    .await;
     Json(TimeseriesResp {
         series,
         granularity: granularity_label(granularity),
@@ -1051,16 +1049,16 @@ pub async fn broadcasts_timeseries(
             });
         }
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => {
-                return Json(BroadcastTimeseriesResp {
-                    error: Some(e),
-                    ..Default::default()
-                });
-            }
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Json(BroadcastTimeseriesResp {
+                error: Some(e),
+                ..Default::default()
+            });
+        }
+    };
 
     let granularity = q.granularity.unwrap_or_default();
     let (from_dt, to_dt) = resolve_range(q.from.as_deref(), q.to.as_deref());
@@ -1117,16 +1115,16 @@ pub async fn top_contacts(
             });
         }
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => {
-                return Json(TopContactsResp {
-                    error: Some(e),
-                    ..Default::default()
-                });
-            }
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Json(TopContactsResp {
+                error: Some(e),
+                ..Default::default()
+            });
+        }
+    };
 
     let limit = q.limit.unwrap_or(20).clamp(1, 100);
     let (from_dt, to_dt) = resolve_range(q.from.as_deref(), q.to.as_deref());
@@ -1245,16 +1243,16 @@ pub async fn top_commands(
             });
         }
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => {
-                return Json(TopCommandsResp {
-                    error: Some(e),
-                    ..Default::default()
-                });
-            }
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Json(TopCommandsResp {
+                error: Some(e),
+                ..Default::default()
+            });
+        }
+    };
     let limit = q.limit.unwrap_or(20).clamp(1, 100);
     let (mut commands, _total) = commands_summary(&s.mongo, project_oid, bot_oid).await;
     commands.truncate(limit as usize);
@@ -1308,16 +1306,16 @@ pub async fn funnel(
             });
         }
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => {
-                return Json(FunnelResp {
-                    error: Some(e),
-                    ..Default::default()
-                });
-            }
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => {
+            return Json(FunnelResp {
+                error: Some(e),
+                ..Default::default()
+            });
+        }
+    };
     let (from_dt, to_dt) = resolve_range(q.from.as_deref(), q.to.as_deref());
     let from_b = bson::DateTime::from_chrono(from_dt);
     let to_b = bson::DateTime::from_chrono(to_dt);
@@ -1337,10 +1335,7 @@ pub async fn funnel(
     let mut completed_match = scope_doc(project_oid, bot_oid);
     completed_match.insert("tags", "flow:completed");
     completed_match.insert("updatedAt", doc! { "$gte": from_b, "$lte": to_b });
-    let completed_flow = chats
-        .count_documents(completed_match)
-        .await
-        .unwrap_or(0) as i64;
+    let completed_flow = chats.count_documents(completed_match).await.unwrap_or(0) as i64;
 
     let invoices = s.mongo.collection::<Document>(INVOICES);
     let mut paid_match = scope_doc(project_oid, bot_oid);
@@ -1357,10 +1352,7 @@ pub async fn funnel(
     })
 }
 
-async fn distinct_chat_count(
-    messages: &mongodb::Collection<Document>,
-    match_doc: Document,
-) -> i64 {
+async fn distinct_chat_count(messages: &mongodb::Collection<Document>, match_doc: Document) -> i64 {
     let pipeline = vec![
         doc! { "$match": match_doc },
         doc! { "$group": { "_id": "$chatId" } },
@@ -1392,11 +1384,11 @@ pub async fn export_csv(
         Ok(o) => o,
         Err(e) => return csv_error(&e),
     };
-    let bot_oid =
-        match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await {
-            Ok(o) => o,
-            Err(e) => return csv_error(&e),
-        };
+    let bot_oid = match resolve_bot_filter(&user, &s.mongo, project_oid, q.bot_id.as_deref()).await
+    {
+        Ok(o) => o,
+        Err(e) => return csv_error(&e),
+    };
     let (from_dt, to_dt) = resolve_range(q.from.as_deref(), q.to.as_deref());
     let section = q.section.as_deref().unwrap_or("overview");
 
@@ -1447,8 +1439,8 @@ pub async fn export_csv(
         }
         _ => {
             // overview — flatten the JSON shape into a key/value CSV.
-            let resp = overview_payload(&s.mongo, &user, project_oid, bot_oid, from_dt, to_dt)
-                .await;
+            let resp =
+                overview_payload(&s.mongo, &user, project_oid, bot_oid, from_dt, to_dt).await;
             let mut csv = String::from("metric,value\n");
             csv.push_str(&format!("bots_total,{}\n", resp.bots));
             csv.push_str(&format!("bots_active_24h_chats,{}\n", resp.active_chats));
@@ -1610,11 +1602,15 @@ pub async fn bot_analytics(
     let chats = s.mongo.collection::<Document>(CHATS);
 
     let inbound = msgs
-        .count_documents(doc! { "botId": bot_oid, "direction": "inbound", "createdAt": { "$gte": since } })
+        .count_documents(
+            doc! { "botId": bot_oid, "direction": "inbound", "createdAt": { "$gte": since } },
+        )
         .await
         .unwrap_or(0) as i64;
     let outbound = msgs
-        .count_documents(doc! { "botId": bot_oid, "direction": "outbound", "createdAt": { "$gte": since } })
+        .count_documents(
+            doc! { "botId": bot_oid, "direction": "outbound", "createdAt": { "$gte": since } },
+        )
         .await
         .unwrap_or(0) as i64;
     let chat_count = chats
@@ -1721,4 +1717,3 @@ pub async fn bot_analytics(
         error: None,
     })
 }
-

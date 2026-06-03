@@ -120,7 +120,14 @@ pub struct StubClassifier {
 
 /// Positive-sentiment seed tokens (lower-case match).
 const POSITIVE_KEYWORDS: &[&str] = &[
-    "thanks", "thank", "great", "love", "awesome", "perfect", "excellent", "happy",
+    "thanks",
+    "thank",
+    "great",
+    "love",
+    "awesome",
+    "perfect",
+    "excellent",
+    "happy",
 ];
 /// Negative-sentiment seed tokens (lower-case match).
 const NEGATIVE_KEYWORDS: &[&str] = &[
@@ -138,16 +145,13 @@ impl StubClassifier {
             .expect("email regex compiles");
         // E.164-ish: optional `+`, 7-15 digits, with optional spaces /
         // dashes between groups of 2-4.
-        let phone_re = Regex::new(r"(?:\+?\d[\d\-\s().]{6,}\d)")
-            .expect("phone regex compiles");
+        let phone_re = Regex::new(r"(?:\+?\d[\d\-\s().]{6,}\d)").expect("phone regex compiles");
         // 13-19 digit card numbers with optional separators (we don't
         // Luhn-check — the goal is "did the user paste a card?", not
         // validation).
-        let card_re = Regex::new(r"\b(?:\d[ \-]?){12,18}\d\b")
-            .expect("card regex compiles");
+        let card_re = Regex::new(r"\b(?:\d[ \-]?){12,18}\d\b").expect("card regex compiles");
         // US SSN: NNN-NN-NNNN, optional spaces.
-        let ssn_re = Regex::new(r"\b\d{3}[\-\s]?\d{2}[\-\s]?\d{4}\b")
-            .expect("ssn regex compiles");
+        let ssn_re = Regex::new(r"\b\d{3}[\-\s]?\d{2}[\-\s]?\d{4}\b").expect("ssn regex compiles");
 
         Self {
             email_re,
@@ -311,10 +315,8 @@ fn count_word(haystack: &str, needle: &str) -> usize {
     while let Some(pos) = haystack[i..].find(needle) {
         let start = i + pos;
         let end = start + nlen;
-        let prev_ok = start == 0
-            || !bytes[start - 1].is_ascii_alphanumeric();
-        let next_ok = end == bytes.len()
-            || !bytes[end].is_ascii_alphanumeric();
+        let prev_ok = start == 0 || !bytes[start - 1].is_ascii_alphanumeric();
+        let next_ok = end == bytes.len() || !bytes[end].is_ascii_alphanumeric();
         if prev_ok && next_ok {
             count += 1;
         }

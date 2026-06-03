@@ -1,9 +1,15 @@
 //! HTTP handlers for SabWorkerly invoices.
 
-use axum::{Json, extract::{Path, Query, State}};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_common::{pagination::{clamp_limit, skip_for}, tenant::user_oid};
+use crm_common::{
+    pagination::{clamp_limit, skip_for},
+    tenant::user_oid,
+};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -31,17 +37,23 @@ pub struct ListResponse {
 
 #[instrument(skip_all)]
 pub async fn list_invoices(
-    user: AuthUser, State(mongo): State<MongoHandle>, Query(q): Query<ListQuery>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
     match q.status.as_deref().unwrap_or("all") {
         "all" => {}
-        s @ ("draft" | "sent" | "paid" | "overdue") => { filter.insert("status", s); }
+        s @ ("draft" | "sent" | "paid" | "overdue") => {
+            filter.insert("status", s);
+        }
         _ => {}
     }
     if let Some(s) = q.client_id.as_deref() {
-        if !s.is_empty() { filter.insert("clientId", oid_from_str(s)?); }
+        if !s.is_empty() {
+            filter.insert("clientId", oid_from_str(s)?);
+        }
     }
     let limit = clamp_limit(q.limit);
     let skip = skip_for(q.page, limit);
@@ -51,23 +63,39 @@ pub async fn list_invoices(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabworkerlyInvoice>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let mut rows: Vec<SabworkerlyInvoice> = cursor.try_collect().await
+    let mut rows: Vec<SabworkerlyInvoice> = cursor
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
-    Ok(Json(ListResponse { items: rows, page: q.page.unwrap_or(0), limit: limit as u32, has_more }))
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn get_invoice(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<SabworkerlyInvoice>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyInvoice>(COLL);
-    let row = coll.find_one(own(user_id, oid)).await
+    let row = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("invoice".to_owned()))?;
     Ok(Json(row))
@@ -75,14 +103,20 @@ pub async fn get_invoice(
 
 #[instrument(skip_all)]
 pub async fn create_invoice(
-    user: AuthUser, State(mongo): State<MongoHandle>, Json(input): Json<CreateInvoiceInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreateInvoiceInput>,
 ) -> Result<Json<CreateInvoiceResponse>> {
     let user_id = user_oid(&user)?;
     let client_oid = oid_from_str(&input.client_id)?;
-    let ts_oids: Vec<ObjectId> = input.timesheet_ids.iter()
+    let ts_oids: Vec<ObjectId> = input
+        .timesheet_ids
+        .iter()
         .map(|s| oid_from_str(s))
         .collect::<Result<_>>()?;
-    let lines: Vec<SabworkerlyInvoiceLine> = input.line_items.into_iter()
+    let lines: Vec<SabworkerlyInvoiceLine> = input
+        .line_items
+        .into_iter()
         .map(|l| -> Result<SabworkerlyInvoiceLine> {
             Ok(SabworkerlyInvoiceLine {
                 placement_id: oid_from_str(&l.placement_id)?,
@@ -111,30 +145,51 @@ pub async fn create_invoice(
         updated_at: None,
     };
     let coll = mongo.collection::<SabworkerlyInvoice>(COLL);
-    let inserted = coll.insert_one(&inv).await
+    let inserted = coll
+        .insert_one(&inv)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let new_id = inserted.inserted_id.as_object_id()
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     inv.id = Some(new_id);
-    Ok(Json(CreateInvoiceResponse { id: new_id.to_hex(), entity: inv }))
+    Ok(Json(CreateInvoiceResponse {
+        id: new_id.to_hex(),
+        entity: inv,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn update_invoice(
-    user: AuthUser, State(mongo): State<MongoHandle>,
-    Path(id): Path<String>, Json(patch): Json<UpdateInvoiceInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(patch): Json<UpdateInvoiceInput>,
 ) -> Result<Json<SabworkerlyInvoice>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.status { set.insert("status", v); }
-    if let Some(v) = patch.sent_at { set.insert("sentAt", BsonDateTime::from_chrono(v)); }
-    if let Some(v) = patch.paid_at { set.insert("paidAt", BsonDateTime::from_chrono(v)); }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.sent_at {
+        set.insert("sentAt", BsonDateTime::from_chrono(v));
+    }
+    if let Some(v) = patch.paid_at {
+        set.insert("paidAt", BsonDateTime::from_chrono(v));
+    }
     let coll = mongo.collection::<SabworkerlyInvoice>(COLL);
-    let result = coll.update_one(own(user_id, oid), doc! { "$set": set }).await
+    let result = coll
+        .update_one(own(user_id, oid), doc! { "$set": set })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    if result.matched_count == 0 { return Err(ApiError::NotFound("invoice".to_owned())); }
-    let after = coll.find_one(own(user_id, oid)).await
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("invoice".to_owned()));
+    }
+    let after = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("invoice".to_owned()))?;
     Ok(Json(after))
@@ -142,12 +197,18 @@ pub async fn update_invoice(
 
 #[instrument(skip_all)]
 pub async fn delete_invoice(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<DeleteInvoiceResponse>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyInvoice>(COLL);
-    let result = coll.delete_one(own(user_id, oid)).await
+    let result = coll
+        .delete_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    Ok(Json(DeleteInvoiceResponse { deleted: result.deleted_count > 0 }))
+    Ok(Json(DeleteInvoiceResponse {
+        deleted: result.deleted_count > 0,
+    }))
 }

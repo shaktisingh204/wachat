@@ -184,10 +184,7 @@ pub async fn admin_list(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("admin_list.count")))?;
 
-    let broadcasts = docs
-        .iter()
-        .map(doc_to_json)
-        .collect::<Result<Vec<_>>>()?;
+    let broadcasts = docs.iter().map(doc_to_json).collect::<Result<Vec<_>>>()?;
     Ok(Json(BroadcastListResponse { broadcasts, total }))
 }
 
@@ -214,23 +211,16 @@ pub async fn list_for_project(
         .find(filter.clone())
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("list_for_project.find"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("list_for_project.find")))?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("list_for_project.collect"))
     })?;
     let total = coll
         .count_documents(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("list_for_project.count"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("list_for_project.count")))?;
 
-    let broadcasts = docs
-        .iter()
-        .map(doc_to_json)
-        .collect::<Result<Vec<_>>>()?;
+    let broadcasts = docs.iter().map(doc_to_json).collect::<Result<Vec<_>>>()?;
     Ok(Json(BroadcastListResponse { broadcasts, total }))
 }
 
@@ -402,9 +392,7 @@ pub async fn start(
                 .map_err(|e| {
                     ApiError::Internal(anyhow::Error::new(e).context("templates.find_one"))
                 })?
-                .ok_or_else(|| {
-                    ApiError::NotFound("template not found for this project".into())
-                })?;
+                .ok_or_else(|| ApiError::NotFound("template not found for this project".into()))?;
             // J3 P1-1 — block PENDING / REJECTED templates at enqueue time.
             let status = t.get_str("status").unwrap_or("");
             if status != "APPROVED" {
@@ -570,9 +558,10 @@ pub async fn start(
 
     // ---- Insert broadcast + contacts -----------------------------------
     let bcasts = state.mongo.collection::<Document>(BROADCASTS_COLL);
-    bcasts.insert_one(broadcast_doc).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("broadcasts.insert_one"))
-    })?;
+    bcasts
+        .insert_one(broadcast_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("broadcasts.insert_one")))?;
     let inserted = create_broadcast_contacts(&state.mongo, &broadcast_oid, &contacts).await?;
 
     // ---- Enqueue control job (non-fatal on failure) --------------------
@@ -642,12 +631,18 @@ pub async fn bulk_start(
             })? {
             Some(t) => t,
             None => {
-                failed_projects.push(format!("{} (template not found)", project.name.as_deref().unwrap_or("(unnamed project)")));
+                failed_projects.push(format!(
+                    "{} (template not found)",
+                    project.name.as_deref().unwrap_or("(unnamed project)")
+                ));
                 continue;
             }
         };
         if template.get_str("status").unwrap_or("") != "APPROVED" {
-            failed_projects.push(format!("{} (template not approved)", project.name.as_deref().unwrap_or("(unnamed project)")));
+            failed_projects.push(format!(
+                "{} (template not approved)",
+                project.name.as_deref().unwrap_or("(unnamed project)")
+            ));
             continue;
         }
 
@@ -660,7 +655,10 @@ pub async fn bulk_start(
         let template_id = template
             .get_object_id("_id")
             .map_err(|_| ApiError::Internal(anyhow::anyhow!("template missing _id")))?;
-        let template_components = template.get_array("components").cloned().unwrap_or_default();
+        let template_components = template
+            .get_array("components")
+            .cloned()
+            .unwrap_or_default();
 
         let broadcast_oid = ObjectId::new();
         let mut broadcast_doc = doc! {
@@ -724,15 +722,12 @@ pub async fn api_start(
         })?
         .ok_or_else(|| ApiError::NotFound("template not found for this project".into()))?;
 
-    let template_components = template.get_array("components").cloned().unwrap_or_default();
-    let template_name = template
-        .get_str("name")
-        .unwrap_or("")
-        .to_owned();
-    let language = template
-        .get_str("language")
-        .unwrap_or("en_US")
-        .to_owned();
+    let template_components = template
+        .get_array("components")
+        .cloned()
+        .unwrap_or_default();
+    let template_name = template.get_str("name").unwrap_or("").to_owned();
+    let language = template.get_str("language").unwrap_or("en_US").to_owned();
 
     let broadcast_oid = ObjectId::new();
     let mut broadcast_doc = doc! {
@@ -780,8 +775,7 @@ pub async fn requeue(
     Path(broadcast_id): Path<String>,
     Json(body): Json<RequeueBroadcastBody>,
 ) -> Result<Json<MessageResponse>> {
-    let (original, project) =
-        load_broadcast_for(&user, &state.mongo, &broadcast_id).await?;
+    let (original, project) = load_broadcast_for(&user, &state.mongo, &broadcast_id).await?;
 
     let original_template_id = original
         .get_object_id("templateId")
@@ -844,7 +838,10 @@ pub async fn requeue(
     new_doc.remove("startedAt");
     new_doc.remove("completedAt");
     new_doc.insert("createdAt", Utc::now());
-    let template_components = template.get_array("components").cloned().unwrap_or_default();
+    let template_components = template
+        .get_array("components")
+        .cloned()
+        .unwrap_or_default();
     new_doc.insert("components", Bson::Array(template_components));
     if let Some(url) = body.header_image_url.as_deref() {
         new_doc.insert("headerImageUrl", url);
@@ -910,12 +907,11 @@ pub async fn requeue_stuck(
         .find(filter)
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("requeue_stuck.find"))
-        })?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("requeue_stuck.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("requeue_stuck.find")))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("requeue_stuck.collect")))?;
 
     if docs.is_empty() {
         return Ok(Json(RequeueStuckResponse {
@@ -960,14 +956,16 @@ pub async fn requeue_stuck(
         enqueued += 1;
     }
 
-    let message = format!(
-        "Re-enqueued {enqueued} of {considered} stuck broadcast(s)."
-    );
+    let message = format!("Re-enqueued {enqueued} of {considered} stuck broadcast(s).");
     Ok(Json(RequeueStuckResponse {
         message,
         enqueued,
         considered,
-        errors: if errors.is_empty() { None } else { Some(errors) },
+        errors: if errors.is_empty() {
+            None
+        } else {
+            Some(errors)
+        },
     }))
 }
 
@@ -1033,9 +1031,7 @@ async fn create_broadcast_contacts(
             })
             .collect();
         let res = coll.insert_many(docs).await.map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("broadcast_contacts.insert_many"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("broadcast_contacts.insert_many"))
         })?;
         total += res.inserted_ids.len() as u64;
     }
@@ -1049,10 +1045,7 @@ async fn create_broadcast_contacts(
 /// Priority is clamped to `1..=2_000_000` so older jobs sort ahead of
 /// newer ones, mirroring the TS:
 ///   `priority: Math.max(1, Date.now() % 2_000_000)`
-async fn enqueue_control(
-    state: &WachatBroadcastState,
-    broadcast_id: &ObjectId,
-) -> Result<()> {
+async fn enqueue_control(state: &WachatBroadcastState, broadcast_id: &ObjectId) -> Result<()> {
     let id_hex = broadcast_id.to_hex();
     let priority_now = (Utc::now().timestamp_millis().rem_euclid(2_000_000)).max(1) as u32;
     let opts = JobOptions {
@@ -1074,10 +1067,7 @@ async fn enqueue_control(
 /// `status: PENDING_PROCESSING` and the legacy poller fallback will
 /// pick it up. This matches the TS try/catch around
 /// `enqueueBroadcastControl`.
-async fn enqueue_control_best_effort(
-    state: &WachatBroadcastState,
-    broadcast_id: &ObjectId,
-) {
+async fn enqueue_control_best_effort(state: &WachatBroadcastState, broadcast_id: &ObjectId) {
     if let Err(e) = enqueue_control(state, broadcast_id).await {
         warn!(
             error = ?e,
@@ -1162,11 +1152,11 @@ pub async fn upload_media(
         }
     }
 
-    let phone_number_id = phone_number_id.filter(|s| !s.is_empty()).ok_or_else(|| {
-        ApiError::BadRequest("missing form field `phoneNumberId`".to_owned())
-    })?;
-    let bytes = file_bytes
-        .ok_or_else(|| ApiError::BadRequest("missing form field `file`".to_owned()))?;
+    let phone_number_id = phone_number_id
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| ApiError::BadRequest("missing form field `phoneNumberId`".to_owned()))?;
+    let bytes =
+        file_bytes.ok_or_else(|| ApiError::BadRequest("missing form field `file`".to_owned()))?;
     let mime = file_mime.unwrap_or_else(|| "application/octet-stream".to_owned());
     let filename = file_name.unwrap_or_else(|| "upload".to_owned());
 
@@ -1178,4 +1168,3 @@ pub async fn upload_media(
 
     Ok(Json(json!({ "id": media_id.0 })))
 }
-

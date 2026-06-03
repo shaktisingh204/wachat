@@ -59,19 +59,12 @@ pub async fn list_customers(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcheckoutCustomer>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.find"))
-        })?;
-    let mut rows: Vec<SabcheckoutCustomer> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.find"))
+    })?;
+    let mut rows: Vec<SabcheckoutCustomer> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -124,12 +117,9 @@ pub async fn upsert_customer(
         "pageId": page_id,
         "externalCustomerRef": &input.external_customer_ref,
     };
-    let existing = coll
-        .find_one(filter.clone())
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.lookup"))
-        })?;
+    let existing = coll.find_one(filter.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.lookup"))
+    })?;
 
     let now = BsonDateTime::from_chrono(Utc::now());
     let mut set: Document = doc! {
@@ -173,10 +163,7 @@ pub async fn upsert_customer(
             ApiError::Internal(anyhow::Error::new(e).context("sabcheckout_customers.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabcheckout_customer".to_owned()))?;
-    let id = after
-        .id
-        .map(|o| o.to_hex())
-        .unwrap_or_default();
+    let id = after.id.map(|o| o.to_hex()).unwrap_or_default();
 
     Ok(Json(UpsertCustomerResponse {
         id,

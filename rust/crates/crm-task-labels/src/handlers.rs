@@ -148,11 +148,10 @@ pub async fn list_task_labels(
         .build();
 
     let coll = mongo.collection::<CrmTaskLabel>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find"))
+        })?;
     let mut rows: Vec<CrmTaskLabel> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.collect"))
     })?;
@@ -182,9 +181,7 @@ pub async fn get_task_label(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find_one")))?
         .ok_or_else(|| ApiError::NotFound("task_label".to_owned()))?;
     Ok(Json(row))
 }
@@ -214,17 +211,17 @@ pub async fn create_task_label(
         )));
     }
 
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -249,9 +246,7 @@ pub async fn update_task_label(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.find_one")))?
         .ok_or_else(|| ApiError::NotFound("task_label".to_owned()))?;
 
     // Validate name (non-empty + unique among non-archived labels excluding self).
@@ -264,9 +259,7 @@ pub async fn update_task_label(
                 .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("crm_task_labels.dup_check"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.dup_check"))
                 })?;
             if dup.is_some() {
                 return Err(ApiError::Validation(format!(
@@ -287,9 +280,7 @@ pub async fn update_task_label(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("task_label".to_owned()));
     }
@@ -297,9 +288,7 @@ pub async fn update_task_label(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_task_labels.refetch")))?
         .ok_or_else(|| ApiError::NotFound("task_label".to_owned()))?;
 
     if let Some(event) = audit_for_update(

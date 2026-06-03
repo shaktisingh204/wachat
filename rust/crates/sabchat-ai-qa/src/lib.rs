@@ -101,8 +101,9 @@ use axum::{
 };
 use sabnode_auth::AuthConfig;
 
-pub use grader::{GradeResult, Grader, GraderMessage, Rubric, RubricCriterion, StubGrader,
-    make_grader_from_env};
+pub use grader::{
+    GradeResult, Grader, GraderMessage, Rubric, RubricCriterion, StubGrader, make_grader_from_env,
+};
 pub use state::SabChatAiQaState;
 
 /// Build the SabChat AI QA router.

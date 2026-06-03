@@ -99,17 +99,13 @@ pub async fn list_sessions(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SablensSession>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.find")))?;
-    let mut rows: Vec<SablensSession> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.collect"))
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.find"))
         })?;
+    let mut rows: Vec<SablensSession> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -185,12 +181,9 @@ pub async fn create_session(
         updated_at: None,
     };
     let coll = mongo.collection::<SablensSession>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -256,9 +249,7 @@ pub async fn update_session(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_session".to_owned()))?;
     Ok(Json(after))
 }
@@ -312,18 +303,14 @@ pub async fn start_session(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.start"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.start")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("sablens_session".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_session".to_owned()))?;
     Ok(Json(after))
 }
@@ -372,9 +359,7 @@ pub async fn end_session(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_session".to_owned()))?;
     Ok(Json(after))
 }
@@ -415,9 +400,7 @@ pub async fn append_snapshot(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.refetch")))?
         .ok_or_else(|| ApiError::NotFound("sablens_session".to_owned()))?;
     Ok(Json(after))
 }
@@ -481,10 +464,7 @@ pub async fn redeem_customer_token(
         })?
         .ok_or_else(|| ApiError::NotFound("sablens_session".to_owned()))?;
     Ok(Json(PublicSessionView {
-        session_id: row
-            .id
-            .map(|o| o.to_hex())
-            .unwrap_or_default(),
+        session_id: row.id.map(|o| o.to_hex()).unwrap_or_default(),
         status: row.status,
         mode: row.mode,
         technician_name: None,
@@ -527,10 +507,7 @@ pub async fn customer_join(
         ApiError::Internal(anyhow::Error::new(e).context("sablens_sessions.customer_join"))
     })?;
     Ok(Json(PublicSessionView {
-        session_id: row
-            .id
-            .map(|o| o.to_hex())
-            .unwrap_or_default(),
+        session_id: row.id.map(|o| o.to_hex()).unwrap_or_default(),
         status: next_status.to_owned(),
         mode: row.mode,
         technician_name: None,

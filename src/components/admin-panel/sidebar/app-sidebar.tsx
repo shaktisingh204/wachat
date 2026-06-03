@@ -59,6 +59,10 @@ import {
     seoMenuItems,
     userSettingsItems,
     teamMenuItems,
+    sabdeskMenuGroups,
+    sabshopMenuGroups,
+    sabcheckoutMenuGroups,
+    sabsenseMenuGroups,
     type MenuItem,
 } from '@/config/dashboard-config';
 import { useAdManager } from '@/context/ad-manager-context';
@@ -87,6 +91,9 @@ const APP_META: Record<string, { label: string; icon: any }> = {
     'url-shortener':  { label: 'URL Shortener',  icon: LinkIcon },
     'qr-code-maker':  { label: 'QR Code Maker',  icon: QrCode },
     api:              { label: 'API',            icon: Globe },
+    sabshop:          { label: 'SabShop',        icon: ShoppingBag },
+    sabcheckout:      { label: 'SabCheckout',    icon: CreditCard },
+    sabsense:         { label: 'SabSense',       icon: Search },
 };
 
 /* ─── Project apps (those that require an active project) ──────────────────── */
@@ -373,6 +380,38 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
 
             case 'seo-suite':
                 return seoMenuItems.map(item => <NavItem key={item.href} item={item} />);
+
+            case 'sabdesk':
+                return sabdeskMenuGroups.map(group => (
+                    <React.Fragment key={group.title}>
+                        <GroupLabel title={group.title} />
+                        {group.items.map(item => <NavItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
+
+            case 'sabshop':
+                return sabshopMenuGroups.map(group => (
+                    <React.Fragment key={group.title}>
+                        <GroupLabel title={group.title} />
+                        {group.items.map(item => <NavItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
+
+            case 'sabcheckout':
+                return sabcheckoutMenuGroups.map(group => (
+                    <React.Fragment key={group.title}>
+                        <GroupLabel title={group.title} />
+                        {group.items.map(item => <NavItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
+
+            case 'sabsense':
+                return sabsenseMenuGroups.map(group => (
+                    <React.Fragment key={group.title}>
+                        <GroupLabel title={group.title} />
+                        {group.items.map(item => <NavItem key={item.href} item={item} />)}
+                    </React.Fragment>
+                ));
 
             case 'user-settings':
                 return userSettingsItems.map(item => <NavItem key={item.href} item={item} />);

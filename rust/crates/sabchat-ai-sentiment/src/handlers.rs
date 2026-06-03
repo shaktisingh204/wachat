@@ -98,10 +98,7 @@ fn extract_text_content(message: &Document) -> Option<String> {
 }
 
 /// Run the classifier and lift any error into `ApiError::Internal`.
-async fn run_classifier(
-    state: &SabChatAiSentimentState,
-    text: &str,
-) -> Result<Classification> {
+async fn run_classifier(state: &SabChatAiSentimentState, text: &str) -> Result<Classification> {
     state
         .classifier
         .classify(text)
@@ -226,9 +223,7 @@ pub async fn classify_conversation(
         .find_one(doc! { "_id": conversation_oid, "tenantId": tenant })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("Conversation not found.".to_owned()))?;
 
@@ -317,8 +312,7 @@ pub async fn classify_conversation(
             .await
             .map_err(|e| {
                 ApiError::Internal(
-                    anyhow::Error::new(e)
-                        .context("sabchat_conversations.update_one(churnRisk)"),
+                    anyhow::Error::new(e).context("sabchat_conversations.update_one(churnRisk)"),
                 )
             })?;
     }

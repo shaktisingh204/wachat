@@ -51,8 +51,6 @@ pub use assignment::SabChatAssignment;
 pub use audit::{AuditAction, SabChatAuditEvent};
 pub use contact::{SabChatContact, SocialIdentity};
 pub use content::{Attachment, CardButton, CarouselCard, ContentBlock};
-pub use conversation::{
-    ConversationPriority, ConversationStatus, SabChatConversation, SlaPolicy,
-};
+pub use conversation::{ConversationPriority, ConversationStatus, SabChatConversation, SlaPolicy};
 pub use inbox::{BusinessHours, ChannelConfig, ChannelType, SabChatInbox};
 pub use message::{MessageDirection, SabChatMessage, SenderType};

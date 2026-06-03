@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use regex::Regex;
+use std::sync::Arc;
 
 use crate::error::Result;
 use crate::models::{MessageContext, OptStatus};
@@ -19,7 +19,10 @@ impl InboundInterceptor {
         Self {
             store,
             // Strict TCPA opt-out keyword detection (allow optional punctuation)
-            stop_pattern: Regex::new(r"(?i)^\s*[\p{P}]*(stop|stopall|unsubscribe|cancel|quit|end)[\p{P}]*\s*$").unwrap(),
+            stop_pattern: Regex::new(
+                r"(?i)^\s*[\p{P}]*(stop|stopall|unsubscribe|cancel|quit|end)[\p{P}]*\s*$",
+            )
+            .unwrap(),
             start_pattern: Regex::new(r"(?i)^\s*[\p{P}]*(start|unstop|yes)[\p{P}]*\s*$").unwrap(),
         }
     }
@@ -32,13 +35,17 @@ impl InboundInterceptor {
 
         if self.stop_pattern.is_match(text) {
             // Recipient (ctx.from) is opting out from Sender (ctx.to)
-            self.store.update_opt_status(&ctx.from, Some(&ctx.to), OptStatus::OptedOut).await?;
+            self.store
+                .update_opt_status(&ctx.from, Some(&ctx.to), OptStatus::OptedOut)
+                .await?;
             return Ok(true);
         }
 
         if self.start_pattern.is_match(text) {
             // Recipient (ctx.from) is opting in to Sender (ctx.to)
-            self.store.update_opt_status(&ctx.from, Some(&ctx.to), OptStatus::OptedIn).await?;
+            self.store
+                .update_opt_status(&ctx.from, Some(&ctx.to), OptStatus::OptedIn)
+                .await?;
             return Ok(true);
         }
 

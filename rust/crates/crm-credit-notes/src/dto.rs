@@ -13,8 +13,8 @@
 //! `#[serde(rename_all = "camelCase")]` so JSON requests round-trip
 //! with the TS clients.
 
-use crm_sales_types::{CreditNoteReason, CreditNoteStatus, RefundMode};
 use crm_sales_types::line_item::{LineItem, Totals};
+use crm_sales_types::{CreditNoteReason, CreditNoteStatus, RefundMode};
 use serde::{Deserialize, Serialize};
 
 /// Default page size if the caller doesn't send `limit`.
@@ -125,7 +125,7 @@ pub struct CreateCreditNoteInput {
     /// 24-char hex of the parent record.
     #[serde(default)]
     pub from_id: Option<String>,
-    
+
     #[serde(default)]
     pub design_metadata: Option<serde_json::Value>,
 }
@@ -270,10 +270,7 @@ mod tests {
         assert_eq!(q.page, Some(2));
         assert_eq!(q.limit, Some(50));
         assert_eq!(q.q.as_deref(), Some("CN-000"));
-        assert_eq!(
-            q.client_id.as_deref(),
-            Some("507f1f77bcf86cd799439011"),
-        );
+        assert_eq!(q.client_id.as_deref(), Some("507f1f77bcf86cd799439011"),);
         assert_eq!(q.status.as_deref(), Some("issued"));
     }
 }

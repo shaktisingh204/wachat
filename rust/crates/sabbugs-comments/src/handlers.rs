@@ -19,8 +19,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateCommentInput, CreateCommentResponse, DeleteCommentResponse, ListQuery,
-    UpdateCommentInput,
+    CreateCommentInput, CreateCommentResponse, DeleteCommentResponse, ListQuery, UpdateCommentInput,
 };
 use crate::types::BugComment;
 
@@ -95,9 +94,10 @@ pub async fn list_comments(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<BugComment>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabbugs_comments.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_comments.find"))
+        })?;
     let mut rows: Vec<BugComment> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabbugs_comments.collect"))
     })?;
@@ -130,8 +130,7 @@ pub async fn create_comment(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -167,9 +166,7 @@ pub async fn update_comment(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabbugs_comments.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbugs_comments.refetch")))?
         .ok_or_else(|| ApiError::NotFound("comment".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

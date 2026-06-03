@@ -13,12 +13,7 @@
 
 use std::sync::Arc;
 
-use axum::{
-    Router,
-    extract::FromRef,
-    routing::get,
-    routing::post,
-};
+use axum::{Router, extract::FromRef, routing::get, routing::post};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -45,8 +40,5 @@ where
             "/public/{hash}/stripe-checkout",
             post(stripe::start_stripe_checkout),
         )
-        .route(
-            "/stripe-webhook",
-            post(stripe::stripe_webhook),
-        )
+        .route("/stripe-webhook", post(stripe::stripe_webhook))
 }

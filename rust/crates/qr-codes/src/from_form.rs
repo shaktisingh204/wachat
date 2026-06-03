@@ -1,6 +1,9 @@
 //! Multipart entrypoint for the QR-code Server Action.
 
-use axum::{Json, extract::{Multipart, State}};
+use axum::{
+    Json,
+    extract::{Multipart, State},
+};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::bson_helpers::oid_from_str;

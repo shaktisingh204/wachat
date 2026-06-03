@@ -10,6 +10,7 @@ mod state;
 
 use std::{net::SocketAddr, sync::Arc};
 
+use ad_manager::AdManagerState;
 use anyhow::Context;
 use common::Settings;
 use crm_lookup::indexes as crm_lookup_indexes;
@@ -18,21 +19,23 @@ use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
-use url_shortener::UrlShortenerState;
-use ad_manager::AdManagerState;
-use sabfiles::{SabfilesState, r2::{R2Client, R2Config}};
+use sabfiles::{
+    SabfilesState,
+    r2::{R2Client, R2Config},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use tokio::{net::TcpListener, signal};
 use tracing::{error, info};
+use url_shortener::UrlShortenerState;
 use wachat_analytics::WachatAnalyticsState;
+use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_broadcast::WachatBroadcastState;
 use wachat_calling::WachatCallingState;
 use wachat_chat_mark::ChatMarker;
 use wachat_config::WachatConfigState;
-use wachat_features::WachatFeaturesState;
-use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_contacts::WachatContactsState;
+use wachat_features::WachatFeaturesState;
 
 use sabchat_audit::SabChatAuditState;
 use sabchat_contacts::SabChatContactsState;
@@ -42,70 +45,72 @@ use sabchat_messages::SabChatMessagesState;
 use sabchat_routing::SabChatRoutingState;
 use sabchat_widget::SabChatWidgetState;
 
-use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
-use sabchat_channel_instagram::SabChatChannelInstagramState;
-use sabchat_channel_facebook::SabChatChannelFacebookState;
-use sabchat_channel_telegram::SabChatChannelTelegramState;
-use sabchat_channel_email::SabChatChannelEmailState;
-use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_ad_attribution::SabChatAdAttributionState;
 use sabchat_ai_copilot::SabChatAiCopilotState;
-use sabchat_ai_translate::{SabChatAiTranslateState, make_translator_from_env};
+use sabchat_ai_qa::SabChatAiQaState;
+use sabchat_ai_resolve_bot::{SabChatAiResolveBotState, llm::make_bot_from_env};
 use sabchat_ai_sentiment::{SabChatAiSentimentState, make_classifier_from_env};
-use sabchat_ai_resolve_bot::{llm::make_bot_from_env, SabChatAiResolveBotState};
-use sabchat_macros::SabChatMacrosState;
-use sabchat_sla::SabChatSlaState;
+use sabchat_ai_translate::{SabChatAiTranslateState, make_translator_from_env};
+use sabchat_ai_voc::SabChatAiVocState;
 use sabchat_business_hours::SabChatBusinessHoursState;
-use sabchat_crm_bridge::SabChatCrmBridgeState;
-use sabchat_knowledge::SabChatKnowledgeState;
-use sabchat_commerce::SabChatCommerceState;
-use sabchat_reports::SabChatReportsState;
-use sabchat_teams::SabChatTeamsState;
-use sabchat_webhooks::SabChatWebhooksState;
-use sabchat_public_api::SabChatPublicApiState;
-use sabchat_events::SabChatEventsState;
-use sabchat_voice::SabChatVoiceState;
+use sabchat_cart_recovery::SabChatCartRecoveryState;
+use sabchat_channel_apple::SabChatChannelAppleState;
+use sabchat_channel_email::SabChatChannelEmailState;
+use sabchat_channel_facebook::SabChatChannelFacebookState;
+use sabchat_channel_gbm::SabChatChannelGbmState;
+use sabchat_channel_instagram::SabChatChannelInstagramState;
+use sabchat_channel_line::SabChatChannelLineState;
+use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_channel_telegram::SabChatChannelTelegramState;
+use sabchat_channel_viber::SabChatChannelViberState;
+use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
+use sabchat_channel_x::SabChatChannelXState;
 use sabchat_cobrowse::SabChatCobrowseState;
-use sabchat_shifts::SabChatShiftsState;
+use sabchat_commerce::SabChatCommerceState;
+use sabchat_compliance::SabChatComplianceState;
+use sabchat_crm_bridge::SabChatCrmBridgeState;
 use sabchat_csat::SabChatCsatState;
 use sabchat_dispositions::SabChatDispositionsState;
+use sabchat_events::SabChatEventsState;
 use sabchat_gamification::SabChatGamificationState;
-use sabchat_compliance::SabChatComplianceState;
-use sabchat_sso::SabChatSsoState;
-use sabchat_ai_qa::SabChatAiQaState;
-use sabchat_ai_voc::SabChatAiVocState;
-use sabchat_sabflow_nodes::SabChatSabflowNodesState;
-use sabchat_cart_recovery::SabChatCartRecoveryState;
-use sabchat_ad_attribution::SabChatAdAttributionState;
-use sabchat_channel_line::SabChatChannelLineState;
-use sabchat_channel_viber::SabChatChannelViberState;
-use sabchat_channel_apple::SabChatChannelAppleState;
-use sabchat_channel_gbm::SabChatChannelGbmState;
-use sabchat_channel_x::SabChatChannelXState;
+use sabchat_knowledge::SabChatKnowledgeState;
+use sabchat_macros::SabChatMacrosState;
 use sabchat_marketplace::SabChatMarketplaceState;
+use sabchat_public_api::SabChatPublicApiState;
+use sabchat_reports::SabChatReportsState;
+use sabchat_sabflow_nodes::SabChatSabflowNodesState;
+use sabchat_shifts::SabChatShiftsState;
+use sabchat_sla::SabChatSlaState;
+use sabchat_sso::SabChatSsoState;
+use sabchat_teams::SabChatTeamsState;
+use sabchat_voice::SabChatVoiceState;
+use sabchat_webhooks::SabChatWebhooksState;
+use sabflow_engine::SabflowEngineState;
+use telegram_ads::TelegramAdsState;
+use telegram_analytics::TelegramAnalyticsState;
+use telegram_api_credentials::TelegramApiCredentialsState;
+use telegram_auto_reply::TelegramAutoReplyState;
+use telegram_bot_profile::TelegramBotProfileState;
+use telegram_bots::{TelegramBotsState, bot_api::BotApiClient as TelegramBotApiClient};
+use telegram_broadcasts::TelegramBroadcastsState;
+use telegram_business_inbox::TelegramBusinessInboxState;
+use telegram_channels::TelegramChannelsState;
+use telegram_chats::TelegramChatsState;
+use telegram_commands::TelegramCommandsState;
+use telegram_contacts::TelegramContactsState;
+use telegram_flows::TelegramFlowsState;
+use telegram_mini_apps::TelegramMiniAppsState;
+use telegram_payments::TelegramPaymentsState;
+use telegram_settings::TelegramSettingsState;
+use telegram_stickers::TelegramStickersState;
+use telegram_stories::TelegramStoriesState;
+use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
+use wachat_chat_read::ChatReader;
+use wachat_contacts_resolve::ContactResolver;
 use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
 use wachat_facebook_business::WachatFacebookBusinessState;
 use wachat_facebook_comments::WachatFacebookCommentsState;
-use telegram_bots::{TelegramBotsState, bot_api::BotApiClient as TelegramBotApiClient};
-use telegram_chats::TelegramChatsState;
-use telegram_broadcasts::TelegramBroadcastsState;
-use telegram_auto_reply::TelegramAutoReplyState;
-use telegram_commands::TelegramCommandsState;
-use telegram_bot_profile::TelegramBotProfileState;
-use telegram_channels::TelegramChannelsState;
-use telegram_analytics::TelegramAnalyticsState;
-use telegram_payments::TelegramPaymentsState;
-use telegram_stickers::TelegramStickersState;
-use telegram_stories::TelegramStoriesState;
-use telegram_flows::TelegramFlowsState;
-use telegram_mini_apps::TelegramMiniAppsState;
-use telegram_ads::TelegramAdsState;
-use telegram_api_credentials::TelegramApiCredentialsState;
-use telegram_business_inbox::TelegramBusinessInboxState;
-use telegram_contacts::TelegramContactsState;
-use telegram_settings::TelegramSettingsState;
-use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
-use sabflow_engine::SabflowEngineState;
 use wachat_facebook_content::WachatFacebookContentState;
 use wachat_facebook_crm::WachatFacebookCrmState;
 use wachat_facebook_events::WachatFacebookEventsState;
@@ -116,25 +121,23 @@ use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::{FacebookAppConfig, WachatFacebookPagesState};
 use wachat_flows::WachatFlowsState;
 use wachat_instagram::WachatInstagramState;
-use wachat_pay::WachatPayState;
-use wachat_projects::WachatProjectsState;
-use wachat_public_api::{ApiKeyVerifier, PublicApiState};
-use wachat_rate_limit::TokenBucket;
-use wachat_chat_read::ChatReader;
-use wachat_contacts_resolve::ContactResolver;
 use wachat_media::MediaUploader;
 use wachat_meta_client::MetaClient;
+use wachat_pay::WachatPayState;
 use wachat_payment_request::PaymentRequestSender;
+use wachat_projects::WachatProjectsState;
+use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_queue::BullProducer;
+use wachat_rate_limit::TokenBucket;
 use wachat_send::MessageSender;
 use wachat_send_cta::CtaSender;
 use wachat_send_flows::FlowSender;
 use wachat_send_orders::OrdersSender;
 use wachat_send_router::WachatSendState;
 use wachat_templates::TemplatesReader;
+use wachat_templates_actions::WachatTemplatesActionsState;
 use wachat_templates_categories::TemplatesLibrary;
 use wachat_templates_mutate::TemplatesMutator;
-use wachat_templates_actions::WachatTemplatesActionsState;
 use wachat_templates_router::TemplatesState;
 use wachat_templates_send::TemplateSender;
 use wachat_templates_sync::TemplatesSyncer;
@@ -346,9 +349,12 @@ async fn run() -> anyhow::Result<()> {
     let sabchat_channel_email_state = SabChatChannelEmailState::new(mongo.clone());
     let sabchat_channel_sms_state = SabChatChannelSmsState::new(mongo.clone());
     let sabchat_ai_copilot_state = SabChatAiCopilotState::new(mongo.clone());
-    let sabchat_ai_translate_state = SabChatAiTranslateState::new(mongo.clone(), make_translator_from_env());
-    let sabchat_ai_sentiment_state = SabChatAiSentimentState::new(mongo.clone(), make_classifier_from_env());
-    let sabchat_ai_resolve_bot_state = SabChatAiResolveBotState::new(mongo.clone(), make_bot_from_env());
+    let sabchat_ai_translate_state =
+        SabChatAiTranslateState::new(mongo.clone(), make_translator_from_env());
+    let sabchat_ai_sentiment_state =
+        SabChatAiSentimentState::new(mongo.clone(), make_classifier_from_env());
+    let sabchat_ai_resolve_bot_state =
+        SabChatAiResolveBotState::new(mongo.clone(), make_bot_from_env());
     let sabchat_macros_state = SabChatMacrosState::new(mongo.clone());
     let sabchat_sla_state = SabChatSlaState::new(mongo.clone());
     let sabchat_business_hours_state = SabChatBusinessHoursState::new(mongo.clone());
@@ -426,17 +432,13 @@ async fn run() -> anyhow::Result<()> {
         telegram_bot_api.clone(),
         telegram_app_url.clone(),
     );
-    let telegram_chats_state = TelegramChatsState::new(
-        mongo.clone(),
-        telegram_bot_api.clone(),
-    );
+    let telegram_chats_state = TelegramChatsState::new(mongo.clone(), telegram_bot_api.clone());
     let telegram_broadcasts_state =
         TelegramBroadcastsState::new(mongo.clone(), telegram_bot_api.clone());
     let telegram_auto_reply_state = TelegramAutoReplyState::new(mongo.clone());
     let telegram_commands_state =
         TelegramCommandsState::new(mongo.clone(), telegram_bot_api.clone());
-    let telegram_bot_profile_state =
-        TelegramBotProfileState::new(mongo.clone(), telegram_bot_api);
+    let telegram_bot_profile_state = TelegramBotProfileState::new(mongo.clone(), telegram_bot_api);
     let telegram_channels_state = TelegramChannelsState::new(mongo.clone());
     let telegram_analytics_state = TelegramAnalyticsState::new(mongo.clone());
     let telegram_payments_state = TelegramPaymentsState::new(mongo.clone());
@@ -482,7 +484,9 @@ async fn run() -> anyhow::Result<()> {
                 bucket: "missing".to_owned(),
                 public_url: None,
             };
-            let r2 = R2Client::new(cfg).await.context("initializing R2 stub client")?;
+            let r2 = R2Client::new(cfg)
+                .await
+                .context("initializing R2 stub client")?;
             SabfilesState::new(mongo.clone(), Arc::new(r2), None)
         }
     };
@@ -499,10 +503,18 @@ async fn run() -> anyhow::Result<()> {
     // shared reqwest client so connection pooling holds across deliveries)
     // and campaigns (also needs a BullMQ producer to enqueue onto the
     // `"email-send"` queue drained by `email-sender`).
-    let email_audience_state = email_audience::EmailAudienceState { mongo: mongo.clone() };
-    let email_templates_state = email_templates::EmailTemplatesState { mongo: mongo.clone() };
-    let email_inbox_state = email_inbox::EmailInboxState { mongo: mongo.clone() };
-    let email_inbound_state = email_inbound::EmailInboundState { mongo: mongo.clone() };
+    let email_audience_state = email_audience::EmailAudienceState {
+        mongo: mongo.clone(),
+    };
+    let email_templates_state = email_templates::EmailTemplatesState {
+        mongo: mongo.clone(),
+    };
+    let email_inbox_state = email_inbox::EmailInboxState {
+        mongo: mongo.clone(),
+    };
+    let email_inbound_state = email_inbound::EmailInboundState {
+        mongo: mongo.clone(),
+    };
     let email_deliverability_state =
         email_deliverability::EmailDeliverabilityState::new(mongo.clone());
     let email_api_state = email_api::EmailApiState::new(mongo.clone());

@@ -41,10 +41,18 @@ pub enum SalesAnalyticsKind {
 #[serde(rename_all = "camelCase")]
 pub struct SalesAnalyticsFilters {
     /// Window start (inclusive).
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub from: Option<DateTime<Utc>>,
     /// Window end (exclusive).
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub to: Option<DateTime<Utc>>,
     /// Restrict to a single owner.
     #[serde(default, skip_serializing_if = "Option::is_none")]

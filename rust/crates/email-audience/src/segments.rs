@@ -93,16 +93,23 @@ fn as_regex(b: &Bson, anchor_start: bool, anchor_end: bool) -> String {
     let raw = as_str(b);
     let escaped = regex_escape(&raw);
     let mut out = String::new();
-    if anchor_start { out.push('^'); }
+    if anchor_start {
+        out.push('^');
+    }
     out.push_str(&escaped);
-    if anchor_end { out.push('$'); }
+    if anchor_end {
+        out.push('$');
+    }
     out
 }
 
 fn regex_escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for c in s.chars() {
-        if matches!(c, '.' | '*' | '+' | '?' | '(' | ')' | '[' | ']' | '{' | '}' | '|' | '^' | '$' | '\\') {
+        if matches!(
+            c,
+            '.' | '*' | '+' | '?' | '(' | ')' | '[' | ']' | '{' | '}' | '|' | '^' | '$' | '\\'
+        ) {
             out.push('\\');
         }
         out.push(c);

@@ -173,13 +173,9 @@ pub async fn list_payment_receipts(
         .build();
 
     let coll = mongo.collection::<PaymentReceipt>(RECEIPTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payment_receipts.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_payment_receipts.find"))
+    })?;
     let receipts: Vec<PaymentReceipt> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_payment_receipts.collect"))
     })?;
@@ -526,8 +522,7 @@ pub async fn update_payment_receipt(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("crm_payment_receipts.find_one(after-update)"),
+                anyhow::Error::new(e).context("crm_payment_receipts.find_one(after-update)"),
             )
         })?
         .ok_or_else(|| ApiError::NotFound("paymentReceipt".to_owned()))?;
@@ -556,12 +551,9 @@ pub async fn delete_payment_receipt(
     let filter = doc! { "_id": receipt_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(RECEIPTS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payment_receipts.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_payment_receipts.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("paymentReceipt".to_owned()));
     }

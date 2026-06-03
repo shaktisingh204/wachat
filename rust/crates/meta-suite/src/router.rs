@@ -113,7 +113,9 @@ async fn delete_product(
     Path((id, product_id)): Path<(String, String)>,
 ) -> Result<Json<catalog::DeleteAck>> {
     let p = load_project_for(&user, &s.mongo, &id).await?;
-    Ok(Json(catalog::delete_product(&s.meta, &p, &product_id).await?))
+    Ok(Json(
+        catalog::delete_product(&s.meta, &p, &product_id).await?,
+    ))
 }
 
 async fn sync_catalogs(

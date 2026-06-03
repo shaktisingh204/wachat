@@ -14,9 +14,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    ListQuery, PresenceListResponse, PresenceUpsertResponse, UpsertPresenceInput,
-};
+use crate::dto::{ListQuery, PresenceListResponse, PresenceUpsertResponse, UpsertPresenceInput};
 use crate::types::AgentPresence;
 
 const COLL: &str = "sabvoice_agents_presence";
@@ -51,16 +49,22 @@ pub async fn list_presence(
         validate_status(s)?;
         filter.insert("status", s);
     }
-    if let Some(qid) = q.queue_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(qid) = q
+        .queue_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("queueIds", qid);
     }
     let coll = mongo.collection::<AgentPresence>(COLL);
-    let cursor = coll.find(filter).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agent_presence.find"))
-    })?;
-    let rows: Vec<AgentPresence> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agent_presence.collect"))
-    })?;
+    let cursor = coll
+        .find(filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agent_presence.find")))?;
+    let rows: Vec<AgentPresence> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agent_presence.collect")))?;
     Ok(Json(PresenceListResponse { items: rows }))
 }
 
@@ -72,15 +76,18 @@ pub async fn upsert_presence(
 ) -> Result<Json<PresenceUpsertResponse>> {
     let user_id = user_oid(&user)?;
     validate_status(&input.status)?;
-    let agent_oid = ObjectId::parse_str(input.agent_user_id.trim()).map_err(|_| {
-        ApiError::Validation("agentUserId must be a valid ObjectId".to_owned())
-    })?;
+    let agent_oid = ObjectId::parse_str(input.agent_user_id.trim())
+        .map_err(|_| ApiError::Validation("agentUserId must be a valid ObjectId".to_owned()))?;
     let now = BsonDateTime::from_chrono(Utc::now());
     let mut set = doc! {
         "status": &input.status,
         "lastChangeAt": now,
     };
-    if let Some(call) = input.active_call_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(call) = input
+        .active_call_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("activeCallId", call);
     }
     if input.queue_ids.is_some() {
@@ -106,9 +113,7 @@ pub async fn upsert_presence(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agent_presence.upsert")))?
-        .ok_or_else(|| {
-            ApiError::Internal(anyhow::anyhow!("upsert returned no document"))
-        })?;
+        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("upsert returned no document")))?;
     Ok(Json(PresenceUpsertResponse { entity: updated }))
 }
 

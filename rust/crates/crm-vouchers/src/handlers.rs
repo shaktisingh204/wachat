@@ -150,9 +150,10 @@ pub async fn list_books(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmVoucherBook>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_voucher_books.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_voucher_books.find"))
+        })?;
     let mut rows: Vec<CrmVoucherBook> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_voucher_books.collect"))
     })?;
@@ -213,8 +214,7 @@ pub async fn create_book(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -242,7 +242,10 @@ pub async fn update_book(
         })?
         .ok_or_else(|| ApiError::NotFound("voucher_book".to_owned()))?;
     if matches!(patch.is_default, Some(true)) {
-        let demote_type = patch.r#type.clone().unwrap_or_else(|| before.r#type.clone());
+        let demote_type = patch
+            .r#type
+            .clone()
+            .unwrap_or_else(|| before.r#type.clone());
         let _ = coll
             .update_many(
                 doc! { "userId": user_id, "type": demote_type, "isDefault": true, "_id": { "$ne": oid } },

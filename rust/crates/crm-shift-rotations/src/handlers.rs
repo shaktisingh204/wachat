@@ -93,10 +93,7 @@ fn parse_oid(s: &Option<String>) -> Option<ObjectId> {
         .and_then(|s| ObjectId::parse_str(s).ok())
 }
 
-fn rotation_from_create(
-    input: CreateRotationInput,
-    user_id: ObjectId,
-) -> Result<CrmShiftRotation> {
+fn rotation_from_create(input: CreateRotationInput, user_id: ObjectId) -> Result<CrmShiftRotation> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -148,7 +145,12 @@ fn rotation_from_create(
 
 fn build_update_doc(patch: UpdateRotationInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.description {
@@ -300,8 +302,7 @@ pub async fn create_rotation(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -24,21 +24,23 @@ pub async fn ingest(
         return Err(ApiError::Validation("agentId is required.".to_owned()));
     }
     if body.conversation_id.trim().is_empty() {
-        return Err(ApiError::Validation("conversationId is required.".to_owned()));
+        return Err(ApiError::Validation(
+            "conversationId is required.".to_owned(),
+        ));
     }
     if body.provider_update_id.trim().is_empty() {
-        return Err(ApiError::Validation("providerUpdateId is required.".to_owned()));
+        return Err(ApiError::Validation(
+            "providerUpdateId is required.".to_owned(),
+        ));
     }
 
     let inbox = resolve_inbox(&state.mongo, &body.agent_id).await?;
     let inbox_id = doc_object_id(&inbox, "_id")?;
     let tenant_id = doc_object_id(&inbox, "tenantId")?;
 
-    if let Some(existing) = find_message_by_update_id(
-        &state.mongo,
-        &inbox_id,
-        &body.provider_update_id,
-    ).await? {
+    if let Some(existing) =
+        find_message_by_update_id(&state.mongo, &inbox_id, &body.provider_update_id).await?
+    {
         let conversation_id = existing
             .get_object_id("conversationId")
             .map_err(|_| ApiError::Internal(anyhow::anyhow!("message missing conversationId")))?
@@ -59,7 +61,8 @@ pub async fn ingest(
         &tenant_id,
         &body.conversation_id,
         body.from_name.as_deref(),
-    ).await?;
+    )
+    .await?;
 
     let conversation_id =
         find_or_create_conversation(&state.mongo, &tenant_id, &inbox_id, &contact_id).await?;
@@ -132,21 +135,23 @@ pub async fn delivered(
         return Err(ApiError::Validation("agentId is required.".to_owned()));
     }
     if body.conversation_id.trim().is_empty() {
-        return Err(ApiError::Validation("conversationId is required.".to_owned()));
+        return Err(ApiError::Validation(
+            "conversationId is required.".to_owned(),
+        ));
     }
     if body.provider_update_id.trim().is_empty() {
-        return Err(ApiError::Validation("providerUpdateId is required.".to_owned()));
+        return Err(ApiError::Validation(
+            "providerUpdateId is required.".to_owned(),
+        ));
     }
 
     let inbox = resolve_inbox(&state.mongo, &body.agent_id).await?;
     let inbox_id = doc_object_id(&inbox, "_id")?;
     let tenant_id = doc_object_id(&inbox, "tenantId")?;
 
-    if let Some(existing) = find_message_by_update_id(
-        &state.mongo,
-        &inbox_id,
-        &body.provider_update_id,
-    ).await? {
+    if let Some(existing) =
+        find_message_by_update_id(&state.mongo, &inbox_id, &body.provider_update_id).await?
+    {
         let conversation_id = existing
             .get_object_id("conversationId")
             .map_err(|_| ApiError::Internal(anyhow::anyhow!("message missing conversationId")))?
@@ -182,14 +187,11 @@ pub async fn delivered(
         })?;
     let contact_id = doc_object_id(&contact, "_id")?;
 
-    let conversation_id =
-        latest_open_conversation(&state.mongo, &inbox_id, &contact_id)
-            .await?
-            .ok_or_else(|| {
-                ApiError::NotFound(
-                    "No open SabChat conversation for this GBM contact.".to_owned(),
-                )
-            })?;
+    let conversation_id = latest_open_conversation(&state.mongo, &inbox_id, &contact_id)
+        .await?
+        .ok_or_else(|| {
+            ApiError::NotFound("No open SabChat conversation for this GBM contact.".to_owned())
+        })?;
 
     let messages = state.mongo.collection::<Document>(MESSAGES_COLL);
     let message_oid = ObjectId::new();
@@ -258,9 +260,7 @@ async fn resolve_inbox(mongo: &MongoHandle, agent_id: &str) -> Result<Document> 
     })
     .await
     .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
-    .ok_or_else(|| {
-        ApiError::NotFound(format!("No gbm inbox configured for agentId {agent_id}."))
-    })
+    .ok_or_else(|| ApiError::NotFound(format!("No gbm inbox configured for agentId {agent_id}.")))
 }
 
 async fn find_message_by_update_id(
@@ -321,9 +321,11 @@ async fn upsert_contact(
         }
 
         let update_doc = doc! { "$set": update_set };
-        coll.update_one(doc! { "_id": contact_oid }, update_doc).await.map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.update_one"))
-        })?;
+        coll.update_one(doc! { "_id": contact_oid }, update_doc)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.update_one"))
+            })?;
 
         return Ok(contact_oid);
     }

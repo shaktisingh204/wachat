@@ -113,15 +113,13 @@ pub async fn list_aliases(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabmailAlias>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.find")))?;
-    let mut rows: Vec<SabmailAlias> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.find"))
+        })?;
+    let mut rows: Vec<SabmailAlias> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -247,7 +245,9 @@ pub async fn delete_alias(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_aliases.archive"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabmail_alias".to_owned()));
     }

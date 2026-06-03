@@ -24,9 +24,7 @@ use crate::{
     tag = "admin",
     responses((status = 200, description = "Whether an admin is configured", body = ConfiguredResponse)),
 )]
-pub async fn is_configured(
-    State(mongo): State<MongoHandle>,
-) -> Result<Json<ConfiguredResponse>> {
+pub async fn is_configured(State(mongo): State<MongoHandle>) -> Result<Json<ConfiguredResponse>> {
     let configured = store::find_credentials(&mongo).await?.is_some();
     Ok(Json(ConfiguredResponse { configured }))
 }
@@ -94,9 +92,9 @@ pub async fn login(
         ));
     }
 
-    let stored = store::find_credentials(&mongo).await?.ok_or_else(|| {
-        ApiError::Unauthorized("NEEDS_SETUP".to_owned())
-    })?;
+    let stored = store::find_credentials(&mongo)
+        .await?
+        .ok_or_else(|| ApiError::Unauthorized("NEEDS_SETUP".to_owned()))?;
 
     if email != stored.email.to_lowercase() {
         return Err(ApiError::Unauthorized("Invalid credentials.".to_owned()));

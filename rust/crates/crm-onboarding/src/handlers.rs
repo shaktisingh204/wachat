@@ -92,7 +92,11 @@ fn onboarding_from_create(
     }
     let status = input.status.unwrap_or_else(|| "pending".to_owned());
     let now = BsonDateTime::from_chrono(Utc::now());
-    let completed_at = if status == "completed" { Some(now) } else { None };
+    let completed_at = if status == "completed" {
+        Some(now)
+    } else {
+        None
+    };
     Ok(CrmOnboarding {
         id: None,
         user_id,
@@ -205,15 +209,13 @@ pub async fn list_onboardings(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmOnboarding>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find")))?;
-    let mut rows: Vec<CrmOnboarding> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find"))
+        })?;
+    let mut rows: Vec<CrmOnboarding> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -238,9 +240,7 @@ pub async fn get_onboarding(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find_one")))?
         .ok_or_else(|| ApiError::NotFound("onboarding".to_owned()))?;
     Ok(Json(row))
 }
@@ -263,8 +263,7 @@ pub async fn create_onboarding(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -287,9 +286,7 @@ pub async fn update_onboarding(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.find_one")))?
         .ok_or_else(|| ApiError::NotFound("onboarding".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
@@ -302,9 +299,7 @@ pub async fn update_onboarding(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_onboardings.refetch")))?
         .ok_or_else(|| ApiError::NotFound("onboarding".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

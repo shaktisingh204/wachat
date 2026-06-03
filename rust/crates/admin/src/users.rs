@@ -156,12 +156,9 @@ pub async fn list_whatsapp_projects(
         doc! { "$project": { "ownerInfo": 0 } },
     ];
 
-    let cursor = coll
-        .aggregate(pipeline)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("whatsapp_projects.aggregate"))
-        })?;
+    let cursor = coll.aggregate(pipeline).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("whatsapp_projects.aggregate"))
+    })?;
 
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("whatsapp_projects.collect"))
@@ -169,12 +166,9 @@ pub async fn list_whatsapp_projects(
 
     let projects: Vec<Value> = docs.into_iter().map(document_to_clean_json).collect();
 
-    let total = coll
-        .count_documents(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("whatsapp_projects.count"))
-        })?;
+    let total = coll.count_documents(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("whatsapp_projects.count"))
+    })?;
 
     Ok(Json(ListWhatsAppProjectsResponse { projects, total }))
 }
@@ -311,9 +305,8 @@ pub async fn update_user_permissions(
     require_admin(&user)?;
 
     let oid = oid_from_str(&id)?;
-    let permissions_bson = bson::to_bson(&body.permissions).map_err(|e| {
-        ApiError::BadRequest(format!("Invalid permissions payload: {e}"))
-    })?;
+    let permissions_bson = bson::to_bson(&body.permissions)
+        .map_err(|e| ApiError::BadRequest(format!("Invalid permissions payload: {e}")))?;
 
     mongo
         .collection::<Document>(USERS_COLL)
@@ -350,15 +343,10 @@ pub async fn impersonate_user(
 
     let email = doc
         .get_str("email")
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("users.impersonate.email"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.impersonate.email")))?
         .to_owned();
     let name = doc.get_str("name").ok().map(str::to_owned);
-    let plan_id = doc
-        .get_object_id("planId")
-        .ok()
-        .map(|p| p.to_hex());
+    let plan_id = doc.get_object_id("planId").ok().map(|p| p.to_hex());
 
     Ok(Json(ImpersonateResponse {
         user_id: oid.to_hex(),

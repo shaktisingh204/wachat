@@ -47,7 +47,9 @@ pub async fn list(
 ) -> Result<Json<ContactsResp>> {
     let project = load_project_for(&user, &state.mongo, &project_id).await?;
     let coll = state.mongo.collection::<Document>(COLL);
-    let opts = FindOptions::builder().sort(doc! { "blockedAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "blockedAt": -1 })
+        .build();
     let cursor = coll
         .find(doc! { "projectId": project.id })
         .with_options(opts)

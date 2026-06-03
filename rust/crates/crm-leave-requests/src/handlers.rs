@@ -92,10 +92,12 @@ fn request_from_create(
             "days must be a positive number".to_owned(),
         ));
     }
-    let start_date = parse_date(&input.start_date)
-        .ok_or_else(|| ApiError::Validation("startDate is required (RFC3339 or YYYY-MM-DD)".to_owned()))?;
-    let end_date = parse_date(&input.end_date)
-        .ok_or_else(|| ApiError::Validation("endDate is required (RFC3339 or YYYY-MM-DD)".to_owned()))?;
+    let start_date = parse_date(&input.start_date).ok_or_else(|| {
+        ApiError::Validation("startDate is required (RFC3339 or YYYY-MM-DD)".to_owned())
+    })?;
+    let end_date = parse_date(&input.end_date).ok_or_else(|| {
+        ApiError::Validation("endDate is required (RFC3339 or YYYY-MM-DD)".to_owned())
+    })?;
     if end_date < start_date {
         return Err(ApiError::Validation(
             "endDate cannot be before startDate".to_owned(),
@@ -146,7 +148,12 @@ fn request_from_create(
 fn build_update_doc(patch: UpdateLeaveRequestInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
 
-    if let Some(v) = patch.employee_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .employee_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         let oid = ObjectId::parse_str(v)
             .map_err(|_| ApiError::Validation("employeeId must be a valid ObjectId".to_owned()))?;
         set.insert("employeeId", oid);
@@ -247,11 +254,9 @@ pub async fn list_requests(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmLeaveRequest>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.find")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.find"))
+    })?;
     let mut rows: Vec<CrmLeaveRequest> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_leave_requests.collect"))
     })?;
@@ -303,8 +308,7 @@ pub async fn create_request(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

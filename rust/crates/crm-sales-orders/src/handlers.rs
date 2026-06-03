@@ -153,7 +153,9 @@ async fn seed_lineage_from_parent(
         .find_one(doc! { "_id": parent_oid, "userId": user_oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_sales_orders.lineage_parent_find"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("crm_sales_orders.lineage_parent_find"),
+            )
         })? {
         Some(d) => d,
         None => return Ok(None),
@@ -226,11 +228,8 @@ pub async fn list_sales_orders(
         .build();
 
     let coll = mongo.collection::<SalesOrder>(SALES_ORDERS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_sales_orders.find"))
         })?;
     let orders: Vec<SalesOrder> = cursor.try_collect().await.map_err(|e| {
@@ -323,9 +322,7 @@ pub async fn create_sales_order(
     // ---- Lineage seeding (mirrors `saveSalesOrder` §13.5 logic) -------
     let mut lineage: Vec<LineageRef> = Vec::new();
     let mut parent_link: Option<(ObjectId, &'static str)> = None;
-    if let (Some(kind), Some(parent_id)) =
-        (input.from_kind.as_deref(), input.from_id.as_deref())
-    {
+    if let (Some(kind), Some(parent_id)) = (input.from_kind.as_deref(), input.from_id.as_deref()) {
         let kind_lc = kind.trim().to_ascii_lowercase();
         if !parent_id.is_empty() && ALLOWED_PARENT_KINDS.contains(&kind_lc.as_str()) {
             match seed_lineage_from_parent(&mongo, user_id, &kind_lc, parent_id).await {
@@ -380,7 +377,9 @@ pub async fn create_sales_order(
         linked_delivery_ids: Vec::new(),
         linked_invoice_ids: Vec::new(),
         lineage: lineage.clone(),
-        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
+        design_metadata: input
+            .design_metadata
+            .and_then(|v| bson::to_document(&v).ok()),
     };
 
     let coll = mongo.collection::<SalesOrder>(SALES_ORDERS_COLL);
@@ -466,15 +465,13 @@ pub async fn update_sales_order(
         set.insert("exchangeRate", rate);
     }
     if let Some(items) = input.items.as_ref() {
-        let b = bson::to_bson(items).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("items serialize"))
-        })?;
+        let b = bson::to_bson(items)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("items serialize")))?;
         set.insert("items", b);
     }
     if let Some(totals) = input.totals.as_ref() {
-        let b = bson::to_bson(totals).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("totals serialize"))
-        })?;
+        let b = bson::to_bson(totals)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("totals serialize")))?;
         set.insert("totals", b);
     }
     set_opt_str(&mut set, "customerNotes", input.customer_notes.as_ref());

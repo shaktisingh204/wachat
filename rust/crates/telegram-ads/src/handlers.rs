@@ -42,9 +42,15 @@ pub struct CampaignRow {
     pub impressions: i64,
     pub clicks: i64,
     pub notes: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -545,12 +551,7 @@ pub async fn analytics(
     range.insert("$lte", bson::DateTime::from_millis(to.timestamp_millis()));
     filter.insert("updatedAt", range);
 
-    let cursor = match s
-        .mongo
-        .collection::<Document>(CAMPAIGNS)
-        .find(filter)
-        .await
-    {
+    let cursor = match s.mongo.collection::<Document>(CAMPAIGNS).find(filter).await {
         Ok(c) => c,
         Err(e) => {
             return Json(AnalyticsResp {
@@ -1112,7 +1113,11 @@ pub async fn utm(
         .map(|(k, v)| format!("{}={}", k, urlencoding::encode(v)))
         .collect::<Vec<_>>()
         .join("&");
-    let separator = if body.landing_url.contains('?') { '&' } else { '?' };
+    let separator = if body.landing_url.contains('?') {
+        '&'
+    } else {
+        '?'
+    };
     let long_url = format!("{}{}{}", body.landing_url.trim(), separator, qs);
 
     Json(UtmResp {

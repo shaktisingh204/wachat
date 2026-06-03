@@ -56,7 +56,11 @@ impl From<MatchUpdate> for Probe {
 }
 
 fn lower_if(s: &str, case_sensitive: bool) -> String {
-    if case_sensitive { s.to_owned() } else { s.to_lowercase() }
+    if case_sensitive {
+        s.to_owned()
+    } else {
+        s.to_lowercase()
+    }
 }
 
 fn as_str_array(v: &Value) -> Vec<String> {
@@ -318,7 +322,10 @@ fn evaluate_condition(cond: &Value, probe: &Probe, step: &mut Vec<EvalStep>) -> 
 pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
     let mut steps = Vec::new();
 
-    let status = rule.get("status").and_then(|v| v.as_str()).unwrap_or("enabled");
+    let status = rule
+        .get("status")
+        .and_then(|v| v.as_str())
+        .unwrap_or("enabled");
     if status != "enabled" {
         steps.push(EvalStep {
             stage: "status".to_owned(),
@@ -326,13 +333,19 @@ pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
             passed: false,
             detail: None,
         });
-        return EvalOutcome { matched: false, steps };
+        return EvalOutcome {
+            matched: false,
+            steps,
+        };
     }
 
     let trigger = rule.get("trigger").cloned().unwrap_or(Value::Null);
     let trigger_ok = evaluate_trigger(&trigger, probe, &mut steps);
     if !trigger_ok {
-        return EvalOutcome { matched: false, steps };
+        return EvalOutcome {
+            matched: false,
+            steps,
+        };
     }
 
     let conds = rule
@@ -342,7 +355,10 @@ pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
         .unwrap_or_default();
     for c in conds {
         if !evaluate_condition(&c, probe, &mut steps) {
-            return EvalOutcome { matched: false, steps };
+            return EvalOutcome {
+                matched: false,
+                steps,
+            };
         }
     }
 
@@ -352,7 +368,10 @@ pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
         passed: true,
         detail: None,
     });
-    EvalOutcome { matched: true, steps }
+    EvalOutcome {
+        matched: true,
+        steps,
+    }
 }
 
 /// Compute a quick keyword set for the conflict detector. Keyword and
@@ -360,7 +379,11 @@ pub fn evaluate_rule(rule: &Value, probe: &Probe) -> EvalOutcome {
 /// starts_with report their payload; regex/special triggers return an
 /// empty set.
 pub fn conflict_signature(trigger: &Value) -> (String, Vec<String>) {
-    let kind = trigger.get("kind").and_then(|v| v.as_str()).unwrap_or("").to_owned();
+    let kind = trigger
+        .get("kind")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_owned();
     let case_sensitive = trigger
         .get("caseSensitive")
         .and_then(|v| v.as_bool())

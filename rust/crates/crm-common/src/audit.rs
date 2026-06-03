@@ -167,8 +167,8 @@ mod tests {
         let entity_id = ObjectId::new();
         let before = doc! { "status": "draft" };
         let after = doc! { "status": "sent" };
-        let e = audit_for_update(&actor, "invoice", entity_id, Some(before), Some(after))
-            .expect("ok");
+        let e =
+            audit_for_update(&actor, "invoice", entity_id, Some(before), Some(after)).expect("ok");
         assert_eq!(e.action, "update");
         assert!(e.diff.is_some());
     }

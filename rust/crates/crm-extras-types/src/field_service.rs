@@ -148,7 +148,11 @@ pub struct ServiceRequest {
     pub location: Option<Address>,
 
     /* ----- visit ------------------------------------------------ */
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub technician_id: Option<ObjectId>,

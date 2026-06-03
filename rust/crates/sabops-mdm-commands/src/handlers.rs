@@ -52,7 +52,11 @@ pub async fn list_commands(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(e) = q.endpoint_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(e) = q
+        .endpoint_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("endpointId", e);
     }
     if let Some(s) = q.status.as_deref() {

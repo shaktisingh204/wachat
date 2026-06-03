@@ -89,15 +89,12 @@ pub async fn list_suggestions(
         .build();
 
     let coll = mongo.collection::<SabwriterSuggestion>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find")))?;
-    let mut rows: Vec<SabwriterSuggestion> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find"))
+    })?;
+    let mut rows: Vec<SabwriterSuggestion> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -122,7 +119,9 @@ pub async fn get_suggestion(
     let row = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_suggestion".to_owned()))?;
     let _ = fetch_parent_doc(&mongo, user_id, row.document_id).await?;
     Ok(Json(row))
@@ -153,10 +152,9 @@ pub async fn create_suggestion(
     };
 
     let coll = mongo.collection::<SabwriterSuggestion>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -179,13 +177,16 @@ async fn transition(
     let before = coll
         .find_one(doc! { "_id": suggestion_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_suggestion".to_owned()))?;
 
     let parent = fetch_parent_doc(mongo, user_id, before.document_id).await?;
     // Only the document owner can accept/reject.
-    let owner = parent_owner_id(&parent)
-        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("document missing ownerUserId/userId")))?;
+    let owner = parent_owner_id(&parent).ok_or_else(|| {
+        ApiError::Internal(anyhow::anyhow!("document missing ownerUserId/userId"))
+    })?;
     if owner != user_id {
         return Err(ApiError::Validation(
             "only the document owner can review suggestions".to_owned(),
@@ -211,11 +212,15 @@ async fn transition(
         }},
     )
     .await
-    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.review")))?;
+    .map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.review"))
+    })?;
     let after = coll
         .find_one(doc! { "_id": suggestion_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_suggestions.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_suggestion".to_owned()))?;
     Ok(after)
 }

@@ -246,9 +246,10 @@ pub async fn list_conversations(
     if let Some(status) = query.status {
         // Re-serialize via serde so we get the same snake_case
         // discriminant the documents were written with.
-        if let Some(s) = serde_json::to_value(status).ok().and_then(|v| {
-            v.as_str().map(str::to_owned)
-        }) {
+        if let Some(s) = serde_json::to_value(status)
+            .ok()
+            .and_then(|v| v.as_str().map(str::to_owned))
+        {
             filter.insert("status", s);
         }
     }
@@ -259,10 +260,7 @@ pub async fn list_conversations(
         filter.insert("labels", label);
     }
     if let Some(q) = query.q.as_deref().filter(|s| !s.is_empty()) {
-        filter.insert(
-            "lastMessagePreview",
-            doc! { "$regex": q, "$options": "i" },
-        );
+        filter.insert("lastMessagePreview", doc! { "$regex": q, "$options": "i" });
     }
     if let Some(cursor) = query.cursor.as_deref().filter(|s| !s.is_empty()) {
         let cursor_oid = oid_from_str(cursor)?;
@@ -287,13 +285,9 @@ pub async fn list_conversations(
         .build();
 
     let coll = state.mongo.collection::<Document>(CONVERSATIONS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.collect"))
     })?;
@@ -358,10 +352,7 @@ pub async fn update_status(
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("conversation missing _id")))?;
 
-    let before_status = existing
-        .get_str("status")
-        .unwrap_or_default()
-        .to_owned();
+    let before_status = existing.get_str("status").unwrap_or_default().to_owned();
     let after_status = status_to_str(body.status);
     let now = Utc::now();
     let now_bson = bson::DateTime::from_chrono(now);

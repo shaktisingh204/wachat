@@ -68,7 +68,11 @@ fn build_query(body: &ConversationAnalyticsBody) -> String {
     if let Some(v) = body.countries.as_ref().filter(|v| !v.is_empty()) {
         q.push_str(&format!(".country_codes([{}])", quote_join(v)));
     }
-    if let Some(v) = body.conversation_categories.as_ref().filter(|v| !v.is_empty()) {
+    if let Some(v) = body
+        .conversation_categories
+        .as_ref()
+        .filter(|v| !v.is_empty())
+    {
         q.push_str(&format!(".conversation_categories([{}])", quote_join(v)));
     }
     if let Some(v) = body.conversation_types.as_ref().filter(|v| !v.is_empty()) {
@@ -106,10 +110,7 @@ pub async fn fetch(
     // Meta accepts the field spec as `?fields=conversation_analytics...`.
     // `MetaClient::get_json` builds `{base}/{version}/{path}` and adds the
     // bearer header, so we tack the query onto `path`.
-    let path = format!(
-        "{waba_id}?fields={}",
-        url_encode(&query)
-    );
+    let path = format!("{waba_id}?fields={}", url_encode(&query));
     let resp: Value = meta.get_json(&path, token).await?;
 
     // Meta returns either `conversation_analytics` or (legacy) `analytics`.

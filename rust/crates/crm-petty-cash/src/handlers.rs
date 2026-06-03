@@ -54,10 +54,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn float_from_create(
-    input: CreateFloatInput,
-    user_id: ObjectId,
-) -> Result<CrmPettyCashFloat> {
+fn float_from_create(input: CreateFloatInput, user_id: ObjectId) -> Result<CrmPettyCashFloat> {
     if input.opening_balance < 0.0 {
         return Err(ApiError::Validation(
             "openingBalance must be non-negative".to_owned(),
@@ -91,7 +88,11 @@ fn build_update_doc(patch: UpdateFloatInput) -> Document {
     if let Some(v) = patch.custodian_name {
         set.insert("custodianName", v);
     }
-    if let Some(v) = patch.custodian_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .custodian_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("custodianId", v);
     }
     if let Some(v) = patch.opening_balance {
@@ -147,12 +148,14 @@ pub async fn list_floats(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmPettyCashFloat>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find"))
-    })?;
-    let mut rows: Vec<CrmPettyCashFloat> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find"))
+        })?;
+    let mut rows: Vec<CrmPettyCashFloat> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -177,9 +180,7 @@ pub async fn get_float(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find_one")))?
         .ok_or_else(|| ApiError::NotFound("petty_cash_float".to_owned()))?;
     Ok(Json(row))
 }
@@ -193,16 +194,16 @@ pub async fn create_float(
     let user_id = user_oid(&user)?;
     let mut entity = float_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmPettyCashFloat>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -225,9 +226,7 @@ pub async fn update_float(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.find_one")))?
         .ok_or_else(|| ApiError::NotFound("petty_cash_float".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
@@ -240,9 +239,7 @@ pub async fn update_float(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.refetch")))?
         .ok_or_else(|| ApiError::NotFound("petty_cash_float".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -274,9 +271,7 @@ pub async fn delete_float(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_petty_cash.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("petty_cash_float".to_owned()));
     }

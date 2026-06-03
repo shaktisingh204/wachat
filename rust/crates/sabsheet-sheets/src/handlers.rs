@@ -45,7 +45,11 @@ fn from_create(input: CreateSheetInput, user_id: ObjectId) -> Result<SabsheetShe
 
 fn build_update_doc(patch: UpdateSheetInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.position {
@@ -76,16 +80,16 @@ pub async fn list_sheets(
     let workbook_id = oid_from_str(&q.workbook_id)?;
     let coll = mongo.collection::<SabsheetSheet>(COLL);
     let filter = doc! { "workbookId": workbook_id, "ownerUserId": user_id };
-    let opts = FindOptions::builder().sort(doc! { "position": 1, "createdAt": 1 }).build();
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_sheets.find")))?;
-    let items: Vec<SabsheetSheet> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_sheets.collect")))?;
+    let opts = FindOptions::builder()
+        .sort(doc! { "position": 1, "createdAt": 1 })
+        .build();
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_sheets.find"))
+        })?;
+    let items: Vec<SabsheetSheet> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_sheets.collect"))
+    })?;
     Ok(Json(ListResponse { items }))
 }
 

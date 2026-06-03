@@ -90,9 +90,7 @@ fn set_opt_oid(set: &mut Document, key: &str, val: Option<&String>) -> Result<()
 /// offending field.
 fn parse_enum<T: serde::de::DeserializeOwned>(field: &str, raw: &str) -> Result<T> {
     serde_json::from_value::<T>(serde_json::Value::String(raw.to_owned())).map_err(|_| {
-        ApiError::Validation(format!(
-            "{field} value '{raw}' is not a recognised variant"
-        ))
+        ApiError::Validation(format!("{field} value '{raw}' is not a recognised variant"))
     })
 }
 
@@ -273,12 +271,22 @@ pub async fn create_ticket(
     let channel: TicketChannel = parse_enum("channel", input.channel.trim())?;
     let severity: TicketSeverity = parse_enum("severity", input.severity.trim())?;
 
-    let priority = match input.priority.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let priority = match input
+        .priority
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(raw) => Some(parse_enum::<Priority>("priority", raw)?),
         None => None,
     };
 
-    let status = match input.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let status = match input
+        .status
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(raw) => parse_enum::<TicketStatus>("status", raw)?,
         None => TicketStatus::default(),
     };
@@ -305,15 +313,13 @@ pub async fn create_ticket(
     };
 
     let internal_notes = match input.internal_notes {
-        Some(v) => serde_json::from_value(v).map_err(|e| {
-            ApiError::Validation(format!("internalNotes shape is invalid: {e}"))
-        })?,
+        Some(v) => serde_json::from_value(v)
+            .map_err(|e| ApiError::Validation(format!("internalNotes shape is invalid: {e}")))?,
         None => Vec::new(),
     };
     let attachments = match input.attachments {
-        Some(v) => serde_json::from_value(v).map_err(|e| {
-            ApiError::Validation(format!("attachments shape is invalid: {e}"))
-        })?,
+        Some(v) => serde_json::from_value(v)
+            .map_err(|e| ApiError::Validation(format!("attachments shape is invalid: {e}")))?,
         None => Vec::new(),
     };
 
@@ -421,7 +427,11 @@ pub async fn update_ticket(
         set.insert("assignedTo", oid);
     }
     set_opt_oid(&mut set, "linkedDealId", input.linked_deal_id.as_ref())?;
-    set_opt_oid(&mut set, "linkedInvoiceId", input.linked_invoice_id.as_ref())?;
+    set_opt_oid(
+        &mut set,
+        "linkedInvoiceId",
+        input.linked_invoice_id.as_ref(),
+    )?;
     set_opt_oid(&mut set, "parentTicketId", input.parent_ticket_id.as_ref())?;
 
     if let Some(when) = input.due_by {
@@ -429,15 +439,13 @@ pub async fn update_ticket(
     }
 
     if let Some(notes) = input.internal_notes.clone() {
-        let bson_val = bson::to_bson(&notes).map_err(|e| {
-            ApiError::Validation(format!("internalNotes shape is invalid: {e}"))
-        })?;
+        let bson_val = bson::to_bson(&notes)
+            .map_err(|e| ApiError::Validation(format!("internalNotes shape is invalid: {e}")))?;
         set.insert("internalNotes", bson_val);
     }
     if let Some(atts) = input.attachments.clone() {
-        let bson_val = bson::to_bson(&atts).map_err(|e| {
-            ApiError::Validation(format!("attachments shape is invalid: {e}"))
-        })?;
+        let bson_val = bson::to_bson(&atts)
+            .map_err(|e| ApiError::Validation(format!("attachments shape is invalid: {e}")))?;
         set.insert("attachments", bson_val);
     }
 
@@ -461,9 +469,7 @@ pub async fn update_ticket(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_tickets.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_tickets.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("ticket".to_owned()))?;
 

@@ -1,14 +1,14 @@
 use axum::{
+    Router,
     extract::{Json, Path},
     http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
-    Router,
 };
-use serde::{Deserialize, Serialize};
-use sabsms_types::{SabsmsMessage, SabsmsMessageStatus, SendRequest};
-use uuid::Uuid;
 use chrono::Utc;
+use sabsms_types::{SabsmsMessage, SabsmsMessageStatus, SendRequest};
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 pub mod middleware;
 
@@ -20,13 +20,14 @@ pub fn router() -> Router {
         .route("/v1/messages/{id}", get(get_message))
         .route("/v1/campaigns", get(list_campaigns).post(create_campaign))
         .route_layer(axum::middleware::from_fn(middleware::auth_middleware))
-        .route_layer(axum::middleware::from_fn_with_state(limiter.clone(), middleware::rate_limit_middleware))
+        .route_layer(axum::middleware::from_fn_with_state(
+            limiter.clone(),
+            middleware::rate_limit_middleware,
+        ))
         .with_state(limiter)
 }
 
-async fn send_message(
-    Json(payload): Json<SendRequest>,
-) -> impl IntoResponse {
+async fn send_message(Json(payload): Json<SendRequest>) -> impl IntoResponse {
     let msg = SabsmsMessage {
         id: Uuid::new_v4(),
         to: payload.to,
@@ -40,9 +41,7 @@ async fn send_message(
     (StatusCode::CREATED, Json(msg))
 }
 
-async fn get_message(
-    Path(id): Path<Uuid>,
-) -> impl IntoResponse {
+async fn get_message(Path(id): Path<Uuid>) -> impl IntoResponse {
     let msg = SabsmsMessage {
         id,
         to: "+1234567890".to_string(),
@@ -73,9 +72,7 @@ async fn list_campaigns() -> impl IntoResponse {
     (StatusCode::OK, Json(campaigns))
 }
 
-async fn create_campaign(
-    Json(payload): Json<CreateCampaignRequest>,
-) -> impl IntoResponse {
+async fn create_campaign(Json(payload): Json<CreateCampaignRequest>) -> impl IntoResponse {
     let _campaign = Campaign {
         id: Uuid::new_v4(),
         name: payload.name,
@@ -98,14 +95,21 @@ mod tests {
         let app = router();
 
         // No auth header
-        let response = app.clone()
-            .oneshot(Request::builder().uri("/v1/campaigns").body(Body::empty()).unwrap())
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .uri("/v1/campaigns")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
             .await
             .unwrap();
         assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
 
         // Invalid token
-        let response = app.clone()
+        let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .uri("/v1/campaigns")

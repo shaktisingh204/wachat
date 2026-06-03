@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * <KbWorkspaceClient> — three-pane Knowledge Base management view.
@@ -11,9 +11,9 @@
  * Save / delete / category mutations route through `helpdesk.actions.ts`.
  */
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ChevronRight,
   Eye,
@@ -24,7 +24,7 @@ import {
   Plus,
   Save,
   Trash2,
-} from 'lucide-react';
+} from "lucide-react";
 
 import {
   Badge,
@@ -42,7 +42,7 @@ import {
   Separator,
   Textarea,
   useZoruToast,
-} from '@/components/zoruui';
+} from "@/components/zoruui";
 import {
   Dialog,
   ZoruDialogContent,
@@ -50,18 +50,18 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from '@/components/zoruui/dialog';
+} from "@/components/zoruui/dialog";
 
 import {
   saveKbArticle,
   deleteKbArticle,
   setKbArticleStatus,
-} from '@/app/actions/crm-knowledge-base.actions';
+} from "@/app/actions/crm-knowledge-base.actions";
 import {
   saveKbCategory,
   deleteKbCategory,
   type KbCategoryRow,
-} from '@/app/actions/crm-kb-categories.actions';
+} from "@/app/actions/crm-kb-categories.actions";
 
 type ArticleDoc = {
   _id: string;
@@ -97,49 +97,70 @@ function buildTree(rows: KbCategoryRow[]): TreeNode[] {
 }
 
 function visibilityBadge(v?: string): React.ReactNode {
-  if (v === 'public') return <Badge variant="success" className="gap-1"><Globe2 className="h-3 w-3" /> Public</Badge>;
-  if (v === 'portal') return <Badge variant="info" className="gap-1"><Eye className="h-3 w-3" /> Portal</Badge>;
-  return <Badge variant="ghost" className="gap-1"><EyeOff className="h-3 w-3" /> Internal</Badge>;
+  if (v === "public")
+    return (
+      <Badge variant="success" className="gap-1">
+        <Globe2 className="h-3 w-3" /> Public
+      </Badge>
+    );
+  if (v === "portal")
+    return (
+      <Badge variant="info" className="gap-1">
+        <Eye className="h-3 w-3" /> Portal
+      </Badge>
+    );
+  return (
+    <Badge variant="ghost" className="gap-1">
+      <EyeOff className="h-3 w-3" /> Internal
+    </Badge>
+  );
 }
 
 export function KbWorkspaceClient(props: Props): React.JSX.Element {
   const { toast } = useZoruToast();
   const router = useRouter();
 
-  const [articles, setArticles] = React.useState<ArticleDoc[]>(props.initialArticles);
-  const [categories, setCategories] = React.useState<KbCategoryRow[]>(props.initialCategories);
-  const [activeCategory, setActiveCategory] = React.useState<string | 'all'>('all');
-  const [selectedArticleId, setSelectedArticleId] = React.useState<string | null>(
-    props.initialArticles[0]?._id ?? null,
+  const [articles, setArticles] = React.useState<ArticleDoc[]>(
+    props.initialArticles,
   );
+  const [categories, setCategories] = React.useState<KbCategoryRow[]>(
+    props.initialCategories,
+  );
+  const [activeCategory, setActiveCategory] = React.useState<string | "all">(
+    "all",
+  );
+  const [selectedArticleId, setSelectedArticleId] = React.useState<
+    string | null
+  >(props.initialArticles[0]?._id ?? null);
   const [draft, setDraft] = React.useState<{
     _id?: string;
     title: string;
     slug: string;
     body: string;
     category: string;
-    visibility: 'public' | 'portal' | 'internal';
-    status: 'draft' | 'published' | 'archived';
+    visibility: "public" | "portal" | "internal";
+    status: "draft" | "published" | "archived";
   }>({
-    title: '',
-    slug: '',
-    body: '',
-    category: '',
-    visibility: 'portal',
-    status: 'draft',
+    title: "",
+    slug: "",
+    body: "",
+    category: "",
+    visibility: "portal",
+    status: "draft",
   });
   const [showNewCategory, setShowNewCategory] = React.useState(false);
-  const [newCategoryName, setNewCategoryName] = React.useState('');
-  const [newCategoryParent, setNewCategoryParent] = React.useState<string>('root');
+  const [newCategoryName, setNewCategoryName] = React.useState("");
+  const [newCategoryParent, setNewCategoryParent] =
+    React.useState<string>("root");
   const [newCategoryVisibility, setNewCategoryVisibility] = React.useState<
-    'public' | 'portal' | 'internal'
-  >('portal');
+    "public" | "portal" | "internal"
+  >("portal");
   const [isPending, startTransition] = React.useTransition();
 
   const tree = React.useMemo(() => buildTree(categories), [categories]);
 
   const filteredArticles = React.useMemo(() => {
-    if (activeCategory === 'all') return articles;
+    if (activeCategory === "all") return articles;
     return articles.filter((a) => a.category === activeCategory);
   }, [articles, activeCategory]);
 
@@ -147,12 +168,12 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
   React.useEffect(() => {
     if (!selectedArticleId) {
       setDraft({
-        title: '',
-        slug: '',
-        body: '',
-        category: activeCategory === 'all' ? '' : activeCategory,
-        visibility: 'portal',
-        status: 'draft',
+        title: "",
+        slug: "",
+        body: "",
+        category: activeCategory === "all" ? "" : activeCategory,
+        visibility: "portal",
+        status: "draft",
       });
       return;
     }
@@ -160,12 +181,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
     if (a) {
       setDraft({
         _id: a._id,
-        title: a.title ?? '',
-        slug: a.slug ?? '',
-        body: a.body ?? '',
-        category: a.category ?? '',
-        visibility: (a.visibility as 'public' | 'portal' | 'internal') ?? 'portal',
-        status: (a.status as 'draft' | 'published' | 'archived') ?? 'draft',
+        title: a.title ?? "",
+        slug: a.slug ?? "",
+        body: a.body ?? "",
+        category: a.category ?? "",
+        visibility:
+          (a.visibility as "public" | "portal" | "internal") ?? "portal",
+        status: (a.status as "draft" | "published" | "archived") ?? "draft",
       });
     }
   }, [selectedArticleId, articles, activeCategory]);
@@ -174,29 +196,29 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
   const handleSave = () => {
     if (!draft.title.trim()) {
-      toast({ title: 'Title is required', variant: 'destructive' });
+      toast({ title: "Title is required", variant: "destructive" });
       return;
     }
     if (!draft.body.trim()) {
-      toast({ title: 'Body is required', variant: 'destructive' });
+      toast({ title: "Body is required", variant: "destructive" });
       return;
     }
     startTransition(async () => {
       const fd = new FormData();
-      if (draft._id) fd.set('_id', draft._id);
-      fd.set('title', draft.title);
-      if (draft.slug) fd.set('slug', draft.slug);
-      fd.set('body', draft.body);
-      if (draft.category) fd.set('category', draft.category);
-      fd.set('visibility', draft.visibility);
-      fd.set('status', draft.status);
+      if (draft._id) fd.set("_id", draft._id);
+      fd.set("title", draft.title);
+      if (draft.slug) fd.set("slug", draft.slug);
+      fd.set("body", draft.body);
+      if (draft.category) fd.set("category", draft.category);
+      fd.set("visibility", draft.visibility);
+      fd.set("status", draft.status);
 
       const res = await saveKbArticle(null, fd);
       if (res.error) {
-        toast({ title: res.error, variant: 'destructive' });
+        toast({ title: res.error, variant: "destructive" });
         return;
       }
-      toast({ title: draft._id ? 'Article updated' : 'Article created' });
+      toast({ title: draft._id ? "Article updated" : "Article created" });
       router.refresh();
     });
   };
@@ -207,21 +229,21 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       const res = await deleteKbArticle(draft._id!);
       if ((res as { error?: string }).error) {
         toast({
-          title: (res as { error?: string }).error ?? 'Failed',
-          variant: 'destructive',
+          title: (res as { error?: string }).error ?? "Failed",
+          variant: "destructive",
         });
         return;
       }
       setArticles((rows) => rows.filter((r) => r._id !== draft._id));
       setSelectedArticleId(null);
-      toast({ title: 'Article archived' });
+      toast({ title: "Article archived" });
       router.refresh();
     });
   };
 
   const togglePublish = () => {
     if (!draft._id) return;
-    const next = draft.status === 'published' ? 'draft' : 'published';
+    const next = draft.status === "published" ? "draft" : "published";
     setDraft((d) => ({ ...d, status: next }));
     startTransition(async () => {
       await setKbArticleStatus(draft._id!, next);
@@ -233,22 +255,22 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
   const handleCreateCategory = () => {
     if (!newCategoryName.trim()) {
-      toast({ title: 'Category name is required', variant: 'destructive' });
+      toast({ title: "Category name is required", variant: "destructive" });
       return;
     }
     startTransition(async () => {
       const fd = new FormData();
-      fd.set('name', newCategoryName);
-      fd.set('parentId', newCategoryParent);
-      fd.set('visibility', newCategoryVisibility);
+      fd.set("name", newCategoryName);
+      fd.set("parentId", newCategoryParent);
+      fd.set("visibility", newCategoryVisibility);
       const res = await saveKbCategory(null, fd);
       if (res.success) {
-        toast({ title: 'Category created' });
+        toast({ title: "Category created" });
         setShowNewCategory(false);
-        setNewCategoryName('');
+        setNewCategoryName("");
         router.refresh();
       } else {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
       }
     });
   };
@@ -258,11 +280,11 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       const res = await deleteKbCategory(id);
       if (res.success) {
         setCategories((rows) => rows.filter((r) => r._id !== id));
-        if (activeCategory === id) setActiveCategory('all');
-        toast({ title: 'Category archived' });
+        if (activeCategory === id) setActiveCategory("all");
+        toast({ title: "Category archived" });
         router.refresh();
       } else {
-        toast({ title: res.error ?? 'Failed', variant: 'destructive' });
+        toast({ title: res.error ?? "Failed", variant: "destructive" });
       }
     });
   };
@@ -275,7 +297,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
         type="button"
         onClick={() => setActiveCategory(node._id)}
         className={`flex w-full items-center justify-between gap-2 rounded px-2 py-1 text-left text-[13px] hover:bg-zoru-surface-2 ${
-          activeCategory === node._id ? 'bg-zoru-surface-2 font-medium' : ''
+          activeCategory === node._id ? "bg-zoru-surface-2 font-medium" : ""
         }`}
         style={{ paddingLeft: `${8 + depth * 14}px` }}
       >
@@ -290,7 +312,8 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             aria-label={`Delete ${node.name}`}
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm(`Archive category "${node.name}"?`)) handleDeleteCategory(node._id);
+              if (confirm(`Archive category "${node.name}"?`))
+                handleDeleteCategory(node._id);
             }}
             className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger"
           >
@@ -309,8 +332,14 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       {/* LEFT: categories */}
       <aside className="flex h-full w-[280px] min-w-[240px] shrink-0 flex-col border-r border-zoru-line bg-zoru-surface">
         <div className="flex items-center justify-between gap-2 border-b border-zoru-line px-3 py-3">
-          <span className="text-sm font-semibold text-zoru-ink">Categories</span>
-          <Button size="sm" variant="outline" onClick={() => setShowNewCategory(true)}>
+          <span className="text-sm font-semibold text-zoru-ink">
+            Categories
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setShowNewCategory(true)}
+          >
             <FolderPlus className="mr-1 h-3 w-3" /> New
           </Button>
         </div>
@@ -318,9 +347,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
           <div className="space-y-0.5 p-2">
             <button
               type="button"
-              onClick={() => setActiveCategory('all')}
+              onClick={() => setActiveCategory("all")}
               className={`flex w-full items-center justify-between rounded px-2 py-1 text-left text-[13px] hover:bg-zoru-surface-2 ${
-                activeCategory === 'all' ? 'bg-zoru-surface-2 font-medium' : ''
+                activeCategory === "all" ? "bg-zoru-surface-2 font-medium" : ""
               }`}
             >
               <span className="flex items-center gap-1.5 text-zoru-ink">
@@ -330,7 +359,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
               <Badge variant="ghost">{articles.length}</Badge>
             </button>
             {tree.length === 0 ? (
-              <p className="px-2 py-3 text-[12px] text-zoru-ink-muted">No categories yet.</p>
+              <p className="px-2 py-3 text-[12px] text-zoru-ink-muted">
+                No categories yet.
+              </p>
             ) : (
               tree.map((n) => renderTreeNode(n))
             )}
@@ -342,10 +373,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
       <section className="flex h-full min-w-0 flex-1 flex-col bg-zoru-surface">
         <header className="flex items-center justify-between gap-3 border-b border-zoru-line px-5 py-3">
           <div>
-            <h2 className="text-[15px] font-semibold text-zoru-ink">Knowledge Base</h2>
+            <h2 className="text-[15px] font-semibold text-zoru-ink">
+              Knowledge Base
+            </h2>
             <p className="text-[12px] text-zoru-ink-muted">
-              {filteredArticles.length} article{filteredArticles.length === 1 ? '' : 's'}
-              {activeCategory !== 'all' ? ' in selected category' : ''}
+              {filteredArticles.length} article
+              {filteredArticles.length === 1 ? "" : "s"}
+              {activeCategory !== "all" ? " in selected category" : ""}
             </p>
           </div>
           <div className="flex gap-2">
@@ -355,19 +389,21 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
               onClick={() => {
                 setSelectedArticleId(null);
                 setDraft({
-                  title: '',
-                  slug: '',
-                  body: '',
-                  category: activeCategory === 'all' ? '' : activeCategory,
-                  visibility: 'portal',
-                  status: 'draft',
+                  title: "",
+                  slug: "",
+                  body: "",
+                  category: activeCategory === "all" ? "" : activeCategory,
+                  visibility: "portal",
+                  status: "draft",
                 });
               }}
             >
               <Plus className="mr-1 h-3 w-3" /> New article
             </Button>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/dashboard/sabdesk/knowledge-base">Open full list</Link>
+              <Link href="/dashboard/sabdesk/knowledge-base">
+                Open full list
+              </Link>
             </Button>
           </div>
         </header>
@@ -376,9 +412,13 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
           {/* article list rail */}
           <ScrollArea className="w-[280px] shrink-0 border-r border-zoru-line">
             {props.initialError ? (
-              <div className="p-4 text-[13px] text-zoru-danger">{props.initialError}</div>
+              <div className="p-4 text-[13px] text-zoru-danger">
+                {props.initialError}
+              </div>
             ) : filteredArticles.length === 0 ? (
-              <div className="p-4 text-[13px] text-zoru-ink-muted">No articles here yet.</div>
+              <div className="p-4 text-[13px] text-zoru-ink-muted">
+                No articles here yet.
+              </div>
             ) : (
               <ul className="divide-y divide-zoru-line">
                 {filteredArticles.map((a) => {
@@ -389,16 +429,20 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         type="button"
                         onClick={() => setSelectedArticleId(a._id)}
                         className={`flex w-full flex-col gap-1 px-3 py-3 text-left hover:bg-zoru-surface-2 ${
-                          active ? 'bg-zoru-surface-2' : ''
+                          active ? "bg-zoru-surface-2" : ""
                         }`}
                       >
                         <span className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
-                          {a.title ?? 'Untitled'}
+                          {a.title ?? "Untitled"}
                         </span>
                         <div className="flex flex-wrap items-center gap-1.5">
                           {visibilityBadge(a.visibility)}
-                          <Badge variant={a.status === 'published' ? 'success' : 'ghost'}>
-                            {a.status ?? 'draft'}
+                          <Badge
+                            variant={
+                              a.status === "published" ? "success" : "ghost"
+                            }
+                          >
+                            {a.status ?? "draft"}
                           </Badge>
                         </div>
                       </button>
@@ -417,7 +461,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   <Label>Title</Label>
                   <Input
                     value={draft.title}
-                    onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, title: e.target.value }))
+                    }
                     placeholder="e.g. How to reset your password"
                     className="mt-1"
                   />
@@ -428,7 +474,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                     <Label>Slug</Label>
                     <Input
                       value={draft.slug}
-                      onChange={(e) => setDraft((d) => ({ ...d, slug: e.target.value }))}
+                      onChange={(e) =>
+                        setDraft((d) => ({ ...d, slug: e.target.value }))
+                      }
                       placeholder="auto from title"
                       className="mt-1"
                     />
@@ -436,9 +484,12 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   <div>
                     <Label>Category</Label>
                     <Select
-                      value={draft.category || 'none'}
+                      value={draft.category || "none"}
                       onValueChange={(v) =>
-                        setDraft((d) => ({ ...d, category: v === 'none' ? '' : v }))
+                        setDraft((d) => ({
+                          ...d,
+                          category: v === "none" ? "" : v,
+                        }))
                       }
                     >
                       <ZoruSelectTrigger className="mt-1">
@@ -461,7 +512,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                       onValueChange={(v) =>
                         setDraft((d) => ({
                           ...d,
-                          visibility: v as 'public' | 'portal' | 'internal',
+                          visibility: v as "public" | "portal" | "internal",
                         }))
                       }
                     >
@@ -469,9 +520,15 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                         <ZoruSelectValue />
                       </ZoruSelectTrigger>
                       <ZoruSelectContent>
-                        <ZoruSelectItem value="internal">Internal (staff only)</ZoruSelectItem>
-                        <ZoruSelectItem value="portal">Portal (customers)</ZoruSelectItem>
-                        <ZoruSelectItem value="public">Public (web)</ZoruSelectItem>
+                        <ZoruSelectItem value="internal">
+                          Internal (staff only)
+                        </ZoruSelectItem>
+                        <ZoruSelectItem value="portal">
+                          Portal (customers)
+                        </ZoruSelectItem>
+                        <ZoruSelectItem value="public">
+                          Public (web)
+                        </ZoruSelectItem>
                       </ZoruSelectContent>
                     </Select>
                   </div>
@@ -488,7 +545,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                   </div>
                   <Textarea
                     value={draft.body}
-                    onChange={(e) => setDraft((d) => ({ ...d, body: e.target.value }))}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, body: e.target.value }))
+                    }
                     rows={14}
                     className="font-mono text-[13px]"
                     placeholder={`# Heading\n\nWrite your article in **markdown**...`}
@@ -497,12 +556,23 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant={draft.status === 'published' ? 'success' : 'ghost'}>
+                    <Badge
+                      variant={
+                        draft.status === "published" ? "success" : "ghost"
+                      }
+                    >
                       {draft.status}
                     </Badge>
                     {draft._id ? (
-                      <Button variant="outline" size="sm" onClick={togglePublish} disabled={isPending}>
-                        {draft.status === 'published' ? 'Move to draft' : 'Publish'}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={togglePublish}
+                        disabled={isPending}
+                      >
+                        {draft.status === "published"
+                          ? "Move to draft"
+                          : "Publish"}
                       </Button>
                     ) : null}
                   </div>
@@ -520,7 +590,7 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
                     ) : null}
                     <Button onClick={handleSave} disabled={isPending}>
                       <Save className="mr-1 h-3 w-3" />
-                      {draft._id ? 'Save changes' : 'Create article'}
+                      {draft._id ? "Save changes" : "Create article"}
                     </Button>
                   </div>
                 </div>
@@ -551,7 +621,10 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             </div>
             <div>
               <Label>Parent</Label>
-              <Select value={newCategoryParent} onValueChange={setNewCategoryParent}>
+              <Select
+                value={newCategoryParent}
+                onValueChange={setNewCategoryParent}
+              >
                 <ZoruSelectTrigger className="mt-1">
                   <ZoruSelectValue />
                 </ZoruSelectTrigger>
@@ -570,7 +643,9 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
               <Select
                 value={newCategoryVisibility}
                 onValueChange={(v) =>
-                  setNewCategoryVisibility(v as 'public' | 'portal' | 'internal')
+                  setNewCategoryVisibility(
+                    v as "public" | "portal" | "internal",
+                  )
                 }
               >
                 <ZoruSelectTrigger className="mt-1">
@@ -585,8 +660,12 @@ export function KbWorkspaceClient(props: Props): React.JSX.Element {
             </div>
           </div>
           <ZoruDialogFooter>
-            <Button variant="outline" onClick={() => setShowNewCategory(false)}>Cancel</Button>
-            <Button onClick={handleCreateCategory} disabled={isPending}>Create</Button>
+            <Button variant="outline" onClick={() => setShowNewCategory(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateCategory} disabled={isPending}>
+              Create
+            </Button>
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </Dialog>

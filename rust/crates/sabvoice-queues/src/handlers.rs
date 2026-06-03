@@ -160,11 +160,10 @@ pub async fn list_queues(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<VoiceQueue>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvoice_queues.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvoice_queues.find"))
+        })?;
     let mut rows: Vec<VoiceQueue> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabvoice_queues.collect"))
     })?;
@@ -215,8 +214,7 @@ pub async fn create_queue(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -284,7 +282,9 @@ pub async fn delete_queue(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvoice_queues.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvoice_queues.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("voice_queue".to_owned()));
     }

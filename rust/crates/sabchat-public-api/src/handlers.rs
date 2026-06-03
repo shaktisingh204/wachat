@@ -12,10 +12,10 @@ use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json};
 use tracing::instrument;
 
 use crate::dto::{
-    AppendMessageBody, AppendMessageResponse, ContactResponse, CreateContactBody, DEFAULT_LIMIT,
-    ListContactsQuery, ListContactsResponse, ListConversationsQuery, ListConversationsResponse,
-    ListMessagesQuery, ListMessagesResponse, MAX_LIMIT, SCOPE_READ, SCOPE_WRITE,
-    ConversationResponse,
+    AppendMessageBody, AppendMessageResponse, ContactResponse, ConversationResponse,
+    CreateContactBody, DEFAULT_LIMIT, ListContactsQuery, ListContactsResponse,
+    ListConversationsQuery, ListConversationsResponse, ListMessagesQuery, ListMessagesResponse,
+    MAX_LIMIT, SCOPE_READ, SCOPE_WRITE,
 };
 use crate::state::SabChatPublicApiState;
 use wachat_public_api::ApiKeyAuth;
@@ -29,9 +29,8 @@ const MESSAGES_COLL: &str = "sabchat_messages";
 // ===========================================================================
 
 fn parse_tenant(hex: &str) -> Result<ObjectId> {
-    ObjectId::parse_str(hex).map_err(|_| {
-        ApiError::Unauthorized("tenantId is not a valid ObjectId".to_owned())
-    })
+    ObjectId::parse_str(hex)
+        .map_err(|_| ApiError::Unauthorized("tenantId is not a valid ObjectId".to_owned()))
 }
 
 // ===========================================================================
@@ -84,7 +83,8 @@ pub async fn list_contacts(
 
     let coll = state.mongo.collection::<SabChatContact>(CONTACTS_COLL);
     let items: Vec<SabChatContact> = coll
-        .find(filter).with_options(opts)
+        .find(filter)
+        .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()
@@ -188,7 +188,10 @@ pub async fn list_conversations(
 
     if let Some(status) = query.status {
         let status_val = serde_json::to_value(status).unwrap_or(serde_json::Value::Null);
-        filter.insert("status", bson::Bson::try_from(status_val).unwrap_or(bson::Bson::Null));
+        filter.insert(
+            "status",
+            bson::Bson::try_from(status_val).unwrap_or(bson::Bson::Null),
+        );
     }
 
     if let Some(q) = query.q {
@@ -212,7 +215,8 @@ pub async fn list_conversations(
 
     let coll = state.mongo.collection::<Document>(CONVERSATIONS_COLL);
     let items: Vec<Document> = coll
-        .find(filter).with_options(opts)
+        .find(filter)
+        .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()
@@ -220,14 +224,20 @@ pub async fn list_conversations(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let next_cursor = if items.len() == limit as usize {
-        items.last().and_then(|doc| doc.get_object_id("_id").ok()).map(|id| id.to_hex())
+        items
+            .last()
+            .and_then(|doc| doc.get_object_id("_id").ok())
+            .map(|id| id.to_hex())
     } else {
         None
     };
 
     let conversations = items.into_iter().map(document_to_clean_json).collect();
 
-    Ok(Json(ListConversationsResponse { conversations, next_cursor }))
+    Ok(Json(ListConversationsResponse {
+        conversations,
+        next_cursor,
+    }))
 }
 
 #[instrument(skip_all, fields(conversation_id = %id))]
@@ -297,7 +307,8 @@ pub async fn list_messages(
 
     let coll = state.mongo.collection::<Document>(MESSAGES_COLL);
     let mut items: Vec<Document> = coll
-        .find(filter).with_options(opts)
+        .find(filter)
+        .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .try_collect()
@@ -351,7 +362,8 @@ pub async fn append_message(
     }
 
     let msg_coll = state.mongo.collection::<Document>(MESSAGES_COLL);
-    msg_coll.insert_one(&doc)
+    msg_coll
+        .insert_one(&doc)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
@@ -369,17 +381,19 @@ pub async fn append_message(
         sabchat_types::ContentBlock::Location { .. } => "[Location]".to_string(),
         sabchat_types::ContentBlock::System { text } => text.chars().take(50).collect::<String>(),
     };
-    
-    let _ = conv_coll.update_one(
-        doc! { "_id": conversation_oid },
-        doc! {
-            "$set": {
-                "lastMessagePreview": preview,
-                "lastMessageAt": now,
-                "updatedAt": now,
-            }
-        }
-    ).await;
+
+    let _ = conv_coll
+        .update_one(
+            doc! { "_id": conversation_oid },
+            doc! {
+                "$set": {
+                    "lastMessagePreview": preview,
+                    "lastMessageAt": now,
+                    "updatedAt": now,
+                }
+            },
+        )
+        .await;
 
     Ok(Json(AppendMessageResponse {
         message: document_to_clean_json(doc),

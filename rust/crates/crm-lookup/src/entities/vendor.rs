@@ -6,7 +6,14 @@ use crm_lookup_types::LookupChip;
 
 pub static SPEC: LookupSpec = LookupSpec {
     collection: "crm_vendors",
-    searchable_fields: &["name", "email", "phone", "gstin", "displayName", "companyName"],
+    searchable_fields: &[
+        "name",
+        "email",
+        "phone",
+        "gstin",
+        "displayName",
+        "companyName",
+    ],
     default_filter,
     to_chip,
     honors_project_scope: true,

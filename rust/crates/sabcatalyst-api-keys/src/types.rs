@@ -23,7 +23,8 @@ pub enum ApiKeyStatus {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SabcatalystApiKey {
-    #[serde(rename = "_id")] pub id: ObjectId,
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
     pub project_id: ObjectId,
     pub user_id: ObjectId,
     pub label: String,

@@ -115,7 +115,12 @@ pub async fn create_rule(
         ));
     }
     if body.action == ACTION_SEND_COUPON
-        && body.coupon_code.as_deref().map(str::trim).unwrap_or("").is_empty()
+        && body
+            .coupon_code
+            .as_deref()
+            .map(str::trim)
+            .unwrap_or("")
+            .is_empty()
     {
         return Err(ApiError::Validation(
             "couponCode is required when action is send_coupon.".to_owned(),
@@ -180,9 +185,7 @@ pub async fn list_rules(
             ApiError::Internal(anyhow::Error::new(e).context("sabchat_cart_recovery_rules.find"))
         })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_cart_recovery_rules.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_cart_recovery_rules.collect"))
     })?;
 
     let rules: Vec<Value> = docs.into_iter().map(document_to_clean_json).collect();
@@ -377,12 +380,11 @@ pub async fn list_carts(
         .find(filter)
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.find"))
-        })?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.find")))?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.collect")))?;
 
     let next_cursor = if (docs.len() as i64) < limit {
         None
@@ -415,9 +417,7 @@ pub async fn get_cart(
     let doc = coll
         .find_one(doc! { "_id": cart_oid, "tenantId": tenant })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_carts.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Cart not found.".to_owned()))?;
 
     Ok(Json(document_to_clean_json(doc)))
@@ -575,14 +575,11 @@ pub async fn sweep(
             trigger.insert("messageTemplate", tpl);
         }
 
-        triggers_coll
-            .insert_one(trigger)
-            .await
-            .map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.insert"),
-                )
-            })?;
+        triggers_coll.insert_one(trigger).await.map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.insert"),
+            )
+        })?;
 
         // ---- Mark the cart abandoned so we don't re-fire ---------------
         carts_coll
@@ -639,19 +636,11 @@ pub async fn list_triggers(
         .build();
 
     let coll = state.mongo.collection::<Document>(TRIGGERS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.find"),
-            )
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_cart_recovery_triggers.collect"))
     })?;
 
     let next_cursor = if (docs.len() as i64) < limit {

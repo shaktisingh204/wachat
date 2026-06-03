@@ -21,9 +21,7 @@ use serde::{Deserialize, Serialize};
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum JobSchedule {
     /// Fire exactly once at `at`.
-    Once {
-        at: DateTime<Utc>,
-    },
+    Once { at: DateTime<Utc> },
     /// Recurring cron schedule. `timezone` is an IANA tz id (e.g.
     /// `"Asia/Kolkata"`); `None` = UTC.
     Cron {
@@ -33,9 +31,7 @@ pub enum JobSchedule {
     },
     /// Triggered when a domain event fires (`"client.created"`,
     /// `"invoice.paid"`, …).
-    OnEvent {
-        event: String,
-    },
+    OnEvent { event: String },
 }
 
 /// Lifecycle state of a job run.
@@ -85,9 +81,17 @@ pub struct BackgroundJob {
     pub retry_count: u32,
     #[serde(default)]
     pub max_retries: u32,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_run_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub next_run_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub status: JobStatus,

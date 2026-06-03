@@ -84,7 +84,11 @@ pub async fn list_orders(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(v) = q.event_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .event_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("eventId", v);
     }
     if let Some(s) = q.status.as_deref().filter(|s| *s != "all") {
@@ -277,9 +281,7 @@ pub async fn public_create_order(
 
     let coll = mongo.collection::<SabbackstageOrder>(COLL);
     let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_orders.public_insert"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_orders.public_insert"))
     })?;
     let new_id = inserted
         .inserted_id
@@ -319,9 +321,7 @@ pub async fn public_confirm_order(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_orders.public_confirm"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_orders.public_confirm"))
         })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("sabbackstage_order".to_owned()));
@@ -350,9 +350,7 @@ pub async fn public_get_order(
         .find_one(doc! { "_id": oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_orders.public_find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_orders.public_find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_order".to_owned()))?;
     Ok(Json(row))

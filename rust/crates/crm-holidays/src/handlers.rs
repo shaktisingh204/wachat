@@ -259,9 +259,7 @@ pub async fn update_holiday(
         set.insert(
             "applicableLocations",
             bson::to_bson(locs).map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("serialize applicable_locations"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("serialize applicable_locations"))
             })?,
         );
     }
@@ -288,9 +286,7 @@ pub async fn update_holiday(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_holidays.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_holidays.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("holiday".to_owned()))?;
 
@@ -317,12 +313,9 @@ pub async fn delete_holiday(
     let filter = doc! { "_id": holiday_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(HOLIDAYS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_holidays.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_holidays.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("holiday".to_owned()));
     }

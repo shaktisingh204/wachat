@@ -116,10 +116,7 @@ where
         // ---- descriptor catalogue ----------------------------------------
         .route("/nodes", get(handlers::list_nodes))
         // ---- actions -----------------------------------------------------
-        .route(
-            "/actions/send-message",
-            post(handlers::action_send_message),
-        )
+        .route("/actions/send-message", post(handlers::action_send_message))
         .route("/actions/add-label", post(handlers::action_add_label))
         .route("/actions/set-status", post(handlers::action_set_status))
         .route("/actions/set-priority", post(handlers::action_set_priority))

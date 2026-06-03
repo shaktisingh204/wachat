@@ -25,10 +25,7 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_tokens).post(handlers::issue_token),
-        )
+        .route("/", get(handlers::list_tokens).post(handlers::issue_token))
         .route("/{tokenId}", delete(handlers::revoke_token))
 }
 

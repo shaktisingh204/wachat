@@ -15,10 +15,12 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_dialins).post(handlers::create_dialin))
+        .route(
+            "/",
+            get(handlers::list_dialins).post(handlers::create_dialin),
+        )
         .route(
             "/{dialinId}",
-            axum::routing::patch(handlers::update_dialin)
-                .delete(handlers::delete_dialin),
+            axum::routing::patch(handlers::update_dialin).delete(handlers::delete_dialin),
         )
 }

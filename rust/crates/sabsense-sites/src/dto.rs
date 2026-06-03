@@ -1,6 +1,8 @@
-//! Request / response DTOs for `pagesense-sites`.
+//! Request DTOs for sabsense-sites.
 
 use serde::{Deserialize, Serialize};
+
+use crate::types::SabsenseSite;
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -11,61 +13,62 @@ pub struct ListQuery {
     pub limit: Option<u32>,
     #[serde(default)]
     pub q: Option<String>,
-    /// `"active"` | `"archived"` | `"all"`. Defaults to `"active"`.
     #[serde(default)]
     pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateSiteInput {
+pub struct CreateSabsenseSiteInput {
     pub name: String,
-    pub domain: String,
+    pub interval_unit: String,
     #[serde(default)]
-    pub screenshot_url: Option<String>,
+    pub interval_count: Option<i32>,
+    pub amount_minor: i64,
     #[serde(default)]
-    pub is_active: Option<bool>,
+    pub currency: Option<String>,
+    #[serde(default)]
+    pub trial_days: Option<i32>,
+    #[serde(default)]
+    pub setup_fee_minor: Option<i64>,
+    #[serde(default)]
+    pub description: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateSiteInput {
+pub struct UpdateSabsenseSiteInput {
     #[serde(default)]
     pub name: Option<String>,
     #[serde(default)]
-    pub domain: Option<String>,
+    pub interval_unit: Option<String>,
     #[serde(default)]
-    pub screenshot_url: Option<String>,
+    pub interval_count: Option<i32>,
     #[serde(default)]
-    pub is_active: Option<bool>,
+    pub amount_minor: Option<i64>,
+    #[serde(default)]
+    pub currency: Option<String>,
+    #[serde(default)]
+    pub trial_days: Option<i32>,
+    #[serde(default)]
+    pub setup_fee_minor: Option<i64>,
+    #[serde(default)]
+    pub description: Option<String>,
     #[serde(default)]
     pub status: Option<String>,
-    /// Force a new snippet key rotation.
-    #[serde(default)]
-    pub rotate_snippet_key: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateSiteResponse {
+pub struct CreateSabsenseSiteResponse {
     pub id: String,
-    pub entity: crate::types::PagesenseSite,
+    pub entity: SabsenseSite,
 }
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteSiteResponse {
+pub struct DeleteSabsenseSiteResponse {
     pub deleted: bool,
-}
-
-/// Public lookup used by the `/api/pagesense/ingest` Next.js route to
-/// validate the snippet key before forwarding events. Returned with no
-/// auth required other than a matching key; intentionally minimal.
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct SnippetKeyLookupResponse {
-    pub site_id: String,
-    pub user_id: String,
-    pub domain: String,
-    pub is_active: bool,
 }

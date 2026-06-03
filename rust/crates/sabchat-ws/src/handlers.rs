@@ -59,9 +59,8 @@ pub async fn ws_upgrade(
 ) -> Result<impl IntoResponse> {
     // Parse the tenant id once on the cold path so the per-event filter
     // inside `run_socket` is a cheap `ObjectId == ObjectId` compare.
-    let tenant_oid = ObjectId::parse_str(&user.tenant_id).map_err(|_| {
-        ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned())
-    })?;
+    let tenant_oid = ObjectId::parse_str(&user.tenant_id)
+        .map_err(|_| ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned()))?;
     let user_id = user.user_id.clone();
 
     Ok(ws.on_upgrade(move |socket| run_socket(socket, state, tenant_oid, user_id)))
@@ -101,7 +100,11 @@ async fn run_socket(
                             continue;
                         }
                     };
-                    if sink.send(Message::Text(Utf8Bytes::from(body))).await.is_err() {
+                    if sink
+                        .send(Message::Text(Utf8Bytes::from(body)))
+                        .await
+                        .is_err()
+                    {
                         // Client gone — bail. The inbound side will
                         // notice on its next read and tear the rest
                         // down.
@@ -154,12 +157,7 @@ async fn run_socket(
 /// this synchronous: every supported command either replies via the
 /// already-spawned outbound task (by publishing onto the hub) or is a
 /// pure no-op — neither path needs to `await` here.
-fn handle_text_frame(
-    state: &SabChatWsState,
-    tenant_oid: ObjectId,
-    user_id: &str,
-    raw: &str,
-) {
+fn handle_text_frame(state: &SabChatWsState, tenant_oid: ObjectId, user_id: &str, raw: &str) {
     let v: Value = match serde_json::from_str(raw) {
         Ok(v) => v,
         Err(err) => {

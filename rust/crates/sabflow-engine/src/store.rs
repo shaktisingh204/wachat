@@ -87,12 +87,7 @@ impl ExecutionStore {
         }
     }
 
-    pub async fn set_flow_active(
-        &self,
-        flow_id: &str,
-        user_id: &str,
-        active: bool,
-    ) -> Result<()> {
+    pub async fn set_flow_active(&self, flow_id: &str, user_id: &str, active: bool) -> Result<()> {
         // Match Next.js convention: PUBLISHED = live, DRAFT = offline
         let status = if active { "PUBLISHED" } else { "DRAFT" };
         let filter = if let Ok(oid) = ObjectId::parse_str(flow_id) {

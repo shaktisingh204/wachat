@@ -15,7 +15,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_funnels).post(handlers::create_funnel))
+        .route(
+            "/",
+            get(handlers::list_funnels).post(handlers::create_funnel),
+        )
         .route(
             "/{funnelId}",
             get(handlers::get_funnel)

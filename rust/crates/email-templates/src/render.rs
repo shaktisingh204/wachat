@@ -23,9 +23,7 @@ use anyhow::Context;
 use sabnode_common::{ApiError, Result};
 use serde_json::Value;
 
-use crate::dto::{
-    EmailBrandKit, EmailBuilderBlock, EmailBuilderDocument, EmailBuilderSettings,
-};
+use crate::dto::{EmailBrandKit, EmailBuilderBlock, EmailBuilderDocument, EmailBuilderSettings};
 
 /// Output of the render pipeline. `mjml` is kept alongside `html` so
 /// callers can stash it for cache-invalidation diffing or developer
@@ -57,13 +55,12 @@ pub fn render_builder_to_html(
     // Hand the MJML to mrml. Both parse and render errors funnel into
     // ApiError::Internal — they indicate either a bug in our emitter
     // or an extremely large document.
-    let parsed = mrml::parse(&mjml)
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::msg(format!("mrml parse error: {e:?}"))
-                    .context("email-templates::render"),
-            )
-        })?;
+    let parsed = mrml::parse(&mjml).map_err(|e| {
+        ApiError::Internal(
+            anyhow::Error::msg(format!("mrml parse error: {e:?}"))
+                .context("email-templates::render"),
+        )
+    })?;
     let render_opts = mrml::prelude::render::RenderOptions::default();
     let html = parsed
         .element
@@ -255,9 +252,7 @@ fn emit_image(block: &EmailBuilderBlock) -> String {
     if let Some(w) = width {
         attrs.push_str(&format!(" width=\"{}\"", escape_attr(&w)));
     }
-    format!(
-        "<mj-section><mj-column><mj-image {attrs} /></mj-column></mj-section>"
-    )
+    format!("<mj-section><mj-column><mj-image {attrs} /></mj-column></mj-section>")
 }
 
 fn emit_button(block: &EmailBuilderBlock) -> String {
@@ -296,9 +291,7 @@ fn emit_divider(block: &EmailBuilderBlock) -> String {
 
 fn emit_spacer(block: &EmailBuilderBlock) -> String {
     let height = prop_u32(&block.props, "height").unwrap_or(20);
-    format!(
-        "<mj-section><mj-column><mj-spacer height=\"{height}px\" /></mj-column></mj-section>"
-    )
+    format!("<mj-section><mj-column><mj-spacer height=\"{height}px\" /></mj-column></mj-section>")
 }
 
 fn emit_html(block: &EmailBuilderBlock) -> String {
@@ -360,7 +353,11 @@ fn emit_block_inline(
         "text" => {
             let text = prop_str(&block.props, "text").unwrap_or_default();
             let align = prop_str(&block.props, "align").unwrap_or_else(|| "left".to_owned());
-            format!("<mj-text align=\"{}\">{}</mj-text>", escape_attr(&align), text)
+            format!(
+                "<mj-text align=\"{}\">{}</mj-text>",
+                escape_attr(&align),
+                text
+            )
         }
         "image" => {
             let src = prop_str(&block.props, "src").unwrap_or_default();
@@ -397,7 +394,10 @@ fn emit_block_inline(
                 "unknown inline block type `{other}` (id={}) rendered as comment",
                 block.id
             ));
-            format!("<mj-raw><!-- unsupported: {} --></mj-raw>", escape_text(other))
+            format!(
+                "<mj-raw><!-- unsupported: {} --></mj-raw>",
+                escape_text(other)
+            )
         }
     }
 }

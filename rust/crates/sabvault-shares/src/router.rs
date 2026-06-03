@@ -1,8 +1,8 @@
-//! Mountable router for `/v1/sabvault/shares`.
+//! Mountable router. Mount under `/v1/sabcheckout/shares`.
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{Router, extract::FromRef, routing::get};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -15,14 +15,11 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_shares).post(handlers::create_share),
-        )
+        .route("/", get(handlers::list_shares).post(handlers::create_share))
         .route(
             "/{shareId}",
-            post(handlers::update_share)
+            get(handlers::get_share)
                 .patch(handlers::update_share)
-                .delete(handlers::revoke_share),
+                .delete(handlers::delete_share),
         )
 }

@@ -32,10 +32,7 @@ where
     Router::new()
         .route("/overview", get(handlers::overview))
         .route("/bots/{bot_id}", get(handlers::bot_analytics))
-        .route(
-            "/messages-timeseries",
-            get(handlers::messages_timeseries),
-        )
+        .route("/messages-timeseries", get(handlers::messages_timeseries))
         .route(
             "/broadcasts-timeseries",
             get(handlers::broadcasts_timeseries),

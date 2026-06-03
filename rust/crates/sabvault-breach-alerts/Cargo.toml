@@ -2,7 +2,7 @@
 name = "sabvault-breach-alerts"
 version = "0.1.0"
 edition = "2024"
-description = "Per-secret breach-status cache for SabVault. `sabvault_breach_alerts` Mongo collection. Provider integration (HIBP / custom) is wired in later — this crate only stores results."
+description = "SabCheckout — subscription alert CRUD (interval, amount, trial, setup fee)."
 license = "UNLICENSED"
 publish = false
 
@@ -26,3 +26,6 @@ crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

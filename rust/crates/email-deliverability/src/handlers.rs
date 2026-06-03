@@ -200,7 +200,9 @@ pub async fn dkim_generate(
     )
     .upsert(true)
     .await
-    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_settings.dkim.pending")))?;
+    .map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("email_settings.dkim.pending"))
+    })?;
 
     Ok(Json(DkimGenerateResponse {
         selector,
@@ -436,7 +438,10 @@ fn doc_to_warmup(d: Document) -> WarmupRun {
         .ok()
         .map(|dt| dt_to_rfc3339(*dt))
         .unwrap_or_else(|| Utc::now().to_rfc3339());
-    let completed_at = d.get_datetime("completedAt").ok().map(|dt| dt_to_rfc3339(*dt));
+    let completed_at = d
+        .get_datetime("completedAt")
+        .ok()
+        .map(|dt| dt_to_rfc3339(*dt));
     let notes = d.get_str("notes").ok().map(|s| s.to_owned());
     let schedule = d
         .get_array("schedule")
@@ -538,7 +543,8 @@ pub async fn get_score(
     State(state): State<EmailDeliverabilityState>,
 ) -> Result<Json<ScoreResponse>> {
     let window_days: u32 = 30;
-    let since = bson::DateTime::from_chrono(Utc::now() - chrono::Duration::days(window_days as i64));
+    let since =
+        bson::DateTime::from_chrono(Utc::now() - chrono::Duration::days(window_days as i64));
 
     let snapshots = state.mongo.collection::<Document>(SNAPSHOTS_COLL);
     let cursor = snapshots
@@ -609,8 +615,8 @@ pub async fn get_score(
 
     // Events score: start at 100, dock 200 * bounce_rate (so 5% bounce =
     // -10) and 1000 * complaint_rate (so 0.1% complaint = -1). Clamp.
-    let events_score = (100.0 - bounce_rate * 200.0 - complaint_rate * 1000.0)
-        .clamp(0.0, 100.0) as u8;
+    let events_score =
+        (100.0 - bounce_rate * 200.0 - complaint_rate * 1000.0).clamp(0.0, 100.0) as u8;
 
     // Combined: DNS 60%, events 40%.
     let combined = ((dns_score as f64) * 0.6 + (events_score as f64) * 0.4).round() as u8;
@@ -675,16 +681,22 @@ pub async fn ses_webhook(
     // The message is embedded as a JSON string in payload["Message"].
     if let Some(msg_str) = payload.get("Message").and_then(|v| v.as_str()) {
         if let Ok(msg) = serde_json::from_str::<Value>(msg_str) {
-            let event_type = msg.get("notificationType").or(msg.get("eventType")).and_then(|v| v.as_str()).unwrap_or("");
+            let event_type = msg
+                .get("notificationType")
+                .or(msg.get("eventType"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
             if event_type == "Bounce" || event_type == "Complaint" {
                 if let Some(mail) = msg.get("mail") {
                     if let Some(source) = mail.get("source").and_then(|v| v.as_str()) {
                         let domain = source.split('@').last().unwrap_or(source);
                         let coll = state.mongo.collection::<Document>(WARMUP_COLL);
-                        let _ = coll.update_many(
-                            doc! { "userId": &_tenant_id, "domain": domain },
-                            doc! { "$set": { "status": "paused" } }
-                        ).await;
+                        let _ = coll
+                            .update_many(
+                                doc! { "userId": &_tenant_id, "domain": domain },
+                                doc! { "$set": { "status": "paused" } },
+                            )
+                            .await;
                     }
                 }
             }
@@ -714,10 +726,12 @@ pub async fn sendgrid_webhook(
             // Let's try to extract domain from a custom arg if available.
             if let Some(domain) = event.get("domain").and_then(|v| v.as_str()) {
                 let coll = state.mongo.collection::<Document>(WARMUP_COLL);
-                let _ = coll.update_many(
-                    doc! { "userId": &_tenant_id, "domain": domain },
-                    doc! { "$set": { "status": "paused" } }
-                ).await;
+                let _ = coll
+                    .update_many(
+                        doc! { "userId": &_tenant_id, "domain": domain },
+                        doc! { "$set": { "status": "paused" } },
+                    )
+                    .await;
             }
         }
     }

@@ -43,7 +43,11 @@ fn from_create(input: CreateNamedRangeInput, user_id: ObjectId) -> Result<Sabshe
 
 fn build_update(patch: UpdateNamedRangeInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.sheet_id.and_then(|s| ObjectId::parse_str(&s).ok()) {
@@ -76,7 +80,9 @@ pub async fn list_named_ranges(
     let cursor = coll
         .find(doc! { "workbookId": wb, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.find")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.find"))
+        })?;
     let items: Vec<SabsheetNamedRange> = cursor.try_collect().await.unwrap_or_default();
     Ok(Json(ListResponse { items }))
 }
@@ -90,16 +96,18 @@ pub async fn create_named_range(
     let user_id = user_oid(&user)?;
     let mut entity = from_create(input, user_id)?;
     let coll = mongo.collection::<SabsheetNamedRange>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.insert"))
+    })?;
     let id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id not ObjectId")))?;
     entity.id = Some(id);
-    Ok(Json(CreateNamedRangeResponse { id: id.to_hex(), entity }))
+    Ok(Json(CreateNamedRangeResponse {
+        id: id.to_hex(),
+        entity,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
@@ -115,11 +123,15 @@ pub async fn update_named_range(
     let filter = doc! { "_id": oid, "ownerUserId": user_id };
     coll.update_one(filter.clone(), build_update(patch))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.update"))
+        })?;
     let after = coll
         .find_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("named_range".to_owned()))?;
     Ok(Json(after))
 }
@@ -136,7 +148,9 @@ pub async fn delete_named_range(
     let r = coll
         .delete_one(doc! { "_id": oid, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_named_ranges.delete"))
+        })?;
     if r.deleted_count == 0 {
         return Err(ApiError::NotFound("named_range".to_owned()));
     }

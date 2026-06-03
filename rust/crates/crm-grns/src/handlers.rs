@@ -162,10 +162,7 @@ pub async fn list_grns(
 
     let mut filter = base_ownership_filter(user_id);
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        filter.insert(
-            "grnNo",
-            doc! { "$regex": needle, "$options": "i" },
-        );
+        filter.insert("grnNo", doc! { "$regex": needle, "$options": "i" });
     }
     if let Some(pid) = q.po_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("poId", oid_from_str(pid)?);
@@ -292,7 +289,12 @@ pub async fn create_grn(
     let mut lineage_array: Option<Vec<Bson>> = None;
     let mut parent_backlink: Option<ObjectId> = None;
     let mut po_oid_for_doc: Option<ObjectId> = None;
-    if let Some(parent_id) = input.po_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(parent_id) = input
+        .po_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         match seed_lineage_from_po(&mongo, user_id, parent_id).await {
             Ok(Some((lineage, parent_oid))) => {
                 lineage_array = Some(
@@ -457,7 +459,12 @@ pub async fn update_grn(
         );
     }
 
-    if let Some(status) = input.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(status) = input
+        .status
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if !ALLOWED_STATUSES.contains(&status) {
             return Err(ApiError::Validation(format!(
                 "status must be one of: {}",

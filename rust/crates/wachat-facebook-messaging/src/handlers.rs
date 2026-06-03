@@ -26,7 +26,8 @@ use crate::dto::{
     OneTimeNotifRequestBody, OneTimeNotifSendBody, PassThreadBody, QuickReplyItem,
     RecurringOptInBody, RecurringSendBody, SearchQuery, SecondaryReceiversResp,
     SendButtonTemplateBody, SendGenericTemplateBody, SendMediaBody, SendQuickRepliesBody,
-    SendTextBody, ThreadControlBody, SendWhatsappTextBody, SendWhatsappTemplateBody, SendWhatsappMediaBody, SendWhatsappInteractiveBody
+    SendTextBody, SendWhatsappInteractiveBody, SendWhatsappMediaBody, SendWhatsappTemplateBody,
+    SendWhatsappTextBody, ThreadControlBody,
 };
 use crate::state::WachatFacebookMessagingState;
 use crate::store::{FacebookProject, load_project_for};
@@ -187,11 +188,7 @@ pub async fn mark_conversation_as_read(
 
     let path = format!("{}?state=read", urlencode(&conversation_id));
     let body = json!({});
-    match state
-        .meta
-        .post_json::<_, Value>(&path, token, &body)
-        .await
-    {
+    match state.meta.post_json::<_, Value>(&path, token, &body).await {
         Ok(_) => Ok(Json(AckResp { success: true })),
         Err(e) => {
             let msg = e.to_string();
@@ -408,10 +405,7 @@ pub async fn pass_thread_control(
     let token = require_token(&project)?;
 
     let mut m = serde_json::Map::new();
-    m.insert(
-        "recipient".into(),
-        json!({ "id": body.psid }),
-    );
+    m.insert("recipient".into(), json!({ "id": body.psid }));
     m.insert("target_app_id".into(), Value::String(body.target_app_id));
     if let Some(meta) = body.metadata {
         m.insert("metadata".into(), Value::String(meta));
@@ -640,7 +634,10 @@ pub async fn send_whatsapp_text(
     });
 
     let path = format!("{}/messages", urlencode(&body.phone_number_id));
-    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    state
+        .meta
+        .post_json::<_, Value>(&path, token, &payload)
+        .await?;
     Ok(Json(AckResp { success: true }))
 }
 
@@ -668,7 +665,10 @@ pub async fn send_whatsapp_template(
     });
 
     let path = format!("{}/messages", urlencode(&body.phone_number_id));
-    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    state
+        .meta
+        .post_json::<_, Value>(&path, token, &payload)
+        .await?;
     Ok(Json(AckResp { success: true }))
 }
 
@@ -688,9 +688,11 @@ pub async fn send_whatsapp_media(
     } else if let Some(id) = body.media_id {
         media_obj.insert("id".to_string(), Value::String(id));
     } else {
-        return Err(ApiError::BadRequest("Must provide media_url or media_id".to_owned()));
+        return Err(ApiError::BadRequest(
+            "Must provide media_url or media_id".to_owned(),
+        ));
     }
-    
+
     if let Some(caption) = body.caption {
         media_obj.insert("caption".to_string(), Value::String(caption));
     }
@@ -704,7 +706,10 @@ pub async fn send_whatsapp_media(
     });
 
     let path = format!("{}/messages", urlencode(&body.phone_number_id));
-    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    state
+        .meta
+        .post_json::<_, Value>(&path, token, &payload)
+        .await?;
     Ok(Json(AckResp { success: true }))
 }
 
@@ -727,6 +732,9 @@ pub async fn send_whatsapp_interactive(
     });
 
     let path = format!("{}/messages", urlencode(&body.phone_number_id));
-    state.meta.post_json::<_, Value>(&path, token, &payload).await?;
+    state
+        .meta
+        .post_json::<_, Value>(&path, token, &payload)
+        .await?;
     Ok(Json(AckResp { success: true }))
 }

@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use super::InboundInterceptor;
 use crate::models::{MessageContext, MessageMetadata, OptStatus};
 use crate::store::ComplianceStore;
-use super::InboundInterceptor;
 use async_trait::async_trait;
 use chrono::Utc;
+use std::sync::Arc;
 use std::sync::Mutex;
 
 struct MockStore {
@@ -12,17 +12,28 @@ struct MockStore {
 
 impl MockStore {
     fn new() -> Self {
-        Self { status: Mutex::new(OptStatus::None) }
+        Self {
+            status: Mutex::new(OptStatus::None),
+        }
     }
 }
 
 #[async_trait]
 impl ComplianceStore for MockStore {
-    async fn check_opt_status(&self, _phone_number: &str, _sender: Option<&str>) -> crate::error::Result<OptStatus> {
+    async fn check_opt_status(
+        &self,
+        _phone_number: &str,
+        _sender: Option<&str>,
+    ) -> crate::error::Result<OptStatus> {
         Ok(self.status.lock().unwrap().clone())
     }
 
-    async fn update_opt_status(&self, _phone_number: &str, _sender: Option<&str>, status: OptStatus) -> crate::error::Result<()> {
+    async fn update_opt_status(
+        &self,
+        _phone_number: &str,
+        _sender: Option<&str>,
+        status: OptStatus,
+    ) -> crate::error::Result<()> {
         *self.status.lock().unwrap() = status;
         Ok(())
     }
@@ -42,10 +53,10 @@ async fn test_stop_words_strict() {
         ("quit!", true),
         ("end", true),
         ("STOPALL", true),
-        ("Please stop", false), 
+        ("Please stop", false),
         ("I want to unsubscribe", false),
         ("stop it", false),
-        ("don't stop", false), 
+        ("don't stop", false),
     ];
 
     for (content, expected) in cases {

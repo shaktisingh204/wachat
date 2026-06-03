@@ -17,9 +17,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreatePollInput, CreatePollResponse, ListQuery, ListResponse, VoteInput,
-};
+use crate::dto::{CreatePollInput, CreatePollResponse, ListQuery, ListResponse, VoteInput};
 use crate::types::{Poll, PollOption};
 
 const COLL: &str = "meet_polls";
@@ -47,9 +45,11 @@ pub async fn list_polls(
     {
         filter.insert("roomId", r);
     }
-    if let Some(s) = q.status.as_deref().filter(|s| {
-        ["draft", "open", "closed"].contains(s)
-    }) {
+    if let Some(s) = q
+        .status
+        .as_deref()
+        .filter(|s| ["draft", "open", "closed"].contains(s))
+    {
         filter.insert("status", s);
     }
     let limit = clamp_limit(q.limit);
@@ -155,7 +155,9 @@ pub async fn vote_poll(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_polls.find_one")))?
         .ok_or_else(|| ApiError::NotFound("poll".to_owned()))?;
     if poll.status != "open" {
-        return Err(ApiError::Validation("poll is not open for voting".to_owned()));
+        return Err(ApiError::Validation(
+            "poll is not open for voting".to_owned(),
+        ));
     }
     if input.voter.trim().is_empty() {
         return Err(ApiError::Validation("voter is required".to_owned()));

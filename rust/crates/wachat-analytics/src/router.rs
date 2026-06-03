@@ -14,8 +14,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use wachat_types::Project;
 
 use crate::{
-    broadcasts, conversation, local_messages, messaging_limit,
-    state::WachatAnalyticsState, template,
+    broadcasts, conversation, local_messages, messaging_limit, state::WachatAnalyticsState,
+    template,
 };
 
 const PROJECTS_COLL: &str = "projects";
@@ -45,16 +45,16 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/projects/{id}/conversation",
-            post(conversation_analytics),
-        )
+        .route("/projects/{id}/conversation", post(conversation_analytics))
         .route("/projects/{id}/template", post(template_analytics))
         .route(
             "/projects/{id}/messaging-limit-tier/{pnid}",
             post(messaging_limit_tier),
         )
-        .route("/projects/{id}/local-messages", post(local_message_analytics))
+        .route(
+            "/projects/{id}/local-messages",
+            post(local_message_analytics),
+        )
         .route("/projects/{id}/broadcasts", post(broadcast_analytics))
 }
 

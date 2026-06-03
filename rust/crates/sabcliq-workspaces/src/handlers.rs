@@ -66,13 +66,9 @@ pub async fn list_workspaces(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcliqWorkspace>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcliq_workspaces.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcliq_workspaces.find"))
+    })?;
     let mut rows: Vec<SabcliqWorkspace> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcliq_workspaces.collect"))
     })?;

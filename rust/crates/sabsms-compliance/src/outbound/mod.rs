@@ -3,11 +3,11 @@ pub mod rules;
 #[cfg(test)]
 mod tests;
 
-use std::sync::Arc;
+use self::rules::{ComplianceRule, DltRule, TcpaGdprRule, TenDlcRule};
 use crate::error::Result;
 use crate::models::MessageContext;
 use crate::store::ComplianceStore;
-use self::rules::{ComplianceRule, DltRule, TenDlcRule, TcpaGdprRule};
+use std::sync::Arc;
 
 pub struct OutboundEngine {
     rules: Vec<Box<dyn ComplianceRule>>,

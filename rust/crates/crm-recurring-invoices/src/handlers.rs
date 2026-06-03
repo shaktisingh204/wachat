@@ -20,8 +20,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateRecurringInvoiceInput, CreateRecurringInvoiceResponse,
-    DeleteRecurringInvoiceResponse, ListQuery, UpdateRecurringInvoiceInput,
+    CreateRecurringInvoiceInput, CreateRecurringInvoiceResponse, DeleteRecurringInvoiceResponse,
+    ListQuery, UpdateRecurringInvoiceInput,
 };
 use crate::types::CrmRecurringInvoice;
 
@@ -114,7 +114,10 @@ fn doc_from_create(
     Ok(CrmRecurringInvoice {
         id: None,
         user_id,
-        title: input.title.map(|t| t.trim().to_owned()).filter(|s| !s.is_empty()),
+        title: input
+            .title
+            .map(|t| t.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         invoice_template_id,
         customer_id: Some(customer_id),
         frequency,
@@ -220,13 +223,9 @@ pub async fn list_recurring_invoices(
         .build();
 
     let coll = mongo.collection::<CrmRecurringInvoice>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_recurring_invoices.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_recurring_invoices.find"))
+    })?;
     let mut rows: Vec<CrmRecurringInvoice> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_recurring_invoices.collect"))
     })?;
@@ -280,8 +279,7 @@ pub async fn create_recurring_invoice(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

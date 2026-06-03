@@ -35,6 +35,9 @@ mod tests {
         assert_eq!(map_messagebird_status("buffered"), SmsStatus::Sending);
         assert_eq!(map_messagebird_status("delivered"), SmsStatus::Delivered);
         assert_eq!(map_messagebird_status("delivery_failed"), SmsStatus::Failed);
-        assert_eq!(map_messagebird_status("UNKNOWN_STATUS"), SmsStatus::Unknown("unknown_status".to_string()));
+        assert_eq!(
+            map_messagebird_status("UNKNOWN_STATUS"),
+            SmsStatus::Unknown("unknown_status".to_string())
+        );
     }
 }

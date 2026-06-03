@@ -2,7 +2,11 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -15,7 +19,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_records).post(handlers::create_record))
+        .route(
+            "/",
+            get(handlers::list_records).post(handlers::create_record),
+        )
         .route(
             "/{recordId}",
             get(handlers::get_record)

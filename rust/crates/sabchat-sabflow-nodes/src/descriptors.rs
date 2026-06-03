@@ -262,8 +262,14 @@ mod tests {
     #[test]
     fn catalogue_has_six_triggers_and_six_actions() {
         let all = descriptors();
-        let triggers = all.iter().filter(|d| d.category == NodeCategory::Trigger).count();
-        let actions = all.iter().filter(|d| d.category == NodeCategory::Action).count();
+        let triggers = all
+            .iter()
+            .filter(|d| d.category == NodeCategory::Trigger)
+            .count();
+        let actions = all
+            .iter()
+            .filter(|d| d.category == NodeCategory::Action)
+            .count();
         assert_eq!(triggers, 6, "expected six trigger descriptors");
         assert_eq!(actions, 6, "expected six action descriptors");
     }

@@ -2,7 +2,7 @@
 name = "sabops-alerts"
 version = "0.1.0"
 edition = "2024"
-description = "SabOps alert queue."
+description = "SabOps \u2014 Alerts."
 license = "UNLICENSED"
 publish = false
 
@@ -22,7 +22,6 @@ axum = { version = "0.8", default-features = false, features = ["json", "http1",
 tracing = "0.1"
 anyhow = "1.0"
 
-crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }

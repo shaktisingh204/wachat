@@ -1,50 +1,53 @@
 use axum::{
+    Json,
     extract::{Path, State},
     http::HeaderMap,
-    Json,
 };
-use mongodb::bson::{doc, oid::ObjectId, Document};
-use futures::stream::StreamExt;
-use serde_json::Value;
 use chrono::Utc;
+use futures::stream::StreamExt;
+use mongodb::bson::{Document, doc, oid::ObjectId};
+use serde_json::Value;
 
 use sabnode_common::error::{ApiError, Result};
 use sabnode_db::document_to_clean_json;
 
+use crate::dto::{ScimGroupCreate, ScimListResponse, ScimPatchBody, ScimUserCreate};
 use crate::state::SabChatSsoState;
-use crate::dto::{
-    ScimUserCreate, ScimPatchBody, ScimGroupCreate, ScimListResponse,
-};
 
 /// Authenticates the SCIM request using the Authorization Bearer token.
 /// Looks up the token in `sabchat_scim_tokens` and returns the `tenant_id`
 /// (as a parsed `ObjectId`).
-async fn authenticate_scim_token(
-    state: &SabChatSsoState,
-    headers: &HeaderMap,
-) -> Result<ObjectId> {
-    let auth_header = headers.get("Authorization")
+async fn authenticate_scim_token(state: &SabChatSsoState, headers: &HeaderMap) -> Result<ObjectId> {
+    let auth_header = headers
+        .get("Authorization")
         .and_then(|h| h.to_str().ok())
         .ok_or_else(|| ApiError::Unauthorized("missing authorization header".into()))?;
 
     let token = if auth_header.starts_with("Bearer ") {
         &auth_header["Bearer ".len()..]
     } else {
-        return Err(ApiError::Unauthorized("invalid authorization scheme".into()));
+        return Err(ApiError::Unauthorized(
+            "invalid authorization scheme".into(),
+        ));
     };
 
     let coll = state.mongo.collection::<Document>("sabchat_scim_tokens");
-    let doc = coll.find_one(doc! { "token": token }).await
+    let doc = coll
+        .find_one(doc! { "token": token })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::Unauthorized("invalid token".into()))?;
 
-    let tenant_id_str = doc.get_str("tenantId")
+    let tenant_id_str = doc
+        .get_str("tenantId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("token missing tenant_id")))?;
 
     // Update last_used_at
     let now = Utc::now().to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
     if let Ok(id) = doc.get_object_id("_id") {
-        let _ = coll.update_one(doc! { "_id": id }, doc! { "$set": { "lastUsedAt": now } }).await;
+        let _ = coll
+            .update_one(doc! { "_id": id }, doc! { "$set": { "lastUsedAt": now } })
+            .await;
     }
 
     ObjectId::parse_str(tenant_id_str)
@@ -61,8 +64,10 @@ pub async fn list_users(
 ) -> Result<Json<ScimListResponse>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
     let coll = state.mongo.collection::<Document>("users");
-    
-    let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
+
+    let mut cursor = coll
+        .find(doc! { "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut resources = vec![];
@@ -89,7 +94,11 @@ pub async fn create_user(
     let coll = state.mongo.collection::<Document>("users");
 
     let oid = ObjectId::new();
-    let email = body.emails.and_then(|mut e| e.pop()).map(|e| e.value).unwrap_or_default();
+    let email = body
+        .emails
+        .and_then(|mut e| e.pop())
+        .map(|e| e.value)
+        .unwrap_or_default();
 
     let mut doc = doc! {
         "_id": oid,
@@ -101,15 +110,20 @@ pub async fn create_user(
     };
 
     if let Some(name) = body.name {
-        if let Some(gn) = name.given_name { doc.insert("firstName", gn); }
-        if let Some(fn_) = name.family_name { doc.insert("lastName", fn_); }
+        if let Some(gn) = name.given_name {
+            doc.insert("firstName", gn);
+        }
+        if let Some(fn_) = name.family_name {
+            doc.insert("lastName", fn_);
+        }
     }
 
     if let Some(ext) = body.external_id {
         doc.insert("externalId", ext);
     }
 
-    coll.insert_one(&doc).await
+    coll.insert_one(&doc)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(map_user_to_scim(&doc)))
@@ -121,11 +135,12 @@ pub async fn get_user(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("user not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("user not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("users");
-    let doc = coll.find_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let doc = coll
+        .find_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("user not found".into()))?;
 
@@ -139,8 +154,7 @@ pub async fn patch_user(
     Json(body): Json<ScimPatchBody>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("user not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("user not found".into()))?;
 
     let mut set_doc = doc! {};
     for op in body.operations {
@@ -169,10 +183,13 @@ pub async fn patch_user(
     }
 
     let coll = state.mongo.collection::<Document>("users");
-    let res = coll.find_one_and_update(
-        doc! { "_id": oid, "tenantId": tenant_id },
-        doc! { "$set": set_doc }
-    ).return_document(mongodb::options::ReturnDocument::After).await
+    let res = coll
+        .find_one_and_update(
+            doc! { "_id": oid, "tenantId": tenant_id },
+            doc! { "$set": set_doc },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("user not found".into()))?;
 
@@ -186,11 +203,10 @@ pub async fn replace_user(
     Json(body): Json<ScimUserCreate>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("user not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("user not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("users");
-    
+
     let mut set_doc = doc! {
         "username": body.user_name,
         "active": body.active.unwrap_or(true),
@@ -201,17 +217,24 @@ pub async fn replace_user(
         }
     }
     if let Some(name) = body.name {
-        if let Some(gn) = name.given_name { set_doc.insert("firstName", gn); }
-        if let Some(fn_) = name.family_name { set_doc.insert("lastName", fn_); }
+        if let Some(gn) = name.given_name {
+            set_doc.insert("firstName", gn);
+        }
+        if let Some(fn_) = name.family_name {
+            set_doc.insert("lastName", fn_);
+        }
     }
     if let Some(ext) = body.external_id {
         set_doc.insert("externalId", ext);
     }
 
-    let res = coll.find_one_and_update(
-        doc! { "_id": oid, "tenantId": tenant_id },
-        doc! { "$set": set_doc }
-    ).return_document(mongodb::options::ReturnDocument::After).await
+    let res = coll
+        .find_one_and_update(
+            doc! { "_id": oid, "tenantId": tenant_id },
+            doc! { "$set": set_doc },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("user not found".into()))?;
 
@@ -224,11 +247,12 @@ pub async fn delete_user(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("user not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("user not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("users");
-    let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let res = coll
+        .delete_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {
@@ -242,29 +266,38 @@ fn map_user_to_scim(doc: &Document) -> Value {
     let val = document_to_clean_json(doc.clone());
     let mut obj = serde_json::Map::new();
 
-    obj.insert("schemas".into(), serde_json::json!(["urn:ietf:params:scim:schemas:core:2.0:User"]));
+    obj.insert(
+        "schemas".into(),
+        serde_json::json!(["urn:ietf:params:scim:schemas:core:2.0:User"]),
+    );
     obj.insert("id".into(), val.get("_id").cloned().unwrap_or_default());
-    
+
     if let Some(username) = val.get("username").or_else(|| val.get("email")) {
         obj.insert("userName".into(), username.clone());
     }
 
     if let Some(email) = val.get("email").and_then(|v| v.as_str()) {
-        obj.insert("emails".into(), serde_json::json!([{
-            "value": email,
-            "type": "work",
-            "primary": true
-        }]));
+        obj.insert(
+            "emails".into(),
+            serde_json::json!([{
+                "value": email,
+                "type": "work",
+                "primary": true
+            }]),
+        );
     }
 
     let fn_str = val.get("firstName").and_then(|v| v.as_str()).unwrap_or("");
     let ln_str = val.get("lastName").and_then(|v| v.as_str()).unwrap_or("");
     if !fn_str.is_empty() || !ln_str.is_empty() {
-        obj.insert("name".into(), serde_json::json!({
-            "givenName": fn_str,
-            "familyName": ln_str,
-            "formatted": format!("{} {}", fn_str, ln_str).trim(),
-        }));
+        obj.insert(
+            "name".into(),
+            serde_json::json!({
+                "givenName": fn_str,
+                "familyName": ln_str,
+                "formatted": format!("{} {}", fn_str, ln_str).trim(),
+            }),
+        );
     }
 
     if let Some(active) = val.get("active") {
@@ -290,8 +323,10 @@ pub async fn list_groups(
 ) -> Result<Json<ScimListResponse>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
     let coll = state.mongo.collection::<Document>("sabchat_teams");
-    
-    let mut cursor = coll.find(doc! { "tenantId": tenant_id }).await
+
+    let mut cursor = coll
+        .find(doc! { "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut resources = vec![];
@@ -318,7 +353,10 @@ pub async fn create_group(
     let coll = state.mongo.collection::<Document>("sabchat_teams");
 
     let oid = ObjectId::new();
-    let members = body.members.unwrap_or_default().into_iter()
+    let members = body
+        .members
+        .unwrap_or_default()
+        .into_iter()
         .filter_map(|m| ObjectId::parse_str(&m.value).ok())
         .collect::<Vec<_>>();
 
@@ -334,7 +372,8 @@ pub async fn create_group(
         doc.insert("externalId", ext);
     }
 
-    coll.insert_one(&doc).await
+    coll.insert_one(&doc)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(Json(map_group_to_scim(&doc)))
@@ -346,11 +385,12 @@ pub async fn get_group(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("group not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("group not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_teams");
-    let doc = coll.find_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let doc = coll
+        .find_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("group not found".into()))?;
 
@@ -364,13 +404,14 @@ pub async fn patch_group(
     Json(body): Json<ScimPatchBody>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("group not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("group not found".into()))?;
 
     // Naive implementation for patch group: just fetch, apply in memory, replace
     // Better: use MongoDB updates but SCIM operations can be complex for members
     let coll = state.mongo.collection::<Document>("sabchat_teams");
-    let mut doc = coll.find_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let mut doc = coll
+        .find_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("group not found".into()))?;
 
@@ -413,10 +454,10 @@ pub async fn patch_group(
 
     doc.insert("memberIds", member_ids);
 
-    let res = coll.find_one_and_replace(
-        doc! { "_id": oid, "tenantId": tenant_id },
-        doc.clone()
-    ).return_document(mongodb::options::ReturnDocument::After).await
+    let res = coll
+        .find_one_and_replace(doc! { "_id": oid, "tenantId": tenant_id }, doc.clone())
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("group not found".into()))?;
 
@@ -430,10 +471,12 @@ pub async fn replace_group(
     Json(body): Json<ScimGroupCreate>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("group not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("group not found".into()))?;
 
-    let members = body.members.unwrap_or_default().into_iter()
+    let members = body
+        .members
+        .unwrap_or_default()
+        .into_iter()
         .filter_map(|m| ObjectId::parse_str(&m.value).ok())
         .collect::<Vec<_>>();
 
@@ -446,10 +489,13 @@ pub async fn replace_group(
         set_doc.insert("externalId", ext);
     }
 
-    let res = coll.find_one_and_update(
-        doc! { "_id": oid, "tenantId": tenant_id },
-        doc! { "$set": set_doc }
-    ).return_document(mongodb::options::ReturnDocument::After).await
+    let res = coll
+        .find_one_and_update(
+            doc! { "_id": oid, "tenantId": tenant_id },
+            doc! { "$set": set_doc },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("group not found".into()))?;
 
@@ -462,11 +508,12 @@ pub async fn delete_group(
     Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let tenant_id = authenticate_scim_token(&state, &headers).await?;
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::NotFound("group not found".into()))?;
+    let oid = ObjectId::parse_str(&id).map_err(|_| ApiError::NotFound("group not found".into()))?;
 
     let coll = state.mongo.collection::<Document>("sabchat_teams");
-    let res = coll.delete_one(doc! { "_id": oid, "tenantId": tenant_id }).await
+    let res = coll
+        .delete_one(doc! { "_id": oid, "tenantId": tenant_id })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     if res.deleted_count == 0 {
@@ -480,9 +527,12 @@ fn map_group_to_scim(doc: &Document) -> Value {
     let val = document_to_clean_json(doc.clone());
     let mut obj = serde_json::Map::new();
 
-    obj.insert("schemas".into(), serde_json::json!(["urn:ietf:params:scim:schemas:core:2.0:Group"]));
+    obj.insert(
+        "schemas".into(),
+        serde_json::json!(["urn:ietf:params:scim:schemas:core:2.0:Group"]),
+    );
     obj.insert("id".into(), val.get("_id").cloned().unwrap_or_default());
-    
+
     if let Some(name) = val.get("name") {
         obj.insert("displayName".into(), name.clone());
     }
@@ -492,11 +542,13 @@ fn map_group_to_scim(doc: &Document) -> Value {
     }
 
     if let Some(members) = doc.get_array("memberIds").ok() {
-        let scim_members: Vec<_> = members.iter().filter_map(|m| {
-            m.as_object_id().map(|oid| {
-                serde_json::json!({ "value": oid.to_hex() })
+        let scim_members: Vec<_> = members
+            .iter()
+            .filter_map(|m| {
+                m.as_object_id()
+                    .map(|oid| serde_json::json!({ "value": oid.to_hex() }))
             })
-        }).collect();
+            .collect();
         obj.insert("members".into(), serde_json::json!(scim_members));
     } else {
         obj.insert("members".into(), serde_json::json!([]));

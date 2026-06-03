@@ -276,9 +276,7 @@ pub async fn get_training(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.find_one")))?
         .ok_or_else(|| ApiError::NotFound("training".to_owned()))?;
     Ok(Json(row))
 }
@@ -301,8 +299,7 @@ pub async fn create_training(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -325,9 +322,7 @@ pub async fn update_training(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.find_one")))?
         .ok_or_else(|| ApiError::NotFound("training".to_owned()))?;
     if let Some(ref n) = patch.name {
         if n.trim().is_empty() {
@@ -377,9 +372,7 @@ pub async fn delete_training(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_trainings.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("training".to_owned()));
     }

@@ -77,7 +77,10 @@ pub async fn install_app(
     };
 
     if let Some(config) = body.configuration {
-        app_doc.insert("configuration", bson::to_bson(&config).unwrap_or(Bson::Null));
+        app_doc.insert(
+            "configuration",
+            bson::to_bson(&config).unwrap_or(Bson::Null),
+        );
     }
 
     state
@@ -85,7 +88,9 @@ pub async fn install_app(
         .collection::<Document>(INSTALLED_APPS_COLL)
         .insert_one(app_doc)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.insert_one")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.insert_one"))
+        })?;
 
     Ok(Json(InstallAppResponse {
         installed_app_id: new_oid.to_hex(),
@@ -105,7 +110,9 @@ pub async fn list_installed_apps(
 ) -> Result<Json<ListInstalledAppsResponse>> {
     let tenant_id = tenant_oid(&user)?;
 
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
 
     let cursor = state
         .mongo
@@ -113,11 +120,12 @@ pub async fn list_installed_apps(
         .find(doc! { "tenantId": tenant_id })
         .with_options(opts)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.find")))?;
-    let docs: Vec<Document> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.collect")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.find"))
+        })?;
+    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_installed_apps.collect"))
+    })?;
 
     let apps: Vec<Value> = docs.into_iter().map(document_to_clean_json).collect();
     Ok(Json(ListInstalledAppsResponse { apps }))

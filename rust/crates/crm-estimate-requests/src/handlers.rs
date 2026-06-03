@@ -128,7 +128,9 @@ fn build_update_doc(patch: UpdateEstimateRequestInput) -> Result<Document> {
     if let Some(v) = patch.customer_name {
         let t = v.trim().to_owned();
         if t.is_empty() {
-            return Err(ApiError::Validation("customerName cannot be empty".to_owned()));
+            return Err(ApiError::Validation(
+                "customerName cannot be empty".to_owned(),
+            ));
         }
         set.insert("customerName", t);
     }
@@ -143,7 +145,9 @@ fn build_update_doc(patch: UpdateEstimateRequestInput) -> Result<Document> {
     if let Some(v) = patch.requirements {
         let t = v.trim().to_owned();
         if t.is_empty() {
-            return Err(ApiError::Validation("requirements cannot be empty".to_owned()));
+            return Err(ApiError::Validation(
+                "requirements cannot be empty".to_owned(),
+            ));
         }
         set.insert("requirements", t);
     }
@@ -281,8 +285,7 @@ pub async fn create_estimate_request(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

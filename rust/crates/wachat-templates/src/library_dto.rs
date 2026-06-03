@@ -82,6 +82,10 @@ pub struct LibraryTemplate {
     pub is_custom: Option<bool>,
 
     /// Created-at — optional because legacy rows pre-date the field.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_at: Option<DateTime<Utc>>,
 }

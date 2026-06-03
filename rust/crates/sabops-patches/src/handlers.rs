@@ -101,14 +101,14 @@ pub async fn list_patches(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabopsPatch>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.find"))
+        })?;
+    let mut rows: Vec<SabopsPatch> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.find")))?;
-    let mut rows: Vec<SabopsPatch> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -215,9 +215,7 @@ pub async fn update_patch(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_patches.refetch")))?
         .ok_or_else(|| ApiError::NotFound("patch".to_owned()))?;
     Ok(Json(after))
 }

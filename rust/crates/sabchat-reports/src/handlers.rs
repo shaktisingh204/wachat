@@ -60,10 +60,7 @@ fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
 
 /// Resolve a `[from, to)` window from optional RFC 3339 strings. Either
 /// side may be omitted; the defaults are `to = now`, `from = to − 7d`.
-fn resolve_window(
-    from: Option<&str>,
-    to: Option<&str>,
-) -> Result<(DateTime<Utc>, DateTime<Utc>)> {
+fn resolve_window(from: Option<&str>, to: Option<&str>) -> Result<(DateTime<Utc>, DateTime<Utc>)> {
     let to_dt = match to.map(str::trim).filter(|s| !s.is_empty()) {
         Some(raw) => parse_rfc3339("to", raw)?,
         None => Utc::now(),
@@ -83,9 +80,7 @@ fn resolve_window(
 fn parse_rfc3339(field: &str, raw: &str) -> Result<DateTime<Utc>> {
     DateTime::parse_from_rfc3339(raw)
         .map(|d| d.with_timezone(&Utc))
-        .map_err(|e| {
-            ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}"))
-        })
+        .map_err(|e| ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}")))
 }
 
 /// Convert chrono → bson datetime in one place.

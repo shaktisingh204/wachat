@@ -1,8 +1,8 @@
-//! # agile-velocity
+//! # sabsprints-velocity
 //!
-//! Historical velocity snapshots — one row per completed sprint with planned
-//! vs completed points. Used to render velocity bar charts and forecast
-//! capacity for upcoming sprints.
+//! HTTP surface for SabCheckout Velocities.
+//! Backs the `sabsprints_velocity` Mongo collection. Mounted under
+//! `/v1/sabcheckout/velocities`. Tenant-scoped by `userId`.
 
 pub mod dto;
 pub mod handlers;

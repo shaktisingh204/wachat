@@ -27,9 +27,7 @@ use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_core::{Assignment, Audit, Identity};
 use futures::TryStreamExt;
-use hrm_payroll_types::{
-    ApproverStep, LeaveApplication, LeaveApplicationStatus, LeaveType,
-};
+use hrm_payroll_types::{ApproverStep, LeaveApplication, LeaveApplicationStatus, LeaveType};
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
@@ -37,9 +35,9 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    ApproveLeaveApplicationInput, CreateLeaveApplicationInput, CreateLeaveTypeInput,
-    DEFAULT_LIMIT, ListLeaveApplicationsQuery, ListLeaveTypesQuery, MAX_LIMIT,
-    UpdateLeaveApplicationInput, UpdateLeaveTypeInput,
+    ApproveLeaveApplicationInput, CreateLeaveApplicationInput, CreateLeaveTypeInput, DEFAULT_LIMIT,
+    ListLeaveApplicationsQuery, ListLeaveTypesQuery, MAX_LIMIT, UpdateLeaveApplicationInput,
+    UpdateLeaveTypeInput,
 };
 
 /// Mongo collection name for the leave-type catalog.
@@ -159,9 +157,10 @@ pub async fn list_leave_types(
         .build();
 
     let coll = mongo.collection::<LeaveType>(LEAVE_TYPES_COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_leave_types.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_leave_types.find"))
+        })?;
     let rows: Vec<LeaveType> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_leave_types.collect"))
     })?;
@@ -187,9 +186,7 @@ pub async fn get_leave_type(
     let row = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_leave_types.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_leave_types.find_one")))?
         .ok_or_else(|| ApiError::NotFound("leaveType".to_owned()))?;
 
     Ok(Json(row))
@@ -377,7 +374,12 @@ pub async fn list_leave_applications(
     let user_id = user_oid(&user)?;
 
     let mut filter = base_ownership_filter(user_id);
-    if let Some(emp) = q.employee_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(emp) = q
+        .employee_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         let oid = oid_from_str(emp)?;
         filter.insert("assignedTo", oid);
     }
@@ -425,9 +427,7 @@ pub async fn get_leave_application(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_leave_applications.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("leaveApplication".to_owned()))?;
 
@@ -517,9 +517,7 @@ pub async fn create_leave_application(
 
     let coll = mongo.collection::<LeaveApplication>(LEAVE_APPLICATIONS_COLL);
     coll.insert_one(&app).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_leave_applications.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.insert_one"))
     })?;
 
     Ok(Json(app))
@@ -569,8 +567,7 @@ pub async fn update_leave_application(
 
     // If from/to/halfDay shifted, recompute `days` so the snapshot stays
     // coherent. We re-read the doc to fill in the unchanged fields.
-    let needs_recount =
-        input.from.is_some() || input.to.is_some() || input.half_day.is_some();
+    let needs_recount = input.from.is_some() || input.to.is_some() || input.half_day.is_some();
 
     let mut filter = base_ownership_filter(user_id);
     filter.insert("_id", oid);
@@ -580,9 +577,7 @@ pub async fn update_leave_application(
         .update_one(filter.clone(), doc! { "$set": set })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_leave_applications.update_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.update_one"))
         })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("leaveApplication".to_owned()));
@@ -594,8 +589,7 @@ pub async fn update_leave_application(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("crm_leave_applications.find_one(after-update)"),
+                anyhow::Error::new(e).context("crm_leave_applications.find_one(after-update)"),
             )
         })?
         .ok_or_else(|| ApiError::NotFound("leaveApplication".to_owned()))?;
@@ -609,8 +603,7 @@ pub async fn update_leave_application(
                 .await
                 .map_err(|e| {
                     ApiError::Internal(
-                        anyhow::Error::new(e)
-                            .context("crm_leave_applications.update_days"),
+                        anyhow::Error::new(e).context("crm_leave_applications.update_days"),
                     )
                 })?;
             row.days = days;
@@ -638,9 +631,7 @@ pub async fn delete_leave_application(
 
     let coll = mongo.collection::<Document>(LEAVE_APPLICATIONS_COLL);
     let res = coll.delete_one(filter).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_leave_applications.delete_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.delete_one"))
     })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("leaveApplication".to_owned()));
@@ -683,9 +674,7 @@ pub async fn approve_leave_application(
         .find_one(filter.clone())
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_leave_applications.approve.read"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.approve.read"))
         })?
         .ok_or_else(|| ApiError::NotFound("leaveApplication".to_owned()))?;
 
@@ -727,9 +716,7 @@ pub async fn approve_leave_application(
         "$push": { "approverChain": step_bson },
     };
     let res = coll.update_one(guarded, update).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_leave_applications.approve.update"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_leave_applications.approve.update"))
     })?;
     if res.matched_count == 0 {
         // Either the row was archived/deleted between read and write,
@@ -746,8 +733,7 @@ pub async fn approve_leave_application(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("crm_leave_applications.approve.find_one(after)"),
+                anyhow::Error::new(e).context("crm_leave_applications.approve.find_one(after)"),
             )
         })?
         .ok_or_else(|| ApiError::NotFound("leaveApplication".to_owned()))?;

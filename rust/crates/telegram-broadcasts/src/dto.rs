@@ -49,15 +49,36 @@ pub struct BroadcastRow {
     pub counters: Value,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorSummary")]
     pub error_summary: Option<Value>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "startedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "startedAt"
+    )]
     pub started_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "completedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "completedAt"
+    )]
     pub completed_at: Option<DateTime<Utc>>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -115,7 +136,11 @@ pub struct CreateBody {
     pub media: Option<Value>,
     #[serde(default, rename = "inlineKeyboard")]
     pub inline_keyboard: Option<Value>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -135,7 +160,11 @@ pub struct UpdateBody {
     pub media: Option<Value>,
     #[serde(default, rename = "inlineKeyboard")]
     pub inline_keyboard: Option<Value>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -147,7 +176,10 @@ pub struct UpdateBody {
 pub struct ScheduleBody {
     #[serde(rename = "projectId")]
     pub project_id: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "scheduledAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: DateTime<Utc>,
 }
 
@@ -185,7 +217,12 @@ pub struct DeliveryRow {
     pub error_code: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "sentAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "sentAt"
+    )]
     pub sent_at: Option<DateTime<Utc>>,
 }
 
@@ -218,9 +255,15 @@ pub struct DeliveriesQuery {
 pub struct AnalyticsQuery {
     #[serde(default, rename = "projectId")]
     pub project_id: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub from: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub to: Option<DateTime<Utc>>,
 }
 

@@ -133,15 +133,13 @@ pub async fn list_domains(
         .build();
 
     let coll = mongo.collection::<SabmailDomain>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.find")))?;
-    let mut rows: Vec<SabmailDomain> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.find"))
+        })?;
+    let mut rows: Vec<SabmailDomain> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -257,7 +255,9 @@ pub async fn delete_domain(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_domains.archive"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabmail_domain".to_owned()));
     }

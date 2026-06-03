@@ -50,7 +50,11 @@ pub struct PunchPoint {
 pub struct BreakSlot {
     #[serde(rename = "in")]
     pub r#in: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub out: Option<DateTime<Utc>>,
 }
 
@@ -219,14 +223,14 @@ mod tests {
             "HalfDay must serialize as snake_case 'half_day'"
         );
         // Source enum serializes lowercase.
-        assert_eq!(
-            json.get("source").and_then(|v| v.as_str()),
-            Some("web"),
-        );
+        assert_eq!(json.get("source").and_then(|v| v.as_str()), Some("web"),);
 
         // BreakSlot's `in` keyword: keep the wire key as plain "in".
         let breaks = json.get("breaks").and_then(|v| v.as_array()).unwrap();
-        assert!(breaks[0].get("in").is_some(), "BreakSlot.in must serialize as 'in'");
+        assert!(
+            breaks[0].get("in").is_some(),
+            "BreakSlot.in must serialize as 'in'"
+        );
 
         // Round-trip back.
         let back: Attendance = serde_json::from_value(json).unwrap();

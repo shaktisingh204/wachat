@@ -40,9 +40,7 @@ async fn facebook_page_id_for(mongo: &MongoHandle, project: &Project) -> Result<
         .await
         .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
         .ok_or_else(|| {
-            ApiError::BadRequest(
-                "Project not found or is not configured for Facebook.".to_owned(),
-            )
+            ApiError::BadRequest("Project not found or is not configured for Facebook.".to_owned())
         })?;
     let page_id = doc
         .get_str("facebookPageId")
@@ -50,9 +48,7 @@ async fn facebook_page_id_for(mongo: &MongoHandle, project: &Project) -> Result<
         .map(|s| s.to_owned())
         .filter(|s| !s.is_empty())
         .ok_or_else(|| {
-            ApiError::BadRequest(
-                "Project not found or is not configured for Facebook.".to_owned(),
-            )
+            ApiError::BadRequest("Project not found or is not configured for Facebook.".to_owned())
         })?;
     Ok(page_id)
 }
@@ -138,15 +134,14 @@ pub async fn get_facebook_orders(
     meta: &MetaClient,
     project: &Project,
 ) -> Result<OrdersResp> {
-    let CommerceSettingsResp { settings } =
-        get_commerce_merchant_settings(mongo, meta, project)
-            .await
-            .map_err(|e| match e {
-                ApiError::BadRequest(m) => ApiError::BadRequest(format!(
-                    "Could not retrieve commerce settings: {m}"
-                )),
-                other => other,
-            })?;
+    let CommerceSettingsResp { settings } = get_commerce_merchant_settings(mongo, meta, project)
+        .await
+        .map_err(|e| match e {
+            ApiError::BadRequest(m) => {
+                ApiError::BadRequest(format!("Could not retrieve commerce settings: {m}"))
+            }
+            other => other,
+        })?;
 
     let commerce_account_id = settings
         .get("id")

@@ -71,7 +71,11 @@ pub struct PaymentReceipt {
     /// Populated for `Cheque` mode.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cheque_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cheque_date: Option<DateTime<Utc>>,
     /// UPI/NEFT/RTGS/IMPS/card transaction id.
     #[serde(default, skip_serializing_if = "Option::is_none")]

@@ -1,18 +1,18 @@
 use axum::{
-    extract::{Path, State},
     Json,
+    extract::{Path, State},
     http::HeaderMap,
 };
-use bson::{doc, Document, oid::ObjectId};
+use bson::{Document, doc, oid::ObjectId};
+use chrono::Utc;
+use crm_sales_types::Invoice;
+use hmac::{Hmac, Mac};
+use reqwest::Client;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
 use serde::{Deserialize, Serialize};
-use hmac::{Hmac, Mac};
 use sha2::Sha256;
-use chrono::Utc;
-use crm_sales_types::Invoice;
 use tracing::{instrument, warn};
-use reqwest::Client;
 
 const INVOICES_COLL: &str = "crm_invoices";
 const PAYMENTS_COLL: &str = "crm_payments";
@@ -58,7 +58,11 @@ pub async fn start_stripe_checkout(
 
     let mut paid = 0.0;
     use futures::TryStreamExt;
-    while let Some(p) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
+    while let Some(p) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
+    {
         // Some docs store amount as double, some as string... best effort here
         let amount = match p.get("amount") {
             Some(bson::Bson::Double(v)) => *v,
@@ -90,25 +94,42 @@ pub async fn start_stripe_checkout(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::BadRequest("Stripe gateway not configured.".to_owned()))?;
-    
-    let api_secret = cred_doc.get_str("api_secret").ok().map(String::from).ok_or_else(|| ApiError::BadRequest("Stripe secret key not configured.".to_owned()))?;
+
+    let api_secret = cred_doc
+        .get_str("api_secret")
+        .ok()
+        .map(String::from)
+        .ok_or_else(|| ApiError::BadRequest("Stripe secret key not configured.".to_owned()))?;
 
     let client = Client::new();
     let amount_cents = (due * 100.0).round() as i64;
-    
+
     let mut form = std::collections::HashMap::new();
     form.insert("mode".to_owned(), "payment".to_owned());
-    form.insert("line_items[0][price_data][currency]".to_owned(), invoice.currency.to_lowercase());
-    form.insert("line_items[0][price_data][product_data][name]".to_owned(), format!("Invoice {}", invoice.invoice_no));
-    form.insert("line_items[0][price_data][unit_amount]".to_owned(), amount_cents.to_string());
+    form.insert(
+        "line_items[0][price_data][currency]".to_owned(),
+        invoice.currency.to_lowercase(),
+    );
+    form.insert(
+        "line_items[0][price_data][product_data][name]".to_owned(),
+        format!("Invoice {}", invoice.invoice_no),
+    );
+    form.insert(
+        "line_items[0][price_data][unit_amount]".to_owned(),
+        amount_cents.to_string(),
+    );
     form.insert("line_items[0][quantity]".to_owned(), "1".to_owned());
     form.insert("success_url".to_owned(), payload.success_url);
     form.insert("cancel_url".to_owned(), payload.cancel_url);
-    form.insert("metadata[invoiceId]".to_owned(), invoice.identity.id.to_hex());
+    form.insert(
+        "metadata[invoiceId]".to_owned(),
+        invoice.identity.id.to_hex(),
+    );
     form.insert("metadata[invoiceHash]".to_owned(), hash);
     form.insert("metadata[tenantId]".to_owned(), user_id.to_hex());
 
-    let res = client.post("https://api.stripe.com/v1/checkout/sessions")
+    let res = client
+        .post("https://api.stripe.com/v1/checkout/sessions")
         .bearer_auth(api_secret)
         .form(&form)
         .send()
@@ -121,11 +142,16 @@ pub async fn start_stripe_checkout(
         return Err(ApiError::Internal(anyhow::anyhow!("Stripe API error")));
     }
 
-    let data: serde_json::Value = res.json().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    let data: serde_json::Value = res
+        .json()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let url = data.get("url").and_then(|u| u.as_str()).map(String::from);
 
     if url.is_none() {
-        return Err(ApiError::Internal(anyhow::anyhow!("Stripe did not return a checkout URL")));
+        return Err(ApiError::Internal(anyhow::anyhow!(
+            "Stripe did not return a checkout URL"
+        )));
     }
 
     Ok(Json(CheckoutResponse {
@@ -165,17 +191,26 @@ pub async fn stripe_webhook(
         Err(_) => return Err(ApiError::BadRequest("Invalid JSON".to_owned())),
     };
 
-    let tenant_id_str = event.pointer("/data/object/metadata/tenantId")
+    let tenant_id_str = event
+        .pointer("/data/object/metadata/tenantId")
         .and_then(|v| v.as_str())
         .unwrap_or("");
-    
+
     if tenant_id_str.is_empty() {
-        return Ok(Json(WebhookResponse { status: "ignored".to_owned(), error: None }));
+        return Ok(Json(WebhookResponse {
+            status: "ignored".to_owned(),
+            error: None,
+        }));
     }
 
     let tenant_oid = match sabnode_db::bson_helpers::oid_from_str(tenant_id_str) {
         Ok(oid) => oid,
-        Err(_) => return Ok(Json(WebhookResponse { status: "ignored".to_owned(), error: None })),
+        Err(_) => {
+            return Ok(Json(WebhookResponse {
+                status: "ignored".to_owned(),
+                error: None,
+            }));
+        }
     };
 
     let creds_coll = mongo.collection::<Document>(CREDENTIALS_COLL);
@@ -185,24 +220,45 @@ pub async fn stripe_webhook(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::BadRequest("Unknown tenant".to_owned()))?;
 
-    let webhook_secret = cred_doc.get_str("webhook_secret").ok().map(String::from).ok_or_else(|| ApiError::BadRequest("Stripe webhook secret not configured for tenant.".to_owned()))?;
+    let webhook_secret = cred_doc
+        .get_str("webhook_secret")
+        .ok()
+        .map(String::from)
+        .ok_or_else(|| {
+            ApiError::BadRequest("Stripe webhook secret not configured for tenant.".to_owned())
+        })?;
 
     // Verify signature
     verify_stripe_signature(&signature, raw_body, &webhook_secret, 300)
         .map_err(|e| ApiError::BadRequest(format!("Bad signature: {}", e)))?;
 
     let event_type = event.get("type").and_then(|t| t.as_str()).unwrap_or("");
-    
+
     if event_type == "checkout.session.completed" {
-        let object = event.pointer("/data/object").unwrap_or(&serde_json::Value::Null);
-        
-        let invoice_id_str = object.pointer("/metadata/invoiceId").and_then(|v| v.as_str());
-        let invoice_hash = object.pointer("/metadata/invoiceHash").and_then(|v| v.as_str());
-        
-        let amount_total = object.get("amount_total").and_then(|v| v.as_f64()).unwrap_or(0.0) / 100.0;
-        let currency = object.get("currency").and_then(|v| v.as_str()).unwrap_or("usd").to_uppercase();
-        
-        let payment_intent = object.get("payment_intent")
+        let object = event
+            .pointer("/data/object")
+            .unwrap_or(&serde_json::Value::Null);
+
+        let invoice_id_str = object
+            .pointer("/metadata/invoiceId")
+            .and_then(|v| v.as_str());
+        let invoice_hash = object
+            .pointer("/metadata/invoiceHash")
+            .and_then(|v| v.as_str());
+
+        let amount_total = object
+            .get("amount_total")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0)
+            / 100.0;
+        let currency = object
+            .get("currency")
+            .and_then(|v| v.as_str())
+            .unwrap_or("usd")
+            .to_uppercase();
+
+        let payment_intent = object
+            .get("payment_intent")
             .and_then(|v| {
                 if v.is_string() {
                     v.as_str()
@@ -225,12 +281,19 @@ pub async fn stripe_webhook(
                 currency,
                 "stripe",
                 payment_intent,
-                &format!("Stripe session {}", object.get("id").and_then(|id| id.as_str()).unwrap_or("")),
-            ).await?;
+                &format!(
+                    "Stripe session {}",
+                    object.get("id").and_then(|id| id.as_str()).unwrap_or("")
+                ),
+            )
+            .await?;
         }
     }
 
-    Ok(Json(WebhookResponse { status: "ok".to_owned(), error: None }))
+    Ok(Json(WebhookResponse {
+        status: "ok".to_owned(),
+        error: None,
+    }))
 }
 
 fn verify_stripe_signature(
@@ -269,9 +332,8 @@ fn verify_stripe_signature(
     }
 
     let signed_payload = format!("{ts}.{raw_body}");
-    let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).map_err(|e| {
-        ApiError::BadRequest(format!("invalid HMAC key: {e}"))
-    })?;
+    let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes())
+        .map_err(|e| ApiError::BadRequest(format!("invalid HMAC key: {e}")))?;
     mac.update(signed_payload.as_bytes());
     let expected = mac.finalize().into_bytes();
     let expected_hex = hex::encode(expected);
@@ -311,7 +373,7 @@ async fn record_gateway_payment(
     remarks: &str,
 ) -> Result<()> {
     let invoices_coll = mongo.collection::<Document>(INVOICES_COLL);
-    
+
     let mut filter = doc! { "userId": tenant_oid };
     if let Some(h) = hash {
         filter.insert("publicHash", h);
@@ -320,21 +382,30 @@ async fn record_gateway_payment(
             filter.insert("_id", oid);
         }
     }
-    
-    let invoice = match invoices_coll.find_one(filter).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
+
+    let invoice = match invoices_coll
+        .find_one(filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
+    {
         Some(doc) => doc,
         None => return Err(ApiError::NotFound("Invoice not found".to_owned())),
     };
-    
-    let invoice_id = invoice.get_object_id("_id").map_err(|_| ApiError::Internal(anyhow::anyhow!("Invoice has no _id")))?;
+
+    let invoice_id = invoice
+        .get_object_id("_id")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("Invoice has no _id")))?;
 
     let payments_coll = mongo.collection::<Document>(PAYMENTS_COLL);
     if !transaction_id.is_empty() {
-        let dupe = payments_coll.find_one(doc! {
-            "userId": tenant_oid,
-            "invoice_id": invoice_id,
-            "transaction_id": transaction_id,
-        }).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+        let dupe = payments_coll
+            .find_one(doc! {
+                "userId": tenant_oid,
+                "invoice_id": invoice_id,
+                "transaction_id": transaction_id,
+            })
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         if dupe.is_some() {
             return Ok(()); // already recorded
         }
@@ -358,22 +429,37 @@ async fn record_gateway_payment(
         "updatedAt": now,
     };
 
-    let res = payments_coll.insert_one(payment_doc).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    let res = payments_coll
+        .insert_one(payment_doc)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let payment_id = res.inserted_id.as_object_id().unwrap_or_else(ObjectId::new);
 
-    let total = invoice.get_f64("total").or_else(|_| {
-        invoice.get_document("totals").and_then(|t| t.get_f64("total"))
-    }).unwrap_or(0.0);
+    let total = invoice
+        .get_f64("total")
+        .or_else(|_| {
+            invoice
+                .get_document("totals")
+                .and_then(|t| t.get_f64("total"))
+        })
+        .unwrap_or(0.0);
 
-    let mut cursor = payments_coll.find(doc! {
-        "userId": tenant_oid,
-        "invoice_id": invoice_id,
-        "status": "completed",
-    }).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    let mut cursor = payments_coll
+        .find(doc! {
+            "userId": tenant_oid,
+            "invoice_id": invoice_id,
+            "status": "completed",
+        })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let mut paid = 0.0;
     use futures::TryStreamExt;
-    while let Some(p) = cursor.try_next().await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))? {
+    while let Some(p) = cursor
+        .try_next()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
+    {
         let amt = match p.get("amount") {
             Some(bson::Bson::Double(v)) => *v,
             Some(bson::Bson::Int32(v)) => *v as f64,
@@ -397,33 +483,39 @@ async fn record_gateway_payment(
     } else {
         "paid"
     };
-    
+
     let payment_status = if paid >= total { 1 } else { 0 };
 
-    invoices_coll.update_one(
-        doc! { "_id": invoice_id },
-        doc! {
-            "$set": {
-                "status": new_status,
-                "amount_paid": paid,
-                "balance": remaining,
-                "payment_status": payment_status,
-                "updatedAt": now,
-            }
-        }
-    ).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    invoices_coll
+        .update_one(
+            doc! { "_id": invoice_id },
+            doc! {
+                "$set": {
+                    "status": new_status,
+                    "amount_paid": paid,
+                    "balance": remaining,
+                    "payment_status": payment_status,
+                    "updatedAt": now,
+                }
+            },
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let details_coll = mongo.collection::<Document>(PAYMENT_DETAILS_COLL);
-    details_coll.insert_one(doc! {
-        "userId": tenant_oid,
-        "invoice_id": invoice_id,
-        "payment_id": payment_id,
-        "amount_paid": amount,
-        "remaining_balance": remaining,
-        "recorded_at": now,
-        "createdAt": now,
-        "updatedAt": now,
-    }).await.map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+    details_coll
+        .insert_one(doc! {
+            "userId": tenant_oid,
+            "invoice_id": invoice_id,
+            "payment_id": payment_id,
+            "amount_paid": amount,
+            "remaining_balance": remaining,
+            "recorded_at": now,
+            "createdAt": now,
+            "updatedAt": now,
+        })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     Ok(())
 }

@@ -1,4 +1,7 @@
-use axum::{Json, extract::{Query, State}};
+use axum::{
+    Json,
+    extract::{Query, State},
+};
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
@@ -15,11 +18,16 @@ const COLL: &str = "sabmonitor_check_runs";
 const CHECKS_COLL: &str = "sabmonitor_checks";
 
 fn user_oid(user: &AuthUser) -> Result<ObjectId> {
-    ObjectId::parse_str(&user.user_id).map_err(|e| ApiError::Validation(format!("invalid userId: {e}")))
+    ObjectId::parse_str(&user.user_id)
+        .map_err(|e| ApiError::Validation(format!("invalid userId: {e}")))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
-pub async fn list_runs(user: AuthUser, State(mongo): State<MongoHandle>, Query(q): Query<ListQuery>) -> Result<Json<ListResponse>> {
+pub async fn list_runs(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
+) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
     if let Some(c) = q.check_id.as_deref() {
@@ -33,19 +41,36 @@ pub async fn list_runs(user: AuthUser, State(mongo): State<MongoHandle>, Query(q
     }
     let limit = q.limit.unwrap_or(100).min(500) as i64;
     let skip = q.page.unwrap_or(0) as u64 * limit as u64;
-    let opts = FindOptions::builder().sort(doc! { "ts": -1 }).skip(skip).limit(limit + 1).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "ts": -1 })
+        .skip(skip)
+        .limit(limit + 1)
+        .build();
     let coll = mongo.collection::<SabmonitorCheckRun>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.find")))?;
-    let mut rows: Vec<SabmonitorCheckRun> = cursor.try_collect().await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.find"))
+    })?;
+    let mut rows: Vec<SabmonitorCheckRun> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
-    Ok(Json(ListResponse { items: rows, page: q.page.unwrap_or(0), limit: limit as u32, has_more }))
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
-pub async fn report_run(user: AuthUser, State(mongo): State<MongoHandle>, Json(input): Json<ReportRunInput>) -> Result<Json<ReportRunResponse>> {
+pub async fn report_run(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<ReportRunInput>,
+) -> Result<Json<ReportRunResponse>> {
     let user_id = user_oid(&user)?;
     let check_oid = oid_from_str(&input.check_id)?;
     let now = BsonDateTime::from_chrono(Utc::now());
@@ -63,9 +88,13 @@ pub async fn report_run(user: AuthUser, State(mongo): State<MongoHandle>, Json(i
         trace_json: input.trace_json,
     };
     let coll = mongo.collection::<SabmonitorCheckRun>(COLL);
-    let r = coll.insert_one(&entity).await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.insert")))?;
-    let id = r.inserted_id.as_object_id().ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id missing")))?;
+    let r = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmonitor_check_runs.insert"))
+    })?;
+    let id = r
+        .inserted_id
+        .as_object_id()
+        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id missing")))?;
     entity.id = Some(id);
 
     // Roll up onto the parent check row.
@@ -77,5 +106,8 @@ pub async fn report_run(user: AuthUser, State(mongo): State<MongoHandle>, Json(i
         )
         .await;
 
-    Ok(Json(ReportRunResponse { id: id.to_hex(), entity }))
+    Ok(Json(ReportRunResponse {
+        id: id.to_hex(),
+        entity,
+    }))
 }

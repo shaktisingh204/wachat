@@ -30,9 +30,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{
-    CreatePayoutInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdatePayoutInput,
-};
+use crate::dto::{CreatePayoutInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdatePayoutInput};
 
 /// Mongo collection name. Must match the TS `crm-payouts.actions.ts`
 /// literal so the Rust BFF and the legacy Next.js action share the
@@ -282,9 +280,7 @@ pub async fn create_payout(
     Json(input): Json<CreatePayoutInput>,
 ) -> Result<Json<PayoutReceipt>> {
     if input.payment_no.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "paymentNo is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("paymentNo is required.".to_owned()));
     }
     if input.currency.trim().is_empty() {
         return Err(ApiError::Validation("currency is required.".to_owned()));
@@ -343,7 +339,10 @@ pub async fn create_payout(
     // don't silently drift past the allowed set.
     if let Some(kind) = input.from_kind.as_deref() {
         if !kind.eq_ignore_ascii_case("bill") {
-            warn!(from_kind = kind, "create_payout: unrecognised fromKind; only 'bill' is honoured");
+            warn!(
+                from_kind = kind,
+                "create_payout: unrecognised fromKind; only 'bill' is honoured"
+            );
         }
     }
 
@@ -379,9 +378,9 @@ pub async fn create_payout(
     };
 
     let coll = mongo.collection::<PayoutReceipt>(PAYOUTS_COLL);
-    coll.insert_one(&payout).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.insert_one"))
-    })?;
+    coll.insert_one(&payout)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.insert_one")))?;
 
     // Best-effort back-link onto the parent bill's lineage. Non-fatal —
     // mirrors the TS server-action's `try { ... } catch {}` block.
@@ -496,9 +495,7 @@ pub async fn update_payout(
     let res = coll
         .update_one(filter.clone(), doc! { "$set": set })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.update_one"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.update_one")))?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("payout".to_owned()));
     }
@@ -510,9 +507,7 @@ pub async fn update_payout(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_payouts.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("payout".to_owned()))?;
 
@@ -542,9 +537,7 @@ pub async fn delete_payout(
     let res = coll
         .delete_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.delete_one"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_payouts.delete_one")))?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("payout".to_owned()));
     }

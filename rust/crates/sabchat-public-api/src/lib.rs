@@ -43,7 +43,10 @@ where
     MongoHandle: FromRef<S>,
 {
     Router::new()
-        .route("/contacts", get(handlers::list_contacts).post(handlers::create_contact))
+        .route(
+            "/contacts",
+            get(handlers::list_contacts).post(handlers::create_contact),
+        )
         .route("/contacts/{id}", get(handlers::get_contact))
         .route("/conversations", get(handlers::list_conversations))
         .route("/conversations/{id}", get(handlers::get_conversation))

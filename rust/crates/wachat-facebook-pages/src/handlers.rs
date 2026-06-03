@@ -36,11 +36,11 @@ use tracing::warn;
 use wachat_meta_client::{MetaClient, MetaError};
 
 use crate::dto::{
-    AckResult, CreateLiveVideoBody, CreateLiveVideoResp, CtaResp, DebugTokenResp,
-    DemographicsResp, DetailedInsightsQuery, InsightsResp, LiveVideoCommentsResp, LiveVideosResp,
-    LocationsResp, ManualSetupBody, OAuthCallbackBody, PageDetailsResp, PageInsightsCompact,
-    PageInsightsResp, PageSetupBody, PagesResp, RefreshTokenResp, RolesResp, SetCtaBody,
-    SettingsResp, TabsResp, UpdatePageDetailsBody,
+    AckResult, CreateLiveVideoBody, CreateLiveVideoResp, CtaResp, DebugTokenResp, DemographicsResp,
+    DetailedInsightsQuery, InsightsResp, LiveVideoCommentsResp, LiveVideosResp, LocationsResp,
+    ManualSetupBody, OAuthCallbackBody, PageDetailsResp, PageInsightsCompact, PageInsightsResp,
+    PageSetupBody, PagesResp, RefreshTokenResp, RolesResp, SetCtaBody, SettingsResp, TabsResp,
+    UpdatePageDetailsBody,
 };
 use crate::state::WachatFacebookPagesState;
 
@@ -98,10 +98,7 @@ pub async fn load_project_for(
 
     Ok(ProjectCtx {
         id: project_oid,
-        facebook_page_id: doc
-            .get_str("facebookPageId")
-            .ok()
-            .map(|s| s.to_owned()),
+        facebook_page_id: doc.get_str("facebookPageId").ok().map(|s| s.to_owned()),
         access_token: doc.get_str("accessToken").ok().map(|s| s.to_owned()),
     })
 }
@@ -145,8 +142,7 @@ pub async fn handle_facebook_page_setup(
     if body.facebook_page_id.is_empty() || body.access_token.is_empty() {
         return Json(AckResult {
             error: Some(
-                "Required information (Page ID, Token) was not received from Facebook."
-                    .to_owned(),
+                "Required information (Page ID, Token) was not received from Facebook.".to_owned(),
             ),
             ..Default::default()
         });
@@ -468,8 +464,7 @@ pub async fn handle_facebook_oauth_callback(
             let _ = body.include_catalog;
             Json(AckResult {
                 error: Some(
-                    "WhatsApp OAuth handling is not implemented in the Rust BFF yet."
-                        .to_owned(),
+                    "WhatsApp OAuth handling is not implemented in the Rust BFF yet.".to_owned(),
                 ),
                 ..Default::default()
             })
@@ -490,7 +485,10 @@ pub async fn handle_manual_facebook_page_setup(
     State(s): State<WachatFacebookPagesState>,
     Json(body): Json<ManualSetupBody>,
 ) -> Json<AckResult> {
-    if body.project_name.is_empty() || body.facebook_page_id.is_empty() || body.access_token.is_empty() {
+    if body.project_name.is_empty()
+        || body.facebook_page_id.is_empty()
+        || body.access_token.is_empty()
+    {
         return Json(AckResult {
             error: Some("All fields are required for manual setup.".to_owned()),
             ..Default::default()
@@ -785,9 +783,8 @@ pub async fn get_page_insights(
         }
     };
 
-    let path = format!(
-        "{page}/insights?metric=page_impressions,page_post_engagements&period=days_28"
-    );
+    let path =
+        format!("{page}/insights?metric=page_impressions,page_post_engagements&period=days_28");
     let v = match graph_get(&s.meta, &path, token).await {
         Ok(v) => v,
         Err(e) => {
@@ -798,12 +795,19 @@ pub async fn get_page_insights(
         }
     };
 
-    let data = v.get("data").and_then(|d| d.as_array()).cloned().unwrap_or_default();
+    let data = v
+        .get("data")
+        .and_then(|d| d.as_array())
+        .cloned()
+        .unwrap_or_default();
     let pick = |name: &str| -> i64 {
-        let metric = data.iter().find(|m| {
-            m.get("name").and_then(|n| n.as_str()) == Some(name)
-        });
-        let values = match metric.and_then(|m| m.get("values")).and_then(|v| v.as_array()) {
+        let metric = data
+            .iter()
+            .find(|m| m.get("name").and_then(|n| n.as_str()) == Some(name));
+        let values = match metric
+            .and_then(|m| m.get("values"))
+            .and_then(|v| v.as_array())
+        {
             Some(v) if !v.is_empty() => v,
             _ => return 0,
         };
@@ -850,7 +854,8 @@ pub async fn get_detailed_page_insights(
         }
     };
 
-    const DEFAULT_METRICS: &str = "page_impressions,page_post_engagements,page_views_total,page_fans";
+    const DEFAULT_METRICS: &str =
+        "page_impressions,page_post_engagements,page_views_total,page_fans";
     let metrics = q.metrics.unwrap_or_else(|| DEFAULT_METRICS.to_owned());
     let period = q.period.unwrap_or_else(|| "days_28".to_owned());
 
@@ -1015,7 +1020,8 @@ pub async fn get_page_tabs(
         }
     };
 
-    let path = format!("{page}/tabs?fields=id,name,link,position,is_permanent,image_url,application");
+    let path =
+        format!("{page}/tabs?fields=id,name,link,position,is_permanent,image_url,application");
     match graph_get(&s.meta, &path, token).await {
         Ok(v) => Json(TabsResp {
             tabs: Some(pull_data_array(v)),
@@ -1465,4 +1471,3 @@ pub async fn get_live_video_comments(
         }),
     }
 }
-

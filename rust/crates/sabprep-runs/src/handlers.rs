@@ -55,9 +55,10 @@ pub async fn list_runs(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_runs.find")))?;
-    let mut rows: Vec<SabprepRun> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabprep_runs.collect"))
-    })?;
+    let mut rows: Vec<SabprepRun> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_runs.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);

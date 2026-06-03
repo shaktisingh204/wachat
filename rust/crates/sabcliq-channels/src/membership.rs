@@ -39,7 +39,10 @@ pub fn is_channel_member(channel: &SabcliqChannel, caller_user_id: ObjectId) -> 
     if channel.user_id == caller_user_id {
         return true;
     }
-    channel.member_user_ids.iter().any(|id| *id == caller_user_id)
+    channel
+        .member_user_ids
+        .iter()
+        .any(|id| *id == caller_user_id)
 }
 
 /// `403 Forbidden` if the caller is not a channel member.

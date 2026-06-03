@@ -88,7 +88,11 @@ fn announcement_from_create(
     }
     let now = BsonDateTime::from_chrono(Utc::now());
     let status = input.status.unwrap_or_else(|| "draft".to_owned());
-    let published_at = if status == "published" { Some(now) } else { None };
+    let published_at = if status == "published" {
+        Some(now)
+    } else {
+        None
+    };
     Ok(CrmAnnouncement {
         id: None,
         user_id,
@@ -123,7 +127,11 @@ fn announcement_from_create(
     })
 }
 
-fn build_update_doc(patch: UpdateAnnouncementInput, before_status: &str, before_published_at: Option<BsonDateTime>) -> Document {
+fn build_update_doc(
+    patch: UpdateAnnouncementInput,
+    before_status: &str,
+    before_published_at: Option<BsonDateTime>,
+) -> Document {
     let now = BsonDateTime::from_chrono(Utc::now());
     let mut set = doc! { "updatedAt": now };
     if let Some(v) = patch.title {
@@ -232,9 +240,10 @@ pub async fn list_announcements(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmAnnouncement>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_announcements.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_announcements.find"))
+        })?;
     let mut rows: Vec<CrmAnnouncement> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_announcements.collect"))
     })?;
@@ -286,8 +295,7 @@ pub async fn create_announcement(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

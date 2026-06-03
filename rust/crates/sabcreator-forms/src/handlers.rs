@@ -92,11 +92,8 @@ pub async fn list_forms(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorForm>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcreator_forms.find"))
         })?;
     let mut rows: Vec<SabcreatorForm> = cursor.try_collect().await.map_err(|e| {
@@ -144,11 +141,19 @@ pub async fn create_form(
         return Err(ApiError::Validation("name is required".to_owned()));
     }
     let app_oid = oid_from_str(&input.app_id)?;
-    let table_oid = match input.sabtables_table_id.as_deref().filter(|s| !s.is_empty()) {
+    let table_oid = match input
+        .sabtables_table_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => Some(oid_from_str(s)?),
         None => None,
     };
-    let workflow_oid = match input.submit_workflow_id.as_deref().filter(|s| !s.is_empty()) {
+    let workflow_oid = match input
+        .submit_workflow_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => Some(oid_from_str(s)?),
         None => None,
     };
@@ -160,9 +165,13 @@ pub async fn create_form(
         name: input.name.trim().to_owned(),
         description: input.description,
         sabtables_table_id: table_oid,
-        fields_json: input.fields_json.unwrap_or_else(|| Value::Array(Vec::new())),
+        fields_json: input
+            .fields_json
+            .unwrap_or_else(|| Value::Array(Vec::new())),
         layout_json: input.layout_json,
-        submit_action: input.submit_action.unwrap_or_else(|| "createRecord".to_owned()),
+        submit_action: input
+            .submit_action
+            .unwrap_or_else(|| "createRecord".to_owned()),
         submit_workflow_id: workflow_oid,
         status: "draft".to_owned(),
         created_at: now,
@@ -231,9 +240,7 @@ pub async fn update_form(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_forms.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcreator_forms.refetch")))?
         .ok_or_else(|| ApiError::NotFound("form".to_owned()))?;
     Ok(Json(after))
 }

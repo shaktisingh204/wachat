@@ -65,11 +65,14 @@ fn contract_from_create(input: CreateContractInput, user_id: ObjectId) -> Result
     if input.party_name.trim().is_empty() {
         return Err(ApiError::Validation("partyName is required".to_owned()));
     }
-    let contract_no = input.contract_no.filter(|s| !s.trim().is_empty()).unwrap_or_else(|| {
-        let suffix = Utc::now().timestamp_millis().to_string();
-        let tail = suffix.chars().rev().take(5).collect::<String>();
-        format!("CTR-{}", tail.chars().rev().collect::<String>())
-    });
+    let contract_no = input
+        .contract_no
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| {
+            let suffix = Utc::now().timestamp_millis().to_string();
+            let tail = suffix.chars().rev().take(5).collect::<String>();
+            format!("CTR-{}", tail.chars().rev().collect::<String>())
+        });
     Ok(CrmContract {
         id: None,
         user_id,
@@ -85,7 +88,10 @@ fn contract_from_create(input: CreateContractInput, user_id: ObjectId) -> Result
         deliverables: input.deliverables,
         currency: Some(input.currency.unwrap_or_else(|| "INR".to_owned())),
         branch: input.branch,
-        owner_id: input.owner_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        owner_id: input
+            .owner_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         source_proposal_id: input
             .source_proposal_id
             .as_deref()
@@ -140,7 +146,11 @@ fn build_update_doc(patch: UpdateContractInput) -> Document {
     if let Some(v) = patch.branch {
         set.insert("branch", v);
     }
-    if let Some(v) = patch.owner_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .owner_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("ownerId", v);
     }
     if let Some(v) = patch.effective_date.as_deref().and_then(parse_date) {
@@ -213,9 +223,10 @@ pub async fn list_contracts(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.find")))?;
-    let mut rows: Vec<CrmContract> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.collect"))
-    })?;
+    let mut rows: Vec<CrmContract> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -240,9 +251,7 @@ pub async fn get_contract(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.find_one")))?
         .ok_or_else(|| ApiError::NotFound("contract".to_owned()))?;
     Ok(Json(row))
 }
@@ -265,8 +274,7 @@ pub async fn create_contract(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -289,9 +297,7 @@ pub async fn update_contract(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.find_one")))?
         .ok_or_else(|| ApiError::NotFound("contract".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
@@ -304,9 +310,7 @@ pub async fn update_contract(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.refetch")))?
         .ok_or_else(|| ApiError::NotFound("contract".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -338,9 +342,7 @@ pub async fn delete_contract(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_contracts.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("contract".to_owned()));
     }

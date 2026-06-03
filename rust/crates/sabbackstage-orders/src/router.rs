@@ -30,9 +30,6 @@ where
                 .delete(handlers::delete_order),
         )
         .route("/public/create", post(handlers::public_create_order))
-        .route(
-            "/public/{id}/confirm",
-            post(handlers::public_confirm_order),
-        )
+        .route("/public/{id}/confirm", post(handlers::public_confirm_order))
         .route("/public/{id}", get(handlers::public_get_order))
 }

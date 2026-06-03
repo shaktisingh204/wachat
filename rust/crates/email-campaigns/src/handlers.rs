@@ -25,9 +25,7 @@ use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use email_types::{
     EmailCampaignStatus, EmailCampaignType,
-    collections::{
-        BRAND_KITS, CAMPAIGNS, REPORTS_CACHE, SUBSCRIBERS, SUPPRESSIONS,
-    },
+    collections::{BRAND_KITS, CAMPAIGNS, REPORTS_CACHE, SUBSCRIBERS, SUPPRESSIONS},
 };
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -93,9 +91,9 @@ async fn load_campaign(
 /// Read a campaign's `status` as a typed enum, falling back to
 /// `BadRequest` if the persisted value isn't one of the known states.
 fn parse_status(doc_: &Document) -> Result<EmailCampaignStatus> {
-    let raw = doc_.get_str("status").map_err(|_| {
-        ApiError::Internal(anyhow::anyhow!("campaign missing status field"))
-    })?;
+    let raw = doc_
+        .get_str("status")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("campaign missing status field")))?;
     let val: Value = json!(raw);
     serde_json::from_value(val).map_err(|_| {
         ApiError::Internal(anyhow::anyhow!(format!(
@@ -170,7 +168,10 @@ pub async fn list_campaigns(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("campaigns.collect")))?;
 
-    let items: Vec<Value> = docs.into_iter().filter_map(|d| doc_to_json(d).ok()).collect();
+    let items: Vec<Value> = docs
+        .into_iter()
+        .filter_map(|d| doc_to_json(d).ok())
+        .collect();
     let has_more = q.page * q.limit < total;
     Ok(Json(ListResponse {
         items,
@@ -378,12 +379,9 @@ pub async fn update_campaign(
     let coll = state.mongo.collection::<Document>(CAMPAIGNS);
     let tenant = tenant_oid(&user)?;
     let oid = oid_from_str(&id)?;
-    coll.update_one(
-        doc! { "_id": oid, "userId": tenant },
-        doc! { "$set": set },
-    )
-    .await
-    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("campaigns.update_one")))?;
+    coll.update_one(doc! { "_id": oid, "userId": tenant }, doc! { "$set": set })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("campaigns.update_one")))?;
 
     let updated = load_campaign(&state, &user, &id).await?;
     Ok(Json(doc_to_json(updated)?))
@@ -475,13 +473,13 @@ pub async fn test_send(
         job_id: Some(format!("email_test_{id}_{}", Utc::now().timestamp_millis())),
         ..Default::default()
     };
-    state
-        .bull
-        .add(SEND_QUEUE, JOB_TEST, &payload, opts)
-        .await?;
+    state.bull.add(SEND_QUEUE, JOB_TEST, &payload, opts).await?;
 
     Ok(Json(MessageResponse {
-        message: format!("Test send queued for {} recipient(s).", body.to_emails.len()),
+        message: format!(
+            "Test send queued for {} recipient(s).",
+            body.to_emails.len()
+        ),
     }))
 }
 
@@ -602,10 +600,13 @@ pub async fn pause(
     user: AuthUser,
     Path(id): Path<String>,
 ) -> Result<Json<MessageResponse>> {
-    transition_to(&state, &user, &id, "paused", &[
-        EmailCampaignStatus::Sending,
-        EmailCampaignStatus::Scheduled,
-    ])
+    transition_to(
+        &state,
+        &user,
+        &id,
+        "paused",
+        &[EmailCampaignStatus::Sending, EmailCampaignStatus::Scheduled],
+    )
     .await?;
     Ok(Json(MessageResponse {
         message: "Campaign paused.".into(),
@@ -620,7 +621,14 @@ pub async fn resume(
     user: AuthUser,
     Path(id): Path<String>,
 ) -> Result<Json<MessageResponse>> {
-    transition_to(&state, &user, &id, "sending", &[EmailCampaignStatus::Paused]).await?;
+    transition_to(
+        &state,
+        &user,
+        &id,
+        "sending",
+        &[EmailCampaignStatus::Paused],
+    )
+    .await?;
     Ok(Json(MessageResponse {
         message: "Campaign resumed.".into(),
     }))
@@ -714,7 +722,9 @@ pub async fn preview(
             .collection::<Document>(SUBSCRIBERS)
             .find_one(doc! { "_id": soid, "userId": tenant })
             .await
-            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("subscribers.find_one")))?;
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("subscribers.find_one"))
+            })?;
         if let Some(d) = sdoc {
             sample = SampleSubscriber::from_doc(&d);
         }
@@ -801,9 +811,10 @@ pub async fn recipients_count(
             "status": "subscribed",
             "$or": or_clauses,
         };
-        subs_coll.count_documents(filter).await.map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("subscribers.count"))
-        })?
+        subs_coll
+            .count_documents(filter)
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("subscribers.count")))?
     };
 
     // Subtract suppressions. We approximate the suppressed count by
@@ -899,7 +910,9 @@ fn preflight(campaign: &Document) -> Result<()> {
     }
     let from_email = campaign.get_str("fromEmail").unwrap_or("").trim();
     if !is_email_shape(from_email) {
-        return Err(ApiError::Validation("fromEmail is not a valid email address".into()));
+        return Err(ApiError::Validation(
+            "fromEmail is not a valid email address".into(),
+        ));
     }
     let has_body = campaign
         .get_str("body")
@@ -908,7 +921,9 @@ fn preflight(campaign: &Document) -> Result<()> {
         .unwrap_or(false);
     let has_template = campaign.get_object_id("templateId").is_ok();
     if !has_body && !has_template {
-        return Err(ApiError::Validation("either body or templateId is required".into()));
+        return Err(ApiError::Validation(
+            "either body or templateId is required".into(),
+        ));
     }
     let has_lists = campaign
         .get_array("listIds")
@@ -993,9 +1008,7 @@ impl SampleSubscriber {
             email: "sample@example.com".to_owned(),
             first_name: "Sam".to_owned(),
             last_name: "Subscriber".to_owned(),
-            unsubscribe_url: format!(
-                "https://example.com/u/{tenant_id}?token=preview"
-            ),
+            unsubscribe_url: format!("https://example.com/u/{tenant_id}?token=preview"),
         }
     }
     fn from_doc(d: &Document) -> Self {

@@ -115,9 +115,13 @@ pub async fn assign(
         AssignStrategy::Unassign => None,
 
         AssignStrategy::Manual => {
-            let agent_hex = body.agent_id.as_deref().filter(|s| !s.is_empty()).ok_or_else(
-                || ApiError::Validation("agentId is required for manual assignment.".to_owned()),
-            )?;
+            let agent_hex = body
+                .agent_id
+                .as_deref()
+                .filter(|s| !s.is_empty())
+                .ok_or_else(|| {
+                    ApiError::Validation("agentId is required for manual assignment.".to_owned())
+                })?;
             let agent = oid_from_str(agent_hex)
                 .map_err(|_| ApiError::BadRequest("Invalid agentId.".to_owned()))?;
             let agents = load_inbox_agents(&state.mongo, tenant, inbox_oid).await?;
@@ -282,9 +286,13 @@ pub async fn sla_sweep(
 
     for d in &docs {
         scanned += 1;
-        let Ok(id) = d.get_object_id("_id") else { continue };
+        let Ok(id) = d.get_object_id("_id") else {
+            continue;
+        };
         let sla = d.get_document("sla").ok();
-        let cached_breach = sla.and_then(|s| s.get_bool("breached").ok()).unwrap_or(false);
+        let cached_breach = sla
+            .and_then(|s| s.get_bool("breached").ok())
+            .unwrap_or(false);
 
         // A conversation is breached if any non-null due-at is in the past.
         let any_due_passed = sla
@@ -393,9 +401,7 @@ pub async fn agent_load(
         .find(doc! { "tenantId": tenant, "status": "open" })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find(load)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find(load)"))
         })?;
     let convo_docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.collect(load)"))

@@ -142,9 +142,7 @@ pub(crate) fn build_summary_prompt(history: &[SabChatMessage]) -> (String, Strin
 /// suggestions, and a future provider integration will swap in a
 /// structured-output / tool-call pathway. The prompt is kept here so
 /// that follow-up work has a single place to evolve.
-pub(crate) fn build_suggest_actions_prompt(
-    history: &[SabChatMessage],
-) -> (String, String) {
+pub(crate) fn build_suggest_actions_prompt(history: &[SabChatMessage]) -> (String, String) {
     let system = "You are SabChat Copilot. Read the conversation and \
                   suggest 1-4 next operational actions for the human \
                   agent. Each action is one of: `label` (apply a tag), \
@@ -214,8 +212,18 @@ mod tests {
     fn history_skips_private_notes_and_labels_roles() {
         let h = vec![
             msg(SenderType::Visitor, MessageDirection::Inbound, "hi", false),
-            msg(SenderType::Agent, MessageDirection::Outbound, "hello!", false),
-            msg(SenderType::Agent, MessageDirection::Outbound, "internal", true),
+            msg(
+                SenderType::Agent,
+                MessageDirection::Outbound,
+                "hello!",
+                false,
+            ),
+            msg(
+                SenderType::Agent,
+                MessageDirection::Outbound,
+                "internal",
+                true,
+            ),
         ];
         let rendered = render_history(&h);
         assert!(rendered.contains("Customer: hi"));
@@ -225,7 +233,12 @@ mod tests {
 
     #[test]
     fn draft_prompt_includes_hint_when_present() {
-        let h = vec![msg(SenderType::Visitor, MessageDirection::Inbound, "yo", false)];
+        let h = vec![msg(
+            SenderType::Visitor,
+            MessageDirection::Inbound,
+            "yo",
+            false,
+        )];
         let (_, user) = build_draft_prompt(&h, Some("be friendly"));
         assert!(user.contains("Agent hint for the reply: be friendly"));
 

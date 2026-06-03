@@ -80,10 +80,7 @@ pub struct Template {
 
     /// Owning project. Optional only because some very old rows imported
     /// from legacy backups may have lost it.
-    #[serde(
-        default,
-        serialize_with = "serialize_optional_object_id_as_hex_string"
-    )]
+    #[serde(default, serialize_with = "serialize_optional_object_id_as_hex_string")]
     pub project_id: Option<ObjectId>,
 
     /// Template name. Globally unique within a (project, language) tuple.
@@ -118,6 +115,9 @@ pub struct Template {
 
     /// Created-at timestamp. Optional in the TS schema (`createdAt?: Date`)
     /// because some legacy rows pre-date the field — we honor that here.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub created_at: Option<DateTime<Utc>>,
 }

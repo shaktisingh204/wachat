@@ -182,7 +182,10 @@ pub struct StoryRow {
     pub bot_id: String,
     #[serde(skip_serializing_if = "Option::is_none", rename = "channelId")]
     pub channel_id: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "businessConnectionId")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "businessConnectionId"
+    )]
     pub business_connection_id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "telegramStoryId")]
     pub telegram_story_id: Option<i64>,
@@ -197,17 +200,38 @@ pub struct StoryRow {
     #[serde(rename = "protectContent")]
     pub protect_content: bool,
     pub status: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "postedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "postedAt"
+    )]
     pub posted_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "expiresAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "expiresAt"
+    )]
     pub expires_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -233,10 +257,7 @@ fn doc_to_story(d: &Document) -> Option<StoryRow> {
         project_id: d.get_object_id("projectId").ok()?.to_hex(),
         bot_id: d.get_object_id("botId").ok()?.to_hex(),
         channel_id,
-        business_connection_id: d
-            .get_str("businessConnectionId")
-            .ok()
-            .map(str::to_owned),
+        business_connection_id: d.get_str("businessConnectionId").ok().map(str::to_owned),
         telegram_story_id: d
             .get_i64("telegramStoryId")
             .or_else(|_| d.get_i32("telegramStoryId").map(i64::from))
@@ -312,10 +333,12 @@ fn validate_type_target(
             }
         }
         "business" => {
-            if business_connection_id.map(str::trim).unwrap_or("").is_empty() {
-                return Err(
-                    "businessConnectionId is required for business stories".into(),
-                );
+            if business_connection_id
+                .map(str::trim)
+                .unwrap_or("")
+                .is_empty()
+            {
+                return Err("businessConnectionId is required for business stories".into());
             }
         }
         _ => {}
@@ -496,7 +519,11 @@ pub struct CreateBody {
     pub post_to_chat_page: bool,
     #[serde(default, rename = "protectContent")]
     pub protect_content: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -582,7 +609,12 @@ pub async fn create(
         doc.insert("scheduledAt", bson::DateTime::from_chrono(t));
     }
 
-    match s.mongo.collection::<Document>(STORIES).insert_one(doc).await {
+    match s
+        .mongo
+        .collection::<Document>(STORIES)
+        .insert_one(doc)
+        .await
+    {
         Ok(res) => {
             let id = res
                 .inserted_id
@@ -614,7 +646,11 @@ pub struct UpdateBody {
     pub post_to_chat_page: Option<bool>,
     #[serde(default, rename = "protectContent")]
     pub protect_content: Option<bool>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduledAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: Option<DateTime<Utc>>,
 }
 
@@ -798,10 +834,7 @@ pub async fn delete_story(
 /// directly. We rely on the `sabfiles` collection having a stable `url`
 /// (R2 public URL or `/api/sabfiles/raw/:id` proxy) — the same shape the
 /// frontend file picker hands back.
-async fn resolve_sabfile_url(
-    mongo: &MongoHandle,
-    sab_file_id: &str,
-) -> Result<String, String> {
+async fn resolve_sabfile_url(mongo: &MongoHandle, sab_file_id: &str) -> Result<String, String> {
     let oid = parse_oid(sab_file_id).ok_or_else(|| "invalid sabFileId".to_owned())?;
     let f = mongo
         .collection::<Document>("sabfiles")
@@ -835,10 +868,7 @@ fn build_privacy_payload(p: &StoryPrivacy) -> Value {
     }
 }
 
-fn build_content_payload(
-    content: &StoryContent,
-    media_url: &str,
-) -> Value {
+fn build_content_payload(content: &StoryContent, media_url: &str) -> Value {
     let kind = match content.media_kind.as_str() {
         "photo" => "story_content_photo",
         _ => "story_content_video",
@@ -1060,7 +1090,10 @@ pub async fn post_now(
 pub struct ScheduleBody {
     #[serde(rename = "projectId")]
     pub project_id: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "scheduledAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: DateTime<Utc>,
 }
 
@@ -1210,7 +1243,10 @@ pub async fn edit_on_telegram(
         return err_ack("Bot has no token.");
     }
 
-    let merged_content = body.content.clone().unwrap_or_else(|| story.content.clone());
+    let merged_content = body
+        .content
+        .clone()
+        .unwrap_or_else(|| story.content.clone());
     let media_url = match resolve_sabfile_url(&s.mongo, &merged_content.sab_file_id).await {
         Ok(u) => u,
         Err(e) => return err_ack(e),
@@ -1278,7 +1314,9 @@ pub async fn edit_on_telegram(
             if let Some(p) = body.privacy.as_ref() {
                 set.insert("privacy", bson::to_document(p).unwrap_or_default());
             }
-            let _ = coll.update_one(doc! { "_id": oid }, doc! { "$set": set }).await;
+            let _ = coll
+                .update_one(doc! { "_id": oid }, doc! { "$set": set })
+                .await;
             Json(AckResult {
                 success: true,
                 story_id: Some(story_id),
@@ -1432,7 +1470,10 @@ pub struct BusinessConnectionRow {
     pub can_edit: bool,
     #[serde(rename = "isEnabled")]
     pub is_enabled: bool,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1604,7 +1645,10 @@ pub async fn register_business_connection(
         .ok()
         .flatten();
     if let Some(d) = existing {
-        let id = d.get_object_id("_id").map(|o| o.to_hex()).unwrap_or_default();
+        let id = d
+            .get_object_id("_id")
+            .map(|o| o.to_hex())
+            .unwrap_or_default();
         let _ = coll
             .update_one(
                 doc! { "_id": d.get_object_id("_id").unwrap_or_default() },
@@ -1903,12 +1947,7 @@ pub async fn analytics(
                 if p.date_naive() == today {
                     posted_today += 1;
                 }
-                let key = format!(
-                    "{:04}-{:02}-{:02}",
-                    p.year(),
-                    p.month(),
-                    p.day()
-                );
+                let key = format!("{:04}-{:02}-{:02}", p.year(), p.month(), p.day());
                 let entry = per_day.entry(key).or_insert((0, 0, 0, 0, 0));
                 entry.2 += 1;
             }
@@ -1984,7 +2023,9 @@ pub async fn export_csv(
         .await
     {
         Ok(c) => c,
-        Err(e) => return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response(),
+        Err(e) => {
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response();
+        }
     };
     use futures::TryStreamExt;
     let docs: Vec<Document> = cursor.try_collect().await.unwrap_or_default();

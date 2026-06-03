@@ -37,11 +37,7 @@ fn parse_iso_date(s: &str) -> Result<BsonDateTime> {
         .or_else(|_| {
             // Fall back to YYYY-MM-DD by assuming midnight UTC.
             chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d")
-                .map(|nd| {
-                    BsonDateTime::from_chrono(
-                        nd.and_hms_opt(0, 0, 0).unwrap().and_utc(),
-                    )
-                })
+                .map(|nd| BsonDateTime::from_chrono(nd.and_hms_opt(0, 0, 0).unwrap().and_utc()))
         })
         .map_err(|_| ApiError::Validation(format!("invalid date '{s}'")))
 }
@@ -289,8 +285,7 @@ pub async fn create_transaction(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

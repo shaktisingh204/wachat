@@ -68,4 +68,3 @@ where
         // -- Analytics ----------------------------------------------------
         .route("/analytics", get(handlers::analytics))
 }
-

@@ -176,11 +176,21 @@ pub async fn list_clients(
         Some(s) if !s.is_empty() => Some(oid_from_str(s)?),
         _ => None,
     };
-    let mut filter = list_filter(user_id, q.status.as_deref(), firm_oid, q.assigned_to.as_deref());
+    let mut filter = list_filter(
+        user_id,
+        q.status.as_deref(),
+        firm_oid,
+        q.assigned_to.as_deref(),
+    );
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
-            &["name", "primaryContactName", "primaryContactEmail", "industry"],
+            &[
+                "name",
+                "primaryContactName",
+                "primaryContactEmail",
+                "industry",
+            ],
         );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
@@ -194,15 +204,12 @@ pub async fn list_clients(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeClient>(CLIENTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.find")))?;
-    let mut rows: Vec<SabPracticeClient> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.find"))
+    })?;
+    let mut rows: Vec<SabPracticeClient> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -227,7 +234,9 @@ pub async fn get_client(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("client".to_owned()))?;
     Ok(Json(row))
 }
@@ -244,10 +253,9 @@ pub async fn create_client(
     }
     let mut client = client_from_create(input, user_id)?;
     let coll = mongo.collection::<SabPracticeClient>(CLIENTS_COLL);
-    let inserted = coll
-        .insert_one(&client)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.insert")))?;
+    let inserted = coll.insert_one(&client).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -273,14 +281,18 @@ pub async fn update_client(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("client".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("client".to_owned()))?;
     Ok(Json(after))
 }
@@ -303,7 +315,9 @@ pub async fn delete_client(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_clients.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("client".to_owned()));
     }

@@ -58,13 +58,9 @@ pub async fn list_comments(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabConnectComment>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabconnect_comments.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabconnect_comments.find"))
+    })?;
     let mut rows: Vec<SabConnectComment> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabconnect_comments.collect"))
     })?;

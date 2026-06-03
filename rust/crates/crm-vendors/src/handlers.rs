@@ -47,7 +47,12 @@ fn ownership_filter(user_id: ObjectId, vendor_oid: ObjectId) -> Document {
 // ─── Mapping helpers ────────────────────────────────────────────────────
 
 fn vendor_from_create(input: CreateVendorInput, user_id: ObjectId) -> Result<CrmVendor> {
-    let industry_id = match input.industry_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let industry_id = match input
+        .industry_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(hex) => Some(oid_from_str(hex)?),
         None => None,
     };
@@ -270,8 +275,7 @@ pub async fn create_vendor(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     vendor.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&vendor)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&vendor)))
     {
         write_audit(&mongo, event).await;
     }

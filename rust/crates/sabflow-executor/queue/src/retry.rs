@@ -122,10 +122,7 @@ pub fn delay_for(attempt: u32, spec: &RetrySpec) -> Duration {
     }
     let ms = match spec.strategy {
         BackoffStrategy::FixedDelay => spec.base_ms.min(spec.cap_ms),
-        BackoffStrategy::Linear => spec
-            .base_ms
-            .saturating_mul(attempt as u64)
-            .min(spec.cap_ms),
+        BackoffStrategy::Linear => spec.base_ms.saturating_mul(attempt as u64).min(spec.cap_ms),
         BackoffStrategy::ExponentialJitter => {
             // `base_ms * 2^(attempt - 1)`, saturating so we never overflow
             // on absurd `attempt` values. The cap clamps this back to a
@@ -235,7 +232,10 @@ mod tests {
         assert_eq!(EXECUTION_DEFAULT.max_tries, 3);
         assert_eq!(EXECUTION_DEFAULT.base_ms, 500);
         assert_eq!(EXECUTION_DEFAULT.cap_ms, 30_000);
-        assert_eq!(EXECUTION_DEFAULT.strategy, BackoffStrategy::ExponentialJitter);
+        assert_eq!(
+            EXECUTION_DEFAULT.strategy,
+            BackoffStrategy::ExponentialJitter
+        );
 
         assert_eq!(WEBHOOK_DEFAULT.max_tries, 5);
         assert_eq!(WEBHOOK_DEFAULT.base_ms, 1_000);
@@ -354,10 +354,7 @@ mod tests {
 
     #[test]
     fn classify_is_case_insensitive() {
-        assert_eq!(
-            classify_for_retry("node_api_error"),
-            RetryAction::Retryable
-        );
+        assert_eq!(classify_for_retry("node_api_error"), RetryAction::Retryable);
         assert_eq!(
             classify_for_retry("  Execution_Timeout  "),
             RetryAction::Retryable

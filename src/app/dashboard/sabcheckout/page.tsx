@@ -5,7 +5,7 @@
  * page" CTA. Server component; reads via the Rust BFF.
  */
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, LayoutDashboard, CreditCard, Activity, Package, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 import {
   Badge,
@@ -15,6 +15,11 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  StatCard
 } from '@/components/zoruui';
 
 import { listSabcheckoutPages } from '@/app/actions/sabcheckout.actions';
@@ -43,68 +48,77 @@ export default async function SabcheckoutHomePage({
     status: sp.status,
   });
 
+  // Mock stats for demo purposes
+  const stats = [
+    { label: 'Total Revenue', value: '$12,450', delta: 15.2, period: 'vs last month', icon: <CreditCard /> },
+    { label: 'Active Pages', value: result.ok ? result.data.items.length.toString() : '0', delta: 4.1, period: 'vs last month', icon: <Package /> },
+    { label: 'Conversion Rate', value: '3.4%', delta: -1.2, period: 'vs last month', icon: <Activity /> },
+  ];
+
   return (
-    <div className="zoruui space-y-6 p-6">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">SabCheckout</h1>
-          <p className="text-sm text-[var(--zoru-muted-fg)]">
-            Build branded, shareable payment pages. One-off or recurring.
-          </p>
-        </div>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <PageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Overview</ZoruPageTitle>
+            <ZoruPageDescription>
+              Build branded, shareable payment pages. One-off or recurring.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </PageHeader>
         <Link href="/dashboard/sabcheckout/new">
           <Button>
             <Plus className="mr-2 size-4" />
-            New page
+            New payment page
           </Button>
         </Link>
-      </header>
+      </div>
 
-      {!result.ok ? (
-        <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Couldn't load pages</ZoruCardTitle>
-            <ZoruCardDescription>{result.error}</ZoruCardDescription>
-          </ZoruCardHeader>
-        </Card>
-      ) : result.data.items.length === 0 ? (
-        <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>No payment pages yet</ZoruCardTitle>
-            <ZoruCardDescription>
+      <div className="grid gap-4 md:grid-cols-3">
+        {stats.map((stat, i) => (
+          <StatCard
+            key={i}
+            label={stat.label}
+            value={stat.value}
+            delta={stat.delta}
+            period={stat.period}
+            icon={stat.icon}
+          />
+        ))}
+      </div>
+
+      <div className="mt-4">
+        <h3 className="mb-4 text-lg font-medium tracking-tight text-zoru-ink">Your Pages</h3>
+        {!result.ok ? (
+          <Card>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Couldn't load pages</ZoruCardTitle>
+              <ZoruCardDescription>{result.error}</ZoruCardDescription>
+            </ZoruCardHeader>
+          </Card>
+        ) : result.data.items.length === 0 ? (
+          <Card className="flex flex-col items-center justify-center p-12 text-center border-dashed">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted mb-4">
+              <Package className="h-6 w-6" />
+            </div>
+            <ZoruCardTitle className="text-xl">No payment pages yet</ZoruCardTitle>
+            <ZoruCardDescription className="max-w-sm mt-2 mb-6">
               Create your first SabCheckout page to start collecting payments.
             </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
             <Link href="/dashboard/sabcheckout/new">
               <Button>
                 <Plus className="mr-2 size-4" />
-                New page
+                Create your first page
               </Button>
             </Link>
-          </ZoruCardContent>
-        </Card>
-      ) : (
-        <SabcheckoutPagesListClient
-          items={result.data.items}
-          page={result.data.page}
-          hasMore={result.data.hasMore}
-        />
-      )}
-
-      <div className="flex flex-wrap gap-2 text-xs">
-        <Link href="/dashboard/sabcheckout/plans">
-          <Badge variant="secondary">Plans</Badge>
-        </Link>
-        <Link href="/dashboard/sabcheckout/sessions">
-          <Badge variant="secondary">Sessions</Badge>
-        </Link>
-        <Link href="/dashboard/sabcheckout/customers">
-          <Badge variant="secondary">Customers</Badge>
-        </Link>
-        <Link href="/dashboard/sabcheckout/subscriptions">
-          <Badge variant="secondary">Subscriptions</Badge>
-        </Link>
+          </Card>
+        ) : (
+          <SabcheckoutPagesListClient
+            items={result.data.items}
+            page={result.data.page}
+            hasMore={result.data.hasMore}
+          />
+        )}
       </div>
     </div>
   );

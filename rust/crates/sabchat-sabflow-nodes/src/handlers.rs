@@ -177,7 +177,8 @@ pub async fn action_send_message(
     }
 
     let tenant = tenant_oid(&user)?;
-    let conversation = load_conversation_scoped(&state.mongo, tenant, &body.conversation_id).await?;
+    let conversation =
+        load_conversation_scoped(&state.mongo, tenant, &body.conversation_id).await?;
     let conversation_oid = conversation
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("conversation missing _id")))?;
@@ -503,18 +504,18 @@ pub async fn action_set_assignee(
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("conversation missing _id")))?;
     let prev_assignee: Option<ObjectId> = existing.get_object_id("assigneeId").ok();
 
-    let new_assignee: Option<ObjectId> = match body
-        .assignee_id
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
-        Some(s) => Some(
-            oid_from_str(s)
-                .map_err(|_| ApiError::BadRequest("assigneeId is not a valid ObjectId.".to_owned()))?,
-        ),
-        None => None,
-    };
+    let new_assignee: Option<ObjectId> =
+        match body
+            .assignee_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+        {
+            Some(s) => Some(oid_from_str(s).map_err(|_| {
+                ApiError::BadRequest("assigneeId is not a valid ObjectId.".to_owned())
+            })?),
+            None => None,
+        };
 
     let now_bson = bson::DateTime::from_chrono(Utc::now());
     let new_bson: Bson = new_assignee.map(Bson::ObjectId).unwrap_or(Bson::Null);
@@ -614,13 +615,12 @@ pub async fn action_run_macro(
         .collection::<Document>(MACROS_COLL)
         .find_one(doc! { "_id": macro_oid, "tenantId": tenant })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Macro not found.".to_owned()))?;
 
     // ---- load conversation (tenant-scoped) ------------------------------
-    let conversation = load_conversation_scoped(&state.mongo, tenant, &body.conversation_id).await?;
+    let conversation =
+        load_conversation_scoped(&state.mongo, tenant, &body.conversation_id).await?;
     let conversation_oid = conversation
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("conversation missing _id")))?;
@@ -772,8 +772,7 @@ pub async fn action_run_macro(
                     let msg_oid = ObjectId::new();
                     let inbox_oid = conversation.get_object_id("inboxId").ok();
                     let contact_oid = conversation.get_object_id("contactId").ok();
-                    let actor_bson: Bson =
-                        actor.map(Bson::ObjectId).unwrap_or(Bson::Null);
+                    let actor_bson: Bson = actor.map(Bson::ObjectId).unwrap_or(Bson::Null);
                     let msg_doc = doc! {
                         "_id": msg_oid,
                         "tenantId": tenant,

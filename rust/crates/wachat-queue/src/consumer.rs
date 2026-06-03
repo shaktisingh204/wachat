@@ -496,17 +496,16 @@ async fn run_one_job(
     // the moves on `handler_clone` and `job_clone`.
     let handler_clone = handler.clone();
     let job_clone = job.clone();
-    let outcome = match futures_unwind_safe(async move { handler_clone.process(&job_clone).await })
-        .await
-    {
-        Ok(Ok(o)) => o,
-        Ok(Err(e)) => JobOutcome::Failed {
-            error: format!("{e:#}"),
-        },
-        Err(panic_msg) => JobOutcome::Failed {
-            error: format!("handler panicked: {panic_msg}"),
-        },
-    };
+    let outcome =
+        match futures_unwind_safe(async move { handler_clone.process(&job_clone).await }).await {
+            Ok(Ok(o)) => o,
+            Ok(Err(e)) => JobOutcome::Failed {
+                error: format!("{e:#}"),
+            },
+            Err(panic_msg) => JobOutcome::Failed {
+                error: format!("handler panicked: {panic_msg}"),
+            },
+        };
 
     renew_handle.abort();
     let _ = renew_handle.await;
@@ -654,13 +653,13 @@ pub(crate) fn build_move_to_active_args(
     max_promote: u32,
 ) -> (Vec<String>, Vec<String>) {
     let lua_keys = vec![
-        keys::wait_key(prefix, queue),         // KEYS[1]
-        keys::active_key(prefix, queue),       // KEYS[2]
-        keys::prioritized_key(prefix, queue),  // KEYS[3]
-        keys::delayed_key(prefix, queue),      // KEYS[4]
-        keys::stalled_key(prefix, queue),      // KEYS[5]
-        keys::meta_key(prefix, queue),         // KEYS[6]
-        keys::events_key(prefix, queue),       // KEYS[7]
+        keys::wait_key(prefix, queue),        // KEYS[1]
+        keys::active_key(prefix, queue),      // KEYS[2]
+        keys::prioritized_key(prefix, queue), // KEYS[3]
+        keys::delayed_key(prefix, queue),     // KEYS[4]
+        keys::stalled_key(prefix, queue),     // KEYS[5]
+        keys::meta_key(prefix, queue),        // KEYS[6]
+        keys::events_key(prefix, queue),      // KEYS[7]
     ];
     let lua_args = vec![
         keys::queue_prefix(prefix, queue), // ARGV[1]
@@ -949,7 +948,10 @@ mod tests {
 
     #[test]
     fn retry_delay_terminal_when_attempts_exhausted() {
-        let j = job(json!({ "attempts": 3, "backoff": { "type": "fixed", "delay": 1000 } }), 2);
+        let j = job(
+            json!({ "attempts": 3, "backoff": { "type": "fixed", "delay": 1000 } }),
+            2,
+        );
         assert_eq!(compute_retry_delay(&j, &WorkerOptions::default()), -1);
     }
 
@@ -996,7 +998,8 @@ mod tests {
 
     #[test]
     fn move_to_active_args_have_seven_keys_and_five_args() {
-        let (k, a) = build_move_to_active_args("bull", "broadcast-control", "tok", 30_000, 1234, 16);
+        let (k, a) =
+            build_move_to_active_args("bull", "broadcast-control", "tok", 30_000, 1234, 16);
         assert_eq!(k.len(), 7);
         assert_eq!(a.len(), 5);
         // KEYS[1] must be the wait list — the lua script reads it as such.

@@ -54,7 +54,9 @@ pub async fn list(
     State(state): State<WachatFeaturesState>,
 ) -> Result<Json<NotesResp>> {
     let coll = state.mongo.collection::<Document>(COLL);
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
     let cursor = coll
         .find(doc! { "contactId": &contact_id })
         .with_options(opts)

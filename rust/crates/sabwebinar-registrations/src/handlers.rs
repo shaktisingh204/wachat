@@ -18,9 +18,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateRegistrationInput, CreateRegistrationResponse, ListQuery, ListResponse,
-};
+use crate::dto::{CreateRegistrationInput, CreateRegistrationResponse, ListQuery, ListResponse};
 use crate::types::Registration;
 
 const COLL: &str = "sabwebinar_registrations";
@@ -29,9 +27,7 @@ const WEBINARS_COLL: &str = "sabwebinar_webinars";
 fn gen_join_token() -> String {
     use rand::{Rng, distributions::Alphanumeric, thread_rng};
     let mut rng = thread_rng();
-    (0..32)
-        .map(|_| rng.sample(Alphanumeric) as char)
-        .collect()
+    (0..32).map(|_| rng.sample(Alphanumeric) as char).collect()
 }
 
 #[derive(serde::Deserialize)]

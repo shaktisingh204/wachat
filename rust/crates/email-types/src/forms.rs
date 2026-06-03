@@ -4,7 +4,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum EmailFormKind { Embed, Popup, Landing }
+pub enum EmailFormKind {
+    Embed,
+    Popup,
+    Landing,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -24,7 +28,13 @@ pub struct EmailFormField {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailFormFieldKind {
-    Text, Email, Number, Select, Checkbox, Phone, Date,
+    Text,
+    Email,
+    Number,
+    Select,
+    Checkbox,
+    Phone,
+    Date,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,7 +63,11 @@ pub struct EmailFormDesign {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum EmailFormStatus { Draft, Published, Archived }
+pub enum EmailFormStatus {
+    Draft,
+    Published,
+    Archived,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -107,7 +107,14 @@ fn mask_api_hash(hash: &str) -> String {
     if n <= 4 {
         return "•".repeat(n);
     }
-    let tail: String = hash.chars().rev().take(4).collect::<Vec<_>>().into_iter().rev().collect();
+    let tail: String = hash
+        .chars()
+        .rev()
+        .take(4)
+        .collect::<Vec<_>>()
+        .into_iter()
+        .rev()
+        .collect();
     format!("{}{tail}", "•".repeat(n.saturating_sub(4).min(28)))
 }
 
@@ -179,15 +186,31 @@ pub struct CredentialRow {
     pub status: String,
     #[serde(rename = "sessionState")]
     pub session_state: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastVerifiedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastVerifiedAt"
+    )]
     pub last_verified_at: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastUsedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastUsedAt"
+    )]
     pub last_used_at: Option<DateTime<Utc>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notes: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -198,7 +221,11 @@ fn doc_to_row(d: &Document) -> Option<CredentialRow> {
         _id: d.get_object_id("_id").ok()?.to_hex(),
         project_id: d.get_object_id("projectId").ok()?.to_hex(),
         user_id: d.get_object_id("userId").ok()?.to_hex(),
-        label: d.get_str("label").ok().map(str::to_owned).filter(|s| !s.is_empty()),
+        label: d
+            .get_str("label")
+            .ok()
+            .map(str::to_owned)
+            .filter(|s| !s.is_empty()),
         api_id: d
             .get_i64("apiId")
             .or_else(|_| d.get_i32("apiId").map(i64::from))
@@ -218,7 +245,11 @@ fn doc_to_row(d: &Document) -> Option<CredentialRow> {
             .ok()
             .copied()
             .map(|b| dt(Some(b))),
-        notes: d.get_str("notes").ok().map(str::to_owned).filter(|s| !s.is_empty()),
+        notes: d
+            .get_str("notes")
+            .ok()
+            .map(str::to_owned)
+            .filter(|s| !s.is_empty()),
         created_at: dt(d.get_datetime("createdAt").ok().copied()),
         updated_at: dt(d.get_datetime("updatedAt").ok().copied()),
     })
@@ -465,10 +496,20 @@ pub async fn create(
         "createdAt": now,
         "updatedAt": now,
     };
-    if let Some(label) = body.label.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(label) = body
+        .label
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         doc.insert("label", label);
     }
-    if let Some(notes) = body.notes.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(notes) = body
+        .notes
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         doc.insert("notes", notes);
     }
 
@@ -702,8 +743,7 @@ pub async fn delete_credential(
                     success: true,
                     credential_id: Some(credential_id),
                     message: Some(
-                        "Credential revoked. Pass `confirm=DELETE` to drop the record."
-                            .to_owned(),
+                        "Credential revoked. Pass `confirm=DELETE` to drop the record.".to_owned(),
                     ),
                     ..Default::default()
                 })
@@ -762,12 +802,7 @@ pub async fn verify(
     // Soft check: ping my.telegram.org. We treat any HTTP response (even 4xx)
     // as "reachable" — the only failure mode we care about is a network/DNS
     // error that would mean the deployment can't reach Telegram at all.
-    let reachable = match s
-        .http
-        .head(TG_REACH_URL)
-        .send()
-        .await
-    {
+    let reachable = match s.http.head(TG_REACH_URL).send().await {
         Ok(_) => true,
         Err(e) => {
             tracing::warn!(error = %e, "telegram reachability ping failed");
@@ -1178,11 +1213,22 @@ pub struct LoginSessionRow {
     pub status: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub placeholder: Option<bool>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "startedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "startedAt"
+    )]
     pub started_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "completedAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "completedAt"
+    )]
     pub completed_at: Option<DateTime<Utc>>,
 }
 

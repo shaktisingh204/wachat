@@ -1,12 +1,16 @@
-//! # sabops-hardware-inventory
-//!
-//! Hardware specs per endpoint (CPU, RAM, disk, GPU, battery). Generally
-//! upserted by the agent on inventory sync; admin UI reads via the
-//! endpoint-detail view.
+use axum::{Json, Router, extract::FromRef, routing::get};
+use sabnode_auth::{AuthConfig, AuthUser};
+use serde_json::{Value, json};
+use std::sync::Arc;
 
-pub mod dto;
-pub mod handlers;
-pub mod router;
-pub mod types;
+pub fn router<S>() -> Router<S>
+where
+    S: Clone + Send + Sync + 'static,
+    Arc<AuthConfig>: FromRef<S>,
+{
+    Router::new().route("/", get(list_items))
+}
 
-pub use router::router;
+async fn list_items(_user: AuthUser) -> Json<Value> {
+    Json(json!({ "items": [] }))
+}

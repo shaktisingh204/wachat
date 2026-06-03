@@ -113,7 +113,11 @@ pub struct Deal {
     /* ----- dates ------------------------------------------------- */
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub expected_close: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub actual_close: Option<DateTime<Utc>>,
 
     /* ----- workflow + outcome ------------------------------------ */

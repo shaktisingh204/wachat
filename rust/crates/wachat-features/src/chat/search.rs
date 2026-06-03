@@ -82,7 +82,9 @@ pub async fn timeline(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
 
     let notes_coll = state.mongo.collection::<Document>("wa_contact_notes");
-    let nopts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let nopts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
     let ncursor = notes_coll
         .find(doc! { "contactId": &contact_id, "projectId": &project_id })
         .with_options(nopts)

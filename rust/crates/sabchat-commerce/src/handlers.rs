@@ -273,16 +273,19 @@ async fn load_product(
     };
 
     let crm = mongo.collection::<Document>(CRM_ITEMS_COLL);
-    if let Some(found) = crm.find_one(filter.clone()).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_items.find_one"))
-    })? {
+    if let Some(found) = crm
+        .find_one(filter.clone())
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_items.find_one")))?
+    {
         return Ok(Some(found));
     }
 
     let shop = mongo.collection::<Document>(SHOP_COLL);
-    let found = shop.find_one(filter).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("products.find_one"))
-    })?;
+    let found = shop
+        .find_one(filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("products.find_one")))?;
     Ok(found)
 }
 
@@ -373,16 +376,14 @@ pub async fn send_product(
     Json(body): Json<SendProductBody>,
 ) -> Result<Json<SendProductResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conversation =
-        load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
+    let conversation = load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
 
     let product = load_product(&state.mongo, &body.product_id, tenant)
         .await?
         .ok_or_else(|| ApiError::NotFound("Product not found.".to_owned()))?;
 
     let content = product_to_card(&product);
-    let message_oid =
-        append_bot_message(&state.mongo, tenant, &conversation, &content).await?;
+    let message_oid = append_bot_message(&state.mongo, tenant, &conversation, &content).await?;
 
     Ok(Json(SendProductResponse {
         message_id: message_oid.to_hex(),
@@ -410,8 +411,7 @@ pub async fn send_catalog(
     }
 
     let tenant = tenant_oid(&auth)?;
-    let conversation =
-        load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
+    let conversation = load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
 
     // Resolve in order, drop misses silently.
     let mut cards: Vec<CarouselCard> = Vec::with_capacity(body.product_ids.len());
@@ -429,8 +429,7 @@ pub async fn send_catalog(
 
     let count = cards.len() as u64;
     let content = ContentBlock::Carousel { cards };
-    let message_oid =
-        append_bot_message(&state.mongo, tenant, &conversation, &content).await?;
+    let message_oid = append_bot_message(&state.mongo, tenant, &conversation, &content).await?;
 
     Ok(Json(SendCatalogResponse {
         message_id: message_oid.to_hex(),
@@ -459,11 +458,12 @@ pub async fn payment_link(
         ));
     }
     if body.currency.trim().is_empty() {
-        return Err(ApiError::BadRequest(
-            "currency is required.".to_owned(),
-        ));
+        return Err(ApiError::BadRequest("currency is required.".to_owned()));
     }
-    let provider = body.provider.clone().unwrap_or_else(|| "razorpay".to_owned());
+    let provider = body
+        .provider
+        .clone()
+        .unwrap_or_else(|| "razorpay".to_owned());
     if !ALLOWED_PROVIDERS.contains(&provider.as_str()) {
         return Err(ApiError::BadRequest(format!(
             "Unsupported payment provider: {provider}.",
@@ -471,8 +471,7 @@ pub async fn payment_link(
     }
 
     let tenant = tenant_oid(&auth)?;
-    let conversation =
-        load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
+    let conversation = load_conversation_for_tenant(&state.mongo, &conversation_id, tenant).await?;
     let conversation_oid = conversation
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("conversation missing _id")))?;
@@ -522,9 +521,7 @@ pub async fn payment_link(
 
     let coll = state.mongo.collection::<Document>(PAYMENT_REQUESTS_COLL);
     coll.insert_one(request_doc).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_payment_requests.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_payment_requests.insert_one"))
     })?;
 
     // Append the Payment content block.
@@ -569,15 +566,9 @@ pub async fn list_payment_requests(
     let opts = FindOptions::builder().sort(doc! { "_id": -1 }).build();
 
     let coll = state.mongo.collection::<Document>(PAYMENT_REQUESTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_payment_requests.find"),
-            )
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_payment_requests.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_payment_requests.collect"))
     })?;
@@ -619,9 +610,7 @@ pub async fn payment_callback(
         .find_one(doc! { "_id": request_oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_payment_requests.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_payment_requests.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("Payment request not found.".to_owned()))?;
 
@@ -629,11 +618,9 @@ pub async fn payment_callback(
     let tenant = existing
         .get_object_id("tenantId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("payment request missing tenantId")))?;
-    let conversation_oid = existing
-        .get_object_id("conversationId")
-        .map_err(|_| {
-            ApiError::Internal(anyhow::anyhow!("payment request missing conversationId"))
-        })?;
+    let conversation_oid = existing.get_object_id("conversationId").map_err(|_| {
+        ApiError::Internal(anyhow::anyhow!("payment request missing conversationId"))
+    })?;
     let contact_oid = existing
         .get_object_id("contactId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("payment request missing contactId")))?;
@@ -641,10 +628,7 @@ pub async fn payment_callback(
         .get_object_id("inboxId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("payment request missing inboxId")))?;
     let amount_minor = existing.get_i64("amountMinor").unwrap_or(0);
-    let currency = existing
-        .get_str("currency")
-        .unwrap_or("")
-        .to_owned();
+    let currency = existing.get_str("currency").unwrap_or("").to_owned();
 
     // Flip status (+ external ref + updatedAt).
     let now_bson = bson::DateTime::from_chrono(Utc::now());
@@ -659,16 +643,13 @@ pub async fn payment_callback(
         set_doc.insert("paidAt", now_bson);
     }
 
-    coll.update_one(
-        doc! { "_id": request_oid },
-        doc! { "$set": set_doc },
-    )
-    .await
-    .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_payment_requests.update_one(callback)"),
-        )
-    })?;
+    coll.update_one(doc! { "_id": request_oid }, doc! { "$set": set_doc })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_payment_requests.update_one(callback)"),
+            )
+        })?;
 
     // On `paid`, append a system receipt note to the conversation.
     if body.status == "paid" {
@@ -678,8 +659,7 @@ pub async fn payment_callback(
             .await
             .map_err(|e| {
                 ApiError::Internal(
-                    anyhow::Error::new(e)
-                        .context("sabchat_conversations.find_one(callback)"),
+                    anyhow::Error::new(e).context("sabchat_conversations.find_one(callback)"),
                 )
             })?;
 
@@ -723,7 +703,10 @@ mod tests {
     fn random_hex_token_is_32_lowercase_hex() {
         let t = random_hex_token();
         assert_eq!(t.len(), 32);
-        assert!(t.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()));
+        assert!(
+            t.chars()
+                .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+        );
     }
 
     #[test]

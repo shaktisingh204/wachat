@@ -59,12 +59,14 @@ pub async fn list_velocity(
         .limit(limit)
         .build();
     let coll = mongo.collection::<AgileVelocity>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.find"))
-    })?;
-    let mut rows: Vec<AgileVelocity> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.find"))
+        })?;
+    let mut rows: Vec<AgileVelocity> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.collect")))?;
     // Surface oldest-first for chart rendering.
     rows.reverse();
     Ok(Json(ListResponse { items: rows }))
@@ -101,9 +103,10 @@ pub async fn record_velocity(
         created_at: BsonDateTime::from_chrono(Utc::now()),
     };
     let coll = mongo.collection::<AgileVelocity>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("agile_velocity.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

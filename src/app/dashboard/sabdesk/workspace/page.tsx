@@ -12,12 +12,12 @@
  * has data, then hands off to `<HelpdeskWorkspaceClient>`.
  */
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-import { listTickets } from '@/app/actions/crm/tickets.actions';
-import { getReplyTemplates } from '@/app/actions/crm-reply-templates.actions';
+import { listTickets } from "@/app/actions/crm/tickets.actions";
+import { getReplyTemplates } from "@/app/actions/crm-reply-templates.actions";
 
-import { HelpdeskWorkspaceClient } from './_components/helpdesk-workspace-client';
+import { HelpdeskWorkspaceClient } from "./_components/helpdesk-workspace-client";
 
 export default async function HelpdeskWorkspacePage({
   searchParams,
@@ -34,7 +34,7 @@ export default async function HelpdeskWorkspacePage({
         initialTickets={tickets}
         initialError={error}
         initialSelectedId={sp.ticketId ?? null}
-        initialStatus={sp.status ?? 'all'}
+        initialStatus={sp.status ?? "all"}
         templates={templates}
       />
     </div>

@@ -14,8 +14,5 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route(
-        "/",
-        get(handlers::list_chat).post(handlers::send_chat),
-    )
+    Router::new().route("/", get(handlers::list_chat).post(handlers::send_chat))
 }

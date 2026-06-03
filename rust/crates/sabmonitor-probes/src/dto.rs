@@ -42,7 +42,9 @@ pub struct CreateProbeResponse {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteProbeResponse { pub deleted: bool }
+pub struct DeleteProbeResponse {
+    pub deleted: bool,
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

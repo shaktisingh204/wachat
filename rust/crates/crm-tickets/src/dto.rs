@@ -281,13 +281,7 @@ mod tests {
         .unwrap();
         assert_eq!(q.status.as_deref(), Some("open"));
         assert_eq!(q.severity.as_deref(), Some("sev1"));
-        assert_eq!(
-            q.assignee_id.as_deref(),
-            Some("507f1f77bcf86cd799439011")
-        );
-        assert_eq!(
-            q.requester_id.as_deref(),
-            Some("507f1f77bcf86cd799439012")
-        );
+        assert_eq!(q.assignee_id.as_deref(), Some("507f1f77bcf86cd799439011"));
+        assert_eq!(q.requester_id.as_deref(), Some("507f1f77bcf86cd799439012"));
     }
 }

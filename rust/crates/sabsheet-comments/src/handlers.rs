@@ -36,7 +36,9 @@ fn from_create(input: CreateCommentInput, user_id: ObjectId) -> Result<SabsheetC
         author_user_id: user_id,
         body: body.to_owned(),
         resolved: false,
-        parent_comment_id: input.parent_comment_id.and_then(|s| ObjectId::parse_str(&s).ok()),
+        parent_comment_id: input
+            .parent_comment_id
+            .and_then(|s| ObjectId::parse_str(&s).ok()),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
     })
@@ -44,7 +46,11 @@ fn from_create(input: CreateCommentInput, user_id: ObjectId) -> Result<SabsheetC
 
 fn build_update(patch: UpdateCommentInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.body.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .body
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("body", v);
     }
     if let Some(v) = patch.resolved {
@@ -86,16 +92,18 @@ pub async fn create_comment(
     let user_id = user_oid(&user)?;
     let mut entity = from_create(input, user_id)?;
     let coll = mongo.collection::<SabsheetComment>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.insert"))
+    })?;
     let id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id not ObjectId")))?;
     entity.id = Some(id);
-    Ok(Json(CreateCommentResponse { id: id.to_hex(), entity }))
+    Ok(Json(CreateCommentResponse {
+        id: id.to_hex(),
+        entity,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
@@ -111,11 +119,15 @@ pub async fn update_comment(
     let filter = doc! { "_id": oid, "ownerUserId": user_id };
     coll.update_one(filter.clone(), build_update(patch))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.update"))
+        })?;
     let after = coll
         .find_one(filter)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("comment".to_owned()))?;
     Ok(Json(after))
 }
@@ -132,7 +144,9 @@ pub async fn delete_comment(
     let r = coll
         .delete_one(doc! { "_id": oid, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_comments.delete"))
+        })?;
     if r.deleted_count == 0 {
         return Err(ApiError::NotFound("comment".to_owned()));
     }

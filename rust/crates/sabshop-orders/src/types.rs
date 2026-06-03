@@ -19,24 +19,36 @@ pub struct OrderLineItem {
 #[serde(rename_all = "camelCase")]
 pub struct OrderTotals {
     pub subtotal: f64,
-    #[serde(default)] pub tax: f64,
-    #[serde(default)] pub shipping: f64,
-    #[serde(default)] pub discount: f64,
+    #[serde(default)]
+    pub tax: f64,
+    #[serde(default)]
+    pub shipping: f64,
+    #[serde(default)]
+    pub discount: f64,
     pub total: f64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct OrderAddress {
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub name: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub email: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub phone: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub line1: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub line2: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub city: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub state: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub postal_code: Option<String>,
-    #[serde(default, skip_serializing_if = "Option::is_none")] pub country: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub email: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub phone: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub line1: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub line2: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub city: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub postal_code: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,5 +88,9 @@ pub struct SabshopOrder {
     pub updated_at: Option<BsonDateTime>,
 }
 
-fn default_payment() -> String { "unpaid".into() }
-fn default_fulfill() -> String { "unfulfilled".into() }
+fn default_payment() -> String {
+    "unpaid".into()
+}
+fn default_fulfill() -> String {
+    "unfulfilled".into()
+}

@@ -100,17 +100,11 @@ impl CancelRegistry {
         match guard.get(execution_id) {
             Some(token) => {
                 token.cancel();
-                tracing::info!(
-                    execution_id,
-                    "sabflow.executor.cancel.signaled",
-                );
+                tracing::info!(execution_id, "sabflow.executor.cancel.signaled",);
                 true
             }
             None => {
-                tracing::debug!(
-                    execution_id,
-                    "sabflow.executor.cancel.unknown_execution",
-                );
+                tracing::debug!(execution_id, "sabflow.executor.cancel.unknown_execution",);
                 false
             }
         }
@@ -146,10 +140,7 @@ impl CancelRegistry {
 /// non-pubsub commands on a connection once it has been subscribed).
 /// Sibling #1 owns the dispatcher and calls this once at startup with
 /// a dedicated client.
-pub fn spawn_pubsub_listener(
-    client: Client,
-    registry: Arc<CancelRegistry>,
-) -> CancellationToken {
+pub fn spawn_pubsub_listener(client: Client, registry: Arc<CancelRegistry>) -> CancellationToken {
     let shutdown = CancellationToken::new();
     let shutdown_listener = shutdown.clone();
 
@@ -207,10 +198,7 @@ async fn handle_pubsub_message(msg: &Message, registry: &CancelRegistry) {
     // for `strip_prefix`.
     let channel: &str = &msg.channel;
     let Some(execution_id) = channel.strip_prefix(SABFLOW_CANCEL_CHANNEL_PREFIX) else {
-        tracing::debug!(
-            channel,
-            "sabflow.executor.cancel.unexpected_channel",
-        );
+        tracing::debug!(channel, "sabflow.executor.cancel.unexpected_channel",);
         return;
     };
 
@@ -251,9 +239,7 @@ pub async fn check_between_nodes(
         );
     }
 
-    if let Err(err) =
-        state::transition(execution_id, None, ExecutionStatus::Canceled).await
-    {
+    if let Err(err) = state::transition(execution_id, None, ExecutionStatus::Canceled).await {
         tracing::warn!(
             execution_id,
             error = %err,

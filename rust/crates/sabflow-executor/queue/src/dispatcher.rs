@@ -567,9 +567,7 @@ async fn brpoplpush(
         .await?;
     match res {
         redis::Value::Nil => Ok(None),
-        redis::Value::BulkString(bytes) => {
-            Ok(Some(String::from_utf8_lossy(&bytes).into_owned()))
-        }
+        redis::Value::BulkString(bytes) => Ok(Some(String::from_utf8_lossy(&bytes).into_owned())),
         // Older redis-rs versions name it `Data`.
         other => {
             // Try to coerce via FromRedisValue as a fallback.

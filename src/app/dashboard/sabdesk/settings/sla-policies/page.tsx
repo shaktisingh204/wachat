@@ -11,9 +11,9 @@
  * points at going forward.
  */
 
-import SlaPoliciesPage from '../../sla/page';
+import SlaPoliciesPage from "../../sla/page";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default function HelpdeskSettingsSlaPoliciesPage() {
   return <SlaPoliciesPage />;

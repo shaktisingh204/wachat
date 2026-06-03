@@ -93,9 +93,17 @@ pub struct ProformaInvoice {
     pub advance_pct: Option<f32>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub advance_amount: Option<f64>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expected_delivery: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub payment_due_date: Option<DateTime<Utc>>,
 
     /* ----- doc body ---------------------------------------------- */

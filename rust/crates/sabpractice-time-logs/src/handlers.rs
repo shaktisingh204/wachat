@@ -147,15 +147,12 @@ pub async fn list_time_logs(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeTimeLog>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.find")))?;
-    let mut rows: Vec<SabPracticeTimeLog> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.find"))
+    })?;
+    let mut rows: Vec<SabPracticeTimeLog> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -184,7 +181,9 @@ pub async fn get_time_log(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     Ok(Json(row))
 }
@@ -198,10 +197,9 @@ pub async fn create_time_log(
     let user_id = user_oid(&user)?;
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabPracticeTimeLog>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -227,14 +225,18 @@ pub async fn update_time_log(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("time_log".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("time_log".to_owned()))?;
     Ok(Json(after))
 }
@@ -251,7 +253,9 @@ pub async fn delete_time_log(
     let result = coll
         .delete_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_time_logs.delete"))
+        })?;
     Ok(Json(DeleteTimeLogResponse {
         deleted: result.deleted_count > 0,
     }))

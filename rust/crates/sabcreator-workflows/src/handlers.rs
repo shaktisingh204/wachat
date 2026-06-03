@@ -86,7 +86,12 @@ pub async fn list_workflows(
         Some(s) => Some(oid_from_str(s)?),
         None => None,
     };
-    let mut filter = list_filter(user_id, app_oid, q.trigger_kind.as_deref(), q.status.as_deref());
+    let mut filter = list_filter(
+        user_id,
+        app_oid,
+        q.trigger_kind.as_deref(),
+        q.status.as_deref(),
+    );
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(needle, &["name", "description"]);
         if let Ok(arr) = or.get_array("$or") {
@@ -101,13 +106,9 @@ pub async fn list_workflows(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorWorkflow>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_workflows.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcreator_workflows.find"))
+    })?;
     let mut rows: Vec<SabcreatorWorkflow> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcreator_workflows.collect"))
     })?;
@@ -208,9 +209,8 @@ pub async fn update_workflow(
         set.insert("description", v);
     }
     if let Some(v) = patch.trigger {
-        let b = to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("trigger serialize"))
-        })?;
+        let b = to_bson(&v)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("trigger serialize")))?;
         set.insert("trigger", b);
     }
     if let Some(v) = patch.sabflow_ref_id.filter(|s| !s.is_empty()) {

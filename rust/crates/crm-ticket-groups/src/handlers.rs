@@ -80,10 +80,7 @@ fn parse_optional_oid(value: Option<&str>, field: &str) -> Result<Option<ObjectI
     }
 }
 
-fn group_from_create(
-    input: CreateTicketGroupInput,
-    user_id: ObjectId,
-) -> Result<CrmTicketGroup> {
+fn group_from_create(input: CreateTicketGroupInput, user_id: ObjectId) -> Result<CrmTicketGroup> {
     let name = input.name.trim();
     if name.is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
@@ -135,10 +132,7 @@ fn build_update_doc(patch: UpdateTicketGroupInput) -> Result<Document> {
         set.insert("parentGroupId", oid_or_unset(&v, "parentGroupId")?);
     }
     if let Some(v) = patch.default_assignee_id {
-        set.insert(
-            "defaultAssigneeId",
-            oid_or_unset(&v, "defaultAssigneeId")?,
-        );
+        set.insert("defaultAssigneeId", oid_or_unset(&v, "defaultAssigneeId")?);
     }
     if let Some(v) = patch.default_sla_id {
         set.insert("defaultSlaId", oid_or_unset(&v, "defaultSlaId")?);
@@ -197,11 +191,8 @@ pub async fn list_ticket_groups(
         .build();
 
     let coll = mongo.collection::<CrmTicketGroup>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_groups.find"))
         })?;
     let mut rows: Vec<CrmTicketGroup> = cursor.try_collect().await.map_err(|e| {
@@ -274,8 +265,7 @@ pub async fn create_ticket_group(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -315,9 +305,7 @@ pub async fn update_ticket_group(
                 .find_one(duplicate_name_filter(user_id, new_name, Some(oid)))
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("crm_ticket_groups.dup_check"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("crm_ticket_groups.dup_check"))
                 })?;
             if dup.is_some() {
                 return Err(ApiError::Validation(format!(

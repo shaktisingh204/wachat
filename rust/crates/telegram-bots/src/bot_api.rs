@@ -250,14 +250,7 @@ impl BotApiClient {
     ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/deleteMessage");
         let body = serde_json::json!({ "chat_id": chat_id, "message_id": message_id });
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -303,14 +296,7 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -328,21 +314,11 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
-    pub async fn get_my_commands(
-        &self,
-        token: &str,
-    ) -> Result<Vec<BotCommand>, BotApiError> {
+    pub async fn get_my_commands(&self, token: &str) -> Result<Vec<BotCommand>, BotApiError> {
         self.get_my_commands_full(token, None, None).await
     }
 
@@ -360,14 +336,8 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<Vec<BotCommand>> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<Vec<BotCommand>> =
+            self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -391,14 +361,7 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -408,20 +371,15 @@ impl BotApiClient {
         language_code: Option<&str>,
     ) -> Result<String, BotApiError> {
         #[derive(Deserialize)]
-        struct NameResp { name: String }
+        struct NameResp {
+            name: String,
+        }
         let url = format!("{BASE_URL}/bot{token}/getMyName");
         let mut body = serde_json::json!({});
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<NameResp> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<NameResp> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env).map(|r| r.name)
     }
 
@@ -430,7 +388,8 @@ impl BotApiClient {
         token: &str,
         description: &str,
     ) -> Result<bool, BotApiError> {
-        self.set_my_description_full(token, Some(description), None).await
+        self.set_my_description_full(token, Some(description), None)
+            .await
     }
 
     pub async fn set_my_description_full(
@@ -447,14 +406,7 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -464,20 +416,15 @@ impl BotApiClient {
         language_code: Option<&str>,
     ) -> Result<String, BotApiError> {
         #[derive(Deserialize)]
-        struct Resp { description: String }
+        struct Resp {
+            description: String,
+        }
         let url = format!("{BASE_URL}/bot{token}/getMyDescription");
         let mut body = serde_json::json!({});
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<Resp> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<Resp> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env).map(|r| r.description)
     }
 
@@ -504,14 +451,7 @@ impl BotApiClient {
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -521,20 +461,15 @@ impl BotApiClient {
         language_code: Option<&str>,
     ) -> Result<String, BotApiError> {
         #[derive(Deserialize)]
-        struct Resp { short_description: String }
+        struct Resp {
+            short_description: String,
+        }
         let url = format!("{BASE_URL}/bot{token}/getMyShortDescription");
         let mut body = serde_json::json!({});
         if let Some(lc) = language_code {
             body["language_code"] = serde_json::Value::String(lc.to_owned());
         }
-        let env: Envelope<Resp> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<Resp> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env).map(|r| r.short_description)
     }
 
@@ -547,14 +482,7 @@ impl BotApiClient {
     ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/setChatMenuButton");
         let body = serde_json::json!({ "menu_button": menu_button });
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -583,14 +511,8 @@ impl BotApiClient {
     ) -> Result<ChatAdministratorRights, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/getMyDefaultAdministratorRights");
         let body = serde_json::json!({ "for_channels": for_channels });
-        let env: Envelope<ChatAdministratorRights> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<ChatAdministratorRights> =
+            self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -605,14 +527,7 @@ impl BotApiClient {
         if let Some(r) = rights {
             body["rights"] = serde_json::to_value(r).unwrap_or(serde_json::Value::Null);
         }
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 }
@@ -635,7 +550,8 @@ fn unwrap_envelope<T>(env: Envelope<T>) -> Result<T, BotApiError> {
             .ok_or_else(|| BotApiError::Api("missing result".to_owned()))
     } else {
         Err(BotApiError::Api(
-            env.description.unwrap_or_else(|| "unknown error".to_owned()),
+            env.description
+                .unwrap_or_else(|| "unknown error".to_owned()),
         ))
     }
 }

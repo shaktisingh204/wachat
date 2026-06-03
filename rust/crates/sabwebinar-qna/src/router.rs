@@ -23,10 +23,7 @@ where
 {
     Router::new()
         .route("/", get(handlers::list_qna))
-        .route(
-            "/{qnaId}/answer",
-            post(handlers::answer_question),
-        )
+        .route("/{qnaId}/answer", post(handlers::answer_question))
         .route("/public/ask", post(handlers::ask_question_public))
         .route(
             "/public/{qnaId}/upvote",

@@ -5,21 +5,27 @@ use utoipa::ToSchema;
 use crate::types::ApiKeyScope;
 
 pub const MAX_LIMIT: i64 = 100;
-fn default_limit() -> i64 { 25 }
+fn default_limit() -> i64 {
+    25
+}
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ListKeysQuery {
     pub project_id: String,
-    #[serde(default = "default_limit")] pub limit: i64,
-    #[serde(default)] pub cursor: Option<String>,
+    #[serde(default = "default_limit")]
+    pub limit: i64,
+    #[serde(default)]
+    pub cursor: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ListKeysResponse {
-    #[schema(value_type = Vec<Object>)] pub items: Vec<Value>,
-    #[serde(skip_serializing_if = "Option::is_none")] pub next_cursor: Option<String>,
+    #[schema(value_type = Vec<Object>)]
+    pub items: Vec<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]
@@ -31,8 +37,10 @@ pub struct CreateKeyBody {
     /// the plaintext only ever lives in the response of the calling
     /// server action, never on the wire to Rust.
     pub key_hash: String,
-    #[serde(default)] pub scope: Option<ApiKeyScope>,
-    #[serde(default)] pub expires_at: Option<chrono::DateTime<chrono::Utc>>,
+    #[serde(default)]
+    pub scope: Option<ApiKeyScope>,
+    #[serde(default)]
+    pub expires_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]

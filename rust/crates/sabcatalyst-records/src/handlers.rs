@@ -1,4 +1,8 @@
-use axum::{Json, extract::{Path, Query, State}, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+    http::StatusCode,
+};
 use bson::{Document, doc, oid::ObjectId, to_bson};
 use chrono::Utc;
 use futures::TryStreamExt;
@@ -10,7 +14,9 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::RECORDS_COLL;
-use crate::dto::{CreateRecordBody, ListRecordsQuery, ListRecordsResponse, MAX_LIMIT, UpdateRecordBody};
+use crate::dto::{
+    CreateRecordBody, ListRecordsQuery, ListRecordsResponse, MAX_LIMIT, UpdateRecordBody,
+};
 use crate::state::SabcatalystRecordsState;
 
 fn owner_oid(user: &AuthUser) -> Result<ObjectId> {
@@ -20,7 +26,9 @@ fn owner_oid(user: &AuthUser) -> Result<ObjectId> {
 
 #[instrument(skip_all)]
 pub async fn list_records(
-    user: AuthUser, State(state): State<SabcatalystRecordsState>, Query(q): Query<ListRecordsQuery>,
+    user: AuthUser,
+    State(state): State<SabcatalystRecordsState>,
+    Query(q): Query<ListRecordsQuery>,
 ) -> Result<Json<ListRecordsResponse>> {
     let owner = owner_oid(&user)?;
     let table = oid_from_str(&q.table_id)?;
@@ -29,13 +37,27 @@ pub async fn list_records(
         filter.insert("_id", doc! { "$lt": oid_from_str(c)? });
     }
     let limit = q.limit.clamp(1, MAX_LIMIT);
-    let opts = FindOptions::builder().sort(doc! { "_id": -1 }).limit(limit).build();
-    let cur = state.mongo.collection::<Document>(RECORDS_COLL).find(filter).with_options(opts).await
+    let opts = FindOptions::builder()
+        .sort(doc! { "_id": -1 })
+        .limit(limit)
+        .build();
+    let cur = state
+        .mongo
+        .collection::<Document>(RECORDS_COLL)
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("records.find")))?;
-    let docs: Vec<Document> = cur.try_collect().await
+    let docs: Vec<Document> = cur
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("records.collect")))?;
-    let next_cursor = if (docs.len() as i64) < limit { None } else {
-        docs.last().and_then(|d| d.get_object_id("_id").ok()).map(|o| o.to_hex())
+    let next_cursor = if (docs.len() as i64) < limit {
+        None
+    } else {
+        docs.last()
+            .and_then(|d| d.get_object_id("_id").ok())
+            .map(|o| o.to_hex())
     };
     Ok(Json(ListRecordsResponse {
         items: docs.into_iter().map(document_to_clean_json).collect(),
@@ -45,12 +67,17 @@ pub async fn list_records(
 
 #[instrument(skip_all)]
 pub async fn get_record(
-    user: AuthUser, State(state): State<SabcatalystRecordsState>, Path(id): Path<String>,
+    user: AuthUser,
+    State(state): State<SabcatalystRecordsState>,
+    Path(id): Path<String>,
 ) -> Result<Json<Value>> {
     let owner = owner_oid(&user)?;
     let oid = oid_from_str(&id)?;
-    let d = state.mongo.collection::<Document>(RECORDS_COLL)
-        .find_one(doc! { "_id": oid, "userId": owner }).await
+    let d = state
+        .mongo
+        .collection::<Document>(RECORDS_COLL)
+        .find_one(doc! { "_id": oid, "userId": owner })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("records.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Record not found.".into()))?;
     Ok(Json(document_to_clean_json(d)))
@@ -58,7 +85,9 @@ pub async fn get_record(
 
 #[instrument(skip_all)]
 pub async fn create_record(
-    user: AuthUser, State(state): State<SabcatalystRecordsState>, Json(body): Json<CreateRecordBody>,
+    user: AuthUser,
+    State(state): State<SabcatalystRecordsState>,
+    Json(body): Json<CreateRecordBody>,
 ) -> Result<(StatusCode, Json<Value>)> {
     let owner = owner_oid(&user)?;
     let table = oid_from_str(&body.table_id)?;
@@ -73,14 +102,20 @@ pub async fn create_record(
         "createdAt": bson::DateTime::from_chrono(now),
         "updatedAt": bson::DateTime::from_chrono(now),
     };
-    state.mongo.collection::<Document>(RECORDS_COLL).insert_one(&d).await
+    state
+        .mongo
+        .collection::<Document>(RECORDS_COLL)
+        .insert_one(&d)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("records.insert")))?;
     Ok((StatusCode::CREATED, Json(document_to_clean_json(d))))
 }
 
 #[instrument(skip_all)]
 pub async fn update_record(
-    user: AuthUser, State(state): State<SabcatalystRecordsState>, Path(id): Path<String>,
+    user: AuthUser,
+    State(state): State<SabcatalystRecordsState>,
+    Path(id): Path<String>,
     Json(body): Json<UpdateRecordBody>,
 ) -> Result<Json<Value>> {
     let owner = owner_oid(&user)?;
@@ -99,13 +134,20 @@ pub async fn update_record(
 
 #[instrument(skip_all)]
 pub async fn delete_record(
-    user: AuthUser, State(state): State<SabcatalystRecordsState>, Path(id): Path<String>,
+    user: AuthUser,
+    State(state): State<SabcatalystRecordsState>,
+    Path(id): Path<String>,
 ) -> Result<StatusCode> {
     let owner = owner_oid(&user)?;
     let oid = oid_from_str(&id)?;
-    let r = state.mongo.collection::<Document>(RECORDS_COLL)
-        .delete_one(doc! { "_id": oid, "userId": owner }).await
+    let r = state
+        .mongo
+        .collection::<Document>(RECORDS_COLL)
+        .delete_one(doc! { "_id": oid, "userId": owner })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("records.delete")))?;
-    if r.deleted_count == 0 { return Err(ApiError::NotFound("Record not found.".into())); }
+    if r.deleted_count == 0 {
+        return Err(ApiError::NotFound("Record not found.".into()));
+    }
     Ok(StatusCode::NO_CONTENT)
 }

@@ -140,9 +140,7 @@ pub async fn create_plan(
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("plans.insert_one")))?;
 
-    Ok(Json(CreatePlanResponse {
-        id: oid.to_hex(),
-    }))
+    Ok(Json(CreatePlanResponse { id: oid.to_hex() }))
 }
 
 /// `PUT /v1/admin/plans/:id` — update an existing plan. Replaces every field

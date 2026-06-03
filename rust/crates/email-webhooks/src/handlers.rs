@@ -62,8 +62,14 @@ fn doc_to_config(d: &Document) -> WebhookConfig {
         events,
         active: d.get_bool("active").unwrap_or(true),
         failure_count: d.get_i64("failureCount").ok().map(|v| v.max(0) as u64),
-        last_delivered_at: d.get_datetime("lastDeliveredAt").ok().map(|dt| dt_to_rfc3339(*dt)),
-        last_failed_at: d.get_datetime("lastFailedAt").ok().map(|dt| dt_to_rfc3339(*dt)),
+        last_delivered_at: d
+            .get_datetime("lastDeliveredAt")
+            .ok()
+            .map(|dt| dt_to_rfc3339(*dt)),
+        last_failed_at: d
+            .get_datetime("lastFailedAt")
+            .ok()
+            .map(|dt| dt_to_rfc3339(*dt)),
         created_at: d
             .get_datetime("createdAt")
             .ok()

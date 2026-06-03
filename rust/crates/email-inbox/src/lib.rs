@@ -103,10 +103,7 @@ where
             "/threads/{thread_id}/assignments",
             get(handlers::list_assignments),
         )
-        .route(
-            "/threads/{thread_id}/assign",
-            post(handlers::assign_thread),
-        )
+        .route("/threads/{thread_id}/assign", post(handlers::assign_thread))
         .route(
             "/threads/{thread_id}/assignments/{assignment_id}",
             delete(handlers::release_assignment),

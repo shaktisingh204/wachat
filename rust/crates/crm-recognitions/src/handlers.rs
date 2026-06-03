@@ -55,10 +55,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(
-    input: CreateRecognitionInput,
-    user_id: ObjectId,
-) -> Result<CrmRecognition> {
+fn entity_from_create(input: CreateRecognitionInput, user_id: ObjectId) -> Result<CrmRecognition> {
     if input.to_employee_name.trim().is_empty() {
         return Err(ApiError::Validation(
             "toEmployeeName is required".to_owned(),
@@ -145,7 +142,12 @@ pub async fn list_recognitions(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, q.status.as_deref());
-    if let Some(cat) = q.category.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(cat) = q
+        .category
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("category", cat);
     }
     if let Some(is_public) = q.is_public {
@@ -168,11 +170,10 @@ pub async fn list_recognitions(
         .build();
 
     let coll = mongo.collection::<CrmRecognition>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.find"))
+        })?;
     let mut rows: Vec<CrmRecognition> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.collect"))
     })?;
@@ -217,18 +218,16 @@ pub async fn create_recognition(
     let user_id = user_oid(&user)?;
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmRecognition>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -272,9 +271,7 @@ pub async fn update_recognition(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_recognitions.refetch")))?
         .ok_or_else(|| ApiError::NotFound("recognition".to_owned()))?;
 
     if let Some(event) = audit_for_update(

@@ -288,10 +288,7 @@ pub async fn list(
         // Case-insensitive prefix-ish contains match. We escape Mongo
         // regex meta-chars defensively.
         let escaped = regex_escape(search);
-        filter.insert(
-            "name",
-            doc! { "$regex": escaped, "$options": "i" },
-        );
+        filter.insert("name", doc! { "$regex": escaped, "$options": "i" });
     }
     if let Some(cursor) = q.cursor.as_deref().and_then(parse_oid) {
         filter.insert("_id", doc! { "$lt": cursor });
@@ -573,7 +570,12 @@ pub async fn update(
     };
 
     let mut set = doc! { "updatedAt": bson::DateTime::now() };
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", name);
     }
     if let Some(bot_id) = body.bot_id.as_deref() {
@@ -838,13 +840,8 @@ pub async fn send_now(
     let token = match bot.get_str("token") {
         Ok(t) => t.to_owned(),
         Err(_) => {
-            return finalise_failed(
-                &coll,
-                bid,
-                project_oid,
-                "Bot is missing its access token.",
-            )
-            .await;
+            return finalise_failed(&coll, bid, project_oid, "Bot is missing its access token.")
+                .await;
         }
     };
 
@@ -1007,17 +1004,11 @@ async fn resolve_audience(
             // require the filter to be embedded in the broadcast and
             // delegate to the `filter` kind below — the front-end is
             // expected to materialise segments before send.
-            let inner = audience
-                .get_document("filter")
-                .cloned()
-                .unwrap_or_default();
+            let inner = audience.get_document("filter").cloned().unwrap_or_default();
             collect_chats(mongo, bot_oid, &inner).await
         }
         "filter" => {
-            let inner = audience
-                .get_document("filter")
-                .cloned()
-                .unwrap_or_default();
+            let inner = audience.get_document("filter").cloned().unwrap_or_default();
             collect_chats(mongo, bot_oid, &inner).await
         }
         "tag" => {
@@ -1186,11 +1177,11 @@ pub async fn test_send(
     Path(broadcast_id): Path<String>,
     Json(body): Json<TestSendBody>,
 ) -> Json<AckResult> {
-    let (_, bdoc) =
-        match require_broadcast(&user, &s.mongo, &body.project_id, &broadcast_id).await {
-            Ok(v) => v,
-            Err(e) => return err(e),
-        };
+    let (_, bdoc) = match require_broadcast(&user, &s.mongo, &body.project_id, &broadcast_id).await
+    {
+        Ok(v) => v,
+        Err(e) => return err(e),
+    };
     let bot_oid = match bdoc.get_object_id("botId") {
         Ok(o) => o,
         Err(_) => return err("Broadcast is malformed."),
@@ -1261,17 +1252,17 @@ pub async fn deliveries(
             });
         }
     };
-    let (project_oid, _) =
-        match require_broadcast(&user, &s.mongo, project_id, &broadcast_id).await {
-            Ok(v) => v,
-            Err(e) => {
-                return Json(DeliveriesResp {
-                    deliveries: vec![],
-                    next_cursor: None,
-                    error: Some(e),
-                });
-            }
-        };
+    let (project_oid, _) = match require_broadcast(&user, &s.mongo, project_id, &broadcast_id).await
+    {
+        Ok(v) => v,
+        Err(e) => {
+            return Json(DeliveriesResp {
+                deliveries: vec![],
+                next_cursor: None,
+                error: Some(e),
+            });
+        }
+    };
     let bid = match parse_oid(&broadcast_id) {
         Some(o) => o,
         None => {
@@ -1346,11 +1337,11 @@ pub async fn deliveries_csv(
         Some(p) if !p.is_empty() => p,
         _ => return text_err(StatusCode::BAD_REQUEST, "projectId is required"),
     };
-    let (project_oid, _) =
-        match require_broadcast(&user, &s.mongo, project_id, &broadcast_id).await {
-            Ok(v) => v,
-            Err(e) => return text_err(StatusCode::NOT_FOUND, &e),
-        };
+    let (project_oid, _) = match require_broadcast(&user, &s.mongo, project_id, &broadcast_id).await
+    {
+        Ok(v) => v,
+        Err(e) => return text_err(StatusCode::NOT_FOUND, &e),
+    };
     let bid = match parse_oid(&broadcast_id) {
         Some(o) => o,
         None => return text_err(StatusCode::BAD_REQUEST, "Invalid broadcast id."),
@@ -1377,9 +1368,7 @@ pub async fn deliveries_csv(
             "{},{},{},{},{}\n",
             csv_cell(&d.chat_id),
             csv_cell(&d.status),
-            d.error_code
-                .map(|n| n.to_string())
-                .unwrap_or_default(),
+            d.error_code.map(|n| n.to_string()).unwrap_or_default(),
             csv_cell(d.error_message.as_deref().unwrap_or("")),
             d.sent_at.map(|t| t.to_rfc3339()).unwrap_or_default(),
         );
@@ -1440,7 +1429,9 @@ pub async fn analytics(
             });
         }
     };
-    let from = q.from.unwrap_or_else(|| Utc::now() - chrono::Duration::days(30));
+    let from = q
+        .from
+        .unwrap_or_else(|| Utc::now() - chrono::Duration::days(30));
     let to = q.to.unwrap_or_else(Utc::now);
 
     let filter = doc! {

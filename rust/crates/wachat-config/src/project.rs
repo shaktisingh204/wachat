@@ -70,7 +70,10 @@ pub struct ManualSetupBody {
     pub include_catalog: Option<bool>,
 }
 
-pub async fn get_public(mongo: &MongoHandle, project_id: &ObjectId) -> Result<Option<PublicProject>> {
+pub async fn get_public(
+    mongo: &MongoHandle,
+    project_id: &ObjectId,
+) -> Result<Option<PublicProject>> {
     let coll = mongo.collection::<Project>(PROJECTS_COLL);
     let p = coll
         .find_one(doc! { "_id": project_id })

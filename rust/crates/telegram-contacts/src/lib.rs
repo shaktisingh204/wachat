@@ -62,6 +62,8 @@ where
         // path matcher prefers literal routes above.
         .route(
             "/{contact_id}",
-            get(handlers::detail).put(handlers::update).delete(handlers::delete_contact),
+            get(handlers::detail)
+                .put(handlers::update)
+                .delete(handlers::delete_contact),
         )
 }

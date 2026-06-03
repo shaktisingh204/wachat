@@ -2,7 +2,7 @@
 name = "sabops-hardware-inventory"
 version = "0.1.0"
 edition = "2024"
-description = "SabOps hardware specs per endpoint."
+description = "SabOps \u2014 Hardware inventory."
 license = "UNLICENSED"
 publish = false
 
@@ -22,10 +22,10 @@ axum = { version = "0.8", default-features = false, features = ["json", "http1",
 tracing = "0.1"
 anyhow = "1.0"
 
-crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
+crm-common = { path = "../crm-common" }
 
 [lints]
 workspace = true

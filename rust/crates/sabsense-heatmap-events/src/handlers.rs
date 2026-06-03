@@ -56,10 +56,9 @@ pub async fn ingest_batch(
         .events
         .into_iter()
         .map(|e| {
-            let ts = e
-                .ts
-                .and_then(|ms| Utc.timestamp_millis_opt(ms).single())
-                .unwrap_or(now);
+            let ts =
+                e.ts.and_then(|ms| Utc.timestamp_millis_opt(ms).single())
+                    .unwrap_or(now);
             HeatmapEvent {
                 id: None,
                 user_id,
@@ -118,7 +117,10 @@ pub async fn list_events(
     }
     if q.from_ms.is_some() || q.to_ms.is_some() {
         let mut ts_clause = Document::new();
-        if let Some(from) = q.from_ms.and_then(|ms| Utc.timestamp_millis_opt(ms).single()) {
+        if let Some(from) = q
+            .from_ms
+            .and_then(|ms| Utc.timestamp_millis_opt(ms).single())
+        {
             ts_clause.insert("$gte", BsonDateTime::from_chrono(from));
         }
         if let Some(to) = q.to_ms.and_then(|ms| Utc.timestamp_millis_opt(ms).single()) {
@@ -134,13 +136,9 @@ pub async fn list_events(
         .build();
 
     let coll = mongo.collection::<HeatmapEvent>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmap_events.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmap_events.find"))
+    })?;
     let rows: Vec<HeatmapEvent> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("pagesense_heatmap_events.collect"))
     })?;
@@ -153,10 +151,7 @@ mod tests {
 
     #[test]
     fn parses_event_type_lowercase() {
-        assert_eq!(
-            event_type_from_str("click"),
-            Some(HeatmapEventType::Click)
-        );
+        assert_eq!(event_type_from_str("click"), Some(HeatmapEventType::Click));
         assert_eq!(event_type_from_str("MOVE"), Some(HeatmapEventType::Move));
         assert_eq!(event_type_from_str("nope"), None);
     }

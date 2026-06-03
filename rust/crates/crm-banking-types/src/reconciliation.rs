@@ -103,7 +103,11 @@ pub struct Reconciliation {
     /* ----- sign-off trail ---------------------------------------- */
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signed_off_by: Option<ObjectId>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub signed_off_at: Option<DateTime<Utc>>,
 
     /* ----- workflow ---------------------------------------------- */

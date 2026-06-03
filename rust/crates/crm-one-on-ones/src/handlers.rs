@@ -85,10 +85,7 @@ fn validate_engagement(score: Option<i32>) -> Result<()> {
     Ok(())
 }
 
-fn one_on_one_from_create(
-    input: CreateOneOnOneInput,
-    user_id: ObjectId,
-) -> Result<CrmOneOnOne> {
+fn one_on_one_from_create(input: CreateOneOnOneInput, user_id: ObjectId) -> Result<CrmOneOnOne> {
     let manager_id = ObjectId::parse_str(input.manager_id.trim())
         .map_err(|_| ApiError::Validation("managerId must be a valid ObjectId".to_owned()))?;
     let report_id = ObjectId::parse_str(input.report_id.trim())
@@ -233,11 +230,8 @@ pub async fn list_one_on_ones(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmOneOnOne>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.find"))
         })?;
     let mut rows: Vec<CrmOneOnOne> = cursor.try_collect().await.map_err(|e| {
@@ -267,9 +261,7 @@ pub async fn get_one_on_one(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.find_one")))?
         .ok_or_else(|| ApiError::NotFound("one_on_one".to_owned()))?;
     Ok(Json(row))
 }
@@ -283,16 +275,16 @@ pub async fn create_one_on_one(
     let user_id = user_oid(&user)?;
     let mut entity = one_on_one_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmOneOnOne>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -315,26 +307,20 @@ pub async fn update_one_on_one(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.find_one")))?
         .ok_or_else(|| ApiError::NotFound("one_on_one".to_owned()))?;
     let update = build_update_doc(patch)?;
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("one_on_one".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_one_on_ones.refetch")))?
         .ok_or_else(|| ApiError::NotFound("one_on_one".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

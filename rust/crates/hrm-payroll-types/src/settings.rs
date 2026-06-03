@@ -350,10 +350,17 @@ mod tests {
         assert!(working.get("workingHoursPerDay").is_some());
 
         let leave_year = json.get("leaveYear").unwrap();
-        assert_eq!(leave_year.get("startMonth").and_then(|v| v.as_u64()), Some(4));
+        assert_eq!(
+            leave_year.get("startMonth").and_then(|v| v.as_u64()),
+            Some(4)
+        );
         assert_eq!(leave_year.get("startDay").and_then(|v| v.as_u64()), Some(1));
 
-        let templates = json.get("notificationTemplates").unwrap().as_array().unwrap();
+        let templates = json
+            .get("notificationTemplates")
+            .unwrap()
+            .as_array()
+            .unwrap();
         assert_eq!(templates.len(), 1);
         assert!(templates[0].get("_id").is_some());
         assert_eq!(

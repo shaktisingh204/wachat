@@ -15,14 +15,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_charts).post(handlers::upsert_chart),
-        )
+        .route("/", get(handlers::list_charts).post(handlers::upsert_chart))
         .route("/resolve", get(handlers::resolve_manager))
         .route(
             "/{chartId}",
-            axum::routing::patch(handlers::update_chart)
-                .delete(handlers::delete_chart),
+            axum::routing::patch(handlers::update_chart).delete(handlers::delete_chart),
         )
 }

@@ -86,7 +86,10 @@ pub async fn fetch_token(
         TokenKind::AdManager => "adManagerAccessToken",
         TokenKind::MetaSuite => "metaSuiteAccessToken",
     };
-    Ok(u.get_str(key).ok().filter(|s| !s.is_empty()).map(str::to_owned))
+    Ok(u.get_str(key)
+        .ok()
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned))
 }
 
 pub fn missing_token_error(kind: TokenKind) -> &'static str {

@@ -131,8 +131,7 @@ fn period_window(period: Period, now: DateTime<Utc>) -> (DateTime<Utc>, DateTime
             // ISO week starts on Monday.
             let weekday_from_mon = now.weekday().num_days_from_monday() as i64;
             let monday = now - chrono::Duration::days(weekday_from_mon);
-            Utc
-                .with_ymd_and_hms(monday.year(), monday.month(), monday.day(), 0, 0, 0)
+            Utc.with_ymd_and_hms(monday.year(), monday.month(), monday.day(), 0, 0, 0)
                 .single()
                 .unwrap_or(now)
         }
@@ -501,8 +500,8 @@ pub async fn agent_badges(
     Path(agent_id): Path<String>,
 ) -> Result<Json<AgentBadgesResponse>> {
     let tenant = tenant_oid(&user)?;
-    let agent_oid = oid_from_str(&agent_id)
-        .map_err(|_| ApiError::BadRequest("Invalid agentId.".to_owned()))?;
+    let agent_oid =
+        oid_from_str(&agent_id).map_err(|_| ApiError::BadRequest("Invalid agentId.".to_owned()))?;
 
     let badges = load_agent_badges(&state.mongo, tenant, agent_oid).await?;
 
@@ -556,8 +555,8 @@ pub async fn agent_stats(
     Query(query): Query<AgentStatsQuery>,
 ) -> Result<Json<AgentStatsResponse>> {
     let tenant = tenant_oid(&user)?;
-    let agent_oid = oid_from_str(&agent_id)
-        .map_err(|_| ApiError::BadRequest("Invalid agentId.".to_owned()))?;
+    let agent_oid =
+        oid_from_str(&agent_id).map_err(|_| ApiError::BadRequest("Invalid agentId.".to_owned()))?;
     let period = query.period.unwrap_or_default();
     let period_key = period_key_for(period, Utc::now());
 
@@ -668,13 +667,12 @@ pub async fn recompute(
             "assigneeId": { "$exists": true, "$ne": Bson::Null },
         })
         .await
-        .map_err(mongo_err("sabchat_gamification.recompute.conversations.find"))?;
-    let conv_docs: Vec<Document> = cursor
-        .try_collect()
-        .await
         .map_err(mongo_err(
-            "sabchat_gamification.recompute.conversations.collect",
+            "sabchat_gamification.recompute.conversations.find",
         ))?;
+    let conv_docs: Vec<Document> = cursor.try_collect().await.map_err(mongo_err(
+        "sabchat_gamification.recompute.conversations.collect",
+    ))?;
 
     let scanned = conv_docs.len() as i64;
 
@@ -736,12 +734,12 @@ pub async fn recompute(
 
         // first-response latency in minutes, if available.
         let first_response_min = match (
-            d.get_datetime("firstResponseAt").ok().map(|b| b.to_chrono()),
+            d.get_datetime("firstResponseAt")
+                .ok()
+                .map(|b| b.to_chrono()),
             d.get_datetime("createdAt").ok().map(|b| b.to_chrono()),
         ) {
-            (Some(fr), Some(c)) if fr >= c => {
-                Some((fr - c).num_milliseconds() as f64 / 60_000.0)
-            }
+            (Some(fr), Some(c)) if fr >= c => Some((fr - c).num_milliseconds() as f64 / 60_000.0),
             _ => None,
         };
 
@@ -859,14 +857,20 @@ mod tests {
 
     #[test]
     fn period_key_month_uses_year_month() {
-        let now = Utc.with_ymd_and_hms(2026, 5, 27, 12, 0, 0).single().unwrap();
+        let now = Utc
+            .with_ymd_and_hms(2026, 5, 27, 12, 0, 0)
+            .single()
+            .unwrap();
         assert_eq!(period_key_for(Period::Month, now), "2026-05");
     }
 
     #[test]
     fn period_key_week_uses_iso_week() {
         // 2026-05-27 is a Wednesday — falls in ISO week 22 of 2026.
-        let now = Utc.with_ymd_and_hms(2026, 5, 27, 12, 0, 0).single().unwrap();
+        let now = Utc
+            .with_ymd_and_hms(2026, 5, 27, 12, 0, 0)
+            .single()
+            .unwrap();
         let key = period_key_for(Period::Week, now);
         assert!(
             key.starts_with("2026-W") && key.len() == "2026-W22".len(),
@@ -877,7 +881,10 @@ mod tests {
     #[test]
     fn period_window_week_starts_monday() {
         // 2026-05-27 is Wed → Mon 2026-05-25 00:00Z.
-        let now = Utc.with_ymd_and_hms(2026, 5, 27, 12, 0, 0).single().unwrap();
+        let now = Utc
+            .with_ymd_and_hms(2026, 5, 27, 12, 0, 0)
+            .single()
+            .unwrap();
         let (from, _) = period_window(Period::Week, now);
         assert_eq!(from.year(), 2026);
         assert_eq!(from.month(), 5);

@@ -11,16 +11,16 @@
  * 5 saved presets + 6 bulk operations + export.
  */
 
-import { listTickets } from '@/app/actions/crm/tickets.actions';
-import { TicketsListClient } from './_components/tickets-list-client';
+import { listTickets } from "@/app/actions/crm/tickets.actions";
+import { TicketsListClient } from "./_components/tickets-list-client";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export default async function TicketsPage() {
-    const { tickets, error } = await listTickets({ page: 1, limit: 20 });
-    return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <TicketsListClient initialTickets={tickets} initialError={error} />
-        </div>
-    );
+  const { tickets, error } = await listTickets({ page: 1, limit: 20 });
+  return (
+    <div className="flex w-full flex-col gap-6 p-4 md:p-6">
+      <TicketsListClient initialTickets={tickets} initialError={error} />
+    </div>
+  );
 }

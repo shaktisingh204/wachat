@@ -56,14 +56,8 @@ pub async fn load_project_for(
         ));
     }
 
-    let access_token = doc
-        .get_str("accessToken")
-        .ok()
-        .map(|s| s.to_owned());
-    let facebook_page_id = doc
-        .get_str("facebookPageId")
-        .ok()
-        .map(|s| s.to_owned());
+    let access_token = doc.get_str("accessToken").ok().map(|s| s.to_owned());
+    let facebook_page_id = doc.get_str("facebookPageId").ok().map(|s| s.to_owned());
 
     Ok(FacebookProject {
         raw: doc,

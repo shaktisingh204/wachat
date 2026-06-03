@@ -32,7 +32,10 @@ pub async fn list_versions(
     let wb = oid_from_str(&q.workbook_id)?;
     let coll = mongo.collection::<SabsheetVersion>(COLL);
     let limit = q.limit.unwrap_or(50).min(200) as i64;
-    let opts = FindOptions::builder().sort(doc! { "version": -1 }).limit(limit).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "version": -1 })
+        .limit(limit)
+        .build();
     let cursor = coll
         .find(doc! { "workbookId": wb, "ownerUserId": user_id })
         .with_options(opts)
@@ -52,7 +55,10 @@ pub async fn create_version(
     let wb = oid_from_str(&input.workbook_id)?;
     // Find the latest version number.
     let coll = mongo.collection::<SabsheetVersion>(COLL);
-    let opts = FindOptions::builder().sort(doc! { "version": -1 }).limit(1).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "version": -1 })
+        .limit(1)
+        .build();
     let last_cursor = coll
         .find(doc! { "workbookId": wb, "ownerUserId": user_id })
         .with_options(opts)
@@ -71,19 +77,24 @@ pub async fn create_version(
         version: next_version,
         saved_at: BsonDateTime::from_chrono(Utc::now()),
         saved_by: user_id,
-        comment: input.comment.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        comment: input
+            .comment
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         snapshot_file_id,
     };
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_versions.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsheet_versions.insert"))
+    })?;
     let id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id not ObjectId")))?;
     entity.id = Some(id);
-    Ok(Json(CreateVersionResponse { id: id.to_hex(), entity }))
+    Ok(Json(CreateVersionResponse {
+        id: id.to_hex(),
+        entity,
+    }))
 }
 
 #[instrument(skip_all, fields(user_id = %user.user_id))]
@@ -98,7 +109,9 @@ pub async fn restore_version(
     let row = coll
         .find_one(doc! { "_id": oid, "ownerUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_versions.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_versions.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("version".to_owned()))?;
     // TODO: actually load the snapshot blob from SabFiles and replay it
     // into sabsheet_cells / sabsheet_sheets. For now we just record the

@@ -19,7 +19,10 @@ where
             "/",
             get(handlers::list_annotations).post(handlers::create_annotation),
         )
-        .route("/{annotationId}", get(handlers::get_annotation).delete(handlers::delete_annotation))
+        .route(
+            "/{annotationId}",
+            get(handlers::get_annotation).delete(handlers::delete_annotation),
+        )
         .route(
             "/by-session/{sessionId}/clear",
             axum::routing::post(handlers::clear_session_annotations),

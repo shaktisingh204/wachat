@@ -84,7 +84,10 @@ fn offer_from_create(input: CreateOfferInput, user_id: ObjectId) -> Result<CrmOf
         user_id,
         candidate_id: candidate_oid,
         candidate_name: input.candidate_name,
-        job_id: input.job_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        job_id: input
+            .job_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         job_title: input.job_title,
         offer_letter_url: input.offer_letter_url,
         salary_amount: input.salary_amount,
@@ -100,7 +103,10 @@ fn offer_from_create(input: CreateOfferInput, user_id: ObjectId) -> Result<CrmOf
         sent_at: None,
         responded_at: None,
         response_notes: None,
-        approver_id: input.approver_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()),
+        approver_id: input
+            .approver_id
+            .as_deref()
+            .and_then(|s| ObjectId::parse_str(s).ok()),
         approved_at: None,
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
@@ -113,7 +119,11 @@ fn build_update_doc(patch: UpdateOfferInput, before_status: &str) -> Document {
     if let Some(v) = patch.candidate_name {
         set.insert("candidateName", v);
     }
-    if let Some(v) = patch.job_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .job_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("jobId", v);
     }
     if let Some(v) = patch.job_title {
@@ -269,8 +279,7 @@ pub async fn create_offer(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

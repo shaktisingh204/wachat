@@ -59,9 +59,7 @@ pub async fn public_touch(
     let inbox = inboxes
         .find_one(doc! { "_id": inbox_oid })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Inbox not found.".to_owned()))?;
 
     let tenant_oid = inbox

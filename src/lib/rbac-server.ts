@@ -3,6 +3,7 @@ import {
     facebookMenuGroups, instagramMenuGroups, adManagerMenuItems,
     emailMenuItems, smsMenuItems, apiMenuItems, sabflowMenuItems,
     urlShortenerMenuItems, qrCodeMakerMenuItems, portfolioMenuItems, seoMenuItems,
+    sabshopMenuGroups, sabcheckoutMenuGroups,
     MenuItem
 } from '@/config/dashboard-config';
 import { ObjectId } from 'mongodb';
@@ -23,6 +24,8 @@ const allMenuItems = [
     ...sabwaMenuItems,
     ...sabcrmMenuItems,
     ...crmMenuGroups.flatMap(group => group.items),
+    ...sabshopMenuGroups.flatMap(group => group.items),
+    ...sabcheckoutMenuGroups.flatMap(group => group.items),
     ...teamMenuItems,
     ...sabChatMenuItems,
     ...facebookMenuGroups.flatMap(group => group.items),

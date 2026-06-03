@@ -31,9 +31,7 @@ use axum::{
 };
 use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::{TimeZone, Utc};
-use crm_core::{
-    Assignment, Attribution, Audit, Identity, LineageRef, build_lineage_from_parent,
-};
+use crm_core::{Assignment, Attribution, Audit, Identity, LineageRef, build_lineage_from_parent};
 use crm_sales_types::{GstTreatment, Invoice, InvoiceStatus};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
@@ -264,9 +262,7 @@ pub async fn get_invoice(
     let invoice = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.find_one")))?
         .ok_or_else(|| ApiError::NotFound("invoice".to_owned()))?;
 
     Ok(Json(invoice))
@@ -317,9 +313,7 @@ pub async fn create_invoice(
     // ---- Lineage seeding (§13.5) ---------------------------------------
     let mut lineage_chain: Vec<LineageRef> = Vec::new();
     let mut parent_back_link: Option<(&'static str, ObjectId)> = None;
-    if let (Some(kind), Some(parent_id)) =
-        (input.from_kind.as_deref(), input.from_id.as_deref())
-    {
+    if let (Some(kind), Some(parent_id)) = (input.from_kind.as_deref(), input.from_id.as_deref()) {
         let kind_trimmed = kind.trim();
         if ALLOWED_PARENT_KINDS.contains(&kind_trimmed) && !parent_id.is_empty() {
             match seed_lineage_from_parent(&mongo, user_id, kind_trimmed, parent_id).await {
@@ -396,7 +390,9 @@ pub async fn create_invoice(
         recurring: input.recurring.clone(),
         status: InvoiceStatus::Draft,
         lineage: lineage_chain,
-        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
+        design_metadata: input
+            .design_metadata
+            .and_then(|v| bson::to_document(&v).ok()),
     };
 
     let coll = mongo.collection::<Invoice>(INVOICES_COLL);
@@ -445,7 +441,9 @@ async fn seed_lineage_from_parent(
         .find_one(doc! { "_id": parent_oid, "userId": user_oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context(format!("{parent_coll}.find_one(lineage)")))
+            ApiError::Internal(
+                anyhow::Error::new(e).context(format!("{parent_coll}.find_one(lineage)")),
+            )
         })? {
         Some(d) => d,
         None => return Ok(None),
@@ -527,9 +525,8 @@ pub async fn update_invoice(
         set.insert("gstTreatment", b);
     }
     if let Some(items) = input.items.as_ref() {
-        let b = bson::to_bson(items).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode items"))
-        })?;
+        let b = bson::to_bson(items)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode items")))?;
         set.insert("items", b);
     }
     if let Some(totals) = input.totals.as_ref() {
@@ -538,9 +535,8 @@ pub async fn update_invoice(
                 "totals.total and totals.subTotal must be finite numbers.".to_owned(),
             ));
         }
-        let b = bson::to_bson(totals).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode totals"))
-        })?;
+        let b = bson::to_bson(totals)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode totals")))?;
         set.insert("totals", b);
         // Re-derive `balance` from the new totals minus whatever
         // payments are already applied. We do not re-touch
@@ -554,16 +550,14 @@ pub async fn update_invoice(
         set.insert("tdsPct", tds as f64);
     }
     if let Some(recurring) = input.recurring.as_ref() {
-        let b = bson::to_bson(recurring).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode recurring"))
-        })?;
+        let b = bson::to_bson(recurring)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode recurring")))?;
         set.insert("recurring", b);
     }
     if let Some(status_raw) = input.status.as_deref() {
         let parsed = parse_invoice_status(status_raw)?;
-        let b = bson::to_bson(&parsed).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode status"))
-        })?;
+        let b = bson::to_bson(&parsed)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode status")))?;
         set.insert("status", b);
     }
     if let Some(v) = input.design_metadata {
@@ -594,9 +588,7 @@ pub async fn update_invoice(
         .find_one(filter)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_invoices.find_one(after-update)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.find_one(after-update)"))
         })?
         .ok_or_else(|| ApiError::NotFound("invoice".to_owned()))?;
 
@@ -623,12 +615,9 @@ pub async fn delete_invoice(
     let filter = doc! { "_id": inv_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(INVOICES_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_invoices.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("invoice".to_owned()));
     }
@@ -693,8 +682,14 @@ mod tests {
 
     #[test]
     fn parse_invoice_status_accepts_canonical() {
-        assert!(matches!(parse_invoice_status("draft").unwrap(), InvoiceStatus::Draft));
-        assert!(matches!(parse_invoice_status("Sent").unwrap(), InvoiceStatus::Sent));
+        assert!(matches!(
+            parse_invoice_status("draft").unwrap(),
+            InvoiceStatus::Draft
+        ));
+        assert!(matches!(
+            parse_invoice_status("Sent").unwrap(),
+            InvoiceStatus::Sent
+        ));
         assert!(matches!(
             parse_invoice_status("partially_paid").unwrap(),
             InvoiceStatus::PartiallyPaid
@@ -715,8 +710,14 @@ mod tests {
     #[test]
     fn parent_collection_lookup_matches_ts_table() {
         assert_eq!(parent_collection_for("quotation"), Some("crm_quotations"));
-        assert_eq!(parent_collection_for("salesOrder"), Some("crm_sales_orders"));
-        assert_eq!(parent_collection_for("proforma"), Some("crm_proforma_invoices"));
+        assert_eq!(
+            parent_collection_for("salesOrder"),
+            Some("crm_sales_orders")
+        );
+        assert_eq!(
+            parent_collection_for("proforma"),
+            Some("crm_proforma_invoices")
+        );
         assert_eq!(parent_collection_for("deal"), Some("crm_deals"));
         assert_eq!(parent_collection_for("lead"), Some("crm_leads"));
         assert_eq!(parent_collection_for("unknown"), None);

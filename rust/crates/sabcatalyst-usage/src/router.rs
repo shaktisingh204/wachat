@@ -1,8 +1,12 @@
-use std::sync::Arc;
-use axum::{Router, extract::FromRef, routing::{get, post}};
-use sabnode_auth::AuthConfig;
 use crate::handlers;
 use crate::state::SabcatalystUsageState;
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
+use sabnode_auth::AuthConfig;
+use std::sync::Arc;
 
 pub fn router<S>() -> Router<S>
 where

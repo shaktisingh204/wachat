@@ -138,14 +138,9 @@ impl Histogram {
         out.push_str(&format!(
             "{metric}_bucket{{{label_kv}{sep}le=\"+Inf\"}} {total}\n"
         ));
-        let sum_seconds =
-            self.sum_micros.load(Ordering::Relaxed) as f64 / 1_000_000.0;
-        out.push_str(&format!(
-            "{metric}_sum{{{label_kv}}} {sum_seconds}\n"
-        ));
-        out.push_str(&format!(
-            "{metric}_count{{{label_kv}}} {total}\n"
-        ));
+        let sum_seconds = self.sum_micros.load(Ordering::Relaxed) as f64 / 1_000_000.0;
+        out.push_str(&format!("{metric}_sum{{{label_kv}}} {sum_seconds}\n"));
+        out.push_str(&format!("{metric}_count{{{label_kv}}} {total}\n"));
     }
 }
 
@@ -173,11 +168,7 @@ impl Registry {
     fn new() -> Self {
         Self {
             claim_latency: Histogram::new(),
-            job_duration: [
-                Histogram::new(),
-                Histogram::new(),
-                Histogram::new(),
-            ],
+            job_duration: [Histogram::new(), Histogram::new(), Histogram::new()],
             jobs_total: [
                 [Counter::default(), Counter::default(), Counter::default()],
                 [Counter::default(), Counter::default(), Counter::default()],
@@ -252,7 +243,9 @@ pub struct ClaimLatencyTimer {
 
 impl ClaimLatencyTimer {
     pub fn start() -> Self {
-        Self { start: std::time::Instant::now() }
+        Self {
+            start: std::time::Instant::now(),
+        }
     }
 }
 
@@ -286,11 +279,8 @@ pub fn render_prometheus_text() -> String {
          BRPOPLPUSH claim attempt (seconds).\n",
     );
     out.push_str("# TYPE sabflow_dispatcher_claim_latency_seconds histogram\n");
-    reg.claim_latency.render(
-        "sabflow_dispatcher_claim_latency_seconds",
-        "",
-        &mut out,
-    );
+    reg.claim_latency
+        .render("sabflow_dispatcher_claim_latency_seconds", "", &mut out);
 
     // sabflow_dispatcher_job_duration_seconds{status}
     out.push_str(

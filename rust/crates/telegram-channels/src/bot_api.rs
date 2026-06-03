@@ -34,7 +34,8 @@ fn unwrap<T>(env: Envelope<T>) -> Result<T, BotApiError> {
             .ok_or_else(|| BotApiError::Api("missing result".to_owned()))
     } else {
         Err(BotApiError::Api(
-            env.description.unwrap_or_else(|| "unknown error".to_owned()),
+            env.description
+                .unwrap_or_else(|| "unknown error".to_owned()),
         ))
     }
 }
@@ -184,19 +185,11 @@ impl BotApiClient {
         self.post_envelope(token, "sendMessage", body).await
     }
 
-    pub async fn send_photo(
-        &self,
-        token: &str,
-        body: &Value,
-    ) -> Result<SentMessage, BotApiError> {
+    pub async fn send_photo(&self, token: &str, body: &Value) -> Result<SentMessage, BotApiError> {
         self.post_envelope(token, "sendPhoto", body).await
     }
 
-    pub async fn send_video(
-        &self,
-        token: &str,
-        body: &Value,
-    ) -> Result<SentMessage, BotApiError> {
+    pub async fn send_video(&self, token: &str, body: &Value) -> Result<SentMessage, BotApiError> {
         self.post_envelope(token, "sendVideo", body).await
     }
 
@@ -208,11 +201,7 @@ impl BotApiClient {
         self.post_envelope(token, "sendDocument", body).await
     }
 
-    pub async fn send_audio(
-        &self,
-        token: &str,
-        body: &Value,
-    ) -> Result<SentMessage, BotApiError> {
+    pub async fn send_audio(&self, token: &str, body: &Value) -> Result<SentMessage, BotApiError> {
         self.post_envelope(token, "sendAudio", body).await
     }
 
@@ -224,11 +213,7 @@ impl BotApiClient {
         self.post_envelope(token, "sendMediaGroup", body).await
     }
 
-    pub async fn edit_message_text(
-        &self,
-        token: &str,
-        body: &Value,
-    ) -> Result<Value, BotApiError> {
+    pub async fn edit_message_text(&self, token: &str, body: &Value) -> Result<Value, BotApiError> {
         self.post_envelope(token, "editMessageText", body).await
     }
 

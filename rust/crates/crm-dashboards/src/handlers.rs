@@ -52,10 +52,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn dashboard_from_create(
-    input: CreateDashboardInput,
-    user_id: ObjectId,
-) -> Result<CrmDashboard> {
+fn dashboard_from_create(input: CreateDashboardInput, user_id: ObjectId) -> Result<CrmDashboard> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -86,7 +83,11 @@ fn dashboard_from_create(
 
 fn build_update_doc(patch: UpdateDashboardInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.description {
@@ -157,11 +158,10 @@ pub async fn list_dashboards(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmDashboard>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find"))
+        })?;
     let mut rows: Vec<CrmDashboard> = cursor
         .try_collect()
         .await
@@ -190,9 +190,7 @@ pub async fn get_dashboard(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find_one")))?
         .ok_or_else(|| ApiError::NotFound("dashboard".to_owned()))?;
     Ok(Json(row))
 }
@@ -224,8 +222,7 @@ pub async fn create_dashboard(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -248,9 +245,7 @@ pub async fn update_dashboard(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.find_one")))?
         .ok_or_else(|| ApiError::NotFound("dashboard".to_owned()))?;
     // Validate name if provided.
     if let Some(name) = patch.name.as_deref()
@@ -278,9 +273,7 @@ pub async fn update_dashboard(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.refetch")))?
         .ok_or_else(|| ApiError::NotFound("dashboard".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -312,9 +305,7 @@ pub async fn delete_dashboard(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_dashboards.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("dashboard".to_owned()));
     }

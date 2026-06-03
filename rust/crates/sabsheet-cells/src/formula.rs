@@ -118,9 +118,19 @@ pub enum Expr {
     CellRef(CellAddr),
     RangeRef(RangeAddr),
     NamedRange(String),
-    Func { name: String, args: Vec<Expr> },
-    Unary { op: char, expr: Box<Expr> },
-    Binary { op: BinOp, lhs: Box<Expr>, rhs: Box<Expr> },
+    Func {
+        name: String,
+        args: Vec<Expr>,
+    },
+    Unary {
+        op: char,
+        expr: Box<Expr>,
+    },
+    Binary {
+        op: BinOp,
+        lhs: Box<Expr>,
+        rhs: Box<Expr>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -167,7 +177,8 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
             i += 1;
             continue;
         }
-        if c.is_ascii_digit() || (c == '.' && i + 1 < chars.len() && chars[i + 1].is_ascii_digit()) {
+        if c.is_ascii_digit() || (c == '.' && i + 1 < chars.len() && chars[i + 1].is_ascii_digit())
+        {
             let mut j = i;
             let mut seen_dot = false;
             while j < chars.len() && (chars[j].is_ascii_digit() || (chars[j] == '.' && !seen_dot)) {
@@ -202,7 +213,9 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
         }
         if c.is_ascii_alphabetic() || c == '_' {
             let mut j = i;
-            while j < chars.len() && (chars[j].is_ascii_alphanumeric() || chars[j] == '_' || chars[j] == '.') {
+            while j < chars.len()
+                && (chars[j].is_ascii_alphanumeric() || chars[j] == '_' || chars[j] == '.')
+            {
                 j += 1;
             }
             out.push(Token::Ident(chars[i..j].iter().collect()));
@@ -269,7 +282,11 @@ impl Parser {
         let mut lhs = self.parse_addsub()?;
         while let Some(op) = self.match_compare() {
             let rhs = self.parse_addsub()?;
-            lhs = Expr::Binary { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::Binary {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
         Ok(lhs)
     }
@@ -306,7 +323,11 @@ impl Parser {
                 }
                 _ => unreachable!(),
             };
-            lhs = Expr::Binary { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::Binary {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
         Ok(lhs)
     }
@@ -322,7 +343,11 @@ impl Parser {
                 '%' => BinOp::Mod,
                 _ => unreachable!(),
             };
-            lhs = Expr::Binary { op, lhs: Box::new(lhs), rhs: Box::new(rhs) };
+            lhs = Expr::Binary {
+                op,
+                lhs: Box::new(lhs),
+                rhs: Box::new(rhs),
+            };
         }
         Ok(lhs)
     }
@@ -345,7 +370,10 @@ impl Parser {
         if let Some(Token::Op(c @ ('-' | '+'))) = self.peek().cloned() {
             self.pos += 1;
             let expr = self.parse_unary()?;
-            return Ok(Expr::Unary { op: c, expr: Box::new(expr) });
+            return Ok(Expr::Unary {
+                op: c,
+                expr: Box::new(expr),
+            });
         }
         self.parse_primary()
     }
@@ -398,14 +426,17 @@ impl Parser {
                 }
                 // CELL or RANGE?
                 if let Some((r, c)) = parse_cell_ref(&head) {
-                    let start = CellAddr { sheet: qualifier.clone(), row: r, col: c };
+                    let start = CellAddr {
+                        sheet: qualifier.clone(),
+                        row: r,
+                        col: c,
+                    };
                     if let Some(Token::Colon) = self.peek() {
                         self.pos += 1;
                         match self.bump() {
                             Some(Token::Ident(end)) => {
-                                let (er, ec) = parse_cell_ref(&end).ok_or_else(|| {
-                                    format!("invalid range end `{end}`")
-                                })?;
+                                let (er, ec) = parse_cell_ref(&end)
+                                    .ok_or_else(|| format!("invalid range end `{end}`"))?;
                                 return Ok(Expr::RangeRef(RangeAddr {
                                     sheet: qualifier,
                                     start_row: start.row,
@@ -538,7 +569,11 @@ fn sum_range<C: FormulaContext>(r: &RangeAddr, ctx: &C) -> Value {
     let mut sum = 0.0;
     for row in r.start_row..=r.end_row {
         for col in r.start_col..=r.end_col {
-            if let Value::Number(n) = ctx.resolve_cell(&CellAddr { sheet: r.sheet.clone(), row, col }) {
+            if let Value::Number(n) = ctx.resolve_cell(&CellAddr {
+                sheet: r.sheet.clone(),
+                row,
+                col,
+            }) {
                 sum += n;
             }
         }
@@ -607,17 +642,24 @@ fn eval_func<C: FormulaContext>(name: &str, args: &[Expr], ctx: &C) -> Value {
         "MIN" => flat(args)
             .iter()
             .filter_map(Value::as_number)
-            .fold(None, |acc: Option<f64>, n| Some(acc.map_or(n, |a| a.min(n))))
+            .fold(None, |acc: Option<f64>, n| {
+                Some(acc.map_or(n, |a| a.min(n)))
+            })
             .map(Value::Number)
             .unwrap_or(Value::Error("#NUM!".into())),
         "MAX" => flat(args)
             .iter()
             .filter_map(Value::as_number)
-            .fold(None, |acc: Option<f64>, n| Some(acc.map_or(n, |a| a.max(n))))
+            .fold(None, |acc: Option<f64>, n| {
+                Some(acc.map_or(n, |a| a.max(n)))
+            })
             .map(Value::Number)
             .unwrap_or(Value::Error("#NUM!".into())),
         "COUNT" => Value::Number(
-            flat(args).iter().filter(|v| matches!(v, Value::Number(_))).count() as f64,
+            flat(args)
+                .iter()
+                .filter(|v| matches!(v, Value::Number(_)))
+                .count() as f64,
         ),
         "COUNTA" => Value::Number(
             flat(args)
@@ -698,8 +740,7 @@ fn eval_func<C: FormulaContext>(name: &str, args: &[Expr], ctx: &C) -> Value {
                             col: r.start_col,
                         });
                         if first == needle_v {
-                            let target_col =
-                                r.start_col + (col_idx_v.saturating_sub(1)) as u32;
+                            let target_col = r.start_col + (col_idx_v.saturating_sub(1)) as u32;
                             return ctx.resolve_cell(&CellAddr {
                                 sheet: r.sheet.clone(),
                                 row,
@@ -781,7 +822,13 @@ mod tests {
         }
         fn resolve_named_range(&self, name: &str) -> Option<RangeAddr> {
             if name == "RANGE_A" {
-                Some(RangeAddr { sheet: None, start_row: 0, start_col: 0, end_row: 2, end_col: 0 })
+                Some(RangeAddr {
+                    sheet: None,
+                    start_row: 0,
+                    start_col: 0,
+                    end_row: 2,
+                    end_col: 0,
+                })
             } else {
                 None
             }

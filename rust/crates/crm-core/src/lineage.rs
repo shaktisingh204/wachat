@@ -49,7 +49,10 @@ pub fn build_lineage_from_parent(
 ) -> Vec<LineageRef> {
     let parent_ref = LineageRef::new(parent_kind, parent_id);
     let mut out: Vec<LineageRef> = parent_lineage.to_vec();
-    if !out.iter().any(|r| r.id == parent_ref.id && r.kind == parent_ref.kind) {
+    if !out
+        .iter()
+        .any(|r| r.id == parent_ref.id && r.kind == parent_ref.kind)
+    {
         out.push(parent_ref);
     }
     out
@@ -109,7 +112,8 @@ mod tests {
         // to itself — don't double-push.
         let parent_id = ObjectId::new();
         let self_ref = LineageRef::new("quotation", parent_id);
-        let chain = build_lineage_from_parent("quotation", parent_id, std::slice::from_ref(&self_ref));
+        let chain =
+            build_lineage_from_parent("quotation", parent_id, std::slice::from_ref(&self_ref));
         assert_eq!(chain.len(), 1);
         assert_eq!(chain[0], self_ref);
     }

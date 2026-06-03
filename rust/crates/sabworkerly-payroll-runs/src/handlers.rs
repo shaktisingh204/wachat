@@ -1,9 +1,15 @@
 //! HTTP handlers for SabWorkerly payroll-runs.
 
-use axum::{Json, extract::{Path, Query, State}};
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+};
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
-use crm_common::{pagination::{clamp_limit, skip_for}, tenant::user_oid};
+use crm_common::{
+    pagination::{clamp_limit, skip_for},
+    tenant::user_oid,
+};
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
@@ -31,13 +37,17 @@ pub struct ListResponse {
 
 #[instrument(skip_all)]
 pub async fn list_payroll_runs(
-    user: AuthUser, State(mongo): State<MongoHandle>, Query(q): Query<ListQuery>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(q): Query<ListQuery>,
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
     match q.status.as_deref().unwrap_or("all") {
         "all" => {}
-        s @ ("draft" | "approved" | "paid") => { filter.insert("status", s); }
+        s @ ("draft" | "approved" | "paid") => {
+            filter.insert("status", s);
+        }
         _ => {}
     }
     let limit = clamp_limit(q.limit);
@@ -48,23 +58,39 @@ pub async fn list_payroll_runs(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabworkerlyPayrollRun>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await
+    let cursor = coll
+        .find(filter)
+        .with_options(opts)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let mut rows: Vec<SabworkerlyPayrollRun> = cursor.try_collect().await
+    let mut rows: Vec<SabworkerlyPayrollRun> = cursor
+        .try_collect()
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
     let has_more = rows.len() as i64 > limit;
-    if has_more { rows.truncate(limit as usize); }
-    Ok(Json(ListResponse { items: rows, page: q.page.unwrap_or(0), limit: limit as u32, has_more }))
+    if has_more {
+        rows.truncate(limit as usize);
+    }
+    Ok(Json(ListResponse {
+        items: rows,
+        page: q.page.unwrap_or(0),
+        limit: limit as u32,
+        has_more,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn get_payroll_run(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<SabworkerlyPayrollRun>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyPayrollRun>(COLL);
-    let row = coll.find_one(own(user_id, oid)).await
+    let row = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("payroll-run".to_owned()))?;
     Ok(Json(row))
@@ -72,13 +98,19 @@ pub async fn get_payroll_run(
 
 #[instrument(skip_all)]
 pub async fn create_payroll_run(
-    user: AuthUser, State(mongo): State<MongoHandle>, Json(input): Json<CreatePayrollRunInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(input): Json<CreatePayrollRunInput>,
 ) -> Result<Json<CreatePayrollRunResponse>> {
     let user_id = user_oid(&user)?;
-    let ts_oids: Vec<ObjectId> = input.timesheet_ids.iter()
+    let ts_oids: Vec<ObjectId> = input
+        .timesheet_ids
+        .iter()
         .map(|s| oid_from_str(s))
         .collect::<Result<_>>()?;
-    let lines: Vec<SabworkerlyPayrollLine> = input.line_items.into_iter()
+    let lines: Vec<SabworkerlyPayrollLine> = input
+        .line_items
+        .into_iter()
         .map(|l| -> Result<SabworkerlyPayrollLine> {
             Ok(SabworkerlyPayrollLine {
                 worker_id: oid_from_str(&l.worker_id)?,
@@ -103,29 +135,48 @@ pub async fn create_payroll_run(
         updated_at: None,
     };
     let coll = mongo.collection::<SabworkerlyPayrollRun>(COLL);
-    let inserted = coll.insert_one(&run).await
+    let inserted = coll
+        .insert_one(&run)
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    let new_id = inserted.inserted_id.as_object_id()
+    let new_id = inserted
+        .inserted_id
+        .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     run.id = Some(new_id);
-    Ok(Json(CreatePayrollRunResponse { id: new_id.to_hex(), entity: run }))
+    Ok(Json(CreatePayrollRunResponse {
+        id: new_id.to_hex(),
+        entity: run,
+    }))
 }
 
 #[instrument(skip_all)]
 pub async fn update_payroll_run(
-    user: AuthUser, State(mongo): State<MongoHandle>,
-    Path(id): Path<String>, Json(patch): Json<UpdatePayrollRunInput>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(patch): Json<UpdatePayrollRunInput>,
 ) -> Result<Json<SabworkerlyPayrollRun>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.status { set.insert("status", v); }
-    if let Some(v) = patch.processed_at { set.insert("processedAt", BsonDateTime::from_chrono(v)); }
+    if let Some(v) = patch.status {
+        set.insert("status", v);
+    }
+    if let Some(v) = patch.processed_at {
+        set.insert("processedAt", BsonDateTime::from_chrono(v));
+    }
     let coll = mongo.collection::<SabworkerlyPayrollRun>(COLL);
-    let result = coll.update_one(own(user_id, oid), doc! { "$set": set }).await
+    let result = coll
+        .update_one(own(user_id, oid), doc! { "$set": set })
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    if result.matched_count == 0 { return Err(ApiError::NotFound("payroll-run".to_owned())); }
-    let after = coll.find_one(own(user_id, oid)).await
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("payroll-run".to_owned()));
+    }
+    let after = coll
+        .find_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?
         .ok_or_else(|| ApiError::NotFound("payroll-run".to_owned()))?;
     Ok(Json(after))
@@ -133,12 +184,18 @@ pub async fn update_payroll_run(
 
 #[instrument(skip_all)]
 pub async fn delete_payroll_run(
-    user: AuthUser, State(mongo): State<MongoHandle>, Path(id): Path<String>,
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
 ) -> Result<Json<DeletePayrollRunResponse>> {
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&id)?;
     let coll = mongo.collection::<SabworkerlyPayrollRun>(COLL);
-    let result = coll.delete_one(own(user_id, oid)).await
+    let result = coll
+        .delete_one(own(user_id, oid))
+        .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
-    Ok(Json(DeletePayrollRunResponse { deleted: result.deleted_count > 0 }))
+    Ok(Json(DeletePayrollRunResponse {
+        deleted: result.deleted_count > 0,
+    }))
 }

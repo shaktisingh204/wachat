@@ -30,10 +30,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(
-    input: CreateSponsorInput,
-    user_id: ObjectId,
-) -> Result<SabbackstageSponsor> {
+fn entity_from_create(input: CreateSponsorInput, user_id: ObjectId) -> Result<SabbackstageSponsor> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -88,7 +85,11 @@ pub async fn list_sponsors(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(v) = q.event_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .event_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("eventId", v);
     }
     if let Some(t) = q.tier.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
@@ -139,9 +140,7 @@ pub async fn get_sponsor(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_sponsors.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_sponsors.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_sponsor".to_owned()))?;
     Ok(Json(row))
@@ -238,14 +237,10 @@ pub async fn public_list_by_event(
         .with_options(opts)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_sponsors.public_find"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_sponsors.public_find"))
         })?;
     let rows: Vec<SabbackstageSponsor> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_sponsors.public_collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_sponsors.public_collect"))
     })?;
     Ok(Json(rows))
 }

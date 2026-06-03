@@ -59,13 +59,9 @@ pub async fn list_participants(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<Participant>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabmeet_participants.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmeet_participants.find"))
+    })?;
     let mut rows: Vec<Participant> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabmeet_participants.collect"))
     })?;

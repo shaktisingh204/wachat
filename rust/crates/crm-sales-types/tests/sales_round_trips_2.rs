@@ -4,11 +4,10 @@ use bson::oid::ObjectId;
 use chrono::Utc;
 use crm_core::{Audit, Identity};
 use crm_sales_types::{
-    BankDetails, CaptchaProvider, CreditNote, CreditNoteReason, CreditNoteStatus,
-    EInvoiceEnvelope, FormField, FormFieldType, FormTheme, GstTreatment, Invoice,
-    InvoiceApplication, InvoiceStatus, LeadForm, LineItem, PaymentMode, PaymentReceipt, Pipeline,
-    PipelineVisibility, ReceiptStatus, RecurringConfig, RecurringFrequency, RefundMode, Stage,
-    Totals,
+    BankDetails, CaptchaProvider, CreditNote, CreditNoteReason, CreditNoteStatus, EInvoiceEnvelope,
+    FormField, FormFieldType, FormTheme, GstTreatment, Invoice, InvoiceApplication, InvoiceStatus,
+    LeadForm, LineItem, PaymentMode, PaymentReceipt, Pipeline, PipelineVisibility, ReceiptStatus,
+    RecurringConfig, RecurringFrequency, RefundMode, Stage, Totals,
 };
 
 fn ids() -> (Identity, Audit) {
@@ -133,7 +132,8 @@ fn invoice_serializes_e_invoice_recurring_and_payment_state() {
     assert!(json.pointer("/eInvoice/qrString").is_some());
     // Recurring config is nested.
     assert_eq!(
-        json.pointer("/recurring/frequency").and_then(|v| v.as_str()),
+        json.pointer("/recurring/frequency")
+            .and_then(|v| v.as_str()),
         Some("monthly")
     );
     // Reverse-charge defaulted false → skip-serialize.
@@ -279,7 +279,10 @@ fn pipeline_with_stages_and_lead_form_round_trip() {
         visibility: PipelineVisibility::Team,
     };
     let json = serde_json::to_value(&pipeline).unwrap();
-    assert_eq!(json.get("visibility").and_then(|v| v.as_str()), Some("team"));
+    assert_eq!(
+        json.get("visibility").and_then(|v| v.as_str()),
+        Some("team")
+    );
     assert_eq!(
         json.pointer("/stages/0/label").and_then(|v| v.as_str()),
         Some("New")

@@ -50,8 +50,8 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    ContactResp, CreateContactReq, ListContactsQuery, ListContactsResp, MAX_LIMIT,
-    MergeContactReq, ResolveContactReq, ResolveContactResp, SuccessResp, UpdateContactReq,
+    ContactResp, CreateContactReq, ListContactsQuery, ListContactsResp, MAX_LIMIT, MergeContactReq,
+    ResolveContactReq, ResolveContactResp, SuccessResp, UpdateContactReq,
 };
 use crate::state::SabChatContactsState;
 
@@ -69,9 +69,8 @@ const AUDIT_COLL: &str = "sabchat_audit_log";
 /// token or tampering, so we surface `401 Unauthorized` rather than
 /// `400 BadRequest` so middleware can refresh the session.
 fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
-    ObjectId::parse_str(&user.tenant_id).map_err(|_| {
-        ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned())
-    })
+    ObjectId::parse_str(&user.tenant_id)
+        .map_err(|_| ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned()))
 }
 
 /// Parse the JWT's `user_id` claim into an `ObjectId` for audit
@@ -201,11 +200,7 @@ async fn append_audit(
     if let Some(a) = actor {
         d.insert("actorId", a);
     }
-    if let Err(e) = mongo
-        .collection::<Document>(AUDIT_COLL)
-        .insert_one(d)
-        .await
-    {
+    if let Err(e) = mongo.collection::<Document>(AUDIT_COLL).insert_one(d).await {
         tracing::warn!(
             error = %e,
             "sabchat_audit_log insert failed (non-fatal)",
@@ -556,7 +551,9 @@ pub async fn merge_contact(
     let del = coll
         .delete_one(doc! { "_id": source_oid, "tenantId": tenant })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.delete(source)")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("contacts.delete(source)"))
+        })?;
     if del.deleted_count == 0 {
         tracing::warn!(
             target = %target_oid,
@@ -568,7 +565,9 @@ pub async fn merge_contact(
     let stored = coll
         .find_one(doc! { "_id": target_oid, "tenantId": tenant })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(post-merge)")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(post-merge)"))
+        })?
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("target contact missing post-merge")))?;
     let contact = doc_to_contact(stored)?;
 
@@ -612,12 +611,15 @@ pub async fn resolve_contact(
         .as_deref()
         .map(|s| s.trim().to_ascii_lowercase())
         .filter(|s| !s.is_empty());
-    let phone = body.phone.as_deref().map(|s| {
-        s.chars().filter(|c| c.is_ascii_digit()).collect::<String>()
-    }).filter(|s| !s.is_empty());
-    let social = body.social_id.clone().filter(|s| {
-        !s.provider.trim().is_empty() && !s.external_id.trim().is_empty()
-    });
+    let phone = body
+        .phone
+        .as_deref()
+        .map(|s| s.chars().filter(|c| c.is_ascii_digit()).collect::<String>())
+        .filter(|s| !s.is_empty());
+    let social = body
+        .social_id
+        .clone()
+        .filter(|s| !s.provider.trim().is_empty() && !s.external_id.trim().is_empty());
 
     if email.is_none() && phone.is_none() && social.is_none() {
         return Err(ApiError::BadRequest(
@@ -656,7 +658,9 @@ pub async fn resolve_contact(
             "$or": Bson::Array(or_terms),
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(resolve)")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(resolve)"))
+        })?;
 
     if let Some(d) = hit {
         let contact = doc_to_contact(d)?;
@@ -688,15 +692,19 @@ pub async fn resolve_contact(
         new_doc.insert("name", name);
     }
 
-    coll.insert_one(new_doc)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.insert_one(resolve)")))?;
+    coll.insert_one(new_doc).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("contacts.insert_one(resolve)"))
+    })?;
 
     let stored = coll
         .find_one(doc! { "_id": new_oid, "tenantId": tenant })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(post-resolve)")))?
-        .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("contact disappeared after resolve insert")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(post-resolve)"))
+        })?
+        .ok_or_else(|| {
+            ApiError::Internal(anyhow::anyhow!("contact disappeared after resolve insert"))
+        })?;
     let contact = doc_to_contact(stored)?;
 
     append_audit(
@@ -736,7 +744,9 @@ pub async fn delete_contact(
     let before = coll
         .find_one(doc! { "_id": oid, "tenantId": tenant })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(pre-del)")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("contacts.find_one(pre-del)"))
+        })?
         .ok_or_else(|| ApiError::NotFound("contact not found".to_owned()))?;
     let before_contact = doc_to_contact(before)?;
 

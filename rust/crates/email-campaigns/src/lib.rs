@@ -97,10 +97,7 @@ where
         .route("/{id}/resume", post(handlers::resume))
         .route("/{id}/cancel", post(handlers::cancel))
         .route("/{id}/preview", get(handlers::preview))
-        .route(
-            "/{id}/recipients-count",
-            get(handlers::recipients_count),
-        )
+        .route("/{id}/recipients-count", get(handlers::recipients_count))
         .route("/{id}/report", get(handlers::report))
         // Per-id CRUD (PATCH, DELETE, GET).
         .route(

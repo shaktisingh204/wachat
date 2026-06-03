@@ -3,7 +3,7 @@ use chrono::Utc;
 use cron::Schedule;
 use std::str::FromStr;
 use std::sync::Arc;
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tracing::{error, info};
 
 use crate::enqueuer::{QueueEnqueuer, SendJob};
@@ -70,13 +70,18 @@ impl CampaignScheduler {
         let schedule = match Schedule::from_str(&campaign.cron_expression) {
             Ok(s) => s,
             Err(e) => {
-                error!("Invalid cron expression for campaign {}: {}", campaign.id, e);
+                error!(
+                    "Invalid cron expression for campaign {}: {}",
+                    campaign.id, e
+                );
                 return false;
             }
         };
 
-        let last_run = campaign.last_run_at.unwrap_or(*now - chrono::Duration::minutes(1));
-        
+        let last_run = campaign
+            .last_run_at
+            .unwrap_or(*now - chrono::Duration::minutes(1));
+
         if let Some(next_due) = schedule.after(&last_run).next() {
             if next_due <= *now {
                 return true;
@@ -92,17 +97,20 @@ async fn run_campaign_task(
     resolver: Arc<dyn SegmentResolver>,
     enqueuer: Arc<dyn QueueEnqueuer>,
 ) -> Result<()> {
-    info!("Resolving segment {} for campaign {}", campaign.segment_id, campaign.id);
+    info!(
+        "Resolving segment {} for campaign {}",
+        campaign.segment_id, campaign.id
+    );
     let contacts = resolver.resolve_segment(campaign.segment_id).await?;
-    
-    info!("Found {} contacts for campaign {}", contacts.len(), campaign.id);
+
+    info!(
+        "Found {} contacts for campaign {}",
+        contacts.len(),
+        campaign.id
+    );
 
     let batch_size = if let Some(rate) = campaign.throttle_rate_per_sec {
-        if rate > 0 {
-            rate as usize
-        } else {
-            1000
-        }
+        if rate > 0 { rate as usize } else { 1000 }
     } else {
         1000
     };
@@ -140,11 +148,11 @@ async fn run_campaign_task(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::models::{Campaign, Contact};
     use async_trait::async_trait;
     use chrono::{DateTime, Duration as ChronoDuration, Utc};
     use std::sync::Mutex;
     use uuid::Uuid;
-    use crate::models::{Campaign, Contact};
 
     struct MockStore {
         campaigns: Mutex<Vec<Campaign>>,
@@ -187,7 +195,7 @@ mod tests {
             self.jobs.lock().unwrap().push(job);
             Ok(())
         }
-        
+
         async fn enqueue_jobs(&self, jobs: Vec<SendJob>) -> Result<()> {
             self.batches.lock().unwrap().push(jobs.len());
             let mut all_jobs = self.jobs.lock().unwrap();
@@ -202,7 +210,7 @@ mod tests {
             campaigns: Mutex::new(vec![]),
             updated: Mutex::new(vec![]),
         });
-        
+
         // 25 contacts total
         let mut contacts = vec![];
         for i in 0..25 {
@@ -211,16 +219,16 @@ mod tests {
                 phone_number: format!("+155500000{:02}", i),
             });
         }
-        
+
         let resolver = Arc::new(MockResolver {
             contacts: Mutex::new(contacts),
         });
-        
+
         let enqueuer = Arc::new(MockEnqueuer {
             jobs: Mutex::new(vec![]),
             batches: Mutex::new(vec![]),
         });
-        
+
         let campaign = Campaign {
             id: Uuid::new_v4(),
             name: "Test Batch".into(),
@@ -233,52 +241,52 @@ mod tests {
             throttle_rate_per_sec: Some(10), // Batch size 10
         };
 
-        run_campaign_task(campaign, resolver, enqueuer.clone()).await.unwrap();
+        run_campaign_task(campaign, resolver, enqueuer.clone())
+            .await
+            .unwrap();
 
         let batches = enqueuer.batches.lock().unwrap().clone();
         assert_eq!(batches, vec![10, 10, 5]); // 25 contacts in batches of 10
-        
+
         let total_jobs = enqueuer.jobs.lock().unwrap().len();
         assert_eq!(total_jobs, 25);
     }
-    
+
     #[tokio::test]
     async fn test_tick_should_run() {
         // Just verify tick invokes updates and spawns
         let campaign_id = Uuid::new_v4();
         let store = Arc::new(MockStore {
-            campaigns: Mutex::new(vec![
-                Campaign {
-                    id: campaign_id,
-                    name: "Test Tick".into(),
-                    cron_expression: "* * * * * * *".into(), // runs every second
-                    segment_id: Uuid::new_v4(),
-                    message_body: "Tick".into(),
-                    from_sender: "+10".into(),
-                    is_active: true,
-                    // set last run to 2 minutes ago
-                    last_run_at: Some(Utc::now() - ChronoDuration::minutes(2)),
-                    throttle_rate_per_sec: None,
-                }
-            ]),
+            campaigns: Mutex::new(vec![Campaign {
+                id: campaign_id,
+                name: "Test Tick".into(),
+                cron_expression: "* * * * * * *".into(), // runs every second
+                segment_id: Uuid::new_v4(),
+                message_body: "Tick".into(),
+                from_sender: "+10".into(),
+                is_active: true,
+                // set last run to 2 minutes ago
+                last_run_at: Some(Utc::now() - ChronoDuration::minutes(2)),
+                throttle_rate_per_sec: None,
+            }]),
             updated: Mutex::new(vec![]),
         });
-        
+
         let resolver = Arc::new(MockResolver {
             contacts: Mutex::new(vec![]),
         });
-        
+
         let enqueuer = Arc::new(MockEnqueuer {
             jobs: Mutex::new(vec![]),
             batches: Mutex::new(vec![]),
         });
-        
+
         let scheduler = CampaignScheduler::new(store.clone(), resolver, enqueuer);
         scheduler.tick().await.unwrap();
-        
+
         // Wait a small amount for the spawned task
         tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
-        
+
         let updated = store.updated.lock().unwrap().clone();
         assert_eq!(updated.len(), 1);
         assert_eq!(updated[0].0, campaign_id);

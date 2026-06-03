@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateSectionInput, CreateSectionResponse, DeleteSectionResponse, ListQuery,
-    UpdateSectionInput,
+    CreateSectionInput, CreateSectionResponse, DeleteSectionResponse, ListQuery, UpdateSectionInput,
 };
 use crate::types::SabnotebookSection;
 
@@ -32,11 +31,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn list_filter(
-    user_id: ObjectId,
-    notebook_id: Option<&str>,
-    status: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, notebook_id: Option<&str>, status: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     if let Some(p) = notebook_id.map(str::trim).filter(|s| !s.is_empty()) {
         if let Ok(oid) = ObjectId::parse_str(p) {
@@ -55,10 +50,7 @@ fn list_filter(
     filter
 }
 
-fn section_from_create(
-    input: CreateSectionInput,
-    user_id: ObjectId,
-) -> Result<SabnotebookSection> {
+fn section_from_create(input: CreateSectionInput, user_id: ObjectId) -> Result<SabnotebookSection> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -185,8 +177,7 @@ pub async fn create_section(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

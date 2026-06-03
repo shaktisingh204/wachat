@@ -1,19 +1,11 @@
 //! # sabvault-secrets
 //!
-//! HTTP surface for the SabVault Secret entity — opaque encrypted-payload
-//! storage for a team password manager. Client-side AES-GCM ciphertext is
-//! stored as `encryptedPayloadB64`; the server never sees plaintext.
+//! HTTP surface for SabCheckout subscription SabvaultSecrets. A SabvaultSecret describes a
+//! recurring billing template (interval, amount, optional trial / setup
+//! fee). Pages reference secrets via item entries of type `"secret"`.
 //!
-//! Mounted under `/v1/sabvault/secrets` (see [`router::router`]).
-//!
-//! ## Mongo collection
-//! `sabvault_secrets` — owned by `userId`. Read access also granted via
-//! `sharedWithUserIds`; mutation requires ownership.
-//!
-//! ## Audit
-//! Every mutation writes to `crm_audit_log` via `crm_common::audit`.
-//! The audit row contains the secret's **metadata only** — ciphertext is
-//! stripped before logging.
+//! Backs the `sabvault_secrets` Mongo collection. Mounted under
+//! `/v1/sabcheckout/secrets`. Tenant-scoped by `userId`.
 
 pub mod dto;
 pub mod handlers;

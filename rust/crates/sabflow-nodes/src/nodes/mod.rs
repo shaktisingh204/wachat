@@ -229,13 +229,16 @@ pub mod zulip;
 pub mod stub;
 
 // ── Fully-implemented core nodes ────────────────────────────────────────────
+pub mod action;
 pub mod code;
 pub mod code_node;
+pub mod delay;
 pub mod edit_fields;
 pub mod execute_workflow_trigger;
 pub mod function;
 pub mod http_request;
 pub mod if_node;
+pub mod logic;
 pub mod manual_trigger;
 pub mod mattermost_trigger;
 pub mod merge_node;
@@ -248,9 +251,6 @@ pub mod twist_trigger;
 pub mod wait;
 pub mod webhook;
 pub mod webhook_trigger;
-pub mod logic;
-pub mod delay;
-pub mod action;
 // ── Phase C.4.9: trigger variants ───────────────────────────────────────────
 pub mod cron_trigger;
 pub mod email_trigger;

@@ -59,7 +59,7 @@ pub struct CrmProformaInvoice {
     pub created_at: BsonDateTime,
     #[serde(rename = "updatedAt", default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<BsonDateTime>,
-    
+
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub design_metadata: Option<bson::Document>,
 }

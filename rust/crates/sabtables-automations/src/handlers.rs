@@ -52,15 +52,13 @@ pub async fn list_automations(
             filter.insert("status", doc! { "$ne": "archived" });
         }
     }
-    let opts = FindOptions::builder().sort(doc! { "createdAt": -1 }).build();
+    let opts = FindOptions::builder()
+        .sort(doc! { "createdAt": -1 })
+        .build();
     let coll = mongo.collection::<SabtablesAutomation>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_automations.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabtables_automations.find"))
+    })?;
     let items: Vec<SabtablesAutomation> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabtables_automations.collect"))
     })?;
@@ -138,14 +136,24 @@ pub async fn update_automation(
         set.insert("name", v);
     }
     if let Some(v) = patch.trigger {
-        set.insert("trigger", bson::to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_automations.trigger_bson"))
-        })?);
+        set.insert(
+            "trigger",
+            bson::to_bson(&v).map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("sabtables_automations.trigger_bson"),
+                )
+            })?,
+        );
     }
     if let Some(v) = patch.actions {
-        set.insert("actions", bson::to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_automations.actions_bson"))
-        })?);
+        set.insert(
+            "actions",
+            bson::to_bson(&v).map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("sabtables_automations.actions_bson"),
+                )
+            })?,
+        );
     }
     if let Some(v) = patch.is_enabled {
         set.insert("isEnabled", v);

@@ -91,13 +91,25 @@ fn join_from_create(input: CreateJoinInput, user_id: ObjectId) -> Result<BiDatas
 
 fn build_update_doc(patch: UpdateJoinInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
-    if let Some(v) = patch.left_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .left_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("leftId", v);
     }
-    if let Some(v) = patch.right_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .right_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("rightId", v);
     }
     if let Some(v) = patch.join_type {
@@ -147,15 +159,12 @@ pub async fn list_joins(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<BiDatasetJoin>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.find")))?;
-    let mut rows: Vec<BiDatasetJoin> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.find"))
+    })?;
+    let mut rows: Vec<BiDatasetJoin> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -180,7 +189,9 @@ pub async fn get_join(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("join".to_owned()))?;
     Ok(Json(row))
 }
@@ -194,10 +205,9 @@ pub async fn create_join(
     let user_id = user_oid(&user)?;
     let mut entity = join_from_create(input, user_id)?;
     let coll = mongo.collection::<BiDatasetJoin>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -223,14 +233,18 @@ pub async fn update_join(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("join".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("join".to_owned()))?;
     Ok(Json(after))
 }
@@ -253,7 +267,9 @@ pub async fn delete_join(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_dataset_joins.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("join".to_owned()));
     }

@@ -68,9 +68,8 @@ fn reconciliation_from_create(
 ) -> Result<CrmReconciliation> {
     let account_id = ObjectId::parse_str(input.account_id.trim())
         .map_err(|_| ApiError::Validation("accountId must be a valid ObjectId".to_owned()))?;
-    let period_start = parse_date(input.period_start.trim()).ok_or_else(|| {
-        ApiError::Validation("periodStart must be an RFC3339 date".to_owned())
-    })?;
+    let period_start = parse_date(input.period_start.trim())
+        .ok_or_else(|| ApiError::Validation("periodStart must be an RFC3339 date".to_owned()))?;
     let period_end = parse_date(input.period_end.trim())
         .ok_or_else(|| ApiError::Validation("periodEnd must be an RFC3339 date".to_owned()))?;
     if period_end < period_start {
@@ -231,8 +230,7 @@ pub async fn create_reconciliation(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -132,9 +132,7 @@ pub fn install_signal_handlers(token: CancellationToken) {
             let mut sigterm = match signal(SignalKind::terminate()) {
                 Ok(s) => s,
                 Err(e) => {
-                    eprintln!(
-                        "sabflow-dispatcher: failed to install SIGTERM handler: {e}"
-                    );
+                    eprintln!("sabflow-dispatcher: failed to install SIGTERM handler: {e}");
                     token.cancel();
                     return;
                 }
@@ -149,9 +147,7 @@ pub fn install_signal_handlers(token: CancellationToken) {
         #[cfg(not(unix))]
         {
             if let Err(e) = tokio::signal::ctrl_c().await {
-                eprintln!(
-                    "sabflow-dispatcher: failed to install ctrl_c handler: {e}"
-                );
+                eprintln!("sabflow-dispatcher: failed to install ctrl_c handler: {e}");
             }
         }
 

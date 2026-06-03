@@ -138,8 +138,7 @@ fn build_update_doc(patch: UpdateItemInput) -> std::result::Result<Document, Api
         set.insert("isTrackInventory", v);
     }
     if let Some(v) = patch.inventory {
-        let bson_val =
-            bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
+        let bson_val = bson::to_bson(&v).map_err(|e| ApiError::Internal(anyhow::Error::new(e)))?;
         set.insert("inventory", bson_val);
     }
     if let Some(v) = patch.total_stock {
@@ -218,9 +217,10 @@ pub async fn list_items(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.find")))?;
-    let mut rows: Vec<CrmProduct> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_products.collect"))
-    })?;
+    let mut rows: Vec<CrmProduct> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -285,9 +285,7 @@ pub async fn create_item(
     let dup = coll
         .find_one(doc! { "userId": user_id, "sku": &input.sku })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_products.find_one"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_products.find_one")))?;
     if dup.is_some() {
         return Err(ApiError::Validation("SKU already exists".to_owned()));
     }
@@ -303,9 +301,7 @@ pub async fn create_item(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     item.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&item)))
-    {
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&item))) {
         write_audit(&mongo, event).await;
     }
 

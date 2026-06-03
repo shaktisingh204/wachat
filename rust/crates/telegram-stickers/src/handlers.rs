@@ -143,10 +143,7 @@ fn doc_to_row(d: &Document) -> Option<SetRow> {
     let bot_id = d.get_object_id("botId").ok()?.to_hex();
     let name = d.get_str("name").unwrap_or("").to_owned();
     let title = d.get_str("title").unwrap_or("").to_owned();
-    let sticker_type = d
-        .get_str("stickerType")
-        .unwrap_or("regular")
-        .to_owned();
+    let sticker_type = d.get_str("stickerType").unwrap_or("regular").to_owned();
     let thumbnail_file_id = d.get_str("thumbnailFileId").ok().map(str::to_owned);
     let thumbnail_url = d.get_str("thumbnailUrl").ok().map(str::to_owned);
     let archived = d.get_bool("archived").unwrap_or(false);
@@ -317,10 +314,7 @@ async fn upload_sticker(
         .await
         .map_err(|e| format!("download from SabFiles failed: {e}"))?;
     let format = sticker_format_for_mime(&mime);
-    let file_name = sticker
-        .sab_file_name
-        .clone()
-        .unwrap_or(derived_name);
+    let file_name = sticker.sab_file_name.clone().unwrap_or(derived_name);
     let uploaded = s
         .bot_api
         .upload_sticker_file(token, user_id, format, &file_name, &mime, bytes)
@@ -576,7 +570,9 @@ pub async fn create(
             return err(format!("sticker[{i}]: sabFileUrl is required"));
         }
         if sticker_type == "mask" && st.mask_position.is_none() {
-            return err(format!("sticker[{i}]: maskPosition is required for mask packs"));
+            return err(format!(
+                "sticker[{i}]: maskPosition is required for mask packs"
+            ));
         }
     }
 
@@ -599,7 +595,9 @@ pub async fn create(
         });
         if !kw.is_empty() {
             wire["keywords"] = serde_json::Value::Array(
-                kw.iter().map(|k| serde_json::Value::String(k.clone())).collect(),
+                kw.iter()
+                    .map(|k| serde_json::Value::String(k.clone()))
+                    .collect(),
             );
         }
         if let Some(mp) = &st.mask_position {
@@ -702,11 +700,10 @@ pub async fn archive_set(
         Some(p) if !p.is_empty() => p,
         _ => return err("botId is required"),
     };
-    let (project_oid, bot) =
-        match require_project_bot(&user, &s.mongo, project_id, bot_id).await {
-            Ok(r) => r,
-            Err(e) => return err(e),
-        };
+    let (project_oid, bot) = match require_project_bot(&user, &s.mongo, project_id, bot_id).await {
+        Ok(r) => r,
+        Err(e) => return err(e),
+    };
     let bot_oid = match bot.get_object_id("_id") {
         Ok(o) => o,
         Err(_) => return err("Bot not found."),
@@ -772,10 +769,7 @@ pub async fn add_sticker(
         Ok(None) => return err("Sticker pack not found."),
         Err(e) => return err(format!("mongo: {e}")),
     };
-    let sticker_type = local
-        .get_str("stickerType")
-        .unwrap_or("regular")
-        .to_owned();
+    let sticker_type = local.get_str("stickerType").unwrap_or("regular").to_owned();
 
     let emojis = split_emojis(&body.sticker.emoji);
     if let Err(e) = validate_emoji_list(&emojis) {
@@ -811,7 +805,9 @@ pub async fn add_sticker(
     if let Some(kw) = &body.sticker.keywords {
         if !kw.is_empty() {
             wire["sticker"]["keywords"] = serde_json::Value::Array(
-                kw.iter().map(|k| serde_json::Value::String(k.clone())).collect(),
+                kw.iter()
+                    .map(|k| serde_json::Value::String(k.clone()))
+                    .collect(),
             );
         }
     }
@@ -857,11 +853,10 @@ pub async fn delete_sticker(
         Some(p) if !p.is_empty() => p,
         _ => return err("botId is required"),
     };
-    let (project_oid, bot) =
-        match require_project_bot(&user, &s.mongo, project_id, bot_id).await {
-            Ok(r) => r,
-            Err(e) => return err(e),
-        };
+    let (project_oid, bot) = match require_project_bot(&user, &s.mongo, project_id, bot_id).await {
+        Ok(r) => r,
+        Err(e) => return err(e),
+    };
     let bot_oid = match bot.get_object_id("_id") {
         Ok(o) => o,
         Err(_) => return err("Bot not found."),
@@ -871,7 +866,11 @@ pub async fn delete_sticker(
         Err(_) => return err("Bot is missing its access token."),
     };
 
-    if let Err(e) = s.bot_api.delete_sticker_from_set(&token, &sticker_file_id).await {
+    if let Err(e) = s
+        .bot_api
+        .delete_sticker_from_set(&token, &sticker_file_id)
+        .await
+    {
         return err(err_msg(e));
     }
     let _ = refresh_one(&s, &token, &set_name, bot_oid, project_oid).await;
@@ -1025,7 +1024,7 @@ pub async fn set_thumbnail(
         .update_one(
             doc! { "name": &set_name, "botId": bot_oid, "projectId": project_oid },
             doc! { "$unset": { "thumbnailFileId": "", "thumbnailUrl": "" },
-                   "$set": { "updatedAt": bson::DateTime::now() } },
+            "$set": { "updatedAt": bson::DateTime::now() } },
         )
         .await;
     Json(AckResult {
@@ -1234,10 +1233,7 @@ pub async fn replace_sticker(
         Ok(None) => return err("Sticker pack not found."),
         Err(e) => return err(format!("mongo: {e}")),
     };
-    let sticker_type = local
-        .get_str("stickerType")
-        .unwrap_or("regular")
-        .to_owned();
+    let sticker_type = local.get_str("stickerType").unwrap_or("regular").to_owned();
 
     let emojis = split_emojis(&body.emoji);
     if let Err(e) = validate_emoji_list(&emojis) {
@@ -1259,10 +1255,11 @@ pub async fn replace_sticker(
         keywords: body.keywords.clone(),
         mask_position: body.mask_position.clone(),
     };
-    let (file_id, format) = match upload_sticker(&s, &token, body.user_id, &input, &sticker_type).await {
-        Ok(v) => v,
-        Err(e) => return err(e),
-    };
+    let (file_id, format) =
+        match upload_sticker(&s, &token, body.user_id, &input, &sticker_type).await {
+            Ok(v) => v,
+            Err(e) => return err(e),
+        };
     let mut wire = serde_json::json!({
         "user_id": body.user_id,
         "name": set_name,
@@ -1276,7 +1273,9 @@ pub async fn replace_sticker(
     if let Some(kw) = &body.keywords {
         if !kw.is_empty() {
             wire["sticker"]["keywords"] = serde_json::Value::Array(
-                kw.iter().map(|k| serde_json::Value::String(k.clone())).collect(),
+                kw.iter()
+                    .map(|k| serde_json::Value::String(k.clone()))
+                    .collect(),
             );
         }
     }
@@ -1299,4 +1298,3 @@ pub async fn replace_sticker(
         ..Default::default()
     })
 }
-

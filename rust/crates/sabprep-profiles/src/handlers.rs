@@ -7,12 +7,12 @@ use axum::{
 use bson::{DateTime as BsonDateTime, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use crm_common::tenant::user_oid;
-use sabprep_steps::Row;
 use futures::TryStreamExt;
 use mongodb::options::FindOptions;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
+use sabprep_steps::Row;
 use tracing::instrument;
 
 use crate::compute::profile_rows;
@@ -46,11 +46,10 @@ pub async fn list_profiles(
         .limit(limit)
         .build();
     let coll = mongo.collection::<SabprepProfile>(PROFILES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.find"))
+        })?;
     let rows: Vec<SabprepProfile> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.collect"))
     })?;
@@ -71,7 +70,9 @@ pub async fn get_profile(
     let row = coll
         .find_one(ownership(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabprep_profile".to_owned()))?;
     Ok(Json(row))
 }
@@ -92,8 +93,9 @@ pub async fn create_profile(
             let rows: Vec<Row> = if let Some(doc) = outputs_coll
                 .find_one(doc! { "_id": oid, "userId": user_id })
                 .await
-                .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_outputs.find_one")))?
-            {
+                .map_err(|e| {
+                    ApiError::Internal(anyhow::Error::new(e).context("sabprep_outputs.find_one"))
+                })? {
                 if let Ok(arr) = doc.get_array("rows") {
                     bson::from_bson::<Vec<Row>>(bson::Bson::Array(arr.clone())).unwrap_or_default()
                 } else {
@@ -105,7 +107,11 @@ pub async fn create_profile(
             (Some(oid), rows)
         }
         (None, Some(rows)) => (None, rows),
-        (None, None) => return Err(ApiError::Validation("datasetId or rows required".to_owned())),
+        (None, None) => {
+            return Err(ApiError::Validation(
+                "datasetId or rows required".to_owned(),
+            ));
+        }
     };
 
     let per_column: Vec<ColumnProfile> = profile_rows(&rows);
@@ -118,10 +124,9 @@ pub async fn create_profile(
         created_at: BsonDateTime::from_chrono(Utc::now()),
     };
     let coll = mongo.collection::<SabprepProfile>(PROFILES_COLL);
-    let inserted = coll
-        .insert_one(&profile)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.insert")))?;
+    let inserted = coll.insert_one(&profile).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.insert"))
+    })?;
     let mut persisted = profile;
     persisted.id = inserted.inserted_id.as_object_id();
     Ok(Json(persisted))
@@ -153,6 +158,10 @@ pub async fn delete_profile(
     let res = coll
         .delete_one(ownership(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.delete")))?;
-    Ok(Json(serde_json::json!({ "deleted": res.deleted_count > 0 })))
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabprep_profiles.delete"))
+        })?;
+    Ok(Json(
+        serde_json::json!({ "deleted": res.deleted_count > 0 }),
+    ))
 }

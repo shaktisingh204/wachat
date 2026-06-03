@@ -1,9 +1,9 @@
 //! Mountable router. Mount under `/v1/sabshop/orders`.
 
-use std::sync::Arc;
 use axum::{Router, extract::FromRef, routing::get};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
+use std::sync::Arc;
 
 use crate::handlers;
 

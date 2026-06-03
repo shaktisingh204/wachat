@@ -60,7 +60,11 @@ pub struct Rfq {
     pub title: String,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub items: Vec<RfqLineItem>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub required_by: Option<DateTime<Utc>>,
 
     /// Vendors broadcast on issue. New invitees can be appended while
@@ -70,7 +74,11 @@ pub struct Rfq {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub terms: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub deadline: Option<DateTime<Utc>>,
 
     #[serde(default)]

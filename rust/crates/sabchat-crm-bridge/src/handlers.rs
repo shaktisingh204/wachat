@@ -68,9 +68,8 @@ fn user_oid_from_auth(user: &AuthUser) -> Result<ObjectId> {
 
 /// Parse the caller's tenant_id into a Mongo `ObjectId`.
 fn tenant_oid_from_auth(user: &AuthUser) -> Result<ObjectId> {
-    ObjectId::parse_str(&user.tenant_id).map_err(|_| {
-        ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned())
-    })
+    ObjectId::parse_str(&user.tenant_id)
+        .map_err(|_| ApiError::Unauthorized("tenant claim is not a valid ObjectId".to_owned()))
 }
 
 /// Build the `$or` tenancy filter used against every CRM collection.
@@ -187,8 +186,7 @@ pub async fn link_contact(
     let tenant_oid = tenant_oid_from_auth(&user)?;
     let user_oid = user_oid_from_auth(&user)?;
 
-    let sabchat_doc =
-        load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
+    let sabchat_doc = load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
     let sabchat_oid = sabchat_doc
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("sabchat contact missing _id")))?;
@@ -282,12 +280,9 @@ async fn resolve_or_create_crm_contact(
                 { "$or": Bson::Array(email_or_phone) },
             ],
         };
-        let matched = coll
-            .find_one(match_filter)
-            .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.find_one(match)"))
-            })?;
+        let matched = coll.find_one(match_filter).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.find_one(match)"))
+        })?;
         if let Some(matched_doc) = matched {
             let oid = matched_doc.get_object_id("_id").map_err(|_| {
                 ApiError::Internal(anyhow::anyhow!("matched crm contact missing _id"))
@@ -318,11 +313,9 @@ async fn resolve_or_create_crm_contact(
         new_doc.insert("phone", first_phone.clone());
     }
 
-    coll.insert_one(new_doc)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.insert_one"))
-        })?;
+    coll.insert_one(new_doc).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_contacts.insert_one"))
+    })?;
 
     Ok((new_oid, true))
 }
@@ -346,8 +339,7 @@ pub async fn push_to_crm(
     let tenant_oid = tenant_oid_from_auth(&user)?;
     let user_oid = user_oid_from_auth(&user)?;
 
-    let sabchat_doc =
-        load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
+    let sabchat_doc = load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
     let sabchat_oid = sabchat_doc
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("sabchat contact missing _id")))?;
@@ -440,18 +432,13 @@ pub async fn pull_from_crm(
     let tenant_oid = tenant_oid_from_auth(&user)?;
     let user_oid = user_oid_from_auth(&user)?;
 
-    let sabchat_doc =
-        load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
+    let sabchat_doc = load_sabchat_contact(&state.mongo, &sabchat_contact_id, tenant_oid).await?;
     let sabchat_oid = sabchat_doc
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("sabchat contact missing _id")))?;
-    let crm_oid = sabchat_doc
-        .get_object_id("crmContactId")
-        .map_err(|_| {
-            ApiError::Conflict(
-                "SabChat contact is not linked to a CRM contact yet.".to_owned(),
-            )
-        })?;
+    let crm_oid = sabchat_doc.get_object_id("crmContactId").map_err(|_| {
+        ApiError::Conflict("SabChat contact is not linked to a CRM contact yet.".to_owned())
+    })?;
 
     // Load CRM doc under either tenancy dialect.
     let crm_doc = state
@@ -609,8 +596,7 @@ async fn push_conversation_custom_attr_id(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("sabchat_conversations.update_one(customAttrs)"),
+                anyhow::Error::new(e).context("sabchat_conversations.update_one(customAttrs)"),
             )
         })?;
     Ok(())
@@ -636,16 +622,14 @@ pub async fn conversation_to_deal(
     let pipeline_oid = oid_from_str(&body.pipeline_id)
         .map_err(|_| ApiError::BadRequest("Invalid pipelineId.".to_owned()))?;
     let stage_oid = match body.stage_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(s) => Some(
-            oid_from_str(s)
-                .map_err(|_| ApiError::BadRequest("Invalid stageId.".to_owned()))?,
-        ),
+        Some(s) => {
+            Some(oid_from_str(s).map_err(|_| ApiError::BadRequest("Invalid stageId.".to_owned()))?)
+        }
         None => None,
     };
 
     let (conversation_oid, conversation, crm_oid) =
-        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id)
-            .await?;
+        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id).await?;
 
     // Derive a sensible title — body wins, fall back to last preview, then
     // a generic constant.
@@ -731,8 +715,7 @@ pub async fn conversation_to_ticket(
     let user_oid = user_oid_from_auth(&user)?;
 
     let (conversation_oid, conversation, crm_oid) =
-        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id)
-            .await?;
+        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id).await?;
 
     let subject = body
         .subject
@@ -817,8 +800,7 @@ pub async fn conversation_to_booking(
         .map_err(|_| ApiError::BadRequest("Invalid serviceId.".to_owned()))?;
 
     let (conversation_oid, _conversation, crm_oid) =
-        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id)
-            .await?;
+        resolve_conversation_crm_link(&state.mongo, user_oid, tenant_oid, &conversation_id).await?;
 
     let new_oid = ObjectId::new();
     let now = bson::DateTime::from_chrono(Utc::now());

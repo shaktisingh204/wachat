@@ -39,6 +39,6 @@ pub use purchases::{
     bill_to_debit_note, grn_to_bill, purchase_order_to_bill, purchase_order_to_grn,
 };
 pub use sales::{
-    invoice_to_credit_note, quotation_to_invoice, quotation_to_proforma,
-    quotation_to_sales_order, sales_order_to_delivery_challan, sales_order_to_invoice,
+    invoice_to_credit_note, quotation_to_invoice, quotation_to_proforma, quotation_to_sales_order,
+    sales_order_to_delivery_challan, sales_order_to_invoice,
 };

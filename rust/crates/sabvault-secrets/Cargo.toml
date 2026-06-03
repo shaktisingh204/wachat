@@ -2,7 +2,7 @@
 name = "sabvault-secrets"
 version = "0.1.0"
 edition = "2024"
-description = "SabVault Secret entity CRUD handlers. Stores opaque client-side-encrypted payloads against the `sabvault_secrets` Mongo collection. Plaintext never reaches the server."
+description = "SabCheckout — subscription secret CRUD (interval, amount, trial, setup fee)."
 license = "UNLICENSED"
 publish = false
 
@@ -26,3 +26,6 @@ crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }
 sabnode-common = { path = "../common" }
 sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

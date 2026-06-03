@@ -28,11 +28,7 @@ use crate::types::CrmSalaryStructure;
 const COLL: &str = "crm_salary_structures";
 const ENTITY_KIND: &str = "salary_structure";
 
-fn list_filter(
-    user_id: ObjectId,
-    status: Option<&str>,
-    employee_id: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, status: Option<&str>, employee_id: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active_visible") {
         "all" => {}
@@ -249,8 +245,7 @@ pub async fn create_structure(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

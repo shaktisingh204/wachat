@@ -46,7 +46,9 @@ impl std::fmt::Display for MetaHttpError {
         match self {
             Self::Network(e) => write!(f, "meta http network: {e}"),
             Self::Decode(e) => write!(f, "meta http decode: {e}"),
-            Self::Api { status, message, .. } => write!(f, "meta http {status}: {message}"),
+            Self::Api {
+                status, message, ..
+            } => write!(f, "meta http {status}: {message}"),
         }
     }
 }
@@ -192,11 +194,7 @@ impl Client {
     /// signed `download_url` returned by `/{flow}/assets`. The asset
     /// download URL doesn't accept Bearer auth, so `attach_token` is the
     /// caller's choice.
-    pub async fn get_url(
-        &self,
-        url: &str,
-        token: Option<&str>,
-    ) -> Result<Value, MetaHttpError> {
+    pub async fn get_url(&self, url: &str, token: Option<&str>) -> Result<Value, MetaHttpError> {
         let mut req = self.http.get(url);
         if let Some(t) = token {
             req = req.bearer_auth(t);

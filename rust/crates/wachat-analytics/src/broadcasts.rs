@@ -19,9 +19,15 @@ const BROADCASTS_COLL: &str = "broadcasts";
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BroadcastAnalyticsBody {
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub start_date: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub end_date: Option<DateTime<Utc>>,
 }
 
@@ -34,7 +40,10 @@ pub struct BroadcastSummary {
     pub success_count: u64,
     pub failed_count: u64,
     pub status: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub created_at: Option<DateTime<Utc>>,
 }
 
@@ -98,10 +107,7 @@ pub async fn aggregate(
             success_count: success,
             failed_count: failed,
             status: d.get_str("status").unwrap_or("").to_string(),
-            created_at: d
-                .get_datetime("createdAt")
-                .ok()
-                .map(|dt| dt.to_chrono()),
+            created_at: d.get_datetime("createdAt").ok().map(|dt| dt.to_chrono()),
         });
     }
     Ok(result)

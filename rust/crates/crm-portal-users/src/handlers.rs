@@ -187,9 +187,10 @@ pub async fn list_portal_users(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmPortalUser>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_portal_users.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_portal_users.find"))
+        })?;
     let mut rows: Vec<CrmPortalUser> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_portal_users.collect"))
     })?;
@@ -241,8 +242,7 @@ pub async fn create_portal_user(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -282,9 +282,7 @@ pub async fn update_portal_user(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_portal_users.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_portal_users.refetch")))?
         .ok_or_else(|| ApiError::NotFound("portal_user".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,

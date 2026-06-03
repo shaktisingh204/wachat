@@ -27,9 +27,9 @@
 //! Other crates depend on these DTOs (`sabprep-recipes`, `sabprep-runs`).
 //! The DTOs are pure — no I/O, no async.
 
+pub mod engine;
 pub mod ops;
 pub mod step;
-pub mod engine;
 
-pub use step::{Step, StepKind, StepRunSummary, StepError, Row};
-pub use engine::{apply_steps, ExecutionResult};
+pub use engine::{ExecutionResult, apply_steps};
+pub use step::{Row, Step, StepError, StepKind, StepRunSummary};

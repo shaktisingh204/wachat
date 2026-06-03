@@ -28,6 +28,10 @@ pub struct SabsheetVersion {
     pub comment: Option<String>,
 
     /// SabFiles file id for the dumped workbook JSON.
-    #[serde(default, rename = "snapshotFileId", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "snapshotFileId",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub snapshot_file_id: Option<ObjectId>,
 }

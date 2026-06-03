@@ -77,9 +77,15 @@ pub struct ChannelRow {
     #[serde(rename = "isAdmin")]
     pub is_admin: bool,
     pub permissions: ChannelPermissions,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "lastSyncedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "lastSyncedAt"
+    )]
     pub last_synced_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -202,7 +208,12 @@ pub struct PostMessage {
         skip_serializing_if = "Option::is_none"
     )]
     pub disable_notification: Option<bool>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "scheduleAt", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "scheduleAt",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub schedule_at: Option<DateTime<Utc>>,
 }
 
@@ -261,9 +272,17 @@ pub struct PostRow {
     pub is_pinned: bool,
     #[serde(rename = "views", skip_serializing_if = "Option::is_none")]
     pub views: Option<i64>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "sentAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "sentAt"
+    )]
     pub sent_at: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", rename = "editedAt", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        rename = "editedAt",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub edited_at: Option<DateTime<Utc>>,
 }
 
@@ -285,9 +304,15 @@ pub struct ScheduledRow {
     #[serde(rename = "inlineKeyboard", skip_serializing_if = "Option::is_none")]
     pub inline_keyboard: Option<Value>,
     pub status: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "scheduledAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "scheduledAt"
+    )]
     pub scheduled_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -624,10 +649,7 @@ pub async fn discover(
         Ok(c) => c,
         Err(e) => return err(map_bot_err(e)),
     };
-    let kind = chat
-        .kind
-        .clone()
-        .unwrap_or_else(|| "channel".to_owned());
+    let kind = chat.kind.clone().unwrap_or_else(|| "channel".to_owned());
     if kind != "channel" && kind != "supergroup" {
         return err("That chat is not a channel or supergroup.");
     }
@@ -663,10 +685,15 @@ pub async fn discover(
             Err(_) => {
                 // Fall back to scanning administrators if the direct
                 // getChatMember call fails.
-                if let Ok(list) = s.bot_api.get_chat_administrators(&token, &target_chat).await {
-                    if let Some(m) = list.iter().find(|m| {
-                        m.user.get("id").and_then(|v| v.as_i64()) == Some(uid)
-                    }) {
+                if let Ok(list) = s
+                    .bot_api
+                    .get_chat_administrators(&token, &target_chat)
+                    .await
+                {
+                    if let Some(m) = list
+                        .iter()
+                        .find(|m| m.user.get("id").and_then(|v| v.as_i64()) == Some(uid))
+                    {
                         is_admin = true;
                         permissions = permissions_from_member(m);
                     }
@@ -817,11 +844,7 @@ pub async fn get_channel(
                 .clone()
                 .or_else(|| chat.username.clone())
                 .unwrap_or_default();
-            let member_count = s
-                .bot_api
-                .get_chat_member_count(&t, &outbound)
-                .await
-                .ok();
+            let member_count = s.bot_api.get_chat_member_count(&t, &outbound).await.ok();
             let bot_doc = s
                 .mongo
                 .collection::<Document>(BOTS)
@@ -1226,7 +1249,9 @@ pub async fn post_message(
     // pick it up at `scheduledAt`.
     if let Some(schedule_at) = body.message.schedule_at {
         let now = bson::DateTime::now();
-        let message_bson = bson::to_bson(&body.message).ok().unwrap_or(bson::Bson::Null);
+        let message_bson = bson::to_bson(&body.message)
+            .ok()
+            .unwrap_or(bson::Bson::Null);
         let inline_bson = body
             .inline_keyboard
             .as_ref()
@@ -1296,32 +1321,19 @@ pub async fn post_message(
                     let mut item = serde_json::Map::new();
                     item.insert(
                         "type".to_owned(),
-                        Value::String(
-                            m.kind
-                                .clone()
-                                .unwrap_or_else(|| "photo".to_owned()),
-                        ),
+                        Value::String(m.kind.clone().unwrap_or_else(|| "photo".to_owned())),
                     );
                     item.insert("media".to_owned(), Value::String(m.url.clone()));
                     // Only attach caption + parse_mode to the first item;
                     // Telegram applies it to the whole album that way.
                     if i == 0 {
                         if let Some(c) = body.message.text.as_deref() {
-                            item.insert(
-                                "caption".to_owned(),
-                                Value::String(c.to_owned()),
-                            );
+                            item.insert("caption".to_owned(), Value::String(c.to_owned()));
                         } else if let Some(c) = m.caption.as_deref() {
-                            item.insert(
-                                "caption".to_owned(),
-                                Value::String(c.to_owned()),
-                            );
+                            item.insert("caption".to_owned(), Value::String(c.to_owned()));
                         }
                         if let Some(pm) = parse_mode.as_deref() {
-                            item.insert(
-                                "parse_mode".to_owned(),
-                                Value::String(pm.to_owned()),
-                            );
+                            item.insert("parse_mode".to_owned(), Value::String(pm.to_owned()));
                         }
                     }
                     Value::Object(item)
@@ -1335,7 +1347,11 @@ pub async fn post_message(
             match s.bot_api.send_media_group(&token, &payload).await {
                 Ok(msgs) => {
                     let first_id = msgs.first().map(|m| m.message_id).unwrap_or_default();
-                    (first_id, "mediaGroup", Some(serde_json::to_value(group).unwrap_or(Value::Null)))
+                    (
+                        first_id,
+                        "mediaGroup",
+                        Some(serde_json::to_value(group).unwrap_or(Value::Null)),
+                    )
                 }
                 Err(e) => return err(map_bot_err(e)),
             }
@@ -1747,7 +1763,11 @@ pub async fn delete_post(
     let username = channel.get_str("username").ok().map(str::to_owned);
     let outbound = outbound_chat_id(&chat_id, username.as_deref());
 
-    if let Err(e) = s.bot_api.delete_message(&token, &outbound, message_id).await {
+    if let Err(e) = s
+        .bot_api
+        .delete_message(&token, &outbound, message_id)
+        .await
+    {
         return err(map_bot_err(e));
     }
     let _ = s
@@ -2138,12 +2158,11 @@ pub async fn stats(
         .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
         .map(|d| d.with_timezone(&Utc))
         .unwrap_or_else(|| Utc::now() - chrono::Duration::days(30));
-    let to = q
-        .to
-        .as_deref()
-        .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-        .map(|d| d.with_timezone(&Utc))
-        .unwrap_or_else(Utc::now);
+    let to =
+        q.to.as_deref()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+            .map(|d| d.with_timezone(&Utc))
+            .unwrap_or_else(Utc::now);
 
     let posts_coll = s.mongo.collection::<Document>(POSTS);
     let posts_count = posts_coll
@@ -2232,4 +2251,3 @@ pub async fn stats(
         error: None,
     })
 }
-

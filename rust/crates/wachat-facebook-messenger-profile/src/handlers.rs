@@ -91,10 +91,7 @@ pub async fn load_project_for(
     }
 
     Ok(ProjectCtx {
-        facebook_page_id: doc
-            .get_str("facebookPageId")
-            .ok()
-            .map(|s| s.to_owned()),
+        facebook_page_id: doc.get_str("facebookPageId").ok().map(|s| s.to_owned()),
         access_token: doc.get_str("accessToken").ok().map(|s| s.to_owned()),
     })
 }
@@ -155,7 +152,9 @@ pub async fn get_messenger_profile(
         }
     };
 
-    let fields = q.fields.unwrap_or_else(|| DEFAULT_PROFILE_FIELDS.to_owned());
+    let fields = q
+        .fields
+        .unwrap_or_else(|| DEFAULT_PROFILE_FIELDS.to_owned());
     let path = format!(
         "me/messenger_profile?fields={}",
         urlencoding::encode(&fields)

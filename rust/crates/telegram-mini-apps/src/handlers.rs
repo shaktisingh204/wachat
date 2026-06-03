@@ -81,9 +81,15 @@ pub struct MiniAppRow {
     #[serde(rename = "allowedDomains")]
     pub allowed_domains: Vec<String>,
     pub status: String,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -240,7 +246,10 @@ pub struct SessionRow {
     pub username: Option<String>,
     #[serde(rename = "firstName", skip_serializing_if = "Option::is_none")]
     pub first_name: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "validatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "validatedAt"
+    )]
     pub validated_at: DateTime<Utc>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,
@@ -362,9 +371,7 @@ async fn require_bot_in_project(
 /// theme params.
 fn is_hex_color(s: &str) -> bool {
     let b = s.as_bytes();
-    b.len() == 7
-        && b[0] == b'#'
-        && b[1..].iter().all(|c| c.is_ascii_hexdigit())
+    b.len() == 7 && b[0] == b'#' && b[1..].iter().all(|c| c.is_ascii_hexdigit())
 }
 
 fn validate_theme(t: &ThemeParams) -> Result<(), String> {
@@ -459,10 +466,7 @@ fn doc_to_row(d: &Document) -> Option<MiniAppRow> {
         description: d.get_str("description").ok().map(str::to_owned),
         photo_url: d.get_str("photoUrl").ok().map(str::to_owned),
         theme_params: theme,
-        default_button_label: d
-            .get_str("defaultButtonLabel")
-            .unwrap_or("Open")
-            .to_owned(),
+        default_button_label: d.get_str("defaultButtonLabel").unwrap_or("Open").to_owned(),
         allowed_domains,
         status: d.get_str("status").unwrap_or("active").to_owned(),
         created_at: dt(d.get_datetime("createdAt").ok().copied()),
@@ -568,19 +572,7 @@ fn regex_escape(s: &str) -> String {
     for c in s.chars() {
         if matches!(
             c,
-            '.' | '+'
-                | '*'
-                | '?'
-                | '('
-                | ')'
-                | '['
-                | ']'
-                | '{'
-                | '}'
-                | '^'
-                | '$'
-                | '|'
-                | '\\'
+            '.' | '+' | '*' | '?' | '(' | ')' | '[' | ']' | '{' | '}' | '^' | '$' | '|' | '\\'
         ) {
             out.push('\\');
         }
@@ -851,7 +843,10 @@ pub async fn update(
     }
 
     match coll
-        .update_one(doc! { "_id": app_oid, "projectId": project_oid }, update_doc)
+        .update_one(
+            doc! { "_id": app_oid, "projectId": project_oid },
+            update_doc,
+        )
         .await
     {
         Ok(r) if r.matched_count == 0 => err_ack("Mini app not found."),
@@ -978,7 +973,10 @@ pub async fn send_to_chat(
     };
 
     let web_app_url = app.get_str("webAppUrl").unwrap_or("").to_owned();
-    let default_label = app.get_str("defaultButtonLabel").unwrap_or("Open").to_owned();
+    let default_label = app
+        .get_str("defaultButtonLabel")
+        .unwrap_or("Open")
+        .to_owned();
     let app_name = app.get_str("name").unwrap_or("Mini App").to_owned();
     let label = body.label.clone().unwrap_or(default_label);
     let style = body
@@ -1098,7 +1096,10 @@ pub async fn set_menu_button(
         Ok(t) if !t.is_empty() => t.to_owned(),
         _ => return err_ack("Bot is missing token."),
     };
-    let label = app.get_str("defaultButtonLabel").unwrap_or("Open").to_owned();
+    let label = app
+        .get_str("defaultButtonLabel")
+        .unwrap_or("Open")
+        .to_owned();
     let web_app_url = app.get_str("webAppUrl").unwrap_or("").to_owned();
 
     let menu_button = json!({
@@ -1313,12 +1314,9 @@ pub async fn validate_init_data(
     for (k, v) in &pairs {
         map.insert(k.as_str(), v.as_str());
     }
-    let user_json: Option<serde_json::Value> = map
-        .get("user")
-        .and_then(|s| serde_json::from_str(s).ok());
-    let auth_date = map
-        .get("auth_date")
-        .and_then(|s| s.parse::<i64>().ok());
+    let user_json: Option<serde_json::Value> =
+        map.get("user").and_then(|s| serde_json::from_str(s).ok());
+    let auth_date = map.get("auth_date").and_then(|s| s.parse::<i64>().ok());
     let query_id = map.get("query_id").map(|s| s.to_string());
 
     // 5. Log a session row (best-effort; failures don't block validation).
@@ -1427,11 +1425,17 @@ pub async fn list_sessions(
             });
         }
     };
-    let next_cursor = docs.last().and_then(|d| d.get_object_id("_id").ok()).map(|o| o.to_hex());
+    let next_cursor = docs
+        .last()
+        .and_then(|d| d.get_object_id("_id").ok())
+        .map(|o| o.to_hex());
     let sessions = docs
         .iter()
         .map(|d| SessionRow {
-            _id: d.get_object_id("_id").map(|o| o.to_hex()).unwrap_or_default(),
+            _id: d
+                .get_object_id("_id")
+                .map(|o| o.to_hex())
+                .unwrap_or_default(),
             chat_id: d.get_i64("chatId").ok(),
             user_id: d.get_i64("userId").ok(),
             username: d.get_str("username").ok().map(str::to_owned),
@@ -1494,12 +1498,11 @@ pub async fn analytics(
         .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
         .map(|d| d.with_timezone(&Utc))
         .unwrap_or(now - Duration::days(7));
-    let to = q
-        .to
-        .as_deref()
-        .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-        .map(|d| d.with_timezone(&Utc))
-        .unwrap_or(now);
+    let to =
+        q.to.as_deref()
+            .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
+            .map(|d| d.with_timezone(&Utc))
+            .unwrap_or(now);
     let from_bson = bson::DateTime::from_chrono(from);
     let to_bson = bson::DateTime::from_chrono(to);
 
@@ -1508,12 +1511,7 @@ pub async fn analytics(
         "appId": app_oid,
         "validatedAt": { "$gte": from_bson, "$lte": to_bson },
     };
-    let cur = match s
-        .mongo
-        .collection::<Document>(SESSIONS)
-        .find(filter)
-        .await
-    {
+    let cur = match s.mongo.collection::<Document>(SESSIONS).find(filter).await {
         Ok(c) => c,
         Err(e) => {
             return Json(AnalyticsResp {

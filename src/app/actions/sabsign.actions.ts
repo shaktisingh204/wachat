@@ -429,3 +429,11 @@ export async function generateKioskLink(envelopeId: string, signerId: string, pi
     pin,
   };
 }
+
+export async function listAuditEvents(params?: { envelopeId?: string; eventType?: string; limit?: number }) {
+    try {
+        return await sabsignAuditApi.list(params);
+    } catch (err: any) {
+        return { items: [], chainValid: true };
+    }
+}

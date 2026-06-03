@@ -66,11 +66,10 @@ pub async fn list_funnels(
         .build();
 
     let coll = mongo.collection::<Funnel>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("pagesense_funnels.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("pagesense_funnels.find"))
+        })?;
     let mut rows: Vec<Funnel> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("pagesense_funnels.collect"))
     })?;
@@ -172,7 +171,9 @@ pub async fn update_funnel(
     let result = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("pagesense_funnels.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("pagesense_funnels.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("funnel".into()));
     }

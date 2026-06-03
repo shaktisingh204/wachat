@@ -3,23 +3,22 @@ export const dynamic = 'force-dynamic';
 /**
  * /sabcrm layout — native SabCRM inside the shared SabNode shell.
  *
- * SabCRM is a metadata-driven CRM built natively in SabNode (metadata in Mongo,
- * server actions for CRUD, ZoruUI for rendering). This layout wraps every
- * `/sabcrm/*` page in `ZoruHomeShell` — the SAME vertical app rail, header,
- * sidebar, bottom dock and ⌘K command palette used by `/dashboard` — so SabCRM
- * is a first-class citizen of the SabNode app shell rather than a bolt-on.
+ * SabCRM is a metadata-driven CRM, rendered here in a Twenty-faithful frame.
+ * This layout keeps ALL of the SabNode gating (session/onboarding/RBAC guard)
+ * and the React context providers (ProjectProvider + LocaleProvider) so pages
+ * can call `useProject()` and the gated server actions resolve a project — but
+ * it swaps the visual shell from `ZoruHomeShell` to `TwentyAppFrame` so every
+ * `/sabcrm/*` page renders inside Twenty's sidebar + main frame.
  *
- * Mirrors `src/app/dashboard/layout.tsx`: session/onboarding/RBAC guard,
- * ProjectProvider + LocaleProvider, server-resolved locale, plan-card credits.
+ * Mirrors `src/app/dashboard/layout.tsx` for the gating pipeline; only the
+ * visual chrome differs (Twenty's `.sabcrm-twenty` scope, not the ZoruUI shell).
  */
-
-import '@/styles/zoruui.css';
 
 import React from 'react';
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { ZoruHomeShell } from '@/components/zoruui';
+import { TwentyAppFrame } from '@/components/sabcrm/twenty';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { RBACGuard } from '@/components/zoruui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';
@@ -59,37 +58,11 @@ export default async function SabcrmLayout({
 
   const locale = await getCurrentLocale();
 
-  // Collapse the per-channel credits map to a single total for the
-  // sidebar plan-card readout (same logic as /dashboard).
-  const credits = user?.credits;
-  const totalCredits =
-    typeof credits === 'number'
-      ? credits
-      : credits && typeof credits === 'object'
-        ? Object.values(credits).reduce<number>(
-            (sum, v) => sum + (typeof v === 'number' ? v : 0),
-            0,
-          )
-        : 0;
-
   return (
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
         <ProjectProvider initialProjects={projects} user={user}>
-          <ZoruHomeShell
-            user={{
-              name: user?.name,
-              email: user?.email,
-              avatar: user?.image,
-              role: user?.role,
-            }}
-            plan={{
-              name: user?.plan?.name,
-              credits: totalCredits,
-            }}
-          >
-            {children}
-          </ZoruHomeShell>
+          <TwentyAppFrame>{children}</TwentyAppFrame>
         </ProjectProvider>
       </LocaleProvider>
     </RBACGuard>

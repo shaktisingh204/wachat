@@ -38,7 +38,14 @@ pub const MAX_LIMIT: i64 = 100;
 /// list-filtering and update mutations. Mirrors the serde `snake_case`
 /// representation of the enum so wire values round-trip cleanly.
 pub const ALLOWED_STATUSES: &[&str] = &[
-    "draft", "received", "partial", "inspected", "qc_failed", "posted", "closed", "rejected",
+    "draft",
+    "received",
+    "partial",
+    "inspected",
+    "qc_failed",
+    "posted",
+    "closed",
+    "rejected",
 ];
 
 /// `GET /v1/crm/grns` query string.

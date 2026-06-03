@@ -186,8 +186,8 @@ pub async fn get_rule(
     Path(rule_id): Path<String>,
 ) -> Result<Json<GetRuleResponse>> {
     let tenant_id = tenant_oid(&user)?;
-    let rule_oid = oid_from_str(&rule_id)
-        .map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
+    let rule_oid =
+        oid_from_str(&rule_id).map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
 
     let found = state
         .mongo
@@ -220,11 +220,16 @@ pub async fn update_rule(
         return Err(ApiError::BadRequest("no fields to update".to_owned()));
     }
     let tenant_id = tenant_oid(&user)?;
-    let rule_oid = oid_from_str(&rule_id)
-        .map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
+    let rule_oid =
+        oid_from_str(&rule_id).map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
 
     let mut set = doc! { "updated_at": bson::DateTime::from_chrono(Utc::now()) };
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", name);
     }
     if let Some(when) = body.when_status.as_deref().map(str::trim) {
@@ -268,8 +273,8 @@ pub async fn delete_rule(
     Path(rule_id): Path<String>,
 ) -> Result<Json<SuccessResponse>> {
     let tenant_id = tenant_oid(&user)?;
-    let rule_oid = oid_from_str(&rule_id)
-        .map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
+    let rule_oid =
+        oid_from_str(&rule_id).map_err(|_| ApiError::BadRequest("invalid rule id".to_owned()))?;
 
     let res = state
         .mongo
@@ -341,11 +346,11 @@ pub async fn preview(
     // 2) Pull today's attendance row for that employee. If the tenant
     //    has multiple punches, we trust the most recent `checkInAt` /
     //    `checkOutAt` so a mid-day status flip is honoured.
-    let attendance =
-        latest_attendance_today(&state.mongo, tenant_id, employee_id).await?;
-    let Some(att_status) = attendance.as_ref().and_then(|d| {
-        d.get_str("status").ok().map(|s| s.to_owned())
-    }) else {
+    let attendance = latest_attendance_today(&state.mongo, tenant_id, employee_id).await?;
+    let Some(att_status) = attendance
+        .as_ref()
+        .and_then(|d| d.get_str("status").ok().map(|s| s.to_owned()))
+    else {
         return Ok(Json(PreviewResponse {
             effective_presence: "offline".to_owned(),
             source: "no-attendance".to_owned(),
@@ -413,10 +418,7 @@ pub async fn sync_tenant(mongo: &MongoHandle, tenant_id: ObjectId) -> anyhow::Re
 
 /// Core sync algorithm. Pulled out of [`sync`] so the public
 /// [`sync_tenant`] helper can call it without an auth round-trip.
-async fn sync_tenant_inner(
-    mongo: &MongoHandle,
-    tenant_id: ObjectId,
-) -> anyhow::Result<SyncReport> {
+async fn sync_tenant_inner(mongo: &MongoHandle, tenant_id: ObjectId) -> anyhow::Result<SyncReport> {
     let (start, end) = today_window_utc();
 
     // 1) Load active rules for this tenant — small set, keep in memory.

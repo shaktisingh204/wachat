@@ -202,14 +202,14 @@ pub async fn list_macros(
         .build();
 
     let coll = state.mongo.collection::<Document>(MACROS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.find"))
+        })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.find")))?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.collect")))?;
 
     let next_cursor = if (docs.len() as i64) >= limit {
         docs.last()
@@ -220,7 +220,10 @@ pub async fn list_macros(
     };
 
     let macros: Vec<Value> = docs.into_iter().map(document_to_clean_json).collect();
-    Ok(Json(ListMacrosResponse { macros, next_cursor }))
+    Ok(Json(ListMacrosResponse {
+        macros,
+        next_cursor,
+    }))
 }
 
 // ===========================================================================
@@ -303,9 +306,7 @@ pub async fn update_macro(
         doc! { "$set": set },
     )
     .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.update_one"))
-    })?;
+    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_macros.update_one")))?;
 
     let fresh = load_macro_scoped(&state.mongo, tenant, &id).await?;
     Ok(Json(MacroResponse {

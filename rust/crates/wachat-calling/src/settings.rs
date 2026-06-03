@@ -199,15 +199,13 @@ pub async fn save_settings(
         if let Some(hours) = body.call_hours {
             obj.insert(
                 "call_hours".into(),
-                serde_json::to_value(hours)
-                    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?,
+                serde_json::to_value(hours).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?,
             );
         }
         if let Some(sip) = body.sip {
             obj.insert(
                 "sip".into(),
-                serde_json::to_value(sip)
-                    .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?,
+                serde_json::to_value(sip).map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?,
             );
         }
         Value::Object(obj)

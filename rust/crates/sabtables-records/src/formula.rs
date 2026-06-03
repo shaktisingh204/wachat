@@ -53,7 +53,13 @@ impl Value {
                 }
             }
             Value::Text(s) => s.clone(),
-            Value::Bool(b) => if *b { "true".to_owned() } else { "false".to_owned() },
+            Value::Bool(b) => {
+                if *b {
+                    "true".to_owned()
+                } else {
+                    "false".to_owned()
+                }
+            }
             Value::Empty => String::new(),
         }
     }
@@ -125,18 +131,42 @@ fn tokenize(src: &str) -> Result<Vec<Token>, FormulaError> {
             ' ' | '\t' | '\n' | '\r' => {
                 chars.next();
             }
-            '(' => { chars.next(); out.push(Token::LParen); }
-            ')' => { chars.next(); out.push(Token::RParen); }
-            ',' => { chars.next(); out.push(Token::Comma); }
-            '+' => { chars.next(); out.push(Token::Plus); }
-            '-' => { chars.next(); out.push(Token::Minus); }
-            '*' => { chars.next(); out.push(Token::Star); }
-            '/' => { chars.next(); out.push(Token::Slash); }
+            '(' => {
+                chars.next();
+                out.push(Token::LParen);
+            }
+            ')' => {
+                chars.next();
+                out.push(Token::RParen);
+            }
+            ',' => {
+                chars.next();
+                out.push(Token::Comma);
+            }
+            '+' => {
+                chars.next();
+                out.push(Token::Plus);
+            }
+            '-' => {
+                chars.next();
+                out.push(Token::Minus);
+            }
+            '*' => {
+                chars.next();
+                out.push(Token::Star);
+            }
+            '/' => {
+                chars.next();
+                out.push(Token::Slash);
+            }
             '{' => {
                 chars.next();
                 let mut name = String::new();
                 while let Some(&ch) = chars.peek() {
-                    if ch == '}' { chars.next(); break; }
+                    if ch == '}' {
+                        chars.next();
+                        break;
+                    }
                     name.push(ch);
                     chars.next();
                 }
@@ -147,7 +177,10 @@ fn tokenize(src: &str) -> Result<Vec<Token>, FormulaError> {
                 chars.next();
                 let mut s = String::new();
                 while let Some(&ch) = chars.peek() {
-                    if ch == quote { chars.next(); break; }
+                    if ch == quote {
+                        chars.next();
+                        break;
+                    }
                     if ch == '\\' {
                         chars.next();
                         if let Some(&esc) = chars.peek() {
@@ -171,9 +204,9 @@ fn tokenize(src: &str) -> Result<Vec<Token>, FormulaError> {
                         break;
                     }
                 }
-                let v = n.parse::<f64>().map_err(|_| {
-                    FormulaError(format!("bad number literal \"{n}\""))
-                })?;
+                let v = n
+                    .parse::<f64>()
+                    .map_err(|_| FormulaError(format!("bad number literal \"{n}\"")))?;
                 out.push(Token::Number(v));
             }
             ch if ch.is_ascii_alphabetic() || ch == '_' => {
@@ -246,8 +279,14 @@ impl<'a> Parser<'a> {
                         let rn = right.to_number();
                         let both_numeric = !left.to_text().is_empty()
                             && !right.to_text().is_empty()
-                            && left.to_text().chars().all(|c| c.is_ascii_digit() || c == '.' || c == '-')
-                            && right.to_text().chars().all(|c| c.is_ascii_digit() || c == '.' || c == '-');
+                            && left
+                                .to_text()
+                                .chars()
+                                .all(|c| c.is_ascii_digit() || c == '.' || c == '-')
+                            && right
+                                .to_text()
+                                .chars()
+                                .all(|c| c.is_ascii_digit() || c == '.' || c == '-');
                         left = if both_numeric {
                             Value::Number(ln + rn)
                         } else {
@@ -305,7 +344,9 @@ impl<'a> Parser<'a> {
         match self.eat() {
             Some(Token::Number(n)) => Ok(Value::Number(n)),
             Some(Token::Text(s)) => Ok(Value::Text(s)),
-            Some(Token::FieldRef(name)) => Ok(self.fields.get(&name).cloned().unwrap_or(Value::Empty)),
+            Some(Token::FieldRef(name)) => {
+                Ok(self.fields.get(&name).cloned().unwrap_or(Value::Empty))
+            }
             Some(Token::LParen) => {
                 let v = self.parse_expr()?;
                 self.expect(&Token::RParen)?;
@@ -347,7 +388,8 @@ impl<'a> Parser<'a> {
             "IF" => {
                 if args.len() != 3 {
                     return Err(FormulaError(format!(
-                        "IF expects 3 args, got {}", args.len()
+                        "IF expects 3 args, got {}",
+                        args.len()
                     )));
                 }
                 if args[0].to_bool() {
@@ -362,7 +404,8 @@ impl<'a> Parser<'a> {
             "LEN" => {
                 if args.len() != 1 {
                     return Err(FormulaError(format!(
-                        "LEN expects 1 arg, got {}", args.len()
+                        "LEN expects 1 arg, got {}",
+                        args.len()
                     )));
                 }
                 Ok(Value::Number(args[0].to_text().chars().count() as f64))
@@ -370,7 +413,8 @@ impl<'a> Parser<'a> {
             "LOWER" => {
                 if args.len() != 1 {
                     return Err(FormulaError(format!(
-                        "LOWER expects 1 arg, got {}", args.len()
+                        "LOWER expects 1 arg, got {}",
+                        args.len()
                     )));
                 }
                 Ok(Value::Text(args[0].to_text().to_lowercase()))
@@ -378,7 +422,8 @@ impl<'a> Parser<'a> {
             "UPPER" => {
                 if args.len() != 1 {
                     return Err(FormulaError(format!(
-                        "UPPER expects 1 arg, got {}", args.len()
+                        "UPPER expects 1 arg, got {}",
+                        args.len()
                     )));
                 }
                 Ok(Value::Text(args[0].to_text().to_uppercase()))
@@ -391,7 +436,11 @@ impl<'a> Parser<'a> {
 /// Evaluate a formula expression against a `field name -> value` map.
 pub fn evaluate(expression: &str, fields: &HashMap<String, Value>) -> Result<Value, FormulaError> {
     let tokens = tokenize(expression)?;
-    let mut p = Parser { tokens, pos: 0, fields };
+    let mut p = Parser {
+        tokens,
+        pos: 0,
+        fields,
+    };
     let v = p.parse_expr()?;
     if p.peek().is_some() {
         return Err(FormulaError("trailing tokens after expression".to_owned()));
@@ -423,7 +472,10 @@ mod tests {
 
     #[test]
     fn concat_len_case() {
-        assert_eq!(eval("CONCAT(\"hi\", \" \", \"there\")"), Value::Text("hi there".into()));
+        assert_eq!(
+            eval("CONCAT(\"hi\", \" \", \"there\")"),
+            Value::Text("hi there".into())
+        );
         assert_eq!(eval("LEN(\"hello\")"), Value::Number(5.0));
         assert_eq!(eval("UPPER(\"abc\")"), Value::Text("ABC".into()));
         assert_eq!(eval("LOWER(\"XYZ\")"), Value::Text("xyz".into()));

@@ -20,7 +20,9 @@ use sabnode_auth::AuthUser;
 use serde_json::Value;
 use tracing::warn;
 
-use crate::dto::{ActivityEntry, ActivityResp, ConfigResp, FormsResp, FacebookLeadGenForm, LeadGenConfig};
+use crate::dto::{
+    ActivityEntry, ActivityResp, ConfigResp, FacebookLeadGenForm, FormsResp, LeadGenConfig,
+};
 use crate::state::WachatFacebookLeadGenState;
 
 const CONFIG_COLL: &str = "crm_facebook_leadgen_config";
@@ -43,10 +45,16 @@ pub async fn get_config(
 ) -> Json<ConfigResp> {
     let coll = s.mongo.collection::<LeadGenConfig>(CONFIG_COLL);
     match coll.find_one(doc! { "tenantId": &user.user_id }).await {
-        Ok(config) => Json(ConfigResp { config, error: None }),
+        Ok(config) => Json(ConfigResp {
+            config,
+            error: None,
+        }),
         Err(e) => {
             warn!("get_config: mongo error: {e}");
-            Json(ConfigResp { config: None, error: Some(e.to_string()) })
+            Json(ConfigResp {
+                config: None,
+                error: Some(e.to_string()),
+            })
         }
     }
 }
@@ -86,13 +94,22 @@ pub async fn upsert_config(
     match coll.update_one(filter, update).upsert(true).await {
         Err(e) => {
             warn!("upsert_config: mongo error: {e}");
-            Json(ConfigResp { config: None, error: Some(e.to_string()) })
+            Json(ConfigResp {
+                config: None,
+                error: Some(e.to_string()),
+            })
         }
         Ok(_) => {
             let typed = s.mongo.collection::<LeadGenConfig>(CONFIG_COLL);
             match typed.find_one(doc! { "tenantId": &user.user_id }).await {
-                Ok(config) => Json(ConfigResp { config, error: None }),
-                Err(e) => Json(ConfigResp { config: None, error: Some(e.to_string()) }),
+                Ok(config) => Json(ConfigResp {
+                    config,
+                    error: None,
+                }),
+                Err(e) => Json(ConfigResp {
+                    config: None,
+                    error: Some(e.to_string()),
+                }),
             }
         }
     }
@@ -114,13 +131,22 @@ pub async fn delete_form(
     match coll.update_one(filter, update).await {
         Err(e) => {
             warn!("delete_form: mongo error: {e}");
-            Json(ConfigResp { config: None, error: Some(e.to_string()) })
+            Json(ConfigResp {
+                config: None,
+                error: Some(e.to_string()),
+            })
         }
         Ok(_) => {
             let typed = s.mongo.collection::<LeadGenConfig>(CONFIG_COLL);
             match typed.find_one(doc! { "tenantId": &user.user_id }).await {
-                Ok(config) => Json(ConfigResp { config, error: None }),
-                Err(e) => Json(ConfigResp { config: None, error: Some(e.to_string()) }),
+                Ok(config) => Json(ConfigResp {
+                    config,
+                    error: None,
+                }),
+                Err(e) => Json(ConfigResp {
+                    config: None,
+                    error: Some(e.to_string()),
+                }),
             }
         }
     }
@@ -145,7 +171,10 @@ pub async fn list_config_forms(
             });
         }
         Err(e) => {
-            return Json(FormsResp { forms: None, error: Some(e.to_string()) });
+            return Json(FormsResp {
+                forms: None,
+                error: Some(e.to_string()),
+            });
         }
     };
 
@@ -161,7 +190,11 @@ pub async fn list_config_forms(
         config.page_id
     );
 
-    match s.meta.get_json::<Value>(&path, &config.page_access_token).await {
+    match s
+        .meta
+        .get_json::<Value>(&path, &config.page_access_token)
+        .await
+    {
         Ok(v) => {
             let raw = pull_data_array(&v);
             let mut forms = Vec::with_capacity(raw.len());
@@ -170,9 +203,15 @@ pub async fn list_config_forms(
                     forms.push(f);
                 }
             }
-            Json(FormsResp { forms: Some(forms), error: None })
+            Json(FormsResp {
+                forms: Some(forms),
+                error: None,
+            })
         }
-        Err(e) => Json(FormsResp { forms: None, error: Some(e.to_string()) }),
+        Err(e) => Json(FormsResp {
+            forms: None,
+            error: Some(e.to_string()),
+        }),
     }
 }
 
@@ -196,9 +235,18 @@ pub async fn get_activity(
         .await
     {
         Ok(cursor) => match cursor.try_collect::<Vec<ActivityEntry>>().await {
-            Ok(entries) => Json(ActivityResp { entries, error: None }),
-            Err(e) => Json(ActivityResp { entries: vec![], error: Some(e.to_string()) }),
+            Ok(entries) => Json(ActivityResp {
+                entries,
+                error: None,
+            }),
+            Err(e) => Json(ActivityResp {
+                entries: vec![],
+                error: Some(e.to_string()),
+            }),
         },
-        Err(e) => Json(ActivityResp { entries: vec![], error: Some(e.to_string()) }),
+        Err(e) => Json(ActivityResp {
+            entries: vec![],
+            error: Some(e.to_string()),
+        }),
     }
 }

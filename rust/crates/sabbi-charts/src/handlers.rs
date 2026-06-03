@@ -96,10 +96,18 @@ fn chart_from_create(input: CreateChartInput, user_id: ObjectId) -> Result<BiCha
 
 fn build_update_doc(patch: UpdateChartInput) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
-    if let Some(v) = patch.dataset_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = patch
+        .dataset_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         set.insert("datasetId", v);
     }
     if let Some(v) = patch.chart_type {
@@ -294,7 +302,9 @@ pub async fn run_chart_handler(
     let dataset = datasets
         .find_one(doc! { "_id": chart.dataset_id, "userId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.dataset.find")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_charts.dataset.find"))
+        })?
         .ok_or_else(|| ApiError::NotFound("dataset".to_owned()))?;
     let source = dataset.get_str("source").unwrap_or("");
     if source != "mongo_collection" {

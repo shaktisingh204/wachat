@@ -139,7 +139,11 @@ pub struct ProductionOrder {
 
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub start: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]

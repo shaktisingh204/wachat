@@ -195,30 +195,24 @@ fn doc_to_row(d: &Document) -> Option<BotRow> {
         .ok()
         .map(|b| Utc.timestamp_millis_opt(b.timestamp_millis()).single())
         .flatten();
-    let webhook_info = d
-        .get_document("webhookInfo")
-        .ok()
-        .map(|w| WebhookInfoView {
-            url: w.get_str("url").ok().map(str::to_owned),
-            pending_update_count: w.get_i64("pendingUpdateCount").ok(),
-            last_error_message: w.get_str("lastErrorMessage").ok().map(str::to_owned),
-            last_error_date: w
-                .get_datetime("lastErrorDate")
-                .ok()
-                .map(|b| Utc.timestamp_millis_opt(b.timestamp_millis()).single())
-                .flatten(),
-            max_connections: w.get_i64("maxConnections").ok(),
-            ip_address: w.get_str("ipAddress").ok().map(str::to_owned),
-            allowed_updates: w
-                .get_array("allowedUpdates")
-                .ok()
-                .map(|a| {
-                    a.iter()
-                        .filter_map(|v| v.as_str().map(str::to_owned))
-                        .collect::<Vec<_>>()
-                }),
-            has_custom_certificate: w.get_bool("hasCustomCertificate").ok(),
-        });
+    let webhook_info = d.get_document("webhookInfo").ok().map(|w| WebhookInfoView {
+        url: w.get_str("url").ok().map(str::to_owned),
+        pending_update_count: w.get_i64("pendingUpdateCount").ok(),
+        last_error_message: w.get_str("lastErrorMessage").ok().map(str::to_owned),
+        last_error_date: w
+            .get_datetime("lastErrorDate")
+            .ok()
+            .map(|b| Utc.timestamp_millis_opt(b.timestamp_millis()).single())
+            .flatten(),
+        max_connections: w.get_i64("maxConnections").ok(),
+        ip_address: w.get_str("ipAddress").ok().map(str::to_owned),
+        allowed_updates: w.get_array("allowedUpdates").ok().map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_owned))
+                .collect::<Vec<_>>()
+        }),
+        has_custom_certificate: w.get_bool("hasCustomCertificate").ok(),
+    });
 
     let can_join_groups = d.get_bool("canJoinGroups").ok();
     let can_read_all_group_messages = d.get_bool("canReadAllGroupMessages").ok();
@@ -800,21 +794,41 @@ pub async fn get_bot_info(
 ) -> Json<BotInfoResp> {
     let bot = match require_bot(&user, &s.mongo, &bot_id).await {
         Ok(b) => b,
-        Err(e) => return Json(BotInfoResp { bot: None, error: Some(e) }),
+        Err(e) => {
+            return Json(BotInfoResp {
+                bot: None,
+                error: Some(e),
+            });
+        }
     };
     let bot_oid = match bot.get_object_id("_id") {
         Ok(o) => o,
-        Err(_) => return Json(BotInfoResp { bot: None, error: Some("Bot not found.".to_owned()) }),
+        Err(_) => {
+            return Json(BotInfoResp {
+                bot: None,
+                error: Some("Bot not found.".to_owned()),
+            });
+        }
     };
     let token = match extract_token(&bot) {
         Ok(t) => t,
-        Err(e) => return Json(BotInfoResp { bot: None, error: Some(e) }),
+        Err(e) => {
+            return Json(BotInfoResp {
+                bot: None,
+                error: Some(e),
+            });
+        }
     };
 
     let started = Instant::now();
     let me = match s.bot_api.get_me(&token).await {
         Ok(me) => me,
-        Err(e) => return Json(BotInfoResp { bot: None, error: Some(err_msg(e)) }),
+        Err(e) => {
+            return Json(BotInfoResp {
+                bot: None,
+                error: Some(err_msg(e)),
+            });
+        }
     };
     let latency = started.elapsed().as_millis() as i64;
     let now = bson::DateTime::now();
@@ -851,7 +865,10 @@ pub async fn get_bot_info(
         .update_one(doc! { "_id": bot_oid }, doc! { "$set": set })
         .await
     {
-        return Json(BotInfoResp { bot: None, error: Some(format!("mongo: {e}")) });
+        return Json(BotInfoResp {
+            bot: None,
+            error: Some(format!("mongo: {e}")),
+        });
     }
     let fresh = bots.find_one(doc! { "_id": bot_oid }).await.ok().flatten();
     Json(BotInfoResp {
@@ -949,11 +966,21 @@ pub async fn get_commands(
 ) -> Json<CommandsResp> {
     let bot = match require_bot(&user, &s.mongo, &bot_id).await {
         Ok(b) => b,
-        Err(e) => return Json(CommandsResp { commands: vec![], error: Some(e) }),
+        Err(e) => {
+            return Json(CommandsResp {
+                commands: vec![],
+                error: Some(e),
+            });
+        }
     };
     let token = match extract_token(&bot) {
         Ok(t) => t,
-        Err(e) => return Json(CommandsResp { commands: vec![], error: Some(e) }),
+        Err(e) => {
+            return Json(CommandsResp {
+                commands: vec![],
+                error: Some(e),
+            });
+        }
     };
     match s
         .bot_api
@@ -963,11 +990,17 @@ pub async fn get_commands(
         Ok(list) => Json(CommandsResp {
             commands: list
                 .into_iter()
-                .map(|c| BotCommandDto { command: c.command, description: c.description })
+                .map(|c| BotCommandDto {
+                    command: c.command,
+                    description: c.description,
+                })
                 .collect(),
             error: None,
         }),
-        Err(e) => Json(CommandsResp { commands: vec![], error: Some(err_msg(e)) }),
+        Err(e) => Json(CommandsResp {
+            commands: vec![],
+            error: Some(err_msg(e)),
+        }),
     }
 }
 
@@ -1142,15 +1175,31 @@ pub async fn get_menu_button(
 ) -> Json<MenuButtonResp> {
     let bot = match require_bot(&user, &s.mongo, &bot_id).await {
         Ok(b) => b,
-        Err(e) => return Json(MenuButtonResp { menu_button: None, error: Some(e) }),
+        Err(e) => {
+            return Json(MenuButtonResp {
+                menu_button: None,
+                error: Some(e),
+            });
+        }
     };
     let token = match extract_token(&bot) {
         Ok(t) => t,
-        Err(e) => return Json(MenuButtonResp { menu_button: None, error: Some(e) }),
+        Err(e) => {
+            return Json(MenuButtonResp {
+                menu_button: None,
+                error: Some(e),
+            });
+        }
     };
     match s.bot_api.get_chat_menu_button(&token).await {
-        Ok(v) => Json(MenuButtonResp { menu_button: Some(v), error: None }),
-        Err(e) => Json(MenuButtonResp { menu_button: None, error: Some(err_msg(e)) }),
+        Ok(v) => Json(MenuButtonResp {
+            menu_button: Some(v),
+            error: None,
+        }),
+        Err(e) => Json(MenuButtonResp {
+            menu_button: None,
+            error: Some(err_msg(e)),
+        }),
     }
 }
 
@@ -1168,7 +1217,11 @@ pub async fn set_menu_button(
         Ok(t) => t,
         Err(e) => return err_ack(e),
     };
-    if let Err(e) = s.bot_api.set_chat_menu_button(&token, &body.menu_button).await {
+    if let Err(e) = s
+        .bot_api
+        .set_chat_menu_button(&token, &body.menu_button)
+        .await
+    {
         return err_ack(err_msg(e));
     }
     ok_ack(Some("Menu button updated.".to_owned()), Some(bot_id))
@@ -1285,7 +1338,10 @@ pub async fn set_default_admin_rights(
     {
         return err_ack(err_msg(e));
     }
-    ok_ack(Some("Default administrator rights updated.".to_owned()), Some(bot_id))
+    ok_ack(
+        Some("Default administrator rights updated.".to_owned()),
+        Some(bot_id),
+    )
 }
 
 // =========================================================================
@@ -1438,7 +1494,9 @@ pub async fn export_csv(
     let rows: Vec<BotRow> = docs.iter().filter_map(doc_to_row).collect();
 
     let mut out = String::new();
-    out.push_str("id,bot_id,username,name,status,is_active,webhook_url,last_seen_at,latency_ms,created_at\n");
+    out.push_str(
+        "id,bot_id,username,name,status,is_active,webhook_url,last_seen_at,latency_ms,created_at\n",
+    );
     for r in &rows {
         out.push_str(&csv_escape(&r._id));
         out.push(',');
@@ -1454,17 +1512,9 @@ pub async fn export_csv(
         out.push(',');
         out.push_str(&csv_escape(r.webhook_url.as_deref().unwrap_or("")));
         out.push(',');
-        out.push_str(
-            &r.last_seen_at
-                .map(|d| d.to_rfc3339())
-                .unwrap_or_default(),
-        );
+        out.push_str(&r.last_seen_at.map(|d| d.to_rfc3339()).unwrap_or_default());
         out.push(',');
-        out.push_str(
-            &r.latency_ms
-                .map(|n| n.to_string())
-                .unwrap_or_default(),
-        );
+        out.push_str(&r.latency_ms.map(|n| n.to_string()).unwrap_or_default());
         out.push(',');
         out.push_str(&r.created_at.to_rfc3339());
         out.push('\n');

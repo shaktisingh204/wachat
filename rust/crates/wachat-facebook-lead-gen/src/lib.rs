@@ -50,7 +50,11 @@ pub mod webhook_handler;
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{delete, get, post}};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{delete, get, post},
+};
 use sabnode_auth::AuthConfig;
 
 pub use state::WachatFacebookLeadGenState;
@@ -63,16 +67,19 @@ where
 {
     Router::new()
         // Legacy project-scoped form/lead reads
-        .route("/projects/{project_id}/forms", get(handlers::get_lead_gen_forms))
-        .route("/forms/{form_id}/leads",        get(handlers::get_leads_for_form))
-        .route("/leads/{lead_id}",              get(handlers::get_lead_by_id))
+        .route(
+            "/projects/{project_id}/forms",
+            get(handlers::get_lead_gen_forms),
+        )
+        .route("/forms/{form_id}/leads", get(handlers::get_leads_for_form))
+        .route("/leads/{lead_id}", get(handlers::get_lead_by_id))
         // CRM integration — webhook processing (called by Next.js webhook route)
-        .route("/process-webhook",             post(webhook_handler::process_webhook))
+        .route("/process-webhook", post(webhook_handler::process_webhook))
         // CRM integration — config CRUD
-        .route("/config",                      get(config_handlers::get_config))
-        .route("/config",                      post(config_handlers::upsert_config))
-        .route("/config/{form_id}",            delete(config_handlers::delete_form))
-        .route("/config/forms",                get(config_handlers::list_config_forms))
+        .route("/config", get(config_handlers::get_config))
+        .route("/config", post(config_handlers::upsert_config))
+        .route("/config/{form_id}", delete(config_handlers::delete_form))
+        .route("/config/forms", get(config_handlers::list_config_forms))
         // CRM integration — activity log
-        .route("/activity",                    get(config_handlers::get_activity))
+        .route("/activity", get(config_handlers::get_activity))
 }

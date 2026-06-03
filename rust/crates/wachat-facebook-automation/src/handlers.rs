@@ -153,9 +153,7 @@ pub async fn update_automation_settings(
     coll.update_one(doc! { "_id": oid }, doc! { "$set": settings_update })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("projects.update_one(automation)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("projects.update_one(automation)"))
         })?;
 
     Ok(Json(OkResult {
@@ -192,9 +190,7 @@ pub async fn save_randomizer_settings(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("projects.update_one(postRandomizer)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("projects.update_one(postRandomizer)"))
     })?;
 
     Ok(Json(OkResult {
@@ -280,9 +276,7 @@ pub async fn add_randomizer_post(
 
     let coll = state.mongo.collection::<Document>(RANDOMIZER_POSTS_COLL);
     coll.insert_one(new_post).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("randomizer_posts.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("randomizer_posts.insert_one"))
     })?;
 
     Ok(Json(OkResult {
@@ -325,9 +319,7 @@ pub async fn delete_randomizer_post(
     coll.delete_one(doc! { "_id": post_oid, "projectId": project_oid })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("randomizer_posts.delete_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("randomizer_posts.delete_one"))
         })?;
 
     Ok(Json(OkResult {
@@ -416,24 +408,28 @@ pub async fn send_facebook_broadcast(
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing _id")))?;
 
-    let facebook_page_id = match project.get_str("facebookPageId").ok().filter(|s| !s.is_empty()) {
+    let facebook_page_id = match project
+        .get_str("facebookPageId")
+        .ok()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => s.to_owned(),
         None => {
             return Ok(Json(MessageResult {
-                error: Some(
-                    "Project not found or is not configured for Facebook.".to_owned(),
-                ),
+                error: Some("Project not found or is not configured for Facebook.".to_owned()),
                 ..Default::default()
             }));
         }
     };
-    let access_token = match project.get_str("accessToken").ok().filter(|s| !s.is_empty()) {
+    let access_token = match project
+        .get_str("accessToken")
+        .ok()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => s.to_owned(),
         None => {
             return Ok(Json(MessageResult {
-                error: Some(
-                    "Project not found or is not configured for Facebook.".to_owned(),
-                ),
+                error: Some("Project not found or is not configured for Facebook.".to_owned()),
                 ..Default::default()
             }));
         }
@@ -460,14 +456,10 @@ pub async fn send_facebook_broadcast(
         .projection(doc! { "psid": 1 })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("facebook_subscribers.find"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("facebook_subscribers.find"))
         })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("facebook_subscribers.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("facebook_subscribers.collect"))
     })?;
     let recipient_ids: Vec<String> = docs
         .iter()
@@ -484,9 +476,7 @@ pub async fn send_facebook_broadcast(
     }
 
     // ---- 2. Insert the broadcast row ----------------------------------
-    let bcasts = state
-        .mongo
-        .collection::<Document>(FACEBOOK_BROADCASTS_COLL);
+    let bcasts = state.mongo.collection::<Document>(FACEBOOK_BROADCASTS_COLL);
     let new_doc = doc! {
         "projectId": project_oid,
         "message": &body.message,
@@ -497,9 +487,7 @@ pub async fn send_facebook_broadcast(
         "failedCount": 0i64,
     };
     let insert_res = bcasts.insert_one(new_doc).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("facebook_broadcasts.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("facebook_broadcasts.insert_one"))
     })?;
     let broadcast_id = insert_res
         .inserted_id
@@ -517,8 +505,7 @@ pub async fn send_facebook_broadcast(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("facebook_broadcasts.update_one(PROCESSING)"),
+                anyhow::Error::new(e).context("facebook_broadcasts.update_one(PROCESSING)"),
             )
         })?;
 
@@ -543,9 +530,8 @@ pub async fn send_facebook_broadcast(
             let token = access_token.clone();
             let recipient = recipient_id.clone();
             batch_futures.push(async move {
-                let res: std::result::Result<Value, _> = meta
-                    .post_json("me/messages", &token, &payload)
-                    .await;
+                let res: std::result::Result<Value, _> =
+                    meta.post_json("me/messages", &token, &payload).await;
                 (recipient, res)
             });
         }
@@ -586,8 +572,7 @@ pub async fn send_facebook_broadcast(
         .await
         .map_err(|e| {
             ApiError::Internal(
-                anyhow::Error::new(e)
-                    .context("facebook_broadcasts.update_one(final)"),
+                anyhow::Error::new(e).context("facebook_broadcasts.update_one(final)"),
             )
         })?;
 
@@ -613,14 +598,18 @@ pub async fn list_scheduled_live_streams(
     let project_oid = match ObjectId::parse_str(&project_id) {
         Ok(o) => o,
         Err(_) => {
-            return Ok(Json(LiveStreamsResponse { streams: Vec::new() }));
+            return Ok(Json(LiveStreamsResponse {
+                streams: Vec::new(),
+            }));
         }
     };
     if load_project_for(&user, &state.mongo, &project_id)
         .await
         .is_err()
     {
-        return Ok(Json(LiveStreamsResponse { streams: Vec::new() }));
+        return Ok(Json(LiveStreamsResponse {
+            streams: Vec::new(),
+        }));
     }
 
     let coll = state
@@ -635,14 +624,18 @@ pub async fn list_scheduled_live_streams(
         Ok(c) => c,
         Err(e) => {
             warn!(error = %e, "Failed to fetch scheduled streams");
-            return Ok(Json(LiveStreamsResponse { streams: Vec::new() }));
+            return Ok(Json(LiveStreamsResponse {
+                streams: Vec::new(),
+            }));
         }
     };
     let docs: Vec<Document> = match cursor.try_collect().await {
         Ok(v) => v,
         Err(e) => {
             warn!(error = %e, "Failed to collect scheduled streams");
-            return Ok(Json(LiveStreamsResponse { streams: Vec::new() }));
+            return Ok(Json(LiveStreamsResponse {
+                streams: Vec::new(),
+            }));
         }
     };
     let streams = docs.into_iter().map(document_to_clean_json).collect();
@@ -671,9 +664,11 @@ pub async fn schedule_live_stream(
     let mut video_content_type: Option<String> = None;
     let mut video_bytes: Option<Vec<u8>> = None;
 
-    while let Some(field) = multipart.next_field().await.map_err(|e| {
-        ApiError::BadRequest(format!("invalid multipart payload: {e}"))
-    })? {
+    while let Some(field) = multipart
+        .next_field()
+        .await
+        .map_err(|e| ApiError::BadRequest(format!("invalid multipart payload: {e}")))?
+    {
         let name = field.name().unwrap_or("").to_owned();
         match name.as_str() {
             "title" => title = Some(field.text().await.map_err(map_multipart_err)?),
@@ -722,53 +717,53 @@ pub async fn schedule_live_stream(
     let project_oid = project
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("project missing _id")))?;
-    let facebook_page_id = match project.get_str("facebookPageId").ok().filter(|s| !s.is_empty()) {
+    let facebook_page_id = match project
+        .get_str("facebookPageId")
+        .ok()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => s.to_owned(),
         None => {
             return Ok(Json(MessageResult {
-                error: Some(
-                    "Project is not fully configured for Facebook posting.".to_owned(),
-                ),
+                error: Some("Project is not fully configured for Facebook posting.".to_owned()),
                 ..Default::default()
             }));
         }
     };
-    let access_token = match project.get_str("accessToken").ok().filter(|s| !s.is_empty()) {
+    let access_token = match project
+        .get_str("accessToken")
+        .ok()
+        .filter(|s| !s.is_empty())
+    {
         Some(s) => s.to_owned(),
         None => {
             return Ok(Json(MessageResult {
-                error: Some(
-                    "Project is not fully configured for Facebook posting.".to_owned(),
-                ),
+                error: Some("Project is not fully configured for Facebook posting.".to_owned()),
                 ..Default::default()
             }));
         }
     };
 
     // ---- 2. Parse + validate schedule timestamp ----------------------
-    let scheduled_publish_time =
-        match parse_schedule(&scheduled_date, &scheduled_time) {
-            Some(dt) if dt > Utc::now() => dt,
-            _ => {
-                return Ok(Json(MessageResult {
-                    error: Some("Invalid or past schedule date/time.".to_owned()),
-                    ..Default::default()
-                }));
-            }
-        };
+    let scheduled_publish_time = match parse_schedule(&scheduled_date, &scheduled_time) {
+        Some(dt) if dt > Utc::now() => dt,
+        _ => {
+            return Ok(Json(MessageResult {
+                error: Some("Invalid or past schedule date/time.".to_owned()),
+                ..Default::default()
+            }));
+        }
+    };
 
     // ---- 3. POST multipart upload to graph-video.facebook.com -------
-    let upload_url = format!(
-        "https://graph-video.facebook.com/{META_API_VERSION}/{facebook_page_id}/videos"
-    );
+    let upload_url =
+        format!("https://graph-video.facebook.com/{META_API_VERSION}/{facebook_page_id}/videos");
     let unix_secs = scheduled_publish_time.timestamp();
 
     let part = reqwest::multipart::Part::bytes(video_bytes)
         .file_name(video_filename.clone())
         .mime_str(&video_content_type)
-        .map_err(|e| {
-            ApiError::BadRequest(format!("invalid video content-type: {e}"))
-        })?;
+        .map_err(|e| ApiError::BadRequest(format!("invalid video content-type: {e}")))?;
     let form = reqwest::multipart::Form::new()
         .text("access_token", access_token)
         .text("title", title.clone())
@@ -826,9 +821,7 @@ pub async fn schedule_live_stream(
         Some(s) => s.to_owned(),
         None => {
             return Ok(Json(MessageResult {
-                error: Some(
-                    "Facebook did not return a video ID after upload.".to_owned(),
-                ),
+                error: Some("Facebook did not return a video ID after upload.".to_owned()),
                 ..Default::default()
             }));
         }
@@ -848,9 +841,7 @@ pub async fn schedule_live_stream(
         .mongo
         .collection::<Document>(FACEBOOK_LIVE_STREAMS_COLL);
     coll.insert_one(new_stream).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("facebook_live_streams.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("facebook_live_streams.insert_one"))
     })?;
 
     Ok(Json(MessageResult {

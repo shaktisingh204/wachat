@@ -182,9 +182,7 @@ impl TemplateSender {
                 })?,
                 language: TemplateLanguage {
                     code: template.language.clone().ok_or_else(|| {
-                        ApiError::BadRequest(
-                            "Template is missing required `language`".to_owned(),
-                        )
+                        ApiError::BadRequest("Template is missing required `language`".to_owned())
                     })?,
                 },
                 components: components.clone(),

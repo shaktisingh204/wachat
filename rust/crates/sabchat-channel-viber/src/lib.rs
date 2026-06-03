@@ -4,8 +4,8 @@ pub mod state;
 
 use axum::{Router, extract::FromRef, routing::post};
 
-pub use state::SabChatChannelViberState;
 pub use sabchat_types::ChannelType;
+pub use state::SabChatChannelViberState;
 
 pub fn router<S>() -> Router<S>
 where

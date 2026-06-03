@@ -39,9 +39,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::{instrument, warn};
 
-use crate::dto::{
-    CreateQuotationInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateQuotationInput,
-};
+use crate::dto::{CreateQuotationInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateQuotationInput};
 
 /// Mongo collection name. Must match the existing TS `CrmQuotation`
 /// shape so the Rust BFF and the legacy Next.js action share the same
@@ -208,11 +206,10 @@ pub async fn list_quotations(
         .build();
 
     let coll = mongo.collection::<Quotation>(QUOTATIONS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.find"))
+        })?;
     let quotations: Vec<Quotation> = cursor
         .try_collect()
         .await
@@ -244,9 +241,7 @@ pub async fn get_quotation(
     let quote = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.find_one")))?
         .ok_or_else(|| ApiError::NotFound("quotation".to_owned()))?;
 
     Ok(Json(quote))
@@ -485,7 +480,11 @@ pub async fn update_quotation(
     if let Some(when) = input.valid_until {
         set.insert("validUntil", bson::DateTime::from_chrono(when));
     }
-    if let Some(status) = input.status.as_deref().map(|s| s.trim().to_ascii_lowercase()) {
+    if let Some(status) = input
+        .status
+        .as_deref()
+        .map(|s| s.trim().to_ascii_lowercase())
+    {
         if !matches!(
             status.as_str(),
             "draft" | "sent" | "accepted" | "rejected" | "expired" | "converted"
@@ -561,12 +560,9 @@ pub async fn delete_quotation(
     let filter = doc! { "_id": quote_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(QUOTATIONS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_quotations.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("quotation".to_owned()));
     }

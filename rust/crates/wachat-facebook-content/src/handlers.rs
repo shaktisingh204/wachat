@@ -430,10 +430,7 @@ pub async fn create_photo_album(
         .meta
         .post_json(&path, &project.access_token, &Value::Object(payload))
         .await?;
-    let album_id = resp
-        .get("id")
-        .and_then(Value::as_str)
-        .map(str::to_owned);
+    let album_id = resp.get("id").and_then(Value::as_str).map(str::to_owned);
     Ok(Json(CreateAlbumResult {
         album_id,
         error: None,
@@ -642,7 +639,10 @@ pub async fn publish_page_reel(
                 ApiError::BadRequest("videoId is required for the finish phase.".to_owned())
             })?;
             let mut payload = serde_json::Map::new();
-            payload.insert("upload_phase".to_owned(), Value::String("finish".to_owned()));
+            payload.insert(
+                "upload_phase".to_owned(),
+                Value::String("finish".to_owned()),
+            );
             payload.insert("video_id".to_owned(), Value::String(video_id));
             if let Some(d) = body.description {
                 payload.insert("description".to_owned(), Value::String(d));

@@ -4,10 +4,10 @@ use axum::{
     middleware::Next,
     response::Response,
 };
+use chrono::{DateTime, Utc};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
-use std::collections::HashMap;
-use chrono::{DateTime, Utc};
 
 #[derive(Clone)]
 pub struct RateLimiter {
@@ -40,9 +40,9 @@ pub async fn rate_limit_middleware(
 
     let mut state = limiter.state.lock().await;
     let now = Utc::now();
-    
+
     let entry = state.entry(client_ip).or_insert((0, now));
-    
+
     if now.signed_duration_since(entry.1).num_seconds() > limiter.window_seconds {
         entry.0 = 1;
         entry.1 = now;
@@ -52,18 +52,15 @@ pub async fn rate_limit_middleware(
         }
         entry.0 += 1;
     }
-    
+
     drop(state);
 
     Ok(next.run(req).await)
 }
 
-pub async fn auth_middleware(
-    req: Request,
-    next: Next,
-) -> Result<Response, StatusCode> {
+pub async fn auth_middleware(req: Request, next: Next) -> Result<Response, StatusCode> {
     let auth_header = req.headers().get(AUTHORIZATION);
-    
+
     match auth_header {
         Some(header) => {
             if let Ok(token_str) = header.to_str() {

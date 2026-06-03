@@ -1,11 +1,4 @@
-//! Mountable router for SabVault Secret endpoints.
-//!
-//! Mount under `/v1/sabvault/secrets` from the host `api` crate:
-//!
-//! ```ignore
-//! use sabvault_secrets;
-//! .nest("/v1/sabvault/secrets", sabvault_secrets::router::<AppState>())
-//! ```
+//! Mountable router. Mount under `/v1/sabcheckout/secrets`.
 
 use std::sync::Arc;
 
@@ -15,15 +8,6 @@ use sabnode_db::mongo::MongoHandle;
 
 use crate::handlers;
 
-/// Routes (relative — caller nests under `/v1/sabvault/secrets`):
-///
-/// ```text
-/// GET    /             — list_secrets
-/// POST   /             — create_secret
-/// GET    /{secretId}   — get_secret
-/// PATCH  /{secretId}   — update_secret
-/// DELETE /{secretId}   — delete_secret (soft → status: archived)
-/// ```
 pub fn router<S>() -> Router<S>
 where
     S: Clone + Send + Sync + 'static,

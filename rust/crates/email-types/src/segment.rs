@@ -7,11 +7,23 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailFilterOp {
-    Eq, Ne, In, Nin,
-    Gt, Gte, Lt, Lte,
-    Contains, StartsWith, EndsWith, Matches,
-    Exists, NotExists,
-    WithinDays, Before, After,
+    Eq,
+    Ne,
+    In,
+    Nin,
+    Gt,
+    Gte,
+    Lt,
+    Lte,
+    Contains,
+    StartsWith,
+    EndsWith,
+    Matches,
+    Exists,
+    NotExists,
+    WithinDays,
+    Before,
+    After,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

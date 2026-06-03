@@ -211,15 +211,13 @@ pub async fn list_vendor_bids(
         .build();
 
     let coll = mongo.collection::<VendorBid>(VENDOR_BIDS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.find")))?;
-    let bids: Vec<VendorBid> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.find"))
+        })?;
+    let bids: Vec<VendorBid> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.collect"))
+    })?;
 
     Ok(Json(bids))
 }
@@ -247,9 +245,7 @@ pub async fn get_vendor_bid(
     let bid = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.find_one")))?
         .ok_or_else(|| ApiError::NotFound("vendorBid".to_owned()))?;
 
     Ok(Json(bid))
@@ -465,7 +461,12 @@ pub async fn update_vendor_bid(
     }
 
     let mut new_status: Option<&str> = None;
-    if let Some(status) = input.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(status) = input
+        .status
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if !ALLOWED_STATUSES.contains(&status) {
             return Err(ApiError::Validation(format!(
                 "status must be one of: {}",
@@ -592,12 +593,9 @@ pub async fn delete_vendor_bid(
     let filter = doc! { "_id": bid_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(VENDOR_BIDS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_vendor_bids.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("vendorBid".to_owned()));
     }

@@ -14,9 +14,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    IngestCitationInput, IngestCitationResponse, ListQuery, UpdateCitationInput,
-};
+use crate::dto::{IngestCitationInput, IngestCitationResponse, ListQuery, UpdateCitationInput};
 use crate::types::{FoundFields, SabpublishCitation};
 
 const COLL: &str = "sabpublish_citations";

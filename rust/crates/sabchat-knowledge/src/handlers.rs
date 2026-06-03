@@ -149,8 +149,7 @@ pub async fn create_portal(
     let tenant = tenant_oid(&user)?;
     let name = require_non_empty("name", &body.name)?.to_owned();
     let slug = require_non_empty("slug", &body.slug)?.to_owned();
-    let default_language = require_non_empty("defaultLanguage", &body.default_language)?
-        .to_owned();
+    let default_language = require_non_empty("defaultLanguage", &body.default_language)?.to_owned();
 
     // ---- slug uniqueness ----------------------------------------------
     let coll = state.mongo.collection::<Document>(PORTALS_COLL);
@@ -158,9 +157,7 @@ pub async fn create_portal(
         .find_one(doc! { "tenantId": tenant, "slug": &slug })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_portals.find_one(slug)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_portals.find_one(slug)"))
         })?;
     if existing.is_some() {
         return Err(ApiError::Conflict(format!(
@@ -241,14 +238,7 @@ pub async fn get_portal(
     Path(id): Path<String>,
 ) -> Result<Json<PortalResponse>> {
     let tenant = tenant_oid(&user)?;
-    let doc = load_scoped(
-        &state.mongo,
-        PORTALS_COLL,
-        tenant,
-        &id,
-        "Portal not found.",
-    )
-    .await?;
+    let doc = load_scoped(&state.mongo, PORTALS_COLL, tenant, &id, "Portal not found.").await?;
     Ok(Json(PortalResponse {
         portal: render(doc),
     }))
@@ -264,14 +254,8 @@ pub async fn update_portal(
     Json(body): Json<UpdatePortalBody>,
 ) -> Result<Json<PortalResponse>> {
     let tenant = tenant_oid(&user)?;
-    let existing = load_scoped(
-        &state.mongo,
-        PORTALS_COLL,
-        tenant,
-        &id,
-        "Portal not found.",
-    )
-    .await?;
+    let existing =
+        load_scoped(&state.mongo, PORTALS_COLL, tenant, &id, "Portal not found.").await?;
     let portal_oid = existing
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("portal missing _id")))?;
@@ -351,14 +335,7 @@ pub async fn update_portal(
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_portals.update_one"))
     })?;
 
-    let fresh = load_scoped(
-        &state.mongo,
-        PORTALS_COLL,
-        tenant,
-        &id,
-        "Portal not found.",
-    )
-    .await?;
+    let fresh = load_scoped(&state.mongo, PORTALS_COLL, tenant, &id, "Portal not found.").await?;
     Ok(Json(PortalResponse {
         portal: render(fresh),
     }))
@@ -452,9 +429,7 @@ pub async fn create_category(
     };
 
     coll.insert_one(&new_doc).await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_categories.insert_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.insert_one"))
     })?;
 
     Ok(Json(CategoryResponse {
@@ -485,13 +460,9 @@ pub async fn list_categories(
     let opts = FindOptions::builder()
         .sort(doc! { "sortOrder": 1, "_id": 1 })
         .build();
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.collect"))
     })?;
@@ -568,8 +539,7 @@ pub async fn update_category(
                 .await
                 .map_err(|e| {
                     ApiError::Internal(
-                        anyhow::Error::new(e)
-                            .context("sabchat_kb_categories.find_one(slug_dup)"),
+                        anyhow::Error::new(e).context("sabchat_kb_categories.find_one(slug_dup)"),
                     )
                 })?;
             if dup.is_some() {
@@ -609,9 +579,7 @@ pub async fn update_category(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_categories.update_one"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.update_one"))
     })?;
 
     let fresh = load_scoped(
@@ -644,9 +612,7 @@ pub async fn delete_category(
         .delete_one(doc! { "_id": category_oid, "tenantId": tenant })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_categories.delete_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_categories.delete_one"))
         })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("Category not found.".to_owned()));
@@ -705,9 +671,7 @@ pub async fn create_article(
         })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_articles.find_one(slug)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.find_one(slug)"))
         })?;
     if dup.is_some() {
         return Err(ApiError::Conflict(format!(
@@ -799,14 +763,9 @@ pub async fn list_articles(
     }
 
     let coll = state.mongo.collection::<Document>(ARTICLES_COLL);
-    let total = coll
-        .count_documents(filter.clone())
-        .await
-        .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_kb_articles.count_documents"),
-            )
-        })?;
+    let total = coll.count_documents(filter.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.count_documents"))
+    })?;
 
     let page = query.page.max(1);
     let skip = (page - 1).saturating_mul(ARTICLES_PER_PAGE as u64);
@@ -815,13 +774,9 @@ pub async fn list_articles(
         .skip(skip)
         .limit(ARTICLES_PER_PAGE)
         .build();
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.collect"))
     })?;
@@ -880,10 +835,7 @@ pub async fn update_article(
     let portal_oid = existing
         .get_object_id("portalId")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("article missing portalId")))?;
-    let existing_lang = existing
-        .get_str("language")
-        .unwrap_or("en")
-        .to_owned();
+    let existing_lang = existing.get_str("language").unwrap_or("en").to_owned();
     let existing_slug = existing.get_str("slug").unwrap_or_default().to_owned();
     let existing_status = existing.get_str("status").unwrap_or("draft").to_owned();
 
@@ -1067,9 +1019,7 @@ pub async fn publish_article(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_articles.update_one(publish)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.update_one(publish)"))
     })?;
 
     let fresh = load_scoped(
@@ -1122,9 +1072,7 @@ pub async fn archive_article(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_kb_articles.update_one(archive)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_kb_articles.update_one(archive)"))
     })?;
 
     let fresh = load_scoped(

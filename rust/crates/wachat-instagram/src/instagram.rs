@@ -53,9 +53,8 @@ async fn load_project_for(
     mongo: &MongoHandle,
     project_id_hex: &str,
 ) -> Result<InstagramProject> {
-    let oid = ObjectId::parse_str(project_id_hex).map_err(|_| {
-        ApiError::BadRequest(format!("invalid project id: {project_id_hex}"))
-    })?;
+    let oid = ObjectId::parse_str(project_id_hex)
+        .map_err(|_| ApiError::BadRequest(format!("invalid project id: {project_id_hex}")))?;
     let coll = mongo.collection::<Document>(PROJECTS_COLL);
     let doc = coll
         .find_one(doc! { "_id": oid })
@@ -129,7 +128,11 @@ pub async fn get_account_for_page(
         Err(e) => return Err(e),
     };
 
-    let Some(page_id) = project.facebook_page_id.as_deref().filter(|s| !s.is_empty()) else {
+    let Some(page_id) = project
+        .facebook_page_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    else {
         return Ok(InstagramAccountResp {
             instagram_account: None,
             error: Some("Project not found or is not configured for Facebook.".to_owned()),
@@ -186,7 +189,11 @@ async fn ig_account_id(
         Ok(p) => p,
         Err(_) => return Err("Project not found or is not configured for Facebook.".to_owned()),
     };
-    let Some(page_id) = project.facebook_page_id.as_deref().filter(|s| !s.is_empty()) else {
+    let Some(page_id) = project
+        .facebook_page_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    else {
         return Err("Project not found or is not configured for Facebook.".to_owned());
     };
     let token = need_token(&project)?;
@@ -194,7 +201,10 @@ async fn ig_account_id(
     let path = format!(
         "{page_id}?fields=instagram_business_account%7Bid%2Cusername%2Cprofile_picture_url%2Cfollowers_count%2Cmedia_count%2Caccount_type%7D"
     );
-    let resp: Value = meta.get_json(&path, token).await.map_err(|e| e.to_string())?;
+    let resp: Value = meta
+        .get_json(&path, token)
+        .await
+        .map_err(|e| e.to_string())?;
     let id = resp
         .get("instagram_business_account")
         .and_then(|v| v.get("id"))
@@ -512,10 +522,7 @@ pub async fn create_image_post(
     // Step 2 — publish.
     let publish_path = format!("{ig_id}/media_publish");
     let publish_payload = json!({ "creation_id": creation_id });
-    let publish_resp: Value = match meta
-        .post_json(&publish_path, token, &publish_payload)
-        .await
-    {
+    let publish_resp: Value = match meta.post_json(&publish_path, token, &publish_payload).await {
         Ok(v) => v,
         Err(e) => {
             return Ok(InstagramImagePostResp {
@@ -572,7 +579,11 @@ pub async fn search_hashtag_id(
         }
     };
 
-    let path = format!("ig_hashtag_search?user_id={}&q={}", enc(&ig_id), enc(hashtag));
+    let path = format!(
+        "ig_hashtag_search?user_id={}&q={}",
+        enc(&ig_id),
+        enc(hashtag)
+    );
     match meta.get_json::<Value>(&path, token).await {
         Ok(resp) => {
             let hid = resp
@@ -830,9 +841,7 @@ pub async fn conversations(
         Err(_) => {
             return Ok(InstagramConversationsResp {
                 conversations: None,
-                error: Some(
-                    "Project not found or is not configured for Facebook.".to_owned(),
-                ),
+                error: Some("Project not found or is not configured for Facebook.".to_owned()),
             });
         }
     };
@@ -907,9 +916,8 @@ pub async fn conversation_messages(
         }
     };
 
-    let path = format!(
-        "{conversation_id}/messages?fields=id,created_time,from,message,attachments"
-    );
+    let path =
+        format!("{conversation_id}/messages?fields=id,created_time,from,message,attachments");
     match meta.get_json::<Value>(&path, token).await {
         Ok(resp) => {
             let messages = resp
@@ -985,7 +993,11 @@ pub async fn send_message(
             });
         }
     };
-    let Some(page_id) = project.facebook_page_id.as_deref().filter(|s| !s.is_empty()) else {
+    let Some(page_id) = project
+        .facebook_page_id
+        .as_deref()
+        .filter(|s| !s.is_empty())
+    else {
         return Ok(crate::dto::InstagramMessageSendResp {
             message_id: None,
             error: Some("Project is not connected to a Facebook Page.".to_owned()),

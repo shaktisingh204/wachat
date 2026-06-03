@@ -5,7 +5,10 @@
 //! The Next.js shim no longer reads any field — it forwards the entire
 //! body and revalidates on the response.
 
-use axum::{Json, extract::{Multipart, State}};
+use axum::{
+    Json,
+    extract::{Multipart, State},
+};
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::bson_helpers::oid_from_str;
@@ -42,7 +45,11 @@ fn with_act_prefix(id: &str) -> String {
     if id.is_empty() {
         return id.to_owned();
     }
-    if id.starts_with("act_") { id.to_owned() } else { format!("act_{id}") }
+    if id.starts_with("act_") {
+        id.to_owned()
+    } else {
+        format!("act_{id}")
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -227,9 +234,7 @@ pub async fn create_custom_conversion(
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| "PURCHASE".to_owned());
     let url_rule = f.get("urlRule").cloned().filter(|s| !s.is_empty());
-    let default_value = f
-        .get("defaultValue")
-        .and_then(|s| s.parse::<f64>().ok());
+    let default_value = f.get("defaultValue").and_then(|s| s.parse::<f64>().ok());
 
     if ad_account_id.is_empty() || name.is_empty() || pixel_id.is_empty() {
         return Ok(Json(FormActionResult {
@@ -241,10 +246,7 @@ pub async fn create_custom_conversion(
     let mut body = serde_json::Map::new();
     body.insert("name".to_owned(), Value::String(name.clone()));
     body.insert("pixel_id".to_owned(), Value::String(pixel_id));
-    body.insert(
-        "custom_event_type".to_owned(),
-        Value::String(event_name),
-    );
+    body.insert("custom_event_type".to_owned(), Value::String(event_name));
     if let Some(rule) = url_rule {
         body.insert(
             "rule".to_owned(),

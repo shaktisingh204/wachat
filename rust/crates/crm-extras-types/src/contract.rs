@@ -97,7 +97,11 @@ pub struct Signature {
     pub status: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signed_by: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub signed_at: Option<DateTime<Utc>>,
     /// Captured IP at signing time for non-repudiation. Stored as a
     /// string so v4 / v6 / private-network forms all round-trip.
@@ -126,7 +130,11 @@ pub struct Contract {
     /* ----- term + renewal ---------------------------------------- */
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub effective_date: DateTime<Utc>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry: Option<DateTime<Utc>>,
     /// Free-form renewal terms (e.g. "Auto-renews for 12 months unless
     /// either party gives 30 days notice"). Parsing is out of scope —
@@ -227,7 +235,10 @@ mod tests {
         assert!(json.get("parentContractId").is_some());
 
         // ContractType serializes to lowercase canonical form.
-        assert_eq!(json.get("contractType").and_then(|v| v.as_str()), Some("msa"));
+        assert_eq!(
+            json.get("contractType").and_then(|v| v.as_str()),
+            Some("msa")
+        );
         // Status lowercase.
         assert_eq!(json.get("status").and_then(|v| v.as_str()), Some("active"));
         // EsignProvider lowercase (note `docusign`, not `DocuSign`).
@@ -246,6 +257,9 @@ mod tests {
         assert_eq!(back.version, 2);
         assert_eq!(back.parties.len(), 2);
         assert_eq!(back.signatures.len(), 1);
-        assert!(matches!(back.signatures[0].provider, EsignProvider::DocuSign));
+        assert!(matches!(
+            back.signatures[0].provider,
+            EsignProvider::DocuSign
+        ));
     }
 }

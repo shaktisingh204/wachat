@@ -345,8 +345,7 @@ pub async fn create_profile(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -377,9 +376,7 @@ pub async fn update_profile(
     if let Some(name) = patch.legal_name.as_deref()
         && name.trim().is_empty()
     {
-        return Err(ApiError::Validation(
-            "legalName cannot be empty".to_owned(),
-        ));
+        return Err(ApiError::Validation("legalName cannot be empty".to_owned()));
     }
     // Demote other defaults if this one is being promoted.
     if matches!(patch.is_default, Some(true)) {

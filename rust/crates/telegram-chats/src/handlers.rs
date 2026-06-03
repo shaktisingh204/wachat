@@ -18,8 +18,8 @@ use telegram_bots::bot_api::{BotApiError, SendMessageParams};
 use crate::dto::{
     AckResult, ChatActionBody, ChatMemberResp, ChatResp, ChatRow, CopyBody, EditMessageBody,
     ForwardBody, ListChatsQuery, ListChatsResp, ListMessagesQuery, ListMessagesResp, MessageRow,
-    PinBody, ProjectBotQuery, SearchHit, SearchQuery, SearchResp, SendMessageBody,
-    SendMessageResp, SendTextBody,
+    PinBody, ProjectBotQuery, SearchHit, SearchQuery, SearchResp, SendMessageBody, SendMessageResp,
+    SendTextBody,
 };
 use crate::state::TelegramChatsState;
 
@@ -256,11 +256,7 @@ pub async fn list_chats(
     Query(q): Query<ListChatsQuery>,
 ) -> Json<ListChatsResp> {
     let page = q.page.unwrap_or(1).max(1);
-    let page_size = q
-        .page_size
-        .or(q.limit)
-        .unwrap_or(50)
-        .clamp(1, 500);
+    let page_size = q.page_size.or(q.limit).unwrap_or(50).clamp(1, 500);
     let skip = (page - 1) * page_size;
 
     // If projectId is provided, gate on it; otherwise fall back to the
@@ -704,13 +700,21 @@ pub async fn send_message(
     let (sent_value, persisted_kind, persisted_text, persisted_caption, media_url_for_log) =
         if let Some(kind) = media_kind {
             // Resolve SabFile bytes either from id or URL.
-            let (bytes, mime, file_name, used_url) = match (
-                body.sab_file_id.as_deref(),
-                body.sab_file_url.as_deref(),
-            ) {
-                (Some(id), _) if !id.is_empty() => {
-                    let (url, name, mime_from_meta) =
-                        match resolve_sabfile(&s.mongo, user_oid, id).await {
+            let (bytes, mime, file_name, used_url) =
+                match (body.sab_file_id.as_deref(), body.sab_file_url.as_deref()) {
+                    (Some(id), _) if !id.is_empty() => {
+                        let (url, name, mime_from_meta) =
+                            match resolve_sabfile(&s.mongo, user_oid, id).await {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    return Json(SendMessageResp {
+                                        success: false,
+                                        error: Some(e),
+                                        ..Default::default()
+                                    });
+                                }
+                            };
+                        let (b, mime, _n) = match s.bot_client.fetch_url(&url).await {
                             Ok(v) => v,
                             Err(e) => {
                                 return Json(SendMessageResp {
@@ -720,46 +724,36 @@ pub async fn send_message(
                                 });
                             }
                         };
-                    let (b, mime, _n) = match s.bot_client.fetch_url(&url).await {
-                        Ok(v) => v,
-                        Err(e) => {
-                            return Json(SendMessageResp {
-                                success: false,
-                                error: Some(e),
-                                ..Default::default()
-                            });
-                        }
-                    };
-                    let final_mime = if mime == "application/octet-stream" {
-                        mime_from_meta
-                    } else {
-                        mime
-                    };
-                    (b, final_mime, name, url)
-                }
-                (_, Some(url)) if !url.is_empty() => {
-                    let (b, mime, derived_name) = match s.bot_client.fetch_url(url).await {
-                        Ok(v) => v,
-                        Err(e) => {
-                            return Json(SendMessageResp {
-                                success: false,
-                                error: Some(e),
-                                ..Default::default()
-                            });
-                        }
-                    };
-                    let final_name = body.sab_file_name.clone().unwrap_or(derived_name);
-                    let final_mime = body.sab_file_mime.clone().unwrap_or(mime);
-                    (b, final_mime, final_name, url.to_owned())
-                }
-                _ => {
-                    return Json(SendMessageResp {
-                        success: false,
-                        error: Some("sabFileId or sabFileUrl is required for media".to_owned()),
-                        ..Default::default()
-                    });
-                }
-            };
+                        let final_mime = if mime == "application/octet-stream" {
+                            mime_from_meta
+                        } else {
+                            mime
+                        };
+                        (b, final_mime, name, url)
+                    }
+                    (_, Some(url)) if !url.is_empty() => {
+                        let (b, mime, derived_name) = match s.bot_client.fetch_url(url).await {
+                            Ok(v) => v,
+                            Err(e) => {
+                                return Json(SendMessageResp {
+                                    success: false,
+                                    error: Some(e),
+                                    ..Default::default()
+                                });
+                            }
+                        };
+                        let final_name = body.sab_file_name.clone().unwrap_or(derived_name);
+                        let final_mime = body.sab_file_mime.clone().unwrap_or(mime);
+                        (b, final_mime, final_name, url.to_owned())
+                    }
+                    _ => {
+                        return Json(SendMessageResp {
+                            success: false,
+                            error: Some("sabFileId or sabFileUrl is required for media".to_owned()),
+                            ..Default::default()
+                        });
+                    }
+                };
 
             let caption_opt = if caption_trim.is_empty() {
                 None
@@ -791,7 +785,13 @@ pub async fn send_message(
                     });
                 }
             };
-            (sent, kind, None, caption_opt.map(str::to_owned), Some(used_url))
+            (
+                sent,
+                kind,
+                None,
+                caption_opt.map(str::to_owned),
+                Some(used_url),
+            )
         } else {
             // Plain text send via shared bot_api.
             let sent = match s
@@ -818,7 +818,13 @@ pub async fn send_message(
                     });
                 }
             };
-            (sent, "text".to_owned(), Some(text_trim.to_owned()), None, None)
+            (
+                sent,
+                "text".to_owned(),
+                Some(text_trim.to_owned()),
+                None,
+                None,
+            )
         };
 
     let message_id = sent_value
@@ -1430,7 +1436,11 @@ pub async fn chat_action(
         Err(e) => return err_ack(format!("mongo: {e}")),
     };
     let tg_chat_id = chat.get_str("chatId").unwrap_or("").to_owned();
-    if let Err(e) = s.bot_client.send_chat_action(&token, &tg_chat_id, action).await {
+    if let Err(e) = s
+        .bot_client
+        .send_chat_action(&token, &tg_chat_id, action)
+        .await
+    {
         return err_ack(e);
     }
     Json(AckResult {
@@ -1456,7 +1466,10 @@ async fn refresh_chat_metadata(
         info.get("type").and_then(|v| v.as_str()).unwrap_or(""),
         "group" | "supergroup" | "channel"
     ) {
-        s.bot_client.get_chat_member_count(token, tg_chat_id).await.ok()
+        s.bot_client
+            .get_chat_member_count(token, tg_chat_id)
+            .await
+            .ok()
     } else {
         None
     };
@@ -1938,7 +1951,11 @@ pub async fn search_messages(
                     let fn_ = c.get_str("firstName").unwrap_or("");
                     let ln = c.get_str("lastName").unwrap_or("");
                     let joined = format!("{fn_} {ln}").trim().to_owned();
-                    if joined.is_empty() { None } else { Some(joined) }
+                    if joined.is_empty() {
+                        None
+                    } else {
+                        Some(joined)
+                    }
                 })
             });
         let chat_type = chat_doc

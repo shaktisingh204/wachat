@@ -30,10 +30,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_issue(
-    input: IssueTicketInput,
-    user_id: ObjectId,
-) -> Result<SabbackstageTicket> {
+fn entity_from_issue(input: IssueTicketInput, user_id: ObjectId) -> Result<SabbackstageTicket> {
     if input.attendee_name.trim().is_empty() {
         return Err(ApiError::Validation("attendeeName is required".to_owned()));
     }
@@ -94,13 +91,25 @@ pub async fn list_tickets(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(v) = q.event_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .event_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("eventId", v);
     }
-    if let Some(v) = q.type_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .type_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("typeId", v);
     }
-    if let Some(v) = q.order_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(v) = q
+        .order_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("orderId", v);
     }
     if let Some(s) = q.status.as_deref().filter(|s| *s != "all") {
@@ -315,9 +324,7 @@ pub async fn public_list_by_order(
             ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_tickets.public_find"))
         })?;
     let rows: Vec<SabbackstageTicket> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabbackstage_tickets.public_collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_tickets.public_collect"))
     })?;
     Ok(Json(rows))
 }

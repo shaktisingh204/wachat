@@ -67,10 +67,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn column_from_create(
-    input: CreateColumnInput,
-    user_id: ObjectId,
-) -> Result<CrmTaskboardColumn> {
+fn column_from_create(input: CreateColumnInput, user_id: ObjectId) -> Result<CrmTaskboardColumn> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -224,9 +221,7 @@ pub async fn get_column(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_taskboard_columns.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_taskboard_columns.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("taskboard_column".to_owned()))?;
     Ok(Json(row))
@@ -249,8 +244,7 @@ pub async fn create_column(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -274,9 +268,7 @@ pub async fn update_column(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_taskboard_columns.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_taskboard_columns.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("taskboard_column".to_owned()))?;
     let update = build_update_doc(patch);
@@ -293,9 +285,7 @@ pub async fn update_column(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_taskboard_columns.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_taskboard_columns.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("taskboard_column".to_owned()))?;
     if let Some(event) = audit_for_update(

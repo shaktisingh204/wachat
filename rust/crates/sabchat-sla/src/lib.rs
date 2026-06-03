@@ -121,7 +121,10 @@ where
                 .delete(handlers::delete_policy),
         )
         // ---- derived endpoints --------------------------------------------
-        .route("/apply/{conversationId}", post(handlers::apply_to_conversation))
+        .route(
+            "/apply/{conversationId}",
+            post(handlers::apply_to_conversation),
+        )
         .route("/sweep", post(handlers::sweep))
 }
 

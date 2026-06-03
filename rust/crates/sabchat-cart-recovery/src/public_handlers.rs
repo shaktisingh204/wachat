@@ -50,9 +50,7 @@ async fn tenant_for_inbox(
         .collection::<Document>(INBOXES_COLL)
         .find_one(doc! { "_id": inbox_oid })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| ApiError::NotFound("Unknown inbox.".to_owned()))?;
     let tenant_oid = inbox
         .get_object_id("tenantId")
@@ -86,9 +84,7 @@ pub async fn cart_event(
 ) -> Result<Json<CartEventResponse>> {
     // ---- Validate ------------------------------------------------------
     if body.visitor_token.trim().is_empty() {
-        return Err(ApiError::Validation(
-            "visitorToken is required.".to_owned(),
-        ));
+        return Err(ApiError::Validation("visitorToken is required.".to_owned()));
     }
     if body.currency.trim().is_empty() {
         return Err(ApiError::Validation("currency is required.".to_owned()));

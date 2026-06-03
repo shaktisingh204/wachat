@@ -23,8 +23,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery,
-    UpdateAccountInput,
+    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery, UpdateAccountInput,
 };
 use crate::types::CrmAccount;
 
@@ -192,9 +191,10 @@ pub async fn list_accounts(
         .with_options(opts)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_accounts.find")))?;
-    let mut rows: Vec<CrmAccount> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_accounts.collect"))
-    })?;
+    let mut rows: Vec<CrmAccount> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_accounts.collect")))?;
 
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -262,8 +262,7 @@ pub async fn create_account(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     account.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&account)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&account)))
     {
         write_audit(&mongo, event).await;
     }

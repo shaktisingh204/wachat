@@ -68,7 +68,9 @@ fn loan_from_create(input: CreateLoanInput, user_id: ObjectId) -> Result<CrmLoan
         return Err(ApiError::Validation("partyName is required".to_owned()));
     }
     if input.principal <= 0.0 {
-        return Err(ApiError::Validation("principal must be positive".to_owned()));
+        return Err(ApiError::Validation(
+            "principal must be positive".to_owned(),
+        ));
     }
     Ok(CrmLoan {
         id: None,
@@ -222,8 +224,7 @@ pub async fn create_loan(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

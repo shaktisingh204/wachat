@@ -44,10 +44,7 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_keys).post(handlers::create_key),
-        )
+        .route("/", get(handlers::list_keys).post(handlers::create_key))
         .route(
             "/{id}",
             axum::routing::patch(handlers::update_key).delete(handlers::revoke_key),

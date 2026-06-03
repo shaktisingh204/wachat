@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateProductInput, CreateProductResponse, DeleteProductResponse, ListQuery,
-    UpdateProductInput,
+    CreateProductInput, CreateProductResponse, DeleteProductResponse, ListQuery, UpdateProductInput,
 };
 use crate::types::CrmProduct;
 
@@ -83,7 +82,10 @@ fn product_from_create(input: CreateProductInput, user_id: ObjectId) -> Result<C
         id: None,
         user_id,
         name: input.name.trim().to_owned(),
-        sku: input.sku.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        sku: input
+            .sku
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         category: input
             .category
             .map(|s| s.trim().to_owned())
@@ -92,7 +94,10 @@ fn product_from_create(input: CreateProductInput, user_id: ObjectId) -> Result<C
             .brand
             .map(|s| s.trim().to_owned())
             .filter(|s| !s.is_empty()),
-        unit: input.unit.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()),
+        unit: input
+            .unit
+            .map(|s| s.trim().to_owned())
+            .filter(|s| !s.is_empty()),
         buy_price: input.buy_price,
         sell_price,
         tax_rate: input.tax_rate,
@@ -111,9 +116,7 @@ fn build_update_doc(patch: UpdateProductInput) -> Result<Document> {
     if let Some(v) = patch.name {
         let trimmed = v.trim().to_owned();
         if trimmed.is_empty() {
-            return Err(ApiError::Validation(
-                "name must not be empty".to_owned(),
-            ));
+            return Err(ApiError::Validation("name must not be empty".to_owned()));
         }
         set.insert("name", trimmed);
     }
@@ -262,8 +265,7 @@ pub async fn create_product(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -352,7 +354,10 @@ mod tests {
         // Default branch: status must be filtered to "$ne: archived".
         assert!(f.contains_key("status"));
         let status = f.get("status").unwrap();
-        assert!(status.as_document().is_some(), "default status filter should be a doc with $ne");
+        assert!(
+            status.as_document().is_some(),
+            "default status filter should be a doc with $ne"
+        );
     }
 
     #[test]

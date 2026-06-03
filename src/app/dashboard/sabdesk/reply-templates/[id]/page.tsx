@@ -1,8 +1,6 @@
-import { Badge, Button, Card } from '@/components/zoruui';
-import {
-  notFound,
-  redirect } from 'next/navigation';
-import { Pencil } from 'lucide-react';
+import { Badge, Button, Card } from "@/components/zoruui";
+import { notFound, redirect } from "next/navigation";
+import { Pencil } from "lucide-react";
 
 /**
  * Reply template detail page.
@@ -11,21 +9,21 @@ import { Pencil } from 'lucide-react';
  * `{{variable}}` placeholders are obvious to the operator.
  */
 
-import Link from 'next/link';
+import Link from "next/link";
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
-import { getSession } from '@/app/actions/user.actions';
-import { getReplyTemplateById } from '@/app/actions/crm-reply-templates.actions';
-import type { CrmReplyTemplateStatus } from '@/lib/rust-client/crm-reply-templates';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { StatusPill, type StatusTone } from "@/components/crm/status-pill";
+import { getSession } from "@/app/actions/user.actions";
+import { getReplyTemplateById } from "@/app/actions/crm-reply-templates.actions";
+import type { CrmReplyTemplateStatus } from "@/lib/rust-client/crm-reply-templates";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const BASE = '/dashboard/sabdesk/reply-templates';
+const BASE = "/dashboard/sabdesk/reply-templates";
 
 const STATUS_TONE: Record<CrmReplyTemplateStatus, StatusTone> = {
-  active: 'green',
-  archived: 'neutral',
+  active: "green",
+  archived: "neutral",
 };
 
 export default async function ReplyTemplateDetailPage({
@@ -36,20 +34,20 @@ export default async function ReplyTemplateDetailPage({
   const { id } = await params;
 
   const session = await getSession();
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const template = await getReplyTemplateById(id);
   if (!template) notFound();
 
-  const status = (template.status ?? 'active') as CrmReplyTemplateStatus;
-  const tone = STATUS_TONE[status] ?? 'neutral';
+  const status = (template.status ?? "active") as CrmReplyTemplateStatus;
+  const tone = STATUS_TONE[status] ?? "neutral";
   const variables = Array.isArray(template.variables) ? template.variables : [];
 
   return (
     <EntityDetailShell
       eyebrow="REPLY TEMPLATE"
       title={template.name}
-      back={{ href: BASE, label: 'Reply Templates' }}
+      back={{ href: BASE, label: "Reply Templates" }}
       actions={
         <Button asChild>
           <Link href={`${BASE}/${id}/edit`}>
@@ -59,7 +57,6 @@ export default async function ReplyTemplateDetailPage({
         </Button>
       }
     >
-
       <Card className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <div className="text-[14px] font-medium text-zoru-ink">Overview</div>
@@ -79,7 +76,7 @@ export default async function ReplyTemplateDetailPage({
           <div>
             <div className="text-zoru-ink-muted">Shortcut</div>
             <div className="font-mono text-zoru-ink">
-              {template.shortcut || '—'}
+              {template.shortcut || "—"}
             </div>
           </div>
           <div>
@@ -91,7 +88,7 @@ export default async function ReplyTemplateDetailPage({
           <div>
             <div className="text-zoru-ink-muted">Active</div>
             <div className="text-zoru-ink">
-              {template.isActive ? 'Yes' : 'No'}
+              {template.isActive ? "Yes" : "No"}
             </div>
           </div>
         </div>

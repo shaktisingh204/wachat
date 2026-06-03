@@ -65,11 +65,14 @@ fn contract_from_create(
     if input.customer_name.trim().is_empty() {
         return Err(ApiError::Validation("customerName is required".to_owned()));
     }
-    let contract_no = input.contract_no.filter(|s| !s.trim().is_empty()).unwrap_or_else(|| {
-        let suffix = Utc::now().timestamp_millis().to_string();
-        let tail = suffix.chars().rev().take(6).collect::<String>();
-        format!("AMC-{}", tail.chars().rev().collect::<String>())
-    });
+    let contract_no = input
+        .contract_no
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| {
+            let suffix = Utc::now().timestamp_millis().to_string();
+            let tail = suffix.chars().rev().take(6).collect::<String>();
+            format!("AMC-{}", tail.chars().rev().collect::<String>())
+        });
     Ok(CrmServiceContract {
         id: None,
         user_id,
@@ -163,7 +166,13 @@ pub async fn list_contracts(
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
-            &["contractNo", "customerName", "assetName", "notes", "technician"],
+            &[
+                "contractNo",
+                "customerName",
+                "assetName",
+                "notes",
+                "technician",
+            ],
         );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
@@ -231,8 +240,7 @@ pub async fn create_contract(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

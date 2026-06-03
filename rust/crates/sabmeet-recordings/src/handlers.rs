@@ -56,11 +56,9 @@ pub async fn list_recordings(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<Recording>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.find")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.find"))
+    })?;
     let mut rows: Vec<Recording> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.collect"))
     })?;
@@ -135,11 +133,9 @@ pub async fn complete_recording(
             ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("recording".to_owned()))?;
-    let duration = input
-        .duration_secs
-        .unwrap_or_else(|| {
-            ((now.timestamp_millis() - before.started_at.timestamp_millis()) / 1000).max(0) as u32
-        });
+    let duration = input.duration_secs.unwrap_or_else(|| {
+        ((now.timestamp_millis() - before.started_at.timestamp_millis()) / 1000).max(0) as u32
+    });
 
     let mut set = doc! {
         "status": "ready",
@@ -219,7 +215,9 @@ pub async fn delete_recording(
     let res = coll
         .delete_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmeet_recordings.delete"))
+        })?;
     Ok(Json(DeleteRecordingResponse {
         deleted: res.deleted_count > 0,
     }))

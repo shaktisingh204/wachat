@@ -11,8 +11,8 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import { Button, Input, Label, Card } from '@/components/zoruui';
+import { Plus, Trash2, ChevronUp, ChevronDown, Mail, ShieldAlert } from 'lucide-react';
+import { Button, Input, Label, Card, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, Textarea, Badge } from '@/components/zoruui';
 import type { AuthMethod, EnvelopeSigner, RoutingOrder } from '@/lib/rust-client/esign-envelopes';
 
 const AUTH_METHODS: Array<{ value: AuthMethod; label: string; help: string }> = [
@@ -141,11 +141,19 @@ export function SignersEditor({
               />
             </div>
             <div>
-              <Label>Role tag</Label>
-              <Input
-                value={s.role}
-                onChange={(e) => updateSigner(s.id, { role: e.target.value })}
-              />
+              <Label>Recipient Type</Label>
+              <Select value={s.role.includes('_') ? 'signer' : s.role} onValueChange={(val) => updateSigner(s.id, { role: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="signer">Needs to Sign</SelectItem>
+                  <SelectItem value="approver">Needs to Approve</SelectItem>
+                  <SelectItem value="cc">Receives a Copy (CC)</SelectItem>
+                  <SelectItem value="witness">Witness</SelectItem>
+                  <SelectItem value="notary">Notary</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Phone (for SMS OTP)</Label>
@@ -155,7 +163,7 @@ export function SignersEditor({
               />
             </div>
             <div className="sm:col-span-2">
-              <Label>Authentication</Label>
+              <Label>Authentication & Security</Label>
               <div className="flex flex-wrap gap-2 mt-1">
                 {AUTH_METHODS.map((m) => (
                   <Button
@@ -166,6 +174,7 @@ export function SignersEditor({
                     onClick={() => updateSigner(s.id, { authMethod: m.value })}
                     title={m.help}
                   >
+                    {m.value !== 'email' && <ShieldAlert className="w-3 h-3 mr-1 opacity-70" />}
                     {m.label}
                   </Button>
                 ))}
@@ -176,6 +185,13 @@ export function SignersEditor({
                   onChange={(questions) => updateSigner(s.id, { kbaQuestions: questions })}
                 />
               )}
+            </div>
+            <div className="sm:col-span-2 pt-2 border-t border-zoru-line">
+              <Label className="flex items-center gap-1"><Mail className="w-4 h-4 text-zoru-ink-muted" /> Private Message</Label>
+              <Textarea 
+                className="mt-1" 
+                placeholder={`Optional private message for ${s.name || 'this recipient'} only...`} 
+              />
             </div>
           </div>
         </Card>

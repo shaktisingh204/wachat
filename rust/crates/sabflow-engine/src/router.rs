@@ -16,9 +16,15 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/flows/{flow_id}/execute", post(handlers::trigger_execution))
+        .route(
+            "/flows/{flow_id}/execute",
+            post(handlers::trigger_execution),
+        )
         .route("/flows/{flow_id}/activate", post(handlers::activate_flow))
-        .route("/flows/{flow_id}/deactivate", post(handlers::deactivate_flow))
+        .route(
+            "/flows/{flow_id}/deactivate",
+            post(handlers::deactivate_flow),
+        )
         .route("/executions/{execution_id}", get(handlers::get_execution))
         .route(
             "/executions/{execution_id}",

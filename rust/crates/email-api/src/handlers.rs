@@ -4,8 +4,8 @@
 //! `user_id = AuthUser.tenant_id`. Raw key plaintext is shown only on
 //! `POST /` — every subsequent read returns the safe `ApiKey` projection.
 
-use argon2::password_hash::{PasswordHasher, SaltString, rand_core::OsRng};
 use argon2::Argon2;
+use argon2::password_hash::{PasswordHasher, SaltString, rand_core::OsRng};
 use axum::{
     Json,
     extract::{Path, State},
@@ -72,9 +72,10 @@ pub async fn list_keys(
         .sort(doc! { "createdAt": -1 })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.find")))?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.collect"))
-    })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("email_api_keys.collect")))?;
     let keys = docs.into_iter().map(doc_to_api_key).collect();
     Ok(Json(ListResponse { keys }))
 }
@@ -136,8 +137,8 @@ pub async fn update_key(
     Path(id): Path<String>,
     Json(body): Json<UpdateKeyBody>,
 ) -> Result<Json<MessageResponse>> {
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::BadRequest("invalid key id".to_owned()))?;
+    let oid =
+        ObjectId::parse_str(&id).map_err(|_| ApiError::BadRequest("invalid key id".to_owned()))?;
 
     let mut set = Document::new();
     if let Some(name) = body.name.as_deref() {
@@ -184,8 +185,8 @@ pub async fn revoke_key(
     State(state): State<EmailApiState>,
     Path(id): Path<String>,
 ) -> Result<Json<MessageResponse>> {
-    let oid = ObjectId::parse_str(&id)
-        .map_err(|_| ApiError::BadRequest("invalid key id".to_owned()))?;
+    let oid =
+        ObjectId::parse_str(&id).map_err(|_| ApiError::BadRequest("invalid key id".to_owned()))?;
     let coll = state.mongo.collection::<Document>(KEYS_COLL);
     let res = coll
         .delete_one(doc! { "_id": oid, "userId": &user.tenant_id })
@@ -222,12 +223,18 @@ fn doc_to_api_key(d: Document) -> ApiKey {
                     .collect()
             })
             .unwrap_or_default(),
-        last_used_at: d.get_datetime("lastUsedAt").ok().map(|dt| dt_to_rfc3339(*dt)),
+        last_used_at: d
+            .get_datetime("lastUsedAt")
+            .ok()
+            .map(|dt| dt_to_rfc3339(*dt)),
         created_at: d
             .get_datetime("createdAt")
             .ok()
             .map(|dt| dt_to_rfc3339(*dt))
             .unwrap_or_else(|| Utc::now().to_rfc3339()),
-        revoked_at: d.get_datetime("revokedAt").ok().map(|dt| dt_to_rfc3339(*dt)),
+        revoked_at: d
+            .get_datetime("revokedAt")
+            .ok()
+            .map(|dt| dt_to_rfc3339(*dt)),
     }
 }

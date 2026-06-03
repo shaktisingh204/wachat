@@ -53,13 +53,9 @@ pub async fn list_sessions(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<Session>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_sessions.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_sessions.find"))
+    })?;
     let mut rows: Vec<Session> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_sessions.collect"))
     })?;
@@ -151,10 +147,7 @@ pub async fn update_session(
         set.insert("sfuRoomId", v);
     }
     let result = coll
-        .update_one(
-            doc! { "_id": oid, "userId": user_id },
-            doc! { "$set": set },
-        )
+        .update_one(doc! { "_id": oid, "userId": user_id }, doc! { "$set": set })
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_sessions.update"))

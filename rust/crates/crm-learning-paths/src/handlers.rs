@@ -20,8 +20,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateLearningPathInput, CreateLearningPathResponse, DeleteLearningPathResponse,
-    ListQuery, UpdateLearningPathInput,
+    CreateLearningPathInput, CreateLearningPathResponse, DeleteLearningPathResponse, ListQuery,
+    UpdateLearningPathInput,
 };
 use crate::types::CrmLearningPath;
 
@@ -45,11 +45,7 @@ fn normalise_audience(s: Option<String>) -> String {
     }
 }
 
-fn list_filter(
-    user_id: ObjectId,
-    status: Option<&str>,
-    audience: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, status: Option<&str>, audience: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active_visible") {
         "all" => {}
@@ -76,10 +72,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn path_from_create(
-    input: CreateLearningPathInput,
-    user_id: ObjectId,
-) -> Result<CrmLearningPath> {
+fn path_from_create(input: CreateLearningPathInput, user_id: ObjectId) -> Result<CrmLearningPath> {
     if input.name.trim().is_empty() {
         return Err(ApiError::Validation("name is required".to_owned()));
     }
@@ -173,11 +166,9 @@ pub async fn list_learning_paths(
         .build();
 
     let coll = mongo.collection::<CrmLearningPath>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_learning_paths.find")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_learning_paths.find"))
+    })?;
     let mut rows: Vec<CrmLearningPath> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_learning_paths.collect"))
     })?;
@@ -222,20 +213,16 @@ pub async fn create_learning_path(
     let user_id = user_oid(&user)?;
     let mut entity = path_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmLearningPath>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_learning_paths.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_learning_paths.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

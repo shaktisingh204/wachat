@@ -38,6 +38,9 @@ mod tests {
         assert_eq!(map_bandwidth_status("Queued"), SmsStatus::Queued);
         assert_eq!(map_bandwidth_status("Delivered"), SmsStatus::Delivered);
         assert_eq!(map_bandwidth_status("failed"), SmsStatus::Failed);
-        assert_eq!(map_bandwidth_status("UNKNOWN_STATUS"), SmsStatus::Unknown("unknown_status".to_string()));
+        assert_eq!(
+            map_bandwidth_status("UNKNOWN_STATUS"),
+            SmsStatus::Unknown("unknown_status".to_string())
+        );
     }
 }

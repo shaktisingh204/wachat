@@ -20,8 +20,7 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery,
-    UpdateAccountInput,
+    CreateAccountInput, CreateAccountResponse, DeleteAccountResponse, ListQuery, UpdateAccountInput,
 };
 use crate::types::SabmailAccount;
 
@@ -130,15 +129,13 @@ pub async fn list_accounts(
         .build();
 
     let coll = mongo.collection::<SabmailAccount>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find")))?;
-    let mut rows: Vec<SabmailAccount> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find"))
+        })?;
+    let mut rows: Vec<SabmailAccount> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -163,7 +160,9 @@ pub async fn get_account(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabmail_account".to_owned()))?;
     Ok(Json(row))
 }
@@ -202,10 +201,9 @@ pub async fn create_account(
     };
 
     let coll = mongo.collection::<SabmailAccount>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -234,11 +232,15 @@ pub async fn update_account(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabmail_account".to_owned()))?;
     coll.update_one(ownership_filter(user_id, oid), build_update_doc(patch))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.update"))
+        })?;
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
@@ -274,7 +276,9 @@ pub async fn delete_account(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabmail_accounts.archive"))
+        })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("sabmail_account".to_owned()));
     }

@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
 use wachat_queue::BullProducer;
@@ -20,6 +19,11 @@ impl SabflowWebhooksState {
         bull: BullProducer,
         auth: Arc<AuthConfig>,
     ) -> Self {
-        Self { mongo, redis, bull, auth }
+        Self {
+            mongo,
+            redis,
+            bull,
+            auth,
+        }
     }
 }

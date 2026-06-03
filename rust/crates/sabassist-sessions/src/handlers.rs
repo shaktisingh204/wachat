@@ -34,9 +34,8 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 }
 
 fn parse_iso(s: &str) -> Result<BsonDateTime> {
-    let dt = DateTime::parse_from_rfc3339(s).map_err(|_| {
-        ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp"))
-    })?;
+    let dt = DateTime::parse_from_rfc3339(s)
+        .map_err(|_| ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp")))?;
     Ok(BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
@@ -182,13 +181,9 @@ pub async fn list_sessions(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabassistSession>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.find"))
+    })?;
     let mut rows: Vec<SabassistSession> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.collect"))
     })?;
@@ -232,19 +227,15 @@ pub async fn create_session(
     let user_id = user_oid(&user)?;
     let mut entity = session_from_create(input, user_id)?;
     let coll = mongo.collection::<SabassistSession>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabassist_sessions.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

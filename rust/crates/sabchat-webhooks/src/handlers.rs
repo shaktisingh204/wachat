@@ -155,7 +155,11 @@ pub async fn create_endpoint(
 
     let now = bson::DateTime::from_chrono(Utc::now());
     let new_oid = ObjectId::new();
-    let events_bson: Vec<Bson> = body.events.iter().map(|s| Bson::String(s.clone())).collect();
+    let events_bson: Vec<Bson> = body
+        .events
+        .iter()
+        .map(|s| Bson::String(s.clone()))
+        .collect();
     let doc = doc! {
         "_id": new_oid,
         "tenantId": tenant,
@@ -173,7 +177,9 @@ pub async fn create_endpoint(
         .insert_one(doc)
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_endpoints.insert_one"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_webhook_endpoints.insert_one"),
+            )
         })?;
 
     Ok(Json(CreateEndpointResponse {
@@ -290,9 +296,7 @@ pub async fn update_endpoint(
             )
         })?;
     if res.matched_count == 0 {
-        return Err(ApiError::NotFound(
-            "Webhook endpoint not found.".to_owned(),
-        ));
+        return Err(ApiError::NotFound("Webhook endpoint not found.".to_owned()));
     }
 
     Ok(Json(SuccessResponse::ok()))
@@ -322,9 +326,7 @@ pub async fn delete_endpoint(
             )
         })?;
     if res.deleted_count == 0 {
-        return Err(ApiError::NotFound(
-            "Webhook endpoint not found.".to_owned(),
-        ));
+        return Err(ApiError::NotFound("Webhook endpoint not found.".to_owned()));
     }
 
     Ok(Json(SuccessResponse::ok()))
@@ -359,9 +361,7 @@ pub async fn test_endpoint(
         })?
         .is_some();
     if !exists {
-        return Err(ApiError::NotFound(
-            "Webhook endpoint not found.".to_owned(),
-        ));
+        return Err(ApiError::NotFound("Webhook endpoint not found.".to_owned()));
     }
 
     let event = "webhook.test";
@@ -422,13 +422,9 @@ pub async fn list_deliveries(
         .build();
 
     let coll = state.mongo.collection::<Document>(DELIVERIES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_deliveries.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_deliveries.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_deliveries.collect"))
     })?;
@@ -474,9 +470,7 @@ pub async fn retry_delivery(
         .find_one(doc! { "_id": delivery_oid, "tenantId": tenant })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_webhook_deliveries.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_deliveries.find_one"))
         })?;
     if active.is_some() {
         deliveries
@@ -518,10 +512,7 @@ pub async fn retry_delivery(
     dlq_doc.remove("lastError");
     dlq_doc.remove("lastErrorAt");
     dlq_doc.remove("lastAttemptedAt");
-    dlq_doc.insert(
-        "nextAttemptAt",
-        bson::DateTime::from_chrono(Utc::now()),
-    );
+    dlq_doc.insert("nextAttemptAt", bson::DateTime::from_chrono(Utc::now()));
 
     deliveries.insert_one(dlq_doc).await.map_err(|e| {
         ApiError::Internal(
@@ -564,13 +555,9 @@ pub async fn list_dlq(
         .build();
 
     let coll = state.mongo.collection::<Document>(DLQ_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_dlq.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_dlq.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_webhook_dlq.collect"))
     })?;

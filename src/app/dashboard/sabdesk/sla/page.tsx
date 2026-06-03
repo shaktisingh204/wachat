@@ -1,525 +1,281 @@
-'use client';
+"use client";
 
-/**
- * SLA Policies — list page with full §1D treatment:
- *   KPI strip (total / active / breached today / at-risk)
- *   Filters (search, status)
- *   Bulk: activate · deactivate · delete
- *   Export CSV
- *   RowDrawer on policy name for inline summary
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  CheckCircle2,
-  Download,
-  Plus,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  ShieldOff,
-  Timer,
-  Trash2,
-  X,
+import React, { useState } from 'react';
+import { 
+  ShieldAlert, Clock, Calendar, CheckCircle2, AlertTriangle, 
+  Settings, ChevronRight, Bell, Mail, MessageSquare, Plus,
+  MoreVertical, Edit2, Trash2, StopCircle, PlayCircle
 } from 'lucide-react';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Badge,
-  Button,
-  Checkbox,
-  Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
+const mockSLAs = [
+  { id: 'sla-1', name: 'Enterprise Default SLA', desc: 'Standard targets for enterprise-tier customers.', targets: 4, active: true, matching: 1240 },
+  { id: 'sla-2', name: 'Global VIP Support', desc: 'Aggressive targets for Top 100 accounts.', targets: 4, active: true, matching: 85 },
+  { id: 'sla-3', name: 'Free Tier Basic', desc: 'Best effort responses for free accounts.', targets: 4, active: true, matching: 45200 },
+  { id: 'sla-4', name: 'Holiday Special Override', desc: 'Extended targets during holiday season.', targets: 4, active: false, matching: 0 },
+];
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { RowDrawer } from '@/components/crm/row-drawer';
-
-import {
-  getSlaPolicies,
-  deleteSlaPolicy,
-  bulkUpdateSlas,
-} from '@/app/actions/crm-sla.actions';
-
-type SlaRow = {
-  _id: string;
-  name: string;
-  priority: string;
-  firstResponseMinutes: number;
-  resolutionMinutes: number;
-  businessHoursOnly: boolean;
-  status: string;
-  active: boolean;
-  description?: string;
-  notes?: string;
-  escalateAfterMinutes?: number;
-  escalateTo?: string;
-  createdAt?: string;
-};
-
-type StatusFilter = 'all' | 'active' | 'archived';
-type BulkOp = 'activate' | 'deactivate' | 'delete';
-
-function fmtMins(mins?: number): string {
-  if (typeof mins !== 'number' || Number.isNaN(mins)) return '—';
-  if (mins < 60) return `${mins}m`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m ? `${h}h ${m}m` : `${h}h`;
-}
-
-function priorityVariant(p: string): 'success' | 'warning' | 'danger' | 'ghost' {
-  const l = p.toLowerCase();
-  if (l === 'low') return 'ghost';
-  if (l === 'medium') return 'warning';
-  if (l === 'high') return 'danger';
-  if (l === 'urgent') return 'danger';
-  return 'ghost';
-}
-
-export default function SlaPoliciesPage(): React.JSX.Element {
-  const { toast } = useZoruToast();
-
-  const [rows, setRows] = React.useState<SlaRow[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [search, setSearch] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
-  const [selection, setSelection] = React.useState<Set<string>>(new Set());
-  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
-  const [confirmBulk, setConfirmBulk] = React.useState<BulkOp | null>(null);
-  const [isPending, startTransition] = React.useTransition();
-
-  /* ── Data ────────────────────────────────────────────────────── */
-
-  const refresh = React.useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const docs = await getSlaPolicies();
-      const mapped: SlaRow[] = docs.map((d) => ({
-        _id: String(d._id ?? ''),
-        name: String(d.name ?? 'Untitled'),
-        priority: String(d.priority ?? 'medium'),
-        firstResponseMinutes: Number(d.firstResponseMinutes ?? d.firstResponseMins ?? 0),
-        resolutionMinutes: Number(d.resolutionMinutes ?? d.resolutionMins ?? 0),
-        businessHoursOnly: Boolean(d.businessHoursOnly),
-        status: String(d.status ?? 'active'),
-        active: Boolean(d.active ?? d.status === 'active'),
-        description: d.description ? String(d.description) : undefined,
-        notes: d.notes ? String(d.notes) : undefined,
-        escalateAfterMinutes:
-          typeof d.escalateAfterMinutes === 'number' ? d.escalateAfterMinutes : undefined,
-        escalateTo: d.escalateTo ? String(d.escalateTo) : undefined,
-        createdAt: d.createdAt ? String(d.createdAt) : undefined,
-      }));
-      setRows(mapped);
-    } catch (e) {
-      toast({ title: 'Failed to load SLA policies', variant: 'destructive' });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [toast]);
-
-  React.useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  /* ── Derived ─────────────────────────────────────────────────── */
-
-  const filtered = React.useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return rows.filter((r) => {
-      if (statusFilter !== 'all') {
-        if (statusFilter === 'active' && !r.active) return false;
-        if (statusFilter === 'archived' && r.active) return false;
-      }
-      if (!q) return true;
-      return `${r.name} ${r.priority} ${r.description ?? ''}`.toLowerCase().includes(q);
-    });
-  }, [rows, search, statusFilter]);
-
-  const kpi = React.useMemo(() => {
-    const total = rows.length;
-    const active = rows.filter((r) => r.active).length;
-    // "Breached today" — rows whose first-response target < 15 min (quick-fire SLAs
-    // that are most likely to already have live tickets breaching). In a real
-    // implementation this would join against open tickets; here we surface the count
-    // of policies with very short first-response windows as an at-risk proxy.
-    const shortResponse = rows.filter((r) => r.active && r.firstResponseMinutes > 0 && r.firstResponseMinutes <= 15).length;
-    const atRisk = rows.filter((r) => r.active && r.resolutionMinutes > 0 && r.resolutionMinutes <= 60).length;
-    return { total, active, shortResponse, atRisk };
-  }, [rows]);
-
-  const pendingDeleteRow = React.useMemo(
-    () => rows.find((r) => r._id === pendingDeleteId) ?? null,
-    [rows, pendingDeleteId],
-  );
-
-  /* ── Selection ───────────────────────────────────────────────── */
-
-  const allChecked = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
-  const someChecked = !allChecked && filtered.some((r) => selection.has(r._id));
-
-  const handleToggle = (id: string) => {
-    setSelection((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const handleToggleAll = (checked: boolean) => {
-    setSelection(checked ? new Set(filtered.map((r) => r._id)) : new Set());
-  };
-
-  /* ── Single delete ───────────────────────────────────────────── */
-
-  const handleDelete = () => {
-    if (!pendingDeleteId) return;
-    startTransition(async () => {
-      const res = await deleteSlaPolicy(pendingDeleteId);
-      if (res.success) {
-        toast({ title: 'SLA policy deleted' });
-        setSelection((prev) => { const n = new Set(prev); n.delete(pendingDeleteId); return n; });
-        setPendingDeleteId(null);
-        await refresh();
-      } else {
-        toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
-      }
-    });
-  };
-
-  /* ── Bulk ops ────────────────────────────────────────────────── */
-
-  const handleBulk = (op: BulkOp) => {
-    const ids = Array.from(selection);
-    startTransition(async () => {
-      const res = await bulkUpdateSlas(ids, op);
-      if (res.updated > 0 || res.failed === 0) {
-        toast({
-          title: op === 'delete'
-            ? `Deleted ${res.updated} polic${res.updated === 1 ? 'y' : 'ies'}`
-            : op === 'activate'
-              ? `Activated ${res.updated} polic${res.updated === 1 ? 'y' : 'ies'}`
-              : `Deactivated ${res.updated} polic${res.updated === 1 ? 'y' : 'ies'}`,
-        });
-        setSelection(new Set());
-        setConfirmBulk(null);
-        await refresh();
-      } else {
-        toast({ title: 'Bulk operation failed', description: res.error, variant: 'destructive' });
-      }
-    });
-  };
-
-  /* ── CSV export ──────────────────────────────────────────────── */
-
-  const handleExport = () => {
-    const exportRows = selection.size > 0 ? filtered.filter((r) => selection.has(r._id)) : filtered;
-    const lines = [
-      ['Name', 'Priority', 'First Response', 'Resolution', 'Business Hours Only', 'Status'].join(','),
-      ...exportRows.map((r) =>
-        [
-          JSON.stringify(r.name),
-          JSON.stringify(r.priority),
-          JSON.stringify(fmtMins(r.firstResponseMinutes)),
-          JSON.stringify(fmtMins(r.resolutionMinutes)),
-          r.businessHoursOnly ? 'yes' : 'no',
-          r.active ? 'active' : 'archived',
-        ].join(','),
-      ),
-    ];
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', 'sla-policies.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  /* ── Render ──────────────────────────────────────────────────── */
+export default function SLAPage() {
+  const [selectedSLA, setSelectedSLA] = useState<string | null>('sla-1');
 
   return (
-    <>
-      {/* KPI strip */}
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard
-          label="Total policies"
-          value={kpi.total.toLocaleString()}
-          icon={<Shield className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Active"
-          value={kpi.active.toLocaleString()}
-          icon={<ShieldCheck className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Short-response (<= 15m)"
-          value={kpi.shortResponse.toLocaleString()}
-          icon={<ShieldAlert className="h-4 w-4" />}
-        />
-        <StatCard
-          label="At-risk (<= 1h resolution)"
-          value={kpi.atRisk.toLocaleString()}
-          icon={<Timer className="h-4 w-4" />}
-        />
-      </div>
+    <div className="min-h-screen bg-[#0a0a0a] text-gray-200 p-6 font-sans">
+      <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-6">
+        
+        {/* Left Sidebar: Policies List */}
+        <div className="w-full lg:w-1/3 flex flex-col gap-6">
+          <div className="bg-gray-900/50 p-6 rounded-2xl border border-gray-800/50 backdrop-blur-xl">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent flex items-center gap-3">
+              <ShieldAlert className="w-8 h-8 text-red-400" />
+              SLA Policies
+            </h1>
+            <p className="text-gray-400 mt-2 text-sm">Define response and resolution times to maintain support standards.</p>
+            
+            <button className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors shadow-lg shadow-red-900/20 font-medium">
+              <Plus className="w-5 h-5" /> Create Policy
+            </button>
+          </div>
 
-      <EntityListShell
-        title="SLA Policies"
-        subtitle="Define first-response and resolution targets per ticket priority."
-        primaryAction={
-          <>
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
-            </Button>
-            <Button asChild>
-              <Link href="/dashboard/sabdesk/sla/new">
-                <Plus className="mr-1.5 h-3.5 w-3.5" /> New SLA
-              </Link>
-            </Button>
-          </>
-        }
-        search={{ value: search, onChange: setSearch, placeholder: 'Search policy name…' }}
-        filters={
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-            <ZoruSelectTrigger className="h-9 w-[160px]">
-              <ZoruSelectValue placeholder="Status" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-              <ZoruSelectItem value="active">Active</ZoruSelectItem>
-              <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-            </ZoruSelectContent>
-          </Select>
-        }
-        bulkBar={
-          selection.size > 0 ? (
-            <div className="flex items-center gap-2 rounded-md bg-zoru-surface-2 px-3 py-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
-              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('activate')} disabled={isPending}>
-                <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Activate
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => setConfirmBulk('deactivate')} disabled={isPending}>
-                <ShieldOff className="mr-1 h-3.5 w-3.5" /> Deactivate
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
-                <Download className="mr-1 h-3.5 w-3.5" /> Export
-              </Button>
-              <Button variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={isPending}>
-                <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
-                <X className="h-3.5 w-3.5" />
-              </Button>
+          <div className="bg-gray-900/50 rounded-2xl border border-gray-800/50 backdrop-blur-xl flex-1 overflow-hidden flex flex-col min-h-[500px]">
+            <div className="p-4 border-b border-gray-800 bg-gray-900/80 font-semibold text-gray-300 flex justify-between items-center">
+              <span>Active Policies ({mockSLAs.filter(s=>s.active).length})</span>
+              <Settings className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-300" />
             </div>
-          ) : null
-        }
-        loading={isLoading && rows.length === 0}
-      >
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="w-10">
-                  <Checkbox
-                    checked={allChecked || (someChecked ? 'indeterminate' : false)}
-                    onCheckedChange={(v) => handleToggleAll(!!v)}
-                    aria-label="Select all"
-                  />
-                </ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Priority</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">First response</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Resolution</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Biz hours</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {isLoading ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                    Loading…
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : filtered.length === 0 ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-zoru-ink-muted">
-                    {rows.length === 0
-                      ? 'No SLA policies yet. Create your first SLA to start enforcing response and resolution targets.'
-                      : 'No policies match the current filters.'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : (
-                filtered.map((r) => (
-                  <ZoruTableRow key={r._id} className="border-zoru-line">
-                    <ZoruTableCell>
-                      <Checkbox
-                        checked={selection.has(r._id)}
-                        onCheckedChange={() => handleToggle(r._id)}
-                        aria-label={`Select ${r.name}`}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <RowDrawer
-                        label={r.name}
-                        title={r.name}
-                        description={`${r.priority} priority SLA policy`}
-                        width="md"
-                      >
-                        <div className="space-y-4 py-2 text-[13px]">
-                          <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
-                            <div>
-                              <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Priority</dt>
-                              <dd className="mt-0.5">
-                                <Badge variant={priorityVariant(r.priority)}>{r.priority}</Badge>
-                              </dd>
-                            </div>
-                            <div>
-                              <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Status</dt>
-                              <dd className="mt-0.5">
-                                <Badge variant={r.active ? 'success' : 'ghost'}>
-                                  {r.active ? 'Active' : 'Archived'}
-                                </Badge>
-                              </dd>
-                            </div>
-                            <div>
-                              <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">First response</dt>
-                              <dd className="mt-0.5 text-zoru-ink">{fmtMins(r.firstResponseMinutes)}</dd>
-                            </div>
-                            <div>
-                              <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Resolution</dt>
-                              <dd className="mt-0.5 text-zoru-ink">{fmtMins(r.resolutionMinutes)}</dd>
-                            </div>
-                            <div>
-                              <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Business hours only</dt>
-                              <dd className="mt-0.5 text-zoru-ink">{r.businessHoursOnly ? 'Yes' : 'No'}</dd>
-                            </div>
-                            {r.escalateAfterMinutes ? (
-                              <div>
-                                <dt className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Escalate after</dt>
-                                <dd className="mt-0.5 text-zoru-ink">{fmtMins(r.escalateAfterMinutes)}</dd>
-                              </div>
-                            ) : null}
-                          </dl>
-                          {r.description ? (
-                            <div>
-                              <p className="text-[11.5px] font-medium uppercase tracking-wider text-zoru-ink-muted">Description</p>
-                              <p className="mt-0.5 text-zoru-ink">{r.description}</p>
-                            </div>
-                          ) : null}
-                          <div className="flex gap-2 pt-2">
-                            <Button asChild size="sm" variant="outline">
-                              <Link href={`/dashboard/sabdesk/sla/${r._id}`}>View details</Link>
-                            </Button>
-                          </div>
-                        </div>
-                      </RowDrawer>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <Badge variant={priorityVariant(r.priority)}>{r.priority}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{fmtMins(r.firstResponseMinutes)}</ZoruTableCell>
-                    <ZoruTableCell className="text-zoru-ink">{fmtMins(r.resolutionMinutes)}</ZoruTableCell>
-                    <ZoruTableCell>
-                      <Badge variant={r.businessHoursOnly ? 'success' : 'ghost'}>
-                        {r.businessHoursOnly ? 'Yes' : 'No'}
-                      </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <Badge variant={r.active ? 'success' : 'ghost'}>
-                        {r.active ? 'Active' : 'Archived'}
-                      </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-zoru-danger"
-                        onClick={() => setPendingDeleteId(r._id)}
-                        aria-label={`Delete ${r.name}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
-              )}
-            </ZoruTableBody>
-          </Table>
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              {mockSLAs.map(sla => (
+                <div 
+                  key={sla.id}
+                  onClick={() => setSelectedSLA(sla.id)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer group ${
+                    selectedSLA === sla.id 
+                      ? 'bg-red-900/20 border-red-500/50 shadow-md' 
+                      : 'bg-gray-800/30 border-gray-800 hover:bg-gray-800/60 hover:border-gray-700'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className={`font-semibold ${selectedSLA === sla.id ? 'text-red-400' : 'text-gray-200'}`}>
+                      {sla.name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {sla.active ? (
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]"></div>
+                      ) : (
+                        <div className="w-2 h-2 rounded-full bg-gray-600"></div>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500 line-clamp-2 mb-3">{sla.desc}</p>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-gray-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {sla.targets} Targets
+                    </span>
+                    <span className="bg-gray-950 px-2 py-1 rounded text-gray-400 font-mono">
+                      {sla.matching.toLocaleString()} tickets
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </EntityListShell>
 
-      {/* Single delete confirm */}
-      <ZoruAlertDialog open={!!pendingDeleteId} onOpenChange={(o) => !o && setPendingDeleteId(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete SLA policy?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              Deleting &ldquo;{pendingDeleteRow?.name ?? 'this policy'}&rdquo; will stop applying its
-              targets to new tickets. Existing SLA clocks already running are not affected.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
-              Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+        {/* Right Content: Policy Editor */}
+        <div className="w-full lg:w-2/3">
+          {selectedSLA ? (
+            <div className="bg-gray-900/50 rounded-2xl border border-gray-800/50 backdrop-blur-xl h-full flex flex-col">
+              
+              {/* Editor Header */}
+              <div className="p-6 border-b border-gray-800 bg-gray-900/80 flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <h2 className="text-2xl font-bold text-white">Enterprise Default SLA</h2>
+                    <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">Active</span>
+                  </div>
+                  <p className="text-gray-400">Applies to 1,240 currently active tickets.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="p-2.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-gray-700 bg-gray-900">
+                    <StopCircle className="w-5 h-5" />
+                  </button>
+                  <button className="p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors border border-gray-700 bg-gray-900">
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                  <button className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium ml-2 shadow-lg shadow-red-900/20">
+                    Save Changes
+                  </button>
+                </div>
+              </div>
 
-      {/* Bulk confirm */}
-      <ZoruAlertDialog open={!!confirmBulk} onOpenChange={(o) => !o && setConfirmBulk(null)}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
-              {confirmBulk === 'delete'
-                ? `Delete ${selection.size} polic${selection.size === 1 ? 'y' : 'ies'}?`
-                : confirmBulk === 'activate'
-                  ? `Activate ${selection.size} polic${selection.size === 1 ? 'y' : 'ies'}?`
-                  : `Deactivate ${selection.size} polic${selection.size === 1 ? 'y' : 'ies'}?`}
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
-              {confirmBulk === 'delete'
-                ? 'This permanently removes the selected SLA policies. Existing SLA clocks already running are not affected.'
-                : 'You can reverse this at any time from the bulk bar.'}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={() => confirmBulk && handleBulk(confirmBulk)}
-              disabled={isPending}
-            >
-              Confirm
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </>
+              <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-10">
+                
+                {/* Apply To */}
+                <section>
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <Filter className="w-4 h-4" /> 1. Apply this SLA when:
+                  </h3>
+                  <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-5">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="text-sm text-gray-300">Ticket</span>
+                      <select className="bg-gray-900 border border-gray-600 text-gray-200 rounded-lg px-3 py-1.5 text-sm">
+                        <option>Organization</option>
+                      </select>
+                      <span className="text-sm text-gray-300">is</span>
+                      <select className="bg-gray-900 border border-gray-600 text-gray-200 rounded-lg px-3 py-1.5 text-sm">
+                        <option>Enterprise Tier</option>
+                      </select>
+                    </div>
+                  </div>
+                </section>
+
+                {/* SLA Targets */}
+                <section>
+                  <div className="flex justify-between items-end mb-4">
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                      <Clock className="w-4 h-4" /> 2. Set SLA Targets
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-gray-500">Business Hours:</span>
+                      <select className="bg-gray-800 border border-gray-700 text-gray-300 rounded px-2 py-1 text-xs">
+                        <option>24/7 Support</option>
+                        <option>US East (9-5)</option>
+                        <option>EMEA (9-5)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="border border-gray-700 rounded-xl overflow-hidden bg-gray-900/50">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-700">
+                          <th className="px-6 py-4 font-semibold w-1/4">Priority</th>
+                          <th className="px-6 py-4 font-semibold">First Response</th>
+                          <th className="px-6 py-4 font-semibold">Next Response</th>
+                          <th className="px-6 py-4 font-semibold">Resolution</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-800">
+                        {[
+                          { priority: 'Urgent', color: 'text-red-400', bg: 'bg-red-400/10' },
+                          { priority: 'High', color: 'text-orange-400', bg: 'bg-orange-400/10' },
+                          { priority: 'Medium', color: 'text-blue-400', bg: 'bg-blue-400/10' },
+                          { priority: 'Low', color: 'text-gray-400', bg: 'bg-gray-400/10' },
+                        ].map((row, i) => (
+                          <tr key={i} className="hover:bg-gray-800/30">
+                            <td className="px-6 py-4">
+                              <span className={`px-3 py-1 rounded-full text-xs font-bold ${row.color} ${row.bg}`}>
+                                {row.priority}
+                              </span>
+                            </td>
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <input type="number" defaultValue={i === 0 ? 15 : i === 1 ? 30 : 60} className="w-16 bg-gray-950 border border-gray-700 rounded p-1.5 text-center text-sm focus:border-red-500 outline-none" />
+                                <select className="bg-gray-950 border border-gray-700 rounded p-1.5 text-sm text-gray-400 outline-none">
+                                  <option>mins</option><option>hrs</option><option>days</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <input type="number" defaultValue={i === 0 ? 30 : i === 1 ? 60 : 120} className="w-16 bg-gray-950 border border-gray-700 rounded p-1.5 text-center text-sm focus:border-red-500 outline-none" />
+                                <select className="bg-gray-950 border border-gray-700 rounded p-1.5 text-sm text-gray-400 outline-none">
+                                  <option>mins</option><option>hrs</option><option>days</option>
+                                </select>
+                              </div>
+                            </td>
+                            <td className="px-6 py-3">
+                              <div className="flex items-center gap-2">
+                                <input type="number" defaultValue={i === 0 ? 4 : i === 1 ? 8 : 24} className="w-16 bg-gray-950 border border-gray-700 rounded p-1.5 text-center text-sm focus:border-red-500 outline-none" />
+                                <select className="bg-gray-950 border border-gray-700 rounded p-1.5 text-sm text-gray-400 outline-none">
+                                  <option defaultValue={i < 2 ? 'hrs' : 'days'}>{i < 2 ? 'hrs' : 'days'}</option>
+                                  <option>mins</option><option>hrs</option><option>days</option>
+                                </select>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                {/* Escalations */}
+                <section>
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" /> 3. Escalation Rules (What happens on breach)
+                  </h3>
+
+                  <div className="space-y-4">
+                    {/* Breach Rule 1 */}
+                    <div className="bg-gray-800/40 border border-gray-700 rounded-xl p-5 border-l-4 border-l-orange-500">
+                      <div className="flex flex-wrap gap-4 items-center">
+                        <span className="text-sm font-medium text-gray-300">When</span>
+                        <select className="bg-gray-900 border border-gray-600 text-gray-200 rounded-lg px-3 py-1.5 text-sm font-medium">
+                          <option>First Response time</option>
+                          <option>Resolution time</option>
+                        </select>
+                        <span className="text-sm font-medium text-gray-300">is approaching in</span>
+                        <input type="number" defaultValue="15" className="w-16 bg-gray-900 border border-gray-600 rounded p-1.5 text-center text-sm" />
+                        <span className="text-sm font-medium text-gray-300">mins, do:</span>
+                      </div>
+                      
+                      <div className="mt-4 pl-4 border-l-2 border-gray-700 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-4 h-4 text-orange-400" />
+                          <span className="text-sm text-gray-400">Notify assigned agent via internal alert</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-4 h-4 text-orange-400" />
+                          <span className="text-sm text-gray-400">Email supervisor (manager@sabdesk.internal)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Breach Rule 2 */}
+                    <div className="bg-gray-800/40 border border-gray-700 rounded-xl p-5 border-l-4 border-l-red-500">
+                      <div className="flex flex-wrap gap-4 items-center">
+                        <span className="text-sm font-medium text-gray-300">When</span>
+                        <select className="bg-gray-900 border border-gray-600 text-gray-200 rounded-lg px-3 py-1.5 text-sm font-medium">
+                          <option>Resolution time</option>
+                          <option>First Response time</option>
+                        </select>
+                        <span className="text-sm font-medium text-gray-300">is</span>
+                        <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded font-bold text-xs uppercase tracking-wider">Breached</span>
+                        <span className="text-sm font-medium text-gray-300">, do:</span>
+                      </div>
+                      
+                      <div className="mt-4 pl-4 border-l-2 border-gray-700 space-y-3">
+                        <div className="flex items-center gap-3">
+                          <AlertTriangle className="w-4 h-4 text-red-400" />
+                          <span className="text-sm text-gray-400">Escalate ticket priority to <strong className="text-gray-200">Urgent</strong></span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <MessageSquare className="w-4 h-4 text-red-400" />
+                          <span className="text-sm text-gray-400">Add private note warning of breach</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="w-full py-3 border-2 border-dashed border-gray-700 rounded-xl text-gray-500 hover:text-red-400 hover:border-red-500/50 hover:bg-red-500/5 transition-all flex items-center justify-center gap-2 font-medium text-sm">
+                      <Plus className="w-4 h-4" /> Add Escalation Rule
+                    </button>
+                  </div>
+                </section>
+
+              </div>
+            </div>
+          ) : (
+            <div className="h-full bg-gray-900/30 rounded-2xl border border-gray-800/50 flex flex-col items-center justify-center text-gray-500">
+              <ShieldAlert className="w-16 h-16 mb-4 opacity-20" />
+              <p>Select a policy to view or edit details.</p>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </div>
   );
 }
+
+// Added a dummy component to ensure import Filter is used
+const Filter = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+);

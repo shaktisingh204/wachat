@@ -54,8 +54,7 @@ pub(crate) fn interpolate(template: &str, vars: &Value) -> String {
                 // since `{{` / `}}` are ASCII the boundary is a UTF-8
                 // char boundary. Just go through `str::from_utf8`
                 // which is cheap and infallible here.
-                let raw =
-                    std::str::from_utf8(&bytes[inner_start..inner_end]).unwrap_or("");
+                let raw = std::str::from_utf8(&bytes[inner_start..inner_end]).unwrap_or("");
                 let key = raw.trim();
                 match lookup(vars, key) {
                     Some(rendered) => out.push_str(&rendered),
@@ -163,19 +162,13 @@ mod tests {
     #[test]
     fn replaces_dotted_paths() {
         let vars = json!({ "contact": { "first": "Bob" } });
-        assert_eq!(
-            interpolate("Hello {{contact.first}}", &vars),
-            "Hello Bob",
-        );
+        assert_eq!(interpolate("Hello {{contact.first}}", &vars), "Hello Bob",);
     }
 
     #[test]
     fn echoes_missing_placeholders() {
         let vars = json!({});
-        assert_eq!(
-            interpolate("Hi {{name}}", &vars),
-            "Hi {{name}}",
-        );
+        assert_eq!(interpolate("Hi {{name}}", &vars), "Hi {{name}}",);
     }
 
     #[test]
@@ -193,10 +186,7 @@ mod tests {
     #[test]
     fn renders_numbers_and_bools_unquoted() {
         let vars = json!({ "n": 42, "b": true });
-        assert_eq!(
-            interpolate("{{n}}/{{b}}", &vars),
-            "42/true",
-        );
+        assert_eq!(interpolate("{{n}}/{{b}}", &vars), "42/true",);
     }
 
     #[test]
@@ -214,9 +204,6 @@ mod tests {
     #[test]
     fn bare_single_brace_left_alone() {
         let vars = json!({ "name": "X" });
-        assert_eq!(
-            interpolate("{notvar} {{name}}", &vars),
-            "{notvar} X",
-        );
+        assert_eq!(interpolate("{notvar} {{name}}", &vars), "{notvar} X",);
     }
 }

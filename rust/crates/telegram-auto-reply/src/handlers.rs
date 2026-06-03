@@ -15,9 +15,9 @@ use sabnode_db::mongo::MongoHandle;
 use serde_json::Value;
 
 use crate::dto::{
-    AckResult, ConflictPair, ConflictsQuery, ConflictsResp, Cooldown, GetQuery,
-    ListQuery, ListResp, MatchBody, MatchResp, ReorderBody, RuleRow, RunRow,
-    RunsQuery, RunsResp, ScopedBody, TestBody, TestResp, UpsertBody,
+    AckResult, ConflictPair, ConflictsQuery, ConflictsResp, Cooldown, GetQuery, ListQuery,
+    ListResp, MatchBody, MatchResp, ReorderBody, RuleRow, RunRow, RunsQuery, RunsResp, ScopedBody,
+    TestBody, TestResp, UpsertBody,
 };
 use crate::engine::{Probe, conflict_signature, doc_to_json, evaluate_rule};
 use crate::state::TelegramAutoReplyState;
@@ -73,7 +73,11 @@ pub async fn require_project(
 fn doc_to_cooldown(d: &Document) -> Cooldown {
     let sub = d.get_document("cooldown").ok();
     let i = |k: &str| -> Option<i64> {
-        sub.and_then(|s| s.get_i64(k).ok().or_else(|| s.get_i32(k).ok().map(i64::from)))
+        sub.and_then(|s| {
+            s.get_i64(k)
+                .ok()
+                .or_else(|| s.get_i32(k).ok().map(i64::from))
+        })
     };
     Cooldown {
         per_chat_seconds: i("perChatSeconds"),
@@ -90,10 +94,7 @@ fn doc_to_rule_row(d: &Document, fired_7d: i64) -> Option<RuleRow> {
         project_id: d.get_object_id("projectId").ok()?.to_hex(),
         bot_id: d.get_object_id("botId").ok().map(|o| o.to_hex()),
         name: d.get_str("name").unwrap_or("").to_owned(),
-        status: d
-            .get_str("status")
-            .unwrap_or("enabled")
-            .to_owned(),
+        status: d.get_str("status").unwrap_or("enabled").to_owned(),
         priority: d
             .get_i64("priority")
             .or_else(|_| d.get_i32("priority").map(i64::from))
@@ -143,9 +144,8 @@ async fn fired_7d_counts(
     mongo: &MongoHandle,
     project_oid: ObjectId,
 ) -> std::collections::HashMap<String, i64> {
-    let since = bson::DateTime::from_millis(
-        (Utc::now() - ChronoDuration::days(7)).timestamp_millis(),
-    );
+    let since =
+        bson::DateTime::from_millis((Utc::now() - ChronoDuration::days(7)).timestamp_millis());
     let pipeline = vec![
         doc! { "$match": { "projectId": project_oid, "firedAt": { "$gte": since } } },
         doc! { "$group": { "_id": "$ruleId", "n": { "$sum": 1 } } },
@@ -217,10 +217,7 @@ pub async fn list(
     }
     if let Some(search) = q.search.as_deref().filter(|p| !p.is_empty()) {
         let escaped = regex::escape(search);
-        filter.insert(
-            "name",
-            doc! { "$regex": escaped, "$options": "i" },
-        );
+        filter.insert("name", doc! { "$regex": escaped, "$options": "i" });
     }
 
     let total = match s
@@ -375,12 +372,7 @@ pub async fn create(
         doc.insert("botId", oid);
     }
 
-    match s
-        .mongo
-        .collection::<Document>(RULES)
-        .insert_one(doc)
-        .await
-    {
+    match s.mongo.collection::<Document>(RULES).insert_one(doc).await {
         Ok(res) => {
             let id = res
                 .inserted_id
@@ -860,8 +852,7 @@ pub async fn conflicts(
             let id = d.get_object_id("_id").ok()?.to_hex();
             let name = d.get_str("name").unwrap_or("").to_owned();
             let trig_bson = d.get("trigger").cloned().unwrap_or(Bson::Null);
-            let trig: Value =
-                serde_json::from_value(trig_bson.into_relaxed_extjson()).ok()?;
+            let trig: Value = serde_json::from_value(trig_bson.into_relaxed_extjson()).ok()?;
             let (kind, words) = conflict_signature(&trig);
             Some(Sig {
                 id,
@@ -892,19 +883,11 @@ pub async fn conflicts(
                     rule_a_name: a.name.clone(),
                     rule_b_id: b.id.clone(),
                     rule_b_name: b.name.clone(),
-                    reason: format!(
-                        "shared {} pattern: {}",
-                        a.kind,
-                        shared.join(", ")
-                    ),
+                    reason: format!("shared {} pattern: {}", a.kind, shared.join(", ")),
                 });
             }
         }
     }
 
-    Json(ConflictsResp {
-        pairs,
-        error: None,
-    })
+    Json(ConflictsResp { pairs, error: None })
 }
-

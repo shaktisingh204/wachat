@@ -86,7 +86,11 @@ pub async fn ingest_dm(
             "providerMessageId is required.".to_owned(),
         ));
     }
-    let has_text = body.text.as_deref().map(|s| !s.trim().is_empty()).unwrap_or(false);
+    let has_text = body
+        .text
+        .as_deref()
+        .map(|s| !s.trim().is_empty())
+        .unwrap_or(false);
     let has_attachment = body
         .attachment_url
         .as_deref()
@@ -143,14 +147,7 @@ pub async fn ingest_dm(
     .await?;
 
     // ---- 6. Roll up conversation ---------------------------------------
-    rollup_conversation(
-        &state.mongo,
-        tenant_oid,
-        conversation_oid,
-        &preview,
-        now,
-    )
-    .await?;
+    rollup_conversation(&state.mongo, tenant_oid, conversation_oid, &preview, now).await?;
 
     // ---- 7. Audit ------------------------------------------------------
     write_audit(
@@ -275,14 +272,7 @@ pub async fn ingest_comment(
     .await?;
 
     // ---- 6. Roll up conversation ---------------------------------------
-    rollup_conversation(
-        &state.mongo,
-        tenant_oid,
-        conversation_oid,
-        &preview,
-        now,
-    )
-    .await?;
+    rollup_conversation(&state.mongo, tenant_oid, conversation_oid, &preview, now).await?;
 
     // ---- 7. Audit ------------------------------------------------------
     write_audit(
@@ -311,10 +301,7 @@ pub async fn ingest_comment(
 /// camelCase `igUserId` or snake_case `ig_user_id` key in `settings` to
 /// stay forgiving of how the inbox was provisioned. Returns
 /// `(inboxId, tenantId)`.
-async fn resolve_inbox(
-    mongo: &MongoHandle,
-    ig_user_id: &str,
-) -> Result<(ObjectId, ObjectId)> {
+async fn resolve_inbox(mongo: &MongoHandle, ig_user_id: &str) -> Result<(ObjectId, ObjectId)> {
     let coll = mongo.collection::<Document>(INBOXES_COLL);
     let filter = doc! {
         "channelType": PROVIDER,
@@ -467,9 +454,7 @@ async fn resolve_conversation(
 
     // Prefer the newest non-resolved conversation; fall back to creating
     // a new one.
-    let opts = FindOneOptions::builder()
-        .sort(doc! { "_id": -1 })
-        .build();
+    let opts = FindOneOptions::builder().sort(doc! { "_id": -1 }).build();
     let existing = coll
         .find_one(doc! {
             "tenantId": tenant_oid,
@@ -558,10 +543,7 @@ struct InsertMessage<'a> {
 
 /// Persist one `sabchat_messages` doc representing the inbound visitor
 /// event. Returns the new message's `_id`.
-async fn insert_message<'a>(
-    mongo: &MongoHandle,
-    args: InsertMessage<'a>,
-) -> Result<ObjectId> {
+async fn insert_message<'a>(mongo: &MongoHandle, args: InsertMessage<'a>) -> Result<ObjectId> {
     let new_oid = ObjectId::new();
     let at_bson = bson::DateTime::from_chrono(args.at);
 
@@ -638,7 +620,9 @@ async fn rollup_conversation(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.update_one(rollup)"))
+        ApiError::Internal(
+            anyhow::Error::new(e).context("sabchat_conversations.update_one(rollup)"),
+        )
     })?;
     Ok(())
 }
@@ -723,18 +707,13 @@ fn build_dm_content(body: &IngestDmBody) -> ContentBlock {
         (None, Some(u)) => {
             let mime = body.attachment_mime.as_deref().unwrap_or("");
             if mime.starts_with("image/") {
-                ContentBlock::Image {
-                    url: u,
-                    alt: None,
-                }
+                ContentBlock::Image { url: u, alt: None }
             } else {
                 ContentBlock::File {
                     attachment: sabchat_types::Attachment {
                         sabfile_id: String::new(),
                         url: u,
-                        name: file_name_from_url(
-                            body.attachment_url.as_deref().unwrap_or(""),
-                        ),
+                        name: file_name_from_url(body.attachment_url.as_deref().unwrap_or("")),
                         mime: body.attachment_mime.clone(),
                         size: None,
                     },

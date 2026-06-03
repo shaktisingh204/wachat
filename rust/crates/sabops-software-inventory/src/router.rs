@@ -19,5 +19,8 @@ where
             "/",
             get(handlers::list_software).post(handlers::create_software),
         )
-        .route("/{softwareId}", axum::routing::delete(handlers::delete_software))
+        .route(
+            "/{softwareId}",
+            axum::routing::delete(handlers::delete_software),
+        )
 }

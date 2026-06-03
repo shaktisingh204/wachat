@@ -7,9 +7,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use sabflow_nodes::{
-    Credential, ExecutionContext, NodeError, NodeInput, NodeOutput, NodeRegistry,
-};
+use sabflow_nodes::{Credential, ExecutionContext, NodeError, NodeInput, NodeOutput, NodeRegistry};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -127,7 +125,10 @@ impl FlowEngine {
                 };
             }
 
-            let group = match groups.iter().find(|g| g.get("id").and_then(|v| v.as_str()) == Some(&group_id)) {
+            let group = match groups
+                .iter()
+                .find(|g| g.get("id").and_then(|v| v.as_str()) == Some(&group_id))
+            {
                 Some(g) => g,
                 None => break,
             };
@@ -180,10 +181,8 @@ impl FlowEngine {
                             .map(|b| b.items)
                             .unwrap_or_default();
                         // Persist named output if the engine wants it later.
-                        ctx.node_outputs.insert(
-                            block_id.clone(),
-                            NodeOutput::single(current_items.clone()),
-                        );
+                        ctx.node_outputs
+                            .insert(block_id.clone(), NodeOutput::single(current_items.clone()));
                         node_results.push(NodeResultRecord {
                             block_id,
                             block_type,

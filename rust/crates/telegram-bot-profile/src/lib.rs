@@ -21,8 +21,5 @@ where
 {
     Router::new()
         .route("/{bot_id}", post(handlers::update_profile))
-        .route(
-            "/{bot_id}/menu-button",
-            post(handlers::set_menu_button),
-        )
+        .route("/{bot_id}/menu-button", post(handlers::set_menu_button))
 }

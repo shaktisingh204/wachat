@@ -15,6 +15,9 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_versions).post(handlers::create_version))
+        .route(
+            "/",
+            get(handlers::list_versions).post(handlers::create_version),
+        )
         .route("/{versionId}", get(handlers::get_version))
 }

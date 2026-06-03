@@ -99,11 +99,10 @@ pub async fn list_polls(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<Poll>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.find"))
+        })?;
     let mut rows: Vec<Poll> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.collect"))
     })?;
@@ -133,11 +132,9 @@ pub async fn list_polls_public(
         .limit(50)
         .build();
     let coll = mongo.collection::<Poll>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.public")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.public"))
+    })?;
     let rows: Vec<Poll> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.collect"))
     })?;
@@ -177,10 +174,9 @@ pub async fn create_poll(
     let user_id = user_oid(&user)?;
     let mut entity = poll_from_create(input, user_id)?;
     let coll = mongo.collection::<Poll>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -223,21 +219,18 @@ pub async fn update_poll(
         }
     }
     let result = coll
-        .update_one(
-            doc! { "_id": oid, "userId": user_id },
-            doc! { "$set": set },
-        )
+        .update_one(doc! { "_id": oid, "userId": user_id }, doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("poll".to_owned()));
     }
     let after = coll
         .find_one(doc! { "_id": oid, "userId": user_id })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.refetch")))?
         .ok_or_else(|| ApiError::NotFound("poll".to_owned()))?;
     Ok(Json(after))
 }
@@ -254,14 +247,19 @@ pub async fn vote_poll_public(
     let poll = coll
         .find_one(doc! { "_id": oid, "status": "open" })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.vote.find")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.vote.find"))
+        })?
         .ok_or_else(|| ApiError::NotFound("open poll".to_owned()))?;
 
     let voter = input.voter.unwrap_or_default();
 
     // Dedup: if not anonymous and voter already voted on any option, reject.
     if !poll.anonymous && !voter.is_empty() {
-        let already = poll.options.iter().any(|o| o.voters.iter().any(|v| v == &voter));
+        let already = poll
+            .options
+            .iter()
+            .any(|o| o.voters.iter().any(|v| v == &voter));
         if already {
             return Err(ApiError::Validation("already voted".to_owned()));
         }
@@ -272,10 +270,7 @@ pub async fn vote_poll_public(
         "$inc": { "options.$[opt].voteCount": 1i64 },
     };
     if !poll.anonymous && !voter.is_empty() {
-        update.insert(
-            "$push",
-            doc! { "options.$[opt].voters": &voter },
-        );
+        update.insert("$push", doc! { "options.$[opt].voters": &voter });
     }
     let opts = mongodb::options::UpdateOptions::builder()
         .array_filters(vec![doc! { "opt.id": &input.option_id }])
@@ -284,7 +279,9 @@ pub async fn vote_poll_public(
         .update_one(doc! { "_id": oid }, update)
         .with_options(opts)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.vote.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_polls.vote.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("poll option".to_owned()));
     }

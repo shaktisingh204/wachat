@@ -87,7 +87,11 @@ fn dataset_from_create(input: CreateDatasetInput, user_id: ObjectId) -> Result<B
 
 fn build_update_doc(patch: UpdateDatasetInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.description {
@@ -145,11 +149,10 @@ pub async fn list_datasets(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<BiDataset>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.find"))
+        })?;
     let mut rows: Vec<BiDataset> = cursor
         .try_collect()
         .await
@@ -350,11 +353,12 @@ pub async fn preview_dataset(
         .find(doc! { "userId": user_id })
         .with_options(opts)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.preview.find")))?;
-    let rows: Vec<Document> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.preview.collect")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.preview.find"))
+        })?;
+    let rows: Vec<Document> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_datasets.preview.collect"))
+    })?;
     let columns: Vec<String> = rows
         .first()
         .map(|r| r.keys().map(String::from).collect())

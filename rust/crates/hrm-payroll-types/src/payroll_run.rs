@@ -104,7 +104,11 @@ pub struct PayrollTotals {
 pub struct ApprovalStep {
     pub approver_id: ObjectId,
     pub status: String,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub decided_at: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -125,11 +129,19 @@ pub struct PayrollRun {
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]
     pub period_to: DateTime<Utc>,
     /// Date the bank file is scheduled / executed against.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub pay_date: Option<DateTime<Utc>>,
     /// After this date, employees can no longer change attendance /
     /// reimbursement inputs that affect the run.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub lock_date: Option<DateTime<Utc>>,
 
     /* ----- per-employee figures + rollup ------------------------- */

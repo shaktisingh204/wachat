@@ -111,7 +111,11 @@ pub struct Template {
     pub variants: Vec<TemplateVariant>,
 
     /* ----- usage telemetry --------------------------------------- */
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_used_at: Option<DateTime<Utc>>,
 
     /* ----- ownership + lifecycle --------------------------------- */
@@ -264,7 +268,10 @@ mod tests {
             .and_then(|v| v.as_array())
             .and_then(|a| a.first())
             .unwrap();
-        assert_eq!(first_variant.get("locked").and_then(|v| v.as_bool()), Some(true));
+        assert_eq!(
+            first_variant.get("locked").and_then(|v| v.as_bool()),
+            Some(true)
+        );
 
         let back: Template = serde_json::from_value(json).unwrap();
         assert!(matches!(back.kind, TemplateKind::Whatsapp));

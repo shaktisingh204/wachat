@@ -32,9 +32,8 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 }
 
 fn parse_iso(s: &str) -> Result<BsonDateTime> {
-    let dt = DateTime::parse_from_rfc3339(s).map_err(|_| {
-        ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp"))
-    })?;
+    let dt = DateTime::parse_from_rfc3339(s)
+        .map_err(|_| ApiError::Validation(format!("'{s}' is not a valid ISO-8601 timestamp")))?;
     Ok(BsonDateTime::from_chrono(dt.with_timezone(&Utc)))
 }
 
@@ -56,9 +55,7 @@ fn device_from_create(input: CreateDeviceInput, user_id: ObjectId) -> Result<Sab
         .os_info_json
         .map(|v| {
             bson::to_bson(&v).map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("sabassist_devices.os_info_bson"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("sabassist_devices.os_info_bson"))
             })
         })
         .transpose()?;
@@ -143,11 +140,8 @@ pub async fn list_devices(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabassistDevice>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabassist_devices.find"))
         })?;
     let mut rows: Vec<SabassistDevice> = cursor.try_collect().await.map_err(|e| {
@@ -201,8 +195,7 @@ pub async fn create_device(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

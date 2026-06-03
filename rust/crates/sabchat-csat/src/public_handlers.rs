@@ -156,12 +156,12 @@ pub async fn public_respond(
         })?
         .ok_or_else(|| ApiError::NotFound("Survey not found.".to_owned()))?;
 
-    let scale_min = survey.get_i32("scaleMin").map_err(|_| {
-        ApiError::Internal(anyhow::anyhow!("survey missing scaleMin"))
-    })?;
-    let scale_max = survey.get_i32("scaleMax").map_err(|_| {
-        ApiError::Internal(anyhow::anyhow!("survey missing scaleMax"))
-    })?;
+    let scale_min = survey
+        .get_i32("scaleMin")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("survey missing scaleMin")))?;
+    let scale_max = survey
+        .get_i32("scaleMax")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("survey missing scaleMax")))?;
 
     if body.score < scale_min || body.score > scale_max {
         return Err(ApiError::Validation(format!(
@@ -200,9 +200,7 @@ pub async fn public_respond(
         .insert_one(&response_doc)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_survey_responses.insert_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.insert_one"))
         })?;
 
     // ---- Update conversation customAttrs ------------------------------

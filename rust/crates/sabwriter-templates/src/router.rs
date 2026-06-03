@@ -15,7 +15,10 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route("/", get(handlers::list_templates).post(handlers::create_template))
+        .route(
+            "/",
+            get(handlers::list_templates).post(handlers::create_template),
+        )
         .route(
             "/{templateId}",
             get(handlers::get_template)

@@ -15,10 +15,7 @@ where
     Arc<AuthConfig>: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/",
-            get(handlers::list_bases).post(handlers::create_base),
-        )
+        .route("/", get(handlers::list_bases).post(handlers::create_base))
         .route(
             "/{baseId}",
             get(handlers::get_base)

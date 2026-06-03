@@ -71,9 +71,7 @@ pub async fn ingest(
     Json(body): Json<IngestEmailBody>,
 ) -> Result<Json<IngestEmailResponse>> {
     // ---- Input validation ----------------------------------------------
-    if body.to.trim().is_empty()
-        || body.from.trim().is_empty()
-        || body.message_id.trim().is_empty()
+    if body.to.trim().is_empty() || body.from.trim().is_empty() || body.message_id.trim().is_empty()
     {
         return Err(ApiError::Validation(
             "to, from, and messageId are required".to_owned(),
@@ -254,9 +252,7 @@ async fn resolve_inbox(mongo: &MongoHandle, to_addr: &str) -> Result<(ObjectId, 
     let inbox = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| {
             ApiError::NotFound(format!(
                 "No email inbox is configured for recipient `{to_addr}`."
@@ -414,7 +410,12 @@ async fn append_text_message(
         .map(str::to_owned)
         .unwrap_or_else(|| strip_html(body.html_body.as_deref().unwrap_or("")));
 
-    let combined = match body.subject.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    let combined = match body
+        .subject
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         Some(subject) if !text_body.trim().is_empty() => {
             format!("Subject: {subject}\n\n{text_body}")
         }
@@ -510,8 +511,7 @@ async fn append_attachment_message(
     let block = sabchat_types::ContentBlock::File {
         attachment: attachment.clone(),
     };
-    let content_value =
-        serde_json::to_value(&block).unwrap_or(serde_json::Value::Null);
+    let content_value = serde_json::to_value(&block).unwrap_or(serde_json::Value::Null);
     let content_bson = Bson::try_from(content_value).unwrap_or(Bson::Null);
 
     // Same shape as the text message's `providerMetadata` so the
@@ -591,9 +591,7 @@ async fn bump_conversation(
     )
     .await
     .map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_conversations.update_one(bump)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.update_one(bump)"))
     })?;
     Ok(())
 }
@@ -727,8 +725,8 @@ fn regex_escape(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for ch in s.chars() {
         match ch {
-            '.' | '+' | '*' | '?' | '(' | ')' | '|' | '[' | ']' | '{' | '}' | '\\' | '^'
-            | '$' | '/' => {
+            '.' | '+' | '*' | '?' | '(' | ')' | '|' | '[' | ']' | '{' | '}' | '\\' | '^' | '$'
+            | '/' => {
                 out.push('\\');
                 out.push(ch);
             }

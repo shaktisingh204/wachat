@@ -137,10 +137,7 @@ where
             post(handlers::set_presence).get(handlers::list_presence),
         )
         // ---- teams collection root ------------------------------------
-        .route(
-            "/",
-            post(handlers::create_team).get(handlers::list_teams),
-        )
+        .route("/", post(handlers::create_team).get(handlers::list_teams))
         // ---- per-team endpoints ---------------------------------------
         .route(
             "/{id}",
@@ -148,18 +145,12 @@ where
                 .patch(handlers::update_team)
                 .delete(handlers::delete_team),
         )
-        .route(
-            "/{id}/members",
-            post(handlers::add_team_member),
-        )
+        .route("/{id}/members", post(handlers::add_team_member))
         .route(
             "/{id}/members/{agent_id}",
             delete(handlers::remove_team_member),
         )
-        .route(
-            "/{id}/inboxes",
-            post(handlers::add_team_inbox),
-        )
+        .route("/{id}/inboxes", post(handlers::add_team_inbox))
         .route(
             "/{id}/inboxes/{inbox_id}",
             delete(handlers::remove_team_inbox),

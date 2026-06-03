@@ -118,14 +118,22 @@ pub struct Announcement {
     pub audience: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub audience_value: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub scheduled_for: Option<DateTime<Utc>>,
     /// "email" | "slack" | "in_app"
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub channels: Vec<String>,
     #[serde(default)]
     pub sent: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub sent_at: Option<DateTime<Utc>>,
 }
 

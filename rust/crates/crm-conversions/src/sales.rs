@@ -30,11 +30,7 @@ use crm_sales_types::{
 /// useful when the SO is being created on behalf of a different owner
 /// (e.g. round-robin assignment). For straight conversions, callers
 /// should pass `q.identity.user_id`.
-pub fn quotation_to_sales_order(
-    q: &Quotation,
-    so_no: String,
-    user_id: ObjectId,
-) -> SalesOrder {
+pub fn quotation_to_sales_order(q: &Quotation, so_no: String, user_id: ObjectId) -> SalesOrder {
     let lineage = build_lineage_from_parent("quotation", q.identity.id, &q.lineage);
 
     SalesOrder {
@@ -537,12 +533,7 @@ mod tests {
         let so = quotation_to_sales_order(&q, "SO-001".into(), user);
 
         let wh = ObjectId::new();
-        let challan = sales_order_to_delivery_challan(
-            &so,
-            "DC-001".into(),
-            wh,
-            Address::default(),
-        );
+        let challan = sales_order_to_delivery_challan(&so, "DC-001".into(), wh, Address::default());
 
         assert_eq!(challan.identity.project_id, so.identity.project_id);
         assert_eq!(challan.identity.user_id, so.identity.user_id);

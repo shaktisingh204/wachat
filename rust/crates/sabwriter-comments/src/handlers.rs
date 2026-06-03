@@ -45,7 +45,9 @@ async fn assert_doc_access(
             ]
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     Ok(())
 }
@@ -80,15 +82,12 @@ pub async fn list_comments(
         .build();
 
     let coll = mongo.collection::<SabwriterComment>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find")))?;
-    let mut rows: Vec<SabwriterComment> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find"))
+    })?;
+    let mut rows: Vec<SabwriterComment> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -113,7 +112,9 @@ pub async fn get_comment(
     let row = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     assert_doc_access(&mongo, user_id, row.document_id).await?;
     Ok(Json(row))
@@ -133,8 +134,16 @@ pub async fn create_comment(
     if body.is_empty() {
         return Err(ApiError::Validation("body is required".to_owned()));
     }
-    let parent_comment_id = match input.parent_comment_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        Some(s) => Some(ObjectId::parse_str(s).map_err(|_| ApiError::Validation("invalid parentCommentId".to_owned()))?),
+    let parent_comment_id = match input
+        .parent_comment_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        Some(s) => Some(
+            ObjectId::parse_str(s)
+                .map_err(|_| ApiError::Validation("invalid parentCommentId".to_owned()))?,
+        ),
         None => None,
     };
 
@@ -154,10 +163,9 @@ pub async fn create_comment(
     };
 
     let coll = mongo.collection::<SabwriterComment>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -183,7 +191,9 @@ pub async fn update_comment(
     let before = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     assert_doc_access(&mongo, user_id, before.document_id).await?;
     // Body edits restricted to the author.
@@ -207,11 +217,15 @@ pub async fn update_comment(
     }
     coll.update_one(doc! { "_id": oid }, doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.update"))
+        })?;
     let after = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     Ok(Json(after))
 }
@@ -228,7 +242,9 @@ pub async fn resolve_comment(
     let before = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     assert_doc_access(&mongo, user_id, before.document_id).await?;
     coll.update_one(
@@ -245,7 +261,9 @@ pub async fn resolve_comment(
     let after = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     Ok(Json(after))
 }
@@ -262,7 +280,9 @@ pub async fn delete_comment(
     let before = coll
         .find_one(doc! { "_id": oid })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_comment".to_owned()))?;
     if before.author_user_id != user_id {
         return Err(ApiError::Validation(
@@ -272,7 +292,9 @@ pub async fn delete_comment(
     let res = coll
         .delete_one(doc! { "_id": oid, "authorUserId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_comments.delete"))
+        })?;
     Ok(Json(DeleteCommentResponse {
         deleted: res.deleted_count > 0,
     }))

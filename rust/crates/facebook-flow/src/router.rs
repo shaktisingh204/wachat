@@ -11,9 +11,7 @@ use axum::{
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::Result;
 
-use crate::dto::{
-    AckResult, FacebookFlowRecord, FacebookFlowSummary, SaveFlowReq, SaveFlowResult,
-};
+use crate::dto::{AckResult, FacebookFlowRecord, FacebookFlowSummary, SaveFlowReq, SaveFlowResult};
 use crate::state::FacebookFlowState;
 use crate::store;
 

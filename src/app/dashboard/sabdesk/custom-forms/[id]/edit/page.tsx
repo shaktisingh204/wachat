@@ -1,21 +1,19 @@
-import {
-  notFound,
-  redirect } from 'next/navigation';
+import { notFound, redirect } from "next/navigation";
 
 /**
  * Edit custom form — server wrapper that loads the form by id and
  * hands it to `<CustomFormForm />` as `initialData`.
  */
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { getSession } from '@/app/actions/user.actions';
-import { getFormById } from '@/app/actions/crm-forms.actions';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { getSession } from "@/app/actions/user.actions";
+import { getFormById } from "@/app/actions/crm-forms.actions";
 
-import { CustomFormForm } from '../../_components/custom-form-form';
+import { CustomFormForm } from "../../_components/custom-form-form";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-const BASE = '/dashboard/sabdesk/custom-forms';
+const BASE = "/dashboard/sabdesk/custom-forms";
 
 export default async function EditCustomFormPage({
   params,
@@ -25,7 +23,7 @@ export default async function EditCustomFormPage({
   const { id } = await params;
 
   const session = await getSession();
-  if (!session?.user) redirect('/login');
+  if (!session?.user) redirect("/login");
 
   const form = await getFormById(id);
   if (!form) notFound();
@@ -34,7 +32,7 @@ export default async function EditCustomFormPage({
     <EntityDetailShell
       eyebrow="CUSTOM FORM"
       title={`Edit · ${form.name}`}
-      back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+      back={{ href: `${BASE}/${id}`, label: "Back to detail" }}
     >
       <CustomFormForm initialData={form} />
     </EntityDetailShell>

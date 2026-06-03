@@ -139,11 +139,7 @@ mod tests {
     #[test]
     fn back_edge_is_a_cycle() {
         let nodes = vec![n("a"), n("b"), n("c")];
-        let edges = vec![
-            e("e1", "a", "b"),
-            e("e2", "b", "c"),
-            e("e3", "c", "a"),
-        ];
+        let edges = vec![e("e1", "a", "b"), e("e2", "b", "c"), e("e3", "c", "a")];
         assert!(detect_cycle(&nodes, &edges).has_cycle);
     }
 

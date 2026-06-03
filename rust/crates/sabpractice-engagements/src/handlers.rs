@@ -55,12 +55,13 @@ fn entity_from_create(
     user_id: ObjectId,
 ) -> Result<SabPracticeEngagement> {
     let client_oid = oid_from_str(&input.client_id)?;
-    let scope_bson = match input.scope_json {
-        Some(v) => Some(bson::to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode scopeJson"))
-        })?),
-        None => None,
-    };
+    let scope_bson =
+        match input.scope_json {
+            Some(v) => Some(bson::to_bson(&v).map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("encode scopeJson"))
+            })?),
+            None => None,
+        };
     Ok(SabPracticeEngagement {
         id: None,
         user_id,
@@ -89,9 +90,8 @@ fn build_update_doc(patch: UpdateEngagementInput) -> Result<Document> {
         set.insert("name", v);
     }
     if let Some(v) = patch.scope_json {
-        let bson = bson::to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("encode scopeJson"))
-        })?;
+        let bson = bson::to_bson(&v)
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("encode scopeJson")))?;
         set.insert("scopeJson", bson);
     }
     if let Some(v) = patch.start_date {
@@ -157,15 +157,12 @@ pub async fn list_engagements(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeEngagement>(ENGAGEMENTS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.find")))?;
-    let mut rows: Vec<SabPracticeEngagement> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.find"))
+    })?;
+    let mut rows: Vec<SabPracticeEngagement> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -190,7 +187,9 @@ pub async fn get_engagement(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("engagement".to_owned()))?;
     Ok(Json(row))
 }
@@ -207,10 +206,9 @@ pub async fn create_engagement(
     }
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabPracticeEngagement>(ENGAGEMENTS_COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -236,14 +234,18 @@ pub async fn update_engagement(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("engagement".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("engagement".to_owned()))?;
     Ok(Json(after))
 }
@@ -266,7 +268,9 @@ pub async fn delete_engagement(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.complete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_engagements.complete"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("engagement".to_owned()));
     }

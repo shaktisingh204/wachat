@@ -169,15 +169,13 @@ pub async fn list_feed(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabConnectFeedItem>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.find")))?;
-    let mut rows: Vec<SabConnectFeedItem> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.find"))
+        })?;
+    let mut rows: Vec<SabConnectFeedItem> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -225,8 +223,7 @@ pub async fn create_feed_item(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -294,7 +291,9 @@ pub async fn delete_feed_item(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabconnect_feed.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("feed item".to_owned()));
     }

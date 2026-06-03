@@ -52,9 +52,7 @@ fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
 /// `doc!` filter. Invalid input becomes `400 Bad Request`.
 fn parse_rfc3339(field: &str, raw: &str) -> Result<bson::DateTime> {
     let dt: DateTime<Utc> = DateTime::parse_from_rfc3339(raw)
-        .map_err(|e| {
-            ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}"))
-        })?
+        .map_err(|e| ApiError::BadRequest(format!("invalid RFC3339 timestamp for `{field}`: {e}")))?
         .with_timezone(&Utc);
     Ok(bson::DateTime::from_chrono(dt))
 }
@@ -111,11 +109,7 @@ pub async fn list_touches(
     // ---- Build filter ---------------------------------------------------
     let mut filter = doc! { "tenantId": tenant };
 
-    if let Some(id) = query
-        .conversation_id
-        .as_deref()
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(id) = query.conversation_id.as_deref().filter(|s| !s.is_empty()) {
         filter.insert("conversationId", oid_from_str(id)?);
     }
 
@@ -139,13 +133,9 @@ pub async fn list_touches(
 
     // ---- Query ----------------------------------------------------------
     let coll = state.mongo.collection::<Document>(TOUCHES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_ad_touches.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_ad_touches.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_ad_touches.collect"))
     })?;
@@ -242,9 +232,7 @@ pub async fn attribute_revenue(
         })
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("Conversation not found.".to_owned()))?;
 
@@ -292,8 +280,7 @@ pub async fn attribute_revenue(
 
     let touch_doc = touch.ok_or_else(|| {
         ApiError::NotFound(
-            "No prior ad touch found for this conversation — nothing to attribute."
-                .to_owned(),
+            "No prior ad touch found for this conversation — nothing to attribute.".to_owned(),
         )
     })?;
     let touch_oid = touch_doc
@@ -434,10 +421,7 @@ pub async fn report(
     let entries: Vec<ReportEntry> = docs
         .into_iter()
         .map(|d| ReportEntry {
-            group_key: d
-                .get_str("groupKey")
-                .map(str::to_owned)
-                .unwrap_or_default(),
+            group_key: d.get_str("groupKey").map(str::to_owned).unwrap_or_default(),
             conversation_count: doc_i64(&d, "conversationCount"),
             revenue_minor: doc_i64(&d, "revenueMinor"),
         })

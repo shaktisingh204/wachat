@@ -126,142 +126,142 @@ async fn insert_and_fanout(
     let tenant_oid = ObjectId::parse_str(tenant_id).ok();
     let tenant_id = tenant_id.to_owned();
     let now = Utc::now();
-        let mut accepted: u64 = 0;
-        let mut skipped: u64 = 0;
-        let mut docs: Vec<Document> = Vec::with_capacity(events.len());
-        let mut suppressions: Vec<(String, &'static str)> = Vec::new();
-        let mut fanout_payloads: Vec<(String, Value)> = Vec::with_capacity(events.len());
+    let mut accepted: u64 = 0;
+    let mut skipped: u64 = 0;
+    let mut docs: Vec<Document> = Vec::with_capacity(events.len());
+    let mut suppressions: Vec<(String, &'static str)> = Vec::new();
+    let mut fanout_payloads: Vec<(String, Value)> = Vec::with_capacity(events.len());
 
-        for ev in events {
-            // Drop events that don't carry an email — we can't index or
-            // suppress without one.
-            if ev.email.is_empty() {
-                skipped += 1;
-                continue;
-            }
+    for ev in events {
+        // Drop events that don't carry an email — we can't index or
+        // suppress without one.
+        if ev.email.is_empty() {
+            skipped += 1;
+            continue;
+        }
 
-            let id = ObjectId::new();
+        let id = ObjectId::new();
+        let user_id_bson = tenant_oid
+            .as_ref()
+            .map(|o| bson::Bson::ObjectId(*o))
+            .unwrap_or_else(|| bson::Bson::String(tenant_id.clone()));
+
+        let mut d = doc! {
+            "_id": id,
+            "userId": user_id_bson.clone(),
+            "kind": ev.kind,
+            "email": &ev.email,
+            "provider": provider,
+            "occurredAt": bson::DateTime::from_chrono(ev.occurred_at),
+            "ingestedAt": bson::DateTime::from_chrono(now),
+        };
+        if let Some(c) = ev.campaign_id {
+            d.insert("campaignId", c);
+        }
+        if let Some(j) = ev.journey_id {
+            d.insert("journeyId", j);
+        }
+        if let Some(s) = ev.subscriber_id {
+            d.insert("subscriberId", s);
+        }
+        if let Some(m) = &ev.message_id {
+            d.insert("messageId", m);
+        }
+        if let Some(u) = &ev.url {
+            d.insert("url", u);
+        }
+        if let Some(ua) = &ev.user_agent {
+            d.insert("userAgent", ua);
+        }
+        if let Some(ip) = &ev.ip {
+            d.insert("ip", ip);
+        }
+        if let Some(r) = &ev.reason {
+            d.insert("reason", r);
+        }
+
+        // Bounce / complaint → upsert suppression so future sends skip.
+        match ev.kind {
+            "bounce_hard" => suppressions.push((ev.email.clone(), "bounce")),
+            "complaint" => suppressions.push((ev.email.clone(), "complaint")),
+            _ => {}
+        }
+
+        // Build the outbound payload (camelCase, matches Mongo doc).
+        let mut payload = json!({
+            "id": id.to_hex(),
+            "userId": tenant_id,
+            "kind": ev.kind,
+            "email": ev.email,
+            "provider": provider,
+            "occurredAt": ev.occurred_at.to_rfc3339(),
+        });
+        if let Some(c) = &ev.campaign_id {
+            payload["campaignId"] = json!(c.to_hex());
+        }
+        if let Some(j) = &ev.journey_id {
+            payload["journeyId"] = json!(j.to_hex());
+        }
+        if let Some(s) = &ev.subscriber_id {
+            payload["subscriberId"] = json!(s.to_hex());
+        }
+        if let Some(m) = &ev.message_id {
+            payload["messageId"] = json!(m);
+        }
+        if let Some(u) = &ev.url {
+            payload["url"] = json!(u);
+        }
+        if let Some(r) = &ev.reason {
+            payload["reason"] = json!(r);
+        }
+
+        fanout_payloads.push((ev.kind.to_owned(), payload));
+        docs.push(d);
+        accepted += 1;
+    }
+
+    if !docs.is_empty() {
+        mongo
+            .collection::<Document>(EVENTS_COLL)
+            .insert_many(docs)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("email_events.insert_many"))
+            })?;
+    }
+
+    // Upsert suppressions for bounces / complaints.
+    if !suppressions.is_empty() {
+        let coll = mongo.collection::<Document>(SUPPRESSIONS);
+        for (email, reason) in suppressions {
             let user_id_bson = tenant_oid
                 .as_ref()
                 .map(|o| bson::Bson::ObjectId(*o))
                 .unwrap_or_else(|| bson::Bson::String(tenant_id.clone()));
-
-            let mut d = doc! {
-                "_id": id,
-                "userId": user_id_bson.clone(),
-                "kind": ev.kind,
-                "email": &ev.email,
-                "provider": provider,
-                "occurredAt": bson::DateTime::from_chrono(ev.occurred_at),
-                "ingestedAt": bson::DateTime::from_chrono(now),
-            };
-            if let Some(c) = ev.campaign_id {
-                d.insert("campaignId", c);
-            }
-            if let Some(j) = ev.journey_id {
-                d.insert("journeyId", j);
-            }
-            if let Some(s) = ev.subscriber_id {
-                d.insert("subscriberId", s);
-            }
-            if let Some(m) = &ev.message_id {
-                d.insert("messageId", m);
-            }
-            if let Some(u) = &ev.url {
-                d.insert("url", u);
-            }
-            if let Some(ua) = &ev.user_agent {
-                d.insert("userAgent", ua);
-            }
-            if let Some(ip) = &ev.ip {
-                d.insert("ip", ip);
-            }
-            if let Some(r) = &ev.reason {
-                d.insert("reason", r);
-            }
-
-            // Bounce / complaint → upsert suppression so future sends skip.
-            match ev.kind {
-                "bounce_hard" => suppressions.push((ev.email.clone(), "bounce")),
-                "complaint" => suppressions.push((ev.email.clone(), "complaint")),
-                _ => {}
-            }
-
-            // Build the outbound payload (camelCase, matches Mongo doc).
-            let mut payload = json!({
-                "id": id.to_hex(),
-                "userId": tenant_id,
-                "kind": ev.kind,
-                "email": ev.email,
-                "provider": provider,
-                "occurredAt": ev.occurred_at.to_rfc3339(),
-            });
-            if let Some(c) = &ev.campaign_id {
-                payload["campaignId"] = json!(c.to_hex());
-            }
-            if let Some(j) = &ev.journey_id {
-                payload["journeyId"] = json!(j.to_hex());
-            }
-            if let Some(s) = &ev.subscriber_id {
-                payload["subscriberId"] = json!(s.to_hex());
-            }
-            if let Some(m) = &ev.message_id {
-                payload["messageId"] = json!(m);
-            }
-            if let Some(u) = &ev.url {
-                payload["url"] = json!(u);
-            }
-            if let Some(r) = &ev.reason {
-                payload["reason"] = json!(r);
-            }
-
-            fanout_payloads.push((ev.kind.to_owned(), payload));
-            docs.push(d);
-            accepted += 1;
-        }
-
-        if !docs.is_empty() {
-            mongo
-                .collection::<Document>(EVENTS_COLL)
-                .insert_many(docs)
-                .await
-                .map_err(|e| {
-                    ApiError::Internal(anyhow::Error::new(e).context("email_events.insert_many"))
-                })?;
-        }
-
-        // Upsert suppressions for bounces / complaints.
-        if !suppressions.is_empty() {
-            let coll = mongo.collection::<Document>(SUPPRESSIONS);
-            for (email, reason) in suppressions {
-                let user_id_bson = tenant_oid
-                    .as_ref()
-                    .map(|o| bson::Bson::ObjectId(*o))
-                    .unwrap_or_else(|| bson::Bson::String(tenant_id.clone()));
-                let _ = coll
-                    .update_one(
-                        doc! { "userId": user_id_bson.clone(), "email": &email },
-                        doc! {
-                            "$set": {
-                                "reason": reason,
-                                "updatedAt": bson::DateTime::from_chrono(now),
-                            },
-                            "$setOnInsert": {
-                                "userId": user_id_bson,
-                                "email": &email,
-                                "createdAt": bson::DateTime::from_chrono(now),
-                            },
+            let _ = coll
+                .update_one(
+                    doc! { "userId": user_id_bson.clone(), "email": &email },
+                    doc! {
+                        "$set": {
+                            "reason": reason,
+                            "updatedAt": bson::DateTime::from_chrono(now),
                         },
-                    )
-                    .upsert(true)
-                    .await;
-            }
+                        "$setOnInsert": {
+                            "userId": user_id_bson,
+                            "email": &email,
+                            "createdAt": bson::DateTime::from_chrono(now),
+                        },
+                    },
+                )
+                .upsert(true)
+                .await;
         }
+    }
 
-        // Outbound fan-out is fire-and-forget — never blocks the ack.
-        fanout(&mongo, &http, &tenant_id, fanout_payloads).await;
+    // Outbound fan-out is fire-and-forget — never blocks the ack.
+    fanout(&mongo, &http, &tenant_id, fanout_payloads).await;
 
-        Ok(IngestAck { accepted, skipped })
+    Ok(IngestAck { accepted, skipped })
 }
 
 // ===========================================================================
@@ -281,10 +281,7 @@ pub async fn ingest_sendgrid(
             continue;
         };
         let email = e.email.clone().unwrap_or_default();
-        let occurred_at = e
-            .timestamp
-            .map(ts_from_seconds)
-            .unwrap_or_else(Utc::now);
+        let occurred_at = e.timestamp.map(ts_from_seconds).unwrap_or_else(Utc::now);
         normalized.push(NormalizedEvent {
             kind,
             email,
@@ -426,7 +423,11 @@ pub async fn ingest_ses(
     };
 
     let (message_id, destinations, occurred_at) = if let Some(m) = &notif.mail {
-        let ts = m.timestamp.as_deref().map(ts_from_rfc3339).unwrap_or_else(Utc::now);
+        let ts = m
+            .timestamp
+            .as_deref()
+            .map(ts_from_rfc3339)
+            .unwrap_or_else(Utc::now);
         (m.message_id.clone(), m.destination.clone(), ts)
     } else {
         (None, vec![], Utc::now())
@@ -503,11 +504,7 @@ pub async fn ingest_postmark(
         let Some(kind) = e.record_type.as_deref().and_then(map_postmark_kind) else {
             continue;
         };
-        let email = e
-            .email
-            .clone()
-            .or(e.recipient.clone())
-            .unwrap_or_default();
+        let email = e.email.clone().or(e.recipient.clone()).unwrap_or_default();
         let (cid, jid, sid) = postmark_ids(&e);
         let occurred_at = e
             .received_at
@@ -545,9 +542,7 @@ fn map_postmark_kind(s: &str) -> Option<&'static str> {
 }
 
 /// Pull campaign/journey/subscriber ids out of Postmark `Metadata`.
-fn postmark_ids(
-    e: &PostmarkEvent,
-) -> (Option<ObjectId>, Option<ObjectId>, Option<ObjectId>) {
+fn postmark_ids(e: &PostmarkEvent) -> (Option<ObjectId>, Option<ObjectId>, Option<ObjectId>) {
     let Some(meta) = &e.metadata else {
         return (None, None, None);
     };

@@ -58,5 +58,9 @@ pub struct SabshopStorefront {
     pub updated_at: Option<BsonDateTime>,
 }
 
-fn default_currency() -> String { "INR".to_owned() }
-fn default_status() -> String { "draft".to_owned() }
+fn default_currency() -> String {
+    "INR".to_owned()
+}
+fn default_status() -> String {
+    "draft".to_owned()
+}

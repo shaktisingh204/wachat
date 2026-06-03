@@ -2,11 +2,7 @@
 
 use std::sync::Arc;
 
-use axum::{
-    Router,
-    extract::FromRef,
-    routing::{post},
-};
+use axum::{Router, extract::FromRef, routing::post};
 use sabnode_auth::AuthConfig;
 
 use crate::{from_form, handlers, state::AdManagerState};
@@ -25,8 +21,14 @@ where
         .route("/accounts", post(handlers::get_ad_accounts))
         .route("/accounts/delete", post(handlers::delete_ad_account))
         // Local "quick create" ad_campaigns CRUD.
-        .route("/local-campaigns/list", post(handlers::list_local_campaigns))
-        .route("/local-campaigns/insert", post(handlers::insert_local_campaign))
+        .route(
+            "/local-campaigns/list",
+            post(handlers::list_local_campaigns),
+        )
+        .route(
+            "/local-campaigns/insert",
+            post(handlers::insert_local_campaign),
+        )
         .route(
             "/local-campaigns/delete-by-meta-id",
             post(handlers::delete_local_campaigns_by_meta_id),
@@ -49,7 +51,10 @@ where
         // Onboarding OAuth callback writes the user's ad accounts here.
         .route("/accounts/set", post(handlers::set_meta_ad_accounts))
         // Aggregating endpoints (formerly per-page TS server actions).
-        .route("/aggregate/compare-campaigns", post(handlers::compare_campaigns))
+        .route(
+            "/aggregate/compare-campaigns",
+            post(handlers::compare_campaigns),
+        )
         .route(
             "/aggregate/budget-recommendations/{ad_account_id}",
             post(handlers::get_budget_recommendations),
@@ -68,7 +73,16 @@ where
             post(handlers::quick_create_campaign),
         )
         // Multipart Server Action entrypoints — TS shim forwards FormData here.
-        .route("/from-form/create-ad-campaign", post(from_form::create_ad_campaign))
-        .route("/from-form/create-automated-rule", post(from_form::create_automated_rule))
-        .route("/from-form/create-custom-conversion", post(from_form::create_custom_conversion))
+        .route(
+            "/from-form/create-ad-campaign",
+            post(from_form::create_ad_campaign),
+        )
+        .route(
+            "/from-form/create-automated-rule",
+            post(from_form::create_automated_rule),
+        )
+        .route(
+            "/from-form/create-custom-conversion",
+            post(from_form::create_custom_conversion),
+        )
 }

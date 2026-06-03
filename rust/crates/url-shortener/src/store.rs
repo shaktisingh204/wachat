@@ -292,14 +292,14 @@ pub async fn create(
         Some(d) => doc! { "shortCode": &short_code, "domainId": d },
         None => doc! { "shortCode": &short_code, "domainId": { "$exists": false } },
     };
-    if coll
-        .find_one(dup_filter)
-        .await
-        .map_err(internal)?
-        .is_some()
-    {
+    if coll.find_one(dup_filter).await.map_err(internal)?.is_some() {
         // Use a specific message when a custom_slug was requested.
-        let msg = if body.custom_slug.as_deref().filter(|s| !s.is_empty()).is_some() {
+        let msg = if body
+            .custom_slug
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .is_some()
+        {
             "Slug already in use."
         } else {
             "This custom alias is already in use."
@@ -311,7 +311,12 @@ pub async fn create(
     }
 
     // Determine status — "scheduled" when activateAt is provided, else "active".
-    let initial_status = if body.activate_at.as_deref().filter(|s| !s.is_empty()).is_some() {
+    let initial_status = if body
+        .activate_at
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .is_some()
+    {
         "scheduled"
     } else {
         "active"
@@ -358,11 +363,21 @@ pub async fn create(
     }
     if let Some(utm) = &body.utm_params {
         let mut utm_doc = Document::new();
-        if let Some(v) = &utm.source { utm_doc.insert("source", v); }
-        if let Some(v) = &utm.medium { utm_doc.insert("medium", v); }
-        if let Some(v) = &utm.campaign { utm_doc.insert("campaign", v); }
-        if let Some(v) = &utm.term { utm_doc.insert("term", v); }
-        if let Some(v) = &utm.content { utm_doc.insert("content", v); }
+        if let Some(v) = &utm.source {
+            utm_doc.insert("source", v);
+        }
+        if let Some(v) = &utm.medium {
+            utm_doc.insert("medium", v);
+        }
+        if let Some(v) = &utm.campaign {
+            utm_doc.insert("campaign", v);
+        }
+        if let Some(v) = &utm.term {
+            utm_doc.insert("term", v);
+        }
+        if let Some(v) = &utm.content {
+            utm_doc.insert("content", v);
+        }
         new_doc.insert("utmParams", utm_doc);
     }
     if let Some(targets) = &body.split_targets {
@@ -384,9 +399,15 @@ pub async fn create(
     }
     if let Some(pixels) = &body.pixel_ids {
         let mut px_doc = Document::new();
-        if let Some(v) = &pixels.facebook { px_doc.insert("facebook", v); }
-        if let Some(v) = &pixels.google { px_doc.insert("google", v); }
-        if let Some(v) = &pixels.tiktok { px_doc.insert("tiktok", v); }
+        if let Some(v) = &pixels.facebook {
+            px_doc.insert("facebook", v);
+        }
+        if let Some(v) = &pixels.google {
+            px_doc.insert("google", v);
+        }
+        if let Some(v) = &pixels.tiktok {
+            px_doc.insert("tiktok", v);
+        }
         new_doc.insert("pixelIds", px_doc);
     }
 
@@ -396,9 +417,7 @@ pub async fn create(
             // Mongo dup-key code 11000.
             if format!("{e}").contains("E11000") {
                 return Ok(CreateResult {
-                    error: Some(
-                        "That short code is already taken, please try again.".to_owned(),
-                    ),
+                    error: Some("That short code is already taken, please try again.".to_owned()),
                     ..Default::default()
                 });
             }
@@ -437,7 +456,9 @@ pub async fn bulk_create(
                 return None;
             }
             let alias = it.alias.as_deref().map(str::trim).filter(|s| !s.is_empty());
-            let short_code = alias.map(str::to_owned).unwrap_or_else(|| generate_short_code(7));
+            let short_code = alias
+                .map(str::to_owned)
+                .unwrap_or_else(|| generate_short_code(7));
             Some(doc! {
                 "userId": user_oid,
                 "originalUrl": url,
@@ -523,11 +544,7 @@ pub async fn list(mongo: &MongoHandle, user_oid: ObjectId) -> Result<ListResult>
     })
 }
 
-pub async fn get_one(
-    mongo: &MongoHandle,
-    user_oid: ObjectId,
-    id: &str,
-) -> Result<Option<Value>> {
+pub async fn get_one(mongo: &MongoHandle, user_oid: ObjectId, id: &str) -> Result<Option<Value>> {
     let oid = match ObjectId::parse_str(id) {
         Ok(o) => o,
         Err(_) => return Ok(None),
@@ -668,9 +685,8 @@ fn parse_xlsx_bytes(bytes: &[u8]) -> Result<Vec<BulkCreateItem>> {
     use std::io::Cursor;
 
     let cursor = Cursor::new(bytes.to_vec());
-    let mut workbook: Xlsx<_> = open_workbook_from_rs(cursor).map_err(|e| {
-        ApiError::BadRequest(format!("Could not open .xlsx: {e}"))
-    })?;
+    let mut workbook: Xlsx<_> = open_workbook_from_rs(cursor)
+        .map_err(|e| ApiError::BadRequest(format!("Could not open .xlsx: {e}")))?;
 
     let sheet_name = workbook
         .sheet_names()
@@ -731,10 +747,7 @@ pub async fn count_for_user(mongo: &MongoHandle, user_oid: ObjectId) -> Result<C
 
 pub async fn count_global(mongo: &MongoHandle) -> Result<CountResult> {
     let coll = mongo.collection::<Document>(SHORT_URL_COLL);
-    let n = coll
-        .count_documents(doc! {})
-        .await
-        .map_err(internal)?;
+    let n = coll.count_documents(doc! {}).await.map_err(internal)?;
     Ok(CountResult { count: n })
 }
 
@@ -742,10 +755,7 @@ pub async fn count_global(mongo: &MongoHandle) -> Result<CountResult> {
 // REDIRECT TRACKING (public — no auth)
 // ---------------------------------------------------------------------------
 
-pub async fn track_click(
-    mongo: &MongoHandle,
-    q: TrackClickQuery,
-) -> Result<TrackClickResult> {
+pub async fn track_click(mongo: &MongoHandle, q: TrackClickQuery) -> Result<TrackClickResult> {
     let urls = mongo.collection::<Document>(SHORT_URL_COLL);
     let users = mongo.collection::<Document>(USERS_COLL);
 
@@ -876,9 +886,10 @@ pub async fn track_click(
     }
 
     // Extract utmParams from doc
-    let utm_params = doc.get_document("utmParams").ok().map(|utm_doc| {
-        bson_to_json(Bson::Document(utm_doc.clone()))
-    });
+    let utm_params = doc
+        .get_document("utmParams")
+        .ok()
+        .map(|utm_doc| bson_to_json(Bson::Document(utm_doc.clone())));
 
     // Handle splitTargets — weighted random selection
     let chosen_url: Option<String> = if let Ok(targets) = doc.get_array("splitTargets") {
@@ -911,9 +922,8 @@ pub async fn track_click(
         None
     };
 
-    let original_url = chosen_url.unwrap_or_else(|| {
-        doc.get_str("originalUrl").unwrap_or("").to_owned()
-    });
+    let original_url =
+        chosen_url.unwrap_or_else(|| doc.get_str("originalUrl").unwrap_or("").to_owned());
 
     let id = match doc.get_object_id("_id") {
         Ok(o) => o,
@@ -936,25 +946,34 @@ pub async fn track_click(
 
         // Device breakdown — os, browser, deviceType.
         let (os, browser, device_type) = parse_device_from_ua(ua);
-        analytic.insert("device", doc! {
-            "os": os,
-            "browser": browser,
-            "deviceType": device_type,
-        });
+        analytic.insert(
+            "device",
+            doc! {
+                "os": os,
+                "browser": browser,
+                "deviceType": device_type,
+            },
+        );
     } else {
         // Always include a device subdoc so aggregation projections work.
-        analytic.insert("device", doc! {
-            "os": Bson::Null,
-            "browser": Bson::Null,
-            "deviceType": "desktop",
-        });
+        analytic.insert(
+            "device",
+            doc! {
+                "os": Bson::Null,
+                "browser": Bson::Null,
+                "deviceType": "desktop",
+            },
+        );
     }
     // Geo placeholder — country will be populated externally (Phase 2 MaxMind).
-    analytic.insert("geo", doc! {
-        "country": Bson::Null,
-        "region": Bson::Null,
-        "city": Bson::Null,
-    });
+    analytic.insert(
+        "geo",
+        doc! {
+            "country": Bson::Null,
+            "region": Bson::Null,
+            "city": Bson::Null,
+        },
+    );
     if let Some(rf) = q.referrer.as_deref() {
         analytic.insert("referrer", rf);
         let domain = extract_referrer_domain(rf);
@@ -1459,7 +1478,9 @@ pub async fn update(
     // expires_at: Option<Option<String>> — outer Some means field was provided.
     if let Some(exp) = body.expires_at {
         match exp.as_deref() {
-            Some("") | None => { set_doc.insert("expiresAt", Bson::Null); }
+            Some("") | None => {
+                set_doc.insert("expiresAt", Bson::Null);
+            }
             Some(s) => {
                 if let Some(dt) = parse_iso(s) {
                     set_doc.insert("expiresAt", BsonDateTime::from_chrono(dt));
@@ -1469,8 +1490,12 @@ pub async fn update(
     }
     if let Some(limit) = body.click_limit {
         match limit {
-            None => { set_doc.insert("clickLimit", Bson::Null); }
-            Some(n) => { set_doc.insert("clickLimit", n); }
+            None => {
+                set_doc.insert("clickLimit", Bson::Null);
+            }
+            Some(n) => {
+                set_doc.insert("clickLimit", n);
+            }
         }
     }
     if let Some(tags) = body.tag_ids {
@@ -1481,21 +1506,35 @@ pub async fn update(
     }
     if let Some(utm_opt) = body.utm_params {
         match utm_opt {
-            None => { set_doc.insert("utmParams", Bson::Null); }
+            None => {
+                set_doc.insert("utmParams", Bson::Null);
+            }
             Some(utm) => {
                 let mut utm_doc = Document::new();
-                if let Some(v) = utm.source { utm_doc.insert("source", v); }
-                if let Some(v) = utm.medium { utm_doc.insert("medium", v); }
-                if let Some(v) = utm.campaign { utm_doc.insert("campaign", v); }
-                if let Some(v) = utm.term { utm_doc.insert("term", v); }
-                if let Some(v) = utm.content { utm_doc.insert("content", v); }
+                if let Some(v) = utm.source {
+                    utm_doc.insert("source", v);
+                }
+                if let Some(v) = utm.medium {
+                    utm_doc.insert("medium", v);
+                }
+                if let Some(v) = utm.campaign {
+                    utm_doc.insert("campaign", v);
+                }
+                if let Some(v) = utm.term {
+                    utm_doc.insert("term", v);
+                }
+                if let Some(v) = utm.content {
+                    utm_doc.insert("content", v);
+                }
                 set_doc.insert("utmParams", utm_doc);
             }
         }
     }
     if let Some(targets_opt) = body.split_targets {
         match targets_opt {
-            None => { set_doc.insert("splitTargets", Bson::Null); }
+            None => {
+                set_doc.insert("splitTargets", Bson::Null);
+            }
             Some(targets) => {
                 let bson_targets: Vec<Bson> = targets
                     .iter()
@@ -1507,12 +1546,20 @@ pub async fn update(
     }
     if let Some(pixels_opt) = body.pixel_ids {
         match pixels_opt {
-            None => { set_doc.insert("pixelIds", Bson::Null); }
+            None => {
+                set_doc.insert("pixelIds", Bson::Null);
+            }
             Some(pixels) => {
                 let mut px_doc = Document::new();
-                if let Some(v) = pixels.facebook { px_doc.insert("facebook", v); }
-                if let Some(v) = pixels.google { px_doc.insert("google", v); }
-                if let Some(v) = pixels.tiktok { px_doc.insert("tiktok", v); }
+                if let Some(v) = pixels.facebook {
+                    px_doc.insert("facebook", v);
+                }
+                if let Some(v) = pixels.google {
+                    px_doc.insert("google", v);
+                }
+                if let Some(v) = pixels.tiktok {
+                    px_doc.insert("tiktok", v);
+                }
                 set_doc.insert("pixelIds", px_doc);
             }
         }
@@ -1536,11 +1583,7 @@ pub async fn update(
 // HISTORY
 // ---------------------------------------------------------------------------
 
-pub async fn get_history(
-    mongo: &MongoHandle,
-    user_oid: ObjectId,
-    link_id: &str,
-) -> Result<Value> {
+pub async fn get_history(mongo: &MongoHandle, user_oid: ObjectId, link_id: &str) -> Result<Value> {
     let oid = match ObjectId::parse_str(link_id) {
         Ok(o) => o,
         Err(_) => return Ok(Value::Array(vec![])),
@@ -1556,10 +1599,7 @@ pub async fn get_history(
         Some(d) => {
             let empty: Vec<bson::Bson> = Vec::new();
             let history = d.get_array("history").unwrap_or(&empty);
-            let items: Vec<Value> = history
-                .iter()
-                .map(|b| bson_to_json(b.clone()))
-                .collect();
+            let items: Vec<Value> = history.iter().map(|b| bson_to_json(b.clone())).collect();
             Ok(Value::Array(items))
         }
     }
@@ -1718,10 +1758,7 @@ pub(crate) fn parse_device_from_ua(ua: &str) -> (String, String, &'static str) {
 fn extract_referrer_domain(referrer: &str) -> Option<String> {
     // Look for "://" then take everything up to the next "/".
     let after_scheme = referrer.find("://").map(|i| &referrer[i + 3..])?;
-    let host = after_scheme
-        .split('/')
-        .next()
-        .filter(|s| !s.is_empty())?;
+    let host = after_scheme.split('/').next().filter(|s| !s.is_empty())?;
     Some(host.to_owned())
 }
 
@@ -1752,7 +1789,8 @@ fn is_valid_hostname(s: &str) -> bool {
     if !tld.chars().all(|c| c.is_ascii_alphabetic()) {
         return false;
     }
-    s.chars().all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '.')
+    s.chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '-' || c == '.')
 }
 
 fn parse_iso(s: &str) -> Option<DateTime<Utc>> {

@@ -7,13 +7,17 @@ use crate::common::EmailAddress;
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailInboxThreadStatus {
-    Open, Pending, Closed, Archived,
+    Open,
+    Pending,
+    Closed,
+    Archived,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum EmailInboxMessageDirection {
-    Inbound, Outbound,
+    Inbound,
+    Outbound,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

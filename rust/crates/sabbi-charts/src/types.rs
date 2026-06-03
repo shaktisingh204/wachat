@@ -34,7 +34,11 @@ pub struct BiChart {
     pub filters_json: Vec<Document>,
 
     /// Optional drilldown config — `{ targetChartId, paramColumn }`.
-    #[serde(default, skip_serializing_if = "Option::is_none", rename = "drilldownJson")]
+    #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
+        rename = "drilldownJson"
+    )]
     pub drilldown_json: Option<Document>,
 
     /// `"active"` | `"archived"`.

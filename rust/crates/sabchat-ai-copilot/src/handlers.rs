@@ -37,8 +37,8 @@ use serde_json::json;
 use tracing::instrument;
 
 use crate::dto::{
-    DraftRequest, DraftResponse, SuggestActionsRequest, SuggestActionsResponse,
-    SuggestedAction, SummarizeRequest, SummarizeResponse, WrapUpRequest, WrapUpResponse,
+    DraftRequest, DraftResponse, SuggestActionsRequest, SuggestActionsResponse, SuggestedAction,
+    SummarizeRequest, SummarizeResponse, WrapUpRequest, WrapUpResponse,
 };
 use crate::prompts::{
     build_draft_prompt, build_suggest_actions_prompt, build_summary_prompt, build_wrap_up_prompt,
@@ -121,9 +121,7 @@ async fn load_recent_history(
         .into_iter()
         .map(|d| {
             bson::from_document::<SabChatMessage>(d).map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("message deserialize (history)"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("message deserialize (history)"))
             })
         })
         .collect::<Result<Vec<_>>>()?;
@@ -147,8 +145,7 @@ pub async fn draft(
     Json(body): Json<DraftRequest>,
 ) -> Result<Json<DraftResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conv_oid =
-        ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
+    let conv_oid = ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
     let history = load_recent_history(&state.mongo, conv_oid, tenant).await?;
 
     let (system, user) = build_draft_prompt(&history, body.hint.as_deref());
@@ -178,8 +175,7 @@ pub async fn summarize(
     Json(body): Json<SummarizeRequest>,
 ) -> Result<Json<SummarizeResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conv_oid =
-        ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
+    let conv_oid = ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
     let history = load_recent_history(&state.mongo, conv_oid, tenant).await?;
 
     let (system, user) = build_summary_prompt(&history);
@@ -214,8 +210,7 @@ pub async fn suggest_actions(
     Json(body): Json<SuggestActionsRequest>,
 ) -> Result<Json<SuggestActionsResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conv_oid =
-        ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
+    let conv_oid = ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
     let history = load_recent_history(&state.mongo, conv_oid, tenant).await?;
 
     // We still call the LLM so accounting / latency tracking exercises
@@ -272,8 +267,7 @@ pub async fn wrap_up(
     Json(body): Json<WrapUpRequest>,
 ) -> Result<Json<WrapUpResponse>> {
     let tenant = tenant_oid(&auth)?;
-    let conv_oid =
-        ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
+    let conv_oid = ensure_conversation_visible(&state.mongo, &body.conversation_id, tenant).await?;
     let history = load_recent_history(&state.mongo, conv_oid, tenant).await?;
 
     let (system, user) = build_wrap_up_prompt(&history);

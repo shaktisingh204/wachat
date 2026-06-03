@@ -49,10 +49,7 @@ where
 {
     Router::new()
         // Blocked profiles
-        .route(
-            "/{project_id}/blocked",
-            get(handlers::get_blocked_profiles),
-        )
+        .route("/{project_id}/blocked", get(handlers::get_blocked_profiles))
         // Subscribed apps + webhook subscription
         .route(
             "/{project_id}/subscribed-apps",

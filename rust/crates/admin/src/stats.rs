@@ -173,8 +173,7 @@ pub async fn dashboard_stats(
     let approved_users = count_safe(&mongo, "users", doc! { "isApproved": true }).await;
     let pending_users = count_safe(&mongo, "users", doc! { "isApproved": { "$ne": true } }).await;
     let total_projects = count_safe(&mongo, "projects", Document::new()).await;
-    let total_wabas =
-        count_safe(&mongo, "projects", doc! { "wabaId": { "$exists": true } }).await;
+    let total_wabas = count_safe(&mongo, "projects", doc! { "wabaId": { "$exists": true } }).await;
     let total_plans = count_safe(&mongo, "plans", Document::new()).await;
     let total_transactions = count_safe(&mongo, "transactions", Document::new()).await;
 
@@ -392,22 +391,19 @@ pub async fn list_webhook_logs(
         .find(filter.clone())
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.find"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.find")))?;
 
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.collect"))
-    })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.collect")))?;
 
     let logs: Vec<Value> = docs.into_iter().map(document_to_clean_json).collect();
 
     let total = coll
         .count_documents(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.count"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.count")))?;
 
     Ok(Json(WebhookLogsResponse { logs, total }))
 }
@@ -432,9 +428,7 @@ pub async fn get_webhook_log_payload(
         .find_one(doc! { "_id": oid })
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.find_one"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("webhook_logs.find_one")))?;
 
     let payload = doc_.and_then(|mut d| {
         d.remove("payload").map(|b| {
@@ -489,9 +483,7 @@ pub async fn list_all_broadcasts(
         .find(doc! {})
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("broadcasts.find"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("broadcasts.find")))?;
 
     let docs: Vec<Document> = cursor
         .try_collect()

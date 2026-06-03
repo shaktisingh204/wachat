@@ -33,5 +33,8 @@ where
         .route("/export", get(handlers::export_csv))
         .route("/bulk-delete", post(handlers::bulk_delete))
         .route("/utm", post(handlers::utm))
-        .route("/{campaign_id}", delete(handlers::delete_campaign).get(handlers::detail))
+        .route(
+            "/{campaign_id}",
+            delete(handlers::delete_campaign).get(handlers::detail),
+        )
 }

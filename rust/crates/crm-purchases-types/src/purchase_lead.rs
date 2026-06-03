@@ -37,7 +37,11 @@ pub struct PurchaseLead {
     pub vendor_candidate_id: Option<ObjectId>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub required_by: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub quantity: Option<f64>,

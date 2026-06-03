@@ -104,7 +104,10 @@ where
         // ---- literal segment first ------------------------------------
         .route("/import", post(handlers::import_contacts))
         // ---- collection root ------------------------------------------
-        .route("/", post(handlers::add_contact).get(handlers::list_contacts))
+        .route(
+            "/",
+            post(handlers::add_contact).get(handlers::list_contacts),
+        )
         // ---- per-contact endpoints ------------------------------------
         .route(
             "/{id}",

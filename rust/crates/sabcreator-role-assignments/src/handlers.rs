@@ -62,17 +62,11 @@ pub async fn list_assignments(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabcreatorRoleAssignment>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_role_assignments.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcreator_role_assignments.find"))
+    })?;
     let mut rows: Vec<SabcreatorRoleAssignment> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabcreator_role_assignments.collect"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabcreator_role_assignments.collect"))
     })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
@@ -152,9 +146,7 @@ pub async fn delete_assignment(
         .delete_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabcreator_role_assignments.delete"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabcreator_role_assignments.delete"))
         })?;
     if result.deleted_count == 0 {
         return Err(ApiError::NotFound("assignment".to_owned()));

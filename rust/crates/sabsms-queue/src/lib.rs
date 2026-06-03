@@ -71,7 +71,10 @@ impl QueueProcessor {
                 }
             }
             Err(e) => {
-                error!("Failed to deserialize job payload: {}. Payload: {}", e, payload);
+                error!(
+                    "Failed to deserialize job payload: {}. Payload: {}",
+                    e, payload
+                );
             }
         }
     }
@@ -113,7 +116,12 @@ mod tests {
 
     #[async_trait]
     impl SmsProvider for MockProvider {
-        async fn send_sms(&self, _to: &str, _from: &str, _body: &str) -> std::result::Result<String, String> {
+        async fn send_sms(
+            &self,
+            _to: &str,
+            _from: &str,
+            _body: &str,
+        ) -> std::result::Result<String, String> {
             Ok("mock-id".to_string())
         }
     }
@@ -130,14 +138,14 @@ mod tests {
         let serialized = serde_json::to_string(&job).unwrap();
         assert!(serialized.contains("+1234567890"));
     }
-    
+
     // An actual Redis test might fail if redis isn't running, so we keep it simple or ignored
     #[tokio::test]
     #[ignore]
     async fn test_redis_queue_flow() {
         let redis_url = "redis://127.0.0.1:6379/";
         let queue_name = "test_sms_queue";
-        
+
         let client = QueueClient::new(redis_url, queue_name).unwrap();
         let job = SendJob {
             request: SendRequest {
@@ -146,14 +154,18 @@ mod tests {
                 body: "test".to_string(),
             },
         };
-        
+
         client.enqueue_job(&job).await.unwrap();
-        
+
         let provider = Arc::new(MockProvider);
         let processor = QueueProcessor::new(redis_url, provider, queue_name).unwrap();
-        
+
         // This would block indefinitely in a real test without a timeout
-        let mut con = processor.redis_client.get_multiplexed_async_connection().await.unwrap();
+        let mut con = processor
+            .redis_client
+            .get_multiplexed_async_connection()
+            .await
+            .unwrap();
         let result: redis::RedisResult<(String, String)> = con.blpop(queue_name, 1.0).await;
         assert!(result.is_ok());
     }

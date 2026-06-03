@@ -216,11 +216,8 @@ pub async fn list_credit_notes(
         .build();
 
     let coll = mongo.collection::<CreditNote>(CREDIT_NOTES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.find"))
         })?;
     let notes: Vec<CreditNote> = cursor.try_collect().await.map_err(|e| {
@@ -333,24 +330,16 @@ pub async fn create_credit_note(
     let project_id = ObjectId::new();
 
     let items_bson = bson::to_bson(&input.items).map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_credit_notes.serialize(items)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(items)"))
     })?;
     let totals_bson = bson::to_bson(&input.totals).map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_credit_notes.serialize(totals)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(totals)"))
     })?;
     let reason_bson = bson::to_bson(&input.reason).map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_credit_notes.serialize(reason)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(reason)"))
     })?;
     let refund_mode_bson = bson::to_bson(&input.refund_mode).map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("crm_credit_notes.serialize(refundMode)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(refundMode)"))
     })?;
 
     let mut new_doc = doc! {
@@ -393,7 +382,11 @@ pub async fn create_credit_note(
             .collect();
         new_doc.insert("lineage", Bson::Array(arr));
     }
-    if let Some(dm) = input.design_metadata.as_ref().and_then(|v| bson::to_document(v).ok()) {
+    if let Some(dm) = input
+        .design_metadata
+        .as_ref()
+        .and_then(|v| bson::to_document(v).ok())
+    {
         new_doc.insert("designMetadata", dm);
     }
 
@@ -482,25 +475,19 @@ pub async fn update_credit_note(
     }
     if let Some(reason) = input.reason {
         let b = bson::to_bson(&reason).map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_credit_notes.serialize(reason)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(reason)"))
         })?;
         set.insert("reason", b);
     }
     if let Some(items) = input.items.as_ref() {
         let b = bson::to_bson(items).map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_credit_notes.serialize(items)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(items)"))
         })?;
         set.insert("items", b);
     }
     if let Some(totals) = input.totals.as_ref() {
         let b = bson::to_bson(totals).map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_credit_notes.serialize(totals)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(totals)"))
         })?;
         set.insert("totals", b);
     }
@@ -520,9 +507,7 @@ pub async fn update_credit_note(
     }
     if let Some(status) = input.status {
         let b = bson::to_bson(&status).map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_credit_notes.serialize(status)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_credit_notes.serialize(status)"))
         })?;
         set.insert("status", b);
     }

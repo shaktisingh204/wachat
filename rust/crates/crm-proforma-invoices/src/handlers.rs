@@ -103,7 +103,9 @@ fn proforma_from_create(
         status: Some("Draft".to_owned()),
         created_at: BsonDateTime::from_chrono(Utc::now()),
         updated_at: None,
-        design_metadata: input.design_metadata.and_then(|v| bson::to_document(&v).ok()),
+        design_metadata: input
+            .design_metadata
+            .and_then(|v| bson::to_document(&v).ok()),
     })
 }
 
@@ -250,8 +252,7 @@ pub async fn create_proforma(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

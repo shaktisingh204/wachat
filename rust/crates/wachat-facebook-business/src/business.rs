@@ -150,9 +150,7 @@ pub async fn get_business_owned_instagram_accounts(
         "{business_id}/owned_instagram_accounts?fields=id,username,profile_picture_url,followers_count&limit=100"
     );
     let env: DataEnvelope = meta.get_json(&path, token).await?;
-    Ok(InstagramAccountsResp {
-        accounts: env.data,
-    })
+    Ok(InstagramAccountsResp { accounts: env.data })
 }
 
 /// `getBusinessSystemUsers` — `GET /{businessId}/system_users`.
@@ -173,9 +171,8 @@ pub async fn get_business_system_users(
 pub async fn get_business_users(meta: &MetaClient, project: &Project) -> Result<UsersResp> {
     let token = token_for(project)?;
     let business_id = business_id_for(project)?;
-    let path = format!(
-        "{business_id}/business_users?fields=id,name,email,role,created_time&limit=100"
-    );
+    let path =
+        format!("{business_id}/business_users?fields=id,name,email,role,created_time&limit=100");
     let env: DataEnvelope = meta.get_json(&path, token).await?;
     Ok(UsersResp { users: env.data })
 }
@@ -187,9 +184,7 @@ pub async fn get_business_pending_users(
 ) -> Result<PendingUsersResp> {
     let token = token_for(project)?;
     let business_id = business_id_for(project)?;
-    let path = format!(
-        "{business_id}/pending_users?fields=id,email,role,status,created_time"
-    );
+    let path = format!("{business_id}/pending_users?fields=id,email,role,status,created_time");
     let env: DataEnvelope = meta.get_json(&path, token).await?;
     Ok(PendingUsersResp {
         pending_users: env.data,

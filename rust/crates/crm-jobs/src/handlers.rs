@@ -47,10 +47,7 @@ fn list_filter(
     if let Some(d) = department_id.and_then(|s| ObjectId::parse_str(s).ok()) {
         filter.insert("departmentId", d);
     }
-    if let Some(t) = employment_type
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(t) = employment_type.map(str::trim).filter(|s| !s.is_empty()) {
         filter.insert("employmentType", t);
     }
     filter
@@ -299,8 +296,7 @@ pub async fn create_job(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

@@ -5,9 +5,9 @@ pub mod state;
 
 use std::sync::Arc;
 
+use axum::Router;
 use axum::extract::FromRef;
 use axum::routing::{delete, get, post};
-use axum::Router;
 use sabnode_auth::AuthConfig;
 
 pub use state::SabChatSsoState;
@@ -22,7 +22,10 @@ where
 {
     Router::new()
         // SSO config CRUD
-        .route("/configs", get(handlers::list_sso_configs).post(handlers::create_sso_config))
+        .route(
+            "/configs",
+            get(handlers::list_sso_configs).post(handlers::create_sso_config),
+        )
         .route(
             "/configs/{id}",
             get(handlers::get_sso_config)
@@ -34,10 +37,7 @@ where
             "/scim-tokens",
             get(handlers::list_scim_tokens).post(handlers::create_scim_token),
         )
-        .route(
-            "/scim-tokens/{id}",
-            delete(handlers::delete_scim_token),
-        )
+        .route("/scim-tokens/{id}", delete(handlers::delete_scim_token))
         // Stub for testing SAML
         .route("/test-saml-response", post(handlers::test_saml_response))
 }

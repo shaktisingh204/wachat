@@ -71,13 +71,20 @@ pub async fn list_requests(
             ]),
         );
     }
-    if let Some(bp) = q.blueprint_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(bp) = q
+        .blueprint_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("blueprintId", oid_from_str(bp)?);
     }
     if let Some(status) = q.status.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         // validate via enum round-trip
-        let _parsed: RequestStatus = serde_json::from_value(serde_json::Value::String(status.to_owned()))
-            .map_err(|_| ApiError::Validation(format!("status '{status}' is not recognised")))?;
+        let _parsed: RequestStatus =
+            serde_json::from_value(serde_json::Value::String(status.to_owned())).map_err(|_| {
+                ApiError::Validation(format!("status '{status}' is not recognised"))
+            })?;
         filter.insert("status", status);
     }
     if let Some(true) = q.awaiting_me {
@@ -201,14 +208,19 @@ pub async fn update_request(
         "updatedAt": bson::DateTime::from_chrono(Utc::now()),
         "updatedBy": user_id,
     };
-    if let Some(t) = input.title { set.insert("title", t); }
-    if let Some(p) = input.priority { set.insert("priority", p); }
+    if let Some(t) = input.title {
+        set.insert("title", t);
+    }
+    if let Some(p) = input.priority {
+        set.insert("priority", p);
+    }
     if let Some(fd) = input.form_data {
         let b = bson::to_bson(&fd).map_err(|e| ApiError::Validation(format!("formData: {e}")))?;
         set.insert("formData", b);
     }
     if let Some(att) = input.attachments {
-        let b = bson::to_bson(&att).map_err(|e| ApiError::Validation(format!("attachments: {e}")))?;
+        let b =
+            bson::to_bson(&att).map_err(|e| ApiError::Validation(format!("attachments: {e}")))?;
         set.insert("attachments", b);
     }
     if let Some(true) = input.cancel {
@@ -251,7 +263,10 @@ pub async fn decide_request(
     let user_id = user_oid(&user)?;
     let oid = oid_from_str(&request_id)?;
     let action = input.action.trim().to_lowercase();
-    if !matches!(action.as_str(), "approve" | "reject" | "reassign" | "comment") {
+    if !matches!(
+        action.as_str(),
+        "approve" | "reject" | "reassign" | "comment"
+    ) {
         return Err(ApiError::Validation(format!(
             "action '{action}' must be one of: approve, reject, reassign, comment"
         )));
@@ -370,7 +385,8 @@ pub async fn delete_request(
     let oid = oid_from_str(&request_id)?;
     let filter = doc! { "_id": oid, "userId": user_id };
     let coll = mongo.collection::<Document>(COLL);
-    let set = doc! { "$set": { "archived": true, "updatedAt": bson::DateTime::from_chrono(Utc::now()) } };
+    let set =
+        doc! { "$set": { "archived": true, "updatedAt": bson::DateTime::from_chrono(Utc::now()) } };
     let res = coll
         .update_one(filter, set)
         .await

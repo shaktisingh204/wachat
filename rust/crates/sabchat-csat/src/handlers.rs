@@ -228,11 +228,10 @@ pub async fn list_surveys(
         .build();
 
     let coll = state.mongo.collection::<Document>(SURVEYS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_surveys.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_surveys.find"))
+        })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_surveys.collect"))
     })?;
@@ -284,7 +283,12 @@ pub async fn update_survey(
         "updatedAt": bson::DateTime::from_chrono(Utc::now()),
     };
 
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", name);
     }
     if let Some(k) = body.kind {
@@ -336,9 +340,7 @@ pub async fn update_survey(
         doc! { "$set": set },
     )
     .await
-    .map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabchat_surveys.update_one"))
-    })?;
+    .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_surveys.update_one")))?;
 
     let fresh = load_survey_scoped(&state.mongo, tenant, &id).await?;
     Ok(Json(SurveyResponse {
@@ -422,12 +424,12 @@ pub async fn send_survey(
     let survey_oid = survey
         .get_object_id("_id")
         .map_err(|_| ApiError::Internal(anyhow::anyhow!("survey missing _id")))?;
-    let scale_min = survey.get_i32("scaleMin").map_err(|_| {
-        ApiError::Internal(anyhow::anyhow!("survey missing scaleMin"))
-    })?;
-    let scale_max = survey.get_i32("scaleMax").map_err(|_| {
-        ApiError::Internal(anyhow::anyhow!("survey missing scaleMax"))
-    })?;
+    let scale_min = survey
+        .get_i32("scaleMin")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("survey missing scaleMin")))?;
+    let scale_max = survey
+        .get_i32("scaleMax")
+        .map_err(|_| ApiError::Internal(anyhow::anyhow!("survey missing scaleMax")))?;
     let question = survey.get_str("question").unwrap_or_default().to_owned();
     let follow_up_question = survey.get_str("followUpQuestion").ok().map(str::to_owned);
 
@@ -564,13 +566,9 @@ pub async fn list_responses(
         .build();
 
     let coll = state.mongo.collection::<Document>(RESPONSES_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.find"))
+    })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.collect"))
     })?;
@@ -638,9 +636,7 @@ pub async fn survey_stats(
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.find(stats)"))
     })?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(
-            anyhow::Error::new(e).context("sabchat_survey_responses.collect(stats)"),
-        )
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_survey_responses.collect(stats)"))
     })?;
 
     let mut count: u64 = 0;
@@ -655,11 +651,7 @@ pub async fn survey_stats(
             count += 1;
             sum += s as i64;
             let key = s.to_string();
-            let next = distribution
-                .get(&key)
-                .and_then(Value::as_i64)
-                .unwrap_or(0)
-                + 1;
+            let next = distribution.get(&key).and_then(Value::as_i64).unwrap_or(0) + 1;
             distribution.insert(key, Value::from(next));
         }
     }

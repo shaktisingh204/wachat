@@ -31,9 +31,7 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
-use crate::dto::{
-    CreateEmployeeInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateEmployeeInput,
-};
+use crate::dto::{CreateEmployeeInput, DEFAULT_LIMIT, ListQuery, MAX_LIMIT, UpdateEmployeeInput};
 
 /// Mongo collection name. Matches the §9.1 spec and the
 /// `Employee` doc-comment in `hrm-payroll-types::employee`.
@@ -218,9 +216,7 @@ pub async fn get_employee(
     let employee = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_employees.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.find_one")))?
         .ok_or_else(|| ApiError::NotFound("employee".to_owned()))?;
 
     Ok(Json(employee))
@@ -383,11 +379,9 @@ pub async fn create_employee(
     }
 
     let raw = mongo.collection::<Document>(EMPLOYEES_COLL);
-    raw.insert_one(&doc)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_employees.insert_one"))
-        })?;
+    raw.insert_one(&doc).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_employees.insert_one"))
+    })?;
 
     // Re-read via the typed collection so the response is the canonical
     // [`Employee`] shape.
@@ -548,12 +542,9 @@ pub async fn delete_employee(
     let filter = doc! { "_id": emp_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(EMPLOYEES_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_employees.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_employees.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("employee".to_owned()));
     }
@@ -626,14 +617,8 @@ mod tests {
 
     #[test]
     fn employment_type_label_round_trip_covers_all_variants() {
-        assert_eq!(
-            employment_type_label(EmploymentType::FullTime),
-            "full_time"
-        );
-        assert_eq!(
-            employment_type_label(EmploymentType::PartTime),
-            "part_time"
-        );
+        assert_eq!(employment_type_label(EmploymentType::FullTime), "full_time");
+        assert_eq!(employment_type_label(EmploymentType::PartTime), "part_time");
         assert_eq!(employment_type_label(EmploymentType::Contract), "contract");
         assert_eq!(employment_type_label(EmploymentType::Intern), "intern");
         assert_eq!(

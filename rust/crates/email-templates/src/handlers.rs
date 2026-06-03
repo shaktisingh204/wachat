@@ -82,7 +82,12 @@ pub async fn list_templates(
         "userId": tenant,
         "status": { "$ne": "archived" },
     };
-    if let Some(cat) = q.category.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(cat) = q
+        .category
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("category", cat);
     }
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
@@ -145,7 +150,12 @@ pub async fn list_library(
         "isLibrary": true,
         "status": { "$ne": "archived" },
     };
-    if let Some(cat) = q.category.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(cat) = q
+        .category
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("category", cat);
     }
     let opts = FindOptions::builder()
@@ -293,7 +303,10 @@ pub async fn update_template(
     }
 
     let result = coll
-        .update_one(tenant_id_filter(tenant, oid), doc! { "$set": set, "$inc": { "version": 1 } })
+        .update_one(
+            tenant_id_filter(tenant, oid),
+            doc! { "$set": set, "$inc": { "version": 1 } },
+        )
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("templates.update_one")))?;
     if result.matched_count == 0 {
@@ -443,7 +456,9 @@ pub async fn list_blocks(
         .skip(skip_for(q.page, q.limit))
         .limit(q.limit as i64)
         .build();
-    let coll = state.mongo.collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
+    let coll = state
+        .mongo
+        .collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
     let cursor = coll
         .find(filter.clone())
         .with_options(opts)
@@ -486,7 +501,9 @@ pub async fn create_block(
         created_at: now,
         updated_at: now,
     };
-    let coll = state.mongo.collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
+    let coll = state
+        .mongo
+        .collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
     let result = coll
         .insert_one(&row)
         .await
@@ -511,7 +528,9 @@ pub async fn delete_block(
 ) -> Result<Json<DeleteResponse>> {
     let tenant = tenant_oid(&user)?;
     let oid = oid_from_str(&block_id)?;
-    let coll = state.mongo.collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
+    let coll = state
+        .mongo
+        .collection::<EmailTemplateBlock>(TEMPLATE_BLOCKS_COLL);
     let result = coll
         .delete_one(doc! { "_id": oid, "userId": tenant })
         .await
@@ -634,9 +653,8 @@ pub async fn update_brand_kit(
     if let Some(v) = patch.logo {
         set.insert(
             "logo",
-            bson::to_bson(&v).map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("serialize logo"))
-            })?,
+            bson::to_bson(&v)
+                .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("serialize logo")))?,
         );
     }
     if let Some(v) = patch.palette {
@@ -672,10 +690,7 @@ pub async fn update_brand_kit(
         );
     }
     let result = coll
-        .update_one(
-            doc! { "_id": oid, "userId": tenant },
-            doc! { "$set": set },
-        )
+        .update_one(doc! { "_id": oid, "userId": tenant }, doc! { "$set": set })
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("brand_kits.update_one")))?;
     if result.matched_count == 0 {

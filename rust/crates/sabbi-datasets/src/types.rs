@@ -34,7 +34,11 @@ pub struct BiDataset {
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub row_count: Option<i64>,
-    #[serde(rename = "lastRefreshAt", default, skip_serializing_if = "Option::is_none")]
+    #[serde(
+        rename = "lastRefreshAt",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_refresh_at: Option<BsonDateTime>,
 
     /// `"active"` | `"archived"`.

@@ -20,7 +20,11 @@
 
 use std::sync::Arc;
 
-use axum::{Json, Router, extract::{FromRef, State}, routing::post};
+use axum::{
+    Json, Router,
+    extract::{FromRef, State},
+    routing::post,
+};
 use bson::{Document, doc, oid::ObjectId};
 use chrono::Utc;
 use sabnode_auth::{AuthConfig, AuthUser};
@@ -116,9 +120,7 @@ pub async fn sync_waba(
 
     // 1. Confirm the WABA is reachable + recover its display name.
     let meta = MetaClient::new(META_API_VERSION);
-    let path = format!(
-        "{waba_id}?fields=id,name,currency,timezone_id,message_template_namespace"
-    );
+    let path = format!("{waba_id}?fields=id,name,currency,timezone_id,message_template_namespace");
     let waba: MetaWaba = meta.get_json(&path, &access_token).await.map_err(|e| {
         // `MetaError -> ApiError` exists in wachat-meta-client; surface
         // Meta's actual error so admins can see "expired token" / "missing

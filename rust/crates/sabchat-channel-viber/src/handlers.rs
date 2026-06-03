@@ -86,7 +86,7 @@ pub async fn ingest(
         "accountId": &body.account_id,
         "userId": &body.user_id,
     };
-    
+
     let attachments = attachments_from_content(&body);
     let message_doc = doc! {
         "_id": message_oid,
@@ -194,9 +194,16 @@ pub async fn subscribed(
         "userId": &body.user_id,
         "kind": "subscribed",
     };
-    let (message_oid, now_bson) =
-        insert_system_message(&state.mongo, &tenant_id, &conversation_id, &inbox_id, &contact_id, &text, provider_metadata)
-            .await?;
+    let (message_oid, now_bson) = insert_system_message(
+        &state.mongo,
+        &tenant_id,
+        &conversation_id,
+        &inbox_id,
+        &contact_id,
+        &text,
+        provider_metadata,
+    )
+    .await?;
     bump_conversation_no_unread(&state.mongo, &conversation_id, now_bson, &text).await?;
 
     Ok(Json(SubscribedResp {
@@ -249,13 +256,7 @@ pub async fn unsubscribed(
         }));
     }
 
-    let contact_id = upsert_contact(
-        &state.mongo,
-        &tenant_id,
-        &body.user_id,
-        None,
-    )
-    .await?;
+    let contact_id = upsert_contact(&state.mongo, &tenant_id, &body.user_id, None).await?;
     let conversation_id =
         find_or_create_conversation(&state.mongo, &tenant_id, &inbox_id, &contact_id).await?;
 
@@ -267,9 +268,16 @@ pub async fn unsubscribed(
         "userId": &body.user_id,
         "kind": "unsubscribed",
     };
-    let (message_oid, now_bson) =
-        insert_system_message(&state.mongo, &tenant_id, &conversation_id, &inbox_id, &contact_id, &text, provider_metadata)
-            .await?;
+    let (message_oid, now_bson) = insert_system_message(
+        &state.mongo,
+        &tenant_id,
+        &conversation_id,
+        &inbox_id,
+        &contact_id,
+        &text,
+        provider_metadata,
+    )
+    .await?;
     bump_conversation_no_unread(&state.mongo, &conversation_id, now_bson, &text).await?;
 
     Ok(Json(UnsubscribedResp {
@@ -313,14 +321,17 @@ pub async fn delivered(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"))
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabchat_messages.update_one(delivered)"),
+            )
         })?;
 
     if result.matched_count == 0 {
         return Ok(Json(DeliveredResp { message_id: None }));
     }
 
-    let existing = find_message_by_token(&state.mongo, &inbox_id, &body.provider_message_token).await?;
+    let existing =
+        find_message_by_token(&state.mongo, &inbox_id, &body.provider_message_token).await?;
     let msg_id = existing.and_then(|d| d.get_object_id("_id").ok().map(|oid| oid.to_hex()));
 
     Ok(Json(DeliveredResp { message_id: msg_id }))
@@ -625,8 +636,12 @@ fn build_content_block(body: &IngestReq) -> (Document, String) {
     if body.location_lat.is_some() || body.location_lon.is_some() {
         let preview = "[location]".to_owned();
         let mut block = doc! { "kind": "location" };
-        if let Some(lat) = body.location_lat { block.insert("latitude", lat); }
-        if let Some(lon) = body.location_lon { block.insert("longitude", lon); }
+        if let Some(lat) = body.location_lat {
+            block.insert("latitude", lat);
+        }
+        if let Some(lon) = body.location_lon {
+            block.insert("longitude", lon);
+        }
         return (block, preview);
     }
 

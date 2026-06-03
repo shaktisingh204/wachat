@@ -113,14 +113,8 @@ pub struct DeleteProfileFieldsBody {
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type")]
 pub enum PersistentMenuItem {
-    WebUrl {
-        title: String,
-        url: String,
-    },
-    Postback {
-        title: String,
-        payload: String,
-    },
+    WebUrl { title: String, url: String },
+    Postback { title: String, payload: String },
 }
 
 #[derive(Debug, Clone, Deserialize, ToSchema)]

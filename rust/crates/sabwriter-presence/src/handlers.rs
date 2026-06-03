@@ -38,7 +38,9 @@ async fn assert_doc_access(
             ]
         })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_documents.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("sabwriter_document".to_owned()))?;
     Ok(())
 }
@@ -61,11 +63,12 @@ pub async fn list_presence(
     let cursor = coll
         .find(doc! { "documentId": doc_oid, "lastSeenAt": { "$gte": cutoff_bson } })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.find")))?;
-    let items: Vec<SabwriterPresence> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.collect")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.find"))
+        })?;
+    let items: Vec<SabwriterPresence> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.collect"))
+    })?;
     Ok(Json(PresenceListResponse { items }))
 }
 
@@ -118,6 +121,8 @@ pub async fn leave(
     let coll = mongo.collection::<Document>(COLL);
     coll.delete_one(doc! { "documentId": doc_oid, "userId": user_id })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwriter_presence.delete"))
+        })?;
     Ok(Json(HeartbeatResponse { ok: true }))
 }

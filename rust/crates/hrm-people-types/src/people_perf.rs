@@ -161,9 +161,17 @@ pub struct Survey {
     pub audience_value: Option<String>,
     #[serde(default)]
     pub anonymous: bool,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub scheduled_for: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub closes_at: Option<DateTime<Utc>>,
     #[serde(default)]
     pub results_summary: serde_json::Value,
@@ -179,7 +187,11 @@ pub struct ActionItem {
     pub text: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub owner_id: Option<ObjectId>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub due: Option<DateTime<Utc>>,
     #[serde(default)]
     pub done: bool,

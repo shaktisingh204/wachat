@@ -104,7 +104,11 @@ pub async fn list_ticket_types(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = doc! { "userId": user_id };
-    if let Some(ev) = q.event_id.as_deref().and_then(|s| ObjectId::parse_str(s).ok()) {
+    if let Some(ev) = q
+        .event_id
+        .as_deref()
+        .and_then(|s| ObjectId::parse_str(s).ok())
+    {
         filter.insert("eventId", ev);
     }
     if let Some(s) = q.status.as_deref().filter(|s| *s != "all") {
@@ -158,9 +162,7 @@ pub async fn get_ticket_type(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_ticket_types.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_ticket_types.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_ticket_type".to_owned()))?;
     Ok(Json(row))
@@ -213,9 +215,7 @@ pub async fn update_ticket_type(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabbackstage_ticket_types.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabbackstage_ticket_types.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("sabbackstage_ticket_type".to_owned()))?;
     Ok(Json(after))

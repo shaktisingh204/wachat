@@ -247,14 +247,14 @@ pub async fn list_currencies(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmCurrency>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find"))
+        })?;
+    let mut rows: Vec<CrmCurrency> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find")))?;
-    let mut rows: Vec<CrmCurrency> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -279,9 +279,7 @@ pub async fn get_currency(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find_one")))?
         .ok_or_else(|| ApiError::NotFound("currency".to_owned()))?;
     Ok(Json(row))
 }
@@ -331,8 +329,7 @@ pub async fn create_currency(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -357,9 +354,7 @@ pub async fn update_currency(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.find_one")))?
         .ok_or_else(|| ApiError::NotFound("currency".to_owned()))?;
 
     let promoting_to_base = matches!(patch.is_base, Some(true));
@@ -372,9 +367,7 @@ pub async fn update_currency(
                 .find_one(duplicate_code_filter(user_id, code, Some(oid)))
                 .await
                 .map_err(|e| {
-                    ApiError::Internal(
-                        anyhow::Error::new(e).context("crm_currencies.dup_check"),
-                    )
+                    ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.dup_check"))
                 })?;
             if dup.is_some() {
                 return Err(ApiError::Validation(format!(
@@ -404,9 +397,7 @@ pub async fn update_currency(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.refetch")))?
         .ok_or_else(|| ApiError::NotFound("currency".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -439,9 +430,7 @@ pub async fn delete_currency(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_currencies.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("currency".to_owned()));
     }

@@ -90,14 +90,14 @@ pub async fn list_audit(
         .build();
 
     let coll = mongo.collection::<SabvaultAuditEntry>(AUDIT_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.find"))
+        })?;
+    let mut rows: Vec<SabvaultAuditEntry> = cursor
+        .try_collect()
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.find")))?;
-    let mut rows: Vec<SabvaultAuditEntry> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.collect"))
-    })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -121,16 +121,16 @@ pub async fn log_access(
 ) -> Result<Json<LogAccessResponse>> {
     let actor_id = user_oid(&user)?;
 
-    let (secret_oid, owner_id) = if let Some(s) = input.secret_id.as_deref().filter(|s| !s.is_empty()) {
+    let (secret_oid, owner_id) = if let Some(s) =
+        input.secret_id.as_deref().filter(|s| !s.is_empty())
+    {
         let oid = oid_from_str(s)?;
         // Resolve the secret's owner so the audit row is filed under their tenant.
         let secrets = mongo.collection::<Document>(SECRETS_COLL);
         let row = secrets
             .find_one(doc! { "_id": oid })
             .await
-            .map_err(|e| {
-                ApiError::Internal(anyhow::Error::new(e).context("audit.secret_lookup"))
-            })?
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("audit.secret_lookup")))?
             .ok_or_else(|| ApiError::NotFound("sabvault_secret".to_owned()))?;
         let owner = row
             .get_object_id("userId")
@@ -161,9 +161,10 @@ pub async fn log_access(
     };
 
     let coll = mongo.collection::<SabvaultAuditEntry>(AUDIT_COLL);
-    let inserted = coll.insert_one(&entry).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entry)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabvault_audit.insert")))?;
     let id = inserted
         .inserted_id
         .as_object_id()

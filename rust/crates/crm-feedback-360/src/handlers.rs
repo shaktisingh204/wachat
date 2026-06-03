@@ -95,10 +95,7 @@ fn aggregate(responses: &[ReviewerResponse]) -> (BTreeMap<String, f64>, Option<f
     (aggregated, overall)
 }
 
-fn entity_from_create(
-    input: CreateFeedback360Input,
-    user_id: ObjectId,
-) -> Result<CrmFeedback360> {
+fn entity_from_create(input: CreateFeedback360Input, user_id: ObjectId) -> Result<CrmFeedback360> {
     if input.employee_id.trim().is_empty() {
         return Err(ApiError::Validation("employeeId is required".to_owned()));
     }
@@ -192,7 +189,12 @@ pub async fn list_reviews(
 ) -> Result<Json<ListResponse>> {
     let user_id = user_oid(&user)?;
     let mut filter = list_filter(user_id, q.status.as_deref());
-    if let Some(emp) = q.employee_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(emp) = q
+        .employee_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         filter.insert("employeeId", emp);
     }
     if let Some(p) = q.period.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
@@ -215,11 +217,10 @@ pub async fn list_reviews(
         .build();
 
     let coll = mongo.collection::<CrmFeedback360>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.find"))
+        })?;
     let mut rows: Vec<CrmFeedback360> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.collect"))
     })?;
@@ -264,20 +265,16 @@ pub async fn create_review(
     let user_id = user_oid(&user)?;
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmFeedback360>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -321,9 +318,7 @@ pub async fn update_review(
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_feedback_360.refetch")))?
         .ok_or_else(|| ApiError::NotFound("feedback_360".to_owned()))?;
 
     if let Some(event) = audit_for_update(

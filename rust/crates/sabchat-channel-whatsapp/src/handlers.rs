@@ -74,10 +74,7 @@ use crate::{
 /// Cloud channel. Returns `(inbox_oid, tenant_oid)` — both are
 /// [`ObjectId`]s pulled directly off the stored document so the caller
 /// never has to re-parse hex strings.
-async fn resolve_inbox(
-    mongo: &MongoHandle,
-    phone_number_id: &str,
-) -> Result<(ObjectId, ObjectId)> {
+async fn resolve_inbox(mongo: &MongoHandle, phone_number_id: &str) -> Result<(ObjectId, ObjectId)> {
     let coll = mongo.collection::<Document>(INBOXES_COLL);
     // `channelConfig.settings.phoneNumberId` is the dotted path used
     // when SabChat stores a `whatsapp_cloud` inbox config — see
@@ -90,9 +87,7 @@ async fn resolve_inbox(
     let doc = coll
         .find_one(filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_inboxes.find_one")))?
         .ok_or_else(|| {
             ApiError::NotFound(format!(
                 "No SabChat inbox bound to phoneNumberId `{phone_number_id}`."
@@ -137,14 +132,12 @@ pub(crate) async fn resolve_contact_by_wa_id(
         },
     };
 
-    if let Some(existing) = coll
-        .find_one(filter)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.find_one")))?
-    {
-        let oid = existing.get_object_id("_id").map_err(|_| {
-            ApiError::Internal(anyhow::anyhow!("sabchat_contacts row missing _id"))
-        })?;
+    if let Some(existing) = coll.find_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_contacts.find_one"))
+    })? {
+        let oid = existing
+            .get_object_id("_id")
+            .map_err(|_| ApiError::Internal(anyhow::anyhow!("sabchat_contacts row missing _id")))?;
         // Opportunistic name update — only when we have a name and the
         // stored record is anonymous. Avoids stomping a name the agent
         // manually corrected.
@@ -231,9 +224,7 @@ pub(crate) async fn find_or_create_open_conversation(
         .with_options(opts)
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_conversations.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_conversations.find_one"))
         })?
     {
         let oid = existing.get_object_id("_id").map_err(|_| {
@@ -295,7 +286,9 @@ pub async fn ingest(
 ) -> Result<Json<IngestResp>> {
     // ---- Input validation ----------------------------------------------
     if body.phone_number_id.trim().is_empty() {
-        return Err(ApiError::Validation("phoneNumberId is required.".to_owned()));
+        return Err(ApiError::Validation(
+            "phoneNumberId is required.".to_owned(),
+        ));
     }
     if body.wa_id.trim().is_empty() {
         return Err(ApiError::Validation("waId is required.".to_owned()));
@@ -534,9 +527,7 @@ pub async fn status(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("sabchat_messages.update_one(status)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("sabchat_messages.update_one(status)"))
         })?;
 
     Ok(Json(StatusResp {
@@ -640,16 +631,14 @@ fn preview_for(block: &ContentBlock) -> String {
     const MAX: usize = 140;
     let raw = match block {
         ContentBlock::Text { text } | ContentBlock::System { text } => text.clone(),
-        ContentBlock::Image { alt, .. } => alt
-            .clone()
-            .unwrap_or_else(|| "[image]".to_owned()),
+        ContentBlock::Image { alt, .. } => alt.clone().unwrap_or_else(|| "[image]".to_owned()),
         ContentBlock::Voice { transcript, .. } => transcript
             .clone()
             .unwrap_or_else(|| "[voice note]".to_owned()),
         ContentBlock::File { attachment } => format!("[file: {}]", attachment.name),
-        ContentBlock::Location { label, .. } => label
-            .clone()
-            .unwrap_or_else(|| "[location]".to_owned()),
+        ContentBlock::Location { label, .. } => {
+            label.clone().unwrap_or_else(|| "[location]".to_owned())
+        }
         ContentBlock::Card { title, .. } => title.clone(),
         ContentBlock::Carousel { .. } => "[carousel]".to_owned(),
         ContentBlock::Form { .. } => "[form]".to_owned(),

@@ -93,7 +93,12 @@ fn category_from_create(
 
 fn build_update_doc(patch: UpdateProductCategoryInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.slug {
@@ -197,9 +202,7 @@ pub async fn get_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_product_categories.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_product_categories.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("product_category".to_owned()))?;
     Ok(Json(row))
@@ -224,8 +227,7 @@ pub async fn create_category(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -251,9 +253,7 @@ pub async fn update_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_product_categories.find_one"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_product_categories.find_one"))
         })?
         .ok_or_else(|| ApiError::NotFound("product_category".to_owned()))?;
 
@@ -272,9 +272,7 @@ pub async fn update_category(
         .find_one(ownership_filter(user_id, oid))
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_product_categories.refetch"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_product_categories.refetch"))
         })?
         .ok_or_else(|| ApiError::NotFound("product_category".to_owned()))?;
 

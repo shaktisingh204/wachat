@@ -20,11 +20,10 @@ impl UrlShortenerState {
         // OS-configured nameservers on Windows. If it fails we fall back
         // to Cloudflare 1.1.1.1 + Google 8.8.8.8 so verify still works in
         // bare containers.
-        let resolver = TokioAsyncResolver::tokio_from_system_conf()
-            .unwrap_or_else(|_| {
-                use hickory_resolver::config::{ResolverConfig, ResolverOpts};
-                TokioAsyncResolver::tokio(ResolverConfig::cloudflare(), ResolverOpts::default())
-            });
+        let resolver = TokioAsyncResolver::tokio_from_system_conf().unwrap_or_else(|_| {
+            use hickory_resolver::config::{ResolverConfig, ResolverOpts};
+            TokioAsyncResolver::tokio(ResolverConfig::cloudflare(), ResolverOpts::default())
+        });
         Self {
             mongo,
             resolver: Arc::new(resolver),

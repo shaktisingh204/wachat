@@ -30,7 +30,10 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn entity_from_create(input: CreateDeadlineInput, user_id: ObjectId) -> Result<SabPracticeDeadline> {
+fn entity_from_create(
+    input: CreateDeadlineInput,
+    user_id: ObjectId,
+) -> Result<SabPracticeDeadline> {
     let engagement_oid = match input.engagement_id.as_deref() {
         Some(s) if !s.is_empty() => Some(oid_from_str(s)?),
         _ => None,
@@ -158,15 +161,12 @@ pub async fn list_deadlines(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabPracticeDeadline>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.find")))?;
-    let mut rows: Vec<SabPracticeDeadline> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.collect")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.find"))
+    })?;
+    let mut rows: Vec<SabPracticeDeadline> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -191,7 +191,9 @@ pub async fn get_deadline(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("deadline".to_owned()))?;
     Ok(Json(row))
 }
@@ -208,10 +210,9 @@ pub async fn create_deadline(
     }
     let mut entity = entity_from_create(input, user_id)?;
     let coll = mongo.collection::<SabPracticeDeadline>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -237,14 +238,18 @@ pub async fn update_deadline(
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("deadline".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("deadline".to_owned()))?;
     Ok(Json(after))
 }
@@ -266,7 +271,11 @@ pub async fn file_deadline(
         "updatedAt": now,
     };
     if !input.attachment_file_ids.is_empty() {
-        let arr: Vec<Bson> = input.attachment_file_ids.into_iter().map(Bson::String).collect();
+        let arr: Vec<Bson> = input
+            .attachment_file_ids
+            .into_iter()
+            .map(Bson::String)
+            .collect();
         set.insert("attachmentFileIds", arr);
     }
     if let Some(n) = input.notes {
@@ -275,14 +284,18 @@ pub async fn file_deadline(
     let result = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.file")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.file"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("deadline".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.refetch")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.refetch"))
+        })?
         .ok_or_else(|| ApiError::NotFound("deadline".to_owned()))?;
     Ok(Json(after))
 }
@@ -299,7 +312,9 @@ pub async fn delete_deadline(
     let result = coll
         .delete_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.delete")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabpractice_deadlines.delete"))
+        })?;
     Ok(Json(DeleteDeadlineResponse {
         deleted: result.deleted_count > 0,
     }))

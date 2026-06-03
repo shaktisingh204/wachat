@@ -140,9 +140,10 @@ pub async fn list_epics(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SabsprintsEpic>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find"))
+        })?;
     let mut rows: Vec<SabsprintsEpic> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.collect"))
     })?;
@@ -170,7 +171,9 @@ pub async fn get_epic(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("epic".to_owned()))?;
     Ok(Json(row))
 }
@@ -184,17 +187,15 @@ pub async fn create_epic(
     let user_id = user_oid(&user)?;
     let mut entity = epic_from_create(input, user_id)?;
     let coll = mongo.collection::<SabsprintsEpic>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.insert")))?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -217,13 +218,17 @@ pub async fn update_epic(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find_one")))?
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.find_one"))
+        })?
         .ok_or_else(|| ApiError::NotFound("epic".to_owned()))?;
     let update = build_update_doc(patch);
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.update")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.update"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("epic".to_owned()));
     }
@@ -262,7 +267,9 @@ pub async fn delete_epic(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsprints_epics.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("epic".to_owned()));
     }

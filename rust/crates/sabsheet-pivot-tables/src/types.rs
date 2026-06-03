@@ -26,7 +26,11 @@ pub struct SabsheetPivotTable {
     pub source_range: String,
 
     /// `{ rows: [...], columns: [...], values: [{ field, agg }], filters: [...] }`
-    #[serde(default, rename = "configJson", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        rename = "configJson",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub config_json: Option<Document>,
 
     #[serde(rename = "createdAt")]

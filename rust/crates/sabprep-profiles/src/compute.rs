@@ -93,7 +93,13 @@ fn profile_column(name: &str, rows: &[Row]) -> ColumnProfile {
         }
     }
 
-    let kind = guess_kind(has_string, has_number, has_bool, null_count, rows.len() as u32);
+    let kind = guess_kind(
+        has_string,
+        has_number,
+        has_bool,
+        null_count,
+        rows.len() as u32,
+    );
     let mut top_vec: Vec<(String, u32)> = counts.into_iter().collect();
     top_vec.sort_by(|a, b| b.1.cmp(&a.1));
     let top_values: Vec<TopValue> = top_vec
@@ -156,8 +162,7 @@ fn unique_count(name: &str, rows: &[Row]) -> u32 {
 }
 
 pub(crate) fn is_null_like(v: Option<&Value>) -> bool {
-    matches!(v, None | Some(Value::Null))
-        || matches!(v, Some(Value::String(s)) if s.is_empty())
+    matches!(v, None | Some(Value::Null)) || matches!(v, Some(Value::String(s)) if s.is_empty())
 }
 
 fn scalar_string(v: &Value) -> String {
@@ -167,12 +172,21 @@ fn scalar_string(v: &Value) -> String {
     }
 }
 
-fn guess_kind(has_string: bool, has_number: bool, has_bool: bool, null_count: u32, total: u32) -> String {
+fn guess_kind(
+    has_string: bool,
+    has_number: bool,
+    has_bool: bool,
+    null_count: u32,
+    total: u32,
+) -> String {
     let total_non_null = total.saturating_sub(null_count);
     if total_non_null == 0 {
         return "null".to_owned();
     }
-    let typed = [has_string, has_number, has_bool].iter().filter(|b| **b).count();
+    let typed = [has_string, has_number, has_bool]
+        .iter()
+        .filter(|b| **b)
+        .count();
     if typed > 1 {
         return "mixed".to_owned();
     }
@@ -232,9 +246,7 @@ fn suggest_cleansing(i: SuggestInput<'_>) -> Vec<CleansingSuggestion> {
             });
         }
     }
-    if i.kind == "string"
-        && i.numeric_strings as f64 / i.rows_total.max(1) as f64 >= 0.8
-    {
+    if i.kind == "string" && i.numeric_strings as f64 / i.rows_total.max(1) as f64 >= 0.8 {
         out.push(CleansingSuggestion {
             kind: "cast_to_number".to_owned(),
             label: "Cast to number".to_owned(),
@@ -257,7 +269,10 @@ mod tests {
     use serde_json::json;
 
     fn r(pairs: &[(&str, Value)]) -> Row {
-        pairs.iter().map(|(k, v)| ((*k).to_owned(), v.clone())).collect()
+        pairs
+            .iter()
+            .map(|(k, v)| ((*k).to_owned(), v.clone()))
+            .collect()
     }
 
     #[test]
@@ -276,10 +291,7 @@ mod tests {
 
     #[test]
     fn suggests_trim_when_whitespace_present() {
-        let rows = vec![
-            r(&[("x", json!(" hi"))]),
-            r(&[("x", json!("hi"))]),
-        ];
+        let rows = vec![r(&[("x", json!(" hi"))]), r(&[("x", json!("hi"))])];
         let profiles = profile_rows(&rows);
         let p = &profiles[0];
         assert!(p.suggested_cleansing.iter().any(|c| c.kind == "trim"));
@@ -294,6 +306,10 @@ mod tests {
         ];
         let profiles = profile_rows(&rows);
         let p = &profiles[0];
-        assert!(p.suggested_cleansing.iter().any(|c| c.kind == "cast_to_number"));
+        assert!(
+            p.suggested_cleansing
+                .iter()
+                .any(|c| c.kind == "cast_to_number")
+        );
     }
 }

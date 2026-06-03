@@ -62,7 +62,11 @@ pub enum RecurringFrequency {
 pub struct RecurringConfig {
     pub frequency: RecurringFrequency,
     /// Stop after this date. `None` = run forever.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub end_date: Option<DateTime<Utc>>,
     /// Next firing time. Engine advances this on each successful run.
     #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime")]

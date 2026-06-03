@@ -117,7 +117,11 @@ pub struct Segment {
     /// Last cached membership count, refreshed by the segment worker.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub count_cached: Option<u64>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub last_evaluated_at: Option<DateTime<Utc>>,
     /// Reverse-index: automations / campaigns currently using this
     /// segment as audience. Lets the UI warn before a destructive edit.

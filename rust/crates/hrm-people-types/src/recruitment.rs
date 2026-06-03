@@ -68,7 +68,11 @@ pub struct JobPosting {
     pub careers_page_visible: bool,
 
     /// Auto-close timestamp. `None` = never expires.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expiry: Option<DateTime<Utc>>,
 }
 
@@ -349,7 +353,10 @@ mod tests {
 
         // Audit flattened, no nested envelope keys.
         assert!(json.get("createdAt").is_some(), "createdAt must be at root");
-        assert!(json.get("identity").is_none(), "identity must NOT be nested");
+        assert!(
+            json.get("identity").is_none(),
+            "identity must NOT be nested"
+        );
         assert!(json.get("audit").is_none(), "audit must NOT be nested");
 
         // camelCase entity fields.

@@ -22,7 +22,9 @@ use sabnode_auth::AuthUser;
 use serde_json::Value;
 use tracing::{instrument, warn};
 
-use crate::dto::{ActivityEntry, FormConfig, LeadGenConfig, ProcessWebhookBody, WebhookProcessResp};
+use crate::dto::{
+    ActivityEntry, FormConfig, LeadGenConfig, ProcessWebhookBody, WebhookProcessResp,
+};
 use crate::state::WachatFacebookLeadGenState;
 
 const LEADS_COLL: &str = "crm_leads";
@@ -48,14 +50,27 @@ pub async fn process_webhook(
         Ok(Some(c)) => c,
         Ok(None) => {
             log_activity(
-                &s, &user.user_id, &body.form_id, "unknown", &body.lead_id,
-                "Lead", "skipped", Some("Integration not configured or inactive"),
-            ).await;
-            return Json(WebhookProcessResp { lead_id: None, status: "skipped".to_owned() });
+                &s,
+                &user.user_id,
+                &body.form_id,
+                "unknown",
+                &body.lead_id,
+                "Lead",
+                "skipped",
+                Some("Integration not configured or inactive"),
+            )
+            .await;
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "skipped".to_owned(),
+            });
         }
         Err(e) => {
             warn!("process_webhook: config lookup failed: {e}");
-            return Json(WebhookProcessResp { lead_id: None, status: "error".to_owned() });
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "error".to_owned(),
+            });
         }
     };
 
@@ -64,10 +79,20 @@ pub async fn process_webhook(
         Some(f) => f.clone(),
         None => {
             log_activity(
-                &s, &user.user_id, &body.form_id, "unknown", &body.lead_id,
-                "Lead", "skipped", Some("Form not configured"),
-            ).await;
-            return Json(WebhookProcessResp { lead_id: None, status: "skipped".to_owned() });
+                &s,
+                &user.user_id,
+                &body.form_id,
+                "unknown",
+                &body.lead_id,
+                "Lead",
+                "skipped",
+                Some("Form not configured"),
+            )
+            .await;
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "skipped".to_owned(),
+            });
         }
     };
     let form_name = form_config.form_name.clone();
@@ -77,7 +102,10 @@ pub async fn process_webhook(
         Ok(o) => o,
         Err(_) => {
             warn!("process_webhook: invalid user_id OID: {}", user.user_id);
-            return Json(WebhookProcessResp { lead_id: None, status: "error".to_owned() });
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "error".to_owned(),
+            });
         }
     };
 
@@ -88,27 +116,42 @@ pub async fn process_webhook(
     {
         Ok(Some(_)) => {
             log_activity(
-                &s, &user.user_id, &body.form_id, &form_name, &body.lead_id,
-                "Lead", "skipped", Some("Duplicate leadgen_id"),
-            ).await;
-            return Json(WebhookProcessResp { lead_id: None, status: "skipped".to_owned() });
+                &s,
+                &user.user_id,
+                &body.form_id,
+                &form_name,
+                &body.lead_id,
+                "Lead",
+                "skipped",
+                Some("Duplicate leadgen_id"),
+            )
+            .await;
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "skipped".to_owned(),
+            });
         }
         Err(e) => warn!("process_webhook: idempotency check error (continuing): {e}"),
         Ok(None) => {}
     }
 
     // --- 4. Fetch full lead from Graph API ---
-    let graph_path = format!(
-        "{}?fields=id,created_time,field_data,form_id",
-        body.lead_id
-    );
-    let raw_lead: Value = match s.meta.get_json(&graph_path, &config.page_access_token).await {
+    let graph_path = format!("{}?fields=id,created_time,field_data,form_id", body.lead_id);
+    let raw_lead: Value = match s
+        .meta
+        .get_json(&graph_path, &config.page_access_token)
+        .await
+    {
         Ok(v) => v,
         Err(e) => {
             let err_str = e.to_string();
             // Detect expired token (Facebook error code 190).
-            if err_str.contains("190") || err_str.contains("Invalid OAuth") || err_str.contains("access token") {
-                let _ = s.mongo
+            if err_str.contains("190")
+                || err_str.contains("Invalid OAuth")
+                || err_str.contains("access token")
+            {
+                let _ = s
+                    .mongo
                     .collection::<Document>(CONFIG_COLL)
                     .update_one(
                         doc! { "tenantId": &user.user_id },
@@ -116,16 +159,33 @@ pub async fn process_webhook(
                     )
                     .await;
                 log_activity(
-                    &s, &user.user_id, &body.form_id, &form_name, &body.lead_id,
-                    "Lead", "error", Some("Page access token expired — reconnect required"),
-                ).await;
+                    &s,
+                    &user.user_id,
+                    &body.form_id,
+                    &form_name,
+                    &body.lead_id,
+                    "Lead",
+                    "error",
+                    Some("Page access token expired — reconnect required"),
+                )
+                .await;
             } else {
                 log_activity(
-                    &s, &user.user_id, &body.form_id, &form_name, &body.lead_id,
-                    "Lead", "error", Some(&err_str),
-                ).await;
+                    &s,
+                    &user.user_id,
+                    &body.form_id,
+                    &form_name,
+                    &body.lead_id,
+                    "Lead",
+                    "error",
+                    Some(&err_str),
+                )
+                .await;
             }
-            return Json(WebhookProcessResp { lead_id: None, status: "error".to_owned() });
+            return Json(WebhookProcessResp {
+                lead_id: None,
+                status: "error".to_owned(),
+            });
         }
     };
 
@@ -150,11 +210,18 @@ pub async fn process_webhook(
         apply_field_mapping(&field_data, &form_config);
 
     let lead_name = format!("{} {}", first_name, last_name).trim().to_owned();
-    let lead_name = if lead_name.is_empty() { "Lead".to_owned() } else { lead_name };
+    let lead_name = if lead_name.is_empty() {
+        "Lead".to_owned()
+    } else {
+        lead_name
+    };
 
     // --- 6. Resolve routing (campaign rules, first match wins) ---
-    let (mut pipeline_id_str, mut stage_str, assigned_to_str) =
-        resolve_routing(&form_config, body.campaign_id.as_deref(), body.adset_id.as_deref());
+    let (mut pipeline_id_str, mut stage_str, assigned_to_str) = resolve_routing(
+        &form_config,
+        body.campaign_id.as_deref(),
+        body.adset_id.as_deref(),
+    );
 
     // CRM ↔ Facebook ads binding overrides take precedence so the
     // tenant's CRM integration settings drive routing rather than the
@@ -189,14 +256,30 @@ pub async fn process_webhook(
         "lastName":      &last_name,
     };
 
-    if let Some(v) = &email       { lead_doc.insert("email", v); }
-    if let Some(v) = &phone       { lead_doc.insert("phone", v); }
-    if let Some(v) = &company     { lead_doc.insert("company", v); }
-    if let Some(v) = &title       { lead_doc.insert("title", v); }
-    if let Some(v) = &description { lead_doc.insert("description", v); }
-    if !stage_str.is_empty()      { lead_doc.insert("status", &stage_str); }
-    if let Some(oid) = pipeline_oid { lead_doc.insert("pipelineId", oid); }
-    if let Some(oid) = assigned_oid { lead_doc.insert("assignedTo", oid); }
+    if let Some(v) = &email {
+        lead_doc.insert("email", v);
+    }
+    if let Some(v) = &phone {
+        lead_doc.insert("phone", v);
+    }
+    if let Some(v) = &company {
+        lead_doc.insert("company", v);
+    }
+    if let Some(v) = &title {
+        lead_doc.insert("title", v);
+    }
+    if let Some(v) = &description {
+        lead_doc.insert("description", v);
+    }
+    if !stage_str.is_empty() {
+        lead_doc.insert("status", &stage_str);
+    }
+    if let Some(oid) = pipeline_oid {
+        lead_doc.insert("pipelineId", oid);
+    }
+    if let Some(oid) = assigned_oid {
+        lead_doc.insert("assignedTo", oid);
+    }
 
     // Retry once on transient failure.
     let lead_doc_retry = lead_doc.clone();
@@ -212,18 +295,38 @@ pub async fn process_webhook(
         Ok(res) => {
             let inserted_id = res.inserted_id.as_object_id().map(|o| o.to_hex());
             log_activity(
-                &s, &user.user_id, &body.form_id, &form_name, &body.lead_id,
-                &lead_name, "created", None,
-            ).await;
-            Json(WebhookProcessResp { lead_id: inserted_id, status: "created".to_owned() })
+                &s,
+                &user.user_id,
+                &body.form_id,
+                &form_name,
+                &body.lead_id,
+                &lead_name,
+                "created",
+                None,
+            )
+            .await;
+            Json(WebhookProcessResp {
+                lead_id: inserted_id,
+                status: "created".to_owned(),
+            })
         }
         Err(e) => {
             warn!("process_webhook: insert_one failed after retry: {e}");
             log_activity(
-                &s, &user.user_id, &body.form_id, &form_name, &body.lead_id,
-                &lead_name, "error", Some(&e.to_string()),
-            ).await;
-            Json(WebhookProcessResp { lead_id: None, status: "error".to_owned() })
+                &s,
+                &user.user_id,
+                &body.form_id,
+                &form_name,
+                &body.lead_id,
+                &lead_name,
+                "error",
+                Some(&e.to_string()),
+            )
+            .await;
+            Json(WebhookProcessResp {
+                lead_id: None,
+                status: "error".to_owned(),
+            })
         }
     }
 }
@@ -237,7 +340,15 @@ pub async fn process_webhook(
 fn apply_field_mapping(
     field_data: &[(String, String)],
     form_config: &FormConfig,
-) -> (String, String, Option<String>, Option<String>, Option<String>, Option<String>, Option<String>) {
+) -> (
+    String,
+    String,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+) {
     let mut first_name = String::new();
     let mut last_name = String::new();
     let mut email: Option<String> = None;
@@ -294,7 +405,15 @@ fn apply_field_mapping(
         Some(extra_parts.join("\n"))
     };
 
-    (first_name, last_name, email, phone, company, title, description)
+    (
+        first_name,
+        last_name,
+        email,
+        phone,
+        company,
+        title,
+        description,
+    )
 }
 
 /// Evaluate campaign rules top-down; return the first matching routing target.

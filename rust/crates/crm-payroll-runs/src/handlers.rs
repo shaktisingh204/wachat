@@ -167,11 +167,10 @@ pub async fn list_payroll_runs(
         .build();
 
     let coll = mongo.collection::<PayrollRun>(RUNS_COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.find"))
+        })?;
     let runs: Vec<PayrollRun> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.collect"))
     })?;
@@ -398,12 +397,9 @@ pub async fn delete_payroll_run(
     let filter = doc! { "_id": run_oid, "userId": user_id };
 
     let coll = mongo.collection::<Document>(RUNS_COLL);
-    let res = coll
-        .delete_one(filter)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.delete_one"))
-        })?;
+    let res = coll.delete_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.delete_one"))
+    })?;
     if res.deleted_count == 0 {
         return Err(ApiError::NotFound("payrollRun".to_owned()));
     }
@@ -521,10 +517,7 @@ impl<'a> FormulaParser<'a> {
     fn expect_eof(&mut self) -> std::result::Result<(), String> {
         self.skip_ws();
         if self.pos < self.src.len() {
-            Err(format!(
-                "unexpected trailing input at offset {}",
-                self.pos
-            ))
+            Err(format!("unexpected trailing input at offset {}", self.pos))
         } else {
             Ok(())
         }
@@ -620,8 +613,7 @@ impl<'a> FormulaParser<'a> {
                 break;
             }
         }
-        let lit = std::str::from_utf8(&self.src[start..self.pos])
-            .map_err(|e| e.to_string())?;
+        let lit = std::str::from_utf8(&self.src[start..self.pos]).map_err(|e| e.to_string())?;
         lit.parse::<f64>()
             .map_err(|e| format!("bad number '{lit}': {e}"))
     }
@@ -637,8 +629,7 @@ impl<'a> FormulaParser<'a> {
                 break;
             }
         }
-        let ident = std::str::from_utf8(&self.src[start..self.pos])
-            .map_err(|e| e.to_string())?;
+        let ident = std::str::from_utf8(&self.src[start..self.pos]).map_err(|e| e.to_string())?;
         match ident.to_ascii_lowercase().as_str() {
             "basic" => Ok(self.basic),
             "ctc" | "monthlyctc" => Ok(self.ctc),
@@ -762,9 +753,7 @@ pub async fn compute_payroll_run(
         .find_one(filter.clone())
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_payroll_runs.find_one(compute)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.find_one(compute)"))
         })?
         .ok_or_else(|| ApiError::NotFound("payrollRun".to_owned()))?;
     match run.status {
@@ -806,9 +795,10 @@ pub async fn compute_payroll_run(
         .find(emp_filter)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.find")))?;
-    let employees: Vec<Employee> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_employees.collect"))
-    })?;
+    let employees: Vec<Employee> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_employees.collect")))?;
 
     // ---- Resolve each employee's structure + math -----------------
     let structures_coll = mongo.collection::<SalaryStructure>(SALARY_STRUCTURES_COLL);
@@ -819,9 +809,7 @@ pub async fn compute_payroll_run(
             .find_one(doc! { "_id": struct_oid, "userId": user_id })
             .await
             .map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("crm_salary_structures.find_one"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("crm_salary_structures.find_one"))
             })?;
         let Some(structure) = structure else {
             tracing::warn!(
@@ -832,7 +820,11 @@ pub async fn compute_payroll_run(
             continue;
         };
         let annual_ctc = emp.employment.ctc.unwrap_or(0.0);
-        rows.push(compute_employee_row(emp.identity.id, &structure, annual_ctc));
+        rows.push(compute_employee_row(
+            emp.identity.id,
+            &structure,
+            annual_ctc,
+        ));
     }
 
     // ---- Roll up totals -------------------------------------------
@@ -917,9 +909,7 @@ pub async fn approve_payroll_run(
         .find_one(filter.clone())
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_payroll_runs.find_one(approve)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.find_one(approve)"))
         })?
         .ok_or_else(|| ApiError::NotFound("payrollRun".to_owned()))?;
     match run.status {
@@ -1019,9 +1009,7 @@ pub async fn disburse_payroll_run(
         .find_one(filter.clone())
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_payroll_runs.find_one(disburse)"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.find_one(disburse)"))
         })?
         .ok_or_else(|| ApiError::NotFound("payrollRun".to_owned()))?;
     if !matches!(run.status, PayrollRunStatus::Approved) {
@@ -1054,9 +1042,7 @@ pub async fn disburse_payroll_run(
         )
         .await
         .map_err(|e| {
-            ApiError::Internal(
-                anyhow::Error::new(e).context("crm_payroll_runs.disburse.update"),
-            )
+            ApiError::Internal(anyhow::Error::new(e).context("crm_payroll_runs.disburse.update"))
         })?;
     if res.matched_count == 0 {
         return Err(ApiError::NotFound("payrollRun".to_owned()));

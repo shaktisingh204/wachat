@@ -58,13 +58,9 @@ pub async fn list_recordings(
         .build();
 
     let coll = mongo.collection::<Recording>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("pagesense_recordings.find"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("pagesense_recordings.find"))
+    })?;
     let mut rows: Vec<Recording> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("pagesense_recordings.collect"))
     })?;

@@ -76,14 +76,7 @@ async fn aggregate_scope(
         Bucket::Lifetime => Utc.timestamp_opt(0, 0).single().unwrap(),
         Bucket::Day => now.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc(),
         Bucket::Hour => Utc
-            .with_ymd_and_hms(
-                now.year(),
-                now.month(),
-                now.day(),
-                now.hour(),
-                0,
-                0,
-            )
+            .with_ymd_and_hms(now.year(), now.month(), now.day(), now.hour(), 0, 0)
             .single()
             .unwrap_or(now),
     };
@@ -92,10 +85,16 @@ async fn aggregate_scope(
     // For campaign/journey scopes, only consider rows that carry the id.
     match scope {
         Scope::Campaign => {
-            match_doc.insert("campaignId", doc! { "$exists": true, "$ne": bson::Bson::Null });
+            match_doc.insert(
+                "campaignId",
+                doc! { "$exists": true, "$ne": bson::Bson::Null },
+            );
         }
         Scope::Journey => {
-            match_doc.insert("journeyId", doc! { "$exists": true, "$ne": bson::Bson::Null });
+            match_doc.insert(
+                "journeyId",
+                doc! { "$exists": true, "$ne": bson::Bson::Null },
+            );
         }
         Scope::Account => {}
     }
@@ -214,9 +213,7 @@ async fn aggregate_scope(
             .upsert(true)
             .await
             .map_err(|e| {
-                ApiError::Internal(
-                    anyhow::Error::new(e).context("email_reports_cache.update_one"),
-                )
+                ApiError::Internal(anyhow::Error::new(e).context("email_reports_cache.update_one"))
             })?;
         count += 1;
     }
@@ -227,10 +224,7 @@ async fn aggregate_scope(
 /// Live aggregation helper — used by the HTTP handlers when the cache
 /// row is missing. Computes the same fields the worker would have
 /// upserted, but does **not** persist.
-pub async fn live_aggregate(
-    mongo: &MongoHandle,
-    filter: Document,
-) -> Result<ReportMetrics> {
+pub async fn live_aggregate(mongo: &MongoHandle, filter: Document) -> Result<ReportMetrics> {
     let pipeline = vec![
         doc! { "$match": filter },
         doc! {
@@ -261,9 +255,10 @@ pub async fn live_aggregate(
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("live_aggregate.aggregate"))
         })?;
-    let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("live_aggregate.drain"))
-    })?;
+    let docs: Vec<Document> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("live_aggregate.drain")))?;
 
     let Some(d) = docs.first() else {
         return Ok(ReportMetrics::default());
@@ -300,4 +295,3 @@ fn get_u64(d: &Document, k: &str) -> u64 {
 fn array_size(d: &Document, k: &str) -> u64 {
     d.get_array(k).ok().map(|a| a.len() as u64).unwrap_or(0)
 }
-

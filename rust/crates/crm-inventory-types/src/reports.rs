@@ -53,9 +53,17 @@ pub enum InventoryReportKind {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InventoryReportFilters {
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub from: Option<DateTime<Utc>>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub to: Option<DateTime<Utc>>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -113,7 +121,10 @@ mod tests {
         let json = serde_json::to_value(&req).unwrap();
 
         // multi-word enum variant serializes snake_case.
-        assert_eq!(json.get("kind").and_then(|v| v.as_str()), Some("batch_expiry"));
+        assert_eq!(
+            json.get("kind").and_then(|v| v.as_str()),
+            Some("batch_expiry")
+        );
 
         // Filter fields are camelCase at one nested level.
         let f = json.get("filters").unwrap();

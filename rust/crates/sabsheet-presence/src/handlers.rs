@@ -72,6 +72,8 @@ pub async fn upsert_presence(
     coll.update_one(filter, update)
         .upsert(true)
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabsheet_presence.upsert")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabsheet_presence.upsert"))
+        })?;
     Ok(Json(UpsertPresenceResponse { ok: true }))
 }

@@ -1,39 +1,41 @@
-//! On-disk shape of a `pagesense_sites` document.
+//! On-disk shape of a `sabsense_sites` document.
 
 use bson::{DateTime as BsonDateTime, oid::ObjectId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub struct PagesenseSite {
+pub struct SabsenseSite {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     #[serde(rename = "userId")]
     pub user_id: ObjectId,
 
-    /// Human-friendly name shown in the dashboard.
     pub name: String,
-    /// Apex domain (or subdomain) the snippet is allowed to run on.
-    pub domain: String,
-    /// Random opaque key embedded in the snippet's `data-snippet-key`
-    /// attribute. Validated server-side on every ingest call.
-    pub snippet_key: String,
-
-    /// Optional screenshot URL used by the heatmap overlay until a
-    /// proper screenshot worker is wired in. Pointed at a SabFiles asset.
+    /// `"day"` | `"week"` | `"month"` | `"year"`.
+    pub interval_unit: String,
+    /// Count of `interval_unit`s per billing period (e.g. 1 month, 3 months).
+    pub interval_count: i32,
+    /// Recurring charge per billing period, in minor units.
+    pub amount_minor: i64,
+    /// ISO 4217 currency, e.g. `"INR"`.
+    pub currency: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub screenshot_url: Option<String>,
-
-    /// Site-wide tracking toggle. Lets a tenant pause ingestion without
-    /// uninstalling the snippet.
-    #[serde(rename = "isActive", default, skip_serializing_if = "Option::is_none")]
-    pub is_active: Option<bool>,
+    pub trial_days: Option<i32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub setup_fee_minor: Option<i64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    /// `"draft"` | `"active"` | `"archived"`.
+    #[serde(default = "default_status")]
+    pub status: String,
 
     #[serde(rename = "createdAt")]
     pub created_at: BsonDateTime,
     #[serde(rename = "updatedAt", default, skip_serializing_if = "Option::is_none")]
     pub updated_at: Option<BsonDateTime>,
-    /// `"active"` | `"archived"`. Soft-delete flag.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub status: Option<String>,
+}
+
+fn default_status() -> String {
+    "draft".to_owned()
 }

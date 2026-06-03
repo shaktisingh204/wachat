@@ -103,7 +103,11 @@ pub struct Ticket {
     /* ----- SLA + scheduling -------------------------------------- */
     /// Computed off the linked `Sla` at write-time. Nullable until the
     /// SLA evaluator fires.
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub due_by: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sla_id: Option<ObjectId>,
@@ -263,11 +267,17 @@ mod tests {
         assert!(json.get("assignment").is_none());
 
         // camelCase + lowercase enums.
-        assert_eq!(json.get("channel").and_then(|v| v.as_str()), Some("whatsapp"));
+        assert_eq!(
+            json.get("channel").and_then(|v| v.as_str()),
+            Some("whatsapp")
+        );
         assert_eq!(json.get("severity").and_then(|v| v.as_str()), Some("sev2"));
         // snake_case multi-word status.
         assert_eq!(json.get("status").and_then(|v| v.as_str()), Some("on_hold"));
-        assert_eq!(json.get("subject").and_then(|v| v.as_str()), Some("Login broken"));
+        assert_eq!(
+            json.get("subject").and_then(|v| v.as_str()),
+            Some("Login broken")
+        );
 
         let back: Ticket = serde_json::from_value(json).unwrap();
         assert_eq!(back.subject, "Login broken");
@@ -306,11 +316,15 @@ mod tests {
         assert!(json.get("audit").is_none());
 
         assert_eq!(
-            json.get("firstResponseTargetMinutes").and_then(|v| v.as_u64()),
+            json.get("firstResponseTargetMinutes")
+                .and_then(|v| v.as_u64()),
             Some(30)
         );
         assert_eq!(json.get("active").and_then(|v| v.as_bool()), Some(true));
-        let bh = json.get("businessHours").and_then(|v| v.as_array()).unwrap();
+        let bh = json
+            .get("businessHours")
+            .and_then(|v| v.as_array())
+            .unwrap();
         assert_eq!(bh[0].get("startMinute").and_then(|v| v.as_u64()), Some(540));
 
         let back: Sla = serde_json::from_value(json).unwrap();

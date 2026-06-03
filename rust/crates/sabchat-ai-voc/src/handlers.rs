@@ -336,9 +336,7 @@ pub async fn list_runs(
         .find(doc! { "tenantId": tenant })
         .with_options(opts)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_voc_runs.find"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabchat_voc_runs.find")))?;
     let docs: Vec<Document> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabchat_voc_runs.collect"))
     })?;

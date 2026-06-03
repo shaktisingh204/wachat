@@ -1,23 +1,26 @@
-'use client';
+"use client";
 
-import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
 import {
-  useActionState,
-  useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import {
-  Save,
-  LoaderCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+  Button,
+  Card,
+  Input,
+  Label,
+  Textarea,
+  useZoruToast,
+} from "@/components/zoruui";
+import { useActionState, useEffect } from "react";
+import { useFormStatus } from "react-dom";
+import { Save, LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { saveSla } from '@/app/actions/crm-sla.actions';
-import { EntityFormField } from '@/components/crm/entity-form-field';
-import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityDetailShell } from "@/components/crm/entity-detail-shell";
+import { saveSla } from "@/app/actions/crm-sla.actions";
+import { EntityFormField } from "@/components/crm/entity-form-field";
+import { EnumFormField } from "@/components/crm/enum-form-field";
 
 const initialState: { message?: string; error?: string; id?: string } = {
-  message: '',
-  error: '',
+  message: "",
+  error: "",
 };
 
 function SubmitButton() {
@@ -41,11 +44,15 @@ export default function NewSlaPage() {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Created', description: state.message });
-      router.push('/dashboard/sabdesk/sla');
+      toast({ title: "Created", description: state.message });
+      router.push("/dashboard/sabdesk/sla");
     }
     if (state.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: state.error,
+        variant: "destructive",
+      });
     }
   }, [state, toast, router]);
 
@@ -53,9 +60,8 @@ export default function NewSlaPage() {
     <EntityDetailShell
       eyebrow="SLA POLICY"
       title="New SLA Policy"
-      back={{ href: '/dashboard/sabdesk/sla', label: 'SLA Policies' }}
+      back={{ href: "/dashboard/sabdesk/sla", label: "SLA Policies" }}
     >
-
       <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: SLA Name + Priority */}
@@ -83,7 +89,9 @@ export default function NewSlaPage() {
           {/* Row 2: First Response + Resolution */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="firstResponseMinutes">First Response (minutes)</Label>
+              <Label htmlFor="firstResponseMinutes">
+                First Response (minutes)
+              </Label>
               <Input
                 id="firstResponseMinutes"
                 name="firstResponseMinutes"
@@ -123,7 +131,9 @@ export default function NewSlaPage() {
           {/* Row 4: Escalate After + Escalate To */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <Label htmlFor="escalateAfterMinutes">Escalate after (minutes)</Label>
+              <Label htmlFor="escalateAfterMinutes">
+                Escalate after (minutes)
+              </Label>
               <Input
                 id="escalateAfterMinutes"
                 name="escalateAfterMinutes"

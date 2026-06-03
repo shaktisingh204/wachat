@@ -383,9 +383,15 @@ mod tests {
         assert!(json.get("audit").is_none());
 
         // NumberingSchema list — first entry's entity + camelCase fields
-        let numbering = json.get("numberingSchemas").and_then(|v| v.as_array()).unwrap();
+        let numbering = json
+            .get("numberingSchemas")
+            .and_then(|v| v.as_array())
+            .unwrap();
         assert_eq!(numbering.len(), 2);
-        assert_eq!(numbering[0].get("entity").and_then(|v| v.as_str()), Some("invoice"));
+        assert_eq!(
+            numbering[0].get("entity").and_then(|v| v.as_str()),
+            Some("invoice")
+        );
         assert_eq!(
             numbering[0].get("startingNumber").and_then(|v| v.as_u64()),
             Some(1)
@@ -396,13 +402,19 @@ mod tests {
         );
         // Optional `suffix` skipped on entry 0, present on entry 1
         assert!(numbering[0].get("suffix").is_none());
-        assert_eq!(numbering[1].get("suffix").and_then(|v| v.as_str()), Some("/26"));
+        assert_eq!(
+            numbering[1].get("suffix").and_then(|v| v.as_str()),
+            Some("/26")
+        );
 
         // Nested Branding round-trips with camelCase keys
         let branding = json.get("branding").unwrap();
         assert!(branding.get("logoFileId").is_some());
         assert!(branding.get("watermarkFileId").is_some());
-        assert!(branding.get("signatureFileId").is_none(), "None should skip");
+        assert!(
+            branding.get("signatureFileId").is_none(),
+            "None should skip"
+        );
         assert_eq!(
             branding.get("primaryColor").and_then(|v| v.as_str()),
             Some("#0ea5e9")
@@ -413,7 +425,10 @@ mod tests {
             .get("messageTemplates")
             .and_then(|v| v.as_array())
             .unwrap();
-        assert_eq!(tpl[0].get("channel").and_then(|v| v.as_str()), Some("whatsapp"));
+        assert_eq!(
+            tpl[0].get("channel").and_then(|v| v.as_str()),
+            Some("whatsapp")
+        );
 
         // Round-trip back into the struct
         let back: TenantSettings = serde_json::from_value(json).unwrap();

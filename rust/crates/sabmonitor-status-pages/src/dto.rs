@@ -59,7 +59,9 @@ pub struct CreateStatusPageResponse {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteStatusPageResponse { pub deleted: bool }
+pub struct DeleteStatusPageResponse {
+    pub deleted: bool,
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

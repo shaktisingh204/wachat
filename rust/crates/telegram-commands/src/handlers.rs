@@ -102,11 +102,22 @@ pub struct CommandRow {
     pub hidden: bool,
     #[serde(rename = "runCount")]
     pub run_count: i64,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none", rename = "lastRunAt")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none",
+        rename = "lastRunAt"
+    )]
     pub last_run_at: Option<DateTime<Utc>>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "updatedAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "updatedAt"
+    )]
     pub updated_at: DateTime<Utc>,
 }
 
@@ -201,10 +212,7 @@ async fn require_bot_in_project(
 
 fn scope_from_doc(d: &Document) -> ScopeDto {
     ScopeDto {
-        kind: d
-            .get_str("kind")
-            .unwrap_or(SCOPE_DEFAULT)
-            .to_owned(),
+        kind: d.get_str("kind").unwrap_or(SCOPE_DEFAULT).to_owned(),
         chat_id: d.get_str("chatId").ok().map(str::to_owned),
         user_id: d.get_str("userId").ok().map(str::to_owned),
     }
@@ -397,10 +405,7 @@ fn scope_to_bot_api(scope: &ScopeDto) -> Option<JsonValue> {
     };
     let mut v = json!({ "type": api_type });
     if let Some(c) = scope.chat_id.as_deref() {
-        if matches!(
-            kind,
-            SCOPE_CHAT | SCOPE_CHAT_ADMINS | SCOPE_CHAT_MEMBER
-        ) {
+        if matches!(kind, SCOPE_CHAT | SCOPE_CHAT_ADMINS | SCOPE_CHAT_MEMBER) {
             v["chat_id"] = JsonValue::String(c.to_owned());
         }
     }
@@ -995,9 +1000,7 @@ pub async fn update(
             None => return err_ack("invalid bot id"),
         }
     } else {
-        existing
-            .get_object_id("botId")
-            .ok()
+        existing.get_object_id("botId").ok()
     };
 
     let clear_lc = body.clear_language_code.unwrap_or(false);
@@ -1517,7 +1520,10 @@ pub struct RunRow {
     pub success: bool,
     #[serde(skip_serializing_if = "Option::is_none", rename = "errorMessage")]
     pub error_message: Option<String>,
-    #[serde(with = "bson::serde_helpers::chrono_datetime_as_bson_datetime", rename = "createdAt")]
+    #[serde(
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime",
+        rename = "createdAt"
+    )]
     pub created_at: DateTime<Utc>,
 }
 
@@ -1648,11 +1654,7 @@ fn scope_priority(kind: &str) -> i32 {
     }
 }
 
-fn scope_applies(
-    row: &CommandRow,
-    chat_id: Option<&str>,
-    user_id: Option<&str>,
-) -> bool {
+fn scope_applies(row: &CommandRow, chat_id: Option<&str>, user_id: Option<&str>) -> bool {
     let s = &row.scope;
     match s.kind.as_str() {
         SCOPE_DEFAULT | SCOPE_ALL_PRIVATE | SCOPE_ALL_GROUPS | SCOPE_ALL_CHAT_ADMINS => true,
@@ -1714,10 +1716,7 @@ pub async fn match_command(
             }],
         );
     }
-    let cursor = coll
-        .find(filter)
-        .await
-        .map_err(|e| format!("mongo: {e}"))?;
+    let cursor = coll.find(filter).await.map_err(|e| format!("mongo: {e}"))?;
     use futures::TryStreamExt;
     let docs: Vec<Document> = cursor
         .try_collect()
@@ -2067,10 +2066,7 @@ pub async fn analytics(
 
     let mut per_command: Vec<PerCommandStat> = Vec::new();
     if !per_cmd.is_empty() {
-        let oids: Vec<ObjectId> = per_cmd
-            .keys()
-            .filter_map(|k| parse_oid(k))
-            .collect();
+        let oids: Vec<ObjectId> = per_cmd.keys().filter_map(|k| parse_oid(k)).collect();
         if !oids.is_empty() {
             if let Ok(cur) = s
                 .mongo
@@ -2197,7 +2193,10 @@ pub async fn import(
         let bot_oid = match c.bot_id.as_deref().filter(|b| !b.is_empty()) {
             Some(b) => match parse_oid(b) {
                 Some(o) => {
-                    if require_bot_in_project(&s.mongo, b, project_oid).await.is_err() {
+                    if require_bot_in_project(&s.mongo, b, project_oid)
+                        .await
+                        .is_err()
+                    {
                         skipped += 1;
                         errors.push(format!("{}: bot not found in project", c.command));
                         continue;
@@ -2311,16 +2310,14 @@ pub async fn export_csv(
     {
         Ok(c) => c,
         Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}"))
-                .into_response();
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response();
         }
     };
     use futures::TryStreamExt;
     let docs: Vec<Document> = match cursor.try_collect().await {
         Ok(v) => v,
         Err(e) => {
-            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}"))
-                .into_response();
+            return (StatusCode::INTERNAL_SERVER_ERROR, format!("mongo: {e}")).into_response();
         }
     };
     let rows: Vec<CommandRow> = docs.iter().filter_map(doc_to_row).collect();
@@ -2362,4 +2359,3 @@ pub async fn export_csv(
     );
     (StatusCode::OK, headers, body).into_response()
 }
-

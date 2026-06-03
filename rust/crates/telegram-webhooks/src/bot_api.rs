@@ -88,14 +88,7 @@ impl BotApiClient {
     ) -> Result<bool, BotApiError> {
         let url = format!("{BASE_URL}/bot{token}/deleteWebhook");
         let body = serde_json::json!({ "drop_pending_updates": drop_pending_updates });
-        let env: Envelope<bool> = self
-            .http
-            .post(url)
-            .json(&body)
-            .send()
-            .await?
-            .json()
-            .await?;
+        let env: Envelope<bool> = self.http.post(url).json(&body).send().await?.json().await?;
         unwrap_envelope(env)
     }
 
@@ -118,7 +111,8 @@ fn unwrap_envelope<T>(env: Envelope<T>) -> Result<T, BotApiError> {
             .ok_or_else(|| BotApiError::Api("missing result".to_owned()))
     } else {
         Err(BotApiError::Api(
-            env.description.unwrap_or_else(|| "unknown error".to_owned()),
+            env.description
+                .unwrap_or_else(|| "unknown error".to_owned()),
         ))
     }
 }

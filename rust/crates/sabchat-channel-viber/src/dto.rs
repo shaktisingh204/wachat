@@ -35,7 +35,7 @@ pub struct IngestReq {
 
     #[serde(default)]
     pub audio_url: Option<String>,
-    
+
     #[serde(default)]
     pub file_url: Option<String>,
 

@@ -64,19 +64,12 @@ pub async fn list_annotations(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SablensAnnotation>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.find"))
-        })?;
-    let mut rows: Vec<SablensAnnotation> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.find"))
+    })?;
+    let mut rows: Vec<SablensAnnotation> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -138,12 +131,9 @@ pub async fn create_annotation(
         created_at: now,
     };
     let coll = mongo.collection::<SablensAnnotation>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_annotations.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

@@ -69,10 +69,7 @@ fn parse_date(s: &str) -> Option<BsonDateTime> {
         .map(|d| BsonDateTime::from_chrono(d.with_timezone(&Utc)))
 }
 
-fn review_from_create(
-    input: CreateReviewInput,
-    user_id: ObjectId,
-) -> Result<CrmAppraisalReview> {
+fn review_from_create(input: CreateReviewInput, user_id: ObjectId) -> Result<CrmAppraisalReview> {
     if input.employee_name.trim().is_empty() {
         return Err(ApiError::Validation("employeeName is required".to_owned()));
     }
@@ -239,8 +236,7 @@ pub async fn create_review(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

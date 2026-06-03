@@ -453,10 +453,7 @@ pub async fn save_audience_segment(
     if let Some(c) = body.filter_country.filter(|s| !s.is_empty()) {
         filters.insert("country", c);
     }
-    if let Some(g) = body
-        .filter_gender
-        .filter(|s| !s.is_empty() && s != "all")
-    {
+    if let Some(g) = body.filter_gender.filter(|s| !s.is_empty() && s != "all") {
         filters.insert("gender", g);
     }
     if let Some(min) = body.filter_age_min {

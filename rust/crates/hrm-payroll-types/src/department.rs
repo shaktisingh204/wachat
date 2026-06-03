@@ -166,9 +166,15 @@ mod tests {
         assert!(json.get("parentDepartmentId").is_none(), "None should skip");
         assert!(json.get("headId").is_some());
         assert!(json.get("costCenter").is_some());
-        assert_eq!(json.get("name").and_then(|v| v.as_str()), Some("Engineering"));
+        assert_eq!(
+            json.get("name").and_then(|v| v.as_str()),
+            Some("Engineering")
+        );
         // Default-true `active` is skipped.
-        assert!(json.get("active").is_none(), "true active should skip-serialize");
+        assert!(
+            json.get("active").is_none(),
+            "true active should skip-serialize"
+        );
 
         // Round-trip back.
         let back: Department = serde_json::from_value(json).unwrap();

@@ -52,10 +52,7 @@ pub(crate) struct SessionDoc {
 ///   response so the widget treats both as "your session is gone, get
 ///   a fresh one";
 /// - `ApiError::Internal` on Mongo failure.
-pub(crate) async fn resolve_session(
-    mongo: &MongoHandle,
-    token: &str,
-) -> Result<SessionDoc> {
+pub(crate) async fn resolve_session(mongo: &MongoHandle, token: &str) -> Result<SessionDoc> {
     if token.trim().is_empty() {
         return Err(ApiError::Unauthorized("missing visitor token".to_owned()));
     }
@@ -134,7 +131,10 @@ mod tests {
     fn token_is_64_lowercase_hex() {
         let t = new_token();
         assert_eq!(t.len(), 64);
-        assert!(t.chars().all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase()));
+        assert!(
+            t.chars()
+                .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+        );
     }
 
     #[test]

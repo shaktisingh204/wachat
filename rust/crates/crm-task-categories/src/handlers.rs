@@ -84,8 +84,9 @@ fn parse_optional_parent(raw: Option<String>) -> Result<Option<Option<ObjectId>>
                 // Caller is explicitly clearing the parent.
                 Ok(Some(None))
             } else {
-                let oid = ObjectId::parse_str(trimmed)
-                    .map_err(|_| ApiError::Validation("parentId is not a valid ObjectId".to_owned()))?;
+                let oid = ObjectId::parse_str(trimmed).map_err(|_| {
+                    ApiError::Validation("parentId is not a valid ObjectId".to_owned())
+                })?;
                 Ok(Some(Some(oid)))
             }
         }
@@ -274,8 +275,7 @@ pub async fn create_task_category(
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

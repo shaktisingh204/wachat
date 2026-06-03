@@ -11,25 +11,55 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
 };
 
+use ad_manager::AdManagerState;
 use axum::extract::FromRef;
 use chrono::{DateTime, Utc};
+use email_api::EmailApiState;
+use email_audience::EmailAudienceState;
+use email_campaigns::EmailCampaignsState;
+use email_deliverability::EmailDeliverabilityState;
+use email_events::EmailEventsState;
+use email_inbound::EmailInboundState;
+use email_inbox::EmailInboxState;
+use email_journeys::EmailJourneysState;
+use email_reports::EmailReportsState;
+use email_templates::EmailTemplatesState;
+use email_webhooks::EmailWebhooksState;
 use facebook_flow::FacebookFlowState;
 use meta_flows::MetaFlowsState;
 use meta_suite::MetaSuiteState;
 use meta_token::MetaTokenState;
 use qr_codes::QrCodesState;
-use url_shortener::UrlShortenerState;
-use ad_manager::AdManagerState;
 use sabfiles::SabfilesState;
+use sabflow_engine::SabflowEngineState;
+use sabflow_engine_runtime::SabflowRuntimeState;
 use sabnode_auth::AuthConfig;
 use sabnode_db::{mongo::MongoHandle, redis::RedisHandle};
+use telegram_ads::TelegramAdsState;
+use telegram_analytics::TelegramAnalyticsState;
+use telegram_api_credentials::TelegramApiCredentialsState;
+use telegram_auto_reply::TelegramAutoReplyState;
+use telegram_bot_profile::TelegramBotProfileState;
+use telegram_bots::TelegramBotsState;
+use telegram_broadcasts::TelegramBroadcastsState;
+use telegram_business_inbox::TelegramBusinessInboxState;
+use telegram_channels::TelegramChannelsState;
+use telegram_chats::TelegramChatsState;
+use telegram_commands::TelegramCommandsState;
+use telegram_contacts::TelegramContactsState;
+use telegram_flows::TelegramFlowsState;
+use telegram_mini_apps::TelegramMiniAppsState;
+use telegram_payments::TelegramPaymentsState;
+use telegram_settings::TelegramSettingsState;
+use telegram_stickers::TelegramStickersState;
+use telegram_stories::TelegramStoriesState;
+use telegram_webhooks::TelegramWebhooksState;
+use url_shortener::UrlShortenerState;
 use wachat_analytics::WachatAnalyticsState;
+use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_broadcast::WachatBroadcastState;
 use wachat_calling::WachatCallingState;
 use wachat_config::WachatConfigState;
-use wachat_features::WachatFeaturesState;
-use wachat_pay::WachatPayState;
-use wachat_api_keys_admin::WachatApiKeysAdminState;
 use wachat_contacts::WachatContactsState;
 use wachat_facebook_agents::WachatFacebookAgentsState;
 use wachat_facebook_automation::WachatFacebookAutomationState;
@@ -43,40 +73,10 @@ use wachat_facebook_messaging::WachatFacebookMessagingState;
 use wachat_facebook_messenger_profile::WachatFacebookMessengerProfileState;
 use wachat_facebook_misc::WachatFacebookMiscState;
 use wachat_facebook_pages::WachatFacebookPagesState;
+use wachat_features::WachatFeaturesState;
 use wachat_flows::WachatFlowsState;
 use wachat_instagram::WachatInstagramState;
-use telegram_bots::TelegramBotsState;
-use telegram_chats::TelegramChatsState;
-use telegram_broadcasts::TelegramBroadcastsState;
-use telegram_auto_reply::TelegramAutoReplyState;
-use telegram_commands::TelegramCommandsState;
-use telegram_bot_profile::TelegramBotProfileState;
-use telegram_channels::TelegramChannelsState;
-use telegram_analytics::TelegramAnalyticsState;
-use telegram_payments::TelegramPaymentsState;
-use telegram_stickers::TelegramStickersState;
-use telegram_stories::TelegramStoriesState;
-use telegram_flows::TelegramFlowsState;
-use telegram_mini_apps::TelegramMiniAppsState;
-use telegram_ads::TelegramAdsState;
-use telegram_api_credentials::TelegramApiCredentialsState;
-use telegram_business_inbox::TelegramBusinessInboxState;
-use telegram_contacts::TelegramContactsState;
-use telegram_settings::TelegramSettingsState;
-use telegram_webhooks::TelegramWebhooksState;
-use sabflow_engine::SabflowEngineState;
-use sabflow_engine_runtime::SabflowRuntimeState;
-use email_audience::EmailAudienceState;
-use email_templates::EmailTemplatesState;
-use email_inbox::EmailInboxState;
-use email_inbound::EmailInboundState;
-use email_deliverability::EmailDeliverabilityState;
-use email_api::EmailApiState;
-use email_webhooks::EmailWebhooksState;
-use email_campaigns::EmailCampaignsState;
-use email_events::EmailEventsState;
-use email_reports::EmailReportsState;
-use email_journeys::EmailJourneysState;
+use wachat_pay::WachatPayState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -96,46 +96,46 @@ use sabchat_routing::SabChatRoutingState;
 use sabchat_widget::SabChatWidgetState;
 use sabchat_ws::{SabChatWsState, WsHub};
 
-use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
-use sabchat_channel_instagram::SabChatChannelInstagramState;
-use sabchat_channel_facebook::SabChatChannelFacebookState;
-use sabchat_channel_telegram::SabChatChannelTelegramState;
-use sabchat_channel_email::SabChatChannelEmailState;
-use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_ad_attribution::SabChatAdAttributionState;
 use sabchat_ai_copilot::SabChatAiCopilotState;
-use sabchat_ai_translate::SabChatAiTranslateState;
-use sabchat_ai_sentiment::SabChatAiSentimentState;
+use sabchat_ai_qa::SabChatAiQaState;
 use sabchat_ai_resolve_bot::SabChatAiResolveBotState;
-use sabchat_macros::SabChatMacrosState;
-use sabchat_sla::SabChatSlaState;
+use sabchat_ai_sentiment::SabChatAiSentimentState;
+use sabchat_ai_translate::SabChatAiTranslateState;
+use sabchat_ai_voc::SabChatAiVocState;
 use sabchat_business_hours::SabChatBusinessHoursState;
-use sabchat_crm_bridge::SabChatCrmBridgeState;
-use sabchat_knowledge::SabChatKnowledgeState;
-use sabchat_commerce::SabChatCommerceState;
-use sabchat_reports::SabChatReportsState;
-use sabchat_teams::SabChatTeamsState;
-use sabchat_webhooks::SabChatWebhooksState;
-use sabchat_public_api::SabChatPublicApiState;
-use sabchat_events::SabChatEventsState;
-use sabchat_voice::SabChatVoiceState;
+use sabchat_cart_recovery::SabChatCartRecoveryState;
+use sabchat_channel_apple::SabChatChannelAppleState;
+use sabchat_channel_email::SabChatChannelEmailState;
+use sabchat_channel_facebook::SabChatChannelFacebookState;
+use sabchat_channel_gbm::SabChatChannelGbmState;
+use sabchat_channel_instagram::SabChatChannelInstagramState;
+use sabchat_channel_line::SabChatChannelLineState;
+use sabchat_channel_sms::SabChatChannelSmsState;
+use sabchat_channel_telegram::SabChatChannelTelegramState;
+use sabchat_channel_viber::SabChatChannelViberState;
+use sabchat_channel_whatsapp::SabChatChannelWhatsappState;
+use sabchat_channel_x::SabChatChannelXState;
 use sabchat_cobrowse::SabChatCobrowseState;
-use sabchat_shifts::SabChatShiftsState;
+use sabchat_commerce::SabChatCommerceState;
+use sabchat_compliance::SabChatComplianceState;
+use sabchat_crm_bridge::SabChatCrmBridgeState;
 use sabchat_csat::SabChatCsatState;
 use sabchat_dispositions::SabChatDispositionsState;
+use sabchat_events::SabChatEventsState;
 use sabchat_gamification::SabChatGamificationState;
-use sabchat_compliance::SabChatComplianceState;
-use sabchat_sso::SabChatSsoState;
-use sabchat_ai_qa::SabChatAiQaState;
-use sabchat_ai_voc::SabChatAiVocState;
-use sabchat_sabflow_nodes::SabChatSabflowNodesState;
-use sabchat_cart_recovery::SabChatCartRecoveryState;
-use sabchat_ad_attribution::SabChatAdAttributionState;
-use sabchat_channel_line::SabChatChannelLineState;
-use sabchat_channel_viber::SabChatChannelViberState;
-use sabchat_channel_apple::SabChatChannelAppleState;
-use sabchat_channel_gbm::SabChatChannelGbmState;
-use sabchat_channel_x::SabChatChannelXState;
+use sabchat_knowledge::SabChatKnowledgeState;
+use sabchat_macros::SabChatMacrosState;
 use sabchat_marketplace::SabChatMarketplaceState;
+use sabchat_public_api::SabChatPublicApiState;
+use sabchat_reports::SabChatReportsState;
+use sabchat_sabflow_nodes::SabChatSabflowNodesState;
+use sabchat_shifts::SabChatShiftsState;
+use sabchat_sla::SabChatSlaState;
+use sabchat_sso::SabChatSsoState;
+use sabchat_teams::SabChatTeamsState;
+use sabchat_voice::SabChatVoiceState;
+use sabchat_webhooks::SabChatWebhooksState;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -397,7 +397,9 @@ impl AppState {
         sabchat_marketplace: SabChatMarketplaceState,
     ) -> Self {
         let sabchat_ws_hub = WsHub::new(redis.clone());
-        let sabchat_ws = SabChatWsState { hub: sabchat_ws_hub.clone() };
+        let sabchat_ws = SabChatWsState {
+            hub: sabchat_ws_hub.clone(),
+        };
         Self {
             started_at: Utc::now(),
             mongo,
@@ -795,28 +797,116 @@ impl FromRef<AppState> for SabChatTeamsState {
     }
 }
 
-impl FromRef<AppState> for SabChatWebhooksState { fn from_ref(s: &AppState) -> Self { s.sabchat_webhooks.clone() } }
-impl FromRef<AppState> for SabChatPublicApiState { fn from_ref(s: &AppState) -> Self { s.sabchat_public_api.clone() } }
-impl FromRef<AppState> for SabChatEventsState { fn from_ref(s: &AppState) -> Self { s.sabchat_events.clone() } }
-impl FromRef<AppState> for SabChatVoiceState { fn from_ref(s: &AppState) -> Self { s.sabchat_voice.clone() } }
-impl FromRef<AppState> for SabChatCobrowseState { fn from_ref(s: &AppState) -> Self { s.sabchat_cobrowse.clone() } }
-impl FromRef<AppState> for SabChatShiftsState { fn from_ref(s: &AppState) -> Self { s.sabchat_shifts.clone() } }
-impl FromRef<AppState> for SabChatCsatState { fn from_ref(s: &AppState) -> Self { s.sabchat_csat.clone() } }
-impl FromRef<AppState> for SabChatDispositionsState { fn from_ref(s: &AppState) -> Self { s.sabchat_dispositions.clone() } }
-impl FromRef<AppState> for SabChatGamificationState { fn from_ref(s: &AppState) -> Self { s.sabchat_gamification.clone() } }
-impl FromRef<AppState> for SabChatComplianceState { fn from_ref(s: &AppState) -> Self { s.sabchat_compliance.clone() } }
-impl FromRef<AppState> for SabChatSsoState { fn from_ref(s: &AppState) -> Self { s.sabchat_sso.clone() } }
-impl FromRef<AppState> for SabChatAiQaState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_qa.clone() } }
-impl FromRef<AppState> for SabChatAiVocState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_voc.clone() } }
-impl FromRef<AppState> for SabChatSabflowNodesState { fn from_ref(s: &AppState) -> Self { s.sabchat_sabflow_nodes.clone() } }
-impl FromRef<AppState> for SabChatCartRecoveryState { fn from_ref(s: &AppState) -> Self { s.sabchat_cart_recovery.clone() } }
-impl FromRef<AppState> for SabChatAdAttributionState { fn from_ref(s: &AppState) -> Self { s.sabchat_ad_attribution.clone() } }
-impl FromRef<AppState> for SabChatChannelLineState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_line.clone() } }
-impl FromRef<AppState> for SabChatChannelViberState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_viber.clone() } }
-impl FromRef<AppState> for SabChatChannelAppleState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_apple.clone() } }
-impl FromRef<AppState> for SabChatChannelGbmState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_gbm.clone() } }
-impl FromRef<AppState> for SabChatChannelXState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_x.clone() } }
-impl FromRef<AppState> for SabChatMarketplaceState { fn from_ref(s: &AppState) -> Self { s.sabchat_marketplace.clone() } }
+impl FromRef<AppState> for SabChatWebhooksState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_webhooks.clone()
+    }
+}
+impl FromRef<AppState> for SabChatPublicApiState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_public_api.clone()
+    }
+}
+impl FromRef<AppState> for SabChatEventsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_events.clone()
+    }
+}
+impl FromRef<AppState> for SabChatVoiceState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_voice.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCobrowseState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_cobrowse.clone()
+    }
+}
+impl FromRef<AppState> for SabChatShiftsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_shifts.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCsatState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_csat.clone()
+    }
+}
+impl FromRef<AppState> for SabChatDispositionsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_dispositions.clone()
+    }
+}
+impl FromRef<AppState> for SabChatGamificationState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_gamification.clone()
+    }
+}
+impl FromRef<AppState> for SabChatComplianceState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_compliance.clone()
+    }
+}
+impl FromRef<AppState> for SabChatSsoState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_sso.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiQaState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_qa.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiVocState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_voc.clone()
+    }
+}
+impl FromRef<AppState> for SabChatSabflowNodesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_sabflow_nodes.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCartRecoveryState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_cart_recovery.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAdAttributionState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ad_attribution.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelLineState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_line.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelViberState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_viber.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelAppleState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_apple.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelGbmState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_gbm.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelXState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_x.clone()
+    }
+}
+impl FromRef<AppState> for SabChatMarketplaceState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_marketplace.clone()
+    }
+}
 
 impl FromRef<AppState> for SabfilesState {
     fn from_ref(s: &AppState) -> Self {
@@ -1017,58 +1107,144 @@ impl FromRef<AppState> for EmailJourneysState {
 }
 
 impl FromRef<AppState> for SabChatInboxesState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_inboxes.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_inboxes.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatContactsState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_contacts.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_contacts.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatConversationsState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_conversations.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_conversations.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatMessagesState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_messages.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_messages.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatAuditState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_audit.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_audit.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatRoutingState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_routing.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_routing.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatWidgetState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_widget.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_widget.clone()
+    }
 }
 
 impl FromRef<AppState> for SabChatWsState {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_ws.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ws.clone()
+    }
 }
 
 impl FromRef<AppState> for WsHub {
-    fn from_ref(s: &AppState) -> Self { s.sabchat_ws_hub.clone() }
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ws_hub.clone()
+    }
 }
 
-impl FromRef<AppState> for SabChatChannelWhatsappState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_whatsapp.clone() } }
-impl FromRef<AppState> for SabChatChannelInstagramState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_instagram.clone() } }
-impl FromRef<AppState> for SabChatChannelFacebookState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_facebook.clone() } }
-impl FromRef<AppState> for SabChatChannelTelegramState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_telegram.clone() } }
-impl FromRef<AppState> for SabChatChannelEmailState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_email.clone() } }
-impl FromRef<AppState> for SabChatChannelSmsState { fn from_ref(s: &AppState) -> Self { s.sabchat_channel_sms.clone() } }
-impl FromRef<AppState> for SabChatAiCopilotState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_copilot.clone() } }
-impl FromRef<AppState> for SabChatAiTranslateState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_translate.clone() } }
-impl FromRef<AppState> for SabChatAiSentimentState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_sentiment.clone() } }
-impl FromRef<AppState> for SabChatAiResolveBotState { fn from_ref(s: &AppState) -> Self { s.sabchat_ai_resolve_bot.clone() } }
-impl FromRef<AppState> for SabChatMacrosState { fn from_ref(s: &AppState) -> Self { s.sabchat_macros.clone() } }
-impl FromRef<AppState> for SabChatSlaState { fn from_ref(s: &AppState) -> Self { s.sabchat_sla.clone() } }
-impl FromRef<AppState> for SabChatBusinessHoursState { fn from_ref(s: &AppState) -> Self { s.sabchat_business_hours.clone() } }
-impl FromRef<AppState> for SabChatCrmBridgeState { fn from_ref(s: &AppState) -> Self { s.sabchat_crm_bridge.clone() } }
-impl FromRef<AppState> for SabChatKnowledgeState { fn from_ref(s: &AppState) -> Self { s.sabchat_knowledge.clone() } }
-impl FromRef<AppState> for SabChatCommerceState { fn from_ref(s: &AppState) -> Self { s.sabchat_commerce.clone() } }
-impl FromRef<AppState> for SabChatReportsState { fn from_ref(s: &AppState) -> Self { s.sabchat_reports.clone() } }
+impl FromRef<AppState> for SabChatChannelWhatsappState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_whatsapp.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelInstagramState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_instagram.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelFacebookState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_facebook.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelTelegramState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_telegram.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelEmailState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_email.clone()
+    }
+}
+impl FromRef<AppState> for SabChatChannelSmsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_channel_sms.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiCopilotState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_copilot.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiTranslateState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_translate.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiSentimentState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_sentiment.clone()
+    }
+}
+impl FromRef<AppState> for SabChatAiResolveBotState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_ai_resolve_bot.clone()
+    }
+}
+impl FromRef<AppState> for SabChatMacrosState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_macros.clone()
+    }
+}
+impl FromRef<AppState> for SabChatSlaState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_sla.clone()
+    }
+}
+impl FromRef<AppState> for SabChatBusinessHoursState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_business_hours.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCrmBridgeState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_crm_bridge.clone()
+    }
+}
+impl FromRef<AppState> for SabChatKnowledgeState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_knowledge.clone()
+    }
+}
+impl FromRef<AppState> for SabChatCommerceState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_commerce.clone()
+    }
+}
+impl FromRef<AppState> for SabChatReportsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.sabchat_reports.clone()
+    }
+}
 // (SabChatTeamsState FromRef impl already defined at line ~792 — second
 // declaration removed to avoid E0119 conflicting-impl.)
 

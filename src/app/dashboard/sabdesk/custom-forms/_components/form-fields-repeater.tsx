@@ -1,10 +1,7 @@
-'use client';
+"use client";
 
-import { Button, Input, Label, Switch, Textarea } from '@/components/zoruui';
-import {
-  GripVertical,
-  Plus,
-  Trash2 } from 'lucide-react';
+import { Button, Input, Label, Switch, Textarea } from "@/components/zoruui";
+import { GripVertical, Plus, Trash2 } from "lucide-react";
 
 /**
  * <FormFieldsRepeater /> — structured add/remove rows for ticket
@@ -17,13 +14,13 @@ import {
  * out of FormData in order.
  */
 
-import * as React from 'react';
+import * as React from "react";
 
-import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EnumFormField } from "@/components/crm/enum-form-field";
 
-import type { CrmFormFieldDef } from '@/lib/rust-client/crm-forms';
+import type { CrmFormFieldDef } from "@/lib/rust-client/crm-forms";
 
-const OPTIONS_TYPES = new Set(['select', 'radio', 'checkbox']);
+const OPTIONS_TYPES = new Set(["select", "radio", "checkbox"]);
 
 interface RowState extends CrmFormFieldDef {
   /** Stable key for React reconciliation across reorders. */
@@ -41,9 +38,7 @@ function toRows(initial: CrmFormFieldDef[] | undefined): RowState[] {
 
 function getDuplicateNames(rows: RowState[]): Set<string> {
   const names = rows.map((r) => r.name.trim());
-  return new Set(
-    names.filter((n, idx) => n && names.indexOf(n) !== idx)
-  );
+  return new Set(names.filter((n, idx) => n && names.indexOf(n) !== idx));
 }
 
 export interface FormFieldsRepeaterProps {
@@ -51,18 +46,20 @@ export interface FormFieldsRepeaterProps {
 }
 
 export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
-  const [rows, setRows] = React.useState<RowState[]>(() => toRows(initialFields));
+  const [rows, setRows] = React.useState<RowState[]>(() =>
+    toRows(initialFields),
+  );
 
   const addRow = () => {
     setRows((r) => [
       ...r,
       {
         __key: nextKey(),
-        name: '',
-        label: '',
-        type: 'text',
+        name: "",
+        label: "",
+        type: "text",
         required: false,
-        placeholder: '',
+        placeholder: "",
         options: [],
       },
     ]);
@@ -86,7 +83,9 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
   };
 
   const updateRow = (key: string, patch: Partial<RowState>) => {
-    setRows((r) => r.map((row) => (row.__key === key ? { ...row, ...patch } : row)));
+    setRows((r) =>
+      r.map((row) => (row.__key === key ? { ...row, ...patch } : row)),
+    );
   };
 
   return (
@@ -113,10 +112,11 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
       ) : (
         <div className="space-y-3">
           {rows.map((row, idx) => {
-            const needsOptions = OPTIONS_TYPES.has(row.type ?? 'text');
+            const needsOptions = OPTIONS_TYPES.has(row.type ?? "text");
             const prefix = `fields[${idx}]`;
             const duplicateNames = getDuplicateNames(rows);
-            const isDuplicate = row.name.trim() && duplicateNames.has(row.name.trim());
+            const isDuplicate =
+              row.name.trim() && duplicateNames.has(row.name.trim());
             return (
               <div
                 key={row.__key}
@@ -173,17 +173,21 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                         const val = e.target.value;
                         e.target.setCustomValidity(
                           !val.match(/^[a-zA-Z0-9_-]+$/)
-                            ? 'Only alphanumeric characters, underscores, and hyphens are allowed.'
-                            : duplicateNames.has(val.trim()) && rows.filter((r) => r.name.trim() === val.trim()).length > 1
-                            ? 'Field name must be unique.'
-                            : ''
+                            ? "Only alphanumeric characters, underscores, and hyphens are allowed."
+                            : duplicateNames.has(val.trim()) &&
+                                rows.filter((r) => r.name.trim() === val.trim())
+                                  .length > 1
+                              ? "Field name must be unique."
+                              : "",
                         );
                         updateRow(row.__key, { name: val });
                       }}
                       className="font-mono"
                     />
                     {isDuplicate ? (
-                      <p className="text-xs text-zoru-ink">This field name is already in use.</p>
+                      <p className="text-xs text-zoru-ink">
+                        This field name is already in use.
+                      </p>
                     ) : null}
                   </div>
                   <div className="space-y-1.5">
@@ -192,7 +196,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                       id={`${prefix}-label`}
                       name={`${prefix}[label]`}
                       placeholder="e.g. Order ID"
-                      value={row.label ?? ''}
+                      value={row.label ?? ""}
                       onChange={(e) =>
                         updateRow(row.__key, { label: e.target.value })
                       }
@@ -203,23 +207,21 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     <EnumFormField
                       enumName="formFieldType"
                       name={`${prefix}[type]`}
-                      initialId={row.type ?? 'text'}
+                      initialId={row.type ?? "text"}
                       placeholder="Type"
                       allowInlineCreate={false}
                       onChange={(v) =>
-                        updateRow(row.__key, { type: v ?? 'text' })
+                        updateRow(row.__key, { type: v ?? "text" })
                       }
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor={`${prefix}-placeholder`}>
-                      Placeholder
-                    </Label>
+                    <Label htmlFor={`${prefix}-placeholder`}>Placeholder</Label>
                     <Input
                       id={`${prefix}-placeholder`}
                       name={`${prefix}[placeholder]`}
                       placeholder="Optional hint shown inside the input"
-                      value={row.placeholder ?? ''}
+                      value={row.placeholder ?? ""}
                       onChange={(e) =>
                         updateRow(row.__key, { placeholder: e.target.value })
                       }
@@ -227,15 +229,13 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                   </div>
                   {needsOptions ? (
                     <div className="space-y-1.5 sm:col-span-2">
-                      <Label htmlFor={`${prefix}-options`}>
-                        Options
-                      </Label>
+                      <Label htmlFor={`${prefix}-options`}>Options</Label>
                       <Textarea
                         id={`${prefix}-options`}
                         name={`${prefix}[options]`}
                         rows={3}
                         placeholder="One per line — or comma-separated"
-                        value={(row.options ?? []).join('\n')}
+                        value={(row.options ?? []).join("\n")}
                         onChange={(e) =>
                           updateRow(row.__key, {
                             options: e.target.value
@@ -249,9 +249,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                   ) : null}
                   <div className="flex items-center justify-between rounded-md border border-zoru-line px-3 py-2 sm:col-span-2">
                     <div className="flex flex-col">
-                      <Label htmlFor={`${prefix}-required`}>
-                        Required
-                      </Label>
+                      <Label htmlFor={`${prefix}-required`}>Required</Label>
                       <span className="text-xs text-zoru-ink-muted">
                         Must be filled before the form can be submitted.
                       </span>
@@ -266,7 +264,7 @@ export function FormFieldsRepeater({ initialFields }: FormFieldsRepeaterProps) {
                     <input
                       type="hidden"
                       name={`${prefix}[required]`}
-                      value={row.required ? 'true' : 'false'}
+                      value={row.required ? "true" : "false"}
                     />
                   </div>
                 </div>

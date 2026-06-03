@@ -55,11 +55,7 @@ fn tenant_oid(user: &AuthUser) -> Result<ObjectId> {
 /// Reject a policy body that ticks no clocks. At least one timer field
 /// must be present — a policy with all three set to `None` has no
 /// effect and is almost certainly a UI bug.
-fn ensure_some_timer(
-    first: Option<u32>,
-    next: Option<u32>,
-    resolution: Option<u32>,
-) -> Result<()> {
+fn ensure_some_timer(first: Option<u32>, next: Option<u32>, resolution: Option<u32>) -> Result<()> {
     if first.is_none() && next.is_none() && resolution.is_none() {
         return Err(ApiError::Validation(
             "At least one of firstResponseMinutes, nextResponseMinutes, or \
@@ -306,11 +302,9 @@ pub async fn create_policy(
     }
 
     let coll = state.mongo.collection::<Document>(SLA_POLICIES_COLL);
-    coll.insert_one(new_doc.clone())
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabchat_sla_policies.insert_one"))
-        })?;
+    coll.insert_one(new_doc.clone()).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabchat_sla_policies.insert_one"))
+    })?;
 
     let rendered = render_policy(new_doc)?;
     Ok(Json(rendered))
@@ -399,7 +393,12 @@ pub async fn update_policy(
     let policy_oid = oid_from_str(&id)?;
 
     let mut update = doc! { "updatedAt": bson::DateTime::from_chrono(Utc::now()) };
-    if let Some(name) = body.name.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(name) = body
+        .name
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         update.insert("name", name);
     }
     if let Some(applies) = &body.applies_to {
@@ -547,9 +546,9 @@ pub async fn apply_to_conversation(
             }
         }
     }
-    let policy = best
-        .map(|(_, doc)| doc)
-        .ok_or_else(|| ApiError::NotFound("No active SLA policy matches this conversation.".to_owned()))?;
+    let policy = best.map(|(_, doc)| doc).ok_or_else(|| {
+        ApiError::NotFound("No active SLA policy matches this conversation.".to_owned())
+    })?;
 
     // ---- 3. Compute the three due-at timestamps. ---------------------------
     let now_chrono = Utc::now();
@@ -671,7 +670,9 @@ pub async fn sweep(
 
         // Only touch the row when the cached value drifts — keeps
         // `updatedAt` churn proportional to actual state changes.
-        let cached = sla.and_then(|s| s.get_bool("breached").ok()).unwrap_or(false);
+        let cached = sla
+            .and_then(|s| s.get_bool("breached").ok())
+            .unwrap_or(false);
         if cached != is_breached {
             // Set just the leaf so we don't clobber the due-at
             // timestamps. `sla.breached` is a dotted path under `$set`.

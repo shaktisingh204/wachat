@@ -101,7 +101,10 @@ pub struct CreatePaymentReceiptInput {
     /* ----- mode-specific details ----- */
     #[serde(default)]
     pub cheque_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional"
+    )]
     pub cheque_date: Option<DateTime<Utc>>,
     #[serde(default)]
     pub txn_id: Option<String>,
@@ -152,14 +155,22 @@ pub struct CreatePaymentReceiptInput {
 pub struct UpdatePaymentReceiptInput {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub receipt_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bank_account_id: Option<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cheque_no: Option<String>,
-    #[serde(default, with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional", skip_serializing_if = "Option::is_none")]
+    #[serde(
+        default,
+        with = "bson::serde_helpers::chrono_datetime_as_bson_datetime_optional",
+        skip_serializing_if = "Option::is_none"
+    )]
     pub cheque_date: Option<DateTime<Utc>>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub txn_id: Option<String>,

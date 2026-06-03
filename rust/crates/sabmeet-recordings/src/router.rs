@@ -2,7 +2,11 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -19,7 +23,13 @@ where
             "/",
             get(handlers::list_recordings).post(handlers::start_recording),
         )
-        .route("/{recordingId}", axum::routing::delete(handlers::delete_recording))
-        .route("/{recordingId}/complete", post(handlers::complete_recording))
+        .route(
+            "/{recordingId}",
+            axum::routing::delete(handlers::delete_recording),
+        )
+        .route(
+            "/{recordingId}/complete",
+            post(handlers::complete_recording),
+        )
         .route("/{recordingId}/fail", post(handlers::fail_recording))
 }

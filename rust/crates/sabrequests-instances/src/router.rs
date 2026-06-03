@@ -4,7 +4,11 @@
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::{get, post}};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -27,8 +31,5 @@ where
                 .patch(handlers::update_request)
                 .delete(handlers::delete_request),
         )
-        .route(
-            "/{requestId}/decision",
-            post(handlers::decide_request),
-        )
+        .route("/{requestId}/decision", post(handlers::decide_request))
 }

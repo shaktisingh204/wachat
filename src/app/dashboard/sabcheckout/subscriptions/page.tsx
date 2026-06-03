@@ -3,12 +3,18 @@
  *
  * Lists every subscription record with a row-level cancel action.
  */
+import { Download } from 'lucide-react';
+
 import {
   Card,
-  ZoruCardContent,
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  Button
 } from '@/components/zoruui';
 
 import { listSabcheckoutSubscriptions } from '@/app/actions/sabcheckout.actions';
@@ -20,13 +26,23 @@ export default async function SabcheckoutSubscriptionsPage() {
   const res = await listSabcheckoutSubscriptions({ status: 'all', limit: 100 });
 
   return (
-    <div className="zoruui space-y-6 p-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">Subscriptions</h1>
-        <p className="text-sm text-[var(--zoru-muted-fg)]">
-          Active, past-due, paused, or cancelled subscriptions.
-        </p>
-      </header>
+    <div className="flex w-full flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <PageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Subscriptions</ZoruPageTitle>
+            <ZoruPageDescription>
+              Active, past-due, paused, or cancelled subscriptions.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </PageHeader>
+        <div className="flex items-center gap-2">
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
+      </div>
 
       {!res.ok ? (
         <Card>

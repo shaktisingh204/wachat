@@ -70,10 +70,7 @@ pub async fn issue_token(
     Json(input): Json<IssueTokenInput>,
 ) -> Result<Json<IssueTokenResponse>> {
     let user_id = user_oid(&user)?;
-    let ttl = input
-        .ttl_seconds
-        .unwrap_or(3600)
-        .clamp(60, 604_800);
+    let ttl = input.ttl_seconds.unwrap_or(3600).clamp(60, 604_800);
     let expires_at = Utc::now() + Duration::seconds(ttl as i64);
 
     if let Some(os) = &input.intended_os {
@@ -166,7 +163,9 @@ pub async fn redeem_token(
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabops_agent_tokens.lookup"))
         })?
-        .ok_or_else(|| ApiError::Validation("token invalid, expired, or already used".to_owned()))?;
+        .ok_or_else(|| {
+            ApiError::Validation("token invalid, expired, or already used".to_owned())
+        })?;
     let token_oid = token_doc
         .id
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("token doc missing _id")))?;

@@ -37,10 +37,7 @@ where
         )
         .route("/{sessionId}/start", post(handlers::start_session))
         .route("/{sessionId}/end", post(handlers::end_session))
-        .route(
-            "/{sessionId}/snapshots",
-            post(handlers::append_snapshot),
-        )
+        .route("/{sessionId}/snapshots", post(handlers::append_snapshot))
         .route(
             "/{sessionId}/customer-token",
             post(handlers::reissue_customer_token),
@@ -53,12 +50,6 @@ where
     MongoHandle: FromRef<S>,
 {
     Router::new()
-        .route(
-            "/{token}",
-            get(handlers::redeem_customer_token),
-        )
-        .route(
-            "/{token}/join",
-            post(handlers::customer_join),
-        )
+        .route("/{token}", get(handlers::redeem_customer_token))
+        .route("/{token}/join", post(handlers::customer_join))
 }

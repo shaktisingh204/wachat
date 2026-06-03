@@ -61,19 +61,12 @@ pub async fn list_actions(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<SablensActionLog>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.find"))
-        })?;
-    let mut rows: Vec<SablensActionLog> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.collect"))
-        })?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.find"))
+    })?;
+    let mut rows: Vec<SablensActionLog> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -118,12 +111,9 @@ pub async fn append_action(
         payload_json: input.payload_json,
     };
     let coll = mongo.collection::<SablensActionLog>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sablens_actions_log.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()

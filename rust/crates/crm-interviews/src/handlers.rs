@@ -82,10 +82,7 @@ fn parse_oid_vec(input: Option<Vec<String>>) -> Vec<ObjectId> {
         .collect()
 }
 
-fn interview_from_create(
-    input: CreateInterviewInput,
-    user_id: ObjectId,
-) -> Result<CrmInterview> {
+fn interview_from_create(input: CreateInterviewInput, user_id: ObjectId) -> Result<CrmInterview> {
     let candidate_id = ObjectId::parse_str(input.candidate_id.trim())
         .map_err(|_| ApiError::Validation("candidateId must be a valid ObjectId".to_owned()))?;
     let scheduled_at = parse_date(input.scheduled_at.trim())
@@ -135,7 +132,12 @@ fn interview_from_create(
 
 fn build_update_doc(patch: UpdateInterviewInput, before_status: &str) -> Result<Document> {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.candidate_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .candidate_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         let oid = ObjectId::parse_str(v)
             .map_err(|_| ApiError::Validation("candidateId must be a valid ObjectId".to_owned()))?;
         set.insert("candidateId", oid);
@@ -143,7 +145,12 @@ fn build_update_doc(patch: UpdateInterviewInput, before_status: &str) -> Result<
     if let Some(v) = patch.candidate_name {
         set.insert("candidateName", v);
     }
-    if let Some(v) = patch.job_id.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .job_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
         if let Ok(oid) = ObjectId::parse_str(v) {
             set.insert("jobId", oid);
         }
@@ -194,10 +201,7 @@ fn build_update_doc(patch: UpdateInterviewInput, before_status: &str) -> Result<
     }
     // Stamp completedAt on transition into "completed".
     if new_status_is_completed && before_status != "completed" {
-        set.insert(
-            "completedAt",
-            BsonDateTime::from_chrono(Utc::now()),
-        );
+        set.insert("completedAt", BsonDateTime::from_chrono(Utc::now()));
     }
     Ok(doc! { "$set": set })
 }
@@ -245,12 +249,14 @@ pub async fn list_interviews(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmInterview>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find"))
-    })?;
-    let mut rows: Vec<CrmInterview> = cursor.try_collect().await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.collect"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find"))
+        })?;
+    let mut rows: Vec<CrmInterview> = cursor
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.collect")))?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -275,9 +281,7 @@ pub async fn get_interview(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find_one")))?
         .ok_or_else(|| ApiError::NotFound("interview".to_owned()))?;
     Ok(Json(row))
 }
@@ -291,16 +295,16 @@ pub async fn create_interview(
     let user_id = user_oid(&user)?;
     let mut entity = interview_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmInterview>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }
@@ -323,26 +327,20 @@ pub async fn update_interview(
     let before = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.find_one")))?
         .ok_or_else(|| ApiError::NotFound("interview".to_owned()))?;
     let update = build_update_doc(patch, &before.status)?;
     let result = coll
         .update_one(ownership_filter(user_id, oid), update)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("interview".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.refetch")))?
         .ok_or_else(|| ApiError::NotFound("interview".to_owned()))?;
     if let Some(event) = audit_for_update(
         &user,
@@ -374,9 +372,7 @@ pub async fn delete_interview(
             }},
         )
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.archive"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_interviews.archive")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("interview".to_owned()));
     }

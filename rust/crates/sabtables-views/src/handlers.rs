@@ -73,11 +73,8 @@ pub async fn list_views(
     }
     let opts = FindOptions::builder().sort(doc! { "createdAt": 1 }).build();
     let coll = mongo.collection::<SabtablesView>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| {
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.find"))
         })?;
     let items: Vec<SabtablesView> = cursor.try_collect().await.map_err(|e| {
@@ -98,9 +95,7 @@ pub async fn get_view(
     let row = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.find_one"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.find_one")))?
         .ok_or_else(|| ApiError::NotFound("view".to_owned()))?;
     Ok(Json(row))
 }
@@ -128,9 +123,10 @@ pub async fn create_view(
         updated_at: None,
     };
     let coll = mongo.collection::<SabtablesView>(COLL);
-    let inserted = coll.insert_one(&entity).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.insert"))
-    })?;
+    let inserted = coll
+        .insert_one(&entity)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.insert")))?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
@@ -166,18 +162,14 @@ pub async fn update_view(
     let result = coll
         .update_one(ownership_filter(user_id, oid), doc! { "$set": set })
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.update"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.update")))?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("view".to_owned()));
     }
     let after = coll
         .find_one(ownership_filter(user_id, oid))
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.refetch"))
-        })?
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabtables_views.refetch")))?
         .ok_or_else(|| ApiError::NotFound("view".to_owned()))?;
     Ok(Json(after))
 }

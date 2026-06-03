@@ -252,9 +252,7 @@ pub async fn apply_policy(
     let matched = ep_coll
         .count_documents(ep_filter)
         .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.count"))
-        })?;
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabops_endpoints.count")))?;
 
     Ok(Json(ApplyPolicyResponse {
         matched_endpoints: matched,

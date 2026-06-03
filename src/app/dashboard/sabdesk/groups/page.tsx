@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ZoruAlertDialog,
@@ -36,19 +36,19 @@ import {
   Textarea,
   cn,
   useZoruToast,
-} from '@/components/zoruui';
-import { EntityFormField } from '@/components/crm/entity-form-field';
+} from "@/components/zoruui";
+import { EntityFormField } from "@/components/crm/entity-form-field";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import {
-  useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Download,
+  Download,
   Edit,
   LifeBuoy,
   LoaderCircle,
   Plus,
   Trash2,
   X,
-} from 'lucide-react';
+} from "lucide-react";
 
 /**
  * Ticket Groups — settings-style list (mirrors the Account Groups page).
@@ -62,29 +62,29 @@ import { Download,
  * thin shim over the Rust BFF at `/v1/crm/ticket-groups`.
  */
 
-import * as React from 'react';
+import * as React from "react";
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityListShell } from "@/components/crm/entity-list-shell";
+import { StatusPill, type StatusTone } from "@/components/crm/status-pill";
 
 import {
   deleteTicketGroup,
   getTicketGroups,
   saveTicketGroup,
   type SaveTicketGroupState,
-} from '@/app/actions/crm-ticket-groups.actions';
+} from "@/app/actions/crm-ticket-groups.actions";
 import type {
   CrmTicketGroupDoc,
   CrmTicketGroupStatus,
-} from '@/lib/rust-client/crm-ticket-groups';
+} from "@/lib/rust-client/crm-ticket-groups";
 
-type StatusFilter = 'all' | CrmTicketGroupStatus;
+type StatusFilter = "all" | CrmTicketGroupStatus;
 
 const saveInitialState: SaveTicketGroupState = {};
 
 const STATUS_TONE: Record<CrmTicketGroupStatus, StatusTone> = {
-  active: 'green',
-  archived: 'neutral',
+  active: "green",
+  archived: "neutral",
 };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
@@ -92,7 +92,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
   return (
     <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-      {isEditing ? 'Save changes' : 'Create group'}
+      {isEditing ? "Save changes" : "Create group"}
     </Button>
   );
 }
@@ -118,42 +118,44 @@ function TicketGroupDialog({
     initialData?.isActive ?? true,
   );
   const [parentGroupId, setParentGroupId] = React.useState<string>(
-    initialData?.parentGroupId ?? '',
+    initialData?.parentGroupId ?? "",
   );
   const [status, setStatus] = React.useState<CrmTicketGroupStatus>(
-    initialData?.status ?? 'active',
+    initialData?.status ?? "active",
   );
   const [defaultAssigneeId, setDefaultAssigneeId] = React.useState<string>(
-    initialData?.defaultAssigneeId ?? '',
+    initialData?.defaultAssigneeId ?? "",
   );
   const [defaultSlaId, setDefaultSlaId] = React.useState<string>(
-    initialData?.defaultSlaId ?? '',
+    initialData?.defaultSlaId ?? "",
   );
-  const [color, setColor] = React.useState<string>(initialData?.color ?? '#0EA5E9');
-  const [icon, setIcon] = React.useState<string>(initialData?.icon ?? '');
+  const [color, setColor] = React.useState<string>(
+    initialData?.color ?? "#0EA5E9",
+  );
+  const [icon, setIcon] = React.useState<string>(initialData?.icon ?? "");
 
   React.useEffect(() => {
     if (!isOpen) return;
     setIsActive(initialData?.isActive ?? true);
-    setParentGroupId(initialData?.parentGroupId ?? '');
-    setStatus(initialData?.status ?? 'active');
-    setDefaultAssigneeId(initialData?.defaultAssigneeId ?? '');
-    setDefaultSlaId(initialData?.defaultSlaId ?? '');
-    setColor(initialData?.color ?? '#0EA5E9');
-    setIcon(initialData?.icon ?? '');
+    setParentGroupId(initialData?.parentGroupId ?? "");
+    setStatus(initialData?.status ?? "active");
+    setDefaultAssigneeId(initialData?.defaultAssigneeId ?? "");
+    setDefaultSlaId(initialData?.defaultSlaId ?? "");
+    setColor(initialData?.color ?? "#0EA5E9");
+    setIcon(initialData?.icon ?? "");
   }, [initialData, isOpen]);
 
   React.useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success', description: state.message });
+      toast({ title: "Success", description: state.message });
       onSave();
       onOpenChange(false);
     }
     if (state.error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: state.error,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
     // We only want to react to a fresh server-action result.
@@ -178,10 +180,14 @@ function TicketGroupDialog({
           <input
             type="hidden"
             name="isActive"
-            value={isActive ? 'true' : 'false'}
+            value={isActive ? "true" : "false"}
           />
           <input type="hidden" name="parentGroupId" value={parentGroupId} />
-          <input type="hidden" name="defaultAssigneeId" value={defaultAssigneeId} />
+          <input
+            type="hidden"
+            name="defaultAssigneeId"
+            value={defaultAssigneeId}
+          />
           <input type="hidden" name="defaultSlaId" value={defaultSlaId} />
           <input type="hidden" name="color" value={color} />
           <input type="hidden" name="icon" value={icon} />
@@ -191,7 +197,7 @@ function TicketGroupDialog({
 
           <ZoruDialogHeader>
             <ZoruDialogTitle>
-              {isEditing ? 'Edit' : 'Create new'} ticket group
+              {isEditing ? "Edit" : "Create new"} ticket group
             </ZoruDialogTitle>
           </ZoruDialogHeader>
 
@@ -214,23 +220,25 @@ function TicketGroupDialog({
                 name="description"
                 placeholder="What kinds of tickets land in this group?"
                 rows={2}
-                defaultValue={initialData?.description ?? ''}
+                defaultValue={initialData?.description ?? ""}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="parentGroupId">Parent group</Label>
               <Select
-                value={parentGroupId || '__none__'}
+                value={parentGroupId || "__none__"}
                 onValueChange={(v) =>
-                  setParentGroupId(v === '__none__' ? '' : v)
+                  setParentGroupId(v === "__none__" ? "" : v)
                 }
               >
                 <ZoruSelectTrigger id="parentGroupId">
                   <ZoruSelectValue placeholder="No parent" />
                 </ZoruSelectTrigger>
                 <ZoruSelectContent>
-                  <ZoruSelectItem value="__none__">— No parent —</ZoruSelectItem>
+                  <ZoruSelectItem value="__none__">
+                    — No parent —
+                  </ZoruSelectItem>
                   {filteredParentOptions.map((g) => (
                     <ZoruSelectItem key={g._id} value={g._id}>
                       {g.name}
@@ -247,7 +255,7 @@ function TicketGroupDialog({
                   entity="user"
                   name="__defaultAssigneeId_picker"
                   initialId={defaultAssigneeId || null}
-                  onChange={(id) => setDefaultAssigneeId(id ?? '')}
+                  onChange={(id) => setDefaultAssigneeId(id ?? "")}
                   placeholder="Pick a user…"
                 />
               </div>
@@ -257,7 +265,7 @@ function TicketGroupDialog({
                   entity="sla"
                   name="__defaultSlaId_picker"
                   initialId={defaultSlaId || null}
-                  onChange={(id) => setDefaultSlaId(id ?? '')}
+                  onChange={(id) => setDefaultSlaId(id ?? "")}
                   placeholder="Pick an SLA…"
                 />
               </div>
@@ -340,19 +348,19 @@ function ColorSwatch({ color }: { color?: string }) {
 }
 
 function buildGroupsCsv(rows: CrmTicketGroupDoc[]): string {
-  const header = ['Name', 'Status', 'Parent Group', 'Tickets'];
-  const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const header = ["Name", "Status", "Parent Group", "Tickets"];
+  const escape = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   return [
-    header.join(','),
+    header.join(","),
     ...rows.map((r) =>
       [
         escape(r.name),
         escape(r.status),
-        escape(r.parentGroupId ?? ''),
+        escape(r.parentGroupId ?? ""),
         escape(r.ticketsCount ?? 0),
-      ].join(','),
+      ].join(","),
     ),
-  ].join('\n');
+  ].join("\n");
 }
 
 export default function TicketGroupsPage() {
@@ -360,8 +368,8 @@ export default function TicketGroupsPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [editing, setEditing] = React.useState<CrmTicketGroupDoc | null>(null);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [search, setSearch] = React.useState('');
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+  const [search, setSearch] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [pendingDelete, setPendingDelete] =
     React.useState<CrmTicketGroupDoc | null>(null);
   const [deletePending, startDeleteTransition] = React.useTransition();
@@ -371,12 +379,12 @@ export default function TicketGroupsPage() {
 
   const refresh = React.useCallback(async () => {
     setIsLoading(true);
-    const res = await getTicketGroups({ status: 'all', limit: 200 });
+    const res = await getTicketGroups({ status: "all", limit: 200 });
     if (res.error) {
       toast({
-        title: 'Failed to load',
+        title: "Failed to load",
         description: res.error,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
     setGroups(res.groups);
@@ -397,9 +405,9 @@ export default function TicketGroupsPage() {
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase();
     return groups.filter((g) => {
-      if (statusFilter !== 'all' && g.status !== statusFilter) return false;
+      if (statusFilter !== "all" && g.status !== statusFilter) return false;
       if (!q) return true;
-      const hay = `${g.name} ${g.description ?? ''}`.toLowerCase();
+      const hay = `${g.name} ${g.description ?? ""}`.toLowerCase();
       return hay.includes(q);
     });
   }, [groups, search, statusFilter]);
@@ -415,7 +423,7 @@ export default function TicketGroupsPage() {
     startDeleteTransition(async () => {
       const result = await deleteTicketGroup(id);
       if (result.success) {
-        toast({ title: 'Group deleted' });
+        toast({ title: "Group deleted" });
         setPendingDelete(null);
         setSelected((prev) => {
           const next = new Set(prev);
@@ -425,9 +433,9 @@ export default function TicketGroupsPage() {
         await refresh();
       } else {
         toast({
-          title: 'Error',
+          title: "Error",
           description: result.error,
-          variant: 'destructive',
+          variant: "destructive",
         });
       }
     });
@@ -446,9 +454,9 @@ export default function TicketGroupsPage() {
       }
       setSelected(new Set());
       toast({
-        title: 'Bulk delete',
-        description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
-        variant: failed > 0 ? 'destructive' : undefined,
+        title: "Bulk delete",
+        description: `${ok} removed${failed ? `, ${failed} failed` : ""}.`,
+        variant: failed > 0 ? "destructive" : undefined,
       });
       await refresh();
     });
@@ -460,35 +468,39 @@ export default function TicketGroupsPage() {
         ? filtered.filter((g) => selected.has(String(g._id)))
         : filtered;
     if (!src.length) {
-      toast({ title: 'Nothing to export' });
+      toast({ title: "Nothing to export" });
       return;
     }
     const csv = buildGroupsCsv(src);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `ticket-groups-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const kpis = React.useMemo(() => ({
-    total: groups.length,
-    active: groups.filter((g) => g.status === 'active').length,
-    avgTickets:
-      groups.length > 0
-        ? Math.round(
-            groups.reduce((s, g) => s + (g.ticketsCount ?? 0), 0) / groups.length,
-          )
-        : 0,
-  }), [groups]);
+  const kpis = React.useMemo(
+    () => ({
+      total: groups.length,
+      active: groups.filter((g) => g.status === "active").length,
+      avgTickets:
+        groups.length > 0
+          ? Math.round(
+              groups.reduce((s, g) => s + (g.ticketsCount ?? 0), 0) /
+                groups.length,
+            )
+          : 0,
+    }),
+    [groups],
+  );
 
   return (
     <>
       <TicketGroupDialog
         // Re-mount on edit-target change so useActionState resets cleanly.
-        key={editing ? String(editing._id) : 'create'}
+        key={editing ? String(editing._id) : "create"}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onSave={refresh}
@@ -508,7 +520,7 @@ export default function TicketGroupsPage() {
           search={{
             value: search,
             onChange: setSearch,
-            placeholder: 'Search groups…',
+            placeholder: "Search groups…",
           }}
           filters={
             <Select
@@ -528,7 +540,9 @@ export default function TicketGroupsPage() {
           bulkBar={
             selected.size > 0 ? (
               <div className="flex flex-wrap items-center gap-2 text-[13px]">
-                <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+                <span className="font-medium text-zoru-ink">
+                  {selected.size} selected
+                </span>
                 <span className="text-zoru-ink-muted">·</span>
                 <Button
                   variant="ghost"
@@ -563,23 +577,29 @@ export default function TicketGroupsPage() {
               <button
                 type="button"
                 className="text-left"
-                onClick={() => setStatusFilter('all')}
+                onClick={() => setStatusFilter("all")}
               >
                 <StatCard
                   label="Total groups"
                   value={kpis.total.toLocaleString()}
-                  className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+                  className={cn(
+                    statusFilter === "all" &&
+                      "ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]",
+                  )}
                 />
               </button>
               <button
                 type="button"
                 className="text-left"
-                onClick={() => setStatusFilter('active')}
+                onClick={() => setStatusFilter("active")}
               >
                 <StatCard
                   label="Active"
                   value={kpis.active.toLocaleString()}
-                  className={cn(statusFilter === 'active' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+                  className={cn(
+                    statusFilter === "active" &&
+                      "ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]",
+                  )}
                 />
               </button>
               <StatCard
@@ -603,179 +623,185 @@ export default function TicketGroupsPage() {
               </div>
             ) : null}
 
-          <div className="overflow-x-auto rounded-lg border border-zoru-line">
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                  <ZoruTableHead className="w-10">
-                    <Checkbox
-                      checked={
-                        filtered.length > 0 && filtered.every((g) => selected.has(String(g._id)))
-                          ? true
-                          : filtered.some((g) => selected.has(String(g._id)))
-                          ? 'indeterminate'
-                          : false
-                      }
-                      onCheckedChange={(v) =>
-                        setSelected(
-                          v === true ? new Set(filtered.map((g) => String(g._id))) : new Set(),
-                        )
-                      }
-                      aria-label="Select all"
-                    />
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Name
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Parent Group
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Default Assignee
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Default SLA
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Color
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted text-right">
-                    Tickets
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted">
-                    Status
-                  </ZoruTableHead>
-                  <ZoruTableHead className="text-zoru-ink-muted text-right">
-                    Actions
-                  </ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                {isLoading ? (
-                  <ZoruTableRow className="border-zoru-line">
-                    <ZoruTableCell colSpan={9} className="h-24 text-center">
-                      <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                    </ZoruTableCell>
+            <div className="overflow-x-auto rounded-lg border border-zoru-line">
+              <Table>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      <Checkbox
+                        checked={
+                          filtered.length > 0 &&
+                          filtered.every((g) => selected.has(String(g._id)))
+                            ? true
+                            : filtered.some((g) => selected.has(String(g._id)))
+                              ? "indeterminate"
+                              : false
+                        }
+                        onCheckedChange={(v) =>
+                          setSelected(
+                            v === true
+                              ? new Set(filtered.map((g) => String(g._id)))
+                              : new Set(),
+                          )
+                        }
+                        aria-label="Select all"
+                      />
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Name
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Parent Group
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Default Assignee
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Default SLA
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Color
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                      Tickets
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">
+                      Status
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted text-right">
+                      Actions
+                    </ZoruTableHead>
                   </ZoruTableRow>
-                ) : filtered.length === 0 ? (
-                  <ZoruTableRow className="border-zoru-line">
-                    <ZoruTableCell
-                      colSpan={9}
-                      className="h-24 text-center text-zoru-ink-muted"
-                    >
-                      No ticket groups match this filter.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ) : (
-                  filtered.map((g) => {
-                    const parent = g.parentGroupId
-                      ? byId.get(g.parentGroupId)
-                      : null;
-                    return (
-                      <ZoruTableRow
-                        key={String(g._id)}
-                        className={cn('border-zoru-line', selected.has(String(g._id)) && 'bg-zoru-surface')}
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {isLoading ? (
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell colSpan={9} className="h-24 text-center">
+                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ) : filtered.length === 0 ? (
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell
+                        colSpan={9}
+                        className="h-24 text-center text-zoru-ink-muted"
                       >
-                        <ZoruTableCell>
-                          <Checkbox
-                            checked={selected.has(String(g._id))}
-                            onCheckedChange={() =>
-                              setSelected((prev) => {
-                                const next = new Set(prev);
-                                const id = String(g._id);
-                                if (next.has(id)) next.delete(id);
-                                else next.add(id);
-                                return next;
-                              })
-                            }
-                            aria-label={`Select ${g.name}`}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="font-medium text-zoru-ink">
-                          <div className="flex flex-col">
-                            <span>{g.name}</span>
-                            {g.description ? (
-                              <span className="text-xs text-zoru-ink-muted line-clamp-1">
-                                {g.description}
+                        No ticket groups match this filter.
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ) : (
+                    filtered.map((g) => {
+                      const parent = g.parentGroupId
+                        ? byId.get(g.parentGroupId)
+                        : null;
+                      return (
+                        <ZoruTableRow
+                          key={String(g._id)}
+                          className={cn(
+                            "border-zoru-line",
+                            selected.has(String(g._id)) && "bg-zoru-surface",
+                          )}
+                        >
+                          <ZoruTableCell>
+                            <Checkbox
+                              checked={selected.has(String(g._id))}
+                              onCheckedChange={() =>
+                                setSelected((prev) => {
+                                  const next = new Set(prev);
+                                  const id = String(g._id);
+                                  if (next.has(id)) next.delete(id);
+                                  else next.add(id);
+                                  return next;
+                                })
+                              }
+                              aria-label={`Select ${g.name}`}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-medium text-zoru-ink">
+                            <div className="flex flex-col">
+                              <span>{g.name}</span>
+                              {g.description ? (
+                                <span className="text-xs text-zoru-ink-muted line-clamp-1">
+                                  {g.description}
+                                </span>
+                              ) : null}
+                            </div>
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            {parent ? (
+                              parent.name
+                            ) : g.parentGroupId ? (
+                              <span
+                                className="font-mono text-xs text-zoru-ink-muted"
+                                title={g.parentGroupId}
+                              >
+                                {g.parentGroupId.slice(0, 8)}…
                               </span>
-                            ) : null}
-                          </div>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-zoru-ink">
-                          {parent ? (
-                            parent.name
-                          ) : g.parentGroupId ? (
-                            <span
-                              className="font-mono text-xs text-zoru-ink-muted"
-                              title={g.parentGroupId}
+                            ) : (
+                              <span className="text-zoru-ink-muted">—</span>
+                            )}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            {g.defaultAssigneeId ? (
+                              <span
+                                className="font-mono text-xs text-zoru-ink"
+                                title={g.defaultAssigneeId}
+                              >
+                                {g.defaultAssigneeId.slice(0, 8)}…
+                              </span>
+                            ) : (
+                              <span className="text-zoru-ink-muted">—</span>
+                            )}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            {g.defaultSlaId ? (
+                              <span
+                                className="font-mono text-xs text-zoru-ink"
+                                title={g.defaultSlaId}
+                              >
+                                {g.defaultSlaId.slice(0, 8)}…
+                              </span>
+                            ) : (
+                              <span className="text-zoru-ink-muted">—</span>
+                            )}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ColorSwatch color={g.color} />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                            {g.ticketsCount ?? 0}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <StatusPill
+                              label={g.status}
+                              tone={STATUS_TONE[g.status] ?? "neutral"}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(g)}
+                              aria-label="Edit group"
                             >
-                              {g.parentGroupId.slice(0, 8)}…
-                            </span>
-                          ) : (
-                            <span className="text-zoru-ink-muted">—</span>
-                          )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          {g.defaultAssigneeId ? (
-                            <span
-                              className="font-mono text-xs text-zoru-ink"
-                              title={g.defaultAssigneeId}
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => setPendingDelete(g)}
+                              aria-label="Delete group"
                             >
-                              {g.defaultAssigneeId.slice(0, 8)}…
-                            </span>
-                          ) : (
-                            <span className="text-zoru-ink-muted">—</span>
-                          )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          {g.defaultSlaId ? (
-                            <span
-                              className="font-mono text-xs text-zoru-ink"
-                              title={g.defaultSlaId}
-                            >
-                              {g.defaultSlaId.slice(0, 8)}…
-                            </span>
-                          ) : (
-                            <span className="text-zoru-ink-muted">—</span>
-                          )}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <ColorSwatch color={g.color} />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                          {g.ticketsCount ?? 0}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <StatusPill
-                            label={g.status}
-                            tone={STATUS_TONE[g.status] ?? 'neutral'}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenDialog(g)}
-                            aria-label="Edit group"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setPendingDelete(g)}
-                            aria-label="Delete group"
-                          >
-                            <Trash2 className="h-4 w-4 text-zoru-ink" />
-                          </Button>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
-                    );
-                  })
-                )}
-              </ZoruTableBody>
-            </Table>
-          </div>
+                              <Trash2 className="h-4 w-4 text-zoru-ink" />
+                            </Button>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      );
+                    })
+                  )}
+                </ZoruTableBody>
+              </Table>
+            </div>
           </div>
         </EntityListShell>
       </div>
@@ -788,7 +814,7 @@ export default function TicketGroupsPage() {
           <ZoruAlertDialogHeader>
             <ZoruAlertDialogTitle>Delete ticket group?</ZoruAlertDialogTitle>
             <ZoruAlertDialogDescription>
-              Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect{' '}
+              Deleting &ldquo;{pendingDelete?.name}&rdquo; will affect{" "}
               {pendingDelete?.ticketsCount ?? 0} ticket(s) currently in this
               group. This cannot be undone.
             </ZoruAlertDialogDescription>

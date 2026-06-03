@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::types::{AlertChannel, AlertConditions};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -32,7 +32,11 @@ pub struct CreatePolicyInput {
 
 impl Default for AlertConditions {
     fn default() -> Self {
-        Self { down_count: None, slow_ms: None, ssl_expiring_days: None }
+        Self {
+            down_count: None,
+            slow_ms: None,
+            ssl_expiring_days: None,
+        }
     }
 }
 
@@ -66,7 +70,9 @@ pub struct CreatePolicyResponse {
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeletePolicyResponse { pub deleted: bool }
+pub struct DeletePolicyResponse {
+    pub deleted: bool,
+}
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]

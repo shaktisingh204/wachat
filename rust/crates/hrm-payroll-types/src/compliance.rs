@@ -359,9 +359,18 @@ mod tests {
             employee_id: ObjectId::new(),
             state: "Maharashtra".into(),
             slabs: vec![
-                PtSlab { up_to: Some(7_500.0), monthly_amount: 0.0 },
-                PtSlab { up_to: Some(10_000.0), monthly_amount: 175.0 },
-                PtSlab { up_to: None, monthly_amount: 200.0 },
+                PtSlab {
+                    up_to: Some(7_500.0),
+                    monthly_amount: 0.0,
+                },
+                PtSlab {
+                    up_to: Some(10_000.0),
+                    monthly_amount: 175.0,
+                },
+                PtSlab {
+                    up_to: None,
+                    monthly_amount: 200.0,
+                },
             ],
             monthly_amount: 200.0,
             period_from: Utc::now(),
@@ -463,7 +472,10 @@ mod tests {
         assert!(json.get("digitalSignatureFileId").is_some());
         let log = json.get("dispatchLog").unwrap().as_array().unwrap();
         assert_eq!(log.len(), 1);
-        assert_eq!(log[0].get("channel").and_then(|v| v.as_str()), Some("email"));
+        assert_eq!(
+            log[0].get("channel").and_then(|v| v.as_str()),
+            Some("email")
+        );
 
         let back: Form16 = serde_json::from_value(json).unwrap();
         assert_eq!(back.assessment_year, "2026-27");

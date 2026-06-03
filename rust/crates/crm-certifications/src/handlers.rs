@@ -20,8 +20,8 @@ use sabnode_db::{bson_helpers::oid_from_str, mongo::MongoHandle};
 use tracing::instrument;
 
 use crate::dto::{
-    CreateCertificationInput, CreateCertificationResponse, DeleteCertificationResponse,
-    ListQuery, UpdateCertificationInput,
+    CreateCertificationInput, CreateCertificationResponse, DeleteCertificationResponse, ListQuery,
+    UpdateCertificationInput,
 };
 use crate::types::CrmCertification;
 
@@ -37,11 +37,7 @@ fn normalise_status(s: Option<String>) -> String {
     }
 }
 
-fn list_filter(
-    user_id: ObjectId,
-    status: Option<&str>,
-    employee_id: Option<&str>,
-) -> Document {
+fn list_filter(user_id: ObjectId, status: Option<&str>, employee_id: Option<&str>) -> Document {
     let mut filter = doc! { "userId": user_id };
     match status.unwrap_or("active_visible") {
         "all" => {}
@@ -151,12 +147,7 @@ pub async fn list_certifications(
     if let Some(needle) = q.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let or = build_q_filter(
             needle,
-            &[
-                "name",
-                "issuer",
-                "employee_name",
-                "certification_number",
-            ],
+            &["name", "issuer", "employee_name", "certification_number"],
         );
         if let Ok(arr) = or.get_array("$or") {
             filter.insert("$or", arr.clone());
@@ -173,11 +164,9 @@ pub async fn list_certifications(
         .build();
 
     let coll = mongo.collection::<CrmCertification>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("crm_certifications.find")))?;
+    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_certifications.find"))
+    })?;
     let mut rows: Vec<CrmCertification> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_certifications.collect"))
     })?;
@@ -222,20 +211,16 @@ pub async fn create_certification(
     let user_id = user_oid(&user)?;
     let mut entity = cert_from_create(input, user_id)?;
     let coll = mongo.collection::<CrmCertification>(COLL);
-    let inserted = coll
-        .insert_one(&entity)
-        .await
-        .map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("crm_certifications.insert"))
-        })?;
+    let inserted = coll.insert_one(&entity).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("crm_certifications.insert"))
+    })?;
     let new_id = inserted
         .inserted_id
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
 
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

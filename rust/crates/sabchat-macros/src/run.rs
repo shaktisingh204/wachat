@@ -135,13 +135,7 @@ pub(crate) async fn execute_macro(
                 set_priority_step(mongo, tenant_id, conversation_oid, *priority).await
             }
             MacroStep::SetAssignee { assignee_id } => {
-                set_assignee_step(
-                    mongo,
-                    tenant_id,
-                    conversation_oid,
-                    assignee_id.as_deref(),
-                )
-                .await
+                set_assignee_step(mongo, tenant_id, conversation_oid, assignee_id.as_deref()).await
             }
             MacroStep::Wait { seconds } => wait_step(*seconds).await,
             MacroStep::Snooze { until_iso } => {
@@ -191,8 +185,8 @@ async fn send_message_step(
     // re-deserialize. This keeps the executor agnostic of which
     // `ContentBlock` variants carry textual fields — every string
     // anywhere in the tree gets the same `{{var}}` pass.
-    let mut content_json = serde_json::to_value(content)
-        .map_err(|e| format!("content serialize: {e}"))?;
+    let mut content_json =
+        serde_json::to_value(content).map_err(|e| format!("content serialize: {e}"))?;
     interpolate_value(&mut content_json, bag);
 
     let content_bson: Bson =

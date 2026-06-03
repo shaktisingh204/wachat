@@ -75,7 +75,11 @@ fn workbook_from_create(input: CreateWorkbookInput, user_id: ObjectId) -> Result
 
 fn build_update_doc(patch: UpdateWorkbookInput) -> Document {
     let mut set = doc! { "updatedAt": BsonDateTime::from_chrono(Utc::now()) };
-    if let Some(v) = patch.name.map(|s| s.trim().to_owned()).filter(|s| !s.is_empty()) {
+    if let Some(v) = patch
+        .name
+        .map(|s| s.trim().to_owned())
+        .filter(|s| !s.is_empty())
+    {
         set.insert("name", v);
     }
     if let Some(v) = patch.description {
@@ -125,15 +129,13 @@ pub async fn list_workbooks(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<BiWorkbook>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.find")))?;
-    let mut rows: Vec<BiWorkbook> = cursor
-        .try_collect()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.collect")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.find"))
+        })?;
+    let mut rows: Vec<BiWorkbook> = cursor.try_collect().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.collect"))
+    })?;
     let has_more = rows.len() as i64 > limit;
     if has_more {
         rows.truncate(limit as usize);
@@ -231,7 +233,9 @@ pub async fn delete_workbook(
             }},
         )
         .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.archive")))?;
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabbi_workbooks.archive"))
+        })?;
     if result.matched_count == 0 {
         return Err(ApiError::NotFound("workbook".to_owned()));
     }

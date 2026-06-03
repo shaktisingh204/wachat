@@ -14,6 +14,5 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new()
-        .route("/", get(handlers::list_audit).post(handlers::log_access))
+    Router::new().route("/", get(handlers::list_audit).post(handlers::log_access))
 }

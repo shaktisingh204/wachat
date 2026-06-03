@@ -60,11 +60,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
 
 fn list_filter(user_id: ObjectId, q: &ListQuery) -> Document {
     let mut filter = doc! { "userId": user_id };
-    if let Some(s) = q
-        .status
-        .as_deref()
-        .filter(|s| STATUS_VARIANTS.contains(s))
-    {
+    if let Some(s) = q.status.as_deref().filter(|s| STATUS_VARIANTS.contains(s)) {
         filter.insert("status", s);
     }
     let now = BsonDateTime::from_chrono(Utc::now());

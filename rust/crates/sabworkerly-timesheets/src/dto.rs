@@ -7,12 +7,17 @@ use serde_json::Value as JsonValue;
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ListQuery {
-    #[serde(default)] pub page: Option<u32>,
-    #[serde(default)] pub limit: Option<u32>,
+    #[serde(default)]
+    pub page: Option<u32>,
+    #[serde(default)]
+    pub limit: Option<u32>,
     /// `draft | submitted | approved | invoiced | rejected | all`.
-    #[serde(default)] pub status: Option<String>,
-    #[serde(default)] pub placement_id: Option<String>,
-    #[serde(default)] pub worker_id: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
+    #[serde(default)]
+    pub placement_id: Option<String>,
+    #[serde(default)]
+    pub worker_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -23,21 +28,26 @@ pub struct CreateTimesheetInput {
     pub week_start: DateTime<Utc>,
     pub daily_hours_json: JsonValue,
     pub total_hours: f64,
-    #[serde(default)] pub status: Option<String>,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateTimesheetInput {
-    #[serde(default)] pub daily_hours_json: Option<JsonValue>,
-    #[serde(default)] pub total_hours: Option<f64>,
-    #[serde(default)] pub status: Option<String>,
+    #[serde(default)]
+    pub daily_hours_json: Option<JsonValue>,
+    #[serde(default)]
+    pub total_hours: Option<f64>,
+    #[serde(default)]
+    pub status: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RejectInput {
-    #[serde(default)] pub reason: Option<String>,
+    #[serde(default)]
+    pub reason: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]

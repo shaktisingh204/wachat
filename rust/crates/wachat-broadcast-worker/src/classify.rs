@@ -131,18 +131,12 @@ mod tests {
     fn permanent_code_wins_over_status() {
         // 500 would normally be transient, but a permanent meta code
         // overrides the status.
-        assert_eq!(
-            classify_error(500, Some(131026)),
-            ErrorKind::Permanent
-        );
+        assert_eq!(classify_error(500, Some(131026)), ErrorKind::Permanent);
     }
 
     #[test]
     fn rate_limit_code_wins_over_status() {
-        assert_eq!(
-            classify_error(400, Some(80007)),
-            ErrorKind::RateLimit
-        );
+        assert_eq!(classify_error(400, Some(80007)), ErrorKind::RateLimit);
     }
 
     #[test]

@@ -2,7 +2,7 @@
 name = "sabsense-sites"
 version = "0.1.0"
 edition = "2024"
-description = "SabSense — registered site entity (domain, snippetKey, ownerUserId). Drives the CRO module: heatmaps, scroll maps, funnels, recordings, form analytics."
+description = "SabCheckout — subscription site CRUD (interval, amount, trial, setup fee)."
 license = "UNLICENSED"
 publish = false
 
@@ -21,7 +21,6 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 axum = { version = "0.8", default-features = false, features = ["json", "http1", "query"] }
 tracing = "0.1"
 anyhow = "1.0"
-rand = "0.8"
 
 crm-common = { path = "../crm-common" }
 sabnode-auth = { path = "../auth" }

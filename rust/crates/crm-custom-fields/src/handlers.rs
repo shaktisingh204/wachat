@@ -84,10 +84,7 @@ fn ownership_filter(user_id: ObjectId, oid: ObjectId) -> Document {
     doc! { "_id": oid, "userId": user_id }
 }
 
-fn field_from_create(
-    input: CreateCustomFieldInput,
-    user_id: ObjectId,
-) -> Result<CrmCustomField> {
+fn field_from_create(input: CreateCustomFieldInput, user_id: ObjectId) -> Result<CrmCustomField> {
     let entity_kind = input.entity_kind.trim().to_owned();
     if entity_kind.is_empty() {
         return Err(ApiError::Validation("entityKind is required".to_owned()));
@@ -282,9 +279,10 @@ pub async fn list_custom_fields(
         .limit(limit + 1)
         .build();
     let coll = mongo.collection::<CrmCustomField>(COLL);
-    let cursor = coll.find(filter).with_options(opts).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("crm_custom_fields.find"))
-    })?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("crm_custom_fields.find"))
+        })?;
     let mut rows: Vec<CrmCustomField> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("crm_custom_fields.collect"))
     })?;
@@ -337,8 +335,7 @@ pub async fn create_custom_field(
         .as_object_id()
         .ok_or_else(|| ApiError::Internal(anyhow::anyhow!("inserted_id was not ObjectId")))?;
     entity.id = Some(new_id);
-    if let Some(event) =
-        audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
+    if let Some(event) = audit_for_create(&user, ENTITY_KIND, new_id, Some(doc_for_audit(&entity)))
     {
         write_audit(&mongo, event).await;
     }

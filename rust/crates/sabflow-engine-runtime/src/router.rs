@@ -11,10 +11,7 @@ use axum::{
     routing::{get, post},
 };
 
-use crate::{
-    engine::ExecuteFlowInput,
-    state::SabflowRuntimeState,
-};
+use crate::{engine::ExecuteFlowInput, state::SabflowRuntimeState};
 
 pub fn router<S>() -> Router<S>
 where

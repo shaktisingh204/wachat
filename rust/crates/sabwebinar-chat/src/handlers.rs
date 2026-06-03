@@ -56,11 +56,10 @@ pub async fn list_chat_public(
         .limit(limit)
         .build();
     let coll = mongo.collection::<ChatMessage>(COLL);
-    let cursor = coll
-        .find(filter)
-        .with_options(opts)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_chat.find")))?;
+    let cursor =
+        coll.find(filter).with_options(opts).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_chat.find"))
+        })?;
     let rows: Vec<ChatMessage> = cursor.try_collect().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabwebinar_chat.collect"))
     })?;

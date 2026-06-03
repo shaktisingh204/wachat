@@ -16,8 +16,8 @@ use crate::{
     state::AdManagerState,
     store::{
         self, AdAccountsResult, CountResult, DeleteAdAccountBody, DeleteLocalCampaignsByMetaIdBody,
-        InsertLocalCampaignBody, ListLocalCampaignsBody, LocalCampaignsResult, SetMetaAdAccountsBody,
-        SuccessResult, UpdateLocalStatusBody,
+        InsertLocalCampaignBody, ListLocalCampaignsBody, LocalCampaignsResult,
+        SetMetaAdAccountsBody, SuccessResult, UpdateLocalStatusBody,
     },
 };
 
@@ -723,7 +723,12 @@ pub async fn quick_create_campaign_inner(
     .await
     {
         Ok(v) => v,
-        Err(e) => return QuickCreateResult { message: None, error: Some(e) },
+        Err(e) => {
+            return QuickCreateResult {
+                message: None,
+                error: Some(e),
+            };
+        }
     };
     let campaign_id = match camp.get("id").and_then(Value::as_str) {
         Some(id) => id.to_owned(),
@@ -756,7 +761,12 @@ pub async fn quick_create_campaign_inner(
     .await
     {
         Ok(v) => v,
-        Err(e) => return QuickCreateResult { message: None, error: Some(e) },
+        Err(e) => {
+            return QuickCreateResult {
+                message: None,
+                error: Some(e),
+            };
+        }
     };
     let ad_set_id = match adset.get("id").and_then(Value::as_str) {
         Some(id) => id.to_owned(),
@@ -796,7 +806,12 @@ pub async fn quick_create_campaign_inner(
     .await
     {
         Ok(v) => v,
-        Err(e) => return QuickCreateResult { message: None, error: Some(e) },
+        Err(e) => {
+            return QuickCreateResult {
+                message: None,
+                error: Some(e),
+            };
+        }
     };
     let creative_id = match creative.get("id").and_then(Value::as_str) {
         Some(id) => id.to_owned(),
@@ -822,7 +837,12 @@ pub async fn quick_create_campaign_inner(
     .await
     {
         Ok(v) => v,
-        Err(e) => return QuickCreateResult { message: None, error: Some(e) },
+        Err(e) => {
+            return QuickCreateResult {
+                message: None,
+                error: Some(e),
+            };
+        }
     };
     let ad_id = match ad.get("id").and_then(Value::as_str) {
         Some(id) => id.to_owned(),
@@ -975,7 +995,11 @@ pub async fn upload_asset(
 
     let acc = match ad_account_id {
         Some(a) if !a.is_empty() => with_act_prefix(&a),
-        _ => return Ok(Json(serde_json::json!({ "error": "Ad Account ID required" }))),
+        _ => {
+            return Ok(Json(
+                serde_json::json!({ "error": "Ad Account ID required" }),
+            ));
+        }
     };
     let bytes = match file_bytes {
         Some(b) if !b.is_empty() => b,
@@ -986,7 +1010,11 @@ pub async fn upload_asset(
     let endpoint_segment = match kind.as_str() {
         "image" => "adimages",
         "video" => "advideos",
-        _ => return Ok(Json(serde_json::json!({ "error": "Unsupported upload kind" }))),
+        _ => {
+            return Ok(Json(
+                serde_json::json!({ "error": "Unsupported upload kind" }),
+            ));
+        }
     };
     let form_field_name = match kind.as_str() {
         "image" => "filename",
@@ -1049,7 +1077,9 @@ pub async fn upload_asset(
         let video_id = json.get("id").and_then(Value::as_str).map(str::to_owned);
         return Ok(Json(serde_json::json!({ "videoId": video_id })));
     }
-    Ok(Json(serde_json::json!({ "error": "Unsupported upload kind" })))
+    Ok(Json(
+        serde_json::json!({ "error": "Unsupported upload kind" }),
+    ))
 }
 
 fn with_act_prefix(id: &str) -> String {
