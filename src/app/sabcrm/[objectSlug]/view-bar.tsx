@@ -30,7 +30,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Filter,
   ArrowUpDown,
-  Rows3,
   SlidersHorizontal,
   Plus,
   FolderPlus,
@@ -1077,21 +1076,60 @@ function FieldsPopover({
   visible,
   onToggle,
 }: FieldsPopoverProps): React.JSX.Element {
+  // Twenty's column manager splits fields into a "Visible columns" group
+  // (click to hide) and a "Hidden columns" group (click to add) — preserving
+  // the object's declared field order within each group.
+  const visibleFields = object.fields.filter((f) => visible.has(f.key));
+  const hiddenFields = object.fields.filter((f) => !visible.has(f.key));
+
   return (
     <>
       <p className="stv-pop__title">Visible columns</p>
       <div className="stv-fieldlist">
-        {object.fields.map((f) => (
-          <label className="stv-fieldlist__item" key={f.key}>
-            <input
-              type="checkbox"
-              checked={visible.has(f.key)}
-              onChange={() => onToggle(f.key)}
-            />
-            {f.label}
-          </label>
-        ))}
+        {visibleFields.length === 0 ? (
+          <div className="stv-empty-hint">No visible columns</div>
+        ) : (
+          visibleFields.map((f) => (
+            <button
+              type="button"
+              key={f.key}
+              className="stv-coltoggle"
+              onClick={() => onToggle(f.key)}
+              aria-pressed={true}
+            >
+              <span className="stv-coltoggle__icon" aria-hidden="true">
+                <Check size={14} />
+              </span>
+              <span className="stv-coltoggle__label">{f.label}</span>
+              <span className="stv-coltoggle__hint" aria-hidden="true">
+                <X size={13} />
+              </span>
+            </button>
+          ))
+        )}
       </div>
+
+      {hiddenFields.length > 0 && (
+        <>
+          <p className="stv-pop__title">Hidden columns</p>
+          <div className="stv-fieldlist">
+            {hiddenFields.map((f) => (
+              <button
+                type="button"
+                key={f.key}
+                className="stv-coltoggle is-hidden"
+                onClick={() => onToggle(f.key)}
+                aria-pressed={false}
+              >
+                <span className="stv-coltoggle__icon" aria-hidden="true">
+                  <Plus size={14} />
+                </span>
+                <span className="stv-coltoggle__label">{f.label}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 }
@@ -1779,24 +1817,45 @@ export function SabcrmViewBar({
           )}
         </ControlPopover>
 
-        <ControlPopover label="Group" icon={Rows3} active={!!state.groupBy}>
+        {/* Twenty consolidates Columns + Group + Copy-link under one "Options"
+            dropdown, so the bar reads cleanly as Filter · Sort · Options. */}
+        <ControlPopover
+          label="Options"
+          icon={SlidersHorizontal}
+          active={!!state.groupBy}
+          alignRight
+        >
           {(close) => (
-            <GroupPopover
-              object={object}
-              groupBy={state.groupBy}
-              onApply={(groupBy) => onStateChange({ ...state, groupBy })}
-              close={close}
-            />
-          )}
-        </ControlPopover>
-
-        <ControlPopover label="Fields" icon={SlidersHorizontal} alignRight>
-          {() => (
-            <FieldsPopover
-              object={object}
-              visible={visibleColumns}
-              onToggle={onToggleColumn}
-            />
+            <div className="stv-options">
+              <FieldsPopover
+                object={object}
+                visible={visibleColumns}
+                onToggle={onToggleColumn}
+              />
+              <div className="stv-pop__sep" />
+              <GroupPopover
+                object={object}
+                groupBy={state.groupBy}
+                onApply={(groupBy) => onStateChange({ ...state, groupBy })}
+                close={close}
+              />
+              <div className="stv-pop__sep" />
+              <button
+                type="button"
+                className="stv-coltoggle"
+                onClick={() => {
+                  copyLink();
+                  close();
+                }}
+              >
+                <span className="stv-coltoggle__icon" aria-hidden="true">
+                  {copied ? <Check size={14} /> : <Link2 size={14} />}
+                </span>
+                <span className="stv-coltoggle__label">
+                  {copied ? 'Link copied!' : 'Copy link to view'}
+                </span>
+              </button>
+            </div>
           )}
         </ControlPopover>
 
@@ -1838,21 +1897,6 @@ export function SabcrmViewBar({
             </Link>
           )}
         </div>
-
-        {/* Copy a shareable link to the current view (URL already encodes the
-            live filter / sort / group / view-kind / active saved view). */}
-        <button
-          type="button"
-          className={`stv-copy${copied ? ' is-copied' : ''}`}
-          onClick={copyLink}
-          title="Copy a shareable link to this view"
-          aria-label="Copy link to this view"
-        >
-          <span className="stv-copy__icon" aria-hidden="true">
-            {copied ? <Check size={14} /> : <Link2 size={14} />}
-          </span>
-          {copied ? 'Copied!' : 'Copy link'}
-        </button>
 
         <div className="stv-bar__spacer" />
 

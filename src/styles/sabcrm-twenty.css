@@ -216,11 +216,17 @@
 /* =========================================================================
    Shell
    ========================================================================= */
+/* Embedded under the SabNode app rail + header: fill the host column rather
+   than the viewport, so the Twenty chrome sits below the 56px header. */
+.sabcrm-twenty {
+  height: 100%;
+}
+
 .st-shell {
   display: flex;
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  min-height: 0;
   background: var(--st-bg);
   color: var(--st-text);
 }
@@ -370,7 +376,7 @@
   flex-direction: column;
   flex: 0 0 var(--st-sidebar-width);
   width: var(--st-sidebar-width);
-  height: 100vh;
+  height: 100%;
   position: sticky;
   top: 0;
   background: var(--st-sidebar-bg);
@@ -725,7 +731,7 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 100vh;
+  min-height: 0;
   background: var(--st-bg);
 }
 
@@ -828,19 +834,21 @@
 /* =========================================================================
    Chip
    ========================================================================= */
+/* Twenty Tag/Chip: 20px tall, 4px radius, borderless tinted fill, 4px gap. */
 .st-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--st-space-1);
   max-width: 100%;
-  padding: 2px 8px;
-  border-radius: var(--st-radius);
-  background: var(--st-bg-secondary);
-  border: 1px solid var(--st-border);
-  color: var(--st-text);
+  height: 20px;
+  padding: 0 var(--st-space-2);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-muted);
+  border: none;
+  color: var(--st-text-secondary);
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
-  line-height: 1.4;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -949,44 +957,60 @@
   color: var(--st-text);
 }
 
+/* Twenty's record table: 32px rows, white header with tertiary medium-weight
+   labels, hair-thin light cell borders (right + bottom), compact 13px text.
+   Mirrors twenty-front RecordTableHeaderCell / RecordTableCell measurements. */
 .st-table th {
-  padding: var(--st-space-2) var(--st-space-3);
+  height: 32px;
+  padding: 0 var(--st-space-2);
   text-align: left;
   font-weight: var(--st-fw-medium);
-  font-size: var(--st-font-size-sm);
-  color: var(--st-text-secondary);
-  background: var(--st-bg-secondary);
-  border-bottom: 1px solid var(--st-border);
-  border-top: 1px solid var(--st-border);
+  font-size: var(--st-font-size);
+  color: var(--st-text-tertiary);
+  background: var(--st-bg);
+  border-bottom: 1px solid var(--st-border-light);
+  border-right: 1px solid var(--st-border-light);
   white-space: nowrap;
   user-select: none;
 }
 
-.st-table th:first-child {
-  border-top-left-radius: var(--st-radius);
+.st-table th:hover {
+  background: var(--st-bg-secondary);
 }
 
 .st-table th:last-child {
-  border-top-right-radius: var(--st-radius);
+  border-right: none;
 }
 
 .st-table td {
-  padding: var(--st-space-2) var(--st-space-3);
+  height: 32px;
+  padding: 0 var(--st-space-2);
   border-bottom: 1px solid var(--st-border-light);
+  border-right: 1px solid var(--st-border-light);
   vertical-align: middle;
   color: var(--st-text);
+  font-size: var(--st-font-size);
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-table td:last-child {
+  border-right: none;
 }
 
 .st-row {
   transition: background 100ms ease;
 }
 
-.st-row:hover {
-  background: var(--st-hover);
+.st-row:hover > td {
+  background: var(--st-bg-secondary);
 }
 
-.st-row:hover td {
-  color: var(--st-text);
+/* Selected rows take Twenty's faint accent tint (accent.quaternary). */
+.st-row.is-selected > td {
+  background: var(--st-accent-soft);
 }
 
 /* Record-runtime additions (index + detail) below this line.

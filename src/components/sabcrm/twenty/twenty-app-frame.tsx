@@ -30,7 +30,6 @@ import './twenty-activity.css';
 import './notifications.css';
 
 import { TwentyCommandMenu } from './twenty-command-menu';
-import { TwentyAppRail } from './twenty-app-rail';
 import { TwentyWorkspaceSwitcher } from './twenty-workspace-switcher';
 import { NotificationsBell } from './notifications-bell';
 import { useCommandMenu } from './use-command-menu';
@@ -159,7 +158,6 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     <div className="sabcrm-twenty">
       <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
-        <TwentyAppRail />
         <aside className="st-sidebar" aria-label="SabCRM navigation">
           <div className="st-sidebar__scroll">
             {/* Workspace (project) switcher + notifications bell */}

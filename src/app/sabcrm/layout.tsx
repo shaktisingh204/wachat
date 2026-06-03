@@ -19,6 +19,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { TwentyAppFrame } from '@/components/sabcrm/twenty';
+import { SabcrmOuterShell } from '@/components/sabcrm/twenty/sabcrm-outer-shell';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { RBACGuard } from '@/components/zoruui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';
@@ -62,7 +63,16 @@ export default async function SabcrmLayout({
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
         <ProjectProvider initialProjects={projects} user={user}>
-          <TwentyAppFrame>{children}</TwentyAppFrame>
+          <SabcrmOuterShell
+            user={{
+              name: user?.name,
+              email: user?.email,
+              avatar: user?.avatar ?? user?.picture,
+              role: user?.role,
+            }}
+          >
+            <TwentyAppFrame>{children}</TwentyAppFrame>
+          </SabcrmOuterShell>
         </ProjectProvider>
       </LocaleProvider>
     </RBACGuard>
