@@ -36,8 +36,9 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    CreateRecordInput, GroupRecordsInput, GroupResponse, ListQuery, ListResponse, OkResponse,
-    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
+    BulkDeleteInput, BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CreateRecordInput,
+    GroupRecordsInput, GroupResponse, ListQuery, ListResponse, OkResponse, RecordGroup,
+    RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -454,6 +455,103 @@ pub async fn delete_record(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// POST /{object}/bulk-delete — bulkDeleteRecords
+// ===========================================================================
+
+/// Parse a slice of hex id strings into `ObjectId`s, silently dropping any
+/// that fail to parse. Used by the bulk endpoints so one bad id doesn't 500
+/// the whole batch.
+fn parse_oids(ids: &[String]) -> Vec<ObjectId> {
+    ids.iter()
+        .filter_map(|s| ObjectId::parse_str(s.trim()).ok())
+        .collect()
+}
+
+/// `POST /v1/sabcrm/records/{object}/bulk-delete` — delete every record
+/// matching `{ projectId, object, _id ∈ ids }`. Invalid ids are skipped
+/// (no error); an empty / all-invalid id set is a no-op returning
+/// `{ ok: true, deleted: 0 }`.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn bulk_delete_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Json(body): Json<BulkDeleteInput>,
+) -> Result<Json<BulkDeleteResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oids = parse_oids(&body.ids);
+
+    if oids.is_empty() {
+        return Ok(Json(BulkDeleteResponse {
+            ok: true,
+            deleted: 0,
+        }));
+    }
+
+    let mut filter = scope(project_id, &object);
+    filter.insert("_id", doc! { "$in": oids });
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let result = coll.delete_many(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.delete_many"))
+    })?;
+
+    Ok(Json(BulkDeleteResponse {
+        ok: true,
+        deleted: result.deleted_count,
+    }))
+}
+
+// ===========================================================================
+// POST /{object}/bulk-update — bulkUpdateRecords
+// ===========================================================================
+
+/// `POST /v1/sabcrm/records/{object}/bulk-update` — `$set` each `data.<k>`
+/// (and bump `updatedAt`) on every record matching
+/// `{ projectId, object, _id ∈ ids }`. Invalid ids are skipped; an empty
+/// id set is a no-op returning `{ ok: true, updated: 0 }`.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn bulk_update_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Json(body): Json<BulkUpdateInput>,
+) -> Result<Json<BulkUpdateResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let data = data_to_doc(&body.data)?;
+    let oids = parse_oids(&body.ids);
+
+    if oids.is_empty() {
+        return Ok(Json(BulkUpdateResponse {
+            ok: true,
+            updated: 0,
+        }));
+    }
+
+    let mut set = Document::new();
+    for (k, v) in data {
+        set.insert(format!("data.{k}"), v);
+    }
+    set.insert("updatedAt", Utc::now().to_rfc3339());
+
+    let mut filter = scope(project_id, &object);
+    filter.insert("_id", doc! { "$in": oids });
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let result = coll
+        .update_many(filter, doc! { "$set": set })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.update_many"))
+        })?;
+
+    Ok(Json(BulkUpdateResponse {
+        ok: true,
+        updated: result.modified_count,
+    }))
 }
 
 // ===========================================================================

@@ -39,12 +39,14 @@ import {
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import '@/components/sabcrm/twenty/twenty-activity.css';
+import './bulk-bar.css';
 import {
   SabcrmViewBar,
   EMPTY_VIEW_STATE,
   viewStateToEngineFilters,
   type ViewState,
 } from './view-bar';
+import { SabcrmBulkBar } from './bulk-bar';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -56,6 +58,10 @@ import {
   addSabcrmFavoriteTw,
   removeSabcrmFavoriteTw,
 } from '@/app/actions/sabcrm-twenty.actions';
+import {
+  bulkDeleteRecordsTw,
+  bulkUpdateRecordsTw,
+} from '@/app/actions/sabcrm-bulk.actions';
 import type {
   SabcrmRustRecord,
   SabcrmRecordTwGroup,
@@ -221,6 +227,9 @@ interface TableViewProps {
   favorites: ReadonlySet<string>;
   favBusy: ReadonlySet<string>;
   onToggleFavorite: (recordId: string) => void;
+  selected: ReadonlySet<string>;
+  onToggleSelect: (recordId: string) => void;
+  onToggleSelectAll: () => void;
 }
 
 function TableView({
@@ -232,12 +241,30 @@ function TableView({
   favorites,
   favBusy,
   onToggleFavorite,
+  selected,
+  onToggleSelect,
+  onToggleSelectAll,
 }: TableViewProps) {
+  const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
+  const someSelected = records.some((r) => selected.has(r.id));
+
   return (
     <div className="st-table-wrap">
       <table className="st-table">
         <thead>
           <tr>
+            <th className="st-checkbox-cell">
+              <input
+                type="checkbox"
+                className="st-checkbox"
+                aria-label={allSelected ? 'Deselect all' : 'Select all'}
+                checked={allSelected}
+                ref={(el) => {
+                  if (el) el.indeterminate = someSelected && !allSelected;
+                }}
+                onChange={onToggleSelectAll}
+              />
+            </th>
             <th aria-label="Favorite" style={{ width: 32 }} />
             {columns.map((col) => (
               <th key={col.key}>{col.label}</th>
@@ -247,8 +274,22 @@ function TableView({
         <tbody>
           {records.map((record) => {
             const isFav = favorites.has(record.id);
+            const isSelected = selected.has(record.id);
             return (
-            <tr key={record.id} className="st-row">
+            <tr
+              key={record.id}
+              className={`st-row${isSelected ? ' is-selected' : ''}`}
+            >
+              <td className="st-checkbox-cell">
+                <input
+                  type="checkbox"
+                  className="st-checkbox st-checkbox--row"
+                  aria-label={isSelected ? 'Deselect row' : 'Select row'}
+                  checked={isSelected}
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={() => onToggleSelect(record.id)}
+                />
+              </td>
               <td style={{ width: 32 }}>
                 <button
                   type="button"
@@ -602,6 +643,11 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
   const [favBusy, setFavBusy] = React.useState<Set<string>>(new Set());
 
+  // Multi-select state for bulk actions (set of recordIds).
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = React.useState(false);
+  const [bulkUpdating, setBulkUpdating] = React.useState(false);
+
   // Reset transient state when the object changes.
   React.useEffect(() => {
     setSearchInput('');
@@ -609,6 +655,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setView('table');
     setViewState(EMPTY_VIEW_STATE);
   }, [objectSlug]);
+
+  // Selection must not leak across object / filter / search / view changes —
+  // the underlying record set is different, so stale ids would be meaningless.
+  React.useEffect(() => {
+    setSelected(new Set());
+  }, [objectSlug, search, viewState, view, refreshTick]);
 
   // Seed visible columns from the object's `inTable` fields whenever the
   // resolved object changes (the Fields popover then mutates this set).
@@ -855,6 +907,112 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     [favBusy, favorites, objectSlug, activeProjectId],
   );
 
+  // ---- Selection ----------------------------------------------------------
+
+  const toggleSelect = React.useCallback((recordId: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(recordId)) next.delete(recordId);
+      else next.add(recordId);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = React.useCallback(() => {
+    setSelected((prev) => {
+      const allSelected =
+        records.length > 0 && records.every((r) => prev.has(r.id));
+      return allSelected ? new Set() : new Set(records.map((r) => r.id));
+    });
+  }, [records]);
+
+  const clearSelection = React.useCallback(() => setSelected(new Set()), []);
+
+  // The first SELECT field is what we offer for bulk-edit (e.g. stage/status).
+  const bulkEditField = React.useMemo<FieldMetadata | undefined>(
+    () =>
+      object?.fields.find(
+        (f) =>
+          f.type === 'SELECT' &&
+          !f.system &&
+          (f.options?.length ?? 0) > 0,
+      ),
+    [object],
+  );
+
+  // Bulk delete: optimistic removal of the selected rows, rollback on error.
+  const handleBulkDelete = React.useCallback(async () => {
+    if (bulkDeleting) return;
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+
+    const prev = records;
+    const idSet = new Set(ids);
+    setBulkDeleting(true);
+    setDataError(null);
+    setRecords((rs) => rs.filter((r) => !idSet.has(r.id)));
+
+    const res = await bulkDeleteRecordsTw(
+      objectSlug,
+      ids,
+      activeProjectId ?? undefined,
+    );
+    setBulkDeleting(false);
+
+    if (!res.ok) {
+      setRecords(prev); // rollback
+      setDataError(res.error);
+      return;
+    }
+    setSelected(new Set());
+    setRefreshTick((t) => t + 1);
+  }, [bulkDeleting, selected, records, objectSlug, activeProjectId]);
+
+  // Bulk set a SELECT field on every selected record; optimistic, rollback on
+  // error. Clears the selection on success.
+  const handleBulkSet = React.useCallback(
+    async (value: string) => {
+      if (bulkUpdating || !bulkEditField) return;
+      const ids = Array.from(selected);
+      if (ids.length === 0) return;
+
+      const key = bulkEditField.key;
+      const prev = records;
+      const idSet = new Set(ids);
+      setBulkUpdating(true);
+      setDataError(null);
+      setRecords((rs) =>
+        rs.map((r) =>
+          idSet.has(r.id) ? { ...r, data: { ...r.data, [key]: value } } : r,
+        ),
+      );
+
+      const res = await bulkUpdateRecordsTw(
+        objectSlug,
+        ids,
+        { [key]: value },
+        activeProjectId ?? undefined,
+      );
+      setBulkUpdating(false);
+
+      if (!res.ok) {
+        setRecords(prev); // rollback
+        setDataError(res.error);
+        return;
+      }
+      setSelected(new Set());
+      setRefreshTick((t) => t + 1);
+    },
+    [
+      bulkUpdating,
+      bulkEditField,
+      selected,
+      records,
+      objectSlug,
+      activeProjectId,
+    ],
+  );
+
   // ---- Render -------------------------------------------------------------
 
   if (loadingObject) {
@@ -1010,6 +1168,22 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           favorites={favorites}
           favBusy={favBusy}
           onToggleFavorite={handleToggleFavorite}
+          selected={selected}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={toggleSelectAll}
+        />
+      )}
+
+      {/* Selection bar — only meaningful in the flat table view. */}
+      {!grouped && (
+        <SabcrmBulkBar
+          count={selected.size}
+          editField={bulkEditField}
+          deleting={bulkDeleting}
+          updating={bulkUpdating}
+          onClear={clearSelection}
+          onDelete={handleBulkDelete}
+          onBulkSet={handleBulkSet}
         />
       )}
 

@@ -44,15 +44,19 @@ import {
   ChevronRight,
   Link2,
   Activity,
+  Paperclip,
+  FileText,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
+import {
+  SabFilePicker,
+  type SabFilePick,
+} from '@/components/sabfiles';
 import { TwentyChip } from '@/components/sabcrm/twenty/twenty-primitives';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
-import {
-  TwentyTimeline,
-  type TimelineItem,
-} from '@/components/sabcrm/twenty/twenty-timeline';
+import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import {
   updateSabcrmRecordTw,
@@ -71,10 +75,15 @@ import type {
   SabcrmRustActivity,
   SabcrmActivityKind,
   RecordRelation,
+  // In-flight: `SabcrmAttachment` is added in parallel by another agent. If
+  // tsc flags ONLY this member as missing during the port, that's the
+  // expected interim state — the rest of this file stays clean.
+  SabcrmAttachment,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import './record-tabs.css';
+import './attachments.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -124,18 +133,6 @@ const ACTIVITY_KINDS: readonly { value: SabcrmActivityKind; label: string }[] = 
   { value: 'EMAIL', label: 'Email' },
 ] as const;
 
-/** Map a raw engine activity to the presentational timeline item. */
-function activityToItem(a: SabcrmRustActivity): TimelineItem {
-  return {
-    id: a.id,
-    type: a.type,
-    title: a.title,
-    body: a.body || undefined,
-    createdAt: a.createdAt,
-    authorName: a.authorId || undefined,
-  };
-}
-
 /** True when a TASK activity is in its completed state. */
 function isTaskDone(a: SabcrmRustActivity): boolean {
   return (a.status ?? '').toUpperCase() === 'DONE';
@@ -169,6 +166,208 @@ function formatDue(value: string): string | null {
     day: 'numeric',
     year: 'numeric',
   });
+}
+
+// ---------------------------------------------------------------------------
+// Attachments (SabFiles-backed)
+// ---------------------------------------------------------------------------
+
+/** Map a chosen SabFiles pick to the action's attachment shape. */
+function pickToAttachment(pick: SabFilePick): SabcrmAttachment {
+  return {
+    fileId: pick.id,
+    name: pick.name,
+    contentType: pick.mime,
+    size: pick.size,
+    url: pick.url,
+  };
+}
+
+/** Human-readable byte size for a chip ("1.2 MB"); empty when unknown. */
+function fmtBytes(bytes?: number): string {
+  if (bytes == null || Number.isNaN(bytes)) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ['KB', 'MB', 'GB', 'TB'];
+  let v = bytes / 1024;
+  let i = 0;
+  while (v >= 1024 && i < units.length - 1) {
+    v /= 1024;
+    i += 1;
+  }
+  return `${v.toFixed(v < 10 ? 1 : 0)} ${units[i]}`;
+}
+
+/**
+ * Read attachments off a raw engine activity. The TS `SabcrmRustActivity`
+ * type may not declare `attachments` yet (the engine field is added in
+ * parallel), so we access it defensively and tolerate a missing/empty list.
+ */
+function activityAttachments(a: SabcrmRustActivity): SabcrmAttachment[] {
+  const raw = (a as { attachments?: unknown }).attachments;
+  return Array.isArray(raw) ? (raw as SabcrmAttachment[]) : [];
+}
+
+/** A single Twenty-style file chip; links to `url` (new tab) when present. */
+function AttachmentChip({ attachment }: { attachment: SabcrmAttachment }) {
+  const size = fmtBytes(attachment.size);
+  return (
+    <span className="sa-chip" title={attachment.name}>
+      <FileText className="sa-chip__icon" size={12} aria-hidden="true" />
+      {attachment.url ? (
+        <a
+          className="sa-chip__name"
+          href={attachment.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {attachment.name}
+        </a>
+      ) : (
+        <span className="sa-chip__name">{attachment.name}</span>
+      )}
+      {size ? <span className="sa-chip__size">{size}</span> : null}
+    </span>
+  );
+}
+
+/** Read-only chip row for already-posted attachments (timeline / notes). */
+function AttachmentList({
+  attachments,
+}: {
+  attachments: SabcrmAttachment[];
+}): React.JSX.Element | null {
+  if (!attachments.length) return null;
+  return (
+    <div className="sa-attachments">
+      {attachments.map((att) => (
+        <AttachmentChip key={att.fileId} attachment={att} />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * "Attach" control + pending-chip list for a composer. The trigger is
+ * Twenty-styled; the picker modal itself is the SabFiles `<SabFilePicker>`
+ * (Library + Upload). Each pick becomes a removable pending chip.
+ */
+interface AttachControlProps {
+  attachments: SabcrmAttachment[];
+  onAdd: (attachment: SabcrmAttachment) => void;
+  onRemove: (fileId: string) => void;
+  disabled?: boolean;
+}
+
+function AttachControl({
+  attachments,
+  onAdd,
+  onRemove,
+  disabled,
+}: AttachControlProps): React.JSX.Element {
+  const [pickerOpen, setPickerOpen] = React.useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        className="sa-attach-btn"
+        onClick={() => setPickerOpen(true)}
+        disabled={disabled}
+      >
+        <Paperclip size={13} aria-hidden="true" />
+        Attach
+      </button>
+      {attachments.length > 0 && (
+        <div className="sa-chips">
+          {attachments.map((att) => (
+            <span className="sa-chip" key={att.fileId} title={att.name}>
+              <FileText className="sa-chip__icon" size={12} aria-hidden="true" />
+              <span className="sa-chip__name">{att.name}</span>
+              <button
+                type="button"
+                className="sa-chip__remove"
+                onClick={() => onRemove(att.fileId)}
+                aria-label={`Remove ${att.name}`}
+                title="Remove attachment"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <SabFilePicker
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        title="Attach a file"
+        onPick={(pick) => {
+          onAdd(pickToAttachment(pick));
+          setPickerOpen(false);
+        }}
+      />
+    </>
+  );
+}
+
+/**
+ * Twenty-style activity timeline that also renders each entry's attachments.
+ * Mirrors the shared `.st-timeline` markup (the closed `TwentyTimeline` kit
+ * exposes no per-item slot) so attachment chips can hang under each item.
+ */
+const TIMELINE_TYPE_ICON: Record<string, LucideIcon> = {
+  NOTE: StickyNote,
+  TASK: CheckCircle2,
+  CALL: Activity,
+  MEETING: CalendarClock,
+  EMAIL: Activity,
+};
+
+interface AttachmentTimelineProps {
+  activities: SabcrmRustActivity[];
+  loading: boolean;
+  emptyLabel: string;
+}
+
+function AttachmentTimeline({
+  activities,
+  loading,
+  emptyLabel,
+}: AttachmentTimelineProps): React.JSX.Element {
+  if (loading) {
+    return <TwentyTimeline activities={[]} loading emptyLabel="" />;
+  }
+  if (!activities.length) {
+    return <div className="st-timeline-empty">{emptyLabel}</div>;
+  }
+  return (
+    <ol className="st-timeline">
+      {activities.map((a) => {
+        const Icon = TIMELINE_TYPE_ICON[a.type.toUpperCase()] ?? Activity;
+        const atts = activityAttachments(a);
+        return (
+          <li className="st-timeline__item" key={a.id}>
+            <div className="st-timeline__rail">
+              <span className="st-timeline__dot" aria-hidden="true">
+                <Icon size={12} />
+              </span>
+            </div>
+            <div className="st-timeline__content">
+              <div className="st-timeline__head">
+                <span className="st-timeline__title">{a.title}</span>
+                <time className="st-timeline__time" dateTime={a.createdAt}>
+                  {relTime(a.createdAt)}
+                </time>
+              </div>
+              {a.body ? <p className="st-timeline__body">{a.body}</p> : null}
+              {a.authorId ? (
+                <span className="st-timeline__author">{a.authorId}</span>
+              ) : null}
+              <AttachmentList attachments={atts} />
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
 }
 
 /**
@@ -214,6 +413,7 @@ interface ComposerProps {
     type: SabcrmActivityKind,
     title: string,
     body: string,
+    attachments: SabcrmAttachment[],
   ) => Promise<boolean>;
 }
 
@@ -221,19 +421,28 @@ function Composer({ onAdd }: ComposerProps) {
   const [type, setType] = React.useState<SabcrmActivityKind>('NOTE');
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
+  const [attachments, setAttachments] = React.useState<SabcrmAttachment[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const addAttachment = (att: SabcrmAttachment) =>
+    setAttachments((prev) =>
+      prev.some((a) => a.fileId === att.fileId) ? prev : [...prev, att],
+    );
+  const removeAttachment = (fileId: string) =>
+    setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
-    const ok = await onAdd(type, title.trim(), body.trim());
+    const ok = await onAdd(type, title.trim(), body.trim(), attachments);
     setSaving(false);
     if (ok) {
       setTitle('');
       setBody('');
+      setAttachments([]);
     } else {
       setError('Could not add activity.');
     }
@@ -270,6 +479,12 @@ function Composer({ onAdd }: ComposerProps) {
         aria-label="Activity body"
       />
       <div className="st-composer__footer">
+        <AttachControl
+          attachments={attachments}
+          onAdd={addAttachment}
+          onRemove={removeAttachment}
+          disabled={saving}
+        />
         {error && <span className="st-composer__error">{error}</span>}
         <button
           type="submit"
@@ -366,25 +581,38 @@ function TabStrip({ active, onSelect, counts }: TabStripProps) {
 // ---------------------------------------------------------------------------
 
 interface NoteComposerProps {
-  onAdd: (title: string, body: string) => Promise<boolean>;
+  onAdd: (
+    title: string,
+    body: string,
+    attachments: SabcrmAttachment[],
+  ) => Promise<boolean>;
 }
 
 function NoteComposer({ onAdd }: NoteComposerProps) {
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
+  const [attachments, setAttachments] = React.useState<SabcrmAttachment[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const addAttachment = (att: SabcrmAttachment) =>
+    setAttachments((prev) =>
+      prev.some((a) => a.fileId === att.fileId) ? prev : [...prev, att],
+    );
+  const removeAttachment = (fileId: string) =>
+    setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
-    const ok = await onAdd(title.trim(), body.trim());
+    const ok = await onAdd(title.trim(), body.trim(), attachments);
     setSaving(false);
     if (ok) {
       setTitle('');
       setBody('');
+      setAttachments([]);
     } else {
       setError('Could not add note.');
     }
@@ -409,6 +637,12 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
         aria-label="Note body"
       />
       <div className="st-composer__footer">
+        <AttachControl
+          attachments={attachments}
+          onAdd={addAttachment}
+          onRemove={removeAttachment}
+          disabled={saving}
+        />
         {error && <span className="st-composer__error">{error}</span>}
         <button
           type="submit"
@@ -766,7 +1000,12 @@ export function RecordDetailTw({
   }, [object.slug, record.id, projectId]);
 
   const handleAddActivity = React.useCallback(
-    async (type: SabcrmActivityKind, title: string, body: string) => {
+    async (
+      type: SabcrmActivityKind,
+      title: string,
+      body: string,
+      attachments: SabcrmAttachment[] = [],
+    ) => {
       const res = await createSabcrmActivityTw(
         {
           targetObject: object.slug,
@@ -774,6 +1013,7 @@ export function RecordDetailTw({
           type,
           title,
           body: body || undefined,
+          attachments: attachments.length ? attachments : undefined,
         },
         projectId ?? undefined,
       );
@@ -830,7 +1070,8 @@ export function RecordDetailTw({
 
   // Add a NOTE-kind activity (Notes tab composer).
   const handleAddNote = React.useCallback(
-    (title: string, body: string) => handleAddActivity('NOTE', title, body),
+    (title: string, body: string, attachments: SabcrmAttachment[]) =>
+      handleAddActivity('NOTE', title, body, attachments),
     [handleAddActivity],
   );
 
@@ -884,11 +1125,6 @@ export function RecordDetailTw({
       setTaskBusyId(null);
     },
     [taskBusyId, projectId],
-  );
-
-  const timelineItems = React.useMemo<TimelineItem[]>(
-    () => activities.map(activityToItem),
-    [activities],
   );
 
   const notes = React.useMemo(
@@ -1007,6 +1243,7 @@ export function RecordDetailTw({
                         {n.body ? (
                           <p className="rt-note__body">{n.body}</p>
                         ) : null}
+                        <AttachmentList attachments={activityAttachments(n)} />
                       </article>
                     ))}
                   </div>
@@ -1043,8 +1280,8 @@ export function RecordDetailTw({
                 aria-label="Activity timeline"
               >
                 <Composer onAdd={handleAddActivity} />
-                <TwentyTimeline
-                  activities={timelineItems}
+                <AttachmentTimeline
+                  activities={activities}
                   loading={loadingTimeline}
                   emptyLabel="No activity yet"
                 />

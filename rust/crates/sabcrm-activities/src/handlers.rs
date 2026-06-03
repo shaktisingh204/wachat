@@ -171,6 +171,14 @@ pub async fn create_activity(
     if let Some(d) = body.due_at.as_deref().filter(|s| !s.is_empty()) {
         new_doc.insert("dueAt", d);
     }
+    if let Some(attachments) = body.attachments.as_ref().filter(|a| !a.is_empty()) {
+        let bson = bson::to_bson(attachments).map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_activities.attachments.to_bson"),
+            )
+        })?;
+        new_doc.insert("attachments", bson);
+    }
 
     let coll = mongo.collection::<Document>(ACTIVITIES_COLL);
     coll.insert_one(&new_doc).await.map_err(|e| {

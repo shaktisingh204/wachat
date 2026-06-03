@@ -20,6 +20,8 @@
 //! GET    /{object}             — list_records
 //! POST   /{object}             — create_record
 //! POST   /{object}/group       — group_records   (kanban)
+//! POST   /{object}/bulk-delete — bulk_delete_records
+//! POST   /{object}/bulk-update — bulk_update_records
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
 //! DELETE /{object}/{id}        — delete_record
@@ -52,6 +54,14 @@ where
             get(handlers::list_records).post(handlers::create_record),
         )
         .route("/{object}/group", post(handlers::group_records))
+        .route(
+            "/{object}/bulk-delete",
+            post(handlers::bulk_delete_records),
+        )
+        .route(
+            "/{object}/bulk-update",
+            post(handlers::bulk_update_records),
+        )
         .route(
             "/{object}/{id}",
             get(handlers::get_record)

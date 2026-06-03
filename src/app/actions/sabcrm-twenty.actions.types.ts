@@ -12,7 +12,10 @@
 
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
-import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+import type {
+  SabcrmRustActivity,
+  SabcrmAttachment,
+} from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
 export type { ObjectMetadata } from '@/lib/sabcrm/types';
@@ -20,7 +23,10 @@ export type {
   SabcrmRustRecord,
   RecordRelation,
 } from '@/lib/rust-client/sabcrm-records';
-export type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+export type {
+  SabcrmRustActivity,
+  SabcrmAttachment,
+} from '@/lib/rust-client/sabcrm-activities';
 export type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
 /** Options accepted by {@link listSabcrmRecordsTw}. */
@@ -90,6 +96,8 @@ export interface CreateSabcrmActivityTwInput {
   status?: string;
   assigneeId?: string;
   dueAt?: string;
+  /** SabFiles attachment refs (optional; never raw external URLs). */
+  attachments?: SabcrmAttachment[];
 }
 
 /** Partial patch accepted by {@link updateSabcrmActivityTw}. */
@@ -100,4 +108,6 @@ export interface UpdateSabcrmActivityTwPatch {
   status?: string;
   assigneeId?: string;
   dueAt?: string;
+  /** Replacement SabFiles attachment list (optional). */
+  attachments?: SabcrmAttachment[];
 }

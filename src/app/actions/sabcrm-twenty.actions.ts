@@ -411,6 +411,7 @@ export async function createSabcrmActivityTw(
       status: input.status,
       assigneeId: input.assigneeId,
       dueAt: input.dueAt,
+      attachments: input.attachments,
     });
     revalidatePath(
       `${TW_BASE_PATH}/${input.targetObject}/${input.targetRecordId}`,

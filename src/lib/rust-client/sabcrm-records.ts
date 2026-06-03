@@ -95,6 +95,18 @@ export interface SabcrmRecordUpdateInput {
   data: Record<string, unknown>;
 }
 
+export interface SabcrmRecordBulkDeleteResponse {
+  ok: boolean;
+  /** Number of records actually deleted. */
+  deleted: number;
+}
+
+export interface SabcrmRecordBulkUpdateResponse {
+  ok: boolean;
+  /** Number of records actually modified. */
+  updated: number;
+}
+
 /** Encode query params, dropping undefined/empty values. */
 function qs(params: Record<string, string | number | undefined>): string {
   const sp = new URLSearchParams();
@@ -188,6 +200,39 @@ export const sabcrmRecordsApi = {
   ): Promise<SabcrmRecordRelationsResponse> {
     return rustFetch<SabcrmRecordRelationsResponse>(
       `${base(object)}/${encodeURIComponent(id)}/related${qs({ projectId })}`,
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/bulk-delete` — delete every record
+   * whose id is in `ids` (scoped to `projectId` + object). Invalid ids are
+   * skipped server-side; returns the count actually deleted.
+   */
+  bulkDelete(
+    object: string,
+    projectId: string,
+    ids: string[],
+  ): Promise<SabcrmRecordBulkDeleteResponse> {
+    return rustFetch<SabcrmRecordBulkDeleteResponse>(
+      `${base(object)}/bulk-delete`,
+      { method: 'POST', body: JSON.stringify({ projectId, ids }) },
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/bulk-update` — `$set` each `data.<k>`
+   * (and bump `updatedAt`) on every record whose id is in `ids`. Invalid ids
+   * are skipped server-side; returns the count actually modified.
+   */
+  bulkUpdate(
+    object: string,
+    projectId: string,
+    ids: string[],
+    data: Record<string, unknown>,
+  ): Promise<SabcrmRecordBulkUpdateResponse> {
+    return rustFetch<SabcrmRecordBulkUpdateResponse>(
+      `${base(object)}/bulk-update`,
+      { method: 'POST', body: JSON.stringify({ projectId, ids, data }) },
     );
   },
 

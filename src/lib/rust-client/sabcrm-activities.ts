@@ -17,6 +17,25 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
+/**
+ * A SabFiles attachment ref carried by an activity. These are references into
+ * the user's SabFiles library — never raw external URLs. Mirrors the
+ * `Attachment` struct in `rust/crates/sabcrm-activities/src/dto.rs` and the
+ * `SabcrmActivityDoc.attachments` shape in `src/lib/sabcrm/db.ts`.
+ */
+export interface SabcrmAttachment {
+  /** SabFiles file id (the library reference). */
+  fileId: string;
+  /** Display name of the file. */
+  name: string;
+  /** MIME type (optional). */
+  contentType?: string;
+  /** Byte size (optional). */
+  size?: number;
+  /** Resolved SabFiles-served URL (optional; never an external URL). */
+  url?: string;
+}
+
 /** A SabCRM activity as returned by the Rust engine (`_id` → `id` hex). */
 export interface SabcrmRustActivity {
   id: string;
@@ -34,6 +53,8 @@ export interface SabcrmRustActivity {
   assigneeId?: string;
   /** TASK-only due date (RFC3339). */
   dueAt?: string;
+  /** SabFiles attachment refs (absent on legacy rows). */
+  attachments?: SabcrmAttachment[];
   createdAt: string;
   updatedAt: string;
 }
@@ -64,14 +85,19 @@ export interface SabcrmActivityCreateInput {
   status?: string;
   assigneeId?: string;
   dueAt?: string;
+  /** SabFiles attachment refs (optional). */
+  attachments?: SabcrmAttachment[];
 }
 
 /**
  * `PATCH /{id}` body — partial update. `projectId` scopes the row; every
- * other key is `$set` verbatim (e.g. `{ status: 'DONE' }`).
+ * other key is `$set` verbatim (e.g. `{ status: 'DONE' }`, or replacing the
+ * `attachments` array).
  */
 export interface SabcrmActivityUpdateInput {
   projectId: string;
+  /** Optional replacement attachment list (`$set` verbatim). */
+  attachments?: SabcrmAttachment[];
   [key: string]: unknown;
 }
 

@@ -1,0 +1,237 @@
+/* =========================================================================
+   SabCRM — Twenty-style multi-select + bulk-action bar.
+
+   Scoped, additive `.st-*` classes for the record-table selection feature.
+   These extend the base Twenty kit (`src/styles/sabcrm-twenty.css`) without
+   editing it: a leading checkbox column, hover-revealed row checkboxes, and a
+   floating selection bar that surfaces once one or more rows are picked.
+
+   Everything draws on the existing `--st-*` design tokens so the look stays
+   faithful to Twenty. No ZoruUI / Tailwind / clay.
+   ========================================================================= */
+
+/* --- Checkbox column -------------------------------------------------------
+   The leading cell is fixed-width and centers a native checkbox restyled to
+   Twenty's flat, square look. */
+
+.st-checkbox-cell {
+  width: 36px;
+  padding: 0 var(--st-space-2);
+  text-align: center;
+}
+
+.st-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  transition: border-color 0.12s ease, background 0.12s ease, opacity 0.12s ease;
+}
+
+.st-checkbox:hover {
+  border-color: var(--st-text-tertiary);
+}
+
+.st-checkbox:focus-visible {
+  outline: 2px solid var(--st-accent-soft);
+  outline-offset: 1px;
+  border-color: var(--st-accent);
+}
+
+.st-checkbox:checked,
+.st-checkbox:indeterminate {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.st-checkbox:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--st-text-inverted);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.st-checkbox:indeterminate::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  width: 7px;
+  height: 0;
+  border-top: 2px solid var(--st-text-inverted);
+}
+
+.st-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Row checkboxes are hidden until the row is hovered or already selected —
+   the header checkbox always shows. Twenty reveals the column on intent. */
+
+.st-checkbox--row {
+  opacity: 0;
+}
+
+.st-row:hover .st-checkbox--row,
+.st-row.is-selected .st-checkbox--row,
+.st-checkbox--row:focus-visible {
+  opacity: 1;
+}
+
+.st-row.is-selected {
+  background: var(--st-accent-soft);
+}
+
+.st-row.is-selected:hover {
+  background: var(--st-accent-soft);
+}
+
+/* --- Floating selection bar ----------------------------------------------- */
+
+.st-selbar {
+  position: fixed;
+  left: 50%;
+  bottom: var(--st-space-5);
+  transform: translateX(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  max-width: calc(100vw - var(--st-space-5) * 2);
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-pop);
+  animation: st-selbar-in 0.14s ease-out;
+}
+
+@keyframes st-selbar-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.st-selbar__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  white-space: nowrap;
+}
+
+.st-selbar__count em {
+  font-style: normal;
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-regular);
+}
+
+.st-selbar__sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--st-border);
+}
+
+.st-selbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.st-selbar__field {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.st-selbar__field-label {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+/* A compact select that matches the existing `.st-select` proportions but
+   sits inline within the bar. */
+
+.st-selbar__select {
+  height: 28px;
+  padding: 0 var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  font-family: inherit;
+  color: var(--st-text);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+}
+
+.st-selbar__select:hover {
+  border-color: var(--st-text-tertiary);
+}
+
+.st-selbar__select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+}
+
+.st-selbar__select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.st-selbar__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--st-text-secondary);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+}
+
+.st-selbar__close:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+/* --- Danger button (delete) ----------------------------------------------- */
+
+.st-btn--danger {
+  background: #d3402d;
+  border: 1px solid #d3402d;
+  color: var(--st-text-inverted);
+}
+
+.st-btn--danger:hover:not(:disabled) {
+  background: #b8331f;
+  border-color: #b8331f;
+}
+
+.st-btn--danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

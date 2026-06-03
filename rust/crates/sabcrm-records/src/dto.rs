@@ -175,3 +175,48 @@ pub struct RelationsResponse {
 pub struct OkResponse {
     pub ok: bool,
 }
+
+/// `POST /{object}/bulk-delete` body. Deletes every record matching
+/// `{ projectId, object, _id ∈ ids }`. Ids that aren't valid ObjectIds are
+/// skipped (no error) rather than failing the whole batch.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Hex ObjectId strings of the records to delete. Invalid ids are skipped.
+    pub ids: Vec<String>,
+}
+
+/// Response body for `POST /{object}/bulk-delete`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkDeleteResponse {
+    pub ok: bool,
+    /// Number of records actually deleted.
+    pub deleted: u64,
+}
+
+/// `POST /{object}/bulk-update` body. `$set`s each `data.<k>` on every record
+/// matching `{ projectId, object, _id ∈ ids }` and bumps `updatedAt`. Invalid
+/// ids are skipped rather than failing the whole batch.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkUpdateInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Hex ObjectId strings of the records to update. Invalid ids are skipped.
+    pub ids: Vec<String>,
+    /// Field map — each key is written as `data.<key>` on every matched record.
+    #[schema(value_type = Object)]
+    pub data: Value,
+}
+
+/// Response body for `POST /{object}/bulk-update`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct BulkUpdateResponse {
+    pub ok: bool,
+    /// Number of records actually modified.
+    pub updated: u64,
+}

@@ -32,6 +32,27 @@ pub struct ListQuery {
     pub limit: Option<u64>,
 }
 
+/// A single SabFiles attachment ref carried by an activity. These are
+/// references into the user's SabFiles library — **never** raw external
+/// URLs. Mirrors `SabcrmActivityDoc.attachments` in `src/lib/sabcrm/db.ts`.
+#[derive(Debug, Clone, Deserialize, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct Attachment {
+    /// SabFiles file id (the library reference).
+    pub file_id: String,
+    /// Display name of the file.
+    pub name: String,
+    /// MIME type (optional).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub content_type: Option<String>,
+    /// Byte size (optional).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<u64>,
+    /// Resolved download URL (optional; a SabFiles-served URL, never external).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+}
+
 /// Query params for endpoints that only need the tenant scope
 /// (`DELETE /{id}`).
 #[derive(Debug, Clone, Deserialize, ToSchema)]
@@ -71,6 +92,9 @@ pub struct CreateActivityInput {
     /// TASK-only due date (RFC3339 string stored verbatim).
     #[serde(default)]
     pub due_at: Option<String>,
+    /// SabFiles attachment refs (optional; omitted = none).
+    #[serde(default)]
+    pub attachments: Option<Vec<Attachment>>,
 }
 
 /// `PATCH /{id}` body — partial update (e.g. task status). Each key in the
