@@ -3,39 +3,34 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — "My Work" page (`/sabcrm/my-work`).
+ * SabCRM — "My Work" page (`/sabcrm/my-work`), Twenty look.
  *
- * Twenty CRM "Assigned to me / My work" parity: a single, cross-object inbox
- * of every record assigned to the signed-in member in the active project,
- * newest-updated first. Unlike `/sabcrm/tasks` (which narrows the same inbox to
- * the standard `tasks` object and groups by status), this surface is
- * intentionally object-agnostic — it lists assignments across *all* objects
- * (people, companies, opportunities, tasks, …) in one continuous table, each
- * row linking to the source record.
+ * Twenty CRM "Assigned to me / My work" parity: a single, cross-object inbox of
+ * every record assigned to the signed-in member in the active project, newest-
+ * updated first. Object-agnostic — it lists assignments across *all* objects
+ * (people, companies, opportunities, tasks, …) in one continuous Twenty table,
+ * each row linking to `/sabcrm/<object>/<recordId>`.
  *
- * Client Component. Auth / onboarding / RBAC / project context are already
- * enforced by `../layout.tsx` (which wraps every `/sabcrm/*` child in
- * `RBACGuard` + `ProjectProvider` inside the `.zoruui` scope). The underlying
- * server action ({@link listMyAssignmentsAction}, behind `sabcrm:view`)
- * independently re-runs the full session → project → RBAC → plan pipeline, so
- * this page fails closed (a calm in-page error / empty state) for anyone who
- * slips past the layout guard.
+ * Client Component. Auth / onboarding / RBAC / project context are enforced by
+ * `../layout.tsx`, which wraps every `/sabcrm/*` child in `RBACGuard` +
+ * `ProjectProvider` and mounts them inside `TwentyAppFrame` (the `.sabcrm-twenty`
+ * scope + `.st-main__content` padding). {@link listMyAssignmentsAction} (behind
+ * `sabcrm:view`) independently re-runs the full session → project → RBAC → plan
+ * pipeline, so this page fails closed (calm in-page error / empty state) for
+ * anyone who slips past the layout guard.
  *
  * Data model
  * ----------
- * {@link listMyAssignmentsAction} returns a {@link MyAssignmentsPage}:
- * `{ records: CrmRecord[]; total; page; pageSize }`. A `CrmRecord` carries only
- * `_id`, `object` (slug), `userId`, a free-form `data` map and ISO `createdAt` /
- * `updatedAt` — there is no precomputed label/status field, so we derive a
- * display title from the conventional label keys (`title` / `name` / `label` /
- * an email) and surface `data.status` + a due date *only when the record's
- * `data` actually contains them*. Each row links to
- * `/sabcrm/<object>/<recordId>`, matching the record-index link shape.
+ * {@link listMyAssignmentsAction} returns `{ records: CrmRecord[]; total; … }`.
+ * A `CrmRecord` carries only `_id`, `object`, `userId`, a free-form `data` map
+ * and ISO `createdAt` / `updatedAt` — there is no precomputed label/status
+ * field, so we derive a display title from the conventional label keys
+ * (`title` / `name` / `label` / …) and surface `data.status` + a due date *only
+ * when the record's `data` actually contains them*, rendering them through
+ * {@link TwentyFieldValue} (synthetic SELECT / DATE fields) for Twenty-faithful
+ * presentation.
  *
- * `AssignmentControl` is intentionally NOT mounted here: it requires a workspace
- * `members` roster (for the re-assign picker) that the assignment list does not
- * carry, so this page is a read + link surface — re-assignment happens on the
- * record detail screen each row links to.
+ * Twenty look only (`.st-*` + `./my-work.css`). NO ZoruUI / Tailwind / clay.
  */
 
 import * as React from 'react';
@@ -43,27 +38,30 @@ import Link from 'next/link';
 import { ClipboardList, AlertTriangle } from 'lucide-react';
 
 import { listMyAssignmentsAction } from '@/app/actions/sabcrm.actions';
-import type { CrmRecord } from '@/lib/sabcrm/types';
+import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
+import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import type { CrmRecord, FieldMetadata } from '@/lib/sabcrm/types';
 import { useProject } from '@/context/project-context';
-import {
-  Badge,
-  Skeleton,
-  EmptyState,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-} from '@/components/zoruui';
+
+import './my-work.css';
+
+// ---------------------------------------------------------------------------
+// Synthetic fields used to drive TwentyFieldValue for the optional columns.
+// ---------------------------------------------------------------------------
+
+/** A bare SELECT field (no options) so a status value renders as a chip. */
+const STATUS_FIELD: FieldMetadata = {
+  key: 'status',
+  label: 'Status',
+  type: 'SELECT',
+};
+
+/** A DATE field so a due date renders Twenty-humanized ("Apr 3, 2026"). */
+const DUE_FIELD: FieldMetadata = {
+  key: 'dueAt',
+  label: 'Due',
+  type: 'DATE',
+};
 
 // ---------------------------------------------------------------------------
 // Value helpers (the `data` map is free-form, so every read is defensive)
@@ -81,7 +79,7 @@ function asText(value: unknown): string {
 /**
  * Derive a human title for an assignment from the conventional label keys an
  * object's records use, in priority order. Falls back to a generic label so the
- * row is always linkable/readable.
+ * row is always linkable / readable.
  */
 function deriveTitle(record: CrmRecord): string {
   const d = record.data;
@@ -99,17 +97,17 @@ function deriveStatus(record: CrmRecord): string | null {
 }
 
 /**
- * Read a due date from the conventional date keys, only if present + valid.
- * Returns a locale date string, or null when the record has no due date.
+ * Read a raw due value from the conventional date keys, only if present + a
+ * parseable date. Returns the raw value (for {@link TwentyFieldValue}) or null.
  */
-function deriveDueDate(record: CrmRecord): string | null {
+function deriveDue(record: CrmRecord): string | number | null {
   const d = record.data;
   for (const key of ['dueAt', 'dueDate', 'due']) {
     const raw = d[key];
     if (raw === null || raw === undefined || raw === '') continue;
-    if (typeof raw === 'string' || typeof raw === 'number' || raw instanceof Date) {
-      const parsed = new Date(raw as string | number | Date);
-      if (!Number.isNaN(parsed.getTime())) return parsed.toLocaleDateString();
+    if (typeof raw === 'string' || typeof raw === 'number') {
+      const parsed = new Date(raw);
+      if (!Number.isNaN(parsed.getTime())) return raw;
     }
   }
   return null;
@@ -132,13 +130,15 @@ function formatUpdated(iso: string): string {
 // Loading skeleton
 // ---------------------------------------------------------------------------
 
-function MyWorkSkeleton() {
+function MyWorkSkeleton(): React.JSX.Element {
   return (
-    <div className="space-y-3">
-      <Skeleton className="h-10 w-full" />
-      {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
-      ))}
+    <div className="st-table-wrap" aria-hidden="true">
+      <div style={{ padding: 'var(--st-space-3)' }}>
+        <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="st-skeleton st-skeleton-row" />
+        ))}
+      </div>
     </div>
   );
 }
@@ -147,69 +147,69 @@ function MyWorkSkeleton() {
 // Assignments table
 // ---------------------------------------------------------------------------
 
-function AssignmentsTable({ records }: { records: CrmRecord[] }) {
+function AssignmentsTable({ records }: { records: CrmRecord[] }): React.JSX.Element {
   // Surface the optional columns only if at least one record carries them, so
   // the table never shows an all-empty Status / Due column for objects (e.g.
   // companies) that don't have those fields.
   const showStatus = records.some((r) => deriveStatus(r) !== null);
-  const showDue = records.some((r) => deriveDueDate(r) !== null);
+  const showDue = records.some((r) => deriveDue(r) !== null);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zoru-line">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Record</TableHead>
-            <TableHead>Object</TableHead>
-            {showStatus && <TableHead>Status</TableHead>}
-            {showDue && <TableHead>Due</TableHead>}
-            <TableHead>Updated</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <div className="st-table-wrap">
+      <table className="st-table">
+        <thead>
+          <tr>
+            <th>Record</th>
+            <th>Object</th>
+            {showStatus ? <th>Status</th> : null}
+            {showDue ? <th>Due</th> : null}
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
           {records.map((record) => {
             const status = deriveStatus(record);
-            const due = deriveDueDate(record);
+            const due = deriveDue(record);
             const updated = formatUpdated(record.updatedAt);
             return (
-              <TableRow key={record._id}>
-                <TableCell>
+              <tr key={record._id} className="st-row">
+                <td>
                   <Link
                     href={`/sabcrm/${record.object}/${record._id}`}
-                    className="font-medium text-zoru-ink hover:underline"
+                    className="st-cell-link"
                   >
                     {deriveTitle(record)}
                   </Link>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{humanizeObject(record.object)}</Badge>
-                </TableCell>
-                {showStatus && (
-                  <TableCell>
+                </td>
+                <td className="stw-cell-object">
+                  <TwentyChip label={humanizeObject(record.object)} />
+                </td>
+                {showStatus ? (
+                  <td>
                     {status ? (
-                      <Badge variant="secondary">{status}</Badge>
+                      <TwentyFieldValue field={STATUS_FIELD} value={status} />
                     ) : (
-                      <span className="text-zoru-ink-muted">—</span>
+                      <span className="st-cell-muted">—</span>
                     )}
-                  </TableCell>
-                )}
-                {showDue && (
-                  <TableCell>
-                    {due ?? <span className="text-zoru-ink-muted">—</span>}
-                  </TableCell>
-                )}
-                <TableCell>
-                  {updated ? (
-                    <span className="text-sm text-zoru-ink-muted">{updated}</span>
-                  ) : (
-                    <span className="text-zoru-ink-muted">—</span>
-                  )}
-                </TableCell>
-              </TableRow>
+                  </td>
+                ) : null}
+                {showDue ? (
+                  <td>
+                    {due !== null ? (
+                      <TwentyFieldValue field={DUE_FIELD} value={due} />
+                    ) : (
+                      <span className="st-cell-muted">—</span>
+                    )}
+                  </td>
+                ) : null}
+                <td className="stw-cell-meta">
+                  {updated || <span className="st-cell-muted">—</span>}
+                </td>
+              </tr>
             );
           })}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -218,7 +218,7 @@ function AssignmentsTable({ records }: { records: CrmRecord[] }) {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function MyWorkPage() {
+export default function MyWorkPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
 
   const [records, setRecords] = React.useState<CrmRecord[]>([]);
@@ -255,41 +255,35 @@ export default function MyWorkPage() {
   }, [activeProjectId]);
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-5xl px-6 py-10 sm:px-8 sm:py-14">
-      <PageHeader className="mb-8">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Assigned to me</ZoruPageEyebrow>
-          <ZoruPageTitle>My Work</ZoruPageTitle>
-          <ZoruPageDescription>
-            Every record assigned to you across this workspace, newest first.
-            Open any record to see its full timeline or hand it off to a
-            teammate.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
+    <div className="stw-page">
+      <TwentyPageHeader title="My Work" icon={ClipboardList} />
 
       {loading ? (
         <MyWorkSkeleton />
       ) : error ? (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>My Work is unavailable</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
-        </Alert>
+        <div className="st-banner" role="alert">
+          <AlertTriangle size={16} className="st-banner__icon" aria-hidden="true" />
+          <span>{error}</span>
+        </div>
       ) : records.length === 0 ? (
-        <EmptyState
-          icon={<ClipboardList />}
-          title="Nothing assigned to you"
-          description="When a record is assigned to you it will show up here, ready to pick up."
-        />
+        <div className="st-empty">
+          <span className="st-empty__icon" aria-hidden="true">
+            <ClipboardList size={20} />
+          </span>
+          <p className="st-empty__title">Nothing assigned to you</p>
+          <p className="st-empty__desc">
+            When a record is assigned to you it will show up here, ready to pick
+            up.
+          </p>
+        </div>
       ) : (
         <>
-          <p className="mb-4 text-sm text-zoru-ink-muted">
+          <p className="stw-count">
             {total} {total === 1 ? 'record' : 'records'} assigned to you
           </p>
           <AssignmentsTable records={records} />
         </>
       )}
-    </main>
+    </div>
   );
 }

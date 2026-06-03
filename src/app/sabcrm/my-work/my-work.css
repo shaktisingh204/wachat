@@ -1,0 +1,174 @@
+/**
+ * SabCRM — "My Work" + "Search" page-local styles.
+ *
+ * Twenty look only. These classes EXTEND the shared `.st-*` system in
+ * `src/styles/sabcrm-twenty.css` (which is NOT edited) with the few extras the
+ * cross-object assignment inbox (`/sabcrm/my-work`) and the global record
+ * search (`/sabcrm/search`) need. Everything reuses the Twenty design tokens
+ * (`--st-*`) so it stays visually consistent with the rest of the SabCRM
+ * Twenty surface.
+ *
+ * NO ZoruUI / Tailwind / clay tokens here.
+ */
+
+/* =========================================================================
+   Page wrapper — a centered Twenty content column
+   ========================================================================= */
+.stw-page {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Sub-count line under the header (e.g. "12 records assigned to you"). */
+.stw-count {
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* =========================================================================
+   My Work — table cells
+   ========================================================================= */
+
+/* Object chip cell keeps its chip from stretching the row. */
+.stw-cell-object {
+  white-space: nowrap;
+}
+
+/* Muted updated / due date text. */
+.stw-cell-meta {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   Search — search box + result groups
+   ========================================================================= */
+
+/* The big standalone search box that heads the page. */
+.stw-searchbox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: var(--st-space-5);
+}
+
+.stw-searchbox__icon {
+  position: absolute;
+  left: 12px;
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+  pointer-events: none;
+}
+
+.stw-searchbox__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--st-space-4) 0 36px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size-lg);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.stw-searchbox__input::placeholder {
+  color: var(--st-text-tertiary);
+}
+
+.stw-searchbox__input:focus {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+/* A tiny spinner that sits at the right edge of the box while searching. */
+.stw-searchbox__spin {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+/* Stacked result groups. */
+.stw-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+}
+
+/* One object's group of hits, framed like a Twenty panel. */
+.stw-group {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.stw-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-secondary);
+}
+
+.stw-group__head svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.stw-group__count {
+  margin-left: auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+/* List of hits within a group. */
+.stw-hits {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-2);
+}
+
+.stw-hit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding: 8px var(--st-space-2);
+  border-radius: var(--st-radius);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  text-decoration: none;
+  transition: background 100ms ease;
+}
+
+.stw-hit:hover {
+  background: var(--st-hover);
+}
+
+.stw-hit__label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: var(--st-fw-medium);
+}
+
+.stw-hit__kind {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+}

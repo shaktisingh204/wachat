@@ -13,6 +13,7 @@ import {
   Settings,
   Star,
   ChevronDown,
+  UserCheck,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -141,6 +142,24 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
             ) : (
               <div className="st-fav-empty">No favorites</div>
             )}
+
+            {/* My Work */}
+            <nav aria-label="My Work">
+              {(() => {
+                const href = '/sabcrm/my-work';
+                const active = isActivePath(pathname, href);
+                return (
+                  <Link
+                    href={href}
+                    className={`st-nav-item${active ? ' active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <UserCheck className="st-nav-item__icon" size={16} aria-hidden="true" />
+                    <span className="st-nav-item__label">My Work</span>
+                  </Link>
+                );
+              })()}
+            </nav>
 
             {/* Workspace objects */}
             <div className="st-section-title">

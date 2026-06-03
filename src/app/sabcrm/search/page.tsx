@@ -3,65 +3,54 @@
 export const dynamic = 'force-dynamic';
 
 /**
- * SabCRM — global record search (`/sabcrm/search`).
+ * SabCRM — global record search (`/sabcrm/search`), Twenty look.
  *
  * Twenty's "command menu / search" parity as an always-visible page: one search
- * box that fans out across **every** object in the active project and merges the
- * hits into per-object groups, each linking to the record's detail page.
- *
- * Why a self-written inline page (not {@link SabcrmCommand})
- * ---------------------------------------------------------
- * `SabcrmCommand` is a *controlled modal* — it requires `open` / `onOpenChange`
- * and lives inside a `ZoruCommandDialog`, so it cannot run as a permanently
- * mounted page panel. This page therefore rebuilds the cross-object search on
- * top of the same gated action the palette uses.
+ * box that fans out across the five standard objects in the active project and
+ * merges the hits into per-object groups, each row linking to the record's
+ * detail page (`/sabcrm/<object>/<id>`).
  *
  * Data model
  * ----------
  * `searchRecordsForPickerAction(targetObject, search, limit?, projectId?)` is a
- * *per-object* search returning `SabcrmPickerOption[]` (`{ id, label, object }`),
- * matched against each object's label field. To search "everything" we first
- * load the object catalogue via {@link listObjectsAction}, then fan the query
- * out across those slugs (capped) and group the results by object — mirroring
- * the command palette's proven approach. A monotonic request id guards against
- * out-of-order async responses.
+ * *per-object* label search returning `SabcrmPickerOption[]` (`{ id, label,
+ * object }`). To search "everything" we fan the query out across the five
+ * standard slugs (companies / people / opportunities / notes / tasks) and group
+ * the results by object. A monotonic request id guards against out-of-order
+ * async responses.
  *
- * This page is a Client Component: the surrounding `src/app/sabcrm/layout.tsx`
- * already enforces auth / onboarding / `RBACGuard`, mounts the project provider,
- * and opens the `.zoruui` scope. Every action below independently re-runs the
- * full session → project → RBAC (`sabcrm:view`) → plan gate, so the page fails
- * closed (calm empty/error states) for anyone who slips past the layout guard.
+ * Client Component. The surrounding `src/app/sabcrm/layout.tsx` enforces auth /
+ * onboarding / `RBACGuard`, mounts the project provider, and renders this inside
+ * `TwentyAppFrame` (the `.sabcrm-twenty` scope). Every action below
+ * independently re-runs the full session → project → RBAC (`sabcrm:view`) →
+ * plan gate, so the page fails closed (calm empty / error states) for anyone who
+ * slips past the layout guard.
+ *
+ * Twenty look only (`.st-*` + `../my-work/my-work.css`). NO ZoruUI / Tailwind /
+ * clay.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { icons as lucideIcons, Database, Search, AlertTriangle } from 'lucide-react';
+import {
+  Search,
+  Database,
+  Loader2,
+  AlertTriangle,
+  Building2,
+  Users,
+  Briefcase,
+  StickyNote,
+  CheckCircle2,
+  type LucideIcon,
+} from 'lucide-react';
 
-import {
-  Input,
-  Badge,
-  Skeleton,
-  EmptyState,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardContent,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-} from '@/components/zoruui';
-import { useProject } from '@/context/project-context';
-import {
-  listObjectsAction,
-  searchRecordsForPickerAction,
-} from '@/app/actions/sabcrm.actions';
+import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
-import type { ObjectMetadata } from '@/lib/sabcrm/types';
+import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import { useProject } from '@/context/project-context';
+
+import '../my-work/my-work.css';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -73,25 +62,26 @@ const CRM_BASE_PATH = '/sabcrm';
 const SEARCH_DEBOUNCE_MS = 250;
 /** Minimum query length before we search (the action matches a label substring). */
 const MIN_QUERY_LEN = 2;
-/** Per-object cap for hits, and the max number of objects we fan out to. */
+/** Per-object cap for hits. */
 const SEARCH_PER_OBJECT = 6;
-const SEARCH_MAX_OBJECTS = 12;
 
-// ---------------------------------------------------------------------------
-// Icons
-// ---------------------------------------------------------------------------
-
-/**
- * Resolve a lucide icon name (as stored on {@link ObjectMetadata.icon}) to a
- * node, falling back to a neutral glyph. Mirrors `sabcrm-command.tsx`.
- */
-function objectIcon(name: string | undefined): React.ReactNode {
-  if (name && name in lucideIcons) {
-    const Icon = lucideIcons[name as keyof typeof lucideIcons];
-    return <Icon className="h-4 w-4 text-zoru-ink-muted" />;
-  }
-  return <Database className="h-4 w-4 text-zoru-ink-muted" />;
+/** The five standard objects search fans out across. */
+interface SearchTarget {
+  slug: string;
+  /** Plural header label, e.g. "Companies". */
+  labelPlural: string;
+  /** Singular per-hit "kind" hint, e.g. "Company". */
+  labelSingular: string;
+  icon: LucideIcon;
 }
+
+const SEARCH_TARGETS: readonly SearchTarget[] = [
+  { slug: 'companies', labelPlural: 'Companies', labelSingular: 'Company', icon: Building2 },
+  { slug: 'people', labelPlural: 'People', labelSingular: 'Person', icon: Users },
+  { slug: 'opportunities', labelPlural: 'Opportunities', labelSingular: 'Opportunity', icon: Briefcase },
+  { slug: 'notes', labelPlural: 'Notes', labelSingular: 'Note', icon: StickyNote },
+  { slug: 'tasks', labelPlural: 'Tasks', labelSingular: 'Task', icon: CheckCircle2 },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -99,7 +89,7 @@ function objectIcon(name: string | undefined): React.ReactNode {
 
 /** One object's slice of the merged results. */
 interface ResultGroup {
-  object: ObjectMetadata;
+  target: SearchTarget;
   options: SabcrmPickerOption[];
 }
 
@@ -107,13 +97,8 @@ interface ResultGroup {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function SabcrmSearchPage() {
+export default function SabcrmSearchPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
-
-  // Object catalogue (loaded once per project).
-  const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
-  const [objectsError, setObjectsError] = React.useState<string | null>(null);
-  const [loadingObjects, setLoadingObjects] = React.useState(true);
 
   // Search box (raw) → committed (debounced) query.
   const [input, setInput] = React.useState('');
@@ -127,39 +112,16 @@ export default function SabcrmSearchPage() {
   // Monotonic request id so out-of-order async responses are ignored.
   const reqIdRef = React.useRef(0);
 
-  // Load the object catalogue when the project changes.
-  React.useEffect(() => {
-    let cancelled = false;
-    setLoadingObjects(true);
-    setObjectsError(null);
-
-    (async () => {
-      const res = await listObjectsAction(activeProjectId ?? undefined);
-      if (cancelled) return;
-      if (!res.ok) {
-        setObjectsError(res.error);
-        setObjects([]);
-      } else {
-        setObjects(res.data);
-      }
-      setLoadingObjects(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeProjectId]);
-
   // Debounce the search box → committed `query`.
   React.useEffect(() => {
     const t = setTimeout(() => setQuery(input.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [input]);
 
-  // Fan the committed query out across objects.
+  // Fan the committed query out across the standard objects.
   React.useEffect(() => {
     const q = query;
-    if (q.length < MIN_QUERY_LEN || objects.length === 0) {
+    if (q.length < MIN_QUERY_LEN) {
       setGroups([]);
       setSearching(false);
       setSearchError(null);
@@ -171,12 +133,10 @@ export default function SabcrmSearchPage() {
     setSearching(true);
     setSearchError(null);
 
-    const targets = objects.slice(0, SEARCH_MAX_OBJECTS);
-
     void Promise.all(
-      targets.map((obj) =>
+      SEARCH_TARGETS.map((target) =>
         searchRecordsForPickerAction(
-          obj.slug,
+          target.slug,
           q,
           SEARCH_PER_OBJECT,
           activeProjectId ?? undefined,
@@ -193,7 +153,7 @@ export default function SabcrmSearchPage() {
           return;
         }
         if (res.data.length > 0) {
-          merged.push({ object: targets[i], options: res.data });
+          merged.push({ target: SEARCH_TARGETS[i]!, options: res.data });
         }
       });
 
@@ -207,7 +167,7 @@ export default function SabcrmSearchPage() {
     return () => {
       cancelled = true;
     };
-  }, [query, objects, activeProjectId]);
+  }, [query, activeProjectId]);
 
   const hasQuery = query.length >= MIN_QUERY_LEN;
   const totalHits = groups.reduce((n, g) => n + g.options.length, 0);
@@ -215,94 +175,91 @@ export default function SabcrmSearchPage() {
   // ---- Render --------------------------------------------------------------
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-4xl px-6 py-10 sm:px-8 sm:py-14">
-      <PageHeader className="mb-8">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Command menu</ZoruPageEyebrow>
-          <ZoruPageTitle>Search</ZoruPageTitle>
-          <ZoruPageDescription>
-            Find any record across your CRM.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
+    <div className="stw-page">
+      <TwentyPageHeader title="Search" icon={Search} />
 
-      {/* Search box */}
-      <div className="relative mb-6">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-        <Input
+      <div className="stw-searchbox">
+        <span className="stw-searchbox__icon" aria-hidden="true">
+          <Search size={18} />
+        </span>
+        <input
+          className="stw-searchbox__input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search records across every object…"
-          className="pl-9"
           autoFocus
           aria-label="Search records"
         />
+        {searching ? (
+          <span className="stw-searchbox__spin" aria-hidden="true">
+            <Loader2 size={16} className="st-spin" />
+          </span>
+        ) : null}
       </div>
 
-      {/* Catalogue failed to load (RBAC-denied / plan-locked / load failure). */}
-      {objectsError && !loadingObjects ? (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Search is unavailable</ZoruAlertTitle>
-          <ZoruAlertDescription>{objectsError}</ZoruAlertDescription>
-        </Alert>
-      ) : searchError ? (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Couldn&rsquo;t search records</ZoruAlertTitle>
-          <ZoruAlertDescription>{searchError}</ZoruAlertDescription>
-        </Alert>
+      {searchError ? (
+        <div className="st-banner" role="alert">
+          <AlertTriangle size={16} className="st-banner__icon" aria-hidden="true" />
+          <span>{searchError}</span>
+        </div>
       ) : !hasQuery ? (
-        <EmptyState
-          icon={<Search />}
-          title="Start typing to search"
-          description="Search by name across contacts, companies, opportunities, tasks and every other object in this workspace."
-        />
-      ) : searching ? (
+        <div className="st-empty">
+          <span className="st-empty__icon" aria-hidden="true">
+            <Search size={20} />
+          </span>
+          <p className="st-empty__title">Start typing to search</p>
+          <p className="st-empty__desc">
+            Search by name across companies, people, opportunities, notes and
+            tasks in this workspace.
+          </p>
+        </div>
+      ) : searching && totalHits === 0 ? (
         <ResultsSkeleton />
       ) : totalHits === 0 ? (
-        <EmptyState
-          icon={<Database />}
-          title="No matching records"
-          description={`Nothing matches “${query}”. Try a different term or check another object.`}
-        />
+        <div className="st-empty">
+          <span className="st-empty__icon" aria-hidden="true">
+            <Database size={20} />
+          </span>
+          <p className="st-empty__title">No matching records</p>
+          <p className="st-empty__desc">
+            Nothing matches &ldquo;{query}&rdquo;. Try a different term or check
+            another object.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-6">
-          {groups.map((group) => (
-            <Card key={group.object.slug}>
-              <ZoruCardHeader>
-                <ZoruCardTitle className="flex items-center gap-2 text-base">
-                  {objectIcon(group.object.icon)}
-                  {group.object.labelPlural}
-                  <Badge variant="secondary" className="ml-1">
-                    {group.options.length}
-                  </Badge>
-                </ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="pt-0">
-                <ul className="divide-y divide-zoru-line">
+        <div className="stw-groups">
+          {groups.map((group) => {
+            const Icon = group.target.icon;
+            return (
+              <section key={group.target.slug} className="stw-group">
+                <header className="stw-group__head">
+                  <Icon size={15} aria-hidden="true" />
+                  {group.target.labelPlural}
+                  <span className="stw-group__count">{group.options.length}</span>
+                </header>
+                <ul className="stw-hits">
                   {group.options.map((option) => (
                     <li key={`${option.object}:${option.id}`}>
                       <Link
                         href={`${CRM_BASE_PATH}/${option.object}/${option.id}`}
-                        className="flex items-center justify-between gap-3 py-2.5 transition-colors hover:text-zoru-accent"
+                        className="stw-hit"
                       >
-                        <span className="truncate font-medium text-zoru-ink">
+                        <span className="stw-hit__label">
                           {option.label || 'Untitled'}
                         </span>
-                        <span className="shrink-0 text-xs text-zoru-ink-muted">
-                          {group.object.labelSingular}
+                        <span className="stw-hit__kind">
+                          {group.target.labelSingular}
                         </span>
                       </Link>
                     </li>
                   ))}
                 </ul>
-              </ZoruCardContent>
-            </Card>
-          ))}
+              </section>
+            );
+          })}
         </div>
       )}
-    </main>
+    </div>
   );
 }
 
@@ -310,15 +267,21 @@ export default function SabcrmSearchPage() {
 // Loading state
 // ---------------------------------------------------------------------------
 
-function ResultsSkeleton() {
+function ResultsSkeleton(): React.JSX.Element {
   return (
-    <div className="space-y-6">
+    <div className="stw-groups" aria-hidden="true">
       {Array.from({ length: 2 }).map((_, i) => (
-        <div key={i} className="space-y-3 rounded-xl border border-zoru-line p-4">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-9 w-full" />
-          <Skeleton className="h-9 w-full" />
-          <Skeleton className="h-9 w-3/4" />
+        <div key={i} className="stw-group" style={{ padding: 'var(--st-space-3)' }}>
+          <div
+            className="st-skeleton"
+            style={{ height: 16, width: 120, marginBottom: 'var(--st-space-3)' }}
+          />
+          <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
+          <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
+          <div
+            className="st-skeleton st-skeleton-row"
+            style={{ height: 28, width: '75%' }}
+          />
         </div>
       ))}
     </div>
