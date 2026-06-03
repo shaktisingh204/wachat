@@ -1,0 +1,199 @@
+/* =========================================================================
+   SabCRM — Twenty-faithful global command menu (⌘K)
+   Plain CSS, scoped under .st-cmdk-* prefix. NO Tailwind, NO ZoruUI.
+   Mirrors twentyhq/twenty's command menu: centered modal, white panel,
+   subtle shadow, grouped rows, blue-soft highlight on the active item.
+
+   The host (TwentyAppFrame) lives inside `.sabcrm-twenty`, which defines the
+   --st-* tokens. We re-declare safe fallbacks on the overlay so the menu
+   renders correctly even if a future portal moves it out of that scope.
+   ========================================================================= */
+
+.st-cmdk-overlay {
+  /* Token fallbacks (inherited from .sabcrm-twenty when present). */
+  --st-cmdk-bg: var(--st-bg, #ffffff);
+  --st-cmdk-border: var(--st-border, #ebebeb);
+  --st-cmdk-text: var(--st-text, #1b1b18);
+  --st-cmdk-text-2: var(--st-text-secondary, #666666);
+  --st-cmdk-text-3: var(--st-text-tertiary, #b3b3b3);
+  --st-cmdk-accent-soft: var(--st-accent-soft, #eef3fe);
+  --st-cmdk-hover: var(--st-hover, #f5f5f5);
+  --st-cmdk-radius: var(--st-radius, 4px);
+  --st-cmdk-radius-lg: var(--st-radius-lg, 8px);
+  --st-cmdk-font: var(--st-font, "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  background: rgba(27, 27, 24, 0.32);
+  font-family: var(--st-cmdk-font);
+  animation: st-cmdk-fade 120ms ease-out;
+}
+
+@keyframes st-cmdk-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.st-cmdk-panel {
+  width: 560px;
+  max-width: calc(100vw - 32px);
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--st-cmdk-bg);
+  border: 1px solid var(--st-cmdk-border);
+  border-radius: var(--st-cmdk-radius-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  color: var(--st-cmdk-text);
+  animation: st-cmdk-pop 130ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes st-cmdk-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ----- Search input row ----- */
+.st-cmdk-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--st-cmdk-border);
+}
+
+.st-cmdk-search__icon {
+  flex: none;
+  color: var(--st-cmdk-text-3);
+}
+
+.st-cmdk-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--st-cmdk-text);
+}
+
+.st-cmdk-search__input::placeholder {
+  color: var(--st-cmdk-text-3);
+}
+
+.st-cmdk-search__esc {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid var(--st-cmdk-border);
+  border-radius: var(--st-cmdk-radius);
+  background: var(--st-cmdk-bg);
+  color: var(--st-cmdk-text-3);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ----- Scrollable body ----- */
+.st-cmdk-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.st-cmdk-group {
+  padding: 4px 0;
+}
+
+.st-cmdk-group + .st-cmdk-group {
+  border-top: 1px solid var(--st-cmdk-border);
+  margin-top: 2px;
+  padding-top: 6px;
+}
+
+.st-cmdk-group__title {
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-cmdk-text-3);
+}
+
+/* ----- Row ----- */
+.st-cmdk-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--st-cmdk-radius);
+  background: transparent;
+  color: var(--st-cmdk-text);
+  font-family: inherit;
+  font-size: 13px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.st-cmdk-row.is-active {
+  background: var(--st-cmdk-accent-soft);
+}
+
+.st-cmdk-row__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--st-cmdk-text-2);
+}
+
+.st-cmdk-row__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.st-cmdk-row__meta {
+  flex: none;
+  font-size: 11px;
+  color: var(--st-cmdk-text-3);
+}
+
+/* ----- States: empty / loading / error ----- */
+.st-cmdk-status {
+  padding: 18px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--st-cmdk-text-3);
+}
+
+.st-cmdk-status--error {
+  color: #b3261e;
+}

@@ -1,33 +1,29 @@
 'use client';
 
 /**
- * SabCRM — generic record INDEX page (`/sabcrm/<objectSlug>`).
+ * SabCRM — Twenty-faithful record INDEX (`/sabcrm/[objectSlug]`).
  *
- * One screen renders every object. It resolves the object's metadata, then
- * exposes a **view toolbar** that switches between two metadata-driven layouts:
+ * One metadata-driven screen renders every object in Twenty's visual language
+ * (the `.st-*` utility classes + the `@/components/sabcrm/twenty` kit — NO
+ * ZoruUI here on purpose). It resolves the object's metadata, then exposes:
  *
- *   - **Table** — every field flagged `inTable` becomes a column.
- *   - **Board** — kanban columns derived from the object's `board.groupByField`
- *     (a SELECT field). Only offered when the object declares the `board` view.
+ *   - TABLE view — every `inTable` field is a column; the `isLabel` field links
+ *     to the record detail; SELECT cells render as TwentyChips; text/number/
+ *     select cells are inline-editable (optimistic, persisted via the Rust
+ *     engine through `updateSabcrmRecordTw`).
+ *   - BOARD view — kanban columns from `groupSabcrmRecordsTw`, offered only when
+ *     the object declares `board.groupByField`.
+ *   - Debounced free-text search (server-side `q`).
+ *   - A Twenty-style "New" dialog with the object's required + inTable fields.
  *
- * The toolbar also drives:
- *   - free-text search (debounced, server-side),
- *   - per-field filters (one typed condition per filterable column),
- *   - sort (field + direction, applied as a single-key multiSort clause),
- *   - the metadata-driven Create dialog.
- *
- * This page is a Client Component on purpose: the surrounding
- * `src/app/sabcrm/layout.tsx` already enforces the SabNode auth / onboarding /
- * `RBACGuard`, mounts the project provider, and opens the `.zoruui` scope — so
- * the page inherits all of that and only owns the interactive runtime. All data
- * access goes through the gated `sabcrm.actions.ts` server actions, every one of
- * which returns an {@link ActionResult}; we render the `error` branch inline
- * (covering the RBAC-denied and plan-locked cases the gate surfaces).
+ * Every data call is a gated server action returning an `ActionResult`; the
+ * Rust engine may be DOWN, so the error branch renders an inline banner and the
+ * page degrades to empty/error states — it never crashes.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import {
   Plus,
   Search,
@@ -36,251 +32,364 @@ import {
   Loader2,
   Table2,
   Columns3,
-  ArrowDownUp,
-  Filter as FilterIcon,
+  Star,
   X,
 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Checkbox,
-  Badge,
-  Skeleton,
-  EmptyState,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/zoruui';
-import { SabFileUrlInput } from '@/components/sabfiles';
+import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
+import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import '@/components/sabcrm/twenty/twenty-activity.css';
 import { useProject } from '@/context/project-context';
 import {
-  listObjectsAction,
-  listRecordsAction,
-  createRecordAction,
-  groupRecordsAction,
-} from '@/app/actions/sabcrm.actions';
+  listSabcrmObjectsTw,
+  listSabcrmRecordsTw,
+  createSabcrmRecordTw,
+  updateSabcrmRecordTw,
+  groupSabcrmRecordsTw,
+  listSabcrmFavoritesTw,
+  addSabcrmFavoriteTw,
+  removeSabcrmFavoriteTw,
+} from '@/app/actions/sabcrm-twenty.actions';
 import type {
-  SabcrmRecordQuery,
-  SabcrmRecordPage,
-  SabcrmGroupedRecordPage,
-  SabcrmRecordGroup,
-  SabcrmSortClause,
-  SabcrmFilterValue,
-} from '@/app/actions/sabcrm.actions.types';
-import type {
-  ObjectMetadata,
-  FieldMetadata,
-  CrmRecordWithLabel,
-} from '@/lib/sabcrm/types';
+  SabcrmRustRecord,
+  SabcrmRecordTwGroup,
+} from '@/app/actions/sabcrm-twenty.actions.types';
+import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
-const PAGE_SIZE = 25;
-const BOARD_CAP = 500;
+const PAGE_LIMIT = 50;
 const SEARCH_DEBOUNCE_MS = 300;
 
-/** The two layouts the runtime can render. */
 type ViewKind = 'table' | 'board';
 
-/** Field types that we expose as a column filter in the toolbar. */
-const FILTERABLE_TYPES: ReadonlySet<FieldMetadata['type']> = new Set<
+/** Field types that support quick inline editing in a table cell. */
+const INLINE_EDITABLE: ReadonlySet<FieldMetadata['type']> = new Set<
   FieldMetadata['type']
->(['TEXT', 'EMAIL', 'PHONE', 'LINK', 'SELECT', 'BOOLEAN']);
+>(['TEXT', 'EMAIL', 'PHONE', 'LINK', 'NUMBER', 'CURRENCY', 'RATING', 'SELECT']);
 
 // ---------------------------------------------------------------------------
-// Value formatting
+// Value helpers
 // ---------------------------------------------------------------------------
 
-/** Map a SELECT option color token to a Badge variant. */
-function badgeVariantForColor(
-  color?: string,
-): 'default' | 'secondary' | 'success' | 'warning' | 'danger' | 'outline' {
-  if (!color) return 'secondary';
-  const c = color.toLowerCase();
-  if (c.includes('green') || c.includes('emerald') || c.includes('success'))
-    return 'success';
-  if (c.includes('amber') || c.includes('yellow') || c.includes('orange') || c.includes('warning'))
-    return 'warning';
-  if (c.includes('red') || c.includes('rose') || c.includes('danger') || c.includes('pink'))
-    return 'danger';
-  if (c.includes('accent') || c.includes('blue') || c.includes('sky') || c.includes('brand') || c.includes('primary') || c.includes('purple'))
-    return 'default';
-  return 'outline';
+/** Resolve a record's display label from the object's `isLabel` field. */
+function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
+  const field =
+    object.fields.find((f) => f.isLabel) ??
+    object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
+    object.fields[0];
+  if (field) {
+    const raw = record.data[field.key];
+    if (typeof raw === 'string' && raw.trim()) return raw;
+    if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+  }
+  return `${object.labelSingular} ${record.id.slice(-6)}`;
 }
 
-/** Render a single cell value according to its field type. */
-function renderCellValue(
-  field: FieldMetadata,
-  value: unknown,
-): React.ReactNode {
-  if (value === null || value === undefined || value === '') {
-    return <span className="text-zoru-ink-muted">—</span>;
+/** A SELECT option color token → an inline CSS color (best-effort). */
+function chipColor(color?: string): string | undefined {
+  if (!color) return undefined;
+  if (color.startsWith('#') || color.startsWith('rgb')) return color;
+  // `--zoru-*` token → CSS var reference; falls back gracefully if undefined.
+  if (color.startsWith('--')) return `var(${color})`;
+  return undefined;
+}
+
+/** Coerce an input string back into the field's stored value type. */
+function coerceInput(field: FieldMetadata, raw: string): unknown {
+  if (raw === '') return '';
+  if (field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING') {
+    const n = Number(raw);
+    return Number.isNaN(n) ? raw : n;
+  }
+  return raw;
+}
+
+// ---------------------------------------------------------------------------
+// Inline-editable table cell
+// ---------------------------------------------------------------------------
+
+interface EditableCellProps {
+  field: FieldMetadata;
+  value: unknown;
+  onCommit: (value: unknown) => void;
+}
+
+function EditableCell({ field, value, onCommit }: EditableCellProps) {
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState('');
+
+  const beginEdit = React.useCallback(() => {
+    setDraft(value === null || value === undefined ? '' : String(value));
+    setEditing(true);
+  }, [value]);
+
+  const commit = React.useCallback(
+    (next: string) => {
+      setEditing(false);
+      const coerced = coerceInput(field, next);
+      if (coerced !== value) onCommit(coerced);
+    },
+    [field, value, onCommit],
+  );
+
+  if (!editing) {
+    return (
+      <span
+        className="st-cell-editable"
+        role="button"
+        tabIndex={0}
+        onClick={(e) => {
+          e.stopPropagation();
+          beginEdit();
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            beginEdit();
+          }
+        }}
+      >
+        <TwentyFieldValue field={field} value={value} />
+      </span>
+    );
   }
 
-  switch (field.type) {
-    case 'BOOLEAN':
-      return value ? 'Yes' : 'No';
+  if (field.type === 'SELECT') {
+    return (
+      <select
+        className="st-cell-select"
+        autoFocus
+        value={draft}
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => commit(e.target.value)}
+        onBlur={(e) => commit(e.target.value)}
+      >
+        <option value="">—</option>
+        {(field.options ?? []).map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
 
-    case 'DATE': {
-      const d = new Date(String(value));
-      return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleDateString();
-    }
+  return (
+    <input
+      className="st-cell-input"
+      autoFocus
+      type={
+        field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING'
+          ? 'number'
+          : 'text'
+      }
+      value={draft}
+      onClick={(e) => e.stopPropagation()}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={(e) => commit(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          commit((e.target as HTMLInputElement).value);
+        } else if (e.key === 'Escape') {
+          setEditing(false);
+        }
+      }}
+    />
+  );
+}
 
-    case 'DATE_TIME': {
-      const d = new Date(String(value));
-      return Number.isNaN(d.getTime()) ? String(value) : d.toLocaleString();
-    }
+// ---------------------------------------------------------------------------
+// Table view
+// ---------------------------------------------------------------------------
 
-    case 'CURRENCY': {
-      const n = Number(value);
-      return Number.isNaN(n)
-        ? String(value)
-        : n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
-    }
+interface TableViewProps {
+  object: ObjectMetadata;
+  columns: FieldMetadata[];
+  labelField: FieldMetadata | undefined;
+  records: SabcrmRustRecord[];
+  onEdit: (recordId: string, key: string, value: unknown) => void;
+  favorites: ReadonlySet<string>;
+  favBusy: ReadonlySet<string>;
+  onToggleFavorite: (recordId: string) => void;
+}
 
-    case 'EMAIL':
-      return (
-        <a
-          href={`mailto:${String(value)}`}
-          className="text-zoru-accent hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {String(value)}
-        </a>
-      );
-
-    case 'PHONE':
-      return (
-        <a
-          href={`tel:${String(value)}`}
-          className="text-zoru-accent hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {String(value)}
-        </a>
-      );
-
-    case 'LINK':
-    case 'FILE': {
-      const url = String(value);
-      return (
-        <a
-          href={url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-zoru-accent hover:underline"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {field.type === 'FILE' ? 'View file' : url}
-        </a>
-      );
-    }
-
-    case 'SELECT': {
-      const opt = field.options?.find((o) => o.value === value);
-      return (
-        <Badge variant={badgeVariantForColor(opt?.color)}>
-          {opt?.label ?? String(value)}
-        </Badge>
-      );
-    }
-
-    case 'MULTI_SELECT': {
-      const arr = Array.isArray(value) ? value : [value];
-      return (
-        <div className="flex flex-wrap gap-1">
-          {arr.map((v) => {
-            const opt = field.options?.find((o) => o.value === v);
+function TableView({
+  object,
+  columns,
+  labelField,
+  records,
+  onEdit,
+  favorites,
+  favBusy,
+  onToggleFavorite,
+}: TableViewProps) {
+  return (
+    <div className="st-table-wrap">
+      <table className="st-table">
+        <thead>
+          <tr>
+            <th aria-label="Favorite" style={{ width: 32 }} />
+            {columns.map((col) => (
+              <th key={col.key}>{col.label}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {records.map((record) => {
+            const isFav = favorites.has(record.id);
             return (
-              <Badge key={String(v)} variant={badgeVariantForColor(opt?.color)}>
-                {opt?.label ?? String(v)}
-              </Badge>
+            <tr key={record.id} className="st-row">
+              <td style={{ width: 32 }}>
+                <button
+                  type="button"
+                  className={`st-star st-star--row${isFav ? ' active' : ''}`}
+                  disabled={favBusy.has(record.id)}
+                  aria-pressed={isFav}
+                  aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                  title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onToggleFavorite(record.id);
+                  }}
+                >
+                  <Star size={13} fill={isFav ? 'currentColor' : 'none'} />
+                </button>
+              </td>
+              {columns.map((col) => {
+                const isFirst = labelField
+                  ? col.key === labelField.key
+                  : col === columns[0];
+                const value = record.data[col.key];
+                if (isFirst) {
+                  return (
+                    <td key={col.key}>
+                      <Link
+                        href={`/sabcrm/${object.slug}/${record.id}`}
+                        className="st-cell-link"
+                      >
+                        {recordLabel(object, record)}
+                      </Link>
+                    </td>
+                  );
+                }
+                if (INLINE_EDITABLE.has(col.type)) {
+                  return (
+                    <td key={col.key}>
+                      <EditableCell
+                        field={col}
+                        value={value}
+                        onCommit={(v) => onEdit(record.id, col.key, v)}
+                      />
+                    </td>
+                  );
+                }
+                return (
+                  <td key={col.key}>
+                    <TwentyFieldValue field={col} value={value} />
+                  </td>
+                );
+              })}
+            </tr>
             );
           })}
-        </div>
-      );
-    }
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
-    case 'RATING': {
-      const n = Number(value);
-      return Number.isNaN(n)
-        ? String(value)
-        : '★'.repeat(Math.max(0, Math.round(n)));
-    }
+// ---------------------------------------------------------------------------
+// Board view
+// ---------------------------------------------------------------------------
 
-    case 'RELATION':
-      // Records arrive with relation values already resolved to a label by the
-      // server; fall back to the raw value otherwise.
-      return String(value);
+interface BoardViewProps {
+  object: ObjectMetadata;
+  groupByField: FieldMetadata;
+  groups: SabcrmRecordTwGroup[];
+  previewFields: FieldMetadata[];
+}
 
-    default:
-      return String(value);
-  }
+function BoardView({ object, groupByField, groups, previewFields }: BoardViewProps) {
+  const optionFor = (value: string | null) =>
+    value === null
+      ? undefined
+      : groupByField.options?.find((o) => o.value === value);
+
+  return (
+    <div className="st-board">
+      {groups.map((group) => {
+        const opt = optionFor(group.value);
+        const label = opt?.label ?? group.value ?? 'Ungrouped';
+        return (
+          <div className="st-board__col" key={group.value ?? '__ungrouped__'}>
+            <div className="st-board__head">
+              <TwentyChip label={label} color={chipColor(opt?.color)} />
+              <span className="st-board__count">{group.records.length}</span>
+            </div>
+            <div className="st-board__body">
+              {group.records.length === 0 ? (
+                <div className="st-board__empty">Nothing here</div>
+              ) : (
+                group.records.map((record) => (
+                  <Link
+                    key={record.id}
+                    href={`/sabcrm/${object.slug}/${record.id}`}
+                    className="st-card"
+                  >
+                    <div className="st-card__title">
+                      {recordLabel(object, record)}
+                    </div>
+                    {previewFields.map((f) => {
+                      const v = record.data[f.key];
+                      if (v === null || v === undefined || v === '') return null;
+                      return (
+                        <div key={f.key} className="st-card__meta">
+                          <TwentyFieldValue field={f} value={v} />
+                        </div>
+                      );
+                    })}
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
 // Create dialog (metadata-driven)
 // ---------------------------------------------------------------------------
 
-interface CreateRecordDialogProps {
+interface CreateDialogProps {
   object: ObjectMetadata;
   projectId: string | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   onCreated: () => void;
 }
 
-/** Fields a user may fill on create — system + relation fields are skipped. */
-function editableFields(object: ObjectMetadata): FieldMetadata[] {
-  return object.fields.filter((f) => !f.system && f.type !== 'RELATION');
+/** Fields the user may fill on create — system + relation fields are skipped. */
+function creatableFields(object: ObjectMetadata): FieldMetadata[] {
+  return object.fields.filter(
+    (f) => !f.system && f.type !== 'RELATION' && (f.required || f.inTable),
+  );
 }
 
-function CreateRecordDialog({
-  object,
-  projectId,
-  open,
-  onOpenChange,
-  onCreated,
-}: CreateRecordDialogProps) {
-  const fields = React.useMemo(() => editableFields(object), [object]);
+function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogProps) {
+  const fields = React.useMemo(() => creatableFields(object), [object]);
   const [values, setValues] = React.useState<Record<string, unknown>>({});
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Reset the form each time the dialog (re)opens.
-  React.useEffect(() => {
-    if (open) {
-      setValues({});
-      setError(null);
-      setSaving(false);
-    }
-  }, [open]);
-
-  const setValue = React.useCallback((key: string, value: unknown) => {
+  const setValue = (key: string, value: unknown) =>
     setValues((prev) => ({ ...prev, [key]: value }));
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -288,1055 +397,555 @@ function CreateRecordDialog({
     setSaving(true);
     setError(null);
 
-    // Drop empty values so server defaults apply cleanly.
     const payload: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(values)) {
       if (v !== undefined && v !== '') payload[k] = v;
     }
 
-    const res = await createRecordAction(
+    const res = await createSabcrmRecordTw(
       object.slug,
       payload,
       projectId ?? undefined,
     );
     setSaving(false);
-
     if (res.ok) {
-      onOpenChange(false);
       onCreated();
+      onClose();
     } else {
       setError(res.error);
     }
   };
 
-  function renderInput(field: FieldMetadata) {
+  const renderInput = (field: FieldMetadata) => {
     const raw = values[field.key];
-
-    switch (field.type) {
-      case 'BOOLEAN':
-        return (
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={field.key}
-              checked={Boolean(raw)}
-              onCheckedChange={(checked) => setValue(field.key, checked === true)}
-            />
-            <Label htmlFor={field.key} className="text-sm font-normal">
-              {field.label}
-            </Label>
-          </div>
-        );
-
-      case 'SELECT':
-        return (
-          <Select
-            value={raw !== undefined ? String(raw) : undefined}
-            onValueChange={(v) => setValue(field.key, v)}
-          >
-            <SelectTrigger id={field.key}>
-              <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
-            </SelectTrigger>
-            <SelectContent>
-              {(field.options ?? []).map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        );
-
-      case 'FILE':
-        // SabFiles is the single source for file inputs — the control sources
-        // from the user's library or a fresh upload; there is intentionally no
-        // free-text URL paste.
-        return (
-          <SabFileUrlInput
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(url) => setValue(field.key, url)}
-            accept="all"
-            placeholder={`Choose ${field.label.toLowerCase()}`}
+    if (field.type === 'BOOLEAN') {
+      return (
+        <label className="st-checkbox-row">
+          <input
+            type="checkbox"
+            checked={Boolean(raw)}
+            onChange={(e) => setValue(field.key, e.target.checked)}
           />
-        );
-
-      case 'NUMBER':
-      case 'CURRENCY':
-      case 'RATING':
-        return (
-          <Input
-            id={field.key}
-            type="number"
-            step="any"
-            required={field.required}
-            value={raw !== undefined ? String(raw) : ''}
-            onChange={(e) =>
-              setValue(
-                field.key,
-                e.target.value === '' ? '' : Number(e.target.value),
-              )
-            }
-            placeholder={field.description}
-          />
-        );
-
-      case 'DATE':
-        return (
-          <Input
-            id={field.key}
-            type="date"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-          />
-        );
-
-      case 'DATE_TIME':
-        return (
-          <Input
-            id={field.key}
-            type="datetime-local"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-          />
-        );
-
-      case 'EMAIL':
-        return (
-          <Input
-            id={field.key}
-            type="email"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-            placeholder={field.description}
-          />
-        );
-
-      case 'PHONE':
-        return (
-          <Input
-            id={field.key}
-            type="tel"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-            placeholder={field.description}
-          />
-        );
-
-      case 'LINK':
-        return (
-          <Input
-            id={field.key}
-            type="url"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-            placeholder="https://"
-          />
-        );
-
-      default:
-        // TEXT and any future scalar types.
-        if (field.type === 'TEXT' && field.description) {
-          return (
-            <Textarea
-              id={field.key}
-              required={field.required}
-              value={typeof raw === 'string' ? raw : ''}
-              onChange={(e) => setValue(field.key, e.target.value)}
-              placeholder={field.description}
-            />
-          );
-        }
-        return (
-          <Input
-            id={field.key}
-            type="text"
-            required={field.required}
-            value={typeof raw === 'string' ? raw : ''}
-            onChange={(e) => setValue(field.key, e.target.value)}
-            placeholder={field.description}
-          />
-        );
+          {field.label}
+        </label>
+      );
     }
-  }
+    if (field.type === 'SELECT') {
+      return (
+        <select
+          className="st-select"
+          value={raw !== undefined ? String(raw) : ''}
+          onChange={(e) => setValue(field.key, e.target.value)}
+        >
+          <option value="">{`Select ${field.label.toLowerCase()}`}</option>
+          {(field.options ?? []).map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+    const inputType =
+      field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING'
+        ? 'number'
+        : field.type === 'DATE'
+          ? 'date'
+          : field.type === 'DATE_TIME'
+            ? 'datetime-local'
+            : field.type === 'EMAIL'
+              ? 'email'
+              : field.type === 'PHONE'
+                ? 'tel'
+                : field.type === 'LINK'
+                  ? 'url'
+                  : 'text';
+    return (
+      <input
+        className="st-input"
+        type={inputType}
+        required={field.required}
+        value={raw !== undefined ? String(raw) : ''}
+        placeholder={field.type === 'LINK' ? 'https://' : field.description}
+        onChange={(e) =>
+          setValue(
+            field.key,
+            inputType === 'number'
+              ? e.target.value === ''
+                ? ''
+                : Number(e.target.value)
+              : e.target.value,
+          )
+        }
+      />
+    );
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="sm:max-w-[480px]">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle>New {object.labelSingular}</ZoruDialogTitle>
-          <ZoruDialogDescription>
-            Add a new {object.labelSingular.toLowerCase()} record.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
+    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
+      <div
+        className="st-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`New ${object.labelSingular}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleSubmit}>
+          <div className="st-dialog__header">
+            <h2 className="st-dialog__title">New {object.labelSingular}</h2>
+            <button
+              type="button"
+              className="st-dialog__close"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="max-h-[55vh] space-y-4 overflow-y-auto pr-1">
+          <div className="st-dialog__body">
             {fields.map((field) => (
-              <div key={field.key} className="space-y-2">
+              <div className="st-field" key={field.key}>
                 {field.type !== 'BOOLEAN' && (
-                  <Label htmlFor={field.key}>
+                  <span className="st-field__label">
                     {field.label}
-                    {field.required && (
-                      <span className="ml-0.5 text-rose-500">*</span>
-                    )}
-                  </Label>
+                    {field.required && <span className="st-field__req">*</span>}
+                  </span>
                 )}
                 {renderInput(field)}
               </div>
             ))}
+            {error && (
+              <div className="st-banner">
+                <AlertTriangle className="st-banner__icon" size={15} />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <ZoruAlertTitle>Couldn’t create record</ZoruAlertTitle>
-              <ZoruAlertDescription>{error}</ZoruAlertDescription>
-            </Alert>
-          )}
-
-          <ZoruDialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={saving}
-            >
+          <div className="st-dialog__footer">
+            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
               Cancel
-            </Button>
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            </TwentyButton>
+            <button type="submit" className="st-btn st-btn--primary" disabled={saving}>
+              {saving ? <Loader2 size={14} className="st-spin" /> : null}
               Create {object.labelSingular}
-            </Button>
-          </ZoruDialogFooter>
+            </button>
+          </div>
         </form>
-      </ZoruDialogContent>
-    </Dialog>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// View toolbar (search + view switch + sort + filters)
-// ---------------------------------------------------------------------------
-
-interface SortState {
-  field: string;
-  dir: 'asc' | 'desc';
-}
-
-interface ViewToolbarProps {
-  object: ObjectMetadata;
-  /** Layouts available for this object (`board` only when declared). */
-  availableViews: ViewKind[];
-  view: ViewKind;
-  onViewChange: (view: ViewKind) => void;
-  searchInput: string;
-  onSearchInput: (value: string) => void;
-  sort: SortState | null;
-  onSortChange: (sort: SortState | null) => void;
-  filters: Record<string, string>;
-  onFilterChange: (key: string, value: string) => void;
-  onClearFilters: () => void;
-  resultCount: number;
-  loading: boolean;
-}
-
-const NO_SORT = '__none__';
-const ANY_FILTER = '__any__';
-
-function ViewToolbar({
-  object,
-  availableViews,
-  view,
-  onViewChange,
-  searchInput,
-  onSearchInput,
-  sort,
-  onSortChange,
-  filters,
-  onFilterChange,
-  onClearFilters,
-  resultCount,
-  loading,
-}: ViewToolbarProps) {
-  const sortableFields = React.useMemo(
-    () => object.fields.filter((f) => f.type !== 'RELATION' && f.type !== 'FILE'),
-    [object],
-  );
-  const filterableFields = React.useMemo(
-    () => object.fields.filter((f) => FILTERABLE_TYPES.has(f.type)),
-    [object],
-  );
-
-  const activeFilterCount = Object.values(filters).filter(Boolean).length;
-
-  return (
-    <div className="mb-4 flex flex-col gap-3">
-      {/* Row 1: search + view switch */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-          <Input
-            value={searchInput}
-            onChange={(e) => onSearchInput(e.target.value)}
-            placeholder={`Search ${object.labelPlural.toLowerCase()}…`}
-            className="pl-9"
-            aria-label={`Search ${object.labelPlural}`}
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          {!loading && (
-            <span className="text-sm text-zoru-ink-muted">
-              {resultCount}{' '}
-              {resultCount === 1
-                ? object.labelSingular.toLowerCase()
-                : object.labelPlural.toLowerCase()}
-            </span>
-          )}
-
-          {availableViews.length > 1 && (
-            <div
-              className="inline-flex items-center gap-1 rounded-lg border border-zoru-line p-0.5"
-              role="tablist"
-              aria-label="View"
-            >
-              <Button
-                type="button"
-                size="sm"
-                variant={view === 'table' ? 'secondary' : 'ghost'}
-                onClick={() => onViewChange('table')}
-                aria-pressed={view === 'table'}
-                role="tab"
-              >
-                <Table2 className="mr-1.5 h-4 w-4" />
-                Table
-              </Button>
-              {availableViews.includes('board') && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={view === 'board' ? 'secondary' : 'ghost'}
-                  onClick={() => onViewChange('board')}
-                  aria-pressed={view === 'board'}
-                  role="tab"
-                >
-                  <Columns3 className="mr-1.5 h-4 w-4" />
-                  Board
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Row 2: sort + filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Sort field */}
-        <div className="flex items-center gap-1.5">
-          <ArrowDownUp className="h-4 w-4 text-zoru-ink-muted" />
-          <Select
-            value={sort?.field ?? NO_SORT}
-            onValueChange={(field) =>
-              onSortChange(
-                field === NO_SORT
-                  ? null
-                  : { field, dir: sort?.dir ?? 'asc' },
-              )
-            }
-          >
-            <SelectTrigger className="h-9 w-[170px]" aria-label="Sort by">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NO_SORT}>No sorting</SelectItem>
-              {sortableFields.map((f) => (
-                <SelectItem key={f.key} value={f.key}>
-                  {f.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          {sort && (
-            <Select
-              value={sort.dir}
-              onValueChange={(dir) =>
-                onSortChange({ field: sort.field, dir: dir === 'desc' ? 'desc' : 'asc' })
-              }
-            >
-              <SelectTrigger className="h-9 w-[120px]" aria-label="Sort direction">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="asc">Ascending</SelectItem>
-                <SelectItem value="desc">Descending</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        {/* Per-field filters */}
-        {filterableFields.map((field) => {
-          const value = filters[field.key] ?? '';
-          if (field.type === 'SELECT' || field.type === 'BOOLEAN') {
-            const options =
-              field.type === 'BOOLEAN'
-                ? [
-                    { value: 'true', label: 'Yes' },
-                    { value: 'false', label: 'No' },
-                  ]
-                : (field.options ?? []).map((o) => ({
-                    value: o.value,
-                    label: o.label,
-                  }));
-            return (
-              <Select
-                key={field.key}
-                value={value === '' ? ANY_FILTER : value}
-                onValueChange={(v) =>
-                  onFilterChange(field.key, v === ANY_FILTER ? '' : v)
-                }
-              >
-                <SelectTrigger
-                  className="h-9 w-[160px]"
-                  aria-label={`Filter by ${field.label}`}
-                >
-                  <SelectValue placeholder={field.label} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ANY_FILTER}>Any {field.label.toLowerCase()}</SelectItem>
-                  {options.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            );
-          }
-          // TEXT / EMAIL / PHONE / LINK → contains-style text filter.
-          return (
-            <Input
-              key={field.key}
-              value={value}
-              onChange={(e) => onFilterChange(field.key, e.target.value)}
-              placeholder={`Filter ${field.label.toLowerCase()}…`}
-              className="h-9 w-[170px]"
-              aria-label={`Filter by ${field.label}`}
-            />
-          );
-        })}
-
-        {(activeFilterCount > 0 || sort) && (
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              onClearFilters();
-              onSortChange(null);
-            }}
-          >
-            <X className="mr-1 h-4 w-4" />
-            Clear
-            {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-1.5">
-                <FilterIcon className="mr-1 h-3 w-3" />
-                {activeFilterCount}
-              </Badge>
-            )}
-          </Button>
-        )}
       </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Record table
-// ---------------------------------------------------------------------------
-
-interface RecordTableProps {
-  object: ObjectMetadata;
-  columns: FieldMetadata[];
-  records: CrmRecordWithLabel[];
-  onOpen: (id: string) => void;
-}
-
-function RecordTableView({ object, columns, records, onOpen }: RecordTableProps) {
-  return (
-    <div className="overflow-hidden rounded-xl border border-zoru-line">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {columns.map((col) => (
-              <TableHead key={col.key}>{col.label}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {records.map((record) => (
-            <TableRow
-              key={record._id}
-              className="cursor-pointer"
-              onClick={() => onOpen(record._id)}
-            >
-              {columns.map((col, idx) => (
-                <TableCell key={col.key}>
-                  {idx === 0 ? (
-                    <Link
-                      href={`/sabcrm/${object.slug}/${record._id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {record.label || renderCellValue(col, record.data[col.key])}
-                    </Link>
-                  ) : (
-                    renderCellValue(col, record.data[col.key])
-                  )}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Record board (kanban)
-// ---------------------------------------------------------------------------
-
-interface RecordBoardProps {
-  object: ObjectMetadata;
-  groups: SabcrmRecordGroup[];
-  onOpen: (id: string) => void;
-}
-
-function RecordBoardView({ object, groups, onOpen }: RecordBoardProps) {
-  /** Pick up to two extra inTable columns (besides the label) for card preview. */
-  const previewFields = React.useMemo(
-    () =>
-      object.fields
-        .filter((f) => f.inTable && !f.isLabel && f.type !== 'RELATION')
-        .slice(0, 2),
-    [object],
-  );
-
-  return (
-    <div className="flex gap-4 overflow-x-auto pb-2">
-      {groups.map((group) => (
-        <div
-          key={group.key}
-          className="flex w-72 shrink-0 flex-col rounded-xl border border-zoru-line bg-zoru-surface"
-        >
-          <div className="flex items-center justify-between border-b border-zoru-line px-3 py-2.5">
-            <div className="flex items-center gap-2">
-              <Badge variant={badgeVariantForColor(group.color)}>
-                {group.label}
-              </Badge>
-            </div>
-            <span className="text-xs text-zoru-ink-muted">{group.total}</span>
-          </div>
-
-          <div className="flex flex-col gap-2 p-2">
-            {group.records.length === 0 ? (
-              <p className="px-2 py-6 text-center text-xs text-zoru-ink-muted">
-                Nothing here
-              </p>
-            ) : (
-              group.records.map((record) => (
-                <button
-                  key={record._id}
-                  type="button"
-                  onClick={() => onOpen(record._id)}
-                  className="w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2.5 text-left transition-colors hover:border-zoru-ink/30"
-                >
-                  <div className="truncate text-sm font-medium text-zoru-ink">
-                    {record.label}
-                  </div>
-                  {previewFields.map((f) => {
-                    const v = record.data[f.key];
-                    if (v === null || v === undefined || v === '') return null;
-                    return (
-                      <div
-                        key={f.key}
-                        className="mt-1 truncate text-xs text-zoru-ink-muted"
-                      >
-                        {renderCellValue(f, v)}
-                      </div>
-                    );
-                  })}
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Loading & error states
+// Skeleton / empty / error
 // ---------------------------------------------------------------------------
 
 function TableSkeleton() {
   return (
-    <div className="space-y-3">
-      <Skeleton className="h-10 w-full" />
+    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
       {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
+        <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
     </div>
   );
 }
 
-function BoardSkeleton() {
+function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="flex gap-4 overflow-hidden">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="w-72 shrink-0 space-y-2">
-          <Skeleton className="h-9 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      ))}
+    <div className="st-banner" role="alert">
+      <AlertTriangle className="st-banner__icon" size={15} />
+      <span>{message}</span>
     </div>
   );
-}
-
-function ErrorState({ message }: { message: string }) {
-  return (
-    <Alert variant="destructive">
-      <AlertTriangle className="h-4 w-4" />
-      <ZoruAlertTitle>Unable to load</ZoruAlertTitle>
-      <ZoruAlertDescription>{message}</ZoruAlertDescription>
-    </Alert>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Query helpers
-// ---------------------------------------------------------------------------
-
-/**
- * Build the `filters` map for the actions layer. SELECT/BOOLEAN values are
- * exact-match; the BOOLEAN strings are coerced to real booleans. Text-style
- * fields become a case-insensitive `$regex` operator object.
- */
-function buildFilters(
-  object: ObjectMetadata,
-  raw: Record<string, string>,
-): Record<string, SabcrmFilterValue> {
-  const out: Record<string, SabcrmFilterValue> = {};
-  for (const [key, value] of Object.entries(raw)) {
-    if (!value) continue;
-    const field = object.fields.find((f) => f.key === key);
-    if (!field) continue;
-    if (field.type === 'BOOLEAN') {
-      out[key] = value === 'true';
-    } else if (field.type === 'SELECT') {
-      out[key] = value;
-    } else {
-      out[key] = { $regex: value, $options: 'i' };
-    }
-  }
-  return out;
-}
-
-function buildSort(sort: SortState | null): SabcrmSortClause[] | undefined {
-  if (!sort) return undefined;
-  return [{ field: sort.field, dir: sort.dir }];
 }
 
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
-export default function SabcrmObjectIndexPage() {
+export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const params = useParams<{ objectSlug: string }>();
-  const router = useRouter();
   const objectSlug = params?.objectSlug ?? '';
   const { activeProjectId } = useProject();
 
   const [object, setObject] = React.useState<ObjectMetadata | null>(null);
+  const [loadingObject, setLoadingObject] = React.useState(true);
+  const [objectError, setObjectError] = React.useState<string | null>(null);
 
-  // View + query state.
   const [view, setView] = React.useState<ViewKind>('table');
   const [searchInput, setSearchInput] = React.useState('');
   const [search, setSearch] = React.useState('');
-  const [sort, setSort] = React.useState<SortState | null>(null);
-  const [filters, setFilters] = React.useState<Record<string, string>>({});
-  const [pageNum, setPageNum] = React.useState(1);
 
-  // Data.
-  const [page, setPage] = React.useState<SabcrmRecordPage | null>(null);
-  const [board, setBoard] = React.useState<SabcrmGroupedRecordPage | null>(null);
+  const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
+  const [groups, setGroups] = React.useState<SabcrmRecordTwGroup[]>([]);
+  const [loadingData, setLoadingData] = React.useState(true);
+  const [dataError, setDataError] = React.useState<string | null>(null);
 
-  // Status.
-  const [loadingObject, setLoadingObject] = React.useState(true);
-  const [loadingRecords, setLoadingRecords] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
   const [createOpen, setCreateOpen] = React.useState(false);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
-  // Reset transient view state when the object changes.
+  // Favorites for this object (set of recordIds), loaded once per page.
+  const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
+  const [favBusy, setFavBusy] = React.useState<Set<string>>(new Set());
+
+  // Reset transient state when the object changes.
   React.useEffect(() => {
     setSearchInput('');
     setSearch('');
-    setSort(null);
-    setFilters({});
-    setPageNum(1);
+    setView('table');
   }, [objectSlug]);
 
-  // Debounce the search box → committed `search`.
+  // Debounce search input.
   React.useEffect(() => {
-    const t = setTimeout(() => {
-      setSearch(searchInput.trim());
-      setPageNum(1);
-    }, SEARCH_DEBOUNCE_MS);
+    const t = setTimeout(() => setSearch(searchInput.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  // Load object metadata when the slug or project changes.
+  // Load object metadata.
   React.useEffect(() => {
     let cancelled = false;
     setLoadingObject(true);
-    setError(null);
-
+    setObjectError(null);
     (async () => {
-      const res = await listObjectsAction(activeProjectId ?? undefined);
+      const res = await listSabcrmObjectsTw(activeProjectId ?? undefined);
       if (cancelled) return;
-
       if (!res.ok) {
-        setError(res.error);
+        setObjectError(res.error);
         setObject(null);
-        setLoadingObject(false);
-        return;
-      }
-
-      const found = res.data.find((o) => o.slug === objectSlug) ?? null;
-      setObject(found);
-      // Default to whatever the object's first declared view is.
-      if (found) {
-        setView(found.views.includes('board') ? 'table' : 'table');
+      } else {
+        setObject(res.data.find((o) => o.slug === objectSlug) ?? null);
       }
       setLoadingObject(false);
     })();
-
     return () => {
       cancelled = true;
     };
   }, [objectSlug, activeProjectId]);
 
-  const availableViews = React.useMemo<ViewKind[]>(() => {
-    if (!object) return ['table'];
-    const v: ViewKind[] = ['table'];
-    if (object.views.includes('board') && object.board?.groupByField) {
-      v.push('board');
-    }
-    return v;
+  const boardField = React.useMemo<FieldMetadata | undefined>(() => {
+    if (!object?.board?.groupByField) return undefined;
+    return object.fields.find((f) => f.key === object.board?.groupByField);
   }, [object]);
 
-  // If the active view is no longer available (e.g. after switching objects),
-  // fall back to table.
-  React.useEffect(() => {
-    if (!availableViews.includes(view)) setView('table');
-  }, [availableViews, view]);
+  const canBoard = !!boardField && boardField.type === 'SELECT';
 
-  // Committed (debounced + applied) filter map for the active object.
-  const appliedFilters = React.useMemo(
-    () => (object ? buildFilters(object, filters) : {}),
-    [object, filters],
-  );
-  // Stable key so the data effect re-runs only when filters actually change.
-  const filtersKey = React.useMemo(
-    () => JSON.stringify(appliedFilters),
-    [appliedFilters],
-  );
-  const sortKey = React.useMemo(() => JSON.stringify(sort), [sort]);
+  // If board view is no longer valid, fall back to table.
+  React.useEffect(() => {
+    if (view === 'board' && !canBoard) setView('table');
+  }, [view, canBoard]);
 
   // Load records / board whenever the query changes.
   React.useEffect(() => {
-    if (!objectSlug || !object) return;
+    if (!object || !objectSlug) return;
     let cancelled = false;
-    setLoadingRecords(true);
+    setLoadingData(true);
+    setDataError(null);
 
     (async () => {
-      if (view === 'board') {
-        const res = await groupRecordsAction(
-          {
-            object: objectSlug,
-            search: search || undefined,
-            filters: appliedFilters,
-            multiSort: buildSort(sort),
-            pageSize: BOARD_CAP,
-          },
+      if (view === 'board' && boardField) {
+        const res = await groupSabcrmRecordsTw(
+          objectSlug,
+          boardField.key,
           activeProjectId ?? undefined,
         );
         if (cancelled) return;
         if (!res.ok) {
-          setError(res.error);
-          setBoard(null);
+          setDataError(res.error);
+          setGroups([]);
         } else {
-          setError(null);
-          setBoard(res.data);
+          setGroups(res.data.groups);
         }
       } else {
-        const query: SabcrmRecordQuery = {
-          object: objectSlug,
-          page: pageNum,
-          pageSize: PAGE_SIZE,
-          search: search || undefined,
-          filters: appliedFilters,
-          multiSort: buildSort(sort),
-        };
-        const res = await listRecordsAction(query, activeProjectId ?? undefined);
+        const res = await listSabcrmRecordsTw(
+          objectSlug,
+          { q: search || undefined, limit: PAGE_LIMIT },
+          activeProjectId ?? undefined,
+        );
         if (cancelled) return;
         if (!res.ok) {
-          setError(res.error);
-          setPage(null);
+          setDataError(res.error);
+          setRecords([]);
         } else {
-          setError(null);
-          setPage(res.data);
+          setRecords(res.data.records);
         }
       }
-      setLoadingRecords(false);
+      setLoadingData(false);
     })();
 
     return () => {
       cancelled = true;
     };
-    // `appliedFilters`/`sort` are tracked via their serialized keys to avoid
-    // re-running on referentially-new-but-equal objects.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    objectSlug,
-    object,
-    view,
-    search,
-    pageNum,
-    filtersKey,
-    sortKey,
-    activeProjectId,
-    refreshTick,
-  ]);
+  }, [object, objectSlug, view, search, boardField, activeProjectId, refreshTick]);
 
-  const tableColumns = React.useMemo(
+  const columns = React.useMemo(
     () => (object ? object.fields.filter((f) => f.inTable) : []),
     [object],
+  );
+  const labelField = React.useMemo(
+    () => object?.fields.find((f) => f.isLabel),
+    [object],
+  );
+  const previewFields = React.useMemo(
+    () =>
+      object
+        ? object.fields
+            .filter((f) => f.inTable && !f.isLabel && f.type !== 'RELATION')
+            .slice(0, 2)
+        : [],
+    [object],
+  );
+
+  // Optimistic inline edit → persist via the Rust engine.
+  const handleEdit = React.useCallback(
+    async (recordId: string, key: string, value: unknown) => {
+      const prev = records;
+      setRecords((rs) =>
+        rs.map((r) =>
+          r.id === recordId ? { ...r, data: { ...r.data, [key]: value } } : r,
+        ),
+      );
+      const res = await updateSabcrmRecordTw(
+        objectSlug,
+        recordId,
+        { [key]: value },
+        activeProjectId ?? undefined,
+      );
+      if (!res.ok) {
+        // Roll back + surface the error.
+        setRecords(prev);
+        setDataError(res.error);
+      } else {
+        setRecords((rs) => rs.map((r) => (r.id === recordId ? res.data : r)));
+      }
+    },
+    [records, objectSlug, activeProjectId],
   );
 
   const handleCreated = React.useCallback(() => {
     setRefreshTick((t) => t + 1);
   }, []);
 
-  const handleFilterChange = React.useCallback((key: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-    setPageNum(1);
-  }, []);
+  // Load the caller's favorites once per object/project (graceful on failure).
+  React.useEffect(() => {
+    if (!objectSlug) return;
+    let cancelled = false;
+    (async () => {
+      const res = await listSabcrmFavoritesTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      if (res.ok) {
+        setFavorites(
+          new Set(
+            res.data
+              .filter((f) => f.object === objectSlug)
+              .map((f) => f.recordId),
+          ),
+        );
+      } else {
+        setFavorites(new Set());
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [objectSlug, activeProjectId]);
 
-  const handleClearFilters = React.useCallback(() => {
-    setFilters({});
-    setPageNum(1);
-  }, []);
+  // Optimistic favorite toggle with rollback on error.
+  const handleToggleFavorite = React.useCallback(
+    async (recordId: string) => {
+      if (favBusy.has(recordId)) return;
+      const wasFav = favorites.has(recordId);
+      const next = !wasFav;
 
-  const openRecord = React.useCallback(
-    (id: string) => {
-      if (!object) return;
-      router.push(`/sabcrm/${object.slug}/${id}`);
+      setFavBusy((b) => new Set(b).add(recordId));
+      setFavorites((f) => {
+        const n = new Set(f);
+        if (next) n.add(recordId);
+        else n.delete(recordId);
+        return n;
+      });
+
+      const res = next
+        ? await addSabcrmFavoriteTw(objectSlug, recordId, activeProjectId ?? undefined)
+        : await removeSabcrmFavoriteTw(
+            objectSlug,
+            recordId,
+            activeProjectId ?? undefined,
+          );
+
+      if (!res.ok) {
+        // Rollback.
+        setFavorites((f) => {
+          const n = new Set(f);
+          if (wasFav) n.add(recordId);
+          else n.delete(recordId);
+          return n;
+        });
+        setDataError(res.error);
+      }
+      setFavBusy((b) => {
+        const n = new Set(b);
+        n.delete(recordId);
+        return n;
+      });
     },
-    [router, object],
+    [favBusy, favorites, objectSlug, activeProjectId],
   );
 
-  // ---- Render --------------------------------------------------------------
+  // ---- Render -------------------------------------------------------------
 
-  // RBAC-denied / plan-locked / load failure surfaces from the action error.
-  if (error && !object && !loadingObject) {
-    return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-8">
-        <ErrorState message={error} />
-      </main>
-    );
-  }
-
-  // Object metadata still resolving.
   if (loadingObject) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-8">
-        <Skeleton className="mb-6 h-8 w-48" />
+      <div className="st-page">
+        <div className="st-skeleton" style={{ height: 28, width: 180, marginBottom: 20 }} />
         <TableSkeleton />
-      </main>
+      </div>
     );
   }
 
-  // Slug doesn't match any object in this workspace.
+  if (objectError && !object) {
+    return (
+      <div className="st-page">
+        <ErrorBanner message={objectError} />
+      </div>
+    );
+  }
+
   if (!object) {
     return (
-      <main className="mx-auto w-full max-w-6xl px-6 py-8">
-        <EmptyState
-          icon={<Database />}
-          title="Object not found"
-          description={`No CRM object matches “${objectSlug}”. It may have been removed or you may not have access.`}
-          action={
-            <Button asChild variant="outline">
-              <Link href="/sabcrm">Back to SabCRM</Link>
-            </Button>
-          }
-        />
-      </main>
+      <div className="st-page">
+        <div className="st-empty">
+          <span className="st-empty__icon">
+            <Database size={20} />
+          </span>
+          <h2 className="st-empty__title">Object not found</h2>
+          <p className="st-empty__desc">
+            No CRM object matches “{objectSlug}”. It may have been removed or you
+            may not have access.
+          </p>
+          <TwentyButton variant="secondary">
+            <Link href="/sabcrm" style={{ color: 'inherit', textDecoration: 'none' }}>
+              Back to SabCRM
+            </Link>
+          </TwentyButton>
+        </div>
+      </div>
     );
   }
 
-  const records: CrmRecordWithLabel[] = page?.records ?? [];
-  const boardGroups: SabcrmRecordGroup[] = board?.groups ?? [];
-  const total = view === 'board' ? (board?.total ?? 0) : (page?.total ?? 0);
-  const hasMore = view === 'table' && pageNum * PAGE_SIZE < total;
-  const hasActiveQuery =
-    !!search || Object.values(filters).some(Boolean);
   const isEmpty =
     view === 'board'
-      ? boardGroups.every((g) => g.records.length === 0)
+      ? groups.every((g) => g.records.length === 0)
       : records.length === 0;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-6 py-8">
-      {/* Header */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-zoru-ink">
-            {object.labelPlural}
-          </h1>
-          {object.description && (
-            <p className="mt-1 text-sm text-zoru-ink-muted">
-              {object.description}
-            </p>
-          )}
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New {object.labelSingular}
-        </Button>
-      </div>
-
-      {/* Toolbar */}
-      <ViewToolbar
-        object={object}
-        availableViews={availableViews}
-        view={view}
-        onViewChange={(v) => {
-          setView(v);
-          setPageNum(1);
-        }}
-        searchInput={searchInput}
-        onSearchInput={setSearchInput}
-        sort={sort}
-        onSortChange={(s) => {
-          setSort(s);
-          setPageNum(1);
-        }}
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        resultCount={total}
-        loading={loadingRecords}
+    <div className="st-page">
+      <TwentyPageHeader
+        title={object.labelPlural}
+        actions={
+          <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+            New {object.labelSingular}
+          </TwentyButton>
+        }
       />
 
-      {/* Inline error (records failed but object loaded) */}
-      {error && (
-        <div className="mb-4">
-          <ErrorState message={error} />
+      <div className="st-toolbar">
+        <div className="st-search">
+          <Search className="st-search__icon" size={15} aria-hidden="true" />
+          <input
+            className="st-search__input"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder={`Search ${object.labelPlural.toLowerCase()}…`}
+            aria-label={`Search ${object.labelPlural}`}
+          />
         </div>
-      )}
-
-      {/* Body */}
-      {loadingRecords && !page && !board ? (
-        view === 'board' ? (
-          <BoardSkeleton />
-        ) : (
-          <TableSkeleton />
-        )
-      ) : isEmpty ? (
-        <EmptyState
-          icon={<Database />}
-          title={
-            hasActiveQuery
-              ? `No matching ${object.labelPlural.toLowerCase()}`
-              : `No ${object.labelPlural.toLowerCase()} yet`
-          }
-          description={
-            hasActiveQuery
-              ? 'Try a different search term or clear your filters.'
-              : `Create your first ${object.labelSingular.toLowerCase()} to get started.`
-          }
-          action={
-            hasActiveQuery ? (
-              <Button variant="outline" onClick={handleClearFilters}>
-                <X className="mr-2 h-4 w-4" />
-                Clear filters
-              </Button>
-            ) : (
-              <Button onClick={() => setCreateOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                New {object.labelSingular}
-              </Button>
-            )
-          }
-        />
-      ) : view === 'board' ? (
-        <RecordBoardView
-          object={object}
-          groups={boardGroups}
-          onOpen={openRecord}
-        />
-      ) : (
-        <RecordTableView
-          object={object}
-          columns={tableColumns}
-          records={records}
-          onOpen={openRecord}
-        />
-      )}
-
-      {/* Pagination (table only) */}
-      {view === 'table' &&
-        records.length > 0 &&
-        (pageNum > 1 || hasMore) && (
-          <div className="mt-4 flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={pageNum <= 1 || loadingRecords}
-              onClick={() => setPageNum((p) => Math.max(1, p - 1))}
+        <div className="st-toolbar__spacer" />
+        {!loadingData && view === 'table' && (
+          <span className="st-count">
+            {records.length} {records.length === 1 ? object.labelSingular.toLowerCase() : object.labelPlural.toLowerCase()}
+          </span>
+        )}
+        {canBoard && (
+          <div className="st-viewswitch" role="tablist" aria-label="View">
+            <button
+              type="button"
+              role="tab"
+              aria-pressed={view === 'table'}
+              className={`st-viewswitch__btn${view === 'table' ? ' active' : ''}`}
+              onClick={() => setView('table')}
             >
-              Previous
-            </Button>
-            <span className="text-sm text-zoru-ink-muted">Page {pageNum}</span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!hasMore || loadingRecords}
-              onClick={() => setPageNum((p) => p + 1)}
+              <Table2 size={14} />
+              Table
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-pressed={view === 'board'}
+              className={`st-viewswitch__btn${view === 'board' ? ' active' : ''}`}
+              onClick={() => setView('board')}
             >
-              Next
-            </Button>
+              <Columns3 size={14} />
+              Board
+            </button>
           </div>
         )}
+      </div>
 
-      {/* Create dialog */}
-      <CreateRecordDialog
-        object={object}
-        projectId={activeProjectId}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        onCreated={handleCreated}
-      />
-    </main>
+      {dataError && <ErrorBanner message={dataError} />}
+
+      {loadingData ? (
+        <TableSkeleton />
+      ) : isEmpty ? (
+        <div className="st-empty">
+          <span className="st-empty__icon">
+            <Database size={20} />
+          </span>
+          <h2 className="st-empty__title">
+            {search
+              ? `No matching ${object.labelPlural.toLowerCase()}`
+              : `No ${object.labelPlural.toLowerCase()} yet`}
+          </h2>
+          <p className="st-empty__desc">
+            {search
+              ? 'Try a different search term.'
+              : `Create your first ${object.labelSingular.toLowerCase()} to get started.`}
+          </p>
+          {!search && (
+            <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+              New {object.labelSingular}
+            </TwentyButton>
+          )}
+        </div>
+      ) : view === 'board' && boardField ? (
+        <BoardView
+          object={object}
+          groupByField={boardField}
+          groups={groups}
+          previewFields={previewFields}
+        />
+      ) : (
+        <TableView
+          object={object}
+          columns={columns}
+          labelField={labelField}
+          records={records}
+          onEdit={handleEdit}
+          favorites={favorites}
+          favBusy={favBusy}
+          onToggleFavorite={handleToggleFavorite}
+        />
+      )}
+
+      {createOpen && (
+        <CreateDialog
+          object={object}
+          projectId={activeProjectId}
+          onClose={() => setCreateOpen(false)}
+          onCreated={handleCreated}
+        />
+      )}
+    </div>
   );
 }

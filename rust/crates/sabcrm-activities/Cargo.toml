@@ -1,0 +1,46 @@
+# SabCRM — axum router for the **activities timeline** HTTP surface.
+#
+# CRUD over the `sabcrm_activities` Mongo collection: notes / tasks /
+# calls / meetings / emails / comments attached to a record. Tenancy is by
+# `projectId` (a query/body string), not `userId`.
+#
+# Mirrors `src/lib/sabcrm/activities.server.ts`. Mounted under
+# `/v1/sabcrm/activities` from the orchestrating `api` crate.
+[package]
+name = "sabcrm-activities"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM activities-timeline HTTP surface (`/v1/sabcrm/activities/*`). Note/task/call/meeting/email/comment timeline scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_activities"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

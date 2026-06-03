@@ -337,6 +337,10 @@ pub fn build(state: AppState) -> Router {
     let crm_leads = crm_leads::router::<AppState>();
     let crm_deals = crm_deals::router::<AppState>();
     let sabcrm_records = sabcrm_records::router::<AppState>();
+    let sabcrm_objects = sabcrm_objects::router::<AppState>();
+    let sabcrm_activities = sabcrm_activities::router::<AppState>();
+    let sabcrm_views = sabcrm_views::router::<AppState>();
+    let sabcrm_favorites = sabcrm_favorites::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
     let crm_invoices = crm_invoices::router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
@@ -591,6 +595,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/leads", crm_leads)
         .nest("/v1/crm/deals", crm_deals)
         .nest("/v1/sabcrm/records", sabcrm_records)
+        .nest("/v1/sabcrm/objects", sabcrm_objects)
+        .nest("/v1/sabcrm/activities", sabcrm_activities)
+        .nest("/v1/sabcrm/views", sabcrm_views)
+        .nest("/v1/sabcrm/favorites", sabcrm_favorites)
         .nest("/v1/crm/quotations", crm_quotations)
         .nest("/v1/crm/invoices", crm_invoices)
         .nest("/v1/crm/sales-orders", crm_sales_orders)

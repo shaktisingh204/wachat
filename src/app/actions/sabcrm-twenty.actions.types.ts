@@ -12,9 +12,13 @@
 
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
+import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
 export type { ObjectMetadata } from '@/lib/sabcrm/types';
 export type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
+export type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+export type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
 /** Options accepted by {@link listSabcrmRecordsTw}. */
 export interface ListSabcrmRecordsTwParams {
@@ -47,3 +51,43 @@ export interface SabcrmRecordTwGroups {
 
 /** Re-export so a single import covers the metadata + record contract. */
 export type ObjectMetadataTw = ObjectMetadata;
+
+// ---------------------------------------------------------------------------
+// Activities (timeline)
+// ---------------------------------------------------------------------------
+
+/** Known activity kinds the Twenty composer offers. */
+export type SabcrmActivityKind = 'NOTE' | 'TASK' | 'CALL' | 'MEETING' | 'EMAIL';
+
+/** Options accepted by {@link listSabcrmActivitiesTw}. */
+export interface ListSabcrmActivitiesTwParams {
+  /** Optional `type` filter (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT). */
+  type?: string;
+  /** Page size. Clamped at 200 server-side; defaults to 50. */
+  limit?: number;
+}
+
+/** Input accepted by {@link createSabcrmActivityTw} (authorId is server-set). */
+export interface CreateSabcrmActivityTwInput {
+  /** Object slug of the record this entry attaches to. */
+  targetObject: string;
+  /** Serialized id of the record this entry attaches to. */
+  targetRecordId: string;
+  /** Entry kind (NOTE | TASK | CALL | MEETING | EMAIL | COMMENT). */
+  type: string;
+  title: string;
+  body?: string;
+  status?: string;
+  assigneeId?: string;
+  dueAt?: string;
+}
+
+/** Partial patch accepted by {@link updateSabcrmActivityTw}. */
+export interface UpdateSabcrmActivityTwPatch {
+  type?: string;
+  title?: string;
+  body?: string;
+  status?: string;
+  assigneeId?: string;
+  dueAt?: string;
+}

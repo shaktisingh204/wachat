@@ -29,6 +29,10 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
+import { sabcrmActivitiesApi } from '@/lib/rust-client/sabcrm-activities';
+import { sabcrmFavoritesApi } from '@/lib/rust-client/sabcrm-favorites';
+import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 import {
   listObjects,
   ensureStandardObjects,
@@ -39,6 +43,9 @@ import type {
   SabcrmRecordsTwPage,
   SabcrmRecordTwGroups,
   SabcrmRustRecord,
+  ListSabcrmActivitiesTwParams,
+  CreateSabcrmActivityTwInput,
+  UpdateSabcrmActivityTwPatch,
 } from './sabcrm-twenty.actions.types';
 
 // ---------------------------------------------------------------------------
@@ -284,5 +291,180 @@ export async function groupSabcrmRecordsTw(
     return { ok: true, data: { groups: res.groups } };
   } catch (e) {
     return fail(e, 'Failed to group records.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Activities (timeline) — via the Rust engine
+// ---------------------------------------------------------------------------
+
+/** Lists a record's timeline activities (newest first) through the engine. */
+export async function listSabcrmActivitiesTw(
+  targetObject: string,
+  recordId: string,
+  opts: ListSabcrmActivitiesTwParams = {},
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustActivity[]>> {
+  if (!targetObject) return { ok: false, error: 'Object is required.' };
+  if (!recordId) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const activities = await sabcrmActivitiesApi.list({
+      projectId: g.ctx.projectId,
+      targetObject,
+      targetRecordId: recordId,
+      type: opts.type,
+      limit: opts.limit,
+    });
+    return { ok: true, data: activities };
+  } catch (e) {
+    return fail(e, 'Failed to load timeline.');
+  }
+}
+
+/** Creates a timeline activity; `authorId` is the current user. */
+export async function createSabcrmActivityTw(
+  input: CreateSabcrmActivityTwInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustActivity>> {
+  if (!input.targetObject) return { ok: false, error: 'Object is required.' };
+  if (!input.targetRecordId) {
+    return { ok: false, error: 'Record id is required.' };
+  }
+  if (!input.type?.trim()) return { ok: false, error: 'A type is required.' };
+  if (!input.title?.trim()) return { ok: false, error: 'A title is required.' };
+
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const activity = await sabcrmActivitiesApi.create({
+      projectId: g.ctx.projectId,
+      type: input.type.trim(),
+      title: input.title.trim(),
+      body: input.body,
+      targetObject: input.targetObject,
+      targetRecordId: input.targetRecordId,
+      authorId: g.ctx.userId,
+      status: input.status,
+      assigneeId: input.assigneeId,
+      dueAt: input.dueAt,
+    });
+    revalidatePath(
+      `${TW_BASE_PATH}/${input.targetObject}/${input.targetRecordId}`,
+    );
+    return { ok: true, data: activity };
+  } catch (e) {
+    return fail(e, 'Failed to add activity.');
+  }
+}
+
+/** Partial-updates a timeline activity (e.g. task status). */
+export async function updateSabcrmActivityTw(
+  id: string,
+  patch: UpdateSabcrmActivityTwPatch,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustActivity>> {
+  if (!id) return { ok: false, error: 'Activity id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const activity = await sabcrmActivitiesApi.update(id, {
+      projectId: g.ctx.projectId,
+      ...patch,
+    });
+    return { ok: true, data: activity };
+  } catch (e) {
+    return fail(e, 'Failed to update activity.');
+  }
+}
+
+/** Deletes a timeline activity by id. */
+export async function deleteSabcrmActivityTw(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!id) return { ok: false, error: 'Activity id is required.' };
+
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmActivitiesApi.remove(id, g.ctx.projectId);
+    return { ok: true, data: { ok: res.ok } };
+  } catch (e) {
+    return fail(e, 'Failed to delete activity.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Favorites — via the Rust engine
+// ---------------------------------------------------------------------------
+
+/** Lists the caller's favorites for the active project (newest first). */
+export async function listSabcrmFavoritesTw(
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustFavorite[]>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const favorites = await sabcrmFavoritesApi.list(g.ctx.projectId);
+    return { ok: true, data: favorites };
+  } catch (e) {
+    return fail(e, 'Failed to load favorites.');
+  }
+}
+
+/** Adds (upserts) a favorite for the caller. Idempotent. */
+export async function addSabcrmFavoriteTw(
+  object: string,
+  recordId: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustFavorite>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!recordId) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const favorite = await sabcrmFavoritesApi.add(
+      g.ctx.projectId,
+      object,
+      recordId,
+    );
+    return { ok: true, data: favorite };
+  } catch (e) {
+    return fail(e, 'Failed to add favorite.');
+  }
+}
+
+/** Removes a favorite for the caller. Idempotent. */
+export async function removeSabcrmFavoriteTw(
+  object: string,
+  recordId: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!recordId) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmFavoritesApi.remove(
+      g.ctx.projectId,
+      object,
+      recordId,
+    );
+    return { ok: true, data: { ok: res.ok } };
+  } catch (e) {
+    return fail(e, 'Failed to remove favorite.');
   }
 }
