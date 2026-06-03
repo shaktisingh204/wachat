@@ -1,75 +1,40 @@
 'use client';
 
 /**
- * SabCRM Settings — Saved Views Management
- * Route: /sabcrm/settings/views
+ * SabCRM Settings — Saved Views (`/sabcrm/settings/views`), Twenty-style.
  *
- * Presents all saved views across every object the project has, grouped by
- * object. Within each group, users with `sabcrm:manage` capability can:
- *   - Rename a view (inline via the saveViewAction update path)
- *   - Set a view as the default for its object (setDefaultViewAction)
+ * Presents every saved view in the active project, grouped by object. Each
+ * group is a Twenty-style table listing the view name, its kind (table / board)
+ * as a chip, and a default star. Within each row, users with the `sabcrm:manage`
+ * capability can:
+ *   - Rename a view inline (saveViewAction update path)
+ *   - Mark a view as the object default (setDefaultViewAction)
  *   - Delete a view (deleteViewAction)
  *
- * All mutations go through the existing gated server actions in
- * `src/app/actions/sabcrm.actions.ts`. The gate enforces
- * session → project → RBAC (sabcrm:manage → 'edit') → plan → Mongo.
+ * All mutations go through the gated server actions in
+ * `src/app/actions/sabcrm.actions.ts`; the gate re-runs
+ * session → project → RBAC → plan → Mongo so direct API access fails closed.
+ * Auth / onboarding guards are enforced upstream by `../../layout.tsx`.
  *
- * Auth / onboarding / RBAC is enforced by the parent layout
- * (`src/app/sabcrm/layout.tsx`). The server actions independently re-run the
- * gate so even direct API access fails closed.
- *
- * Client Component: view lists reload on demand, mutations are reflected
- * optimistically and confirmed by refetching.
+ * Twenty visual language only (`.st-*` + views-automations.css). No ZoruUI,
+ * no Tailwind. The `.sabcrm-twenty` scope is applied by TwentyAppFrame.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import {
-  Loader2,
-  AlertTriangle,
   Eye,
-  Trash2,
   Star,
-  StarOff,
   Pencil,
+  Trash2,
   Check,
   X,
   Table2,
   Columns3,
-  ArrowLeft,
-  BookOpen,
+  AlertTriangle,
+  Loader2,
 } from 'lucide-react';
 
-import {
-  Button,
-  Input,
-  Badge,
-  Card,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-  ZoruCardContent,
-  Skeleton,
-  EmptyState,
-  Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  ZoruAlertDialog,
-  ZoruAlertDialogTrigger,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  Separator,
-  Tooltip,
-  ZoruTooltipProvider,
-  ZoruTooltipTrigger,
-  ZoruTooltipContent,
-} from '@/components/zoruui';
-
+import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
   listObjectsAction,
@@ -81,11 +46,15 @@ import {
 import type { SavedView } from '@/app/actions/sabcrm.actions.types';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
+import '@/styles/sabcrm-twenty.css';
+import '../settings-twenty.css';
+import '../views-automations.css';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface ObjectWithViews {
+interface ObjectGroup {
   object: ObjectMetadata;
   views: SavedView[];
 }
@@ -95,14 +64,14 @@ interface ObjectWithViews {
 // ---------------------------------------------------------------------------
 
 interface RenameRowProps {
-  view: SavedView;
-  onSave: (viewId: string, newName: string) => Promise<void>;
-  onCancel: () => void;
+  initial: string;
   saving: boolean;
+  onSave: (name: string) => void;
+  onCancel: () => void;
 }
 
-function RenameRow({ view, onSave, onCancel, saving }: RenameRowProps) {
-  const [name, setName] = React.useState(view.name);
+function RenameRow({ initial, saving, onSave, onCancel }: RenameRowProps): React.JSX.Element {
+  const [name, setName] = React.useState(initial);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
@@ -110,431 +79,393 @@ function RenameRow({ view, onSave, onCancel, saving }: RenameRowProps) {
     inputRef.current?.select();
   }, []);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (name.trim() && name.trim() !== view.name) {
-        void onSave(view._id, name.trim());
-      } else {
-        onCancel();
-      }
-    } else if (e.key === 'Escape') {
+  const commit = React.useCallback(() => {
+    const trimmed = name.trim();
+    if (trimmed && trimmed !== initial) {
+      onSave(trimmed);
+    } else {
       onCancel();
     }
-  };
+  }, [name, initial, onSave, onCancel]);
 
   return (
     <form
-      className="flex items-center gap-2"
+      className="st-rename"
       onSubmit={(e) => {
         e.preventDefault();
-        if (name.trim() && name.trim() !== view.name) {
-          void onSave(view._id, name.trim());
-        } else {
-          onCancel();
-        }
+        commit();
       }}
     >
-      <Input
+      <input
         ref={inputRef}
+        className="st-cell-input"
         value={name}
-        onChange={(e) => setName(e.target.value)}
-        onKeyDown={handleKeyDown}
-        className="h-8 max-w-xs text-sm"
         disabled={saving}
         aria-label="New view name"
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onCancel();
+        }}
       />
-      <Button
+      <button
         type="submit"
-        size="icon-sm"
-        variant="secondary"
+        className="st-icon-btn"
         disabled={saving || !name.trim()}
         aria-label="Save name"
+        title="Save"
       >
-        {saving ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Check className="h-4 w-4" />
-        )}
-      </Button>
-      <Button
+        {saving ? <Loader2 className="st-spin" size={14} /> : <Check size={14} />}
+      </button>
+      <button
         type="button"
-        size="icon-sm"
-        variant="ghost"
-        onClick={onCancel}
+        className="st-icon-btn"
         disabled={saving}
+        onClick={onCancel}
         aria-label="Cancel rename"
+        title="Cancel"
       >
-        <X className="h-4 w-4" />
-      </Button>
+        <X size={14} />
+      </button>
     </form>
   );
 }
 
 // ---------------------------------------------------------------------------
-// View row
+// One view row
 // ---------------------------------------------------------------------------
 
 interface ViewRowProps {
   view: SavedView;
   objectSlug: string;
-  onRename: (viewId: string) => void;
-  onDelete: (viewId: string) => Promise<void>;
-  onSetDefault: (viewId: string) => Promise<void>;
-  renamingId: string | null;
-  onRenameSave: (viewId: string, newName: string) => Promise<void>;
-  onRenameCancel: () => void;
+  isRenaming: boolean;
   renameSaving: boolean;
-  mutatingId: string | null;
+  mutating: boolean;
+  onStartRename: (id: string) => void;
+  onRenameSave: (id: string, name: string) => void;
+  onRenameCancel: () => void;
+  onSetDefault: (id: string) => void;
+  onDelete: (view: SavedView) => void;
 }
 
 function ViewRow({
   view,
   objectSlug,
-  onRename,
-  onDelete,
-  onSetDefault,
-  renamingId,
+  isRenaming,
+  renameSaving,
+  mutating,
+  onStartRename,
   onRenameSave,
   onRenameCancel,
-  renameSaving,
-  mutatingId,
-}: ViewRowProps) {
-  const isRenaming = renamingId === view._id;
-  const isMutating = mutatingId === view._id;
+  onSetDefault,
+  onDelete,
+}: ViewRowProps): React.JSX.Element {
+  const KindIcon = view.kind === 'board' ? Columns3 : Table2;
+  const kindLabel = view.kind === 'board' ? 'Board' : 'Table';
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3 transition-colors hover:border-zoru-line-strong">
-      {/* Left: name + meta */}
-      <div className="flex min-w-0 flex-1 items-center gap-3">
-        {/* Kind icon */}
-        <span className="shrink-0 text-zoru-ink-muted" aria-hidden>
-          {view.kind === 'board' ? (
-            <Columns3 className="h-4 w-4" />
-          ) : (
-            <Table2 className="h-4 w-4" />
-          )}
-        </span>
-
-        {/* Name / inline rename */}
+    <tr className="st-row">
+      <td>
         {isRenaming ? (
           <RenameRow
-            view={view}
-            onSave={onRenameSave}
-            onCancel={onRenameCancel}
+            initial={view.name}
             saving={renameSaving}
+            onSave={(name) => onRenameSave(view._id, name)}
+            onCancel={onRenameCancel}
           />
         ) : (
-          <div className="flex min-w-0 items-center gap-2">
-            <Link
-              href={`/sabcrm/${objectSlug}`}
-              className="truncate text-sm font-medium text-zoru-ink hover:underline"
+          <span className="st-name-cell">
+            <button
+              type="button"
+              className={`st-star${view.isDefault ? ' is-default' : ''}`}
+              disabled={mutating || view.isDefault}
+              aria-label={view.isDefault ? 'Default view' : 'Set as default'}
+              title={view.isDefault ? 'Default view' : 'Set as default'}
+              onClick={() => onSetDefault(view._id)}
             >
-              {view.name}
-            </Link>
-            {view.isDefault && (
-              <Badge variant="secondary" className="shrink-0 text-xs">
-                Default
-              </Badge>
-            )}
-            {view.userId && (
-              <Badge variant="ghost" className="shrink-0 text-xs">
-                Private
-              </Badge>
-            )}
-          </div>
+              {mutating ? (
+                <Loader2 className="st-spin" size={14} />
+              ) : (
+                <Star size={14} fill={view.isDefault ? 'currentColor' : 'none'} />
+              )}
+            </button>
+            <span className="st-name-cell__text st-cell-link">{view.name}</span>
+            {view.userId ? (
+              <span className="st-chip">
+                <span className="st-chip__label">Private</span>
+              </span>
+            ) : null}
+          </span>
         )}
-      </div>
+      </td>
+      <td>
+        <span className="st-chip">
+          <KindIcon className="st-name-cell__icon" size={12} aria-hidden="true" />
+          <span className="st-chip__label">{kindLabel}</span>
+        </span>
+      </td>
+      <td>
+        {view.isDefault ? (
+          <span className="st-chip st-chip--ok">
+            <span className="st-chip__dot" aria-hidden="true" />
+            <span className="st-chip__label">Default</span>
+          </span>
+        ) : (
+          <span className="st-muted">—</span>
+        )}
+      </td>
+      <td className="st-cell-actions">
+        {!isRenaming ? (
+          <>
+            <a
+              className="st-btn st-btn--ghost"
+              href={`/sabcrm/${objectSlug}`}
+              title="Open records"
+            >
+              <Eye size={14} aria-hidden="true" />
+              Open
+            </a>
+            <TwentyButton
+              variant="ghost"
+              icon={Pencil}
+              disabled={mutating}
+              onClick={() => onStartRename(view._id)}
+              title="Rename view"
+            >
+              Rename
+            </TwentyButton>
+            <TwentyButton
+              variant="ghost"
+              icon={Trash2}
+              className="st-btn--danger"
+              disabled={mutating}
+              onClick={() => onDelete(view)}
+              title="Delete view"
+            >
+              Delete
+            </TwentyButton>
+          </>
+        ) : null}
+      </td>
+    </tr>
+  );
+}
 
-      {/* Right: actions */}
-      {!isRenaming && (
-        <div className="flex shrink-0 items-center gap-1">
-          <ZoruTooltipProvider>
-            {/* Set default */}
-            <Tooltip>
-              <ZoruTooltipTrigger asChild>
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label={
-                    view.isDefault ? 'Already default' : 'Set as default'
-                  }
-                  disabled={isMutating || view.isDefault}
-                  onClick={() => void onSetDefault(view._id)}
-                >
-                  {isMutating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : view.isDefault ? (
-                    <Star className="h-4 w-4 fill-current text-zoru-ink" />
-                  ) : (
-                    <StarOff className="h-4 w-4" />
-                  )}
-                </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent side="top">
-                {view.isDefault ? 'Default view' : 'Set as default'}
-              </ZoruTooltipContent>
-            </Tooltip>
+// ---------------------------------------------------------------------------
+// Delete confirmation dialog
+// ---------------------------------------------------------------------------
 
-            {/* Rename */}
-            <Tooltip>
-              <ZoruTooltipTrigger asChild>
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label="Rename view"
-                  disabled={isMutating}
-                  onClick={() => onRename(view._id)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent side="top">Rename</ZoruTooltipContent>
-            </Tooltip>
+interface DeleteDialogProps {
+  view: SavedView;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
 
-            {/* Open */}
-            <Tooltip>
-              <ZoruTooltipTrigger asChild>
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label={`Open ${view.name} view`}
-                  disabled={isMutating}
-                  asChild
-                >
-                  <Link href={`/sabcrm/${objectSlug}`}>
-                    <Eye className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent side="top">Open view</ZoruTooltipContent>
-            </Tooltip>
-
-            {/* Delete */}
-            <Tooltip>
-              <ZoruTooltipTrigger asChild>
-                <span>
-                  <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild>
-                      <Button
-                        type="button"
-                        size="icon-sm"
-                        variant="ghost"
-                        aria-label={`Delete ${view.name}`}
-                        disabled={isMutating}
-                        className="text-zoru-ink-muted hover:text-zoru-danger-ink"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </ZoruAlertDialogTrigger>
-                    <ZoruAlertDialogContent>
-                      <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
-                          Delete &ldquo;{view.name}&rdquo;?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                          This view and its configuration will be permanently
-                          removed. Records are not affected.
-                        </ZoruAlertDialogDescription>
-                      </ZoruAlertDialogHeader>
-                      <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                          destructive
-                          onClick={() => void onDelete(view._id)}
-                        >
-                          Delete view
-                        </ZoruAlertDialogAction>
-                      </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                  </ZoruAlertDialog>
-                </span>
-              </ZoruTooltipTrigger>
-              <ZoruTooltipContent side="top">Delete</ZoruTooltipContent>
-            </Tooltip>
-          </ZoruTooltipProvider>
+function DeleteDialog({ view, busy, onCancel, onConfirm }: DeleteDialogProps): React.JSX.Element {
+  return (
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Delete view"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+    >
+      <div className="st-dialog">
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">Delete view</h2>
+          <button type="button" className="st-dialog__close" onClick={onCancel} aria-label="Close">
+            <X size={16} />
+          </button>
         </div>
-      )}
+        <div className="st-dialog__body">
+          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+            Delete <strong style={{ color: 'var(--st-text)' }}>{view.name}</strong>? Its filters,
+            sort, and layout will be permanently removed. Records are not affected.
+          </p>
+        </div>
+        <div className="st-dialog__footer">
+          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+            Cancel
+          </TwentyButton>
+          <TwentyButton
+            variant="secondary"
+            className="st-btn--danger"
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? 'Deleting…' : 'Delete view'}
+          </TwentyButton>
+        </div>
+      </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Object section (views grouped by object)
+// One object group (a Twenty table of that object's views)
 // ---------------------------------------------------------------------------
 
-interface ObjectSectionProps {
-  ow: ObjectWithViews;
-  onViewsChange: (objectSlug: string, views: SavedView[]) => void;
-  projectId: string | null;
+interface ObjectGroupBlockProps {
+  group: ObjectGroup;
+  projectId: string;
+  onViewsChange: (slug: string, views: SavedView[]) => void;
 }
 
-function ObjectSection({ ow, onViewsChange, projectId }: ObjectSectionProps) {
+function ObjectGroupBlock({ group, projectId, onViewsChange }: ObjectGroupBlockProps): React.JSX.Element {
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [renameSaving, setRenameSaving] = React.useState(false);
   const [mutatingId, setMutatingId] = React.useState<string | null>(null);
-  const [sectionError, setSectionError] = React.useState<string | null>(null);
-
-  const handleRename = React.useCallback((viewId: string) => {
-    setRenamingId(viewId);
-    setSectionError(null);
-  }, []);
-
-  const handleRenameCancel = React.useCallback(() => {
-    setRenamingId(null);
-  }, []);
+  const [deleteTarget, setDeleteTarget] = React.useState<SavedView | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const handleRenameSave = React.useCallback(
-    async (viewId: string, newName: string) => {
-      const view = ow.views.find((v) => v._id === viewId);
-      if (!view) return;
+    async (id: string, name: string) => {
       setRenameSaving(true);
-      setSectionError(null);
-
-      const res = await saveViewAction(
-        {
-          id: viewId,
-          object: ow.object.slug,
-          name: newName,
-        },
-        projectId ?? undefined,
-      );
-
-      setRenameSaving(false);
-
-      if (res.ok) {
-        setRenamingId(null);
-        // Replace the updated view in the list in place.
-        const updated = ow.views.map((v) =>
-          v._id === viewId ? res.data : v,
-        );
-        onViewsChange(ow.object.slug, updated);
-      } else {
-        setSectionError(res.error);
+      setError(null);
+      try {
+        const res = await saveViewAction({ id, object: group.object.slug, name }, projectId);
+        if (res.ok) {
+          setRenamingId(null);
+          onViewsChange(
+            group.object.slug,
+            group.views.map((v) => (v._id === id ? res.data : v)),
+          );
+        } else {
+          setError(res.error);
+        }
+      } catch {
+        setError('Failed to rename the view. The service may be unavailable.');
+      } finally {
+        setRenameSaving(false);
       }
     },
-    [ow, onViewsChange, projectId],
+    [group, projectId, onViewsChange],
   );
 
   const handleSetDefault = React.useCallback(
-    async (viewId: string) => {
-      setMutatingId(viewId);
-      setSectionError(null);
-
-      const res = await setDefaultViewAction(viewId, projectId ?? undefined);
-
-      setMutatingId(null);
-
-      if (res.ok) {
-        // Reflect the single-default invariant locally.
-        const updated = ow.views.map((v) => ({
-          ...v,
-          isDefault: v._id === viewId,
-        }));
-        onViewsChange(ow.object.slug, updated);
-      } else {
-        setSectionError(res.error);
+    async (id: string) => {
+      setMutatingId(id);
+      setError(null);
+      try {
+        const res = await setDefaultViewAction(id, projectId);
+        if (res.ok) {
+          onViewsChange(
+            group.object.slug,
+            group.views.map((v) => ({ ...v, isDefault: v._id === id })),
+          );
+        } else {
+          setError(res.error);
+        }
+      } catch {
+        setError('Failed to set the default view. The service may be unavailable.');
+      } finally {
+        setMutatingId(null);
       }
     },
-    [ow, onViewsChange, projectId],
+    [group, projectId, onViewsChange],
   );
 
-  const handleDelete = React.useCallback(
-    async (viewId: string) => {
-      setMutatingId(viewId);
-      setSectionError(null);
-
-      const res = await deleteViewAction(viewId, projectId ?? undefined);
-
-      setMutatingId(null);
-
+  const confirmDelete = React.useCallback(async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await deleteViewAction(deleteTarget._id, projectId);
       if (res.ok) {
-        const updated = ow.views.filter((v) => v._id !== viewId);
-        onViewsChange(ow.object.slug, updated);
+        onViewsChange(
+          group.object.slug,
+          group.views.filter((v) => v._id !== deleteTarget._id),
+        );
+        setDeleteTarget(null);
       } else {
-        setSectionError(res.error);
+        setError(res.error);
+        setDeleteTarget(null);
       }
-    },
-    [ow, onViewsChange, projectId],
-  );
+    } catch {
+      setError('Failed to delete the view. The service may be unavailable.');
+      setDeleteTarget(null);
+    } finally {
+      setDeleting(false);
+    }
+  }, [deleteTarget, group, projectId, onViewsChange]);
 
   return (
-    <Card variant="default" className="overflow-hidden">
-      <ZoruCardHeader className="pb-3">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <ZoruCardTitle>{ow.object.labelPlural}</ZoruCardTitle>
-            <ZoruCardDescription className="mt-0.5">
-              {ow.views.length}{' '}
-              {ow.views.length === 1 ? 'saved view' : 'saved views'}
-            </ZoruCardDescription>
-          </div>
-          <Button size="sm" variant="outline" asChild>
-            <Link href={`/sabcrm/${ow.object.slug}`}>
-              Open records
-            </Link>
-          </Button>
+    <section className="st-group">
+      <div className="st-group__head">
+        <h2 className="st-group__title">{group.object.labelPlural}</h2>
+        <span className="st-group__count">
+          {group.views.length} {group.views.length === 1 ? 'view' : 'views'}
+        </span>
+        <span className="st-group__spacer" />
+        <a className="st-btn st-btn--secondary" href={`/sabcrm/${group.object.slug}`}>
+          Open records
+        </a>
+      </div>
+
+      {error ? (
+        <div className="st-banner">
+          <AlertTriangle className="st-banner__icon" size={16} />
+          <span>{error}</span>
         </div>
-      </ZoruCardHeader>
+      ) : null}
 
-      <Separator />
-
-      <ZoruCardContent className="pt-4">
-        {sectionError && (
-          <Alert variant="destructive" className="mb-3">
-            <AlertTriangle className="h-4 w-4" />
-            <ZoruAlertTitle>Action failed</ZoruAlertTitle>
-            <ZoruAlertDescription>{sectionError}</ZoruAlertDescription>
-          </Alert>
-        )}
-
-        {ow.views.length === 0 ? (
-          <p className="py-4 text-center text-sm text-zoru-ink-muted">
-            No saved views for {ow.object.labelPlural.toLowerCase()}.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {ow.views.map((view) => (
+      <div className="st-table-wrap">
+        <table className="st-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Kind</th>
+              <th>Default</th>
+              <th aria-label="Actions" />
+            </tr>
+          </thead>
+          <tbody>
+            {group.views.map((view) => (
               <ViewRow
                 key={view._id}
                 view={view}
-                objectSlug={ow.object.slug}
-                onRename={handleRename}
-                onDelete={handleDelete}
-                onSetDefault={handleSetDefault}
-                renamingId={renamingId}
-                onRenameSave={handleRenameSave}
-                onRenameCancel={handleRenameCancel}
+                objectSlug={group.object.slug}
+                isRenaming={renamingId === view._id}
                 renameSaving={renameSaving}
-                mutatingId={mutatingId}
+                mutating={mutatingId === view._id}
+                onStartRename={(id) => {
+                  setRenamingId(id);
+                  setError(null);
+                }}
+                onRenameSave={handleRenameSave}
+                onRenameCancel={() => setRenamingId(null)}
+                onSetDefault={handleSetDefault}
+                onDelete={setDeleteTarget}
               />
             ))}
-          </div>
-        )}
-      </ZoruCardContent>
-    </Card>
+          </tbody>
+        </table>
+      </div>
+
+      {deleteTarget ? (
+        <DeleteDialog
+          view={deleteTarget}
+          busy={deleting}
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={confirmDelete}
+        />
+      ) : null}
+    </section>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Loading skeletons
+// Loading skeleton
 // ---------------------------------------------------------------------------
 
-function PageSkeleton() {
+function ViewsSkeleton(): React.JSX.Element {
   return (
-    <div className="space-y-6">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="space-y-2 rounded-xl border border-zoru-line p-5">
-          <Skeleton className="h-5 w-40" />
-          <Skeleton className="h-4 w-24" />
-          <div className="mt-4 space-y-2">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-12 w-full" />
-          </div>
-        </div>
+    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
     </div>
   );
@@ -544,135 +475,106 @@ function PageSkeleton() {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function SavedViewsSettingsPage() {
-  const { activeProjectId } = useProject();
+export default function SabcrmViewsSettingsPage(): React.JSX.Element {
+  const { activeProjectId, isLoadingProject } = useProject();
 
-  const [objectsWithViews, setObjectsWithViews] = React.useState<
-    ObjectWithViews[]
-  >([]);
+  const [groups, setGroups] = React.useState<ObjectGroup[]>([]);
   const [loading, setLoading] = React.useState(true);
-  const [pageError, setPageError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Load all objects + their saved views in parallel.
-  React.useEffect(() => {
-    let cancelled = false;
+  const load = React.useCallback(async (projectId: string) => {
     setLoading(true);
-    setPageError(null);
-
-    void (async () => {
-      const objectsRes = await listObjectsAction(activeProjectId ?? undefined);
-      if (cancelled) return;
-
+    setError(null);
+    try {
+      const objectsRes = await listObjectsAction(projectId);
       if (!objectsRes.ok) {
-        setPageError(objectsRes.error);
-        setLoading(false);
+        setError(objectsRes.error);
+        setGroups([]);
         return;
       }
 
-      const objects = objectsRes.data;
-
-      // Fetch views for every object in parallel. Gate failures are surfaced as
-      // empty view lists rather than crashing the whole page.
       const pairs = await Promise.all(
-        objects.map(async (object) => {
-          const res = await listViewsAction(
-            object.slug,
-            activeProjectId ?? undefined,
-          );
-          const views: SavedView[] = res.ok ? res.data : [];
-          return { object, views };
+        objectsRes.data.map(async (object) => {
+          const res = await listViewsAction(object.slug, projectId);
+          return { object, views: res.ok ? res.data : [] };
         }),
       );
 
-      if (cancelled) return;
-
-      // Only show objects that have at least one saved view — objects with no
-      // views don't need management surface.
-      setObjectsWithViews(pairs.filter((p) => p.views.length > 0));
+      // Only surface objects that actually have saved views.
+      setGroups(pairs.filter((p) => p.views.length > 0));
+    } catch {
+      setError('Saved views could not be loaded. The service may be unavailable.');
+      setGroups([]);
+    } finally {
       setLoading(false);
-    })();
+    }
+  }, []);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [activeProjectId]);
+  React.useEffect(() => {
+    if (isLoadingProject) return;
+    if (!activeProjectId) {
+      setLoading(false);
+      return;
+    }
+    void load(activeProjectId);
+  }, [activeProjectId, isLoadingProject, load]);
 
-  /** Update the local view list for one object after a successful mutation. */
-  const handleViewsChange = React.useCallback(
-    (objectSlug: string, updatedViews: SavedView[]) => {
-      setObjectsWithViews((prev) => {
-        // Replace the view list for the given object. If it's now empty,
-        // remove the section so the empty-state renders cleanly.
-        if (updatedViews.length === 0) {
-          return prev.filter((ow) => ow.object.slug !== objectSlug);
-        }
-        return prev.map((ow) =>
-          ow.object.slug === objectSlug
-            ? { ...ow, views: updatedViews }
-            : ow,
-        );
-      });
-    },
-    [],
-  );
-
-  // ---- Render --------------------------------------------------------------
+  const handleViewsChange = React.useCallback((slug: string, views: SavedView[]) => {
+    setGroups((prev) => {
+      if (views.length === 0) return prev.filter((g) => g.object.slug !== slug);
+      return prev.map((g) => (g.object.slug === slug ? { ...g, views } : g));
+    });
+  }, []);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-6 py-8">
-      {/* Page header */}
-      <div className="mb-8">
-        <Button
-          asChild
-          variant="ghost"
-          size="sm"
-          className="mb-4 -ml-2 text-zoru-ink-muted"
-        >
-          <Link href="/sabcrm">
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Back to SabCRM
-          </Link>
-        </Button>
-
-        <h1 className="text-2xl font-semibold text-zoru-ink">Saved Views</h1>
-        <p className="mt-1 text-sm text-zoru-ink-muted">
-          Manage the saved views across all your CRM objects. Rename, set
-          defaults, or delete views you no longer need.
+    <div className="st-page">
+      <div className="st-settings">
+        <TwentyPageHeader title="Views" icon={Eye} />
+        <p className="st-settings__intro">
+          Manage every saved view across your CRM objects. Rename a view, mark one
+          as the object default, or delete views you no longer need. Records are
+          never affected.
         </p>
-      </div>
 
-      {/* Body */}
-      {loading ? (
-        <PageSkeleton />
-      ) : pageError ? (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <ZoruAlertTitle>Unable to load views</ZoruAlertTitle>
-          <ZoruAlertDescription>{pageError}</ZoruAlertDescription>
-        </Alert>
-      ) : objectsWithViews.length === 0 ? (
-        <EmptyState
-          icon={<BookOpen />}
-          title="No saved views yet"
-          description="Save a view from any object's toolbar to manage it here. Views let you persist filters, sorts, and layouts so you can jump back to them later."
-          action={
-            <Button asChild variant="outline">
-              <Link href="/sabcrm">Browse objects</Link>
-            </Button>
-          }
-        />
-      ) : (
-        <div className="space-y-6">
-          {objectsWithViews.map((ow) => (
-            <ObjectSection
-              key={ow.object.slug}
-              ow={ow}
-              onViewsChange={handleViewsChange}
+        {error ? (
+          <div className="st-banner">
+            <AlertTriangle className="st-banner__icon" size={16} />
+            <span>{error}</span>
+          </div>
+        ) : null}
+
+        {isLoadingProject || loading ? (
+          <ViewsSkeleton />
+        ) : !activeProjectId ? (
+          <div className="st-empty">
+            <span className="st-empty__icon">
+              <AlertTriangle size={20} />
+            </span>
+            <h2 className="st-empty__title">No project selected</h2>
+            <p className="st-empty__desc">Select a project to manage its saved views.</p>
+          </div>
+        ) : groups.length === 0 ? (
+          <div className="st-empty">
+            <span className="st-empty__icon">
+              <Eye size={20} />
+            </span>
+            <h2 className="st-empty__title">No saved views yet</h2>
+            <p className="st-empty__desc">
+              Save a view from any object&rsquo;s toolbar to persist its filters,
+              sort, and layout. Saved views appear here for management.
+            </p>
+          </div>
+        ) : (
+          groups.map((group) => (
+            <ObjectGroupBlock
+              key={group.object.slug}
+              group={group}
               projectId={activeProjectId}
+              onViewsChange={handleViewsChange}
             />
-          ))}
-        </div>
-      )}
-    </main>
+          ))
+        )}
+      </div>
+    </div>
   );
 }
