@@ -54,6 +54,19 @@ export interface SabcrmRecordListResponse {
   total: number;
 }
 
+/** Params accepted by {@link sabcrmRecordsApi.count} — scope + filter only. */
+export interface SabcrmRecordCountParams {
+  projectId: string;
+  /** Free-text query (regex over common data.* fields server-side). */
+  q?: string;
+  /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
+  filters?: Record<string, unknown>;
+}
+
+export interface SabcrmRecordCountResponse {
+  count: number;
+}
+
 export interface SabcrmRecordGroup {
   value: string | null;
   records: SabcrmRustRecord[];
@@ -138,6 +151,27 @@ export const sabcrmRecordsApi = {
         sortDir: params.sortDir,
         page: params.page,
         limit: params.limit,
+        filters: hasFilters ? JSON.stringify(params.filters) : undefined,
+      })}`,
+    );
+  },
+
+  /**
+   * `GET /v1/sabcrm/records/{object}/count` — number of records matching the
+   * SAME `{ projectId, object }` + `q` + `filters` predicate as {@link list}
+   * (pagination/sort are irrelevant to a count).
+   */
+  count(
+    object: string,
+    params: SabcrmRecordCountParams,
+  ): Promise<SabcrmRecordCountResponse> {
+    const hasFilters =
+      params.filters !== undefined &&
+      Object.keys(params.filters).length > 0;
+    return rustFetch<SabcrmRecordCountResponse>(
+      `${base(object)}/count${qs({
+        projectId: params.projectId,
+        q: params.q,
         filters: hasFilters ? JSON.stringify(params.filters) : undefined,
       })}`,
     );

@@ -36,9 +36,10 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    BulkDeleteInput, BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CreateRecordInput,
-    GroupRecordsInput, GroupResponse, ListQuery, ListResponse, OkResponse, RecordGroup,
-    RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
+    BulkDeleteInput, BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CountQuery,
+    CountResponse, CreateRecordInput, GroupRecordsInput, GroupResponse, ListQuery, ListResponse,
+    OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery,
+    UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -211,6 +212,36 @@ fn apply_filters(filter: &mut Document, filters: Option<&str>) -> Result<()> {
     Ok(())
 }
 
+/// Build the Mongo filter shared by `list_records` and `count_records`:
+/// the `{ projectId, object }` tenant scope, plus the optional free-text `q`
+/// (case-insensitive regex `$or` over [`SEARCH_FIELDS`]) and the structured
+/// `filters` JSON (ANDed in via [`apply_filters`]). A bad `filters` JSON or an
+/// unsupported op yields a `400`.
+fn build_list_filter(
+    project_id: &str,
+    object: &str,
+    q: Option<&str>,
+    filters: Option<&str>,
+) -> Result<Document> {
+    let mut filter = scope(project_id, object);
+
+    if let Some(q) = q.map(str::trim).filter(|s| !s.is_empty()) {
+        let ors: Vec<Bson> = SEARCH_FIELDS
+            .iter()
+            .map(|field| {
+                Bson::Document(doc! {
+                    format!("data.{field}"): { "$regex": q, "$options": "i" }
+                })
+            })
+            .collect();
+        filter.insert("$or", Bson::Array(ors));
+    }
+
+    apply_filters(&mut filter, filters)?;
+
+    Ok(filter)
+}
+
 /// Clean a stored record into the wire JSON, renaming `_id` → `id` (hex).
 /// `document_to_clean_json` already renders the `ObjectId` value as a hex
 /// string; this just relabels the key to match the TS client contract.
@@ -250,23 +281,13 @@ pub async fn list_records(
         .min(MAX_LIMIT);
     let skip = (page - 1).saturating_mul(limit);
 
-    // ---- Filter --------------------------------------------------------
-    let mut filter = scope(project_id, &object);
-
-    if let Some(q) = query.q.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
-        let ors: Vec<Bson> = SEARCH_FIELDS
-            .iter()
-            .map(|field| {
-                Bson::Document(doc! {
-                    format!("data.{field}"): { "$regex": q, "$options": "i" }
-                })
-            })
-            .collect();
-        filter.insert("$or", Bson::Array(ors));
-    }
-
-    // ---- Structured field filters -------------------------------------
-    apply_filters(&mut filter, query.filters.as_deref())?;
+    // ---- Filter (free-text `q` + structured `filters`, shared with count) --
+    let filter = build_list_filter(
+        project_id,
+        &object,
+        query.q.as_deref(),
+        query.filters.as_deref(),
+    )?;
 
     // ---- Sort ----------------------------------------------------------
     let sort_dir = match query.sort_dir.as_deref().map(str::trim) {
@@ -308,6 +329,39 @@ pub async fn list_records(
     }
 
     Ok(Json(ListResponse { records, total }))
+}
+
+// ===========================================================================
+// GET /{object}/count — countRecords
+// ===========================================================================
+
+/// `GET /v1/sabcrm/records/{object}/count` — count of records matching the
+/// SAME `{ projectId, object }` + `q` + `filters` predicate as
+/// [`list_records`] (built via [`build_list_filter`]), ignoring pagination /
+/// sort. Bad `filters` JSON → `400`.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn count_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Query(query): Query<CountQuery>,
+) -> Result<Json<CountResponse>> {
+    let project_id = require_project(&query.project_id)?;
+
+    let filter = build_list_filter(
+        project_id,
+        &object,
+        query.q.as_deref(),
+        query.filters.as_deref(),
+    )?;
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let count = coll
+        .count_documents(filter)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.count")))?;
+
+    Ok(Json(CountResponse { count }))
 }
 
 // ===========================================================================

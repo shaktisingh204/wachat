@@ -60,6 +60,24 @@ pub struct ListQuery {
     pub filters: Option<String>,
 }
 
+/// `GET /{object}/count` query params. Carries the SAME tenant scope +
+/// free-text `q` + structured `filters` as [`ListQuery`] (pagination / sort
+/// are irrelevant to a count) so the count respects the active filter set.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CountQuery {
+    /// Tenant scope — required. Records are filtered by `{ projectId, object }`.
+    pub project_id: String,
+    /// Optional free-text match over a few common `data.*` fields
+    /// (case-insensitive regex). Mirrors [`ListQuery::q`].
+    #[serde(default, alias = "query")]
+    pub q: Option<String>,
+    /// Optional URL-encoded JSON string of structured field filters, of the
+    /// same shape accepted by [`ListQuery::filters`]. Bad JSON → `400`.
+    #[serde(default)]
+    pub filters: Option<String>,
+}
+
 /// Query params for endpoints that only need the tenant scope
 /// (`GET /{object}/{id}`, `DELETE /{object}/{id}`).
 #[derive(Debug, Clone, Deserialize, ToSchema)]
@@ -114,6 +132,14 @@ pub struct ListResponse {
     #[schema(value_type = Vec<Object>)]
     pub records: Vec<Value>,
     pub total: u64,
+}
+
+/// Response body for `GET /{object}/count` — the number of records matching
+/// the active `{ projectId, object }` + `q` + `filters` predicate.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CountResponse {
+    pub count: u64,
 }
 
 /// Response body for `GET /{object}/{id}`, `POST /{object}` and

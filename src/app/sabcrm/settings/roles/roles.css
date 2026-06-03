@@ -1,0 +1,467 @@
+/* =========================================================================
+   SabCRM — Roles & Permissions settings (Twenty look).
+
+   Page-local classes layered on top of the shared `.st-*` kit
+   (`src/styles/sabcrm-twenty.css`) and the settings supplement
+   (`../settings-twenty.css`). Everything here is scoped under `.sabcrm-twenty`
+   (the Twenty frame applies that class to the app shell) and uses only the
+   `--st-*` design tokens — no ZoruUI / Tailwind / clay.
+
+   Two-pane layout, faithful to Twenty's Settings → Roles screen:
+     [ role list ]  |  [ selected role editor: name + permissions + members ]
+   ========================================================================= */
+
+.sabcrm-twenty .rp-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--st-space-5);
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .sabcrm-twenty .rp-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ----- Left pane: role list --------------------------------------------- */
+
+.sabcrm-twenty .rp-list {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .rp-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-2) var(--st-space-2)
+    var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .rp-list__heading {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.02em;
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+}
+
+.sabcrm-twenty .rp-list__body {
+  padding: var(--st-space-2) 0;
+}
+
+.sabcrm-twenty .rp-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sabcrm-twenty .rp-item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .rp-item.active {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .rp-item__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .rp-item.active .rp-item__icon {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .rp-item__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  flex: 1 1 auto;
+  line-height: 1.2;
+}
+
+.sabcrm-twenty .rp-item__name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  font-weight: var(--st-fw-medium);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-item__meta {
+  overflow: hidden;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-list__empty {
+  padding: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Default badge ----------------------------------------------------- */
+
+.sabcrm-twenty .rp-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-size: 10px;
+  font-weight: var(--st-fw-medium);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-badge--default {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Right pane: role editor ------------------------------------------ */
+
+.sabcrm-twenty .rp-detail {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+}
+
+.sabcrm-twenty .rp-detail__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .rp-detail__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .rp-detail__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+/* ----- Editor sections (card-like blocks) ------------------------------- */
+
+.sabcrm-twenty .rp-block {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .rp-block__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .rp-block__title {
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .rp-block__sub {
+  margin: 2px 0 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .rp-block__body {
+  padding: var(--st-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+/* Saved/dirty inline status next to a block head. */
+.sabcrm-twenty .rp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .rp-status--saving {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .rp-status--saved {
+  color: #2e7d32;
+}
+
+.sabcrm-twenty .rp-status--error {
+  color: #b3261e;
+}
+
+/* ----- Permission matrix (toggle rows) ---------------------------------- */
+
+.sabcrm-twenty .rp-matrix {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .rp-perm {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sabcrm-twenty .rp-perm + .rp-perm {
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .rp-perm:hover:not(.rp-perm--disabled) {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .rp-perm--disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sabcrm-twenty .rp-perm__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .rp-perm__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.sabcrm-twenty .rp-perm__label {
+  display: block;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .rp-perm__key {
+  display: block;
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* Twenty-style switch toggle. */
+.sabcrm-twenty .rp-switch {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  width: 34px;
+  height: 18px;
+}
+
+.sabcrm-twenty .rp-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: inherit;
+}
+
+.sabcrm-twenty .rp-switch__track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--st-border);
+  transition: background 140ms ease;
+}
+
+.sabcrm-twenty .rp-switch__track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--st-bg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 140ms ease;
+}
+
+.sabcrm-twenty .rp-switch input:checked + .rp-switch__track {
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .rp-switch input:checked + .rp-switch__track::after {
+  transform: translateX(16px);
+}
+
+.sabcrm-twenty .rp-switch input:focus-visible + .rp-switch__track {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+/* ----- Members ----------------------------------------------------------- */
+
+/* Assigned-member avatar chip row above the roster. */
+.sabcrm-twenty .rp-assigned {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .rp-assigned__empty {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .rp-assigned__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px 0 4px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+}
+
+/* Member roster: assign/unassign list. */
+.sabcrm-twenty .rp-roster {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .rp-member {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sabcrm-twenty .rp-member + .rp-member {
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .rp-member:hover:not(.rp-member--busy) {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .rp-member--busy {
+  cursor: progress;
+}
+
+.sabcrm-twenty .rp-member__check {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  width: 18px;
+}
+
+.sabcrm-twenty .rp-member__check input {
+  margin: 0;
+  cursor: inherit;
+}
+
+.sabcrm-twenty .rp-member__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.sabcrm-twenty .rp-member__name {
+  display: block;
+  overflow: hidden;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-member__email {
+  display: block;
+  overflow: hidden;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .rp-member__spin {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Empty right-pane placeholder ------------------------------------- */
+
+.sabcrm-twenty .rp-detail__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}

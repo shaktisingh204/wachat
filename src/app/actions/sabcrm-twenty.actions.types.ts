@@ -53,6 +53,18 @@ export interface SabcrmRecordsTwPage {
   total: number;
 }
 
+/** Options accepted by {@link countSabcrmRecordsTw} (scope + filter only). */
+export interface CountSabcrmRecordsTwParams {
+  /** Free-text query (regex over common data.* fields, server-side). */
+  q?: string;
+  /**
+   * Structured field filters keyed by field key — same shape as
+   * {@link ListSabcrmRecordsTwParams.filters}. Threaded to the engine's
+   * `filters` query param so the count respects the active filter set.
+   */
+  filters?: Record<string, unknown>;
+}
+
 /** One kanban bucket returned by {@link groupSabcrmRecordsTw}. */
 export interface SabcrmRecordTwGroup {
   /** The raw group value (SELECT option value), or `null` for ungrouped. */

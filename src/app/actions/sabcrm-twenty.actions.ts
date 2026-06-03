@@ -40,6 +40,7 @@ import {
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
   ListSabcrmRecordsTwParams,
+  CountSabcrmRecordsTwParams,
   SabcrmRecordsTwPage,
   SabcrmRecordTwGroups,
   SabcrmRustRecord,
@@ -178,6 +179,33 @@ export async function listSabcrmRecordsTw(
     return { ok: true, data: { records: res.records, total: res.total } };
   } catch (e) {
     return fail(e, 'Failed to list records.');
+  }
+}
+
+/**
+ * Counts records of an object matching the active `q` + `filters` predicate
+ * (the SAME filter {@link listSabcrmRecordsTw} builds, minus pagination/sort).
+ * Gated on `view`, mirroring the list action's pipeline.
+ */
+export async function countSabcrmRecordsTw(
+  object: string,
+  params: CountSabcrmRecordsTwParams = {},
+  projectId?: string,
+): Promise<ActionResult<{ count: number }>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.count(object, {
+      projectId: g.ctx.projectId,
+      q: params.q,
+      filters: params.filters,
+    });
+    return { ok: true, data: { count: res.count } };
+  } catch (e) {
+    return fail(e, 'Failed to count records.');
   }
 }
 

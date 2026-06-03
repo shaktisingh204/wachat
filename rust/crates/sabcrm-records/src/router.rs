@@ -19,6 +19,7 @@
 //! ```text
 //! GET    /{object}             — list_records
 //! POST   /{object}             — create_record
+//! GET    /{object}/count       — count_records
 //! POST   /{object}/group       — group_records   (kanban)
 //! POST   /{object}/bulk-delete — bulk_delete_records
 //! POST   /{object}/bulk-update — bulk_update_records
@@ -53,6 +54,7 @@ where
             "/{object}",
             get(handlers::list_records).post(handlers::create_record),
         )
+        .route("/{object}/count", get(handlers::count_records))
         .route("/{object}/group", post(handlers::group_records))
         .route(
             "/{object}/bulk-delete",
