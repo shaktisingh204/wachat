@@ -54,6 +54,9 @@ import {
   MessageSquare,
   ChevronDown,
   CornerDownLeft,
+  Mail,
+  Inbox,
+  ListChecks,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -111,6 +114,7 @@ import './detail-polish.css';
 import './relations-edit.css';
 import './comments.css';
 import './rich-text.css';
+import './show-widgets.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -743,6 +747,207 @@ function groupFieldSections(
   ].filter((s) => s.fields.length > 0);
 }
 
+/**
+ * One collapsible labelled section in the left field panel (Twenty page-layout
+ * fidelity). The header is a button that toggles `collapsed`; collapse state is
+ * owned by the parent so it persists across re-renders / edits within the
+ * component's lifetime. Renders the field rows as before when expanded.
+ */
+interface CollapsibleFieldSectionProps {
+  label: string;
+  fields: FieldMetadata[];
+  collapsed: boolean;
+  onToggle: () => void;
+  record: SabcrmRustRecord;
+  onCommit: (key: string, value: unknown) => void;
+}
+
+function CollapsibleFieldSection({
+  label,
+  fields,
+  collapsed,
+  onToggle,
+  record,
+  onCommit,
+}: CollapsibleFieldSectionProps): React.JSX.Element {
+  return (
+    <div
+      className={`re-fieldsection sw-section${collapsed ? ' is-collapsed' : ''}`}
+      aria-label={label}
+    >
+      <button
+        type="button"
+        className="sw-section__head"
+        aria-expanded={!collapsed}
+        onClick={onToggle}
+      >
+        <ChevronDown size={13} className="sw-section__caret" aria-hidden="true" />
+        <span className="sw-section__label">{label}</span>
+        <span className="sw-section__count">{fields.length}</span>
+      </button>
+      <div className="sw-section__body" hidden={collapsed}>
+        {fields.map((field) => (
+          <div className="st-field-row" key={field.key}>
+            <span className="st-field-row__key">{field.label}</span>
+            <span className="st-field-row__val">
+              <EditableValue
+                field={field}
+                value={record.data[field.key]}
+                onCommit={(v) => onCommit(field.key, v)}
+              />
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Details-summary card — key fields at a glance (top of the right column)
+// ---------------------------------------------------------------------------
+
+/**
+ * A compact "details summary" card showing up to a handful of the record's
+ * most-meaningful fields read-only, mirroring Twenty's at-a-glance summary
+ * widget. Falls back to a muted empty state when there's nothing to show.
+ */
+function DetailsSummary({
+  fields,
+  record,
+}: {
+  fields: FieldMetadata[];
+  record: SabcrmRustRecord;
+}): React.JSX.Element {
+  // Prefer the label field first, then keep document order; cap at 6 so the
+  // card stays a glance, not a duplicate of the full field panel.
+  const summaryFields = React.useMemo(() => {
+    const labelFirst = [...fields].sort((a, b) => {
+      const al = a.isLabel ? 0 : 1;
+      const bl = b.isLabel ? 0 : 1;
+      return al - bl;
+    });
+    return labelFirst.slice(0, 6);
+  }, [fields]);
+
+  return (
+    <div className="sw-summary" aria-label="Details summary">
+      <div className="sw-summary__head">
+        <ListChecks size={13} aria-hidden="true" />
+        Summary
+      </div>
+      {summaryFields.length === 0 ? (
+        <div className="sw-summary__empty">No fields to summarize.</div>
+      ) : (
+        <div className="sw-summary__grid">
+          {summaryFields.map((field) => (
+            <div className="sw-summary__item" key={field.key}>
+              <span className="sw-summary__key">{field.label}</span>
+              <span className="sw-summary__val">
+                <TwentyFieldValue
+                  field={field}
+                  value={record.data[field.key]}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Files tab — attachment chips gathered from the record's activities
+// ---------------------------------------------------------------------------
+
+interface FilesPanelProps {
+  activities: SabcrmRustActivity[];
+  loading: boolean;
+}
+
+/**
+ * The Files tab: walks every activity on the record, gathering those that
+ * carry attachments, and renders one chip group per source activity. Honest
+ * empty state when nothing's attached. Read-only — files are attached through
+ * the composers, not here.
+ */
+function FilesPanel({ activities, loading }: FilesPanelProps): React.JSX.Element {
+  const groups = React.useMemo(
+    () =>
+      activities
+        .map((a) => ({ activity: a, attachments: activityAttachments(a) }))
+        .filter((g) => g.attachments.length > 0),
+    [activities],
+  );
+
+  if (loading) {
+    return <TwentyTimeline activities={[]} loading emptyLabel="" />;
+  }
+
+  if (groups.length === 0) {
+    return (
+      <div className="sw-files__empty">
+        <span className="sw-files__empty-icon" aria-hidden="true">
+          <Paperclip size={16} />
+        </span>
+        <span className="sw-files__empty-title">No files yet</span>
+        <span className="sw-files__empty-hint">
+          Files attached to this record&apos;s notes and activities show up here.
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="sw-files">
+      {groups.map(({ activity, attachments }) => (
+        <div className="sw-files__group" key={activity.id}>
+          <div className="sw-files__group-head">
+            <span className="sw-files__group-title">{activity.title}</span>
+            <time className="sw-files__group-time" dateTime={activity.createdAt}>
+              {relTime(activity.createdAt)}
+            </time>
+          </div>
+          <div className="sw-files__chips">
+            {attachments.map((att) => (
+              <AttachmentChip key={att.fileId} attachment={att} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Emails tab — honest read-only empty state (SabCRM has no email sync)
+// ---------------------------------------------------------------------------
+
+/**
+ * The Emails tab: Twenty syncs an email account and shows the message thread
+ * here. SabCRM has no email sync, so this is an honest, Twenty-styled empty
+ * state rather than a fake inbox.
+ */
+function EmailsPanel(): React.JSX.Element {
+  return (
+    <div className="sw-emails">
+      <span className="sw-emails__icon" aria-hidden="true">
+        <Inbox size={18} />
+      </span>
+      <span className="sw-emails__title">No email account connected</span>
+      <span className="sw-emails__hint">
+        Connect an email account to sync conversations with this record. Email
+        sync isn&apos;t available yet.
+      </span>
+      <span className="sw-emails__badge">
+        <Mail size={12} aria-hidden="true" />
+        Coming soon
+      </span>
+    </div>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Composer — rich-text body (RichTextEditor) + ⌘/Ctrl+Enter to submit
 // ---------------------------------------------------------------------------
@@ -1038,13 +1243,15 @@ function DeleteDialog({
 // Tab strip
 // ---------------------------------------------------------------------------
 
-type TabKey = 'fields' | 'notes' | 'tasks' | 'activity';
+type TabKey = 'fields' | 'notes' | 'tasks' | 'activity' | 'files' | 'emails';
 
 const TAB_DEFS: readonly { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: 'fields', label: 'Fields', icon: Database },
   { key: 'notes', label: 'Notes', icon: StickyNote },
   { key: 'tasks', label: 'Tasks', icon: CheckCircle2 },
   { key: 'activity', label: 'Activity', icon: Activity },
+  { key: 'files', label: 'Files', icon: Paperclip },
+  { key: 'emails', label: 'Emails', icon: Mail },
 ] as const;
 
 interface TabStripProps {
@@ -1690,6 +1897,16 @@ export function RecordDetailTw({
   // Active right-rail tab.
   const [tab, setTab] = React.useState<TabKey>('activity');
 
+  // Collapsed-state for the left field panel's labelled sections, keyed by the
+  // section label. Persisted in component state so collapses survive edits /
+  // optimistic re-renders. Sections start expanded.
+  const [collapsedSections, setCollapsedSections] = React.useState<
+    Record<string, boolean>
+  >({});
+  const toggleSection = React.useCallback((label: string) => {
+    setCollapsedSections((prev) => ({ ...prev, [label]: !prev[label] }));
+  }, []);
+
   // Related-records sections (graceful: empty on failure / engine down).
   const [relations, setRelations] = React.useState<RecordRelation[]>([]);
   const [loadingRelations, setLoadingRelations] = React.useState(true);
@@ -2163,14 +2380,27 @@ export function RecordDetailTw({
     [activities],
   );
 
+  // Total attachments across all activities — drives the Files tab badge.
+  const filesCount = React.useMemo(
+    () => activities.reduce((sum, a) => sum + activityAttachments(a).length, 0),
+    [activities],
+  );
+
   const tabCounts = React.useMemo<Partial<Record<TabKey, number>>>(
     () => ({
       fields: editableFields.length,
       notes: notes.length,
       tasks: tasks.length,
       activity: activities.length,
+      files: filesCount,
     }),
-    [editableFields.length, notes.length, tasks.length, activities.length],
+    [
+      editableFields.length,
+      notes.length,
+      tasks.length,
+      activities.length,
+      filesCount,
+    ],
   );
 
   // Group the left details panel into Twenty-style labelled sections.
@@ -2250,25 +2480,15 @@ export function RecordDetailTw({
           <div className="st-panel__head">Details</div>
           <div className="st-panel__body">
             {fieldSections.map((section) => (
-              <div
-                className="re-fieldsection"
+              <CollapsibleFieldSection
                 key={section.label}
-                aria-label={section.label}
-              >
-                <div className="re-fieldsection__head">{section.label}</div>
-                {section.fields.map((field) => (
-                  <div className="st-field-row" key={field.key}>
-                    <span className="st-field-row__key">{field.label}</span>
-                    <span className="st-field-row__val">
-                      <EditableValue
-                        field={field}
-                        value={record.data[field.key]}
-                        onCommit={(v) => handleCommit(field.key, v)}
-                      />
-                    </span>
-                  </div>
-                ))}
-              </div>
+                label={section.label}
+                fields={section.fields}
+                collapsed={!!collapsedSections[section.label]}
+                onToggle={() => toggleSection(section.label)}
+                record={record}
+                onCommit={handleCommit}
+              />
             ))}
           </div>
         </section>
@@ -2276,6 +2496,8 @@ export function RecordDetailTw({
         {/* Right rail — Twenty tab strip (Fields / Notes / Tasks / Activity) */}
         <aside className="st-panel" aria-label="Record sections">
           <div className="st-panel__body">
+            <DetailsSummary fields={editableFields} record={record} />
+
             <TabStrip active={tab} onSelect={setTab} counts={tabCounts} />
 
             {tab === 'fields' && (
@@ -2368,6 +2590,18 @@ export function RecordDetailTw({
                   currentAuthorId={commentAuthorId}
                   onLearnAuthor={handleLearnCommentAuthor}
                 />
+              </div>
+            )}
+
+            {tab === 'files' && (
+              <div className="rt-panel" role="tabpanel" aria-label="Files">
+                <FilesPanel activities={activities} loading={loadingTimeline} />
+              </div>
+            )}
+
+            {tab === 'emails' && (
+              <div className="rt-panel" role="tabpanel" aria-label="Emails">
+                <EmailsPanel />
               </div>
             )}
           </div>

@@ -14,6 +14,8 @@ import type { ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
   SabcrmRustRecord,
   SabcrmRecordFilters,
+  SabcrmAggregateMetric,
+  SabcrmRecordAggregateGroup,
 } from '@/lib/rust-client/sabcrm-records';
 import type {
   SabcrmRustActivity,
@@ -28,6 +30,9 @@ export type {
   SabcrmRecordFilters,
   SabcrmFilterGroup,
   SabcrmFilterCondition,
+  SabcrmAggregateMetric,
+  SabcrmRecordAggregateGroup,
+  SabcrmRecordAggregateResponse,
 } from '@/lib/rust-client/sabcrm-records';
 export type {
   SabcrmRustActivity,
@@ -84,6 +89,29 @@ export interface SabcrmRecordTwGroup {
 /** Result of a board-grouping call. */
 export interface SabcrmRecordTwGroups {
   groups: SabcrmRecordTwGroup[];
+}
+
+/** Options accepted by {@link aggregateSabcrmRecordsTw}. */
+export interface AggregateSabcrmRecordsTwParams {
+  /** Field key bucketed on `data.<groupByField>`. */
+  groupByField: string;
+  /** Reduction per bucket. `sum`/`avg`/`min`/`max` require `metricField`. */
+  metric: SabcrmAggregateMetric;
+  /** Field key the metric reduces over (`data.<metricField>`). */
+  metricField?: string;
+  /**
+   * Structured field filters — same shape as
+   * {@link ListSabcrmRecordsTwParams.filters} (flat map OR nested AND/OR
+   * group), ANDed into the `{ projectId, object }` scope server-side.
+   */
+  filters?: SabcrmRecordFilters;
+}
+
+/** Result of an aggregate call. */
+export interface SabcrmRecordTwAggregate {
+  groups: SabcrmRecordAggregateGroup[];
+  /** The same metric reduced over ALL matched records. */
+  total: number;
 }
 
 /** Re-export so a single import covers the metadata + record contract. */

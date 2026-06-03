@@ -25,6 +25,7 @@
  */
 
 import * as React from 'react';
+import Link from 'next/link';
 import {
   Filter,
   ArrowUpDown,
@@ -35,6 +36,9 @@ import {
   Star,
   X,
   Check,
+  Table2,
+  Columns3,
+  CalendarDays,
 } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
@@ -48,6 +52,7 @@ import type { SabcrmRustView } from '@/app/actions/sabcrm-views.actions.types';
 
 import './view-bar.css';
 import './advanced-filter.css';
+import './table-extras.css';
 
 // ---------------------------------------------------------------------------
 // Public query-state contract (shared with the page)
@@ -962,6 +967,16 @@ export interface SabcrmViewBarProps {
   projectId?: string | null;
   /** Bumped by the page when a refresh of the saved-view list is wanted. */
   refreshTick?: number;
+
+  // ---- View-type switch (Table / Board / Calendar) -----------------------
+  /** The active flat view kind (owned by the page). */
+  viewKind?: 'table' | 'board';
+  /** Switch between the table and board flat views. */
+  onViewKindChange?: (kind: 'table' | 'board') => void;
+  /** Whether the Board option is offered (object declares a SELECT group). */
+  canBoard?: boolean;
+  /** Href for the Calendar view (the existing `/sabcrm/calendar` page). */
+  calendarHref?: string;
 }
 
 export function SabcrmViewBar({
@@ -973,6 +988,10 @@ export function SabcrmViewBar({
   onSetColumns,
   projectId,
   refreshTick = 0,
+  viewKind = 'table',
+  onViewKindChange,
+  canBoard = false,
+  calendarHref,
 }: SabcrmViewBarProps): React.JSX.Element {
   const fieldByKey = React.useMemo(() => {
     const m = new Map<string, FieldMetadata>();
@@ -1227,6 +1246,45 @@ export function SabcrmViewBar({
             />
           )}
         </ControlPopover>
+
+        {/* View-type switch — Table / Board / Calendar. Board is offered only
+            when the object can be grouped; Calendar links to the existing
+            `/sabcrm/calendar` page (no inline month needed). */}
+        <div className="st-viewswitch" role="tablist" aria-label="View type">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewKind === 'table'}
+            className={`st-viewswitch__btn${viewKind === 'table' ? ' active' : ''}`}
+            onClick={() => onViewKindChange?.('table')}
+          >
+            <Table2 size={14} />
+            Table
+          </button>
+          {canBoard && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={viewKind === 'board'}
+              className={`st-viewswitch__btn${viewKind === 'board' ? ' active' : ''}`}
+              onClick={() => onViewKindChange?.('board')}
+            >
+              <Columns3 size={14} />
+              Board
+            </button>
+          )}
+          {calendarHref && (
+            <Link
+              role="tab"
+              aria-selected={false}
+              className="st-viewswitch__btn"
+              href={calendarHref}
+            >
+              <CalendarDays size={14} />
+              Calendar
+            </Link>
+          )}
+        </div>
 
         <div className="stv-bar__spacer" />
 

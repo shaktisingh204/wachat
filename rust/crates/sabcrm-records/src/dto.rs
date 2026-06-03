@@ -178,6 +178,66 @@ pub struct GroupResponse {
     pub groups: Vec<RecordGroup>,
 }
 
+/// `POST /{object}/aggregate` body — bucket records by `data.<groupByField>`
+/// and reduce a `metric` over `data.<metricField>` (or a plain `count`). The
+/// optional `filters` (same shape as [`ListQuery::filters`]) is ANDed into the
+/// `{ projectId, object }` scope via `build_list_filter`. Caps at 200 buckets.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AggregateInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Field key to group by — bucketed on `data.<groupByField>`.
+    pub group_by_field: String,
+    /// Reduction applied to each bucket: `count` | `sum` | `avg` | `min` |
+    /// `max`. `sum`/`avg`/`min`/`max` require `metricField`.
+    pub metric: String,
+    /// Field key the metric reduces over (`data.<metricField>`). Required for
+    /// every metric except `count`.
+    #[serde(default)]
+    pub metric_field: Option<String>,
+    /// Optional structured field filters, same shape as [`ListQuery::filters`].
+    #[serde(default)]
+    pub filters: Option<Value>,
+}
+
+/// One bucket in the [`AggregateResponse`].
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AggregateGroup {
+    /// The distinct `data.<groupByField>` value for this bucket.
+    #[schema(value_type = Object)]
+    pub value: Value,
+    /// The reduced metric for this bucket (a number).
+    pub metric: f64,
+}
+
+/// Response body for `POST /{object}/aggregate`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AggregateResponse {
+    pub groups: Vec<AggregateGroup>,
+    /// The same metric reduced over ALL matched records (across buckets).
+    pub total: f64,
+}
+
+/// `GET /{object}/distinct/{field}` query params — tenant scope only.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DistinctQuery {
+    /// Tenant scope — required.
+    pub project_id: String,
+}
+
+/// Response body for `GET /{object}/distinct/{field}` — the distinct
+/// `data.<field>` values (null/empty dropped, capped at 200).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DistinctResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub values: Vec<Value>,
+}
+
 /// One relation block in the `record_relations` response — the related
 /// records reachable from a single RELATION field of the source object.
 #[derive(Debug, Clone, Serialize, ToSchema)]

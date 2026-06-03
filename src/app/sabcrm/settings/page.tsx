@@ -14,6 +14,12 @@ import {
   SlidersHorizontal,
   ShieldCheck,
   FlaskConical,
+  Tag,
+  Gauge,
+  Lock,
+  AtSign,
+  Braces,
+  Beaker,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -66,6 +72,18 @@ const GROUPS: readonly SettingsGroup[] = [
         description: 'Theme, language and display options',
         icon: Palette,
       },
+      {
+        slug: 'security',
+        label: 'Security',
+        description: 'Password, two-factor and active sessions',
+        icon: Lock,
+      },
+      {
+        slug: 'accounts',
+        label: 'Accounts',
+        description: 'Connected email and calendar accounts',
+        icon: AtSign,
+      },
     ],
   },
   {
@@ -94,6 +112,18 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Data model',
         description: 'Objects, fields and relations',
         icon: Database,
+      },
+      {
+        slug: 'tags',
+        label: 'Tags',
+        description: 'Labels for categorising records',
+        icon: Tag,
+      },
+      {
+        slug: 'usage',
+        label: 'Usage & Limits',
+        description: 'Plan consumption and quotas',
+        icon: Gauge,
       },
     ],
   },
@@ -124,6 +154,12 @@ const GROUPS: readonly SettingsGroup[] = [
         description: 'Workspace change history',
         icon: ShieldCheck,
       },
+      {
+        slug: 'functions',
+        label: 'Functions',
+        description: 'Serverless functions and code hooks',
+        icon: Braces,
+      },
     ],
   },
   {
@@ -151,6 +187,17 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Automations',
         description: 'Event-driven rules and actions',
         icon: Zap,
+      },
+    ],
+  },
+  {
+    title: 'Advanced',
+    rows: [
+      {
+        slug: 'lab',
+        label: 'Lab',
+        description: 'Experimental and beta features',
+        icon: Beaker,
       },
     ],
   },

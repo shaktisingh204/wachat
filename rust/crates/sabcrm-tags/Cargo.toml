@@ -1,0 +1,46 @@
+# SabCRM — axum router for the **tags** HTTP surface.
+#
+# CRUD over the `sabcrm_tags` Mongo collection: workspace-level tag / label
+# definitions (`name`, `color`) within a project. Tenancy is by `projectId`
+# (a query/body string); a per-project unique `name` is enforced (duplicate
+# create → 409 Conflict).
+#
+# Mounted under `/v1/sabcrm/tags` from the orchestrating `api` crate.
+[package]
+name = "sabcrm-tags"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM tags HTTP surface (`/v1/sabcrm/tags/*`). Workspace tag/label definitions scoped by `projectId` with a per-project unique `name`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_tags"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

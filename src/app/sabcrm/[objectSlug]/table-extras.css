@@ -1,0 +1,165 @@
+/* =========================================================================
+   SabCRM record-index TABLE EXTRAS (Twenty look)
+
+   Three record-index enhancements live here, layered on top of the base
+   `.st-*` kit in `src/styles/sabcrm-twenty.css` (which is intentionally NOT
+   edited). All new classes are namespaced under `.stx-*` so they never
+   collide with the shared kit:
+
+     1. Keyboard navigation — the active (highlighted) row ring.
+     2. Group-by aggregations — per-group stat rows + the table footer total.
+     3. View-type switch — the Table / Board / Calendar segmented control
+        (it reuses the kit's `.st-viewswitch` shell; only an anchor reset is
+        added so a Calendar `<a>` matches the sibling `<button>`s).
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. Keyboard navigation — active-row highlight
+   ------------------------------------------------------------------------- */
+
+/* The row the keyboard cursor sits on. An inset ring (not a background swap)
+   so it reads above the hover + selected states without fighting them. */
+.st-row.stx-row--active > td {
+  background: var(--st-accent-soft);
+}
+
+.st-row.stx-row--active > td:first-child {
+  box-shadow: inset 2px 0 0 0 var(--st-accent);
+}
+
+/* A selected + active row keeps the selected tint but gains the cursor ring. */
+.st-row.is-selected.stx-row--active > td {
+  background: var(--st-accent-soft);
+}
+
+/* The table wrapper takes focus for keyboard nav; show a subtle focus ring
+   so the user knows the table is the active surface. */
+.stx-table-focus:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--st-accent-soft), 0 0 0 1px var(--st-accent);
+}
+
+/* A small hint strip above the table announcing the keyboard affordance. */
+.stx-kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.stx-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border: 1px solid var(--st-border);
+  border-bottom-width: 2px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+}
+
+/* -------------------------------------------------------------------------
+   2. Group-by aggregations — per-group stat row + footer total
+   ------------------------------------------------------------------------- */
+
+/* A per-group header band shown above a grouped block of rows. */
+.st-table tbody .stx-group-row > td {
+  padding: 6px var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+  border-top: 1px solid var(--st-border);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.stx-group-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+.stx-group-cell__label {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+/* The pill-set carrying count / sum / avg for one group (or the total). */
+.stx-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+.stx-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 1px 6px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+.stx-stat__k {
+  color: var(--st-text-tertiary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.stx-stat__v {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.stx-stat--loading .stx-stat__v {
+  color: var(--st-text-tertiary);
+}
+
+/* The sticky footer total row pinned to the bottom of the table body. */
+.st-table tfoot .stx-foot-row > td {
+  position: sticky;
+  bottom: 0;
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-top: 1px solid var(--st-border);
+  color: var(--st-text);
+  z-index: 1;
+}
+
+.stx-foot-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+.stx-foot-cell__label {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+/* -------------------------------------------------------------------------
+   3. View-type switch — Calendar anchor reset inside `.st-viewswitch`
+   ------------------------------------------------------------------------- */
+
+/* The Calendar entry is an <a> (it links to the existing calendar page); strip
+   the default link chrome so it sits flush with the sibling view buttons. */
+a.st-viewswitch__btn {
+  text-decoration: none;
+}

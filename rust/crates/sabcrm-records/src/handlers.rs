@@ -36,8 +36,9 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    BulkDeleteInput, BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CountQuery,
-    CountResponse, CreateRecordInput, GroupRecordsInput, GroupResponse, ListQuery, ListResponse,
+    AggregateGroup, AggregateInput, AggregateResponse, BulkDeleteInput, BulkDeleteResponse,
+    BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse, CreateRecordInput,
+    DistinctQuery, DistinctResponse, GroupRecordsInput, GroupResponse, ListQuery, ListResponse,
     MergeRecordsInput, OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationsResponse,
     ScopeQuery, UpdateRecordInput,
 };
@@ -57,6 +58,10 @@ const MAX_LIMIT: u64 = 100;
 const MAX_GROUP_RECORDS: i64 = 100;
 /// Hard cap on records returned per relation block.
 const MAX_RELATION_RECORDS: i64 = 50;
+/// Hard cap on buckets returned by the aggregate endpoint.
+const MAX_AGGREGATE_GROUPS: i64 = 200;
+/// Hard cap on values returned by the distinct endpoint.
+const MAX_DISTINCT_VALUES: usize = 200;
 
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
@@ -892,6 +897,196 @@ pub async fn group_records(
     }
 
     Ok(Json(GroupResponse { groups }))
+}
+
+// ===========================================================================
+// POST /{object}/aggregate — aggregateRecords
+// ===========================================================================
+
+/// Coerce a BSON aggregation result value into an `f64` metric. Numeric BSON
+/// types map directly; everything else (incl. `null` from an empty bucket)
+/// becomes `0.0`.
+fn bson_to_f64(b: &Bson) -> f64 {
+    match b {
+        Bson::Int32(i) => *i as f64,
+        Bson::Int64(i) => *i as f64,
+        Bson::Double(d) => *d,
+        _ => 0.0,
+    }
+}
+
+/// `POST /v1/sabcrm/records/{object}/aggregate` — bucket records by
+/// `data.<groupByField>` and reduce a `metric` over `data.<metricField>`.
+///
+/// Pipeline: `$match` ({@link build_list_filter} — `{ projectId, object }` +
+/// the optional structured `filters`) → `$group` by `$data.<groupByField>`
+/// with the metric accumulator. Returns `{ groups: [{ value, metric }], total }`
+/// where `total` is the same metric reduced over ALL matched records. Buckets
+/// are capped at [`MAX_AGGREGATE_GROUPS`]. Bad input (empty `groupByField`,
+/// unknown `metric`, or a non-count metric without `metricField`) → `400`.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn aggregate_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Json(body): Json<AggregateInput>,
+) -> Result<Json<AggregateResponse>> {
+    let project_id = require_project(&body.project_id)?;
+
+    let group_field = body.group_by_field.trim();
+    if group_field.is_empty() {
+        return Err(ApiError::BadRequest("groupByField is required.".to_owned()));
+    }
+
+    let metric = body.metric.trim().to_ascii_lowercase();
+    let metric_field = body
+        .metric_field
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+
+    // Build the per-record metric expression (`$count` needs no field; the
+    // rest reduce `$data.<metricField>`, which the `$group` accumulator wraps).
+    if metric != "count" && metric_field.is_none() {
+        return Err(ApiError::BadRequest(format!(
+            "metric `{metric}` requires a `metricField`."
+        )));
+    }
+    let metric_path = metric_field.map(|f| format!("$data.{f}"));
+
+    // `(group accumulator, total accumulator)` for the chosen metric.
+    let (group_acc, total_acc): (Bson, Bson) = match metric.as_str() {
+        "count" => (
+            Bson::Document(doc! { "$sum": 1 }),
+            Bson::Document(doc! { "$sum": 1 }),
+        ),
+        "sum" => (
+            Bson::Document(doc! { "$sum": &metric_path }),
+            Bson::Document(doc! { "$sum": &metric_path }),
+        ),
+        "avg" => (
+            Bson::Document(doc! { "$avg": &metric_path }),
+            Bson::Document(doc! { "$avg": &metric_path }),
+        ),
+        "min" => (
+            Bson::Document(doc! { "$min": &metric_path }),
+            Bson::Document(doc! { "$min": &metric_path }),
+        ),
+        "max" => (
+            Bson::Document(doc! { "$max": &metric_path }),
+            Bson::Document(doc! { "$max": &metric_path }),
+        ),
+        other => {
+            return Err(ApiError::BadRequest(format!(
+                "unsupported metric `{other}` (expected count|sum|avg|min|max)."
+            )));
+        }
+    };
+
+    // Reuse the list filter builder for `{ projectId, object }` + `filters`.
+    // The body carries `filters` as a JSON value; re-serialize so it flows
+    // through the same `apply_filters` parser the query endpoints use.
+    let filters_str = match body.filters.as_ref().filter(|v| !v.is_null()) {
+        Some(v) => Some(serde_json::to_string(v).map_err(|e| {
+            ApiError::BadRequest(format!("invalid `filters`: {e}"))
+        })?),
+        None => None,
+    };
+    let match_filter =
+        build_list_filter(project_id, &object, None, filters_str.as_deref())?;
+
+    let group_path = format!("$data.{group_field}");
+    let pipeline = vec![
+        doc! { "$match": match_filter },
+        doc! {
+            "$group": {
+                "_id": group_path,
+                "metric": group_acc,
+            }
+        },
+        doc! { "$sort": { "_id": 1 } },
+        doc! { "$limit": MAX_AGGREGATE_GROUPS },
+    ];
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let mut cursor = coll.aggregate(pipeline).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate(metric)"))
+    })?;
+
+    let mut groups = Vec::new();
+    while let Some(mut bucket) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate.cursor"))
+    })? {
+        let value = bucket
+            .remove("_id")
+            .map(sabnode_db::bson_helpers::bson_to_clean_json)
+            .unwrap_or(Value::Null);
+        let metric = bucket.get("metric").map(bson_to_f64).unwrap_or(0.0);
+        groups.push(AggregateGroup { value, metric });
+    }
+
+    // Overall metric across every matched record (one extra grouped pass).
+    let total_filter =
+        build_list_filter(project_id, &object, None, filters_str.as_deref())?;
+    let total_pipeline = vec![
+        doc! { "$match": total_filter },
+        doc! {
+            "$group": {
+                "_id": Bson::Null,
+                "metric": total_acc,
+            }
+        },
+    ];
+    let mut total_cursor = coll.aggregate(total_pipeline).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate(total)"))
+    })?;
+    let total = match total_cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate.total.cursor"))
+    })? {
+        Some(doc) => doc.get("metric").map(bson_to_f64).unwrap_or(0.0),
+        None => 0.0,
+    };
+
+    Ok(Json(AggregateResponse { groups, total }))
+}
+
+// ===========================================================================
+// GET /{object}/distinct/{field} — distinctValues
+// ===========================================================================
+
+/// `GET /v1/sabcrm/records/{object}/distinct/{field}` — the distinct
+/// `data.<field>` values within `{ projectId, object }`. Null / empty-string
+/// values are dropped and the list is capped at [`MAX_DISTINCT_VALUES`].
+#[instrument(skip_all, fields(object = %object, field = %field))]
+pub async fn distinct_values(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((object, field)): Path<(String, String)>,
+    Query(query): Query<DistinctQuery>,
+) -> Result<Json<DistinctResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let field = field.trim();
+    if field.is_empty() {
+        return Err(ApiError::BadRequest("field is required.".to_owned()));
+    }
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let raw = coll
+        .distinct(format!("data.{field}"), scope(project_id, &object))
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.distinct"))
+        })?;
+
+    let values: Vec<Value> = raw
+        .into_iter()
+        .filter(|b| !matches!(b, Bson::Null))
+        .filter(|b| !matches!(b, Bson::String(s) if s.is_empty()))
+        .map(sabnode_db::bson_helpers::bson_to_clean_json)
+        .take(MAX_DISTINCT_VALUES)
+        .collect();
+
+    Ok(Json(DistinctResponse { values }))
 }
 
 // ===========================================================================

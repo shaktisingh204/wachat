@@ -44,8 +44,10 @@ import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
   ListSabcrmRecordsTwParams,
   CountSabcrmRecordsTwParams,
+  AggregateSabcrmRecordsTwParams,
   SabcrmRecordsTwPage,
   SabcrmRecordTwGroups,
+  SabcrmRecordTwAggregate,
   SabcrmRustRecord,
   RecordRelation,
   ListSabcrmActivitiesTwParams,
@@ -422,6 +424,68 @@ export async function groupSabcrmRecordsTw(
     return { ok: true, data: { groups: res.groups } };
   } catch (e) {
     return fail(e, 'Failed to group records.');
+  }
+}
+
+/**
+ * Aggregates records of an object — buckets by `params.groupByField` and
+ * reduces `params.metric` (count|sum|avg|min|max) over `params.metricField`
+ * (required for every metric except `count`), respecting the optional
+ * structured `filters`. Returns per-bucket metrics plus an overall `total`.
+ * Gated on `view`, mirroring the list/count pipeline.
+ */
+export async function aggregateSabcrmRecordsTw(
+  object: string,
+  params: AggregateSabcrmRecordsTwParams,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordTwAggregate>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!params?.groupByField) {
+    return { ok: false, error: 'A group-by field is required.' };
+  }
+  if (!params.metric) return { ok: false, error: 'A metric is required.' };
+  if (params.metric !== 'count' && !params.metricField) {
+    return { ok: false, error: 'This metric requires a metric field.' };
+  }
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.aggregate(object, {
+      projectId: g.ctx.projectId,
+      groupByField: params.groupByField,
+      metric: params.metric,
+      metricField: params.metricField,
+      filters: params.filters,
+    });
+    return { ok: true, data: { groups: res.groups, total: res.total } };
+  } catch (e) {
+    return fail(e, 'Failed to aggregate records.');
+  }
+}
+
+/**
+ * Lists the distinct `data.<field>` values for an object (null/empty dropped,
+ * capped at 200 server-side) — e.g. to populate a filter/facet dropdown.
+ * Gated on `view`.
+ */
+export async function distinctSabcrmRecordValuesTw(
+  object: string,
+  field: string,
+  projectId?: string,
+): Promise<ActionResult<unknown[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!field) return { ok: false, error: 'A field is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.distinct(object, field, g.ctx.projectId);
+    return { ok: true, data: res.values };
+  } catch (e) {
+    return fail(e, 'Failed to load distinct values.');
   }
 }
 

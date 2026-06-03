@@ -254,3 +254,294 @@
   height: 220px;
   border-radius: var(--st-radius-lg);
 }
+
+/* =========================================================================
+   Saved-dashboard selector (tabs)
+   ========================================================================= */
+.st-dash-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  flex-wrap: wrap;
+  margin-bottom: var(--st-space-4);
+  padding-bottom: var(--st-space-2);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.st-dash-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  max-width: 220px;
+  padding: 0 var(--st-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.st-dash-tab:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-dash-tab.active {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-border);
+  color: var(--st-text);
+  font-weight: var(--st-fw-semibold);
+}
+
+.st-dash-tab--add {
+  color: var(--st-text-tertiary);
+}
+
+.st-dash-tab--add:hover {
+  color: var(--st-accent);
+}
+
+/* Rename / delete actions in the page header */
+.st-dash-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+/* =========================================================================
+   Saved-dashboard toolbar (edit / add widget row)
+   ========================================================================= */
+.st-dash-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-4);
+}
+
+.st-dash-toolbar__count {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+.st-dash-toolbar__spacer {
+  flex: 1 1 auto;
+}
+
+.st-dash-toolbar__saving {
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  font-style: italic;
+}
+
+/* =========================================================================
+   Inline notice (non-fatal save/load errors)
+   ========================================================================= */
+.st-dash-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-4);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-dash-notice > span {
+  flex: 1 1 auto;
+}
+
+.st-dash-notice__close {
+  flex: 0 0 auto;
+  border: none;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.st-dash-notice__close:hover {
+  color: var(--st-text);
+}
+
+/* =========================================================================
+   Widget grid (responsive Twenty tile layout)
+   ========================================================================= */
+.st-widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-rows: minmax(120px, auto);
+  gap: var(--st-space-4);
+}
+
+/* Wider widgets (bar / recent / pipeline) span two columns when room allows. */
+.st-widget--wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 720px) {
+  .st-widget--wide {
+    grid-column: span 1;
+  }
+}
+
+.st-widget {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.st-widget__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.st-widget__type-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.st-widget__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.st-widget__grip {
+  flex: 0 0 auto;
+  color: var(--st-border-strong, var(--st-text-tertiary));
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.st-widget-grid--editing .st-widget__grip {
+  opacity: 0.5;
+  cursor: grab;
+}
+
+.st-widget__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.st-widget__remove:hover {
+  background: #fdecec;
+  border-color: #f0c2c2;
+  color: #d64545;
+}
+
+.st-widget__body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.st-widget__loading {
+  padding: var(--st-space-4);
+}
+
+.st-widget__skel {
+  height: 96px;
+  border-radius: var(--st-radius);
+}
+
+.st-widget__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-4);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-widget__error svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #b35900;
+}
+
+/* KPI widget body */
+.st-widget-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--st-space-4);
+}
+
+.st-widget-kpi__value {
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+}
+
+.st-widget-kpi__sub {
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* =========================================================================
+   Add-widget dialog — type chooser grid
+   ========================================================================= */
+.st-widget-typegrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-2);
+}
+
+.st-widget-typeopt {
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.st-widget-typeopt:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-widget-typeopt.active {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-text);
+  box-shadow: 0 0 0 1px var(--st-accent);
+}

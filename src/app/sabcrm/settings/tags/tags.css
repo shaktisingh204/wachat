@@ -1,0 +1,191 @@
+/* =========================================================================
+   SabCRM — Tags settings (Twenty look).
+
+   Page-local classes (`.tg-*`) layered on top of the shared `.st-*` kit
+   (`src/styles/sabcrm-twenty.css`). Everything here is scoped under the
+   `.sabcrm-twenty` frame so it can never leak into the rest of SabNode.
+
+   Do NOT edit `sabcrm-twenty.css` — additions for this page live here.
+   ========================================================================= */
+
+/* --- Settings surface (this page imports only the shared kit, so re-declare
+   the lightweight wrappers it needs locally) ----------------------------- */
+
+.sabcrm-twenty .st-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+.sabcrm-twenty .st-settings__intro {
+  margin: 0;
+  max-width: 64ch;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.6;
+}
+
+.sabcrm-twenty .st-footnote {
+  margin: 0;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .st-form-error {
+  margin: 0;
+  color: #d64545;
+  font-size: var(--st-font-size-sm);
+}
+
+/* --- Danger button (red destructive secondary) ------------------------- */
+
+.sabcrm-twenty .st-btn--danger {
+  color: #d64545;
+  border-color: var(--st-border);
+}
+
+.sabcrm-twenty .st-btn--danger:hover:not(:disabled) {
+  background: rgba(214, 69, 69, 0.08);
+  border-color: rgba(214, 69, 69, 0.4);
+  color: #d64545;
+}
+
+/* --- Tag chip ---------------------------------------------------------- */
+
+.sabcrm-twenty .tg-chip {
+  vertical-align: middle;
+}
+
+/* --- Row actions cell -------------------------------------------------- */
+
+.sabcrm-twenty .tg-col-actions {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.sabcrm-twenty .tg-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin-left: var(--st-space-1);
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.sabcrm-twenty .tg-iconbtn:hover:not(:disabled) {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-border);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .tg-iconbtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sabcrm-twenty .tg-iconbtn--danger:hover:not(:disabled) {
+  background: rgba(214, 69, 69, 0.08);
+  border-color: rgba(214, 69, 69, 0.35);
+  color: #d64545;
+}
+
+/* --- Colour-swatch picker ---------------------------------------------- */
+
+.sabcrm-twenty .tg-color {
+  position: relative;
+  display: inline-block;
+}
+
+.sabcrm-twenty .tg-color__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.sabcrm-twenty .tg-color__trigger:hover {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-border-strong, var(--st-border));
+}
+
+.sabcrm-twenty .tg-color__name {
+  line-height: 1.2;
+}
+
+.sabcrm-twenty .tg-swatch {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.sabcrm-twenty .tg-swatch--lg {
+  width: 18px;
+  height: 18px;
+}
+
+.sabcrm-twenty .tg-color__pop {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 4px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, auto);
+  gap: var(--st-space-1);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-pop);
+}
+
+.sabcrm-twenty .tg-color__cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.sabcrm-twenty .tg-color__cell:hover {
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .tg-color__cell[aria-selected='true'] {
+  border-color: var(--st-border);
+}
+
+.sabcrm-twenty .tg-color__check {
+  position: absolute;
+  color: #ffffff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}

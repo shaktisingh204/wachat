@@ -1,0 +1,300 @@
+/* =========================================================================
+   SabCRM Settings → Functions
+   -------------------------------------------------------------------------
+   Supplemental Twenty-style (`.st-*`) classes for the Functions settings page
+   (logic / serverless function DEFINITIONS — no execution). Companion to
+   `src/styles/sabcrm-twenty.css` and `../settings-twenty.css`. Only the bits
+   the two-pane manager needs that aren't already in the shared `.st-*`
+   vocabulary live here.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   Tailwind / clay — Twenty look only.
+   ========================================================================= */
+
+/* ----- Two-pane shell ---------------------------------------------------- */
+
+.sabcrm-twenty .st-fn-split {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--st-space-4);
+  align-items: start;
+  margin-top: var(--st-space-2);
+}
+
+@media (max-width: 720px) {
+  .sabcrm-twenty .st-fn-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- Left pane: function list ------------------------------------------ */
+
+.sabcrm-twenty .st-fn-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-fn-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-fn-list__title {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-fn-list__items {
+  display: flex;
+  flex-direction: column;
+  padding: var(--st-space-1);
+  gap: 2px;
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .st-fn-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: var(--st-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .st-fn-item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-fn-item.is-active {
+  background: var(--st-accent-soft);
+  border-color: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-fn-item__name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-fn-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Small runtime badge used in the list (and inline in the editor head). */
+.sabcrm-twenty .st-fn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  font-size: 10px;
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-fn-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-fn-badge--node .st-fn-badge__dot {
+  background: #2e7d32;
+}
+
+.sabcrm-twenty .st-fn-badge--deno .st-fn-badge__dot {
+  background: #b26a00;
+}
+
+/* Empty state nested inside the list pane. */
+.sabcrm-twenty .st-fn-list__empty {
+  padding: var(--st-space-4) var(--st-space-3);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Right pane: editor ------------------------------------------------ */
+
+.sabcrm-twenty .st-fn-editor {
+  min-width: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-fn-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-fn-editor__head-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-fn-editor__head-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-fn-editor__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-fn-editor__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-4);
+}
+
+/* Field grid: name + runtime side by side, collapsing on narrow widths. */
+.sabcrm-twenty .st-fn-grid {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: var(--st-space-3);
+}
+
+@media (max-width: 520px) {
+  .sabcrm-twenty .st-fn-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Monospace code editor textarea. */
+.sabcrm-twenty .st-fn-code {
+  width: 100%;
+  min-height: 280px;
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.6;
+  tab-size: 2;
+  outline: none;
+  resize: vertical;
+  white-space: pre;
+  overflow: auto;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.sabcrm-twenty .st-fn-code:focus {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+/* Field hint under a label/input. */
+.sabcrm-twenty .st-fn-hint {
+  margin-top: 4px;
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+  color: var(--st-text-tertiary);
+}
+
+/* "Running needs the engine" honesty note. */
+.sabcrm-twenty .st-fn-engine-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-fn-engine-note__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-fn-engine-note code {
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  color: var(--st-text);
+}
+
+/* Inline "saved" confirmation chip in the editor head. */
+.sabcrm-twenty .st-fn-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-xs);
+  color: #2e7d32;
+}
+
+/* Placeholder shown in the right pane when nothing is selected. */
+.sabcrm-twenty .st-fn-editor--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  padding: var(--st-space-5);
+}
+
+.sabcrm-twenty .st-fn-editor--empty .st-empty {
+  border: none;
+  background: transparent;
+}

@@ -73,6 +73,8 @@ sabcrm-settings = { path = "../sabcrm-settings" }
 sabcrm-workflows = { path = "../sabcrm-workflows" }
 sabcrm-audit = { path = "../sabcrm-audit" }
 sabcrm-invites = { path = "../sabcrm-invites" }
+sabcrm-tags = { path = "../sabcrm-tags" }
+sabcrm-dashboards = { path = "../sabcrm-dashboards" }
 sabcrm-notifications = { path = "../sabcrm-notifications" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }
 crm-quotations = { path = "../crm-quotations" }

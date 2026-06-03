@@ -1,0 +1,369 @@
+/* =========================================================================
+   SabCRM — Import Wizard (page-local Twenty extras)
+
+   Scoped under `.sabcrm-twenty` (the Twenty CSS scope applied in
+   `twenty-app-frame.tsx`). These classes are OWNED by the import/export page
+   and live here so we never edit the shared kit (`src/styles/sabcrm-twenty.css`)
+   nor the reports extras (`../../reports/reports-twenty.css`).
+
+   Naming: NEW `st-iw-*` (import wizard) prefix so nothing collides with the
+   shared `.st-*` primitives or the `.st-iox-*` classes the page already reuses
+   from reports-twenty.css.
+
+   All colours come from the `--st-*` design tokens so light/dark themes track
+   automatically.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   Step indicator — a Twenty-style numbered stepper with connector rails.
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: var(--st-space-5);
+}
+
+.sabcrm-twenty .st-iw-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  text-align: center;
+  min-width: 92px;
+}
+
+.sabcrm-twenty .st-iw-step__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  color: var(--st-text-tertiary);
+  font-size: 12px;
+  font-weight: var(--st-fw-semibold);
+  font-variant-numeric: tabular-nums;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.sabcrm-twenty .st-iw-step__label {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* current step */
+.sabcrm-twenty .st-iw-step.is-active .st-iw-step__dot {
+  border-color: var(--st-text);
+  background: var(--st-text);
+  color: var(--st-text-inverted);
+}
+.sabcrm-twenty .st-iw-step.is-active .st-iw-step__label {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+/* completed step */
+.sabcrm-twenty .st-iw-step.is-done .st-iw-step__dot {
+  border-color: var(--st-text);
+  background: var(--st-bg);
+  color: var(--st-text);
+}
+.sabcrm-twenty .st-iw-step.is-done .st-iw-step__label {
+  color: var(--st-text-secondary);
+}
+
+/* the connector rail between two steps */
+.sabcrm-twenty .st-iw-step__rail {
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--st-border);
+  margin: 13px -8px 0 -8px; /* vertically aligns with the 26px dot centre */
+  min-width: 16px;
+}
+.sabcrm-twenty .st-iw-step__rail.is-filled {
+  background: var(--st-text);
+}
+
+/* -------------------------------------------------------------------------
+   Step body shell + footer nav.
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+.sabcrm-twenty .st-iw-step-title {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  margin: 0;
+}
+
+.sabcrm-twenty .st-iw-step-hint {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  margin: 2px 0 0 0;
+}
+
+.sabcrm-twenty .st-iw-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-2);
+  padding-top: var(--st-space-4);
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-iw-nav__right {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-left: auto;
+}
+
+/* -------------------------------------------------------------------------
+   Preview / validate summary tiles.
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-iw-stat {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  padding: var(--st-space-3);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-iw-stat__num {
+  font-size: 20px;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.sabcrm-twenty .st-iw-stat__cap {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   Issue / warning groups (sit on top of the shared .st-iox-issue rows).
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  padding: var(--st-space-3);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-iw-issues__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+  color: var(--st-text-secondary);
+}
+.sabcrm-twenty .st-iw-issues--error .st-iw-issues__head {
+  color: #b42318;
+}
+.sabcrm-twenty .st-iw-issues--warn .st-iw-issues__head {
+  color: #b54708;
+}
+
+/* a warning row — mirrors .st-iox-issue but amber */
+.sabcrm-twenty .st-iw-warn-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  color: #b54708;
+  padding: 2px 0;
+}
+
+/* the "no issues, good to go" success line */
+.sabcrm-twenty .st-iw-ok {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  color: #067647;
+}
+
+/* -------------------------------------------------------------------------
+   Sample-rows preview table — horizontally scrollable, compact.
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-preview {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: auto;
+  max-height: 340px;
+}
+
+.sabcrm-twenty .st-iw-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .st-iw-preview th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  white-space: nowrap;
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .st-iw-preview th .st-iw-preview__src {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-regular);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-iw-preview td {
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  color: var(--st-text);
+  white-space: nowrap;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sabcrm-twenty .st-iw-preview tr:last-child td {
+  border-bottom: none;
+}
+
+.sabcrm-twenty .st-iw-preview td.is-empty {
+  color: var(--st-text-tertiary);
+  font-style: italic;
+}
+
+/* -------------------------------------------------------------------------
+   Per-row failure list on the final summary step.
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-failures {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 280px;
+  overflow: auto;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  padding: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-iw-result-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border-radius: var(--st-radius);
+  font-size: var(--st-font-size-sm);
+  border: 1px solid var(--st-border);
+}
+.sabcrm-twenty .st-iw-result-banner--ok {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #067647;
+}
+.sabcrm-twenty .st-iw-result-banner--partial {
+  background: #fffaeb;
+  border-color: #fedf89;
+  color: #b54708;
+}
+.sabcrm-twenty .st-iw-result-banner--fail {
+  background: #fef3f2;
+  border-color: #fecdca;
+  color: #b42318;
+}
+
+/* dark-theme softening for the coloured banners */
+.sabcrm-twenty.st-dark .st-iw-result-banner--ok,
+.sabcrm-twenty .st-dark .st-iw-result-banner--ok {
+  background: rgba(6, 118, 71, 0.12);
+}
+.sabcrm-twenty.st-dark .st-iw-result-banner--partial,
+.sabcrm-twenty .st-dark .st-iw-result-banner--partial {
+  background: rgba(181, 71, 8, 0.12);
+}
+.sabcrm-twenty.st-dark .st-iw-result-banner--fail,
+.sabcrm-twenty .st-dark .st-iw-result-banner--fail {
+  background: rgba(180, 35, 24, 0.12);
+}
+
+/* -------------------------------------------------------------------------
+   Picked-file confirmation chip (step 1).
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-iw-file {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-iw-file__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-iw-file__name {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-iw-file__sub {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-iw-file__clear {
+  margin-left: auto;
+}
+
+/* responsive: stack the stat tiles on narrow viewports */
+@media (max-width: 640px) {
+  .sabcrm-twenty .st-iw-stats {
+    grid-template-columns: 1fr;
+  }
+  .sabcrm-twenty .st-iw-step {
+    min-width: 64px;
+  }
+  .sabcrm-twenty .st-iw-step__label {
+    font-size: 10px;
+  }
+}

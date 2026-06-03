@@ -1,0 +1,272 @@
+/* =========================================================================
+   SabCRM Settings → Accounts — Connected email / calendar accounts
+   -------------------------------------------------------------------------
+   Supplemental Twenty-style (`.st-*`) classes for the "Accounts" settings
+   page. Companion to `src/styles/sabcrm-twenty.css` and the shared
+   `../settings-twenty.css` — only the bits the accounts UI needs that aren't
+   already in the shared `.st-*` vocabulary live here.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   Tailwind / clay — Twenty look only.
+   ========================================================================= */
+
+/* ---- Generic section heading (shared by every block on the page) -------- */
+
+.sabcrm-twenty .st-section {
+  margin-top: var(--st-space-6, 24px);
+}
+
+.sabcrm-twenty .st-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0 0 var(--st-space-2);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold, 600);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-section__title-icon {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-section__desc {
+  margin: 0 0 var(--st-space-4);
+  max-width: 640px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+/* ---- Provider cards (Connect account grid) ------------------------------ */
+
+.sabcrm-twenty .st-provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-provider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-provider__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-provider__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-provider__name {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-provider__desc {
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-provider__action {
+  margin-top: auto;
+}
+
+/* ---- Add-account inline form (revealed when a provider is "connected") --- */
+
+.sabcrm-twenty .st-connect-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  margin-bottom: var(--st-space-4);
+  border: 1px solid var(--st-accent-soft);
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-connect-form__row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-connect-form__row .st-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+}
+
+/* ---- Connected-account list -------------------------------------------- */
+
+.sabcrm-twenty .st-account-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-account {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-account__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-account__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-account__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-account__email {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-account__provider {
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-account__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Sync toggles strip below the account head. */
+.sabcrm-twenty .st-account__sync {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border-top: 1px solid var(--st-border-light, var(--st-border));
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-sync-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sync-toggle__icon {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-sync-toggle__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sync-toggle__label {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sync-toggle__hint {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* ---- Switch (UI-only toggle) ------------------------------------------- */
+
+.sabcrm-twenty .st-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 20px;
+  margin-left: auto;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .st-switch__knob {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+  transform: translateY(-50%);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.sabcrm-twenty .st-switch[aria-checked='true'] {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-switch[aria-checked='true'] .st-switch__knob {
+  background: #ffffff;
+  transform: translate(14px, -50%);
+}
+
+.sabcrm-twenty .st-switch:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Sync-status chip (engine offline) --------------------------------- */
+
+.sabcrm-twenty .st-chip--idle .st-chip__dot {
+  background: var(--st-text-tertiary);
+}

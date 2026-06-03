@@ -132,6 +132,41 @@ export interface SabcrmRecordRelationsResponse {
   relations: RecordRelation[];
 }
 
+/** Reduction applied by {@link sabcrmRecordsApi.aggregate}. */
+export type SabcrmAggregateMetric = 'count' | 'sum' | 'avg' | 'min' | 'max';
+
+/** Params accepted by {@link sabcrmRecordsApi.aggregate}. */
+export interface SabcrmRecordAggregateParams {
+  projectId: string;
+  /** Field key bucketed on `data.<groupByField>`. */
+  groupByField: string;
+  /** Reduction per bucket. `sum`/`avg`/`min`/`max` require `metricField`. */
+  metric: SabcrmAggregateMetric;
+  /** Field key the metric reduces over (`data.<metricField>`). */
+  metricField?: string;
+  /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
+  filters?: SabcrmRecordFilters;
+}
+
+/** One bucket from the aggregate endpoint. */
+export interface SabcrmRecordAggregateGroup {
+  /** Distinct `data.<groupByField>` value for this bucket. */
+  value: unknown;
+  /** Reduced metric for this bucket. */
+  metric: number;
+}
+
+export interface SabcrmRecordAggregateResponse {
+  groups: SabcrmRecordAggregateGroup[];
+  /** Same metric reduced over ALL matched records. */
+  total: number;
+}
+
+export interface SabcrmRecordDistinctResponse {
+  /** Distinct `data.<field>` values (null/empty dropped, capped at 200). */
+  values: unknown[];
+}
+
 export interface SabcrmRecordCreateInput {
   projectId: string;
   data: Record<string, unknown>;
@@ -331,6 +366,49 @@ export const sabcrmRecordsApi = {
       method: 'POST',
       body: JSON.stringify(input),
     });
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/aggregate` — bucket records by
+   * `data.<groupByField>` and reduce a `metric` (count|sum|avg|min|max) over
+   * `data.<metricField>`. Returns per-bucket metrics plus an overall `total`.
+   * Buckets are capped at 200 server-side.
+   */
+  aggregate(
+    object: string,
+    params: SabcrmRecordAggregateParams,
+  ): Promise<SabcrmRecordAggregateResponse> {
+    const hasFilters =
+      params.filters !== undefined &&
+      Object.keys(params.filters).length > 0;
+    return rustFetch<SabcrmRecordAggregateResponse>(
+      `${base(object)}/aggregate`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId: params.projectId,
+          groupByField: params.groupByField,
+          metric: params.metric,
+          metricField: params.metricField,
+          filters: hasFilters ? params.filters : undefined,
+        }),
+      },
+    );
+  },
+
+  /**
+   * `GET /v1/sabcrm/records/{object}/distinct/{field}` — the distinct
+   * `data.<field>` values within `projectId` + object. Null/empty values are
+   * dropped server-side and the list is capped at 200.
+   */
+  distinct(
+    object: string,
+    field: string,
+    projectId: string,
+  ): Promise<SabcrmRecordDistinctResponse> {
+    return rustFetch<SabcrmRecordDistinctResponse>(
+      `${base(object)}/distinct/${encodeURIComponent(field)}${qs({ projectId })}`,
+    );
   },
 
   /** `POST /v1/sabcrm/records/{object}/group` — kanban grouping. */

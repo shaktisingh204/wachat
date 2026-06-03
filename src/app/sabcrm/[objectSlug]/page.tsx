@@ -23,15 +23,13 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Plus,
   Search,
   AlertTriangle,
   Database,
   Loader2,
-  Table2,
-  Columns3,
   Star,
   X,
 } from 'lucide-react';
@@ -52,6 +50,7 @@ import { SabcrmBulkBar } from './bulk-bar';
 import { SabcrmPagination } from './pagination';
 import './pagination.css';
 import './column-reorder.css';
+import './table-extras.css';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -59,6 +58,7 @@ import {
   createSabcrmRecordTw,
   updateSabcrmRecordTw,
   groupSabcrmRecordsTw,
+  aggregateSabcrmRecordsTw,
   listSabcrmFavoritesTw,
   addSabcrmFavoriteTw,
   removeSabcrmFavoriteTw,
@@ -113,6 +113,42 @@ type ViewKind = 'table' | 'board';
 const INLINE_EDITABLE: ReadonlySet<FieldMetadata['type']> = new Set<
   FieldMetadata['type']
 >(['TEXT', 'EMAIL', 'PHONE', 'LINK', 'NUMBER', 'CURRENCY', 'RATING', 'SELECT']);
+
+/** Field types we can run numeric sum/avg over for group-by aggregations. */
+const NUMERIC_FIELD: ReadonlySet<FieldMetadata['type']> = new Set<
+  FieldMetadata['type']
+>(['NUMBER', 'CURRENCY', 'RATING']);
+
+/**
+ * One per-group aggregation bucket returned by `aggregateSabcrmRecordsTw`.
+ * The action is added in parallel; this is the shape the table footer/header
+ * stats are coded against. Extra fields the action may include are ignored.
+ */
+interface SabcrmAggregateBucket {
+  /** SELECT option value for the bucket, or `null` for the ungrouped one. */
+  value: string | null;
+  count: number;
+  /** Present only when a numeric `metricField` was supplied. */
+  sum?: number | null;
+  avg?: number | null;
+}
+
+/** Result envelope of `aggregateSabcrmRecordsTw`. */
+interface SabcrmAggregateResult {
+  buckets: SabcrmAggregateBucket[];
+  /** Grand totals across all buckets (count + optional numeric roll-ups). */
+  total: { count: number; sum?: number | null; avg?: number | null };
+}
+
+/** Aggregation metric the page can request. */
+type AggregateMetric = 'count' | 'sum' | 'avg';
+
+/** Format a numeric stat value compactly (tabular, no trailing noise). */
+function fmtStat(n: number | null | undefined): string {
+  if (n === null || n === undefined || Number.isNaN(n)) return '—';
+  if (Number.isInteger(n)) return n.toLocaleString();
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
 
 // ---------------------------------------------------------------------------
 // Value helpers
@@ -247,6 +283,43 @@ function EditableCell({ field, value, onCommit }: EditableCellProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Aggregation stat pills (group header + footer total)
+// ---------------------------------------------------------------------------
+
+interface StatPillsProps {
+  count: number;
+  sum?: number | null;
+  avg?: number | null;
+  /** Label of the numeric field the sum/avg run over (omitted when none). */
+  metricLabel?: string;
+  loading?: boolean;
+}
+
+/** Render count + (optional numeric) sum/avg as a row of Twenty-style pills. */
+function StatPills({ count, sum, avg, metricLabel, loading }: StatPillsProps) {
+  return (
+    <span className="stx-stats">
+      <span className={`stx-stat${loading ? ' stx-stat--loading' : ''}`}>
+        <span className="stx-stat__k">Count</span>
+        <span className="stx-stat__v">{loading ? '…' : fmtStat(count)}</span>
+      </span>
+      {metricLabel && sum !== undefined && sum !== null && (
+        <span className={`stx-stat${loading ? ' stx-stat--loading' : ''}`}>
+          <span className="stx-stat__k">{`Sum ${metricLabel}`}</span>
+          <span className="stx-stat__v">{loading ? '…' : fmtStat(sum)}</span>
+        </span>
+      )}
+      {metricLabel && avg !== undefined && avg !== null && (
+        <span className={`stx-stat${loading ? ' stx-stat--loading' : ''}`}>
+          <span className="stx-stat__k">{`Avg ${metricLabel}`}</span>
+          <span className="stx-stat__v">{loading ? '…' : fmtStat(avg)}</span>
+        </span>
+      )}
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Table view
 // ---------------------------------------------------------------------------
 
@@ -277,6 +350,24 @@ interface TableViewProps {
   columnWidths: Readonly<Record<string, number>>;
   /** Commit a resized column width (px, already clamped by the handle). */
   onResizeColumn: (key: string, width: number) => void;
+
+  // ---- Keyboard navigation (owned by the page) ---------------------------
+  /** Index of the keyboard-highlighted row, or `null` when none is active. */
+  activeRow: number | null;
+  /** Focusable wrapper ref + key handler the page binds for ↑/↓/j/k/Enter/x. */
+  tableRef: React.RefObject<HTMLDivElement | null>;
+  onTableKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => void;
+  /** Set the active row (e.g. clicking a row body parks the cursor on it). */
+  onSetActiveRow: (index: number | null) => void;
+
+  // ---- Group-by aggregations (owned by the page) -------------------------
+  /** The active group-by field, or `undefined` for a flat table. */
+  groupField?: FieldMetadata;
+  /** Numeric field the sum/avg metric runs over, if any. */
+  metricField?: FieldMetadata;
+  /** Per-group + total aggregates; `null` while loading / unavailable. */
+  aggregate: SabcrmAggregateResult | null;
+  aggregateLoading: boolean;
 }
 
 /** Where a drag currently wants to drop, relative to a hovered header. */
@@ -303,9 +394,45 @@ function TableView({
   onReorderColumn,
   columnWidths,
   onResizeColumn,
+  activeRow,
+  tableRef,
+  onTableKeyDown,
+  onSetActiveRow,
+  groupField,
+  metricField,
+  aggregate,
+  aggregateLoading,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
+
+  // Total span of every data column (used by full-width group / footer cells:
+  // the selection + favorite leading columns plus one per visible column).
+  const colSpan = columns.length + 2;
+
+  // When a group-by field is active we render an inline stat band before the
+  // first row of each new group value. Resolve a label for each group value.
+  const groupLabelFor = React.useCallback(
+    (value: unknown): string => {
+      if (!groupField) return '';
+      if (value === null || value === undefined || value === '') return 'Ungrouped';
+      const opt = groupField.options?.find((o) => o.value === String(value));
+      return opt?.label ?? String(value);
+    },
+    [groupField],
+  );
+
+  // Map a group value → its aggregate bucket (count/sum/avg) for the header.
+  const bucketFor = React.useCallback(
+    (value: unknown): SabcrmAggregateBucket | undefined => {
+      if (!aggregate) return undefined;
+      const v = value === undefined || value === '' ? null : value;
+      return aggregate.buckets.find(
+        (b) => (b.value ?? null) === (v === null ? null : String(v)),
+      );
+    },
+    [aggregate],
+  );
 
   // The header column currently being dragged, and where it would drop. React
   // state is the real channel; `dataTransfer` carries a plain-text fallback.
@@ -386,7 +513,15 @@ function TableView({
   const hasWidths = Object.keys(columnWidths).length > 0;
 
   return (
-    <div className={`st-table-wrap${resizing ? ' is-col-resizing' : ''}`}>
+    <div
+      ref={tableRef}
+      className={`st-table-wrap stx-table-focus${resizing ? ' is-col-resizing' : ''}`}
+      tabIndex={0}
+      role="grid"
+      aria-label="Records — use arrow keys to navigate, Enter to open"
+      aria-rowcount={records.length}
+      onKeyDown={onTableKeyDown}
+    >
       <table className={`st-table${hasWidths ? ' st-table--fixed' : ''}`}>
         {hasWidths && (
           <colgroup>
@@ -553,13 +688,52 @@ function TableView({
           </tr>
         </thead>
         <tbody>
-          {records.map((record) => {
+          {records.map((record, rowIndex) => {
             const isFav = favorites.has(record.id);
             const isSelected = selected.has(record.id);
+            const isActive = activeRow === rowIndex;
+
+            // Group-by header band: emitted before the first record of each new
+            // group value (records arrive pre-grouped from the engine when a
+            // group-by is active). Carries the group's count/sum/avg stats.
+            const groupValue = groupField ? record.data[groupField.key] : undefined;
+            const prevValue =
+              groupField && rowIndex > 0
+                ? records[rowIndex - 1].data[groupField.key]
+                : undefined;
+            const startsGroup =
+              !!groupField &&
+              (rowIndex === 0 ||
+                String(groupValue ?? '') !== String(prevValue ?? ''));
+            const bucket = startsGroup ? bucketFor(groupValue) : undefined;
+
             return (
+            <React.Fragment key={record.id}>
+            {startsGroup && groupField && (
+              <tr className="st-row stx-group-row" aria-hidden="true">
+                <td colSpan={colSpan}>
+                  <span className="stx-group-cell">
+                    <span className="stx-group-cell__label">
+                      {groupLabelFor(groupValue)}
+                    </span>
+                    <StatPills
+                      count={bucket?.count ?? 0}
+                      sum={bucket?.sum}
+                      avg={bucket?.avg}
+                      metricLabel={metricField?.label}
+                      loading={aggregateLoading}
+                    />
+                  </span>
+                </td>
+              </tr>
+            )}
             <tr
-              key={record.id}
-              className={`st-row${isSelected ? ' is-selected' : ''}`}
+              className={`st-row${isSelected ? ' is-selected' : ''}${
+                isActive ? ' stx-row--active' : ''
+              }`}
+              aria-rowindex={rowIndex + 1}
+              aria-selected={isSelected}
+              onMouseDown={() => onSetActiveRow(rowIndex)}
             >
               <td className="st-checkbox-cell">
                 <input
@@ -623,9 +797,31 @@ function TableView({
                 );
               })}
             </tr>
+            </React.Fragment>
             );
           })}
         </tbody>
+        {/* Footer total row — always shown for the current (page) record set.
+            When an aggregate is available it carries the grand totals; it falls
+            back to the in-view record count otherwise. */}
+        {records.length > 0 && (
+          <tfoot>
+            <tr className="st-row stx-foot-row">
+              <td colSpan={colSpan}>
+                <span className="stx-foot-cell">
+                  <span className="stx-foot-cell__label">Total</span>
+                  <StatPills
+                    count={aggregate?.total.count ?? records.length}
+                    sum={aggregate?.total.sum}
+                    avg={aggregate?.total.avg}
+                    metricLabel={metricField?.label}
+                    loading={aggregateLoading}
+                  />
+                </span>
+              </td>
+            </tr>
+          </tfoot>
+        )}
       </table>
     </div>
   );
@@ -1009,6 +1205,7 @@ function ErrorBanner({ message }: { message: string }) {
 export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const params = useParams<{ objectSlug: string }>();
   const objectSlug = params?.objectSlug ?? '';
+  const router = useRouter();
   const { activeProjectId } = useProject();
 
   const [object, setObject] = React.useState<ObjectMetadata | null>(null);
@@ -1058,6 +1255,19 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
   const [bulkUpdating, setBulkUpdating] = React.useState(false);
+
+  // Keyboard navigation: the highlighted row index (null = no active cursor)
+  // and a focusable wrapper ref the table grid lives in.
+  const [activeRow, setActiveRow] = React.useState<number | null>(null);
+  const tableRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Group-by aggregations (count + optional numeric sum/avg) for the table
+  // header/footer stats. `null` while loading or when the engine is unavailable
+  // — the footer then falls back to the in-view record count.
+  const [aggregate, setAggregate] = React.useState<SabcrmAggregateResult | null>(
+    null,
+  );
+  const [aggregateLoading, setAggregateLoading] = React.useState(false);
 
   // Reset transient state when the object changes.
   React.useEffect(() => {
@@ -1191,6 +1401,63 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   }, [viewState.groupBy, view, boardField, object]);
 
   const grouped = !!groupField;
+
+  // The numeric field the sum/avg aggregation runs over: prefer a non-system
+  // NUMBER/CURRENCY/RATING field. Absent ⇒ aggregations report count only.
+  const metricField = React.useMemo<FieldMetadata | undefined>(
+    () =>
+      object?.fields.find((f) => !f.system && NUMERIC_FIELD.has(f.type)),
+    [object],
+  );
+
+  // Group-by field active via the view bar (independent of the board toggle):
+  // this is what drives the table's per-group header stats + footer roll-ups.
+  const aggGroupField = React.useMemo<FieldMetadata | undefined>(() => {
+    if (!viewState.groupBy) return undefined;
+    const f = object?.fields.find((x) => x.key === viewState.groupBy);
+    return f && f.type === 'SELECT' ? f : undefined;
+  }, [viewState.groupBy, object]);
+
+  // Load per-group + total aggregates (count, and sum/avg over `metricField`)
+  // whenever a group-by is active. Degrades silently: on error or a missing
+  // action the table footer falls back to the in-view record count.
+  React.useEffect(() => {
+    if (!objectSlug || !aggGroupField) {
+      setAggregate(null);
+      setAggregateLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setAggregateLoading(true);
+
+    const metric: AggregateMetric = metricField ? 'sum' : 'count';
+    (async () => {
+      try {
+        const res = await aggregateSabcrmRecordsTw(
+          objectSlug,
+          {
+            groupByField: aggGroupField.key,
+            metric,
+            metricField: metricField?.key,
+          },
+          activeProjectId ?? undefined,
+        );
+        if (cancelled) return;
+        if (res && res.ok) {
+          setAggregate(res.data as SabcrmAggregateResult);
+        } else {
+          setAggregate(null);
+        }
+      } catch {
+        if (!cancelled) setAggregate(null);
+      } finally {
+        if (!cancelled) setAggregateLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [objectSlug, aggGroupField, metricField, activeProjectId, refreshTick]);
 
   // Load records / board whenever the query changes.
   React.useEffect(() => {
@@ -1513,6 +1780,87 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   const clearSelection = React.useCallback(() => setSelected(new Set()), []);
 
+  // ---- Keyboard navigation ------------------------------------------------
+
+  // The active-row cursor only makes sense for the current record window, so
+  // reset it whenever that window changes (object / page / filters / view).
+  React.useEffect(() => {
+    setActiveRow(null);
+  }, [objectSlug, search, viewState, view, page, limit, refreshTick]);
+
+  const onSetActiveRow = React.useCallback((index: number | null) => {
+    setActiveRow(index);
+  }, []);
+
+  // ↑/↓ (or k/j) move the cursor, Enter opens the row, x toggles its checkbox,
+  // Esc clears. Typing in a cell input/select/textarea is never hijacked, and
+  // modifier-chorded keys fall through to the browser / inline-edit shortcuts.
+  const handleTableKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      const isTyping =
+        tag === 'INPUT' ||
+        tag === 'SELECT' ||
+        tag === 'TEXTAREA' ||
+        target?.isContentEditable === true;
+      if (isTyping) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (records.length === 0) return;
+
+      const last = records.length - 1;
+      const moveTo = (next: number) => {
+        e.preventDefault();
+        const clamped = Math.max(0, Math.min(last, next));
+        setActiveRow(clamped);
+        // Keep the highlighted row in view as the cursor walks the list.
+        const wrap = tableRef.current;
+        const row = wrap?.querySelectorAll<HTMLTableRowElement>(
+          'tbody tr.st-row:not(.stx-group-row)',
+        )[clamped];
+        row?.scrollIntoView({ block: 'nearest' });
+      };
+
+      switch (e.key) {
+        case 'ArrowDown':
+        case 'j':
+          moveTo(activeRow === null ? 0 : activeRow + 1);
+          break;
+        case 'ArrowUp':
+        case 'k':
+          moveTo(activeRow === null ? 0 : activeRow - 1);
+          break;
+        case 'Enter': {
+          if (activeRow === null) return;
+          const rec = records[activeRow];
+          if (rec) {
+            e.preventDefault();
+            router.push(`/sabcrm/${objectSlug}/${rec.id}`);
+          }
+          break;
+        }
+        case 'x':
+        case 'X': {
+          if (activeRow === null) return;
+          const rec = records[activeRow];
+          if (rec) {
+            e.preventDefault();
+            toggleSelect(rec.id);
+          }
+          break;
+        }
+        case 'Escape':
+          e.preventDefault();
+          setActiveRow(null);
+          clearSelection();
+          break;
+        default:
+          break;
+      }
+    },
+    [records, activeRow, router, objectSlug, toggleSelect, clearSelection],
+  );
+
   // The first SELECT field is what we offer for bulk-edit (e.g. stage/status).
   const bulkEditField = React.useMemo<FieldMetadata | undefined>(
     () =>
@@ -1674,30 +2022,6 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             {total} {total === 1 ? object.labelSingular.toLowerCase() : object.labelPlural.toLowerCase()}
           </span>
         )}
-        {canBoard && (
-          <div className="st-viewswitch" role="tablist" aria-label="View">
-            <button
-              type="button"
-              role="tab"
-              aria-pressed={view === 'table'}
-              className={`st-viewswitch__btn${view === 'table' ? ' active' : ''}`}
-              onClick={() => setView('table')}
-            >
-              <Table2 size={14} />
-              Table
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-pressed={view === 'board'}
-              className={`st-viewswitch__btn${view === 'board' ? ' active' : ''}`}
-              onClick={() => setView('board')}
-            >
-              <Columns3 size={14} />
-              Board
-            </button>
-          </div>
-        )}
       </div>
 
       <SabcrmViewBar
@@ -1709,6 +2033,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         onSetColumns={setColumns}
         projectId={activeProjectId}
         refreshTick={refreshTick}
+        viewKind={view}
+        onViewKindChange={setView}
+        canBoard={canBoard}
+        calendarHref={`/sabcrm/calendar?object=${encodeURIComponent(objectSlug)}`}
       />
 
       {dataError && <ErrorBanner message={dataError} />}
@@ -1747,6 +2075,17 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         />
       ) : (
         <>
+          <div className="stx-kbd-hint" role="note">
+            <span className="stx-kbd">↑</span>
+            <span className="stx-kbd">↓</span>
+            <span>to navigate</span>
+            <span className="stx-kbd">↵</span>
+            <span>open</span>
+            <span className="stx-kbd">x</span>
+            <span>select</span>
+            <span className="stx-kbd">esc</span>
+            <span>clear</span>
+          </div>
           <TableView
             object={object}
             columns={columns}
@@ -1765,6 +2104,14 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             onReorderColumn={handleReorderColumn}
             columnWidths={columnWidths}
             onResizeColumn={handleResizeColumn}
+            activeRow={activeRow}
+            tableRef={tableRef}
+            onTableKeyDown={handleTableKeyDown}
+            onSetActiveRow={onSetActiveRow}
+            groupField={aggGroupField}
+            metricField={metricField}
+            aggregate={aggregate}
+            aggregateLoading={aggregateLoading}
           />
           <SabcrmPagination
             page={page}

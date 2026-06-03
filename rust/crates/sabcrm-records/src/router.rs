@@ -24,6 +24,8 @@
 //! POST   /{object}/bulk-delete — bulk_delete_records
 //! POST   /{object}/bulk-update — bulk_update_records
 //! POST   /{object}/merge       — merge_records
+//! POST   /{object}/aggregate   — aggregate_records
+//! GET    /{object}/distinct/{field} — distinct_values
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
 //! DELETE /{object}/{id}        — delete_record
@@ -66,6 +68,11 @@ where
             post(handlers::bulk_update_records),
         )
         .route("/{object}/merge", post(handlers::merge_records))
+        .route("/{object}/aggregate", post(handlers::aggregate_records))
+        .route(
+            "/{object}/distinct/{field}",
+            get(handlers::distinct_values),
+        )
         .route(
             "/{object}/{id}",
             get(handlers::get_record)

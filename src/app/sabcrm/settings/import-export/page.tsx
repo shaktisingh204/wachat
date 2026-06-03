@@ -4,26 +4,32 @@
  * SabCRM — Import & Export (`/sabcrm/settings/import-export`), Twenty-style.
  *
  * A self-written Twenty-faithful rebuild using the shared `.st-*` kit
- * (`src/styles/sabcrm-twenty.css`) plus the page-local extras in
- * `../../reports/reports-twenty.css`. No ZoruUI / Tailwind / clay in the page
- * chrome — the ONLY ZoruUI piece is the `<SabFileToFileButton>` widget, used to
- * satisfy the project-wide SabFiles policy (every file input must come from the
- * SabFiles library / upload; never a free-text URL paste).
+ * (`src/styles/sabcrm-twenty.css`), the reports extras (`reports-twenty.css`),
+ * and the page-local wizard extras (`./import-wizard.css`). No ZoruUI /
+ * Tailwind / clay in the page chrome — the ONLY ZoruUI piece is the
+ * `<SabFileToFileButton>` widget, used to satisfy the project-wide SabFiles
+ * policy (every file input must come from the SabFiles library / upload; never
+ * a free-text URL paste).
  *
- * Flow:
- *   - Object selector (`listObjectsAction`) chooses the target object for both
- *     import and export.
- *   - Export: a Twenty CSV/XLSX dropdown that calls `exportRecordsAction` and
- *     hands the result to `downloadCsv` / `downloadXlsx`.
- *   - Import: a guided inline flow —
- *       1. Pick a CSV via SabFiles → parsed client-side with PapaParse.
- *       2. Suggested column→field mapping (`buildColumnMappingSuggestionsAction`),
- *          editable per field, validated live (`validateImportMappingAction`).
- *       3. Commit with `importRecordsAction`, then show a per-row summary.
+ * The import side is a Twenty-style 4-step IMPORT WIZARD:
+ *
+ *   1. Object & file   — choose the target object, then pick a CSV via SabFiles
+ *                        (parsed client-side with PapaParse).
+ *   2. Map columns     — CSV header → object-field select, pre-filled from
+ *                        `buildColumnMappingSuggestionsAction`.
+ *   3. Preview         — `validateImportMappingAction` gives blocking issues;
+ *                        we add soft warnings + a sample-rows preview table and
+ *                        a row-count / mapped-column readout.
+ *   4. Import          — `importRecordsAction` runs the batch and we render a
+ *                        success / partial / failure summary with per-row errors.
+ *
+ * Export keeps its own Twenty CSV/XLSX dropdown (`exportRecordsAction` →
+ * `downloadCsv` / `downloadXlsx`) and is unaffected by the wizard.
  *
  * Auth / onboarding / RBACGuard are enforced by the parent SabCRM `layout.tsx`;
  * each action re-runs the full gate, so the page fails closed into an inline
- * error state.
+ * error state. Every step traps its own errors so one failed action never wedges
+ * the wizard — the user can retry or step back.
  */
 
 import * as React from 'react';
@@ -35,7 +41,11 @@ import {
   Upload,
   AlertTriangle,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CheckCircle2,
+  FileText,
+  X,
   RotateCcw,
 } from 'lucide-react';
 
@@ -61,6 +71,7 @@ import type {
 } from '@/lib/sabcrm/import-export.server';
 
 import '../../reports/reports-twenty.css';
+import './import-wizard.css';
 
 // ---------------------------------------------------------------------------
 // Field-type gating: which fields can be imported from a spreadsheet.
@@ -91,10 +102,18 @@ function parseCsv(text: string): { headers: string[]; rows: RawRow[] } {
 }
 
 // ---------------------------------------------------------------------------
-// Import flow state machine
+// Import wizard state machine — a linear 4-step flow.
+//   1 = object + file pick   2 = map columns   3 = preview   4 = import summary
 // ---------------------------------------------------------------------------
 
-type ImportStage = 'pick' | 'map' | 'done';
+type WizardStep = 1 | 2 | 3 | 4;
+
+const STEP_LABELS: Record<WizardStep, string> = {
+  1: 'Object & file',
+  2: 'Map columns',
+  3: 'Preview',
+  4: 'Import',
+};
 
 interface ParsedFile {
   name: string;
@@ -103,7 +122,7 @@ interface ParsedFile {
 }
 
 // ---------------------------------------------------------------------------
-// Export control (Twenty-styled dropdown)
+// Export control (Twenty-styled dropdown) — unchanged, keeps export working.
 // ---------------------------------------------------------------------------
 
 function ExportControl({
@@ -230,6 +249,39 @@ function ExportControl({
 }
 
 // ---------------------------------------------------------------------------
+// Step indicator — Twenty-style numbered stepper with connector rails.
+// ---------------------------------------------------------------------------
+
+function StepIndicator({ step }: { step: WizardStep }): React.JSX.Element {
+  const steps: WizardStep[] = [1, 2, 3, 4];
+  return (
+    <div className="st-iw-steps" aria-label="Import progress">
+      {steps.map((s, i) => (
+        <React.Fragment key={s}>
+          {i > 0 && (
+            <span
+              className={`st-iw-step__rail ${s <= step ? 'is-filled' : ''}`}
+              aria-hidden="true"
+            />
+          )}
+          <div
+            className={`st-iw-step ${
+              s === step ? 'is-active' : s < step ? 'is-done' : ''
+            }`}
+            aria-current={s === step ? 'step' : undefined}
+          >
+            <span className="st-iw-step__dot">
+              {s < step ? <CheckCircle2 size={15} aria-hidden="true" /> : s}
+            </span>
+            <span className="st-iw-step__label">{STEP_LABELS[s]}</span>
+          </div>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -241,13 +293,14 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [selectedSlug, setSelectedSlug] = React.useState<string>('');
 
-  // Import sub-state
-  const [stage, setStage] = React.useState<ImportStage>('pick');
+  // Wizard state
+  const [step, setStep] = React.useState<WizardStep>(1);
   const [parsed, setParsed] = React.useState<ParsedFile | null>(null);
   const [mapping, setMapping] = React.useState<ColumnMapping>({});
   const [issues, setIssues] = React.useState<MappingValidationIssue[]>([]);
+  const [validating, setValidating] = React.useState(false);
+  const [stepError, setStepError] = React.useState<string | null>(null);
   const [importing, setImporting] = React.useState(false);
-  const [importError, setImportError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<ImportBatchResult | null>(null);
 
   // ---- Load objects -------------------------------------------------------
@@ -256,18 +309,26 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     setLoading(true);
     setError(null);
     void (async () => {
-      const res = await listObjectsAction(activeProjectId ?? undefined);
-      if (cancelled) return;
-      if (!res.ok) {
-        setError(res.error);
-        setObjects([]);
-      } else {
-        setObjects(res.data);
-        setSelectedSlug((prev) =>
-          res.data.some((o) => o.slug === prev) ? prev : '',
-        );
+      try {
+        const res = await listObjectsAction(activeProjectId ?? undefined);
+        if (cancelled) return;
+        if (!res.ok) {
+          setError(res.error);
+          setObjects([]);
+        } else {
+          setObjects(res.data);
+          setSelectedSlug((prev) =>
+            res.data.some((o) => o.slug === prev) ? prev : '',
+          );
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Failed to load objects.');
+          setObjects([]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
     })();
     return () => {
       cancelled = true;
@@ -284,126 +345,211 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     [selectedObject],
   );
 
-  // Reset the import flow whenever the target object changes.
-  const resetImport = React.useCallback(() => {
-    setStage('pick');
+  // Reset the whole wizard (used on object change + "start over").
+  const resetWizard = React.useCallback(() => {
+    setStep(1);
     setParsed(null);
     setMapping({});
     setIssues([]);
-    setImportError(null);
+    setStepError(null);
     setResult(null);
   }, []);
 
   const handleObjectChange = React.useCallback(
     (slug: string) => {
       setSelectedSlug(slug);
-      resetImport();
+      resetWizard();
     },
-    [resetImport],
+    [resetWizard],
   );
 
-  // ---- File picked (via SabFiles) → parse → suggest mapping ---------------
+  // ---- Step 1 — file picked (via SabFiles) → parse CSV --------------------
   const handleFile = React.useCallback(
     async (file: File) => {
       if (!selectedObject) return;
-      setImportError(null);
+      setStepError(null);
+      setResult(null);
       const lower = file.name.toLowerCase();
       if (lower.endsWith('.xlsx') || lower.endsWith('.xls')) {
-        setImportError('Please export your spreadsheet as CSV before importing.');
+        setStepError('Please export your spreadsheet as CSV before importing.');
         return;
       }
       let text: string;
       try {
         text = await file.text();
       } catch {
-        setImportError('Could not read the selected file.');
+        setStepError('Could not read the selected file.');
         return;
       }
-      const { headers, rows } = parseCsv(text);
+      let headers: string[];
+      let rows: RawRow[];
+      try {
+        ({ headers, rows } = parseCsv(text));
+      } catch {
+        setStepError('Could not parse the file as CSV.');
+        return;
+      }
       if (headers.length === 0) {
-        setImportError('The selected file has no column headers.');
+        setStepError('The selected file has no column headers.');
         return;
       }
       if (rows.length === 0) {
-        setImportError('The file has headers but no data rows.');
+        setStepError('The file has headers but no data rows.');
         return;
       }
-
+      // Successful parse — store the file but stay on step 1 so the user can
+      // confirm the picked file before advancing.
       setParsed({ name: file.name, headers, rows });
-
-      // Suggest a mapping, then validate it.
-      const sug = await buildColumnMappingSuggestionsAction(
-        selectedObject.slug,
-        headers,
-        activeProjectId ?? undefined,
-      );
-      const initialMapping: ColumnMapping = sug.ok ? sug.data : {};
-      setMapping(initialMapping);
-
-      const val = await validateImportMappingAction(
-        selectedObject.slug,
-        initialMapping,
-        headers,
-        activeProjectId ?? undefined,
-      );
-      setIssues(val.ok ? val.data : []);
-      setStage('map');
+      setMapping({});
+      setIssues([]);
     },
-    [selectedObject, activeProjectId],
+    [selectedObject],
   );
 
-  // ---- Re-validate when the user edits the mapping ------------------------
-  const revalidate = React.useCallback(
-    async (next: ColumnMapping) => {
-      if (!selectedObject || !parsed) return;
-      const val = await validateImportMappingAction(
+  const clearFile = React.useCallback(() => {
+    setParsed(null);
+    setMapping({});
+    setIssues([]);
+    setStepError(null);
+  }, []);
+
+  // ---- Advance from step 1 → 2: fetch suggested mapping -------------------
+  const goToMapping = React.useCallback(async () => {
+    if (!selectedObject || !parsed) return;
+    setStepError(null);
+    setValidating(true);
+    try {
+      const sug = await buildColumnMappingSuggestionsAction(
         selectedObject.slug,
-        next,
         parsed.headers,
         activeProjectId ?? undefined,
       );
-      setIssues(val.ok ? val.data : []);
-    },
-    [selectedObject, parsed, activeProjectId],
-  );
+      setMapping(sug.ok ? sug.data : {});
+      if (!sug.ok) {
+        setStepError(`Could not auto-suggest a mapping: ${sug.error}`);
+      }
+      setStep(2);
+    } catch (e) {
+      setStepError(
+        e instanceof Error ? e.message : 'Failed to build mapping suggestions.',
+      );
+      // Still let the user map manually.
+      setMapping({});
+      setStep(2);
+    } finally {
+      setValidating(false);
+    }
+  }, [selectedObject, parsed, activeProjectId]);
 
-  const setFieldColumn = React.useCallback(
-    (fieldKey: string, header: string) => {
-      setMapping((prev) => {
-        const next = { ...prev };
-        if (header) next[fieldKey] = header;
-        else delete next[fieldKey];
-        void revalidate(next);
-        return next;
-      });
-    },
-    [revalidate],
-  );
+  const setFieldColumn = React.useCallback((fieldKey: string, header: string) => {
+    setMapping((prev) => {
+      const next = { ...prev };
+      if (header) next[fieldKey] = header;
+      else delete next[fieldKey];
+      return next;
+    });
+  }, []);
 
-  const mappedCount = Object.keys(mapping).length;
-  const blockingIssues = issues.length > 0;
+  // ---- Advance from step 2 → 3: server-validate the mapping ---------------
+  const goToPreview = React.useCallback(async () => {
+    if (!selectedObject || !parsed) return;
+    setStepError(null);
+    setValidating(true);
+    try {
+      const val = await validateImportMappingAction(
+        selectedObject.slug,
+        mapping,
+        parsed.headers,
+        activeProjectId ?? undefined,
+      );
+      if (!val.ok) {
+        setStepError(val.error);
+        return;
+      }
+      setIssues(val.data);
+      setStep(3);
+    } catch (e) {
+      setStepError(
+        e instanceof Error ? e.message : 'Failed to validate the mapping.',
+      );
+    } finally {
+      setValidating(false);
+    }
+  }, [selectedObject, parsed, mapping, activeProjectId]);
 
-  // ---- Commit -------------------------------------------------------------
+  // ---- Step 4 — commit the import ----------------------------------------
   const handleImport = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
+    setStepError(null);
     setImporting(true);
-    setImportError(null);
-    const res = await importRecordsAction(
-      {
-        object: selectedObject.slug,
-        columnMapping: mapping,
-        rows: parsed.rows,
-      },
-      activeProjectId ?? undefined,
-    );
-    setImporting(false);
-    if (!res.ok) {
-      setImportError(res.error);
-      return;
+    try {
+      const res = await importRecordsAction(
+        {
+          object: selectedObject.slug,
+          columnMapping: mapping,
+          rows: parsed.rows,
+        },
+        activeProjectId ?? undefined,
+      );
+      if (!res.ok) {
+        setStepError(res.error);
+        return;
+      }
+      setResult(res.data);
+      setStep(4);
+    } catch (e) {
+      setStepError(e instanceof Error ? e.message : 'Failed to import records.');
+    } finally {
+      setImporting(false);
     }
-    setResult(res.data);
-    setStage('done');
   }, [selectedObject, parsed, mapping, activeProjectId]);
+
+  // ---- Derived: mapping readouts + blocking / warning split ---------------
+  const mappedCount = Object.keys(mapping).length;
+
+  // Server issues are all blocking (required-unmapped, unknown header/field,
+  // non-importable field). We surface them as hard errors.
+  const blockingIssues = issues;
+
+  // Soft, client-side warnings: importable fields with no mapping, and CSV
+  // columns that won't be imported. These do NOT block the import.
+  const warnings = React.useMemo<string[]>(() => {
+    if (!parsed) return [];
+    const out: string[] = [];
+    const unmappedFields = fields.filter((f) => !f.required && !mapping[f.key]);
+    if (unmappedFields.length > 0) {
+      out.push(
+        `${unmappedFields.length} field(s) are not mapped and will use their default value (if any): ${unmappedFields
+          .map((f) => f.label)
+          .slice(0, 6)
+          .join(', ')}${unmappedFields.length > 6 ? '…' : ''}.`,
+      );
+    }
+    const usedHeaders = new Set(Object.values(mapping));
+    const ignoredHeaders = parsed.headers.filter((h) => !usedHeaders.has(h));
+    if (ignoredHeaders.length > 0) {
+      out.push(
+        `${ignoredHeaders.length} CSV column(s) are not mapped and will be ignored: ${ignoredHeaders
+          .slice(0, 6)
+          .join(', ')}${ignoredHeaders.length > 6 ? '…' : ''}.`,
+      );
+    }
+    return out;
+  }, [parsed, fields, mapping]);
+
+  // The ordered list of (field, header) pairs that will actually be imported.
+  const mappedPairs = React.useMemo(
+    () =>
+      fields
+        .filter((f) => mapping[f.key])
+        .map((f) => ({ field: f, header: mapping[f.key] })),
+    [fields, mapping],
+  );
+
+  const sampleRows = React.useMemo(
+    () => (parsed ? parsed.rows.slice(0, 5) : []),
+    [parsed],
+  );
 
   // ---- Render -------------------------------------------------------------
   return (
@@ -422,7 +568,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       <p className="st-muted" style={{ marginBottom: 'var(--st-space-4)' }}>
         Bulk-load records into any object from a CSV file, or export an
         object&apos;s records back out. Pick an object to begin — imports run
-        through a guided column-mapping step.
+        through a guided 4-step wizard.
       </p>
 
       {error && (
@@ -502,7 +648,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
             </div>
           </div>
 
-          {/* Import */}
+          {/* Import wizard */}
           <div className="st-section">
             <div className="st-section__head">
               <div className="st-section__head-text">
@@ -510,16 +656,16 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                   Import {selectedObject.labelPlural.toLowerCase()}
                 </h2>
                 <p className="st-section__desc">
-                  Upload a CSV file, map its columns to{' '}
-                  {selectedObject.labelSingular.toLowerCase()} fields, and commit.
+                  A guided 4-step wizard: choose a file, map columns, preview, and
+                  import.
                 </p>
               </div>
-              {stage !== 'pick' && (
+              {(step !== 1 || parsed) && (
                 <div className="st-section__head-actions">
                   <button
                     type="button"
                     className="st-btn st-btn--ghost"
-                    onClick={resetImport}
+                    onClick={resetWizard}
                   >
                     <RotateCcw size={14} aria-hidden="true" />
                     Start over
@@ -529,53 +675,100 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
             </div>
 
             <div className="st-section__body">
-              {/* Step indicator */}
-              <div className="st-iox-steps">
-                {(['pick', 'map', 'done'] as const).map((s, i) => {
-                  const labels = ['Upload', 'Map columns', 'Done'];
-                  const order: ImportStage[] = ['pick', 'map', 'done'];
-                  const current = order.indexOf(stage);
-                  const cls =
-                    s === stage ? 'is-active' : i < current ? 'is-done' : '';
-                  return (
-                    <React.Fragment key={s}>
-                      {i > 0 && <span className="st-iox-step__sep" aria-hidden="true" />}
-                      <span className={`st-iox-step ${cls}`}>
-                        <span className="st-iox-step__dot">{i + 1}</span>
-                        {labels[i]}
-                      </span>
-                    </React.Fragment>
-                  );
-                })}
-              </div>
+              <StepIndicator step={step} />
 
-              {importError && (
-                <div className="st-iox-issue" style={{ marginBottom: 'var(--st-space-3)' }}>
+              {stepError && (
+                <div
+                  className="st-iox-issue"
+                  style={{ marginBottom: 'var(--st-space-3)' }}
+                  role="alert"
+                >
                   <AlertTriangle size={14} aria-hidden="true" />
-                  <span>{importError}</span>
+                  <span>{stepError}</span>
                 </div>
               )}
 
-              {/* Step 1 — pick file */}
-              {stage === 'pick' && (
-                <div className="st-iox-drop">
-                  <Upload size={22} aria-hidden="true" />
-                  <p className="st-muted" style={{ margin: 0 }}>
-                    Pick a CSV file from your SabFiles library or upload a new one.
-                  </p>
-                  <SabFileToFileButton
-                    accept="all"
-                    onPickFile={(file) => handleFile(file)}
-                    onError={(e) => setImportError(e.message)}
-                  >
-                    <Upload size={14} aria-hidden="true" /> Choose CSV
-                  </SabFileToFileButton>
+              {/* ---- Step 1 — object confirmed + file pick ---- */}
+              {step === 1 && (
+                <div className="st-iw-body">
+                  <div>
+                    <h3 className="st-iw-step-title">Choose a CSV file</h3>
+                    <p className="st-iw-step-hint">
+                      Importing into{' '}
+                      <strong>{selectedObject.labelPlural}</strong>. Pick a CSV
+                      from your SabFiles library or upload a new one.
+                    </p>
+                  </div>
+
+                  {parsed ? (
+                    <div className="st-iw-file">
+                      <FileText size={18} aria-hidden="true" />
+                      <div className="st-iw-file__meta">
+                        <span className="st-iw-file__name">{parsed.name}</span>
+                        <span className="st-iw-file__sub">
+                          {parsed.rows.length} row(s) · {parsed.headers.length}{' '}
+                          column(s)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="st-btn st-btn--ghost st-iw-file__clear"
+                        onClick={clearFile}
+                        aria-label="Remove file"
+                      >
+                        <X size={14} aria-hidden="true" />
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="st-iox-drop">
+                      <Upload size={22} aria-hidden="true" />
+                      <p className="st-muted" style={{ margin: 0 }}>
+                        Pick a CSV file from your SabFiles library or upload a new
+                        one.
+                      </p>
+                      <SabFileToFileButton
+                        accept="all"
+                        onPickFile={(file) => handleFile(file)}
+                        onError={(e) => setStepError(e.message)}
+                      >
+                        <Upload size={14} aria-hidden="true" /> Choose CSV
+                      </SabFileToFileButton>
+                    </div>
+                  )}
+
+                  <div className="st-iw-nav">
+                    <span />
+                    <div className="st-iw-nav__right">
+                      <button
+                        type="button"
+                        className="st-btn st-btn--primary"
+                        onClick={() => void goToMapping()}
+                        disabled={!parsed || validating}
+                      >
+                        {validating ? (
+                          <span className="st-spinner" aria-hidden="true" />
+                        ) : null}
+                        Next: map columns
+                        <ChevronRight size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
-              {/* Step 2 — map columns */}
-              {stage === 'map' && parsed && (
-                <div className="st-stack">
+              {/* ---- Step 2 — map columns ---- */}
+              {step === 2 && parsed && (
+                <div className="st-iw-body">
+                  <div>
+                    <h3 className="st-iw-step-title">Map columns to fields</h3>
+                    <p className="st-iw-step-hint">
+                      We pre-filled likely matches. Map each{' '}
+                      {selectedObject.labelSingular.toLowerCase()} field to a CSV
+                      column, or leave it as <em>Skip</em>.
+                    </p>
+                  </div>
+
                   <div className="st-pill">
                     <CheckCircle2 size={14} aria-hidden="true" />
                     <span>
@@ -626,9 +819,70 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                     </table>
                   </div>
 
-                  {issues.length > 0 && (
-                    <div>
-                      {issues.map((iss, i) => (
+                  <div className="st-iw-nav">
+                    <button
+                      type="button"
+                      className="st-btn st-btn--ghost"
+                      onClick={() => {
+                        setStepError(null);
+                        setStep(1);
+                      }}
+                    >
+                      <ChevronLeft size={14} aria-hidden="true" />
+                      Back
+                    </button>
+                    <div className="st-iw-nav__right">
+                      <button
+                        type="button"
+                        className="st-btn st-btn--primary"
+                        onClick={() => void goToPreview()}
+                        disabled={mappedCount === 0 || validating}
+                      >
+                        {validating ? (
+                          <span className="st-spinner" aria-hidden="true" />
+                        ) : null}
+                        Next: preview
+                        <ChevronRight size={14} aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ---- Step 3 — preview + validate ---- */}
+              {step === 3 && parsed && (
+                <div className="st-iw-body">
+                  <div>
+                    <h3 className="st-iw-step-title">Preview &amp; validate</h3>
+                    <p className="st-iw-step-hint">
+                      Review what will be imported. Fix any blocking issues before
+                      continuing.
+                    </p>
+                  </div>
+
+                  <div className="st-iw-stats">
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{parsed.rows.length}</div>
+                      <div className="st-iw-stat__cap">Rows to import</div>
+                    </div>
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{mappedCount}</div>
+                      <div className="st-iw-stat__cap">Mapped columns</div>
+                    </div>
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{blockingIssues.length}</div>
+                      <div className="st-iw-stat__cap">Blocking issues</div>
+                    </div>
+                  </div>
+
+                  {/* Blocking issues */}
+                  {blockingIssues.length > 0 && (
+                    <div className="st-iw-issues st-iw-issues--error">
+                      <div className="st-iw-issues__head">
+                        <AlertTriangle size={13} aria-hidden="true" />
+                        Blocking issues
+                      </div>
+                      {blockingIssues.map((iss, i) => (
                         <div className="st-iox-issue" key={i}>
                           <AlertTriangle size={14} aria-hidden="true" />
                           <span>{iss.message}</span>
@@ -637,84 +891,200 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                     </div>
                   )}
 
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'flex-end',
-                      gap: 'var(--st-space-2)',
-                    }}
-                  >
+                  {/* Soft warnings */}
+                  {warnings.length > 0 && (
+                    <div className="st-iw-issues st-iw-issues--warn">
+                      <div className="st-iw-issues__head">
+                        <AlertTriangle size={13} aria-hidden="true" />
+                        Warnings
+                      </div>
+                      {warnings.map((w, i) => (
+                        <div className="st-iw-warn-row" key={i}>
+                          <AlertTriangle size={14} aria-hidden="true" />
+                          <span>{w}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {blockingIssues.length === 0 && (
+                    <div className="st-iw-ok">
+                      <CheckCircle2 size={15} aria-hidden="true" />
+                      <span>
+                        No blocking issues — ready to import {parsed.rows.length}{' '}
+                        row(s).
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Sample rows */}
+                  <div>
+                    <p className="st-iw-step-hint" style={{ marginBottom: 6 }}>
+                      Sample of the first {sampleRows.length} mapped row(s):
+                    </p>
+                    {mappedPairs.length === 0 ? (
+                      <p className="st-muted" style={{ margin: 0 }}>
+                        No columns are mapped yet — go back and map at least one
+                        field.
+                      </p>
+                    ) : (
+                      <div className="st-iw-preview">
+                        <table>
+                          <thead>
+                            <tr>
+                              {mappedPairs.map(({ field, header }) => (
+                                <th key={field.key}>
+                                  {field.label}
+                                  <span className="st-iw-preview__src">
+                                    ← {header}
+                                  </span>
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {sampleRows.map((row, ri) => (
+                              <tr key={ri}>
+                                {mappedPairs.map(({ field, header }) => {
+                                  const v = row[header] ?? '';
+                                  return (
+                                    <td
+                                      key={field.key}
+                                      className={v ? undefined : 'is-empty'}
+                                      title={v || undefined}
+                                    >
+                                      {v || '—'}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="st-iw-nav">
                     <button
                       type="button"
-                      className="st-btn st-btn--primary"
-                      onClick={() => void handleImport()}
-                      disabled={importing || mappedCount === 0 || blockingIssues}
+                      className="st-btn st-btn--ghost"
+                      onClick={() => {
+                        setStepError(null);
+                        setStep(2);
+                      }}
                     >
-                      {importing ? (
-                        <span className="st-spinner" aria-hidden="true" />
-                      ) : (
-                        <Upload size={14} aria-hidden="true" />
-                      )}
-                      {importing
-                        ? 'Importing…'
-                        : `Import ${parsed.rows.length} row(s)`}
+                      <ChevronLeft size={14} aria-hidden="true" />
+                      Back
                     </button>
+                    <div className="st-iw-nav__right">
+                      <button
+                        type="button"
+                        className="st-btn st-btn--primary"
+                        onClick={() => void handleImport()}
+                        disabled={
+                          importing ||
+                          mappedCount === 0 ||
+                          blockingIssues.length > 0
+                        }
+                      >
+                        {importing ? (
+                          <span className="st-spinner" aria-hidden="true" />
+                        ) : (
+                          <Upload size={14} aria-hidden="true" />
+                        )}
+                        {importing
+                          ? 'Importing…'
+                          : `Import ${parsed.rows.length} row(s)`}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {/* Step 3 — summary */}
-              {stage === 'done' && result && (
-                <div className="st-stack">
-                  <div className="st-iox-summary">
-                    <div className="st-iox-summary__tile">
-                      <div className="st-iox-summary__num">{result.total}</div>
-                      <div className="st-iox-summary__cap">Processed</div>
+              {/* ---- Step 4 — import summary ---- */}
+              {step === 4 && result && (
+                <div className="st-iw-body">
+                  {(() => {
+                    const allOk = result.failed === 0 && result.succeeded > 0;
+                    const allFail =
+                      result.succeeded === 0 && result.failed > 0;
+                    const cls = allOk
+                      ? 'st-iw-result-banner--ok'
+                      : allFail
+                        ? 'st-iw-result-banner--fail'
+                        : 'st-iw-result-banner--partial';
+                    const Icon = allOk ? CheckCircle2 : AlertTriangle;
+                    const text = allOk
+                      ? `Imported all ${result.succeeded} record(s) successfully.`
+                      : allFail
+                        ? `Import failed — none of the ${result.total} row(s) were imported.`
+                        : `Imported ${result.succeeded} of ${result.total} row(s); ${result.failed} failed.`;
+                    return (
+                      <div className={`st-iw-result-banner ${cls}`} role="status">
+                        <Icon size={16} aria-hidden="true" />
+                        <span>{text}</span>
+                      </div>
+                    );
+                  })()}
+
+                  <div className="st-iw-stats">
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{result.total}</div>
+                      <div className="st-iw-stat__cap">Processed</div>
                     </div>
-                    <div className="st-iox-summary__tile">
-                      <div className="st-iox-summary__num">{result.succeeded}</div>
-                      <div className="st-iox-summary__cap">Imported</div>
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{result.succeeded}</div>
+                      <div className="st-iw-stat__cap">Imported</div>
                     </div>
-                    <div className="st-iox-summary__tile">
-                      <div className="st-iox-summary__num">{result.failed}</div>
-                      <div className="st-iox-summary__cap">Failed</div>
+                    <div className="st-iw-stat">
+                      <div className="st-iw-stat__num">{result.failed}</div>
+                      <div className="st-iw-stat__cap">Failed</div>
                     </div>
                   </div>
 
                   {result.failed > 0 && (
                     <div>
-                      <p className="st-muted">First failures:</p>
-                      {result.rows
-                        .map((r, idx) => ({ r, idx }))
-                        .filter((x) => !x.r.ok)
-                        .slice(0, 10)
-                        .map(({ r, idx }) =>
-                          !r.ok ? (
-                            <div className="st-iox-issue" key={idx}>
-                              <AlertTriangle size={14} aria-hidden="true" />
-                              <span>
-                                Row {idx + 1}: {r.errors.join('; ')}
-                              </span>
-                            </div>
-                          ) : null,
-                        )}
+                      <p className="st-iw-step-hint" style={{ marginBottom: 6 }}>
+                        Per-row failures (first 50):
+                      </p>
+                      <div className="st-iw-failures">
+                        {result.rows
+                          .map((r, idx) => ({ r, idx }))
+                          .filter((x) => !x.r.ok)
+                          .slice(0, 50)
+                          .map(({ r, idx }) =>
+                            !r.ok ? (
+                              <div className="st-iox-issue" key={idx}>
+                                <AlertTriangle size={14} aria-hidden="true" />
+                                <span>
+                                  Row {idx + 1}: {r.errors.join('; ')}
+                                </span>
+                              </div>
+                            ) : null,
+                          )}
+                      </div>
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', gap: 'var(--st-space-2)' }}>
+                  <div className="st-iw-nav">
                     <button
                       type="button"
                       className="st-btn st-btn--secondary"
-                      onClick={resetImport}
+                      onClick={resetWizard}
                     >
+                      <RotateCcw size={14} aria-hidden="true" />
                       Import another file
                     </button>
-                    <Link
-                      href={`/sabcrm/${selectedObject.slug}`}
-                      className="st-btn st-btn--ghost"
-                    >
-                      View {selectedObject.labelPlural.toLowerCase()}
-                    </Link>
+                    <div className="st-iw-nav__right">
+                      <Link
+                        href={`/sabcrm/${selectedObject.slug}`}
+                        className="st-btn st-btn--ghost"
+                      >
+                        View {selectedObject.labelPlural.toLowerCase()}
+                        <ChevronRight size={14} aria-hidden="true" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )}

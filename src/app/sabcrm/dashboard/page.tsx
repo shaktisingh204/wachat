@@ -1,21 +1,27 @@
 'use client';
 
 /**
- * SabCRM — Dashboard (Twenty-faithful).
+ * SabCRM — Dashboard (Twenty-faithful), now with SAVED dashboards.
  *
- * A live snapshot of pipeline, tasks, and record activity rendered entirely in
- * Twenty's visual language (`.st-*` classes + the colocated `dashboard.css`).
- * No ZoruUI, Tailwind, or clay — pure Twenty kit.
+ * Two layers share this page:
  *
- * Data comes from server actions, all gated behind `sabcrm:view`:
- *   - `getKpisAction`      → the KPI card row
- *   - `runAnalyticsAction` → stage / pipeline / month bar-list breakdowns
- *   - `listRecordsAction`  → the "Recent opportunities" widget
+ *  1. "Overview" — a built-in, non-deletable analytics view (the original fixed
+ *     KPI + breakdown dashboard). It always exists, even with zero saved
+ *     dashboards, so the page is never empty.
  *
- * The engine may be down, the user may lack a project, or RBAC may deny access.
- * KPIs are the spine: if they fail the whole page shows an error. Every other
- * widget degrades independently to a calm empty panel — one failing fetch never
- * takes down its neighbours, and the page never throws.
+ *  2. Saved dashboards — user-defined `{ id, name, widgets:[{id,type,title,config}] }`
+ *     documents loaded from `@/app/actions/sabcrm-dashboards.actions`. Each is a
+ *     grid of editable widgets (`kpi`, `bar`, `recent`, `pipeline`) that each
+ *     fetch + render in isolation via `WidgetTile`.
+ *
+ * A selector (tabs + a "+" new-dashboard control) switches between them. For a
+ * saved dashboard the user can rename, delete, toggle edit mode, add widgets
+ * (object/field/metric picker) and remove widgets — all persisted through
+ * `createDashboardTw` / `updateDashboardTw` / `deleteDashboardTw`.
+ *
+ * Everything degrades gracefully: the dashboard list failing falls back to just
+ * Overview; one widget failing never breaks its neighbours; the page never
+ * throws. Twenty visual language only (`.st-*` + dashboard.css).
  */
 
 import * as React from 'react';
@@ -30,14 +36,21 @@ import {
   AlertTriangle,
   Clock,
   ArrowUpRight,
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  LayoutGrid,
+  RefreshCw,
 } from 'lucide-react';
 
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
   getKpisAction,
   runAnalyticsAction,
   listRecordsAction,
+  listObjectsAction,
 } from '@/app/actions/sabcrm.actions';
 import type {
   CrmDashboardKpis,
@@ -47,7 +60,22 @@ import type {
   TimeSeriesResult,
   SabcrmRecordPage,
 } from '@/app/actions/sabcrm.actions.types';
-import type { CrmRecordWithLabel } from '@/lib/sabcrm/types';
+import type { CrmRecordWithLabel, ObjectMetadata } from '@/lib/sabcrm/types';
+import {
+  listDashboardsTw,
+  getDashboardTw,
+  createDashboardTw,
+  updateDashboardTw,
+  deleteDashboardTw,
+} from '@/app/actions/sabcrm-dashboards.actions';
+
+import { WidgetTile } from './dashboard-widgets';
+import { AddWidgetDialog } from './dashboard-add-widget';
+import {
+  normalizeDashboard,
+  type DashboardTw,
+  type DashboardWidgetTw,
+} from './dashboard-types';
 
 import './dashboard.css';
 
@@ -65,7 +93,6 @@ function formatCurrency(n: number): string {
   return `$${formatNumber(n)}`;
 }
 
-/** Render an ISO `YYYY-MM-DD` bucket start as e.g. "Jan 2026". */
 function formatMonth(iso: string): string {
   const d = new Date(`${iso}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return iso;
@@ -76,7 +103,6 @@ function formatMonth(iso: string): string {
   }).format(d);
 }
 
-/** Compact relative time ("3d", "5h", "just now") for a record timestamp. */
 function formatRelative(iso: string): string {
   const then = new Date(iso).getTime();
   if (Number.isNaN(then)) return '';
@@ -93,7 +119,6 @@ function formatRelative(iso: string): string {
   return `${Math.floor(months / 12)}y`;
 }
 
-/** Up-to-two-letter initials for a record's avatar. */
 function initials(label: string): string {
   const parts = label.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
@@ -102,25 +127,21 @@ function initials(label: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Data shape                                                                  */
+/* Overview (built-in) data shape                                              */
 /* -------------------------------------------------------------------------- */
 
-interface DashboardData {
+interface OverviewData {
   kpis: CrmDashboardKpis;
-  /** Opportunities grouped by stage (count). Null when the query failed. */
   stageCount: CountByFieldResult | null;
-  /** Pipeline value (sum of amount) grouped by stage. Null when it failed. */
   pipelineByStage: SumByFieldResult | null;
-  /** Latest opportunities for the activity widget. Null when it failed. */
   recentOpportunities: CrmRecordWithLabel[] | null;
-  /** New opportunities bucketed by month. Null when it failed. */
   oppsByMonth: TimeSeriesResult | null;
 }
 
-type LoadState =
+type OverviewState =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; data: DashboardData };
+  | { status: 'ready'; data: OverviewData };
 
 /* -------------------------------------------------------------------------- */
 /* KPI card                                                                    */
@@ -168,23 +189,19 @@ function KpiCard({
 interface BarRow {
   key: string;
   label: string;
-  /** Numeric magnitude used to size the bar. */
   weight: number;
-  /** Pre-formatted display string shown on the right. */
   display: string;
-}
-
-interface BarListPanelProps {
-  title: string;
-  rows: BarRow[];
-  emptyLabel: string;
 }
 
 function BarListPanel({
   title,
   rows,
   emptyLabel,
-}: BarListPanelProps): React.JSX.Element {
+}: {
+  title: string;
+  rows: BarRow[];
+  emptyLabel: string;
+}): React.JSX.Element {
   const max = rows.reduce((m, r) => Math.max(m, r.weight), 0);
   return (
     <div className="st-panel">
@@ -227,25 +244,20 @@ function BarListPanel({
 /* Recent records widget                                                       */
 /* -------------------------------------------------------------------------- */
 
-interface RecentRecordsPanelProps {
-  title: string;
-  /** Null signals the query failed (vs. an empty array = no records). */
-  records: CrmRecordWithLabel[] | null;
-  emptyLabel: string;
-}
-
 function RecentRecordsPanel({
   title,
   records,
   emptyLabel,
-}: RecentRecordsPanelProps): React.JSX.Element {
+}: {
+  title: string;
+  records: CrmRecordWithLabel[] | null;
+  emptyLabel: string;
+}): React.JSX.Element {
   return (
     <div className="st-panel">
       <div className="st-panel__head">{title}</div>
       {records === null ? (
-        <div className="st-timeline-empty">
-          This widget could not be loaded.
-        </div>
+        <div className="st-timeline-empty">This widget could not be loaded.</div>
       ) : records.length === 0 ? (
         <div className="st-timeline-empty">{emptyLabel}</div>
       ) : (
@@ -285,22 +297,18 @@ function RecentRecordsPanel({
 /* Pipeline summary widget                                                     */
 /* -------------------------------------------------------------------------- */
 
-interface PipelineSummaryPanelProps {
-  pipeline: SumByFieldResult | null;
-}
-
 function PipelineSummaryPanel({
   pipeline,
-}: PipelineSummaryPanelProps): React.JSX.Element {
+}: {
+  pipeline: SumByFieldResult | null;
+}): React.JSX.Element {
   const buckets = (pipeline?.buckets ?? []).filter((b) => b.sum > 0);
   const total = pipeline?.total ?? 0;
   return (
     <div className="st-panel">
       <div className="st-panel__head">Pipeline summary</div>
       {pipeline === null ? (
-        <div className="st-timeline-empty">
-          This widget could not be loaded.
-        </div>
+        <div className="st-timeline-empty">This widget could not be loaded.</div>
       ) : buckets.length === 0 ? (
         <div className="st-timeline-empty">No pipeline value recorded yet.</div>
       ) : (
@@ -364,143 +372,19 @@ function DashboardError({ message }: { message: string }): React.JSX.Element {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Page                                                                        */
+/* Overview view (built-in analytics dashboard)                                */
 /* -------------------------------------------------------------------------- */
 
-export default function SabcrmDashboardPage(): React.JSX.Element {
-  const { activeProjectId, isLoadingProject } = useProject();
-  const [state, setState] = React.useState<LoadState>({ status: 'loading' });
-
-  const load = React.useCallback(async (projectId: string) => {
-    setState({ status: 'loading' });
-    try {
-      const [kpisRes, stageCountRes, pipelineRes, recentRes, byMonthRes] =
-        await Promise.all([
-          getKpisAction(projectId),
-          runAnalyticsAction(
-            {
-              kind: 'countByField',
-              object: 'opportunities',
-              fieldKey: 'stage',
-            },
-            projectId,
-          ),
-          runAnalyticsAction(
-            {
-              kind: 'sumByField',
-              object: 'opportunities',
-              groupFieldKey: 'stage',
-              sumFieldKey: 'amount',
-            },
-            projectId,
-          ),
-          listRecordsAction(
-            {
-              object: 'opportunities',
-              page: 1,
-              pageSize: 5,
-              sortBy: 'createdAt',
-              sortDir: 'desc',
-            },
-            projectId,
-          ),
-          runAnalyticsAction(
-            {
-              kind: 'timeSeries',
-              object: 'opportunities',
-              dateField: 'createdAt',
-              interval: 'month',
-            },
-            projectId,
-          ),
-        ]);
-
-      // KPIs are the spine of the page — if they fail, the page is unusable.
-      if (!kpisRes.ok) {
-        setState({ status: 'error', message: kpisRes.error });
-        return;
-      }
-
-      // Everything else is supplementary: a failure degrades that widget to an
-      // empty panel rather than taking down the whole dashboard.
-      const stageCount = stageCountRes.ok
-        ? (stageCountRes.data as CountByFieldResult)
-        : null;
-      const pipelineByStage = pipelineRes.ok
-        ? (pipelineRes.data as SumByFieldResult)
-        : null;
-      const recentOpportunities = recentRes.ok
-        ? (recentRes.data as SabcrmRecordPage).records
-        : null;
-      const oppsByMonth = byMonthRes.ok
-        ? (byMonthRes.data as TimeSeriesResult)
-        : null;
-
-      setState({
-        status: 'ready',
-        data: {
-          kpis: kpisRes.data,
-          stageCount,
-          pipelineByStage,
-          recentOpportunities,
-          oppsByMonth,
-        },
-      });
-    } catch {
-      setState({
-        status: 'error',
-        message:
-          'The CRM service did not respond. Check your connection and try again.',
-      });
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (isLoadingProject) return;
-    if (!activeProjectId) {
-      setState({
-        status: 'error',
-        message: 'Select a project to view its CRM dashboard.',
-      });
-      return;
-    }
-    void load(activeProjectId);
-  }, [activeProjectId, isLoadingProject, load]);
-
-  /* ----- Render ----- */
-
-  const header = (
-    <TwentyPageHeader title="Dashboard" icon={LayoutDashboard} />
-  );
-
-  if (isLoadingProject || state.status === 'loading') {
-    return (
-      <div className="st-page">
-        {header}
-        <DashboardSkeleton />
-      </div>
-    );
-  }
-
-  if (state.status === 'error') {
-    return (
-      <div className="st-page">
-        {header}
-        <DashboardError message={state.message} />
-      </div>
-    );
-  }
-
+function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
   const {
     kpis,
     stageCount,
     pipelineByStage,
     recentOpportunities,
     oppsByMonth,
-  } = state.data;
+  } = data;
   const { opportunities, tasks, newThisWeek, recordCounts } = kpis;
 
-  // Largest object by record count, for a representative KPI card.
   const topObject: ObjectRecordCount | undefined = recordCounts
     .slice()
     .sort((a, b) => b.count - a.count)[0];
@@ -521,7 +405,6 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
       display: formatCurrency(b.sum),
     }));
 
-  // Show the most recent 6 months of opportunity creation, oldest → newest.
   const monthRows: BarRow[] = (oppsByMonth?.points ?? [])
     .slice(-6)
     .map((p) => ({
@@ -532,10 +415,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
     }));
 
   return (
-    <div className="st-page">
-      {header}
-
-      {/* KPI row */}
+    <>
       <section className="st-dash-kpis" aria-label="Key performance indicators">
         <KpiCard
           label="Open pipeline"
@@ -577,7 +457,6 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
         />
       </section>
 
-      {/* Widget grid — each widget loads/empties/fails independently. */}
       <section className="st-dash-grid" aria-label="Breakdowns">
         <RecentRecordsPanel
           title="Recent opportunities"
@@ -601,6 +480,561 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
           emptyLabel="No opportunity history yet."
         />
       </section>
+    </>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Saved-dashboard view                                                        */
+/* -------------------------------------------------------------------------- */
+
+interface SavedDashboardViewProps {
+  dashboard: DashboardTw;
+  objects: ObjectMetadata[];
+  projectId: string;
+  busy: boolean;
+  onChange: (next: DashboardTw) => void;
+}
+
+function SavedDashboardView({
+  dashboard,
+  objects,
+  projectId,
+  busy,
+  onChange,
+}: SavedDashboardViewProps): React.JSX.Element {
+  const [editing, setEditing] = React.useState(false);
+  const [adding, setAdding] = React.useState(false);
+  const [reloadToken, setReloadToken] = React.useState(0);
+
+  const addWidget = React.useCallback(
+    (widget: DashboardWidgetTw) => {
+      setAdding(false);
+      onChange({ ...dashboard, widgets: [...dashboard.widgets, widget] });
+    },
+    [dashboard, onChange],
+  );
+
+  const removeWidget = React.useCallback(
+    (widgetId: string) => {
+      onChange({
+        ...dashboard,
+        widgets: dashboard.widgets.filter((w) => w.id !== widgetId),
+      });
+    },
+    [dashboard, onChange],
+  );
+
+  return (
+    <>
+      <div className="st-dash-toolbar">
+        <span className="st-dash-toolbar__count">
+          {dashboard.widgets.length}{' '}
+          {dashboard.widgets.length === 1 ? 'widget' : 'widgets'}
+        </span>
+        <span className="st-dash-toolbar__spacer" />
+        {busy ? <span className="st-dash-toolbar__saving">Saving…</span> : null}
+        <TwentyButton
+          variant="ghost"
+          icon={RefreshCw}
+          onClick={() => setReloadToken((t) => t + 1)}
+          aria-label="Refresh widgets"
+        >
+          Refresh
+        </TwentyButton>
+        <TwentyButton
+          variant={editing ? 'primary' : 'secondary'}
+          icon={editing ? Check : Pencil}
+          onClick={() => setEditing((v) => !v)}
+        >
+          {editing ? 'Done' : 'Edit'}
+        </TwentyButton>
+        <TwentyButton variant="secondary" icon={Plus} onClick={() => setAdding(true)}>
+          Add widget
+        </TwentyButton>
+      </div>
+
+      {dashboard.widgets.length === 0 ? (
+        <div className="st-empty">
+          <span className="st-empty__icon" aria-hidden="true">
+            <LayoutGrid size={20} />
+          </span>
+          <h2 className="st-empty__title">No widgets yet</h2>
+          <p className="st-empty__desc">
+            Add a KPI, breakdown, recent-records, or pipeline widget to build out
+            this dashboard.
+          </p>
+          <div style={{ marginTop: 'var(--st-space-3)' }}>
+            <TwentyButton
+              variant="primary"
+              icon={Plus}
+              onClick={() => setAdding(true)}
+            >
+              Add your first widget
+            </TwentyButton>
+          </div>
+        </div>
+      ) : (
+        <section
+          className={`st-widget-grid${editing ? ' st-widget-grid--editing' : ''}`}
+          aria-label={`${dashboard.name} widgets`}
+        >
+          {dashboard.widgets.map((widget) => (
+            <WidgetTile
+              key={widget.id}
+              widget={widget}
+              projectId={projectId}
+              editing={editing}
+              onRemove={removeWidget}
+              reloadToken={reloadToken}
+            />
+          ))}
+        </section>
+      )}
+
+      {adding ? (
+        <AddWidgetDialog
+          objects={objects}
+          onClose={() => setAdding(false)}
+          onAdd={addWidget}
+        />
+      ) : null}
+    </>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Rename dialog                                                               */
+/* -------------------------------------------------------------------------- */
+
+function RenameDialog({
+  initial,
+  title,
+  confirmLabel,
+  onCancel,
+  onConfirm,
+}: {
+  initial: string;
+  title: string;
+  confirmLabel: string;
+  onCancel: () => void;
+  onConfirm: (name: string) => void;
+}): React.JSX.Element {
+  const [name, setName] = React.useState(initial);
+  return (
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      onClick={onCancel}
+    >
+      <form
+        className="st-dialog"
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (name.trim()) onConfirm(name.trim());
+        }}
+      >
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">{title}</h2>
+        </div>
+        <div className="st-dialog__body">
+          <div className="st-field">
+            <label className="st-field__label" htmlFor="dash-name">
+              Dashboard name
+            </label>
+            <input
+              id="dash-name"
+              className="st-input"
+              type="text"
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Sales pipeline"
+            />
+          </div>
+        </div>
+        <div className="st-dialog__footer">
+          <TwentyButton variant="ghost" onClick={onCancel}>
+            Cancel
+          </TwentyButton>
+          <TwentyButton variant="primary" type="submit" disabled={!name.trim()}>
+            {confirmLabel}
+          </TwentyButton>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Page                                                                        */
+/* -------------------------------------------------------------------------- */
+
+const OVERVIEW_ID = '__overview__';
+
+export default function SabcrmDashboardPage(): React.JSX.Element {
+  const { activeProjectId, isLoadingProject } = useProject();
+
+  // Overview (built-in) analytics state.
+  const [overview, setOverview] = React.useState<OverviewState>({
+    status: 'loading',
+  });
+  // Object metadata for the widget picker.
+  const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
+  // Saved-dashboard list (id + name + widgets, loaded lazily/fully).
+  const [dashboards, setDashboards] = React.useState<DashboardTw[]>([]);
+  const [selectedId, setSelectedId] = React.useState<string>(OVERVIEW_ID);
+  const [saving, setSaving] = React.useState(false);
+  const [dialog, setDialog] = React.useState<'new' | 'rename' | null>(null);
+  const [notice, setNotice] = React.useState<string | null>(null);
+
+  /* ----- Load Overview analytics ----- */
+  const loadOverview = React.useCallback(async (projectId: string) => {
+    setOverview({ status: 'loading' });
+    try {
+      const [kpisRes, stageCountRes, pipelineRes, recentRes, byMonthRes] =
+        await Promise.all([
+          getKpisAction(projectId),
+          runAnalyticsAction(
+            { kind: 'countByField', object: 'opportunities', fieldKey: 'stage' },
+            projectId,
+          ),
+          runAnalyticsAction(
+            {
+              kind: 'sumByField',
+              object: 'opportunities',
+              groupFieldKey: 'stage',
+              sumFieldKey: 'amount',
+            },
+            projectId,
+          ),
+          listRecordsAction(
+            {
+              object: 'opportunities',
+              page: 1,
+              pageSize: 5,
+              sortBy: 'createdAt',
+              sortDir: 'desc',
+            },
+            projectId,
+          ),
+          runAnalyticsAction(
+            {
+              kind: 'timeSeries',
+              object: 'opportunities',
+              dateField: 'createdAt',
+              interval: 'month',
+            },
+            projectId,
+          ),
+        ]);
+
+      if (!kpisRes.ok) {
+        setOverview({ status: 'error', message: kpisRes.error });
+        return;
+      }
+
+      setOverview({
+        status: 'ready',
+        data: {
+          kpis: kpisRes.data,
+          stageCount: stageCountRes.ok
+            ? (stageCountRes.data as CountByFieldResult)
+            : null,
+          pipelineByStage: pipelineRes.ok
+            ? (pipelineRes.data as SumByFieldResult)
+            : null,
+          recentOpportunities: recentRes.ok
+            ? (recentRes.data as SabcrmRecordPage).records
+            : null,
+          oppsByMonth: byMonthRes.ok
+            ? (byMonthRes.data as TimeSeriesResult)
+            : null,
+        },
+      });
+    } catch {
+      setOverview({
+        status: 'error',
+        message:
+          'The CRM service did not respond. Check your connection and try again.',
+      });
+    }
+  }, []);
+
+  /* ----- Load saved dashboards + object metadata (best-effort) ----- */
+  const loadShell = React.useCallback(async (projectId: string) => {
+    const [objRes, listRes] = await Promise.all([
+      listObjectsAction(projectId),
+      listDashboardsTw(projectId),
+    ]);
+    if (objRes.ok) setObjects(objRes.data);
+
+    if (!listRes.ok) {
+      // Dashboard list unavailable — Overview still works; surface a calm note.
+      setDashboards([]);
+      return;
+    }
+
+    // The list action returns full dashboards from the engine; normalise each
+    // wire shape (wide `type: string` / `config: unknown`) into the renderable
+    // client shape. If a row somehow lacks widgets, hydrate it individually.
+    const full = await Promise.all(
+      listRes.data.map(async (d) => {
+        if (Array.isArray(d.widgets)) return normalizeDashboard(d);
+        const one = await getDashboardTw(d.id, projectId);
+        return one.ok
+          ? normalizeDashboard(one.data)
+          : normalizeDashboard({ id: d.id, name: d.name, widgets: [] });
+      }),
+    );
+    setDashboards(full);
+  }, []);
+
+  React.useEffect(() => {
+    if (isLoadingProject) return;
+    if (!activeProjectId) {
+      setOverview({
+        status: 'error',
+        message: 'Select a project to view its CRM dashboard.',
+      });
+      setDashboards([]);
+      return;
+    }
+    void loadOverview(activeProjectId);
+    void loadShell(activeProjectId);
+  }, [activeProjectId, isLoadingProject, loadOverview, loadShell]);
+
+  /* ----- Mutations ----- */
+
+  const selected = React.useMemo(
+    () =>
+      selectedId === OVERVIEW_ID
+        ? null
+        : dashboards.find((d) => d.id === selectedId) ?? null,
+    [selectedId, dashboards],
+  );
+
+  const persist = React.useCallback(
+    async (next: DashboardTw) => {
+      if (!activeProjectId) return;
+      // Optimistic update first.
+      setDashboards((prev) => prev.map((d) => (d.id === next.id ? next : d)));
+      setSaving(true);
+      try {
+        const res = await updateDashboardTw(
+          next.id,
+          { name: next.name, widgets: next.widgets },
+          activeProjectId,
+        );
+        if (!res.ok) {
+          setNotice(res.error || 'Could not save dashboard changes.');
+        } else if (res.data) {
+          // Reconcile with the server's canonical (normalised) copy.
+          const saved = normalizeDashboard(res.data);
+          setDashboards((prev) =>
+            prev.map((d) => (d.id === saved.id ? saved : d)),
+          );
+        }
+      } catch {
+        setNotice('Could not save dashboard changes.');
+      } finally {
+        setSaving(false);
+      }
+    },
+    [activeProjectId],
+  );
+
+  const handleCreate = React.useCallback(
+    async (name: string) => {
+      setDialog(null);
+      if (!activeProjectId) return;
+      setSaving(true);
+      try {
+        const res = await createDashboardTw({ name, widgets: [] }, activeProjectId);
+        if (!res.ok) {
+          setNotice(res.error || 'Could not create dashboard.');
+          return;
+        }
+        const created = normalizeDashboard(res.data);
+        setDashboards((prev) => [...prev, created]);
+        setSelectedId(created.id);
+      } catch {
+        setNotice('Could not create dashboard.');
+      } finally {
+        setSaving(false);
+      }
+    },
+    [activeProjectId],
+  );
+
+  const handleRename = React.useCallback(
+    async (name: string) => {
+      setDialog(null);
+      if (!selected || !activeProjectId) return;
+      await persist({ ...selected, name });
+    },
+    [selected, activeProjectId, persist],
+  );
+
+  const handleDelete = React.useCallback(async () => {
+    if (!selected || !activeProjectId) return;
+    if (
+      typeof window !== 'undefined' &&
+      !window.confirm(`Delete dashboard "${selected.name}"? This cannot be undone.`)
+    ) {
+      return;
+    }
+    const id = selected.id;
+    setSaving(true);
+    setSelectedId(OVERVIEW_ID);
+    setDashboards((prev) => prev.filter((d) => d.id !== id));
+    try {
+      const res = await deleteDashboardTw(id, activeProjectId);
+      if (!res.ok) setNotice(res.error || 'Could not delete dashboard.');
+    } catch {
+      setNotice('Could not delete dashboard.');
+    } finally {
+      setSaving(false);
+    }
+  }, [selected, activeProjectId]);
+
+  /* ----- Render ----- */
+
+  const selectorActions = (
+    <div className="st-dash-actions">
+      {selected ? (
+        <>
+          <TwentyButton
+            variant="ghost"
+            icon={Pencil}
+            onClick={() => setDialog('rename')}
+            aria-label="Rename dashboard"
+          >
+            Rename
+          </TwentyButton>
+          <TwentyButton
+            variant="ghost"
+            icon={Trash2}
+            onClick={handleDelete}
+            aria-label="Delete dashboard"
+          >
+            Delete
+          </TwentyButton>
+        </>
+      ) : null}
+    </div>
+  );
+
+  const header = (
+    <TwentyPageHeader
+      title="Dashboard"
+      icon={LayoutDashboard}
+      actions={selectorActions}
+    />
+  );
+
+  const selector = (
+    <div className="st-dash-tabs" role="tablist" aria-label="Dashboards">
+      <button
+        type="button"
+        role="tab"
+        aria-selected={selectedId === OVERVIEW_ID}
+        className={`st-dash-tab${selectedId === OVERVIEW_ID ? ' active' : ''}`}
+        onClick={() => setSelectedId(OVERVIEW_ID)}
+      >
+        Overview
+      </button>
+      {dashboards.map((d) => (
+        <button
+          type="button"
+          key={d.id}
+          role="tab"
+          aria-selected={selectedId === d.id}
+          className={`st-dash-tab${selectedId === d.id ? ' active' : ''}`}
+          onClick={() => setSelectedId(d.id)}
+        >
+          {d.name}
+        </button>
+      ))}
+      <button
+        type="button"
+        className="st-dash-tab st-dash-tab--add"
+        onClick={() => setDialog('new')}
+        aria-label="New dashboard"
+        title="New dashboard"
+      >
+        <Plus size={14} aria-hidden="true" />
+        New
+      </button>
+    </div>
+  );
+
+  // Loading the project / overview spine.
+  if (isLoadingProject || overview.status === 'loading') {
+    return (
+      <div className="st-page">
+        {header}
+        {selector}
+        <DashboardSkeleton />
+      </div>
+    );
+  }
+
+  return (
+    <div className="st-page">
+      {header}
+      {selector}
+
+      {notice ? (
+        <div className="st-dash-notice" role="status">
+          <AlertTriangle size={14} aria-hidden="true" />
+          <span>{notice}</span>
+          <button
+            type="button"
+            className="st-dash-notice__close"
+            onClick={() => setNotice(null)}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+
+      {selected ? (
+        <SavedDashboardView
+          dashboard={selected}
+          objects={objects}
+          projectId={activeProjectId as string}
+          busy={saving}
+          onChange={(next) => void persist(next)}
+        />
+      ) : overview.status === 'error' ? (
+        <DashboardError message={overview.message} />
+      ) : (
+        <OverviewView data={overview.data} />
+      )}
+
+      {dialog === 'new' ? (
+        <RenameDialog
+          initial=""
+          title="New dashboard"
+          confirmLabel="Create"
+          onCancel={() => setDialog(null)}
+          onConfirm={handleCreate}
+        />
+      ) : null}
+      {dialog === 'rename' && selected ? (
+        <RenameDialog
+          initial={selected.name}
+          title="Rename dashboard"
+          confirmLabel="Save"
+          onCancel={() => setDialog(null)}
+          onConfirm={handleRename}
+        />
+      ) : null}
     </div>
   );
 }
