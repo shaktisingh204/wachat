@@ -6,21 +6,23 @@ import { usePathname } from 'next/navigation';
 import {
   Building2,
   Users,
-  Briefcase,
+  Target,
   StickyNote,
-  CheckCircle2,
+  CheckSquare,
+  Workflow,
+  LayoutDashboard,
   Search,
   Settings,
   Star,
   ChevronDown,
   UserCheck,
-  LayoutDashboard,
   Activity,
   Calendar,
   BarChart3,
   MapPin,
   Sparkles,
   Rocket,
+  HelpCircle,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -37,17 +39,42 @@ import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.typ
 import { useProject } from '@/context/project-context';
 
 type NavItem = {
+  /** Stable key + default route segment (`/sabcrm/<slug>`). */
   slug: string;
   label: string;
   icon: LucideIcon;
+  /** Explicit route override when the target isn't `/sabcrm/<slug>`. */
+  href?: string;
 };
 
+/** Resolve a nav item's destination, defaulting to the `/sabcrm/<slug>` pattern. */
+function navHref(item: NavItem): string {
+  return item.href ?? `/sabcrm/${item.slug}`;
+}
+
 /**
- * "Workspace" group — the cross-cutting CRM surfaces (not record objects).
- * Each entry maps to a real `/sabcrm/*` page.
+ * "Workspace" section — faithful to upstream Twenty's default navigation
+ * (twenty-server `standard-navigation-menu-item.constant.ts`): the same
+ * standard objects, in the same order, with lucide equivalents of Twenty's
+ * tabler icons — Companies, People, Opportunities, Tasks, Notes, Dashboards,
+ * Workflows. Dashboards/Workflows have no `/sabcrm/<slug>` record route yet,
+ * so they point at their nearest SabCRM surface.
  */
 const WORKSPACE_NAV: readonly NavItem[] = [
-  { slug: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { slug: 'companies', label: 'Companies', icon: Building2 },
+  { slug: 'people', label: 'People', icon: Users },
+  { slug: 'opportunities', label: 'Opportunities', icon: Target },
+  { slug: 'tasks', label: 'Tasks', icon: CheckSquare },
+  { slug: 'notes', label: 'Notes', icon: StickyNote },
+  { slug: 'dashboards', label: 'Dashboards', icon: LayoutDashboard, href: '/sabcrm/dashboard' },
+  { slug: 'workflows', label: 'Workflows', icon: Workflow, href: '/sabcrm/settings/automations' },
+] as const;
+
+/**
+ * "More" section — SabCRM surfaces that upstream Twenty doesn't ship as nav
+ * objects but that exist as real `/sabcrm/*` pages in this port.
+ */
+const MORE_NAV: readonly NavItem[] = [
   { slug: 'my-work', label: 'My Work', icon: UserCheck },
   { slug: 'activity', label: 'Activity', icon: Activity },
   { slug: 'calendar', label: 'Calendar', icon: Calendar },
@@ -57,21 +84,14 @@ const WORKSPACE_NAV: readonly NavItem[] = [
 ] as const;
 
 /**
- * "Records" group — the metadata-driven CRM objects. Also drives the
- * favorites label resolution below.
+ * "Other" section — pinned to the bottom. Mirrors Twenty's
+ * `NavigationDrawerOtherSection` (Settings + Documentation), plus SabCRM's
+ * own Getting Started entry point.
  */
-const OBJECT_NAV: readonly NavItem[] = [
-  { slug: 'companies', label: 'Companies', icon: Building2 },
-  { slug: 'people', label: 'People', icon: Users },
-  { slug: 'opportunities', label: 'Opportunities', icon: Briefcase },
-  { slug: 'notes', label: 'Notes', icon: StickyNote },
-  { slug: 'tasks', label: 'Tasks', icon: CheckCircle2 },
-] as const;
-
-/** Pinned-to-bottom entries below the scrolling nav. */
-const FOOTER_NAV: readonly NavItem[] = [
+const OTHER_NAV: readonly NavItem[] = [
   { slug: 'getting-started', label: 'Getting Started', icon: Rocket },
   { slug: 'settings', label: 'Settings', icon: Settings },
+  { slug: 'help', label: 'Documentation', icon: HelpCircle, href: '/sabcrm/settings/help' },
 ] as const;
 
 const WORKSPACE_NAME = 'SabCRM';
@@ -85,10 +105,33 @@ function isActivePath(pathname: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** Every static nav destination — used to resolve overlapping active states. */
+const ALL_NAV_HREFS: readonly string[] = [
+  ...WORKSPACE_NAV,
+  ...MORE_NAV,
+  ...OTHER_NAV,
+].map(navHref);
+
+/**
+ * Active-state for the static nav items, where the *most specific* match wins.
+ * `/sabcrm/settings` is a prefix of `/sabcrm/settings/automations`, so when a
+ * deeper nav target also matches the current path the shallower "Settings"
+ * entry yields to it instead of both lighting up.
+ */
+function isBestActive(pathname: string | null, href: string): boolean {
+  if (!isActivePath(pathname, href)) return false;
+  return !ALL_NAV_HREFS.some(
+    (other) =>
+      other !== href &&
+      other.startsWith(`${href}/`) &&
+      isActivePath(pathname, other),
+  );
+}
+
 /** A best-effort human label for a favorite that carries no record name. */
 function favoriteLabel(fav: SabcrmRustFavorite): string {
   const objLabel =
-    OBJECT_NAV.find((o) => o.slug === fav.object)?.label ?? fav.object;
+    WORKSPACE_NAV.find((o) => o.slug === fav.object)?.label ?? fav.object;
   return `${objLabel} · ${fav.recordId.slice(-6)}`;
 }
 
@@ -188,14 +231,15 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               <div className="st-fav-empty">No favorites</div>
             )}
 
-            {/* Workspace surfaces */}
+            {/* Workspace — faithful to Twenty's default object navigation */}
             <div className="st-section-title">
               <span>Workspace</span>
             </div>
             <nav aria-label="Workspace">
-              {WORKSPACE_NAV.map(({ slug, label, icon: Icon }) => {
-                const href = `/sabcrm/${slug}`;
-                const active = isActivePath(pathname, href);
+              {WORKSPACE_NAV.map((item) => {
+                const { slug, label, icon: Icon } = item;
+                const href = navHref(item);
+                const active = isBestActive(pathname, href);
                 return (
                   <Link
                     key={slug}
@@ -210,14 +254,15 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               })}
             </nav>
 
-            {/* Records */}
+            {/* More — SabCRM-specific surfaces beyond upstream Twenty */}
             <div className="st-section-title">
-              <span>Records</span>
+              <span>More</span>
             </div>
-            <nav aria-label="Records">
-              {OBJECT_NAV.map(({ slug, label, icon: Icon }) => {
-                const href = `/sabcrm/${slug}`;
-                const active = isActivePath(pathname, href);
+            <nav aria-label="More">
+              {MORE_NAV.map((item) => {
+                const { slug, label, icon: Icon } = item;
+                const href = navHref(item);
+                const active = isBestActive(pathname, href);
                 return (
                   <Link
                     key={slug}
@@ -233,12 +278,16 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
             </nav>
           </div>
 
-          {/* Getting Started + Settings pinned to bottom */}
+          {/* Other — mirrors Twenty's NavigationDrawerOtherSection, pinned bottom */}
           <div className="st-sidebar__footer">
-            <nav aria-label="Workspace settings">
-              {FOOTER_NAV.map(({ slug, label, icon: Icon }) => {
-                const href = `/sabcrm/${slug}`;
-                const active = isActivePath(pathname, href);
+            <div className="st-section-title">
+              <span>Other</span>
+            </div>
+            <nav aria-label="Other">
+              {OTHER_NAV.map((item) => {
+                const { slug, label, icon: Icon } = item;
+                const href = navHref(item);
+                const active = isBestActive(pathname, href);
                 return (
                   <Link
                     key={slug}
