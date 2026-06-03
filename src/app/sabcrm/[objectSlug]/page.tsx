@@ -232,7 +232,9 @@ const TAGS_KEY = '__tags';
 
 /** Read a record's applied tag ids (defensive against bad/legacy shapes). */
 function recordTagIds(record: SabcrmRustRecord): string[] {
-  const raw = record.data[TAGS_KEY];
+  // `record.data` can be undefined for legacy or freshly-created records —
+  // optional-chain so we never throw "reading '__tags' of undefined".
+  const raw = record.data?.[TAGS_KEY];
   if (!Array.isArray(raw)) return [];
   return raw.filter((v): v is string => typeof v === 'string');
 }

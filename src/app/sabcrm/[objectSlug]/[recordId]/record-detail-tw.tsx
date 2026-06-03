@@ -2573,7 +2573,9 @@ interface RecordTag {
 
 /** Read the applied-tag id list off a record's `data.__tags` (defensive). */
 function recordTagIds(record: SabcrmRustRecord): string[] {
-  const raw = (record.data as { __tags?: unknown }).__tags;
+  // `record.data` can be undefined for legacy or freshly-created records —
+  // optional-chain so we never throw "reading '__tags' of undefined".
+  const raw = (record.data as { __tags?: unknown } | undefined)?.__tags;
   return Array.isArray(raw) ? raw.filter((v): v is string => typeof v === 'string') : [];
 }
 
