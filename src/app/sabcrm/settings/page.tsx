@@ -13,6 +13,7 @@ import {
   Palette,
   SlidersHorizontal,
   ShieldCheck,
+  FlaskConical,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -110,6 +111,18 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Webhooks',
         description: 'Outbound event subscriptions',
         icon: Webhook,
+      },
+      {
+        slug: 'playground',
+        label: 'API Playground',
+        description: 'Test the REST record API live',
+        icon: FlaskConical,
+      },
+      {
+        slug: 'audit',
+        label: 'Audit Log',
+        description: 'Workspace change history',
+        icon: ShieldCheck,
       },
     ],
   },
