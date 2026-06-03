@@ -351,6 +351,7 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_templates = sabcrm_templates::router::<AppState>();
     let sabcrm_segments = sabcrm_segments::router::<AppState>();
     let sabcrm_targets = sabcrm_targets::router::<AppState>();
+    let sabcrm_page_layouts = sabcrm_page_layouts::router::<AppState>();
     let sabcrm_pipelines = sabcrm_pipelines::router::<AppState>();
     let sabcrm_favorites = sabcrm_favorites::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
@@ -621,6 +622,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcrm/templates", sabcrm_templates)
         .nest("/v1/sabcrm/segments", sabcrm_segments)
         .nest("/v1/sabcrm/targets", sabcrm_targets)
+        .nest("/v1/sabcrm/page-layouts", sabcrm_page_layouts)
         .nest("/v1/sabcrm/pipelines", sabcrm_pipelines)
         .nest("/v1/sabcrm/favorites", sabcrm_favorites)
         .nest("/v1/crm/quotations", crm_quotations)

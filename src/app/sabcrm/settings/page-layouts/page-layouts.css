@@ -1,0 +1,452 @@
+/* =========================================================================
+   SabCRM Settings — Record Layout editor (Twenty-style)
+   -------------------------------------------------------------------------
+   Companion sheet to `src/styles/sabcrm-twenty.css`. Provides the classes the
+   Record Layout page (`settings/page-layouts/page.tsx`) needs to render the
+   object selector + the tab/widget editor without touching the base `.st-*`
+   vocabulary or `sabcrm-twenty.css`.
+
+   All selectors are scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so they never leak into the rest of SabNode. New classes use
+   the `.stpl-*` (st page-layout) prefix to stay clear of existing `.st-*`.
+   ========================================================================= */
+
+/* Two-column shell: object selector rail + editor. */
+.sabcrm-twenty .stpl-shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  gap: var(--st-space-5);
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .sabcrm-twenty .stpl-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Object selector rail ---------------------------------------------- */
+
+.sabcrm-twenty .stpl-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  position: sticky;
+  top: var(--st-space-3);
+}
+
+.sabcrm-twenty .stpl-rail__label {
+  padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .stpl-obj {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2);
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.sabcrm-twenty .stpl-obj:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stpl-obj.is-active {
+  background: var(--st-active);
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .stpl-obj__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .stpl-obj.is-active .stpl-obj__icon {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stpl-obj__label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Editor column ----------------------------------------------------- */
+
+.sabcrm-twenty .stpl-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  min-width: 0;
+}
+
+.sabcrm-twenty .stpl-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+}
+
+.sabcrm-twenty .stpl-editor__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stpl-editor__sub {
+  margin: 2px 0 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stpl-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+/* "Unsaved changes" pill. */
+.sabcrm-twenty .stpl-dirty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .stpl-dirty__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---- Tab card ---------------------------------------------------------- */
+
+.sabcrm-twenty .stpl-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .stpl-tab {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .stpl-tab__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .stpl-tab__grip {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+  flex: 0 0 auto;
+}
+
+/* Inline-editable title input. */
+.sabcrm-twenty .stpl-titleinput {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+}
+
+.sabcrm-twenty .stpl-titleinput:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .stpl-titleinput:focus {
+  outline: none;
+  background: var(--st-bg);
+  border-color: var(--st-accent);
+}
+
+/* Small icon-only control buttons (reorder / remove). */
+.sabcrm-twenty .stpl-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .stpl-iconbtn:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stpl-iconbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .stpl-iconbtn--danger:hover:not(:disabled) {
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.4);
+  background: rgba(192, 57, 43, 0.08);
+}
+
+.sabcrm-twenty .stpl-tab__count {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  margin-right: auto;
+  padding-left: 4px;
+}
+
+/* ---- Widget list ------------------------------------------------------- */
+
+.sabcrm-twenty .stpl-widgets {
+  display: flex;
+  flex-direction: column;
+  padding: var(--st-space-2);
+  gap: 6px;
+}
+
+.sabcrm-twenty .stpl-widget {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .stpl-widget__grip {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+  flex: 0 0 auto;
+  cursor: default;
+}
+
+.sabcrm-twenty .stpl-widget__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stpl-widget__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .stpl-widget__type {
+  display: block;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sabcrm-twenty .stpl-widget__titleinput {
+  width: 100%;
+  padding: 2px 6px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .stpl-widget__titleinput:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .stpl-widget__titleinput:focus {
+  outline: none;
+  background: var(--st-bg-secondary);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .stpl-widget__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+}
+
+/* Empty widget list inside a tab. */
+.sabcrm-twenty .stpl-widgets-empty {
+  padding: var(--st-space-3);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* Trailing "add widget" affordance inside a tab. */
+.sabcrm-twenty .stpl-addwidget {
+  margin: 6px var(--st-space-2) var(--st-space-2);
+}
+
+/* ---- Type picker (popover-ish grid) ------------------------------------ */
+
+.sabcrm-twenty .stpl-typegrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .stpl-typecard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.sabcrm-twenty .stpl-typecard:hover {
+  border-color: var(--st-accent);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .stpl-typecard__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stpl-typecard__name {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stpl-typecard__desc {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.4;
+}
+
+/* ---- Add-tab button ---------------------------------------------------- */
+
+.sabcrm-twenty .stpl-addtab {
+  align-self: flex-start;
+}
+
+/* ---- Save bar (sticky footer) ------------------------------------------ */
+
+.sabcrm-twenty .stpl-savebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--st-space-3);
+  margin-top: var(--st-space-2);
+  padding: var(--st-space-3) 0;
+  background: linear-gradient(
+    to top,
+    var(--st-bg) 60%,
+    transparent
+  );
+}
+
+.sabcrm-twenty .stpl-savebar__msg {
+  margin-right: auto;
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .stpl-savebar__msg.is-error {
+  color: #c0392b;
+}
+
+.sabcrm-twenty .stpl-savebar__msg.is-ok {
+  color: var(--st-text-secondary);
+}
+
+/* ---- Skeletons --------------------------------------------------------- */
+
+.sabcrm-twenty .stpl-skel {
+  border-radius: var(--st-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--st-bg-secondary) 25%,
+    var(--st-hover) 37%,
+    var(--st-bg-secondary) 63%
+  );
+  background-size: 400% 100%;
+  animation: stpl-shimmer 1.4s ease infinite;
+}
+
+.sabcrm-twenty .stpl-skel--rail {
+  height: 34px;
+  margin-bottom: 6px;
+}
+
+.sabcrm-twenty .stpl-skel--card {
+  height: 120px;
+  margin-bottom: var(--st-space-3);
+}
+
+@keyframes stpl-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}

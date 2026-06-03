@@ -56,6 +56,7 @@ import { SabcrmPagination } from './pagination';
 import './pagination.css';
 import './column-reorder.css';
 import './table-extras.css';
+import './virtualization.css';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -90,6 +91,29 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 const PAGE_LIMIT = 50;
 const SEARCH_DEBOUNCE_MS = 300;
 
+/* --- Infinite scroll + row windowing (Twenty `record-table/virtualization`) -
+ * The flat table can run in two modes (see `TableScrollMode`):
+ *   - 'scroll' (default): pages accumulate as you near the bottom; rows far
+ *     outside the viewport are not mounted — only a window of them is, padded
+ *     by spacer rows so the scrollbar stays truthful (lightweight windowing).
+ *   - 'paged': the classic footer pagination (one page at a time).
+ */
+
+/** Estimated row height (px) the windowing math assumes. Real rows hover here;
+ *  the estimate only needs to be close — over/under-render is absorbed by the
+ *  overscan buffer below. */
+const EST_ROW_HEIGHT = 33;
+/** Extra rows rendered above/below the viewport so fast scrolls never flash
+ *  blank before the next scroll-driven recompute lands. */
+const WINDOW_OVERSCAN = 12;
+/** Distance from the bottom (px) at which we trigger the next-page fetch. */
+const INFINITE_THRESHOLD_PX = 320;
+/** Capped viewport height (px) for the infinite-scroll table container. */
+const INFINITE_VIEWPORT_PX = 560;
+/** Below this many loaded rows windowing isn't worth its bookkeeping — render
+ *  every row so group bands / short lists behave exactly as before. */
+const WINDOW_MIN_ROWS = 60;
+
 /** Column-resize clamps (px) — keep columns grabbable but never collapsed. */
 const COL_MIN_WIDTH = 80;
 const COL_MAX_WIDTH = 640;
@@ -117,6 +141,9 @@ const SORTABLE_HEADER: ReadonlySet<FieldMetadata['type']> = new Set<
 ]);
 
 type ViewKind = 'table' | 'board';
+
+/** How the flat table loads/renders rows (see the windowing constants above). */
+type TableScrollMode = 'scroll' | 'paged';
 
 /** Field types that support quick inline editing in a table cell. */
 const INLINE_EDITABLE: ReadonlySet<FieldMetadata['type']> = new Set<
@@ -655,6 +682,22 @@ interface TableViewProps {
   tagsLoading: boolean;
   /** Toggle a tag id on/off for a record (page persists optimistically). */
   onToggleTag: (recordId: string, tagId: string, next: boolean) => void;
+
+  // ---- Infinite scroll + windowing (owned by the page) -------------------
+  /** 'scroll' = infinite append + row windowing; 'paged' = footer pagination. */
+  scrollMode: TableScrollMode;
+  /** More server pages remain for the current query (drives the sentinel). */
+  hasMore: boolean;
+  /** A next-page fetch is in flight (drives the sentinel spinner). */
+  loadingMore: boolean;
+  /** Ask the page to fetch + append the next page (scroll trigger or button). */
+  onLoadMore: () => void;
+  /**
+   * Whether lightweight row-windowing is permitted right now. We disable it
+   * while a group-by band is active (the bands break a uniform row height) and
+   * for short lists — append-on-scroll then carries the feature on its own.
+   */
+  windowingEnabled: boolean;
 }
 
 /** Where a drag currently wants to drop, relative to a hovered header. */
@@ -692,9 +735,81 @@ function TableView({
   tags,
   tagsLoading,
   onToggleTag,
+  scrollMode,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+  windowingEnabled,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
+
+  // ---- Lightweight row windowing -----------------------------------------
+  // In 'scroll' mode (and only when `windowingEnabled`) we render just the
+  // band of rows near the viewport, padding the table with two spacer rows
+  // that reserve the height of the off-screen rows above/below. The scroll
+  // container is the `.st-table-wrap` itself (it gets `.stv-scroll`).
+  const infinite = scrollMode === 'scroll';
+  const doWindow =
+    infinite && windowingEnabled && records.length >= WINDOW_MIN_ROWS;
+
+  const [scrollTop, setScrollTop] = React.useState(0);
+  const [viewportH, setViewportH] = React.useState(INFINITE_VIEWPORT_PX);
+
+  // Track the viewport's scroll + size so the window recomputes as the user
+  // scrolls. Also fires the near-bottom fetch trigger for infinite append.
+  React.useEffect(() => {
+    if (!infinite) return;
+    const el = tableRef.current;
+    if (!el) return;
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      setScrollTop(el.scrollTop);
+      setViewportH(el.clientHeight || INFINITE_VIEWPORT_PX);
+      // Near-bottom → ask for the next page.
+      if (
+        hasMore &&
+        !loadingMore &&
+        el.scrollHeight - el.scrollTop - el.clientHeight < INFINITE_THRESHOLD_PX
+      ) {
+        onLoadMore();
+      }
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(read);
+    };
+    read();
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      el.removeEventListener('scroll', onScroll);
+    };
+    // tableRef is stable; re-bind when mode/data length/paging flags change.
+  }, [infinite, hasMore, loadingMore, onLoadMore, tableRef, records.length]);
+
+  // Resolve the first..last row window plus the spacer heights around it.
+  const total = records.length;
+  const { startRow, endRow, padTop, padBottom } = React.useMemo(() => {
+    if (!doWindow) {
+      return { startRow: 0, endRow: total, padTop: 0, padBottom: 0 };
+    }
+    // Subtract a header allowance so the first rows aren't trimmed too eagerly.
+    const first = Math.max(
+      0,
+      Math.floor(scrollTop / EST_ROW_HEIGHT) - WINDOW_OVERSCAN,
+    );
+    const visibleCount =
+      Math.ceil(viewportH / EST_ROW_HEIGHT) + WINDOW_OVERSCAN * 2;
+    const last = Math.min(total, first + visibleCount);
+    return {
+      startRow: first,
+      endRow: last,
+      padTop: first * EST_ROW_HEIGHT,
+      padBottom: (total - last) * EST_ROW_HEIGHT,
+    };
+  }, [doWindow, scrollTop, viewportH, total]);
 
   // Total span of every data column (used by full-width group / footer cells:
   // the selection + favorite + tags leading columns plus one per visible
@@ -806,12 +921,21 @@ function TableView({
   return (
     <div
       ref={tableRef}
-      className={`st-table-wrap stx-table-focus${resizing ? ' is-col-resizing' : ''}`}
+      className={`st-table-wrap stx-table-focus${
+        resizing ? ' is-col-resizing' : ''
+      }${infinite ? ' stv-scroll' : ''}`}
       tabIndex={0}
       role="grid"
       aria-label="Records — use arrow keys to navigate, Enter to open"
       aria-rowcount={records.length}
       onKeyDown={onTableKeyDown}
+      style={
+        infinite
+          ? ({
+              ['--stv-viewport-h' as string]: `${INFINITE_VIEWPORT_PX}px`,
+            } as React.CSSProperties)
+          : undefined
+      }
     >
       <table className={`st-table${hasWidths ? ' st-table--fixed' : ''}`}>
         {hasWidths && (
@@ -983,7 +1107,20 @@ function TableView({
           </tr>
         </thead>
         <tbody>
-          {records.map((record, rowIndex) => {
+          {/* Top spacer reserving the off-screen rows above the window. */}
+          {padTop > 0 && (
+            <tr
+              className="stv-spacer"
+              aria-hidden="true"
+              style={
+                { ['--stv-spacer-h' as string]: `${padTop}px` } as React.CSSProperties
+              }
+            >
+              <td colSpan={colSpan} />
+            </tr>
+          )}
+          {records.slice(startRow, endRow).map((record, sliceIndex) => {
+            const rowIndex = startRow + sliceIndex;
             const isFav = favorites.has(record.id);
             const isSelected = selected.has(record.id);
             const isActive = activeRow === rowIndex;
@@ -1103,6 +1240,44 @@ function TableView({
             </React.Fragment>
             );
           })}
+          {/* Bottom spacer reserving the off-screen rows below the window. */}
+          {padBottom > 0 && (
+            <tr
+              className="stv-spacer"
+              aria-hidden="true"
+              style={
+                {
+                  ['--stv-spacer-h' as string]: `${padBottom}px`,
+                } as React.CSSProperties
+              }
+            >
+              <td colSpan={colSpan} />
+            </tr>
+          )}
+          {/* Infinite-scroll sentinel / load-more affordance. Lives inside the
+              scroll viewport so its appearance also marks "near the bottom". */}
+          {infinite && (hasMore || loadingMore) && (
+            <tr className="stv-spacer" aria-hidden={loadingMore}>
+              <td colSpan={colSpan}>
+                <div className="stv-sentinel">
+                  {loadingMore ? (
+                    <>
+                      <Loader2 size={14} className="stv-sentinel__spin" />
+                      Loading more…
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      className="stv-loadmore"
+                      onClick={onLoadMore}
+                    >
+                      Load more
+                    </button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          )}
         </tbody>
         {/* Footer total row — always shown for the current (page) record set.
             When an aggregate is available it carries the grand totals; it falls
@@ -1179,6 +1354,16 @@ interface BoardViewProps {
    * just reports the intent.
    */
   onMoveCard: (recordId: string, fromValue: string | null, targetValue: string | null) => void;
+  /**
+   * Move MANY cards to `targetValue` in one batch (multi-card drag). The page
+   * persists with a single `bulkUpdateRecordsTw` and reconciles optimistically.
+   * `moves` carries each card's source column so the page can lift them from
+   * the right group on rollback.
+   */
+  onMoveCards: (
+    moves: { recordId: string; fromValue: string | null }[],
+    targetValue: string | null,
+  ) => void;
   /** Records mid-flight to the engine — rendered with the "saving" ring. */
   savingIds: ReadonlySet<string>;
 }
@@ -1206,12 +1391,99 @@ function BoardView({
   pipelineMode,
   metricLabel,
   onMoveCard,
+  onMoveCards,
   savingIds,
 }: BoardViewProps) {
   // The card being dragged (drives the source "ghost" style + drop routing)
   // and the column currently hovered (drives the drop-target highlight).
   const [drag, setDrag] = React.useState<DragPayload | null>(null);
   const [overKey, setOverKey] = React.useState<string | null>(null);
+
+  // ---- Multi-card selection ----------------------------------------------
+  // Cmd/Ctrl-click toggles a card; Shift-click range-selects within the same
+  // column; a marquee drag on empty board space rubber-band selects. Dragging
+  // any selected card moves the WHOLE selection. A plain click still navigates.
+  const [selectedCards, setSelectedCards] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  // Anchor for shift-range selection (last single-clicked card id).
+  const [anchorId, setAnchorId] = React.useState<string | null>(null);
+
+  // Flatten the board's cards in column/visual order — the ordering used for
+  // shift-range selection and to resolve the marquee hit-test deterministically.
+  const flatOrder = React.useMemo(() => {
+    const ids: string[] = [];
+    for (const col of columns) for (const r of col.records) ids.push(r.id);
+    return ids;
+  }, [columns]);
+
+  // Drop stale ids if the board's record set changes underneath us.
+  React.useEffect(() => {
+    setSelectedCards((prev) => {
+      if (prev.size === 0) return prev;
+      const live = new Set(flatOrder);
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (live.has(id)) next.add(id);
+        else changed = true;
+      }
+      return changed ? next : prev;
+    });
+  }, [flatOrder]);
+
+  const clearCardSelection = React.useCallback(() => {
+    setSelectedCards(new Set());
+    setAnchorId(null);
+  }, []);
+
+  // Map each record id → its column value, so a multi-drag knows each card's
+  // source column (needed for the optimistic lift + rollback).
+  const fromValueById = React.useMemo(() => {
+    const m = new Map<string, string | null>();
+    for (const col of columns) for (const r of col.records) m.set(r.id, col.value);
+    return m;
+  }, [columns]);
+
+  // Click handler for a card: resolves modifier-click selection semantics and
+  // returns whether navigation should be suppressed (true = selection action).
+  const handleCardClick = React.useCallback(
+    (recordId: string, e: React.MouseEvent): boolean => {
+      // Toggle one card.
+      if (e.metaKey || e.ctrlKey) {
+        e.preventDefault();
+        setSelectedCards((prev) => {
+          const next = new Set(prev);
+          if (next.has(recordId)) next.delete(recordId);
+          else next.add(recordId);
+          return next;
+        });
+        setAnchorId(recordId);
+        return true;
+      }
+      // Range select from the anchor across the flattened order.
+      if (e.shiftKey) {
+        e.preventDefault();
+        const from = anchorId ?? recordId;
+        const a = flatOrder.indexOf(from);
+        const b = flatOrder.indexOf(recordId);
+        if (a >= 0 && b >= 0) {
+          const [lo, hi] = a <= b ? [a, b] : [b, a];
+          setSelectedCards((prev) => {
+            const next = new Set(prev);
+            for (let i = lo; i <= hi; i++) next.add(flatOrder[i]);
+            return next;
+          });
+        }
+        return true;
+      }
+      // Plain click on a multi-selection card: keep the selection, let the link
+      // navigate (Twenty opens the clicked card). A plain click elsewhere is a
+      // navigation too; selection is reset by the marquee/empty-space handler.
+      return false;
+    },
+    [anchorId, flatOrder],
+  );
 
   const endDrag = React.useCallback(() => {
     setDrag(null);
@@ -1221,17 +1493,142 @@ function BoardView({
   const handleDrop = React.useCallback(
     (targetValue: string | null) => {
       if (!drag) return endDrag();
-      // Same column → no-op (avoids a pointless write + reorder churn).
-      if (drag.fromValue !== targetValue) {
+      // If the dragged card is part of a multi-selection (size > 1), move the
+      // whole selection in one batch; otherwise fall back to the single move.
+      const isMulti = selectedCards.has(drag.recordId) && selectedCards.size > 1;
+      if (isMulti) {
+        const moves = Array.from(selectedCards)
+          // Don't re-write cards already in the target column.
+          .filter((id) => (fromValueById.get(id) ?? null) !== targetValue)
+          .map((id) => ({ recordId: id, fromValue: fromValueById.get(id) ?? null }));
+        if (moves.length > 0) onMoveCards(moves, targetValue);
+      } else if (drag.fromValue !== targetValue) {
         onMoveCard(drag.recordId, drag.fromValue, targetValue);
       }
       endDrag();
     },
-    [drag, onMoveCard, endDrag],
+    [drag, selectedCards, fromValueById, onMoveCard, onMoveCards, endDrag],
   );
 
+  // ---- Marquee (rubber-band) selection -----------------------------------
+  const boardRef = React.useRef<HTMLDivElement | null>(null);
+  const [marquee, setMarquee] = React.useState<{
+    x0: number;
+    y0: number;
+    x1: number;
+    y1: number;
+  } | null>(null);
+  // Whether a marquee gesture is currently active (vs. just a stray click).
+  const marqueeActive = React.useRef(false);
+  // Selection captured at marquee start (additive when Shift/Cmd held).
+  const marqueeBase = React.useRef<Set<string>>(new Set());
+
+  React.useEffect(() => {
+    if (!marquee) return;
+    const onMove = (e: PointerEvent) => {
+      marqueeActive.current = true;
+      const x1 = e.clientX;
+      const y1 = e.clientY;
+      setMarquee((m) => (m ? { ...m, x1, y1 } : m));
+      // Hit-test every mounted card against the marquee rect (viewport coords).
+      const root = boardRef.current;
+      if (!root) return;
+      const minX = Math.min(marquee.x0, x1);
+      const maxX = Math.max(marquee.x0, x1);
+      const minY = Math.min(marquee.y0, y1);
+      const maxY = Math.max(marquee.y0, y1);
+      const hits = new Set(marqueeBase.current);
+      root
+        .querySelectorAll<HTMLElement>('[data-stv-card-id]')
+        .forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const intersects =
+            r.left < maxX && r.right > minX && r.top < maxY && r.bottom > minY;
+          if (intersects) {
+            const id = el.getAttribute('data-stv-card-id');
+            if (id) hits.add(id);
+          }
+        });
+      setSelectedCards(hits);
+    };
+    const onUp = () => {
+      setMarquee(null);
+      // A click without movement clears the selection (empty-space click).
+      if (!marqueeActive.current) {
+        setSelectedCards(marqueeBase.current);
+      }
+      marqueeActive.current = false;
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [marquee]);
+
+  // Start a marquee only when the pointer goes down on empty board space (not
+  // on a card, header, or scrollbar) with the primary button.
+  const onBoardPointerDown = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (e.button !== 0) return;
+      const target = e.target as HTMLElement;
+      // Ignore presses that land on a card / interactive element.
+      if (target.closest('[data-stv-card-id]') || target.closest('a, button, input, select'))
+        return;
+      marqueeActive.current = false;
+      marqueeBase.current =
+        e.shiftKey || e.metaKey || e.ctrlKey ? new Set(selectedCards) : new Set();
+      if (!(e.shiftKey || e.metaKey || e.ctrlKey)) setSelectedCards(new Set());
+      setAnchorId(null);
+      setMarquee({ x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY });
+    },
+    [selectedCards],
+  );
+
+  // Track the cursor during a multi-card drag to position the counter chip.
+  const [dragPos, setDragPos] = React.useState<{ x: number; y: number } | null>(
+    null,
+  );
+  const multiDragCount =
+    drag && selectedCards.has(drag.recordId) && selectedCards.size > 1
+      ? selectedCards.size
+      : 0;
+
+  const selectionCount = selectedCards.size;
+
   return (
-    <div className="st-board">
+    <>
+      {selectionCount > 1 && (
+        <div className="stv-board-bar" role="status" aria-live="polite">
+          <span className="stv-board-bar__count">{selectionCount} selected</span>
+          <button
+            type="button"
+            className="stv-board-bar__btn"
+            onClick={clearCardSelection}
+          >
+            Clear
+          </button>
+          <span style={{ opacity: 0.8 }}>Drag any selected card to move all</span>
+        </div>
+      )}
+      <div className="stv-board-hint" role="note">
+        <span className="stx-kbd">click</span>
+        <span>open</span>
+        <span className="stx-kbd">⌘/ctrl-click</span>
+        <span>multi-select</span>
+        <span className="stx-kbd">shift-click</span>
+        <span>range</span>
+        <span className="stx-kbd">drag empty</span>
+        <span>marquee</span>
+      </div>
+      <div
+        className="st-board stv-board"
+        ref={boardRef}
+        onPointerDown={onBoardPointerDown}
+      >
       {columns.map((column) => {
         const group = column;
         const label = column.label;
@@ -1318,15 +1715,38 @@ function BoardView({
                 group.records.map((record) => {
                   const isDragging = drag?.recordId === record.id;
                   const isSaving = savingIds.has(record.id);
+                  const isSelected = selectedCards.has(record.id);
+                  // Visual role while a multi-selection is being dragged: the
+                  // grabbed card is the "primary", the rest are "members".
+                  const inDraggedSet =
+                    drag !== null &&
+                    selectedCards.has(drag.recordId) &&
+                    selectedCards.size > 1 &&
+                    isSelected;
+                  const isDragPrimary = inDraggedSet && isDragging;
+                  const isDragMember = inDraggedSet && !isDragging;
                   return (
                     <Link
                       key={record.id}
                       href={`/sabcrm/${object.slug}/${record.id}`}
+                      data-stv-card-id={record.id}
                       className={`st-card st-card--draggable${
                         isDragging ? ' st-card--dragging' : ''
-                      }${isSaving ? ' st-card--saving' : ''}`}
+                      }${isSaving ? ' st-card--saving' : ''}${
+                        isSelected ? ' stv-card--selected' : ''
+                      }${isDragPrimary ? ' stv-card--drag-primary' : ''}${
+                        isDragMember ? ' stv-card--drag-member' : ''
+                      }`}
+                      aria-selected={isSelected}
                       draggable={!isSaving}
                       onDragStart={(e) => {
+                        // If the grabbed card isn't in the current selection,
+                        // the drag is a single-card move — collapse selection
+                        // to just it so the multi-path doesn't fire by mistake.
+                        if (!selectedCards.has(record.id)) {
+                          setSelectedCards(new Set([record.id]));
+                          setAnchorId(record.id);
+                        }
                         const payload: DragPayload = {
                           recordId: record.id,
                           fromValue: group.value,
@@ -1336,12 +1756,29 @@ function BoardView({
                         // something sane; React state is the real channel.
                         e.dataTransfer.setData('text/plain', record.id);
                         setDrag(payload);
+                        setDragPos({ x: e.clientX, y: e.clientY });
                         setOverKey(null);
                       }}
-                      onDragEnd={endDrag}
-                      // A drag must not also fire the link navigation.
+                      onDrag={(e) => {
+                        // clientX/Y is 0 on the final drag event in some
+                        // browsers — guard so the chip doesn't jump to origin.
+                        if (e.clientX || e.clientY)
+                          setDragPos({ x: e.clientX, y: e.clientY });
+                      }}
+                      onDragEnd={() => {
+                        endDrag();
+                        setDragPos(null);
+                      }}
+                      // A drag must not also fire the link navigation; modifier
+                      // clicks are selection actions (also suppress navigation).
                       onClick={(e) => {
-                        if (drag) e.preventDefault();
+                        if (drag) {
+                          e.preventDefault();
+                          return;
+                        }
+                        if (handleCardClick(record.id, e)) return;
+                        // Plain click → navigation proceeds; record the anchor.
+                        setAnchorId(record.id);
                       }}
                     >
                       <div className="st-card__title">
@@ -1364,7 +1801,33 @@ function BoardView({
           </div>
         );
       })}
-    </div>
+      </div>
+
+      {/* Rubber-band marquee rectangle (fixed/viewport coords). */}
+      {marquee && marqueeActive.current && (
+        <div
+          className="stv-marquee"
+          aria-hidden="true"
+          style={{
+            left: Math.min(marquee.x0, marquee.x1),
+            top: Math.min(marquee.y0, marquee.y1),
+            width: Math.abs(marquee.x1 - marquee.x0),
+            height: Math.abs(marquee.y1 - marquee.y0),
+          }}
+        />
+      )}
+
+      {/* Multi-card drag counter chip near the cursor. */}
+      {multiDragCount > 0 && dragPos && (
+        <div
+          className="stv-dragcount"
+          aria-hidden="true"
+          style={{ left: dragPos.x, top: dragPos.y }}
+        >
+          {multiDragCount} cards
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1611,6 +2074,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [limit, setLimit] = React.useState<number>(PAGE_LIMIT);
   const [total, setTotal] = React.useState(0);
 
+  // Flat-table load strategy. 'scroll' (default) accumulates pages on scroll
+  // with row windowing; 'paged' is the classic footer pagination. The toggle
+  // lives above the table.
+  const [scrollMode, setScrollMode] = React.useState<TableScrollMode>('scroll');
+  // A next-page append is in flight (distinct from the initial-load skeleton).
+  const [loadingMore, setLoadingMore] = React.useState(false);
+
   const [createOpen, setCreateOpen] = React.useState(false);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
@@ -1847,7 +2317,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   React.useEffect(() => {
     if (!object || !objectSlug) return;
     let cancelled = false;
-    setLoadingData(true);
+    // In scroll mode, fetching page > 1 is an APPEND — don't flash the
+    // skeleton over the rows already on screen; show the inline sentinel
+    // spinner instead. Page 1 (or paged mode) is a fresh load.
+    const isAppend = !grouped && scrollMode === 'scroll' && page > 1;
+    if (isAppend) setLoadingMore(true);
+    else setLoadingData(true);
     setDataError(null);
 
     const engineFilters = viewStateToEngineFilters(viewState);
@@ -1883,14 +2358,26 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         if (cancelled) return;
         if (!res.ok) {
           setDataError(res.error);
-          setRecords([]);
-          setTotal(0);
+          if (!isAppend) {
+            setRecords([]);
+            setTotal(0);
+          }
+        } else if (isAppend) {
+          // Append the next page, de-duping by id so an overlapping window or
+          // a concurrent refetch never doubles a row.
+          setRecords((prev) => {
+            const seen = new Set(prev.map((r) => r.id));
+            const fresh = res.data.records.filter((r) => !seen.has(r.id));
+            return fresh.length ? [...prev, ...fresh] : prev;
+          });
+          setTotal(res.data.total);
         } else {
           setRecords(res.data.records);
           setTotal(res.data.total);
         }
       }
-      setLoadingData(false);
+      if (isAppend) setLoadingMore(false);
+      else setLoadingData(false);
     })();
 
     return () => {
@@ -1905,6 +2392,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     viewState,
     page,
     limit,
+    scrollMode,
     activeProjectId,
     refreshTick,
   ]);
@@ -1950,6 +2438,21 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     if (!tagFilter) return records;
     return records.filter((r) => recordTagIds(r).includes(tagFilter));
   }, [records, tagFilter]);
+
+  // Infinite-scroll bookkeeping. In 'scroll' mode `records` accumulates across
+  // pages, so more remain whenever fewer have loaded than the server-reported
+  // total. A tag filter is a client-side narrowing on already-loaded rows, so
+  // it doesn't change whether the SERVER has more to give.
+  const hasMore =
+    scrollMode === 'scroll' && !grouped && records.length < total;
+
+  // Ask for the next page (scroll trigger or the "Load more" button). Guarded
+  // so overlapping triggers can't stack page bumps while a fetch is in flight.
+  const loadMore = React.useCallback(() => {
+    if (loadingMore || loadingData) return;
+    if (records.length >= total) return;
+    setPage((p) => p + 1);
+  }, [loadingMore, loadingData, records.length, total]);
 
   const labelField = React.useMemo(
     () => object?.fields.find((f) => f.isLabel),
@@ -2147,6 +2650,101 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             : g,
         ),
       );
+    },
+    [groupField, groups, movingCards, objectSlug, activeProjectId, pipelineActive],
+  );
+
+  // Batch move (multi-card drag): set every supplied record's group/stage
+  // field to `targetValue` in ONE `bulkUpdateRecordsTw`. Optimistic — the
+  // cards jump columns immediately — with rollback of the whole `groups`
+  // snapshot on error. Works for both pipeline and default group-by boards:
+  // pipeline mode rewrites the field in place (boardColumns re-buckets),
+  // default mode lifts each card from its source group into the target group.
+  const handleMoveCards = React.useCallback(
+    async (
+      moves: { recordId: string; fromValue: string | null }[],
+      targetValue: string | null,
+    ) => {
+      if (!groupField || moves.length === 0) return;
+      // Skip cards already saving or already in the target column.
+      const filtered = moves.filter(
+        (m) => m.fromValue !== targetValue && !movingCards.has(m.recordId),
+      );
+      if (filtered.length === 0) return;
+
+      const key = groupField.key;
+      const ids = filtered.map((m) => m.recordId);
+      const idSet = new Set(ids);
+      const prevGroups = groups;
+
+      // Optimistic update of the grouped board state.
+      if (pipelineActive) {
+        // Rewrite the stage field on each moved card wherever it lives; the
+        // board re-buckets on the next render.
+        setGroups((gs) =>
+          gs.map((g) => ({
+            ...g,
+            records: g.records.map((r) =>
+              idSet.has(r.id)
+                ? { ...r, data: { ...r.data, [key]: targetValue } }
+                : r,
+            ),
+          })),
+        );
+      } else {
+        // Lift each moved card out of its source group and append (rewritten)
+        // to the target group.
+        const liftedById = new Map<string, SabcrmRustRecord>();
+        for (const g of prevGroups) {
+          for (const r of g.records) {
+            if (idSet.has(r.id)) {
+              liftedById.set(r.id, {
+                ...r,
+                data: { ...r.data, [key]: targetValue },
+              });
+            }
+          }
+        }
+        setGroups((gs) =>
+          gs.map((g) => {
+            if (g.value === targetValue) {
+              const appended = ids
+                .map((id) => liftedById.get(id))
+                .filter((r): r is SabcrmRustRecord => !!r);
+              return { ...g, records: [...g.records, ...appended] };
+            }
+            return { ...g, records: g.records.filter((r) => !idSet.has(r.id)) };
+          }),
+        );
+      }
+
+      setMovingCards((m) => {
+        const n = new Set(m);
+        for (const id of ids) n.add(id);
+        return n;
+      });
+      setDataError(null);
+
+      const res = await bulkUpdateRecordsTw(
+        objectSlug,
+        ids,
+        { [key]: targetValue },
+        activeProjectId ?? undefined,
+      );
+
+      setMovingCards((m) => {
+        const n = new Set(m);
+        for (const id of ids) n.delete(id);
+        return n;
+      });
+
+      if (!res.ok) {
+        setGroups(prevGroups); // rollback the whole snapshot
+        setDataError(res.error);
+        return;
+      }
+      // Pull canonical records so any server-side derived fields are reflected.
+      setRefreshTick((t) => t + 1);
     },
     [groupField, groups, movingCards, objectSlug, activeProjectId, pipelineActive],
   );
@@ -2462,12 +3060,22 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         e.preventDefault();
         const clamped = Math.max(0, Math.min(last, next));
         setActiveRow(clamped);
-        // Keep the highlighted row in view as the cursor walks the list.
+        // Keep the highlighted row in view as the cursor walks the list. With
+        // row windowing the target row may not be mounted yet — fall back to a
+        // pixel-estimate scroll on the viewport so the next render windows it
+        // in. (The DOM index lookup is only valid when every row is mounted.)
         const wrap = tableRef.current;
-        const row = wrap?.querySelectorAll<HTMLTableRowElement>(
-          'tbody tr.st-row:not(.stx-group-row)',
-        )[clamped];
-        row?.scrollIntoView({ block: 'nearest' });
+        const rows = wrap?.querySelectorAll<HTMLTableRowElement>(
+          'tbody tr.st-row:not(.stx-group-row):not(.stv-spacer)',
+        );
+        const row = rows?.[clamped];
+        if (row) {
+          row.scrollIntoView({ block: 'nearest' });
+        } else if (wrap) {
+          // Windowed + off-screen: nudge the viewport to roughly the row's
+          // position so it mounts; the next keypress refines via the DOM path.
+          wrap.scrollTo({ top: clamped * EST_ROW_HEIGHT, behavior: 'auto' });
+        }
       };
 
       switch (e.key) {
@@ -2776,6 +3384,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           pipelineMode={pipelineActive}
           metricLabel={metricField?.label}
           onMoveCard={handleMoveCard}
+          onMoveCards={handleMoveCards}
           savingIds={movingCards}
         />
       ) : (
@@ -2790,6 +3399,35 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             <span>select</span>
             <span className="stx-kbd">esc</span>
             <span>clear</span>
+          </div>
+          <div className="stv-modebar" role="group" aria-label="Row loading mode">
+            <span>Rows:</span>
+            <button
+              type="button"
+              className={`stv-modebar__btn${
+                scrollMode === 'scroll' ? ' is-active' : ''
+              }`}
+              aria-pressed={scrollMode === 'scroll'}
+              onClick={() => {
+                setScrollMode('scroll');
+                setPage(1);
+              }}
+            >
+              Infinite scroll
+            </button>
+            <button
+              type="button"
+              className={`stv-modebar__btn${
+                scrollMode === 'paged' ? ' is-active' : ''
+              }`}
+              aria-pressed={scrollMode === 'paged'}
+              onClick={() => {
+                setScrollMode('paged');
+                setPage(1);
+              }}
+            >
+              Pages
+            </button>
           </div>
           <TableView
             object={object}
@@ -2820,17 +3458,30 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             tags={tags}
             tagsLoading={tagsLoading}
             onToggleTag={handleToggleTag}
+            scrollMode={scrollMode}
+            hasMore={hasMore}
+            loadingMore={loadingMore}
+            onLoadMore={loadMore}
+            windowingEnabled={!aggGroupField}
           />
-          <SabcrmPagination
-            page={page}
-            limit={limit}
-            total={total}
-            pageCount={visibleRecords.length}
-            singular={object.labelSingular.toLowerCase()}
-            plural={object.labelPlural.toLowerCase()}
-            onPageChange={setPage}
-            onLimitChange={setLimit}
-          />
+          {scrollMode === 'paged' ? (
+            <SabcrmPagination
+              page={page}
+              limit={limit}
+              total={total}
+              pageCount={visibleRecords.length}
+              singular={object.labelSingular.toLowerCase()}
+              plural={object.labelPlural.toLowerCase()}
+              onPageChange={setPage}
+              onLimitChange={setLimit}
+            />
+          ) : (
+            <div className="stv-modebar" aria-live="polite">
+              <span>
+                Showing {visibleRecords.length} of {total}
+              </span>
+            </div>
+          )}
         </>
       )}
 

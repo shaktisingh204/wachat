@@ -152,6 +152,12 @@ const GROUPS: readonly SettingsGroup[] = [
         icon: Network,
       },
       {
+        slug: 'page-layouts',
+        label: 'Record Layout',
+        description: 'Tabs and widgets shown on record pages',
+        icon: LayoutGrid,
+      },
+      {
         slug: 'templates',
         label: 'Templates',
         description: 'Reusable record and email templates',

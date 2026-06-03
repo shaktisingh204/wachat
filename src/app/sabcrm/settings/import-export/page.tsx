@@ -16,12 +16,30 @@
  *   1. Object & file   — choose the target object, then pick a CSV via SabFiles
  *                        (parsed client-side with PapaParse).
  *   2. Map columns     — CSV header → object-field select, pre-filled from
- *                        `buildColumnMappingSuggestionsAction`.
+ *                        `buildColumnMappingSuggestionsAction`. RELATION fields
+ *                        are also mappable here (Twenty's "connect on import"):
+ *                        a relation column resolves each CSV value to an
+ *                        EXISTING related record and stores its id. Each
+ *                        relation row gets a "match by" sub-select naming which
+ *                        field of the target object to match on.
  *   3. Preview         — `validateImportMappingAction` gives blocking issues;
  *                        we add soft warnings + a sample-rows preview table and
- *                        a row-count / mapped-column readout.
- *   4. Import          — `importRecordsAction` runs the batch and we render a
- *                        success / partial / failure summary with per-row errors.
+ *                        a row-count / mapped-column readout. For every relation
+ *                        column we probe a sample of distinct values through
+ *                        `searchRecordsForPickerAction` and show ✓ found / ✗ not
+ *                        found per value plus an overall connect-coverage badge.
+ *   4. Import          — `importRecordsAction` runs the (non-relation) batch,
+ *                        then — best-effort — we resolve each created record's
+ *                        relation values via `searchRecordsForPickerAction` and
+ *                        patch the matched id onto the record with
+ *                        `updateRecordAction`. We render a success / partial /
+ *                        failure summary with per-row errors AND a relation
+ *                        connect readout (connected vs. unmatched counts).
+ *
+ * Why a post-import patch? The server-side import path deliberately skips
+ * RELATION columns (they need resolved ids, not raw strings), so relation
+ * connect is performed client-side: import the flat fields first, then connect
+ * relations onto the freshly-created records by id.
  *
  * Export keeps its own Twenty CSV/XLSX dropdown (`exportRecordsAction` →
  * `downloadCsv` / `downloadXlsx`) and is unaffected by the wizard.
@@ -47,6 +65,9 @@ import {
   FileText,
   X,
   RotateCcw,
+  Link2,
+  ArrowRight,
+  XCircle,
 } from 'lucide-react';
 
 import {
@@ -55,6 +76,8 @@ import {
   buildColumnMappingSuggestionsAction,
   validateImportMappingAction,
   importRecordsAction,
+  searchRecordsForPickerAction,
+  updateRecordAction,
 } from '@/app/actions/sabcrm.actions';
 import { useProject } from '@/context/project-context';
 import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
@@ -63,6 +86,7 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import type {
   ColumnMapping,
   MappingValidationIssue,
+  SabcrmPickerOption,
 } from '@/app/actions/sabcrm.actions.types';
 import type {
   RawRow,
@@ -72,16 +96,66 @@ import type {
 
 import '../../reports/reports-twenty.css';
 import './import-wizard.css';
+import './relation-map.css';
 
 // ---------------------------------------------------------------------------
 // Field-type gating: which fields can be imported from a spreadsheet.
-// (RELATION + FILE are not importable — they need resolved ids / uploads.)
+//
+// FLAT fields (everything except RELATION + FILE) flow through the normal
+// server import (`importRecordsAction`). RELATION fields are NOT importable as
+// flat values — but they CAN be "connected" on import (Twenty-style) by
+// matching each CSV value to an existing related record and storing its id.
+// FILE fields stay excluded (they need real uploads, not ids).
 // ---------------------------------------------------------------------------
 
 function importableFields(object: ObjectMetadata): FieldMetadata[] {
   return object.fields.filter(
     (f) => !f.system && f.type !== 'RELATION' && f.type !== 'FILE',
   );
+}
+
+/**
+ * RELATION fields that point at a known target object — the ones eligible for
+ * connect-on-import. ONE_TO_MANY back-references are excluded (they are owned
+ * by the other side and not settable as a single id from a flat file).
+ */
+function connectableRelationFields(object: ObjectMetadata): FieldMetadata[] {
+  return object.fields.filter(
+    (f) =>
+      !f.system &&
+      f.type === 'RELATION' &&
+      !!f.relation?.targetObject &&
+      f.relation.kind !== 'ONE_TO_MANY',
+  );
+}
+
+/**
+ * Fields of a relation's TARGET object that a CSV value can be matched against
+ * in the "match by" sub-control. We surface human-readable text-like fields
+ * (the resolver itself searches the target's label field, but exposing the
+ * choice mirrors Twenty's connect UX and lets the user document intent).
+ */
+function matchByFields(target: ObjectMetadata | null): FieldMetadata[] {
+  if (!target) return [];
+  const usable = target.fields.filter(
+    (f) =>
+      !f.system &&
+      (f.isLabel ||
+        f.type === 'TEXT' ||
+        f.type === 'EMAIL' ||
+        f.type === 'PHONE' ||
+        f.type === 'URL'),
+  );
+  return usable.length > 0 ? usable : target.fields.filter((f) => !f.system);
+}
+
+/** The default match-by field key for a target object (its label, else first). */
+function defaultMatchBy(target: ObjectMetadata | null): string {
+  if (!target) return '';
+  const label = target.fields.find((f) => f.isLabel);
+  if (label) return label.key;
+  const text = matchByFields(target)[0];
+  return text ? text.key : '';
 }
 
 // ---------------------------------------------------------------------------
@@ -99,6 +173,65 @@ function parseCsv(text: string): { headers: string[]; rows: RawRow[] } {
     (r) => r && Object.keys(r).length > 0,
   ) as RawRow[];
   return { headers, rows };
+}
+
+// ---------------------------------------------------------------------------
+// Relation connect — resolve a CSV value to an existing related-record id.
+//
+// `searchRecordsForPickerAction` does a contains-style search on the target
+// object's label field. To make a connect deterministic we prefer an EXACT
+// (case-insensitive, trimmed) label match among the returned options and fall
+// back to the single result when the search returns exactly one. Ambiguous /
+// empty results resolve to `null` (counted as "not found").
+// ---------------------------------------------------------------------------
+
+interface RelationMatch {
+  /** Resolved related-record id, or null when nothing matched. */
+  id: string | null;
+  /** Display label of the matched record (for the preview list). */
+  label: string | null;
+}
+
+function pickMatch(value: string, options: SabcrmPickerOption[]): RelationMatch {
+  const term = value.trim().toLowerCase();
+  if (!term || options.length === 0) return { id: null, label: null };
+  const exact = options.find((o) => o.label.trim().toLowerCase() === term);
+  if (exact) return { id: exact.id, label: exact.label };
+  if (options.length === 1) {
+    return { id: options[0].id, label: options[0].label };
+  }
+  return { id: null, label: null };
+}
+
+/**
+ * Resolve a single CSV value to a related-record id (with a tiny in-call cache
+ * so repeated values do not re-hit the server). Best-effort: a failed search
+ * resolves to a miss rather than throwing.
+ */
+async function resolveRelationValue(
+  targetObject: string,
+  value: string,
+  projectId: string | undefined,
+  cache: Map<string, RelationMatch>,
+): Promise<RelationMatch> {
+  const key = value.trim().toLowerCase();
+  if (!key) return { id: null, label: null };
+  const cached = cache.get(key);
+  if (cached) return cached;
+  let match: RelationMatch = { id: null, label: null };
+  try {
+    const res = await searchRecordsForPickerAction(
+      targetObject,
+      value.trim(),
+      20,
+      projectId,
+    );
+    if (res.ok) match = pickMatch(value, res.data);
+  } catch {
+    // best-effort — leave as a miss
+  }
+  cache.set(key, match);
+  return match;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,6 +253,42 @@ interface ParsedFile {
   headers: string[];
   rows: RawRow[];
 }
+
+/** A relation field mapped to a CSV column for connect-on-import. */
+interface RelationMapEntry {
+  /** CSV header whose values are matched against the target object. */
+  header: string;
+  /** Target-object field key the user intends to match on (UX intent). */
+  matchBy: string;
+}
+
+/** Per-relation-field connect coverage, computed in the preview step. */
+interface RelationProbe {
+  fieldKey: string;
+  /** Number of distinct non-empty values sampled from the column. */
+  sampled: number;
+  /** How many sampled values resolved to an existing record. */
+  matched: number;
+  /** A capped list of sampled value → match outcomes for display. */
+  samples: Array<{ value: string; match: RelationMatch }>;
+  /** True while the probe is running. */
+  loading: boolean;
+}
+
+/** Per-relation-field connect outcome after the import patch pass. */
+interface RelationConnectResult {
+  fieldKey: string;
+  label: string;
+  /** Rows whose relation cell was non-empty (i.e. a connect was attempted). */
+  attempted: number;
+  /** Rows where the value resolved + the id was patched on. */
+  connected: number;
+  /** Rows where the value did not resolve to any record. */
+  unmatched: number;
+}
+
+/** How many distinct values per relation column we probe in the preview. */
+const RELATION_PROBE_SAMPLE = 8;
 
 // ---------------------------------------------------------------------------
 // Export control (Twenty-styled dropdown) — unchanged, keeps export working.
@@ -297,11 +466,25 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   const [step, setStep] = React.useState<WizardStep>(1);
   const [parsed, setParsed] = React.useState<ParsedFile | null>(null);
   const [mapping, setMapping] = React.useState<ColumnMapping>({});
+  // RELATION fields mapped for connect-on-import: relation field key → entry.
+  // Kept SEPARATE from `mapping` because the server import path skips relation
+  // columns; we connect them client-side after the flat import.
+  const [relationMap, setRelationMap] = React.useState<
+    Record<string, RelationMapEntry>
+  >({});
   const [issues, setIssues] = React.useState<MappingValidationIssue[]>([]);
   const [validating, setValidating] = React.useState(false);
   const [stepError, setStepError] = React.useState<string | null>(null);
   const [importing, setImporting] = React.useState(false);
   const [result, setResult] = React.useState<ImportBatchResult | null>(null);
+  // Preview-step connect-coverage probes, keyed by relation field key.
+  const [relationProbes, setRelationProbes] = React.useState<
+    Record<string, RelationProbe>
+  >({});
+  // Import-summary connect outcome, populated during the patch pass.
+  const [relationResults, setRelationResults] = React.useState<
+    RelationConnectResult[]
+  >([]);
 
   // ---- Load objects -------------------------------------------------------
   React.useEffect(() => {
@@ -345,14 +528,37 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     [selectedObject],
   );
 
+  // RELATION fields eligible for connect-on-import on the selected object.
+  const relationFields = React.useMemo<FieldMetadata[]>(
+    () => (selectedObject ? connectableRelationFields(selectedObject) : []),
+    [selectedObject],
+  );
+
+  const objectsBySlug = React.useMemo(() => {
+    const m = new Map<string, ObjectMetadata>();
+    for (const o of objects) m.set(o.slug, o);
+    return m;
+  }, [objects]);
+
+  const targetFor = React.useCallback(
+    (field: FieldMetadata): ObjectMetadata | null =>
+      field.relation?.targetObject
+        ? objectsBySlug.get(field.relation.targetObject) ?? null
+        : null,
+    [objectsBySlug],
+  );
+
   // Reset the whole wizard (used on object change + "start over").
   const resetWizard = React.useCallback(() => {
     setStep(1);
     setParsed(null);
     setMapping({});
+    setRelationMap({});
     setIssues([]);
     setStepError(null);
     setResult(null);
+    setRelationProbes({});
+    setRelationResults([]);
   }, []);
 
   const handleObjectChange = React.useCallback(
@@ -401,7 +607,10 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       // confirm the picked file before advancing.
       setParsed({ name: file.name, headers, rows });
       setMapping({});
+      setRelationMap({});
       setIssues([]);
+      setRelationProbes({});
+      setRelationResults([]);
     },
     [selectedObject],
   );
@@ -409,8 +618,11 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
   const clearFile = React.useCallback(() => {
     setParsed(null);
     setMapping({});
+    setRelationMap({});
     setIssues([]);
     setStepError(null);
+    setRelationProbes({});
+    setRelationResults([]);
   }, []);
 
   // ---- Advance from step 1 → 2: fetch suggested mapping -------------------
@@ -450,6 +662,113 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     });
   }, []);
 
+  // ---- Relation connect mapping handlers ----------------------------------
+  // Map a RELATION field to a CSV column. Selecting "Skip" removes the entry;
+  // selecting a column seeds the match-by with the target object's label field.
+  const setRelationColumn = React.useCallback(
+    (field: FieldMetadata, header: string) => {
+      setRelationMap((prev) => {
+        const next = { ...prev };
+        if (!header) {
+          delete next[field.key];
+        } else {
+          const target = targetFor(field);
+          next[field.key] = {
+            header,
+            matchBy: next[field.key]?.matchBy || defaultMatchBy(target),
+          };
+        }
+        return next;
+      });
+      // Any mapping change invalidates the previous probe for this field.
+      setRelationProbes((prev) => {
+        if (!prev[field.key]) return prev;
+        const next = { ...prev };
+        delete next[field.key];
+        return next;
+      });
+    },
+    [targetFor],
+  );
+
+  const setRelationMatchBy = React.useCallback(
+    (fieldKey: string, matchBy: string) => {
+      setRelationMap((prev) => {
+        const cur = prev[fieldKey];
+        if (!cur) return prev;
+        return { ...prev, [fieldKey]: { ...cur, matchBy } };
+      });
+      setRelationProbes((prev) => {
+        if (!prev[fieldKey]) return prev;
+        const next = { ...prev };
+        delete next[fieldKey];
+        return next;
+      });
+    },
+    [],
+  );
+
+  // Probe one relation column: sample up to RELATION_PROBE_SAMPLE distinct
+  // non-empty values and resolve each via the picker, updating coverage state.
+  const probeRelation = React.useCallback(
+    async (field: FieldMetadata) => {
+      if (!parsed) return;
+      const entry = relationMap[field.key];
+      const target = field.relation?.targetObject;
+      if (!entry || !target) return;
+
+      // Distinct, non-empty values in column order.
+      const seen = new Set<string>();
+      const distinct: string[] = [];
+      for (const row of parsed.rows) {
+        const raw = (row[entry.header] ?? '').trim();
+        if (!raw) continue;
+        const key = raw.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        distinct.push(raw);
+        if (distinct.length >= RELATION_PROBE_SAMPLE) break;
+      }
+
+      setRelationProbes((prev) => ({
+        ...prev,
+        [field.key]: {
+          fieldKey: field.key,
+          sampled: distinct.length,
+          matched: 0,
+          samples: [],
+          loading: true,
+        },
+      }));
+
+      const cache = new Map<string, RelationMatch>();
+      const samples: Array<{ value: string; match: RelationMatch }> = [];
+      let matched = 0;
+      for (const value of distinct) {
+        const match = await resolveRelationValue(
+          target,
+          value,
+          activeProjectId ?? undefined,
+          cache,
+        );
+        if (match.id) matched += 1;
+        samples.push({ value, match });
+      }
+
+      setRelationProbes((prev) => ({
+        ...prev,
+        [field.key]: {
+          fieldKey: field.key,
+          sampled: distinct.length,
+          matched,
+          samples,
+          loading: false,
+        },
+      }));
+    },
+    [parsed, relationMap, activeProjectId],
+  );
+
   // ---- Advance from step 2 → 3: server-validate the mapping ---------------
   const goToPreview = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
@@ -477,11 +796,38 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
     }
   }, [selectedObject, parsed, mapping, activeProjectId]);
 
+  // ---- Auto-probe connect coverage when entering the preview step ---------
+  // For each relation field that has a column mapping but no probe yet, kick
+  // off a sample resolution so the user sees ✓/✗ coverage without a manual
+  // click. Re-probing on demand is also available from each coverage card.
+  React.useEffect(() => {
+    if (step !== 3) return;
+    for (const field of relationFields) {
+      if (relationMap[field.key] && !relationProbes[field.key]) {
+        void probeRelation(field);
+      }
+    }
+    // We intentionally depend on `step` + the mapping keys so a newly-mapped
+    // relation is probed when the user returns to the preview.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, relationMap, relationFields]);
+
   // ---- Step 4 — commit the import ----------------------------------------
+  //
+  // Two passes:
+  //   1. Flat import via `importRecordsAction` (non-relation fields). This
+  //      returns one result row per input row, IN ORDER, with the created
+  //      record (+ id) for successes.
+  //   2. Connect pass — best-effort. For every created record we resolve each
+  //      mapped relation cell to an existing related-record id and patch it on
+  //      via `updateRecordAction`. Unresolved values are skipped (left unset)
+  //      and counted so the summary can show connect coverage. A connect
+  //      failure NEVER fails the row — the record is already imported.
   const handleImport = React.useCallback(async () => {
     if (!selectedObject || !parsed) return;
     setStepError(null);
     setImporting(true);
+    setRelationResults([]);
     try {
       const res = await importRecordsAction(
         {
@@ -497,12 +843,87 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       }
       setResult(res.data);
       setStep(4);
+
+      // ---- Connect pass (best-effort) ----
+      const activeRelations = relationFields.filter(
+        (f) => relationMap[f.key]?.header && f.relation?.targetObject,
+      );
+      if (activeRelations.length > 0 && res.data.succeeded > 0) {
+        // One id-resolution cache per target object (values repeat across rows).
+        const caches = new Map<string, Map<string, RelationMatch>>();
+        const cacheFor = (target: string): Map<string, RelationMatch> => {
+          let c = caches.get(target);
+          if (!c) {
+            c = new Map<string, RelationMatch>();
+            caches.set(target, c);
+          }
+          return c;
+        };
+
+        const tally = new Map<string, RelationConnectResult>();
+        for (const f of activeRelations) {
+          tally.set(f.key, {
+            fieldKey: f.key,
+            label: f.label,
+            attempted: 0,
+            connected: 0,
+            unmatched: 0,
+          });
+        }
+
+        // `res.data.rows[i]` aligns with `parsed.rows[i]`.
+        for (let i = 0; i < res.data.rows.length; i++) {
+          const rowRes = res.data.rows[i];
+          if (!rowRes.ok) continue;
+          const sourceRow = parsed.rows[i];
+          if (!sourceRow) continue;
+
+          const patch: Record<string, unknown> = {};
+          for (const f of activeRelations) {
+            const entry = relationMap[f.key];
+            const target = f.relation?.targetObject;
+            if (!entry || !target) continue;
+            const value = (sourceRow[entry.header] ?? '').trim();
+            if (!value) continue;
+            const t = tally.get(f.key);
+            if (t) t.attempted += 1;
+            const match = await resolveRelationValue(
+              target,
+              value,
+              activeProjectId ?? undefined,
+              cacheFor(target),
+            );
+            if (match.id) {
+              patch[f.key] = match.id;
+              if (t) t.connected += 1;
+            } else if (t) {
+              t.unmatched += 1;
+            }
+          }
+
+          if (Object.keys(patch).length > 0) {
+            try {
+              await updateRecordAction(
+                rowRes.record._id,
+                patch,
+                activeProjectId ?? undefined,
+              );
+            } catch {
+              // best-effort: a failed connect-patch does not unwind the import.
+            }
+          }
+        }
+
+        setRelationResults(
+          Array.from(tally.values()).filter((t) => t.attempted > 0),
+        );
+      }
     } catch (e) {
       setStepError(e instanceof Error ? e.message : 'Failed to import records.');
     } finally {
       setImporting(false);
     }
-  }, [selectedObject, parsed, mapping, activeProjectId]);
+  }, [selectedObject, parsed, mapping, relationFields, relationMap, activeProjectId]);
 
   // ---- Derived: mapping readouts + blocking / warning split ---------------
   const mappedCount = Object.keys(mapping).length;
@@ -526,6 +947,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       );
     }
     const usedHeaders = new Set(Object.values(mapping));
+    for (const e of Object.values(relationMap)) usedHeaders.add(e.header);
     const ignoredHeaders = parsed.headers.filter((h) => !usedHeaders.has(h));
     if (ignoredHeaders.length > 0) {
       out.push(
@@ -535,7 +957,20 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
       );
     }
     return out;
-  }, [parsed, fields, mapping]);
+  }, [parsed, fields, mapping, relationMap]);
+
+  // Count of relation fields wired up for connect-on-import.
+  const relationMappedCount = Object.keys(relationMap).length;
+
+  // Relation fields that are actually mapped, with their entry — used in the
+  // preview-step coverage section.
+  const mappedRelations = React.useMemo(
+    () =>
+      relationFields
+        .filter((f) => relationMap[f.key]?.header)
+        .map((f) => ({ field: f, entry: relationMap[f.key] })),
+    [relationFields, relationMap],
+  );
 
   // The ordered list of (field, header) pairs that will actually be imported.
   const mappedPairs = React.useMemo(
@@ -766,6 +1201,13 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                       We pre-filled likely matches. Map each{' '}
                       {selectedObject.labelSingular.toLowerCase()} field to a CSV
                       column, or leave it as <em>Skip</em>.
+                      {relationFields.length > 0 && (
+                        <>
+                          {' '}
+                          Relation fields can be <strong>connected</strong> to
+                          existing records by matching a CSV value.
+                        </>
+                      )}
                     </p>
                   </div>
 
@@ -775,6 +1217,8 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                       {parsed.name} — {parsed.rows.length} row(s),{' '}
                       {parsed.headers.length} column(s) · {mappedCount} field(s)
                       mapped
+                      {relationMappedCount > 0 &&
+                        ` · ${relationMappedCount} relation(s) to connect`}
                     </span>
                   </div>
 
@@ -818,6 +1262,97 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* ---- Relation connect mapping ---- */}
+                  {relationFields.length > 0 && (
+                    <div>
+                      <h3
+                        className="st-iw-step-title"
+                        style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Link2 size={14} aria-hidden="true" />
+                        Connect relations
+                      </h3>
+                      <p className="st-iw-step-hint">
+                        Map a CSV column to a relation to link each row to an{' '}
+                        <strong>existing</strong> record. Choose which field of the
+                        related object to match the column&apos;s values against.
+                      </p>
+                      <div className="st-table-wrap">
+                        <table className="st-table">
+                          <thead>
+                            <tr>
+                              <th>Relation</th>
+                              <th>Links to</th>
+                              <th>CSV column</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {relationFields.map((f) => {
+                              const target = targetFor(f);
+                              const entry = relationMap[f.key];
+                              const choices = matchByFields(target);
+                              return (
+                                <tr className="st-row" key={f.key}>
+                                  <td>
+                                    {f.label}
+                                    {f.required && (
+                                      <span className="st-field__req"> *</span>
+                                    )}
+                                  </td>
+                                  <td className="st-cell-muted">
+                                    {target
+                                      ? target.labelPlural
+                                      : f.relation?.targetObject ?? '—'}
+                                  </td>
+                                  <td>
+                                    <select
+                                      className="st-select"
+                                      value={entry?.header ?? ''}
+                                      onChange={(e) =>
+                                        setRelationColumn(f, e.target.value)
+                                      }
+                                    >
+                                      <option value="">— Skip —</option>
+                                      {parsed.headers.map((h) => (
+                                        <option key={h} value={h}>
+                                          {h}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {entry?.header && (
+                                      <div className="st-rc-matchby">
+                                        <span className="st-rc-matchby__label">
+                                          Match by
+                                        </span>
+                                        <select
+                                          className="st-select"
+                                          value={entry.matchBy}
+                                          onChange={(e) =>
+                                            setRelationMatchBy(
+                                              f.key,
+                                              e.target.value,
+                                            )
+                                          }
+                                          aria-label={`Match ${f.label} by`}
+                                        >
+                                          {choices.map((c) => (
+                                            <option key={c.key} value={c.key}>
+                                              {c.label}
+                                            </option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="st-iw-nav">
                     <button
@@ -869,6 +1404,14 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                       <div className="st-iw-stat__num">{mappedCount}</div>
                       <div className="st-iw-stat__cap">Mapped columns</div>
                     </div>
+                    {relationMappedCount > 0 && (
+                      <div className="st-iw-stat">
+                        <div className="st-iw-stat__num">
+                          {relationMappedCount}
+                        </div>
+                        <div className="st-iw-stat__cap">Relations to connect</div>
+                      </div>
+                    )}
                     <div className="st-iw-stat">
                       <div className="st-iw-stat__num">{blockingIssues.length}</div>
                       <div className="st-iw-stat__cap">Blocking issues</div>
@@ -914,6 +1457,165 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                         No blocking issues — ready to import {parsed.rows.length}{' '}
                         row(s).
                       </span>
+                    </div>
+                  )}
+
+                  {/* ---- Relation connect coverage ---- */}
+                  {mappedRelations.length > 0 && (
+                    <div>
+                      <p
+                        className="st-iw-step-hint"
+                        style={{
+                          marginBottom: 6,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <Link2 size={13} aria-hidden="true" />
+                        Relation connect coverage — a sample of distinct values is
+                        matched against existing records.
+                      </p>
+                      <div className="st-rc-coverage">
+                        {mappedRelations.map(({ field, entry }) => {
+                          const target = targetFor(field);
+                          const probe = relationProbes[field.key];
+                          const matched = probe?.matched ?? 0;
+                          const sampled = probe?.sampled ?? 0;
+                          const badge =
+                            sampled === 0
+                              ? null
+                              : matched === sampled
+                                ? ('ok' as const)
+                                : matched === 0
+                                  ? ('none' as const)
+                                  : ('partial' as const);
+                          return (
+                            <div className="st-rc-card" key={field.key}>
+                              <div className="st-rc-card__head">
+                                <span className="st-rc-card__title">
+                                  <Link2 size={13} aria-hidden="true" />
+                                  {field.label}
+                                  <span className="st-rc-card__sub">
+                                    {entry.header} →{' '}
+                                    {target?.labelPlural ??
+                                      field.relation?.targetObject}
+                                  </span>
+                                </span>
+                                {probe?.loading ? (
+                                  <span
+                                    className="st-rc-badge"
+                                    style={{ gap: 6 }}
+                                  >
+                                    <span
+                                      className="st-spinner"
+                                      aria-hidden="true"
+                                    />
+                                    Checking…
+                                  </span>
+                                ) : badge ? (
+                                  <span
+                                    className={`st-rc-badge st-rc-badge--${badge}`}
+                                  >
+                                    {badge === 'ok' ? (
+                                      <CheckCircle2
+                                        size={12}
+                                        aria-hidden="true"
+                                      />
+                                    ) : (
+                                      <AlertTriangle
+                                        size={12}
+                                        aria-hidden="true"
+                                      />
+                                    )}
+                                    {matched}/{sampled} matched
+                                  </span>
+                                ) : null}
+                              </div>
+                              {probe && !probe.loading ? (
+                                probe.samples.length === 0 ? (
+                                  <div className="st-rc-empty">
+                                    No non-empty values found in this column to
+                                    match.
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="st-rc-samples">
+                                      {probe.samples.map((s, si) => (
+                                        <div className="st-rc-sample" key={si}>
+                                          <span
+                                            className={`st-rc-sample__icon ${
+                                              s.match.id
+                                                ? 'st-rc-sample__icon--ok'
+                                                : 'st-rc-sample__icon--miss'
+                                            }`}
+                                            aria-hidden="true"
+                                          >
+                                            {s.match.id ? (
+                                              <CheckCircle2 size={14} />
+                                            ) : (
+                                              <XCircle size={14} />
+                                            )}
+                                          </span>
+                                          <span
+                                            className="st-rc-sample__val"
+                                            title={s.value}
+                                          >
+                                            {s.value}
+                                          </span>
+                                          <ArrowRight
+                                            size={12}
+                                            className="st-rc-sample__arrow"
+                                            aria-hidden="true"
+                                          />
+                                          {s.match.id ? (
+                                            <span
+                                              className="st-rc-sample__hit"
+                                              title={s.match.label ?? undefined}
+                                            >
+                                              {s.match.label}
+                                            </span>
+                                          ) : (
+                                            <span className="st-rc-sample__hit st-rc-sample__hit--miss">
+                                              not found
+                                            </span>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="st-rc-card__foot">
+                                      <span>
+                                        {matched === sampled
+                                          ? 'All sampled values connect.'
+                                          : `${
+                                              sampled - matched
+                                            } of ${sampled} sampled value(s) had no match — those rows import without this link.`}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        className="st-btn st-btn--ghost"
+                                        onClick={() =>
+                                          void probeRelation(field)
+                                        }
+                                      >
+                                        <RotateCcw
+                                          size={12}
+                                          aria-hidden="true"
+                                        />
+                                        Re-check
+                                      </button>
+                                    </div>
+                                  </>
+                                )
+                              ) : !probe ? (
+                                <div className="st-rc-empty">
+                                  Checking connect coverage…
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -994,8 +1696,12 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                           <Upload size={14} aria-hidden="true" />
                         )}
                         {importing
-                          ? 'Importing…'
-                          : `Import ${parsed.rows.length} row(s)`}
+                          ? relationMappedCount > 0
+                            ? 'Importing & connecting…'
+                            : 'Importing…'
+                          : relationMappedCount > 0
+                            ? `Import ${parsed.rows.length} row(s) & connect`
+                            : `Import ${parsed.rows.length} row(s)`}
                       </button>
                     </div>
                   </div>
@@ -1042,6 +1748,52 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                       <div className="st-iw-stat__cap">Failed</div>
                     </div>
                   </div>
+
+                  {/* Relation connect readout (best-effort) */}
+                  {relationMappedCount > 0 &&
+                    (importing ? (
+                      <div className="st-rc-result">
+                        <div className="st-rc-result__head">
+                          <Link2 size={13} aria-hidden="true" />
+                          Connecting relations
+                        </div>
+                        <div className="st-rc-result__row">
+                          <span className="st-spinner" aria-hidden="true" />
+                          <span>
+                            Matching relation values to existing records and
+                            linking them…
+                          </span>
+                        </div>
+                      </div>
+                    ) : relationResults.length > 0 ? (
+                      <div className="st-rc-result">
+                        <div className="st-rc-result__head">
+                          <Link2 size={13} aria-hidden="true" />
+                          Relation connect (best-effort)
+                        </div>
+                        {relationResults.map((r) => (
+                          <div className="st-rc-result__row" key={r.fieldKey}>
+                            {r.unmatched === 0 ? (
+                              <CheckCircle2 size={14} aria-hidden="true" />
+                            ) : (
+                              <AlertTriangle size={14} aria-hidden="true" />
+                            )}
+                            <span>
+                              <strong>{r.label}</strong>: connected{' '}
+                              {r.connected} of {r.attempted} row(s)
+                              {r.unmatched > 0 && (
+                                <span className="st-rc-result__miss">
+                                  {' '}
+                                  · {r.unmatched} value(s) had no match (left
+                                  unlinked)
+                                </span>
+                              )}
+                              .
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null)}
 
                   {result.failed > 0 && (
                     <div>

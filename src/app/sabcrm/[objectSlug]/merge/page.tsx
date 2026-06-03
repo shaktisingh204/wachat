@@ -13,14 +13,19 @@
  *   1. Pick PRIMARY + SECONDARY through search-as-you-type pickers
  *      (`searchRecordsForPickerAction`). `?primary=ID&secondary=ID` preselects.
  *   2. Once both are chosen, both records are fetched (`getSabcrmRecordTw`) and a
- *      comparison table is rendered: one row per visible field, with the primary
- *      and secondary values side-by-side and a radio-style toggle to pick the
- *      winner (defaults to primary; falls back to secondary when primary empty).
+ *      two-tab wizard is rendered (mirroring Twenty's merge dialog):
+ *        • FIELDS — one row per visible field, primary and secondary values
+ *          side-by-side with a radio-style toggle to pick the winner (defaults
+ *          to primary; falls back to secondary when primary empty). A
+ *          "Conflicts only" switch filters to fields where the two sides differ.
+ *        • PREVIEW — a read-only render of the RESULTING survivor: each field
+ *          painted with `TwentyFieldValue` from the currently-winning side, so
+ *          the user sees exactly what they're about to write, live.
  *   3. "Merge" → confirm dialog (warns the secondary is permanently deleted) →
  *      `mergeSabcrmRecordsTw` → `router.push('/sabcrm/{object}/{primaryId}')`.
  *
  * NO ZoruUI / Tailwind / clay — Twenty look only (`.st-*` from the kit plus the
- * sibling `merge.css`). Every data call is a gated server action returning an
+ * sibling `merge.css` / `merge-preview.css`). Every data call is a gated server action returning an
  * `ActionResult`; the engine may be DOWN, so each branch degrades to an inline
  * banner / empty state and the page never crashes.
  */
@@ -37,6 +42,9 @@ import {
   X,
   GitMerge,
   ArrowLeft,
+  Columns3,
+  Eye,
+  Check,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -53,6 +61,7 @@ import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import './merge.css';
+import './merge-preview.css';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -63,9 +72,17 @@ const SEARCH_DEBOUNCE_MS = 300;
 /** Which record a field value should be taken from on merge. */
 type Side = 'primary' | 'secondary';
 
+/** Which top-level wizard tab is active. */
+type MergeTab = 'fields' | 'preview';
+
 /** Treat null / undefined / empty-string as "no value". */
 function isEmpty(value: unknown): boolean {
   return value === null || value === undefined || value === '';
+}
+
+/** Whether two stored field values are equivalent (so there's no conflict). */
+function valuesEqual(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 }
 
 /** Resolve a record's display label from the object's `isLabel` field. */
@@ -389,6 +406,10 @@ export default function SabcrmMergePage(): React.JSX.Element {
   // Per-field chosen side. Defaults to primary; secondary when primary is empty.
   const [choices, setChoices] = React.useState<Record<string, Side>>({});
 
+  // Wizard tab (Fields winner-picker vs. read-only Preview) + Fields filter.
+  const [tab, setTab] = React.useState<MergeTab>('fields');
+  const [conflictsOnly, setConflictsOnly] = React.useState(false);
+
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [merging, setMerging] = React.useState(false);
   const [mergeError, setMergeError] = React.useState<string | null>(null);
@@ -495,6 +516,15 @@ export default function SabcrmMergePage(): React.JSX.Element {
   }, [primary, secondary, fields]);
 
   const bothChosen = !!primary && !!secondary;
+
+  // Fields whose primary / secondary values actually differ (the conflicts the
+  // user must resolve). Drives the "Conflicts only" filter and tab counts.
+  const conflictFields = React.useMemo(() => {
+    if (!primary || !secondary) return [] as FieldMetadata[];
+    return fields.filter(
+      (f) => !valuesEqual(primary.data[f.key], secondary.data[f.key]),
+    );
+  }, [primary, secondary, fields]);
 
   // Build the chosen-data payload: for each field, the value from the winning
   // side. (Sending the full resolved set keeps the engine merge explicit.)
@@ -668,54 +698,145 @@ export default function SabcrmMergePage(): React.JSX.Element {
         </div>
       ) : (
         <>
-          <div className="st-merge-compare">
-            <div className="st-merge-compare__head">
-              <span>Field</span>
-              <span>{primaryName}</span>
-              <span>{secondaryName}</span>
-            </div>
-            {fields.map((field) => {
-              const pVal = primary!.data[field.key];
-              const sVal = secondary!.data[field.key];
-              const side = choices[field.key] ?? 'primary';
-              const sameValue =
-                JSON.stringify(pVal ?? null) === JSON.stringify(sVal ?? null);
-              return (
-                <div className="st-merge-row" key={field.key}>
-                  <div className="st-merge-row__field">{field.label}</div>
-                  <button
-                    type="button"
-                    className={`st-merge-opt${side === 'primary' ? ' is-chosen' : ''}`}
-                    aria-pressed={side === 'primary'}
-                    onClick={() =>
-                      setChoices((prev) => ({ ...prev, [field.key]: 'primary' }))
-                    }
-                  >
-                    <span className="st-merge-opt__dot" aria-hidden="true" />
-                    <span className="st-merge-opt__value">
-                      <TwentyFieldValue field={field} value={pVal} />
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`st-merge-opt${side === 'secondary' ? ' is-chosen' : ''}`}
-                    aria-pressed={side === 'secondary'}
-                    // When both sides hold the same value, picking is moot —
-                    // keep primary and disable the secondary tile for clarity.
-                    disabled={sameValue}
-                    onClick={() =>
-                      setChoices((prev) => ({ ...prev, [field.key]: 'secondary' }))
-                    }
-                  >
-                    <span className="st-merge-opt__dot" aria-hidden="true" />
-                    <span className="st-merge-opt__value">
-                      <TwentyFieldValue field={field} value={sVal} />
-                    </span>
-                  </button>
-                </div>
-              );
-            })}
+          {/* Wizard tabs — Fields (winner picker) / Preview (survivor). */}
+          <div className="st-merge-tabs" role="tablist" aria-label="Merge sections">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'fields'}
+              className={`st-merge-tab${tab === 'fields' ? ' is-active' : ''}`}
+              onClick={() => setTab('fields')}
+            >
+              <Columns3 size={14} aria-hidden="true" />
+              Fields
+              {conflictFields.length > 0 ? (
+                <span className="st-merge-tab__count">{conflictFields.length}</span>
+              ) : null}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === 'preview'}
+              className={`st-merge-tab${tab === 'preview' ? ' is-active' : ''}`}
+              onClick={() => setTab('preview')}
+            >
+              <Eye size={14} aria-hidden="true" />
+              Preview
+            </button>
           </div>
+
+          {tab === 'fields' ? (
+            <>
+              <div className="st-merge-toolbar">
+                <span className="st-merge-toolbar__hint">
+                  {conflictFields.length === 0
+                    ? 'No conflicting fields — both records agree.'
+                    : `${conflictFields.length} field${
+                        conflictFields.length === 1 ? '' : 's'
+                      } differ between these records.`}
+                </span>
+                <label className="st-merge-toggle">
+                  <input
+                    type="checkbox"
+                    checked={conflictsOnly}
+                    onChange={(e) => setConflictsOnly(e.target.checked)}
+                  />
+                  <span className="st-merge-toggle__track" aria-hidden="true">
+                    <span className="st-merge-toggle__thumb" />
+                  </span>
+                  Conflicts only
+                </label>
+              </div>
+
+              {conflictsOnly && conflictFields.length === 0 ? (
+                <div className="st-merge-noconflicts">
+                  <Check size={15} aria-hidden="true" />
+                  These records have no conflicting fields. Toggle off “Conflicts
+                  only” to review every field.
+                </div>
+              ) : (
+                <div className="st-merge-compare">
+                  <div className="st-merge-compare__head">
+                    <span>Field</span>
+                    <span>{primaryName}</span>
+                    <span>{secondaryName}</span>
+                  </div>
+                  {(conflictsOnly ? conflictFields : fields).map((field) => {
+                    const pVal = primary!.data[field.key];
+                    const sVal = secondary!.data[field.key];
+                    const side = choices[field.key] ?? 'primary';
+                    const sameValue = valuesEqual(pVal, sVal);
+                    return (
+                      <div className="st-merge-row" key={field.key}>
+                        <div className="st-merge-row__field">{field.label}</div>
+                        <button
+                          type="button"
+                          className={`st-merge-opt${side === 'primary' ? ' is-chosen' : ''}`}
+                          aria-pressed={side === 'primary'}
+                          onClick={() =>
+                            setChoices((prev) => ({
+                              ...prev,
+                              [field.key]: 'primary',
+                            }))
+                          }
+                        >
+                          <span className="st-merge-opt__dot" aria-hidden="true" />
+                          <span className="st-merge-opt__value">
+                            <TwentyFieldValue field={field} value={pVal} />
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          className={`st-merge-opt${side === 'secondary' ? ' is-chosen' : ''}`}
+                          aria-pressed={side === 'secondary'}
+                          // When both sides hold the same value, picking is moot —
+                          // keep primary and disable the secondary tile for clarity.
+                          disabled={sameValue}
+                          onClick={() =>
+                            setChoices((prev) => ({
+                              ...prev,
+                              [field.key]: 'secondary',
+                            }))
+                          }
+                        >
+                          <span className="st-merge-opt__dot" aria-hidden="true" />
+                          <span className="st-merge-opt__value">
+                            <TwentyFieldValue field={field} value={sVal} />
+                          </span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          ) : (
+            /* Preview — what the survivor looks like with current selections. */
+            <div className="st-merge-preview">
+              <div className="st-merge-preview__head">
+                <span className="st-merge-preview__title">{primaryName}</span>
+                <span className="st-merge-preview__badge">After merge</span>
+              </div>
+              {fields.map((field) => {
+                const side = choices[field.key] ?? 'primary';
+                const src = side === 'primary' ? primary! : secondary!;
+                const value = src.data[field.key];
+                return (
+                  <div className="st-merge-preview__row" key={field.key}>
+                    <div className="st-merge-preview__label">{field.label}</div>
+                    <div className="st-merge-preview__value">
+                      <TwentyFieldValue field={field} value={value} />
+                      {side === 'secondary' ? (
+                        <span className="st-merge-preview__src st-merge-preview__src--secondary">
+                          from secondary
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           <div className="st-merge-actions">
             <span className="st-merge-actions__note">

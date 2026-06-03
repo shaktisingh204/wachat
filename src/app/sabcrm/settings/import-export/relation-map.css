@@ -1,0 +1,225 @@
+/* ---------------------------------------------------------------------------
+   SabCRM — Import wizard RELATION-CONNECT extras
+   (`/sabcrm/settings/import-export`)
+
+   Twenty-faithful styling for the relation-connect import flow: mapping a CSV
+   column to a RELATION field by matching an existing related record (Twenty's
+   "connect on import" behaviour).
+
+   Naming: NEW `st-rc-*` (relation-connect) prefix so nothing collides with the
+   page-local `st-iw-*` wizard kit or the shared `.st-*` kit. We never edit the
+   shared `sabcrm-twenty.css` — all new classes live here.
+
+   Every colour comes from the `--st-*` design tokens (or the same literal
+   status hexes already used by `import-wizard.css`: #067647 green / #b42318
+   red / #b54708 amber) so light/dark themes track the rest of the page.
+   --------------------------------------------------------------------------- */
+
+/* The "match by" sub-control that hangs under a relation row's CSV-column
+   select. Indented + de-emphasised so it reads as a child of the mapping. */
+.sabcrm-twenty .st-rc-matchby {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-top: 6px;
+  padding-left: var(--st-space-3);
+  border-left: 2px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-rc-matchby__label {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-rc-matchby .st-select {
+  max-width: 220px;
+}
+
+/* A small caption that names the relation target, e.g. "→ Companies". */
+.sabcrm-twenty .st-rc-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  margin-top: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Preview-step relation coverage cards.
+   --------------------------------------------------------------------------- */
+.sabcrm-twenty .st-rc-coverage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-rc-card {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-rc-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-rc-card__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-rc-card__title .st-rc-card__sub {
+  font-weight: var(--st-fw-regular);
+  color: var(--st-text-tertiary);
+}
+
+/* Coverage badge: full / partial / none. */
+.sabcrm-twenty .st-rc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--st-border);
+  white-space: nowrap;
+}
+.sabcrm-twenty .st-rc-badge--ok {
+  color: #067647;
+  border-color: rgba(6, 118, 71, 0.4);
+  background: rgba(6, 118, 71, 0.08);
+}
+.sabcrm-twenty .st-rc-badge--partial {
+  color: #b54708;
+  border-color: rgba(181, 71, 8, 0.4);
+  background: rgba(181, 71, 8, 0.08);
+}
+.sabcrm-twenty .st-rc-badge--none {
+  color: #b42318;
+  border-color: rgba(180, 35, 24, 0.4);
+  background: rgba(180, 35, 24, 0.08);
+}
+
+/* Sampled value → match list. */
+.sabcrm-twenty .st-rc-samples {
+  display: flex;
+  flex-direction: column;
+}
+
+.sabcrm-twenty .st-rc-sample {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  font-size: var(--st-font-size-sm);
+}
+.sabcrm-twenty .st-rc-sample:last-child {
+  border-bottom: none;
+}
+
+.sabcrm-twenty .st-rc-sample__icon {
+  display: inline-flex;
+  flex: none;
+}
+.sabcrm-twenty .st-rc-sample__icon--ok {
+  color: #067647;
+}
+.sabcrm-twenty .st-rc-sample__icon--miss {
+  color: #b42318;
+}
+
+.sabcrm-twenty .st-rc-sample__val {
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.sabcrm-twenty .st-rc-sample__arrow {
+  color: var(--st-text-tertiary);
+  flex: none;
+}
+
+.sabcrm-twenty .st-rc-sample__hit {
+  color: var(--st-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+.sabcrm-twenty .st-rc-sample__hit--miss {
+  color: var(--st-text-tertiary);
+  font-style: italic;
+}
+
+/* The probe-running / re-probe footer inside a coverage card. */
+.sabcrm-twenty .st-rc-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-top: 1px solid var(--st-border-light);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-rc-empty {
+  padding: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ---------------------------------------------------------------------------
+   Import-summary relation-connect readout (best-effort outcome).
+   --------------------------------------------------------------------------- */
+.sabcrm-twenty .st-rc-result {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  padding: var(--st-space-3);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-rc-result__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-rc-result__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  padding: 2px 0;
+}
+
+.sabcrm-twenty .st-rc-result__row .st-rc-result__miss {
+  color: #b54708;
+}

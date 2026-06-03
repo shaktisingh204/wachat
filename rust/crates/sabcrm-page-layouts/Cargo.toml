@@ -1,0 +1,47 @@
+# SabCRM — axum router for the **record-page layouts** HTTP surface.
+#
+# A single configurable record-page layout (tabs + widgets) per object,
+# modelled on Twenty's page-layout. ONE layout per `(projectId, object)`
+# in the `sabcrm_page_layouts` Mongo collection. Tenancy is by
+# `projectId` (a query/body string), not `userId`.
+#
+# Mounted under `/v1/sabcrm/page-layouts` from the orchestrating `api`
+# crate. Mirrors the shape of the sibling `sabcrm-views` crate.
+[package]
+name = "sabcrm-page-layouts"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM record-page-layout HTTP surface (`/v1/sabcrm/page-layouts/*`). One configurable tabs+widgets layout per object, scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_page_layouts"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

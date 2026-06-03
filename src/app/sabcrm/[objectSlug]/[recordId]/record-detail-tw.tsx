@@ -60,6 +60,8 @@ import {
   Tag as TagIcon,
   Check,
   Printer,
+  BarChart3,
+  Globe,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -92,6 +94,12 @@ import {
   deleteActivityCommentTw,
 } from '@/app/actions/sabcrm-twenty.actions';
 import { listTagsTw } from '@/app/actions/sabcrm-tags.actions';
+// In-flight: the saved page-layout action is added in parallel by another agent
+// at `@/app/actions/sabcrm-page-layouts.actions`. If tsc flags ONLY this import
+// as missing during the port, that's the expected interim state — the rest of
+// this file stays clean and the record page degrades to its fixed tabs when the
+// action is absent / fails / returns nothing (the engine may be down).
+import { getPageLayoutTw } from '@/app/actions/sabcrm-page-layouts.actions';
 import { listTemplatesTw } from '@/app/actions/sabcrm-templates.actions';
 import type { SabcrmRustTemplate } from '@/lib/rust-client/sabcrm-templates';
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
@@ -133,6 +141,7 @@ import './show-widgets.css';
 import './detail-tags.css';
 import './composer-templates.css';
 import './targets.css';
+import './layout-render.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -1523,6 +1532,179 @@ function TabStrip({ active, onSelect, counts }: TabStripProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Saved page-layout — types + widget→panel mapping (Twenty page-layout fidelity)
+// ---------------------------------------------------------------------------
+
+/**
+ * The widget kinds a saved page-layout can carry. Declared structurally (rather
+ * than imported) because the `sabcrm-page-layouts` action types are being added
+ * in parallel — once they land, the real exported type takes over and this stays
+ * structurally compatible. Unknown future kinds are tolerated (see `LayoutWidget`).
+ */
+type LayoutWidgetType =
+  | 'FIELDS'
+  | 'NOTES'
+  | 'TASKS'
+  | 'TIMELINE'
+  | 'FILES'
+  | 'RICH_TEXT'
+  | 'RECORD_TABLE'
+  | 'GRAPH'
+  | 'IFRAME';
+
+/** One widget inside a saved layout tab. `config` is widget-type-specific. */
+interface LayoutWidget {
+  id: string;
+  /** Kept as a loose string so a layout authored against a newer build (an
+   * unknown widget type) is rendered as a quiet stub rather than crashing. */
+  type: LayoutWidgetType | (string & {});
+  title?: string;
+  config?: Record<string, unknown> | null;
+}
+
+/** One tab in a saved layout — an ordered list of widgets. */
+interface LayoutTab {
+  id: string;
+  title: string;
+  widgets: LayoutWidget[];
+}
+
+/** The `getPageLayoutTw` payload: an object's saved record-page layout. */
+interface PageLayout {
+  object: string;
+  tabs: LayoutTab[];
+}
+
+/**
+ * Normalize an arbitrary `getPageLayoutTw` payload into a `PageLayout`, or null
+ * when it's empty / unusable. The action types are added in parallel, so we read
+ * defensively: a layout with no tabs (or no widgets across all tabs) is treated
+ * as "no layout" so the page falls back to its fixed tabs rather than rendering
+ * an empty shell.
+ */
+function normalizePageLayout(raw: unknown): PageLayout | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as Record<string, unknown>;
+  const rawTabs = Array.isArray(row.tabs) ? row.tabs : [];
+  const tabs: LayoutTab[] = [];
+  for (let i = 0; i < rawTabs.length; i += 1) {
+    const t = rawTabs[i];
+    if (!t || typeof t !== 'object') continue;
+    const tr = t as Record<string, unknown>;
+    const rawWidgets = Array.isArray(tr.widgets) ? tr.widgets : [];
+    const widgets: LayoutWidget[] = [];
+    for (let j = 0; j < rawWidgets.length; j += 1) {
+      const w = rawWidgets[j];
+      if (!w || typeof w !== 'object') continue;
+      const wr = w as Record<string, unknown>;
+      const type = typeof wr.type === 'string' ? wr.type : '';
+      if (!type) continue;
+      widgets.push({
+        id:
+          typeof wr.id === 'string' && wr.id
+            ? wr.id
+            : `w-${i}-${j}`,
+        type,
+        title: typeof wr.title === 'string' ? wr.title : undefined,
+        config:
+          wr.config && typeof wr.config === 'object'
+            ? (wr.config as Record<string, unknown>)
+            : null,
+      });
+    }
+    tabs.push({
+      id: typeof tr.id === 'string' && tr.id ? tr.id : `tab-${i}`,
+      title: typeof tr.title === 'string' && tr.title ? tr.title : `Tab ${i + 1}`,
+      widgets,
+    });
+  }
+  // A layout with no widgets anywhere is indistinguishable from "no layout".
+  const hasAnyWidget = tabs.some((t) => t.widgets.length > 0);
+  if (!hasAnyWidget) return null;
+  const object = typeof row.object === 'string' ? row.object : '';
+  return { object, tabs };
+}
+
+/**
+ * Read a widget's string config value defensively (e.g. an IFRAME's `url` or a
+ * RICH_TEXT's `body`/`html`/`text`). Returns '' when absent / not a string.
+ */
+function widgetConfigStr(widget: LayoutWidget, key: string): string {
+  const raw = widget.config?.[key];
+  return typeof raw === 'string' ? raw : '';
+}
+
+/** A best-effort icon for a layout widget's optional heading. */
+const WIDGET_ICON: Record<string, LucideIcon> = {
+  FIELDS: Database,
+  NOTES: StickyNote,
+  TASKS: CheckCircle2,
+  TIMELINE: Activity,
+  FILES: Paperclip,
+  RICH_TEXT: FileText,
+  RECORD_TABLE: Link2,
+  GRAPH: BarChart3,
+  IFRAME: Globe,
+};
+
+// ---------------------------------------------------------------------------
+// Layout-only widgets (RICH_TEXT / IFRAME / GRAPH) — no fixed-tab equivalent
+// ---------------------------------------------------------------------------
+
+/** A static rich-text note body fed from a RICH_TEXT widget's config. */
+function RichTextWidget({ widget }: { widget: LayoutWidget }): React.JSX.Element {
+  const body =
+    widgetConfigStr(widget, 'body') ||
+    widgetConfigStr(widget, 'html') ||
+    widgetConfigStr(widget, 'text');
+  return (
+    <div className="lr-richtext">
+      {body && !isRichTextEmpty(body) ? (
+        <RichTextView body={body} />
+      ) : (
+        <div className="lr-richtext__empty">No content.</div>
+      )}
+    </div>
+  );
+}
+
+/** An embedded page from an IFRAME widget's `config.url`. */
+function IframeWidget({ widget }: { widget: LayoutWidget }): React.JSX.Element {
+  const url = widgetConfigStr(widget, 'url');
+  if (!url) {
+    return (
+      <div className="lr-iframe__missing">
+        <Globe size={13} aria-hidden="true" />
+        No embed URL configured.
+      </div>
+    );
+  }
+  return (
+    <iframe
+      className="lr-iframe"
+      src={url}
+      title={widget.title || 'Embedded content'}
+      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+      referrerPolicy="no-referrer"
+      loading="lazy"
+    />
+  );
+}
+
+/** An honest placeholder for a GRAPH widget (no chart engine wired here). */
+function GraphWidget({ widget }: { widget: LayoutWidget }): React.JSX.Element {
+  return (
+    <div className="lr-graph">
+      <BarChart3 className="lr-graph__icon" size={20} aria-hidden="true" />
+      <span className="lr-graph__title">{widget.title || 'Chart'}</span>
+      <span className="lr-graph__hint">
+        Charts aren&apos;t available in this view yet.
+      </span>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Note composer (NOTE-only)
 // ---------------------------------------------------------------------------
 
@@ -2626,8 +2808,20 @@ export function RecordDetailTw({
   const [favorite, setFavorite] = React.useState(false);
   const [favBusy, setFavBusy] = React.useState(false);
 
-  // Active right-rail tab.
+  // Active right-rail tab (fixed-tab fallback path).
   const [tab, setTab] = React.useState<TabKey>('activity');
+
+  // Saved page-layout (Twenty page-layout fidelity). `undefined` = not yet
+  // loaded; `null` = no layout / load failed / engine down (→ fixed-tab
+  // fallback); a value = render the layout's tabs + widgets in saved order.
+  // Graceful: the fixed tabs render unchanged whenever this stays null.
+  const [pageLayout, setPageLayout] = React.useState<PageLayout | null | undefined>(
+    undefined,
+  );
+  // Active layout tab id (only used when a layout is present).
+  const [activeLayoutTabId, setActiveLayoutTabId] = React.useState<string | null>(
+    null,
+  );
 
   // Collapsed-state for the left field panel's labelled sections, keyed by the
   // section label. Persisted in component state so collapses survive edits /
@@ -2751,6 +2945,31 @@ export function RecordDetailTw({
     // Only re-run when the record identity changes (not on every edit).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [object.slug, record.id, projectId]);
+
+  // Load the object's saved page-layout (graceful: null → fixed-tab fallback on
+  // failure / engine down / no layout). The fetch is best-effort; the action is
+  // added in parallel so we tolerate it throwing as well as returning !ok.
+  React.useEffect(() => {
+    let cancelled = false;
+    setPageLayout(undefined);
+    (async () => {
+      try {
+        const res = await getPageLayoutTw(object.slug);
+        if (cancelled) return;
+        const normalized = res.ok ? normalizePageLayout(res.data) : null;
+        setPageLayout(normalized);
+        setActiveLayoutTabId(normalized?.tabs[0]?.id ?? null);
+      } catch {
+        if (!cancelled) {
+          setPageLayout(null);
+          setActiveLayoutTabId(null);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [object.slug]);
 
   // Re-fetch the notes/tasks linked to this record via polymorphic targets
   // (graceful: empty on failure / engine down). Used on mount and after every
@@ -3435,6 +3654,418 @@ export function RecordDetailTw({
 
   const label = recordLabel(object, record);
 
+  // -------------------------------------------------------------------------
+  // Panel renderers — the inner content of each section, factored out so BOTH
+  // the fixed-tab fallback AND the saved-layout path drive the SAME components.
+  // Each returns the panel's inner JSX (callers wrap it in `.rt-panel`). The
+  // layout path maps each widget `type` to one of these; the fixed-tab path
+  // calls them from its tab switch. Identical behavior either way.
+  // -------------------------------------------------------------------------
+
+  const renderFieldsPanel = React.useCallback(
+    (): React.JSX.Element =>
+      editableFields.length === 0 ? (
+        <div className="rt-panel__empty">No fields.</div>
+      ) : (
+        <div className="rt-fields">
+          {editableFields.map((field) => (
+            <div className="rt-fields__row" key={field.key}>
+              <span className="rt-fields__key">{field.label}</span>
+              <span className="rt-fields__val">
+                <TwentyFieldValue field={field} value={record.data[field.key]} />
+              </span>
+            </div>
+          ))}
+        </div>
+      ),
+    [editableFields, record.data],
+  );
+
+  const renderNotesPanel = React.useCallback(
+    (): React.JSX.Element => (
+      <>
+        <NoteComposer
+          onAdd={handleAddNote}
+          record={record}
+          recordLabel={label}
+          projectId={projectId}
+        />
+        {/* Attach an EXISTING note that targets this record. */}
+        <LinkExisting
+          targetObject={TARGET_NOTE_OBJECT}
+          projectId={projectId}
+          excludeIds={notesPresentIds}
+          onPick={(option) => handleLinkTarget(TARGET_NOTE_OBJECT, option)}
+          label="Attach an existing note to this record"
+          placeholder="Search notes…"
+        />
+        {targetError ? (
+          <div className="tg-error" role="alert">
+            {targetError}
+          </div>
+        ) : null}
+        {loadingTimeline &&
+        notes.length === 0 &&
+        linkedNotesDeduped.length === 0 ? (
+          <TwentyTimeline activities={[]} loading emptyLabel="" />
+        ) : notes.length === 0 && linkedNotesDeduped.length === 0 ? (
+          <div className="rt-panel__empty">No notes yet.</div>
+        ) : (
+          <div className="rt-notes">
+            {/* Notes created as activities on this record. */}
+            {notes.map((n) => (
+              <article className="rt-note" key={n.id}>
+                <div className="rt-note__head">
+                  <span className="rt-note__title">{n.title}</span>
+                  <time className="rt-note__time" dateTime={n.createdAt}>
+                    {relTime(n.createdAt)}
+                  </time>
+                </div>
+                {n.body ? (
+                  <RichTextView body={n.body} className="rt-note__body" />
+                ) : null}
+                <AttachmentList attachments={activityAttachments(n)} />
+              </article>
+            ))}
+            {/* Notes LINKED to this record via polymorphic targets. */}
+            {linkedNotesDeduped.map((l) => {
+              const busy = unlinkBusyId === l.source.id;
+              const body = sourceText(l.source, 'body');
+              return (
+                <article
+                  className={`rt-note tg-note${busy ? ' is-busy' : ''}`}
+                  key={`tg-note-${l.source.id}`}
+                >
+                  <div className="rt-note__head tg-note__head">
+                    <span className="rt-note__title">
+                      {sourceTitle(l.source)}
+                    </span>
+                    <span className="tg-linked-badge">
+                      <Link2 size={9} aria-hidden="true" />
+                      Linked
+                    </span>
+                    <span className="tg-note__spacer" />
+                    <button
+                      type="button"
+                      className="tg-detach"
+                      disabled={busy}
+                      onClick={() =>
+                        void handleUnlinkTarget(TARGET_NOTE_OBJECT, l.source.id)
+                      }
+                      aria-label={`Detach ${sourceTitle(l.source)}`}
+                      title="Detach from this record"
+                    >
+                      {busy ? (
+                        <Loader2 size={13} className="tg-spin" />
+                      ) : (
+                        <X size={14} />
+                      )}
+                    </button>
+                  </div>
+                  {body ? (
+                    <RichTextView body={body} className="rt-note__body" />
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </>
+    ),
+    [
+      handleAddNote,
+      record,
+      label,
+      projectId,
+      notesPresentIds,
+      handleLinkTarget,
+      targetError,
+      loadingTimeline,
+      notes,
+      linkedNotesDeduped,
+      unlinkBusyId,
+      handleUnlinkTarget,
+    ],
+  );
+
+  const renderTasksPanel = React.useCallback(
+    (): React.JSX.Element => (
+      <>
+        <TaskComposer onAdd={handleAddTask} />
+        {/* Attach an EXISTING task that targets this record. */}
+        <LinkExisting
+          targetObject={TARGET_TASK_OBJECT}
+          projectId={projectId}
+          excludeIds={tasksPresentIds}
+          onPick={(option) => handleLinkTarget(TARGET_TASK_OBJECT, option)}
+          label="Attach an existing task to this record"
+          placeholder="Search tasks…"
+        />
+        {targetError ? (
+          <div className="tg-error" role="alert">
+            {targetError}
+          </div>
+        ) : null}
+        {loadingTimeline &&
+        tasks.length === 0 &&
+        linkedTasksDeduped.length === 0 ? (
+          <TwentyTimeline activities={[]} loading emptyLabel="" />
+        ) : tasks.length === 0 && linkedTasksDeduped.length === 0 ? (
+          <div className="rt-panel__empty">No tasks yet.</div>
+        ) : (
+          <div className="rt-tasks">
+            {/* Tasks created as activities on this record. */}
+            {tasks.map((t) => (
+              <TaskRow
+                key={t.id}
+                task={t}
+                busy={taskBusyId === t.id}
+                onToggle={handleToggleTask}
+              />
+            ))}
+            {/* Tasks LINKED to this record via polymorphic targets. */}
+            {linkedTasksDeduped.map((l) => {
+              const busy = unlinkBusyId === l.source.id;
+              const status = sourceText(l.source, 'status') || 'TODO';
+              const statusLabel =
+                TASK_STATUS_LABEL[status.toUpperCase()] ?? status;
+              const dueRaw = sourceText(l.source, 'dueAt');
+              const due = dueRaw ? formatDue(dueRaw) : null;
+              const done = status.toUpperCase() === 'DONE';
+              return (
+                <div
+                  className={`rt-task tg-task${busy ? ' is-busy' : ''}`}
+                  key={`tg-task-${l.source.id}`}
+                >
+                  <span
+                    className={`rt-task__check${done ? ' is-done' : ''}`}
+                    aria-hidden="true"
+                  >
+                    {done ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+                  </span>
+                  <div className="rt-task__main">
+                    <span className={`rt-task__title${done ? ' is-done' : ''}`}>
+                      {sourceTitle(l.source)}
+                    </span>
+                    <span className="rt-task__meta">
+                      <TwentyChip label={statusLabel} />
+                      <span className="tg-linked-badge">
+                        <Link2 size={9} aria-hidden="true" />
+                        Linked
+                      </span>
+                      {due ? (
+                        <span className="rt-task__due">
+                          <CalendarClock size={11} aria-hidden="true" />
+                          {due}
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="tg-detach"
+                    disabled={busy}
+                    onClick={() =>
+                      void handleUnlinkTarget(TARGET_TASK_OBJECT, l.source.id)
+                    }
+                    aria-label={`Detach ${sourceTitle(l.source)}`}
+                    title="Detach from this record"
+                  >
+                    {busy ? (
+                      <Loader2 size={13} className="tg-spin" />
+                    ) : (
+                      <X size={14} />
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </>
+    ),
+    [
+      handleAddTask,
+      projectId,
+      tasksPresentIds,
+      handleLinkTarget,
+      targetError,
+      loadingTimeline,
+      tasks,
+      linkedTasksDeduped,
+      taskBusyId,
+      handleToggleTask,
+      unlinkBusyId,
+      handleUnlinkTarget,
+    ],
+  );
+
+  const renderTimelinePanel = React.useCallback(
+    (): React.JSX.Element => (
+      <>
+        <Composer
+          onAdd={handleAddActivity}
+          record={record}
+          recordLabel={label}
+          projectId={projectId}
+        />
+        <AttachmentTimeline
+          activities={activities}
+          loading={loadingTimeline}
+          emptyLabel="No activity yet"
+          currentAuthorId={commentAuthorId}
+          onLearnAuthor={handleLearnCommentAuthor}
+        />
+      </>
+    ),
+    [
+      handleAddActivity,
+      record,
+      label,
+      projectId,
+      activities,
+      loadingTimeline,
+      commentAuthorId,
+      handleLearnCommentAuthor,
+    ],
+  );
+
+  const renderFilesPanel = React.useCallback(
+    (): React.JSX.Element => (
+      <FilesPanel activities={activities} loading={loadingTimeline} />
+    ),
+    [activities, loadingTimeline],
+  );
+
+  // One relation section, by target-object slug — RECORD_TABLE widgets resolve
+  // to a relation this record actually has (matched on `field` then
+  // `targetObject`). Reuses the EXISTING `RelationSection` component.
+  const renderRecordTableWidget = React.useCallback(
+    (widget: LayoutWidget): React.JSX.Element => {
+      const wantField =
+        widgetConfigStr(widget, 'field') ||
+        widgetConfigStr(widget, 'relation');
+      const wantObject =
+        widgetConfigStr(widget, 'targetObject') ||
+        widgetConfigStr(widget, 'object');
+      const rel =
+        (wantField && relations.find((r) => r.field === wantField)) ||
+        (wantObject &&
+          relations.find((r) => r.targetObject === wantObject)) ||
+        null;
+      if (!rel) {
+        return (
+          <div className="rt-panel__empty">
+            {widget.title ? `${widget.title}: ` : ''}No related records.
+          </div>
+        );
+      }
+      return (
+        <RelationSection
+          relation={rel}
+          projectId={projectId}
+          onAttach={handleAttachRelation}
+          onDetach={handleDetachRelation}
+          busyChildId={detachBusyId}
+          inverseKey={resolveInverseKey(
+            objectsBySlug[rel.targetObject],
+            object.slug,
+          )}
+        />
+      );
+    },
+    [
+      relations,
+      projectId,
+      handleAttachRelation,
+      handleDetachRelation,
+      detachBusyId,
+      objectsBySlug,
+      object.slug,
+    ],
+  );
+
+  // Map ONE layout widget → its rendered panel, reusing the EXISTING components.
+  // FIELDS/NOTES/TASKS/TIMELINE/FILES reuse the fixed-tab panels verbatim;
+  // RICH_TEXT/IFRAME/GRAPH are the layout-only widgets; RECORD_TABLE resolves a
+  // relation section; an unknown type renders a quiet stub (never crashes).
+  const renderLayoutWidget = React.useCallback(
+    (widget: LayoutWidget): React.JSX.Element => {
+      const type = widget.type.toUpperCase();
+      const Icon = WIDGET_ICON[type];
+      // Widgets that carry their own heading (the panels above don't have one).
+      const heading =
+        widget.title &&
+        (type === 'RICH_TEXT' ||
+          type === 'IFRAME' ||
+          type === 'GRAPH' ||
+          type === 'RECORD_TABLE') ? (
+          <div className="lr-widget__head">
+            {Icon ? <Icon size={12} aria-hidden="true" /> : null}
+            {widget.title}
+          </div>
+        ) : null;
+
+      let body: React.JSX.Element;
+      switch (type) {
+        case 'FIELDS':
+          body = renderFieldsPanel();
+          break;
+        case 'NOTES':
+          body = renderNotesPanel();
+          break;
+        case 'TASKS':
+          body = renderTasksPanel();
+          break;
+        case 'TIMELINE':
+          body = renderTimelinePanel();
+          break;
+        case 'FILES':
+          body = renderFilesPanel();
+          break;
+        case 'RICH_TEXT':
+          body = <RichTextWidget widget={widget} />;
+          break;
+        case 'RECORD_TABLE':
+          body = renderRecordTableWidget(widget);
+          break;
+        case 'IFRAME':
+          body = <IframeWidget widget={widget} />;
+          break;
+        case 'GRAPH':
+          body = <GraphWidget widget={widget} />;
+          break;
+        default:
+          body = (
+            <div className="lr-unknown">
+              Unsupported widget{widget.title ? `: ${widget.title}` : ''}.
+            </div>
+          );
+      }
+
+      return (
+        <div className="lr-widget" key={widget.id}>
+          {heading}
+          {body}
+        </div>
+      );
+    },
+    [
+      renderFieldsPanel,
+      renderNotesPanel,
+      renderTasksPanel,
+      renderTimelinePanel,
+      renderFilesPanel,
+      renderRecordTableWidget,
+    ],
+  );
+
+  // The active layout tab (when a layout is present); falls back to the first.
+  const activeLayoutTab =
+    pageLayout?.tabs.find((t) => t.id === activeLayoutTabId) ??
+    pageLayout?.tabs[0] ??
+    null;
+
   return (
     <div className={`st-page${printing ? ' is-printing' : ''}`}>
       <Link href={`/sabcrm/${object.slug}`} className="st-back">
@@ -3527,274 +4158,104 @@ export function RecordDetailTw({
           </div>
         </section>
 
-        {/* Right rail — Twenty tab strip (Fields / Notes / Tasks / Activity) */}
+        {/* Right rail — saved page-layout when present, else the fixed tabs */}
         <aside className="st-panel" aria-label="Record sections">
           <div className="st-panel__body">
             <DetailsSummary fields={editableFields} record={record} />
 
-            <TabStrip active={tab} onSelect={setTab} counts={tabCounts} />
-
-            {tab === 'fields' && (
-              <div
-                className="rt-panel"
-                role="tabpanel"
-                aria-label="Fields summary"
-              >
-                {editableFields.length === 0 ? (
-                  <div className="rt-panel__empty">No fields.</div>
-                ) : (
-                  <div className="rt-fields">
-                    {editableFields.map((field) => (
-                      <div className="rt-fields__row" key={field.key}>
-                        <span className="rt-fields__key">{field.label}</span>
-                        <span className="rt-fields__val">
-                          <TwentyFieldValue
-                            field={field}
-                            value={record.data[field.key]}
-                          />
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {tab === 'notes' && (
-              <div className="rt-panel" role="tabpanel" aria-label="Notes">
-                <NoteComposer
-                  onAdd={handleAddNote}
-                  record={record}
-                  recordLabel={label}
-                  projectId={projectId}
-                />
-                {/* Attach an EXISTING note that targets this record. */}
-                <LinkExisting
-                  targetObject={TARGET_NOTE_OBJECT}
-                  projectId={projectId}
-                  excludeIds={notesPresentIds}
-                  onPick={(option) =>
-                    handleLinkTarget(TARGET_NOTE_OBJECT, option)
-                  }
-                  label="Attach an existing note to this record"
-                  placeholder="Search notes…"
-                />
-                {targetError ? (
-                  <div className="tg-error" role="alert">
-                    {targetError}
-                  </div>
-                ) : null}
-                {loadingTimeline &&
-                notes.length === 0 &&
-                linkedNotesDeduped.length === 0 ? (
-                  <TwentyTimeline activities={[]} loading emptyLabel="" />
-                ) : notes.length === 0 && linkedNotesDeduped.length === 0 ? (
-                  <div className="rt-panel__empty">No notes yet.</div>
-                ) : (
-                  <div className="rt-notes">
-                    {/* Notes created as activities on this record. */}
-                    {notes.map((n) => (
-                      <article className="rt-note" key={n.id}>
-                        <div className="rt-note__head">
-                          <span className="rt-note__title">{n.title}</span>
-                          <time className="rt-note__time" dateTime={n.createdAt}>
-                            {relTime(n.createdAt)}
-                          </time>
-                        </div>
-                        {n.body ? (
-                          <RichTextView body={n.body} className="rt-note__body" />
-                        ) : null}
-                        <AttachmentList attachments={activityAttachments(n)} />
-                      </article>
-                    ))}
-                    {/* Notes LINKED to this record via polymorphic targets. */}
-                    {linkedNotesDeduped.map((l) => {
-                      const busy = unlinkBusyId === l.source.id;
-                      const body = sourceText(l.source, 'body');
-                      return (
-                        <article
-                          className={`rt-note tg-note${busy ? ' is-busy' : ''}`}
-                          key={`tg-note-${l.source.id}`}
-                        >
-                          <div className="rt-note__head tg-note__head">
-                            <span className="rt-note__title">
-                              {sourceTitle(l.source)}
-                            </span>
-                            <span className="tg-linked-badge">
-                              <Link2 size={9} aria-hidden="true" />
-                              Linked
-                            </span>
-                            <span className="tg-note__spacer" />
-                            <button
-                              type="button"
-                              className="tg-detach"
-                              disabled={busy}
-                              onClick={() =>
-                                void handleUnlinkTarget(
-                                  TARGET_NOTE_OBJECT,
-                                  l.source.id,
-                                )
-                              }
-                              aria-label={`Detach ${sourceTitle(l.source)}`}
-                              title="Detach from this record"
-                            >
-                              {busy ? (
-                                <Loader2 size={13} className="tg-spin" />
-                              ) : (
-                                <X size={14} />
-                              )}
-                            </button>
-                          </div>
-                          {body ? (
-                            <RichTextView body={body} className="rt-note__body" />
-                          ) : null}
-                        </article>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {tab === 'tasks' && (
-              <div className="rt-panel" role="tabpanel" aria-label="Tasks">
-                <TaskComposer onAdd={handleAddTask} />
-                {/* Attach an EXISTING task that targets this record. */}
-                <LinkExisting
-                  targetObject={TARGET_TASK_OBJECT}
-                  projectId={projectId}
-                  excludeIds={tasksPresentIds}
-                  onPick={(option) =>
-                    handleLinkTarget(TARGET_TASK_OBJECT, option)
-                  }
-                  label="Attach an existing task to this record"
-                  placeholder="Search tasks…"
-                />
-                {targetError ? (
-                  <div className="tg-error" role="alert">
-                    {targetError}
-                  </div>
-                ) : null}
-                {loadingTimeline &&
-                tasks.length === 0 &&
-                linkedTasksDeduped.length === 0 ? (
-                  <TwentyTimeline activities={[]} loading emptyLabel="" />
-                ) : tasks.length === 0 && linkedTasksDeduped.length === 0 ? (
-                  <div className="rt-panel__empty">No tasks yet.</div>
-                ) : (
-                  <div className="rt-tasks">
-                    {/* Tasks created as activities on this record. */}
-                    {tasks.map((t) => (
-                      <TaskRow
+            {pageLayout && activeLayoutTab ? (
+              // --- Saved page-layout: tab strip + each tab's widgets in order ---
+              <>
+                <div
+                  className="rt-tabs"
+                  role="tablist"
+                  aria-label="Record sections"
+                >
+                  {pageLayout.tabs.map((t) => {
+                    const isActive = t.id === activeLayoutTab.id;
+                    return (
+                      <button
                         key={t.id}
-                        task={t}
-                        busy={taskBusyId === t.id}
-                        onToggle={handleToggleTask}
-                      />
-                    ))}
-                    {/* Tasks LINKED to this record via polymorphic targets. */}
-                    {linkedTasksDeduped.map((l) => {
-                      const busy = unlinkBusyId === l.source.id;
-                      const status = sourceText(l.source, 'status') || 'TODO';
-                      const statusLabel =
-                        TASK_STATUS_LABEL[status.toUpperCase()] ?? status;
-                      const dueRaw = sourceText(l.source, 'dueAt');
-                      const due = dueRaw ? formatDue(dueRaw) : null;
-                      const done = status.toUpperCase() === 'DONE';
-                      return (
-                        <div
-                          className={`rt-task tg-task${busy ? ' is-busy' : ''}`}
-                          key={`tg-task-${l.source.id}`}
-                        >
-                          <span
-                            className={`rt-task__check${done ? ' is-done' : ''}`}
-                            aria-hidden="true"
-                          >
-                            {done ? (
-                              <CheckCircle2 size={16} />
-                            ) : (
-                              <Circle size={16} />
-                            )}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        className={`rt-tab${isActive ? ' is-active' : ''}`}
+                        onClick={() => setActiveLayoutTabId(t.id)}
+                      >
+                        {t.title}
+                        {t.widgets.length > 0 ? (
+                          <span className="rt-tab__count">
+                            {t.widgets.length}
                           </span>
-                          <div className="rt-task__main">
-                            <span
-                              className={`rt-task__title${done ? ' is-done' : ''}`}
-                            >
-                              {sourceTitle(l.source)}
-                            </span>
-                            <span className="rt-task__meta">
-                              <TwentyChip label={statusLabel} />
-                              <span className="tg-linked-badge">
-                                <Link2 size={9} aria-hidden="true" />
-                                Linked
-                              </span>
-                              {due ? (
-                                <span className="rt-task__due">
-                                  <CalendarClock size={11} aria-hidden="true" />
-                                  {due}
-                                </span>
-                              ) : null}
-                            </span>
-                          </div>
-                          <button
-                            type="button"
-                            className="tg-detach"
-                            disabled={busy}
-                            onClick={() =>
-                              void handleUnlinkTarget(
-                                TARGET_TASK_OBJECT,
-                                l.source.id,
-                              )
-                            }
-                            aria-label={`Detach ${sourceTitle(l.source)}`}
-                            title="Detach from this record"
-                          >
-                            {busy ? (
-                              <Loader2 size={13} className="tg-spin" />
-                            ) : (
-                              <X size={14} />
-                            )}
-                          </button>
-                        </div>
-                      );
-                    })}
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  className="rt-panel"
+                  role="tabpanel"
+                  aria-label={activeLayoutTab.title}
+                >
+                  {activeLayoutTab.widgets.length === 0 ? (
+                    <div className="lr-empty">Nothing in this tab.</div>
+                  ) : (
+                    activeLayoutTab.widgets.map((widget) =>
+                      renderLayoutWidget(widget),
+                    )
+                  )}
+                </div>
+              </>
+            ) : (
+              // --- Fixed-tab fallback (today's behavior, zero change) ---
+              <>
+                <TabStrip active={tab} onSelect={setTab} counts={tabCounts} />
+
+                {tab === 'fields' && (
+                  <div
+                    className="rt-panel"
+                    role="tabpanel"
+                    aria-label="Fields summary"
+                  >
+                    {renderFieldsPanel()}
                   </div>
                 )}
-              </div>
-            )}
 
-            {tab === 'activity' && (
-              <div
-                className="rt-panel"
-                role="tabpanel"
-                aria-label="Activity timeline"
-              >
-                <Composer
-                  onAdd={handleAddActivity}
-                  record={record}
-                  recordLabel={label}
-                  projectId={projectId}
-                />
-                <AttachmentTimeline
-                  activities={activities}
-                  loading={loadingTimeline}
-                  emptyLabel="No activity yet"
-                  currentAuthorId={commentAuthorId}
-                  onLearnAuthor={handleLearnCommentAuthor}
-                />
-              </div>
-            )}
+                {tab === 'notes' && (
+                  <div className="rt-panel" role="tabpanel" aria-label="Notes">
+                    {renderNotesPanel()}
+                  </div>
+                )}
 
-            {tab === 'files' && (
-              <div className="rt-panel" role="tabpanel" aria-label="Files">
-                <FilesPanel activities={activities} loading={loadingTimeline} />
-              </div>
-            )}
+                {tab === 'tasks' && (
+                  <div className="rt-panel" role="tabpanel" aria-label="Tasks">
+                    {renderTasksPanel()}
+                  </div>
+                )}
 
-            {tab === 'emails' && (
-              <div className="rt-panel" role="tabpanel" aria-label="Emails">
-                <EmailsPanel />
-              </div>
+                {tab === 'activity' && (
+                  <div
+                    className="rt-panel"
+                    role="tabpanel"
+                    aria-label="Activity timeline"
+                  >
+                    {renderTimelinePanel()}
+                  </div>
+                )}
+
+                {tab === 'files' && (
+                  <div className="rt-panel" role="tabpanel" aria-label="Files">
+                    {renderFilesPanel()}
+                  </div>
+                )}
+
+                {tab === 'emails' && (
+                  <div className="rt-panel" role="tabpanel" aria-label="Emails">
+                    <EmailsPanel />
+                  </div>
+                )}
+              </>
             )}
           </div>
         </aside>
