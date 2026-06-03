@@ -1,0 +1,365 @@
+/**
+ * SabCRM — workspace Activity feed (`/sabcrm/activity`) styles.
+ *
+ * NEW classes for the cross-object activity page ONLY. Twenty look, scoped to
+ * the `.sabcrm-twenty` runtime (the shared `--t-*` tokens from
+ * `sabcrm-twenty.css` are in scope here). We deliberately do NOT touch the
+ * shared `sabcrm-twenty.css` — every selector below is `.sa-feed*`-prefixed so
+ * it can't collide with the kit's `.st-*` / `.rt-*` classes.
+ */
+
+/* Page shell ----------------------------------------------------------- */
+.sa-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Type filter (segmented control) -------------------------------------- */
+.sa-feed__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.sa-feed__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--t-border, #e3e3e3);
+  border-radius: 8px;
+  background: var(--t-bg, #fff);
+  color: var(--t-text-secondary, #66666b);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.sa-feed__filter:hover {
+  background: var(--t-bg-hover, #f5f5f5);
+  color: var(--t-text, #1d1d1f);
+}
+
+.sa-feed__filter.is-active {
+  background: var(--t-text, #1d1d1f);
+  border-color: var(--t-text, #1d1d1f);
+  color: var(--t-bg, #fff);
+}
+
+.sa-feed__filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--t-bg-tertiary, #efefef);
+  color: var(--t-text-secondary, #66666b);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.sa-feed__filter.is-active .sa-feed__filter-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--t-bg, #fff);
+}
+
+/* Right-aligned refresh / meta row ------------------------------------- */
+.sa-feed__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.sa-feed__meta {
+  font-size: 12px;
+  color: var(--t-text-tertiary, #908f99);
+}
+
+.sa-feed__refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--t-border, #e3e3e3);
+  border-radius: 8px;
+  background: var(--t-bg, #fff);
+  color: var(--t-text-secondary, #66666b);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sa-feed__refresh:hover:not(:disabled) {
+  background: var(--t-bg-hover, #f5f5f5);
+  color: var(--t-text, #1d1d1f);
+}
+
+.sa-feed__refresh:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Banners (degraded engine) -------------------------------------------- */
+.sa-feed__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--t-border, #e3e3e3);
+  border-radius: 10px;
+  background: var(--t-bg-secondary, #fafafa);
+  color: var(--t-text-secondary, #66666b);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sa-feed__banner-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--t-text-tertiary, #908f99);
+}
+
+/* Timeline list -------------------------------------------------------- */
+.sa-feed__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sa-item {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding: 0 0 18px;
+}
+
+/* Connective rail (dots + line) */
+.sa-item__rail {
+  position: relative;
+  flex: 0 0 auto;
+  width: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.sa-item:not(:last-child) .sa-item__rail::after {
+  content: '';
+  position: absolute;
+  top: 24px;
+  bottom: -2px;
+  left: 50%;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--t-border, #e3e3e3);
+}
+
+.sa-item__dot {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--t-border, #e3e3e3);
+  background: var(--t-bg, #fff);
+  color: var(--t-text-secondary, #66666b);
+}
+
+/* Content card */
+.sa-item__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 0 0;
+}
+
+.sa-item__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sa-item__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t-text, #1d1d1f);
+  overflow-wrap: anywhere;
+}
+
+.sa-item__time {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--t-text-tertiary, #908f99);
+  white-space: nowrap;
+}
+
+.sa-item__snippet {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--t-text-secondary, #66666b);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sa-item__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.sa-item__target {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 3px 8px;
+  border: 1px solid var(--t-border, #e3e3e3);
+  border-radius: 999px;
+  background: var(--t-bg, #fff);
+  color: var(--t-text-secondary, #66666b);
+  font-size: 12px;
+  text-decoration: none;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.sa-item__target:hover {
+  background: var(--t-bg-hover, #f5f5f5);
+  color: var(--t-text, #1d1d1f);
+}
+
+.sa-item__target-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sa-item__author {
+  font-size: 12px;
+  color: var(--t-text-tertiary, #908f99);
+}
+
+/* States --------------------------------------------------------------- */
+.sa-feed__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--t-text-tertiary, #908f99);
+}
+
+.sa-feed__state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--t-bg-secondary, #fafafa);
+  border: 1px solid var(--t-border, #e3e3e3);
+  color: var(--t-text-tertiary, #908f99);
+}
+
+.sa-feed__state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t-text, #1d1d1f);
+}
+
+.sa-feed__state-hint {
+  font-size: 13px;
+  max-width: 340px;
+}
+
+/* Skeleton rows (loading) */
+.sa-skel {
+  display: flex;
+  gap: 12px;
+  padding: 0 0 18px;
+}
+
+.sa-skel__dot {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+}
+
+.sa-skel__lines {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding-top: 2px;
+}
+
+.sa-skel__line {
+  height: 11px;
+  border-radius: 6px;
+}
+
+.sa-skel__line--title {
+  width: 42%;
+}
+
+.sa-skel__line--body {
+  width: 78%;
+}
+
+.sa-skel__dot,
+.sa-skel__line {
+  background: linear-gradient(
+    90deg,
+    var(--t-bg-secondary, #f3f3f3) 25%,
+    var(--t-bg-tertiary, #ececec) 37%,
+    var(--t-bg-secondary, #f3f3f3) 63%
+  );
+  background-size: 400% 100%;
+  animation: sa-shimmer 1.4s ease infinite;
+}
+
+@keyframes sa-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.sa-spin {
+  animation: sa-rotate 0.8s linear infinite;
+}
+
+@keyframes sa-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,113 @@
+/* =========================================================================
+   SabCRM Settings — Localization supplemental classes
+   -------------------------------------------------------------------------
+   Companion sheet for the Localization (`/sabcrm/settings/localization`)
+   page. New `.st-l10n-*` selectors only; the base vocabulary in
+   `src/styles/sabcrm-twenty.css` is untouched, and this never edits the
+   shared profile / settings sheets.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame) so these helpers never leak into the rest of SabNode. The page
+   reuses the shared `.st-section`, `.st-field`, `.st-select`, `.st-segment`
+   helpers; the classes below add the live-preview chrome.
+   ========================================================================= */
+
+/* ---- A field paired with its live Intl preview ------------------------- */
+.sabcrm-twenty .st-l10n-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  max-width: 480px;
+}
+
+/* Constrain selects so they don't stretch the whole reading column. */
+.sabcrm-twenty .st-l10n-field .st-select {
+  width: 100%;
+}
+
+/* ---- Live preview pill ------------------------------------------------- */
+.sabcrm-twenty .st-l10n-preview {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-l10n-preview__label {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-l10n-preview__value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+/* Soft "couldn't format" fallback styling. */
+.sabcrm-twenty .st-l10n-preview--muted .st-l10n-preview__value {
+  font-family: inherit;
+  font-weight: var(--st-fw-regular, 400);
+  color: var(--st-text-tertiary);
+}
+
+/* ---- Summary card: every preference rendered together ------------------ */
+.sabcrm-twenty .st-l10n-summary {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: var(--st-space-2) var(--st-space-4);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-l10n-summary__key {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-l10n-summary__val {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  word-break: break-word;
+}
+
+/* ---- Skeleton shown until localStorage hydrates ------------------------ */
+.sabcrm-twenty .st-l10n-skeleton {
+  height: 72px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: linear-gradient(
+    90deg,
+    var(--st-bg-secondary) 0%,
+    var(--st-hover, var(--st-bg)) 50%,
+    var(--st-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: st-l10n-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes st-l10n-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-l10n-skeleton {
+    animation: none;
+  }
+}

@@ -1,0 +1,278 @@
+/* =========================================================================
+   SabCRM Settings → Templates
+   -------------------------------------------------------------------------
+   Supplemental Twenty-style (`.st-*`) classes for the note / email / task
+   template manager. Companion to `src/styles/sabcrm-twenty.css` and
+   `../settings-twenty.css` — only the two-pane layout + editor bits the
+   templates UI needs that aren't already in the shared `.st-*` vocabulary
+   live here.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   Tailwind / clay — Twenty look only. New classes use the `st-tpl-*` prefix
+   to stay clear of the shared base vocabulary.
+   ========================================================================= */
+
+/* --- Kind filter (segmented control) ------------------------------------ */
+.sabcrm-twenty .st-tpl-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: var(--st-space-4);
+  padding: 2px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-tpl-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px var(--st-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-tpl-filter__btn:hover:not(:disabled) {
+  color: var(--st-text);
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-tpl-filter__btn--active,
+.sabcrm-twenty .st-tpl-filter__btn--active:hover {
+  color: var(--st-text);
+  background: var(--st-bg);
+  border-color: var(--st-border);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+/* --- Two-pane shell ----------------------------------------------------- */
+.sabcrm-twenty .st-tpl-split {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--st-space-4);
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .sabcrm-twenty .st-tpl-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Left list pane ----------------------------------------------------- */
+.sabcrm-twenty .st-tpl-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-tpl-list__scroll {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .st-tpl-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: none;
+  border-bottom: 1px solid var(--st-border-light);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sabcrm-twenty .st-tpl-item:last-child {
+  border-bottom: none;
+}
+
+.sabcrm-twenty .st-tpl-item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-tpl-item--active,
+.sabcrm-twenty .st-tpl-item--active:hover {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-tpl-item__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-tpl-item__name--untitled {
+  color: var(--st-text-tertiary);
+  font-style: italic;
+}
+
+/* Kind badge (note / email / task). Reuses the shared `.st-chip` look but
+   with per-kind dot colours. */
+.sabcrm-twenty .st-tpl-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+  text-transform: capitalize;
+}
+
+.sabcrm-twenty .st-tpl-kind__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-tpl-kind--note .st-tpl-kind__dot {
+  background: #1961ed;
+}
+
+.sabcrm-twenty .st-tpl-kind--email .st-tpl-kind__dot {
+  background: #7c3aed;
+}
+
+.sabcrm-twenty .st-tpl-kind--task .st-tpl-kind__dot {
+  background: #b26a00;
+}
+
+/* List empty / loading hosts so the rail keeps its frame. */
+.sabcrm-twenty .st-tpl-list__empty {
+  padding: var(--st-space-5) var(--st-space-3);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  line-height: 1.5;
+}
+
+.sabcrm-twenty .st-tpl-list__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+}
+
+/* --- Right editor pane -------------------------------------------------- */
+.sabcrm-twenty .st-tpl-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  min-width: 0;
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-tpl-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-tpl-editor__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-tpl-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-tpl-editor__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+/* Body textarea wants more room than the shared default. */
+.sabcrm-twenty .st-tpl-body {
+  min-height: 200px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* --- Variable hint ------------------------------------------------------ */
+.sabcrm-twenty .st-tpl-vars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-tpl-vars__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sabcrm-twenty .st-tpl-vars__head svg {
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-tpl-vars__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sabcrm-twenty .st-tpl-vars__chip {
+  padding: 2px 6px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-tpl-vars__note {
+  font-size: var(--st-font-size-xs);
+  line-height: 1.4;
+  color: var(--st-text-secondary);
+}
+
+/* --- Empty editor (nothing selected) ------------------------------------ */
+.sabcrm-twenty .st-tpl-editor--empty {
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  text-align: center;
+}
+
+.sabcrm-twenty .st-tpl-editor--empty .st-empty {
+  border: none;
+  background: transparent;
+}

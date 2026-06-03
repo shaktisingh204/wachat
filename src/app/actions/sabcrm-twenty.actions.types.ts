@@ -33,6 +33,8 @@ export type {
   SabcrmAggregateMetric,
   SabcrmRecordAggregateGroup,
   SabcrmRecordAggregateResponse,
+  SabcrmRecordDuplicateGroup,
+  SabcrmRecordDuplicatesResponse,
 } from '@/lib/rust-client/sabcrm-records';
 export type {
   SabcrmRustActivity,

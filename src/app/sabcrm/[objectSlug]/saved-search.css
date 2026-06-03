@@ -1,0 +1,151 @@
+/* ===========================================================================
+   SabCRM — Quick filters (saved searches) row.
+
+   A per-object strip of pinned filter+sort combos, persisted in localStorage.
+   Clicking a pill recalls its saved query state; "Save current" captures the
+   live filters+sort into a new pinned pill. Lives directly under the saved-view
+   tabs and above the controls row in the Twenty view bar.
+
+   Uses ONLY the shared `--st-*` design tokens (from `sabcrm-twenty.css`, which
+   must not be edited). New, self-contained classes are namespaced `.stqf-*` so
+   they never collide with the canonical `.st-*` set or the `.stv-*` view-bar
+   classes.
+   ========================================================================= */
+
+.stqf {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--st-space-1);
+  padding: var(--st-space-1) 0 0;
+}
+
+.stqf__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 2px;
+  color: var(--st-text-tertiary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* A pinned quick-filter pill: click the body to apply, the trailing x to remove. */
+.stqf-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: 14px;
+  background: var(--st-bg);
+  color: var(--st-text-primary, #222);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.stqf-pill:hover {
+  border-color: var(--st-accent);
+}
+
+.stqf-pill.is-active {
+  border-color: var(--st-accent);
+  background: var(--st-bg-secondary);
+}
+
+.stqf-pill__apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 8px 0 var(--st-space-2);
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.stqf-pill__apply:hover {
+  color: var(--st-accent);
+}
+
+.stqf-pill__icon {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.stqf-pill.is-active .stqf-pill__icon {
+  color: var(--st-accent);
+}
+
+.stqf-pill__name {
+  font-weight: 500;
+}
+
+.stqf-pill__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+}
+
+.stqf-pill__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 100%;
+  padding: 0 6px 0 2px;
+  border: none;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.stqf-pill__x:hover {
+  color: var(--st-accent);
+}
+
+/* "Save current as quick filter" — a dashed ghost pill that sits at the end. */
+.stqf-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--st-space-2);
+  border: 1px dashed var(--st-border);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.1s ease, color 0.1s ease;
+}
+
+.stqf-save:hover:not(:disabled) {
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+.stqf-save:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

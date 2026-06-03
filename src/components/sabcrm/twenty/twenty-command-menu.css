@@ -186,6 +186,17 @@
   color: var(--st-cmdk-text-3);
 }
 
+/* ----- Recent / Favorites groups (empty-query suggestions) -----
+   Faithful to Twenty: same grouped rows, with a quiet accent on the leading
+   icon so "Recent" reads as time-ish and "Favorites" reads as starred. */
+.st-cmdk-group--recent .st-cmdk-row__icon {
+  color: var(--st-cmdk-text-3);
+}
+
+.st-cmdk-group--favorites .st-cmdk-row__icon {
+  color: var(--st-cmdk-accent, #4f9cf9);
+}
+
 /* ----- States: empty / loading / error ----- */
 .st-cmdk-status {
   padding: 18px 12px;

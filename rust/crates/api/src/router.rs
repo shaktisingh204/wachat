@@ -348,6 +348,8 @@ pub fn build(state: AppState) -> Router {
     let sabcrm_invites = sabcrm_invites::router::<AppState>();
     let sabcrm_dashboards = sabcrm_dashboards::router::<AppState>();
     let sabcrm_tags = sabcrm_tags::router::<AppState>();
+    let sabcrm_templates = sabcrm_templates::router::<AppState>();
+    let sabcrm_pipelines = sabcrm_pipelines::router::<AppState>();
     let sabcrm_favorites = sabcrm_favorites::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
     let crm_invoices = crm_invoices::router::<AppState>();
@@ -614,6 +616,8 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcrm/invites", sabcrm_invites)
         .nest("/v1/sabcrm/dashboards", sabcrm_dashboards)
         .nest("/v1/sabcrm/tags", sabcrm_tags)
+        .nest("/v1/sabcrm/templates", sabcrm_templates)
+        .nest("/v1/sabcrm/pipelines", sabcrm_pipelines)
         .nest("/v1/sabcrm/favorites", sabcrm_favorites)
         .nest("/v1/crm/quotations", crm_quotations)
         .nest("/v1/crm/invoices", crm_invoices)

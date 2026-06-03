@@ -57,6 +57,9 @@ import {
   Mail,
   Inbox,
   ListChecks,
+  Tag as TagIcon,
+  Check,
+  Printer,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -88,6 +91,7 @@ import {
   addActivityCommentTw,
   deleteActivityCommentTw,
 } from '@/app/actions/sabcrm-twenty.actions';
+import { listTagsTw } from '@/app/actions/sabcrm-tags.actions';
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 import type {
@@ -115,6 +119,7 @@ import './relations-edit.css';
 import './comments.css';
 import './rich-text.css';
 import './show-widgets.css';
+import './detail-tags.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -1107,10 +1112,11 @@ function StarToggle({ active, busy, onToggle, className }: StarToggleProps) {
 
 interface RecordMenuProps {
   onDelete: () => void;
+  onPrint: () => void;
 }
 
-/** A Twenty "..." overflow menu; currently surfaces a destructive Delete. */
-function RecordMenu({ onDelete }: RecordMenuProps): React.JSX.Element {
+/** A Twenty "..." overflow menu; surfaces Print + a destructive Delete. */
+function RecordMenu({ onDelete, onPrint }: RecordMenuProps): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -1146,6 +1152,18 @@ function RecordMenu({ onDelete }: RecordMenuProps): React.JSX.Element {
       </button>
       {open ? (
         <div className="stp-menu__pop" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            className="stp-menu__item"
+            onClick={() => {
+              setOpen(false);
+              onPrint();
+            }}
+          >
+            <Printer size={14} aria-hidden="true" />
+            Print
+          </button>
           <button
             type="button"
             role="menuitem"
@@ -1863,6 +1881,220 @@ function EditableValue({ field, value, onCommit }: EditableValueProps) {
 }
 
 // ---------------------------------------------------------------------------
+// Tags — applied-tag chips + an "Add tag" checklist picker
+// ---------------------------------------------------------------------------
+
+/**
+ * Workspace tag shape from `listTagsTw`. Declared structurally (rather than
+ * importing the engine type) so this stays compatible with the `{ id, name,
+ * color }` contract regardless of the action's extra fields.
+ */
+interface RecordTag {
+  id: string;
+  name: string;
+  color: string;
+}
+
+/** Read the applied-tag id list off a record's `data.__tags` (defensive). */
+function recordTagIds(record: SabcrmRustRecord): string[] {
+  const raw = (record.data as { __tags?: unknown }).__tags;
+  return Array.isArray(raw) ? raw.filter((v): v is string => typeof v === 'string') : [];
+}
+
+/** Pick a readable foreground (black/white) for a given hex tag color. */
+function readableOn(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return 'var(--st-text)';
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  // Relative luminance (sRGB approximation).
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return lum > 0.6 ? '#1b1b18' : '#ffffff';
+}
+
+/** Inline CSS custom-properties tinting a chip from its tag color. */
+function chipVars(color: string): React.CSSProperties {
+  const valid = /^#?[0-9a-f]{6}$/i.test((color ?? '').trim());
+  if (!valid) return {};
+  const hex = color.startsWith('#') ? color : `#${color}`;
+  return {
+    ['--stg-chip-bg' as string]: `${hex}22`,
+    ['--stg-chip-border' as string]: `${hex}55`,
+    ['--stg-chip-fg' as string]: readableOn(hex),
+    ['--stg-chip-dot' as string]: hex,
+  } as React.CSSProperties;
+}
+
+interface TagsRowProps {
+  /** All workspace tags (catalogue for the picker); null while loading. */
+  catalogue: RecordTag[] | null;
+  catalogueError: string | null;
+  /** Ids currently applied to the record. */
+  appliedIds: string[];
+  /** Toggle a tag on/off the record (optimistic; parent owns persistence). */
+  onToggle: (tagId: string) => void;
+  /** Ids with an in-flight toggle (for the pending visual). */
+  pendingIds: ReadonlySet<string>;
+  /** Last toggle error, if any. */
+  error: string | null;
+}
+
+/**
+ * The record-header "Tags" row: applied tags as colored chips (each removable),
+ * plus an "Add tag" checklist popover listing every workspace tag with a check
+ * beside the applied ones. Toggling is delegated to the parent (optimistic +
+ * rollback there). Degrades to muted empty / error states.
+ */
+function TagsRow({
+  catalogue,
+  catalogueError,
+  appliedIds,
+  onToggle,
+  pendingIds,
+  error,
+}: TagsRowProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  // Dismiss on outside-click / Escape while open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const byId = React.useMemo(() => {
+    const map = new Map<string, RecordTag>();
+    for (const t of catalogue ?? []) map.set(t.id, t);
+    return map;
+  }, [catalogue]);
+
+  const appliedSet = React.useMemo(() => new Set(appliedIds), [appliedIds]);
+
+  // Resolve applied chips against the catalogue; tolerate ids the catalogue
+  // doesn't know yet by showing a neutral fallback chip.
+  const appliedTags: RecordTag[] = appliedIds.map(
+    (id) => byId.get(id) ?? { id, name: id, color: '' },
+  );
+
+  return (
+    <div className="stg-tags" aria-label="Tags">
+      <span className="stg-tags__label">
+        <TagIcon size={12} aria-hidden="true" />
+        Tags
+      </span>
+
+      {appliedTags.map((tag) => (
+        <span
+          key={tag.id}
+          className={`stg-chip${pendingIds.has(tag.id) ? ' is-pending' : ''}`}
+          style={chipVars(tag.color)}
+          title={tag.name}
+        >
+          <span className="stg-chip__dot" aria-hidden="true" />
+          <span className="stg-chip__name">{tag.name}</span>
+          <button
+            type="button"
+            className="stg-chip__remove"
+            onClick={() => onToggle(tag.id)}
+            disabled={pendingIds.has(tag.id)}
+            aria-label={`Remove tag ${tag.name}`}
+            title="Remove tag"
+          >
+            <X size={11} />
+          </button>
+        </span>
+      ))}
+
+      <div className="stg-picker" ref={ref}>
+        <button
+          type="button"
+          className="stg-add-btn"
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          aria-label="Add tag"
+          title="Add tag"
+          onClick={() => setOpen((v) => !v)}
+        >
+          <Plus size={12} aria-hidden="true" />
+          Add tag
+        </button>
+        {open ? (
+          <div className="stg-picker__pop" role="dialog" aria-label="Toggle tags">
+            <div className="stg-picker__list">
+              {catalogue === null ? (
+                <div className="stg-picker__state">
+                  <Loader2 size={13} className="st-spin" aria-hidden="true" />
+                </div>
+              ) : catalogueError ? (
+                <div className="stg-picker__state is-error">{catalogueError}</div>
+              ) : catalogue.length === 0 ? (
+                <div className="stg-picker__state">No tags defined.</div>
+              ) : (
+                catalogue.map((tag) => {
+                  const applied = appliedSet.has(tag.id);
+                  const dot = /^#?[0-9a-f]{6}$/i.test((tag.color ?? '').trim())
+                    ? tag.color.startsWith('#')
+                      ? tag.color
+                      : `#${tag.color}`
+                    : undefined;
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      className="stg-picker__item"
+                      disabled={pendingIds.has(tag.id)}
+                      aria-pressed={applied}
+                      onClick={() => onToggle(tag.id)}
+                    >
+                      <span className="stg-picker__check" aria-hidden="true">
+                        {pendingIds.has(tag.id) ? (
+                          <Loader2 size={12} className="st-spin" />
+                        ) : applied ? (
+                          <Check size={13} />
+                        ) : null}
+                      </span>
+                      <span
+                        className="stg-picker__item-dot"
+                        style={
+                          dot
+                            ? ({ ['--stg-item-dot' as string]: dot } as React.CSSProperties)
+                            : undefined
+                        }
+                        aria-hidden="true"
+                      />
+                      <span className="stg-picker__item-label">{tag.name}</span>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      {error ? (
+        <span className="stg-tags__error" role="alert">
+          {error}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -1924,6 +2156,22 @@ export function RecordDetailTw({
 
   // Per-task in-flight guard for status toggles.
   const [taskBusyId, setTaskBusyId] = React.useState<string | null>(null);
+
+  // Tags: the workspace catalogue (null = loading), per-tag in-flight guard,
+  // and a toggle error. Applied ids live on the record's `data.__tags`.
+  const [tagCatalogue, setTagCatalogue] = React.useState<RecordTag[] | null>(
+    null,
+  );
+  const [tagCatalogueError, setTagCatalogueError] = React.useState<string | null>(
+    null,
+  );
+  const [tagPendingIds, setTagPendingIds] = React.useState<Set<string>>(
+    () => new Set(),
+  );
+  const [tagError, setTagError] = React.useState<string | null>(null);
+
+  // Print: drives the `.is-printing` class on the page root (see detail-tags.css).
+  const [printing, setPrinting] = React.useState(false);
 
   // The viewer's author id, learned the first time they post a comment in any
   // thread. Shared across all timeline comment threads so a posted comment's
@@ -2022,6 +2270,86 @@ export function RecordDetailTw({
       cancelled = true;
     };
   }, [object.slug, record.id, projectId]);
+
+  // Load the workspace tag catalogue once (graceful: muted state on failure).
+  React.useEffect(() => {
+    let cancelled = false;
+    setTagCatalogue(null);
+    setTagCatalogueError(null);
+    (async () => {
+      const res = await listTagsTw(projectId ?? undefined);
+      if (cancelled) return;
+      if (res.ok) {
+        setTagCatalogue(
+          res.data.map((t) => ({ id: t.id, name: t.name, color: t.color })),
+        );
+      } else {
+        setTagCatalogue([]);
+        setTagCatalogueError(res.error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  // Currently-applied tag ids (off `data.__tags`).
+  const appliedTagIds = React.useMemo(() => recordTagIds(record), [record]);
+
+  // Toggle a tag on/off the record, persisting the new `__tags` array
+  // (optimistic + rollback). A per-tag guard prevents double-fires.
+  const handleToggleTag = React.useCallback(
+    async (tagId: string) => {
+      if (tagPendingIds.has(tagId)) return;
+      const prev = record;
+      const current = recordTagIds(record);
+      const next = current.includes(tagId)
+        ? current.filter((id) => id !== tagId)
+        : [...current, tagId];
+
+      setTagError(null);
+      setTagPendingIds((s) => {
+        const copy = new Set(s);
+        copy.add(tagId);
+        return copy;
+      });
+      // Optimistically reflect the new tag set on the record.
+      setRecord((r) => ({ ...r, data: { ...r.data, __tags: next } }));
+
+      const res = await updateSabcrmRecordTw(
+        object.slug,
+        record.id,
+        { __tags: next },
+        projectId ?? undefined,
+      );
+      if (!res.ok) {
+        setRecord(prev); // rollback
+        setTagError(res.error);
+      } else {
+        setRecord(res.data);
+      }
+      setTagPendingIds((s) => {
+        const copy = new Set(s);
+        copy.delete(tagId);
+        return copy;
+      });
+    },
+    [tagPendingIds, record, object.slug, projectId],
+  );
+
+  // Print: apply the print-friendly class, fire the browser print dialog, then
+  // clear the class once the dialog settles (afterprint, or a fallback timer).
+  const handlePrint = React.useCallback(() => {
+    setPrinting(true);
+    const clear = () => setPrinting(false);
+    window.addEventListener('afterprint', clear, { once: true });
+    // Let the class paint before invoking the (synchronous) print dialog.
+    window.setTimeout(() => {
+      window.print();
+      // Safari/Firefox don't always emit `afterprint`; ensure cleanup.
+      window.setTimeout(clear, 500);
+    }, 50);
+  }, []);
 
   const handleAddActivity = React.useCallback(
     async (
@@ -2412,7 +2740,7 @@ export function RecordDetailTw({
   const label = recordLabel(object, record);
 
   return (
-    <div className="st-page">
+    <div className={`st-page${printing ? ' is-printing' : ''}`}>
       <Link href={`/sabcrm/${object.slug}`} className="st-back">
         <ArrowLeft size={14} />
         {object.labelPlural}
@@ -2446,6 +2774,7 @@ export function RecordDetailTw({
             onToggle={handleToggleFavorite}
           />
           <RecordMenu
+            onPrint={handlePrint}
             onDelete={() => {
               setDeleteError(null);
               setDeleteOpen(true);
@@ -2453,6 +2782,15 @@ export function RecordDetailTw({
           />
         </div>
       </div>
+
+      <TagsRow
+        catalogue={tagCatalogue}
+        catalogueError={tagCatalogueError}
+        appliedIds={appliedTagIds}
+        onToggle={handleToggleTag}
+        pendingIds={tagPendingIds}
+        error={tagError}
+      />
 
       {deleteOpen ? (
         <DeleteDialog

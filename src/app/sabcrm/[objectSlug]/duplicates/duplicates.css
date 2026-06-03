@@ -1,0 +1,193 @@
+/**
+ * SabCRM — "Find duplicates" screen styles (Twenty look only).
+ *
+ * Scoped to the duplicates page; consumes the shared `--st-*` design tokens so
+ * it re-themes for free in light / dark. NO ZoruUI / Tailwind / clay here —
+ * only `.st-dup-*` classes, alongside the reusable `.st-page / .st-input /
+ * .st-select / .st-btn / .st-banner / .st-empty / .st-skeleton / .st-field`
+ * primitives already shipped with the Twenty kit. NEW classes only — the shared
+ * `sabcrm-twenty.css` is never edited.
+ */
+
+/* --- Scan control bar (field selector + Scan button) --------------------- */
+
+.st-dup-scan {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  margin-bottom: var(--st-space-5);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.st-dup-scan__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 240px;
+  flex: 1 1 240px;
+}
+
+.st-dup-scan__label {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-secondary);
+}
+
+.st-dup-scan__hint {
+  width: 100%;
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+/* --- Summary line above the result groups -------------------------------- */
+
+.st-dup-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-4);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.st-dup-summary__count {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+/* --- Group list ---------------------------------------------------------- */
+
+.st-dup-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+.st-dup-group {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.st-dup-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary, var(--st-bg));
+}
+
+.st-dup-group__value {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.st-dup-group__value-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-dup-group__field {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-regular);
+  color: var(--st-text-secondary);
+}
+
+.st-dup-group__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-accent, var(--st-text));
+  background: var(--st-accent-soft, var(--st-bg-secondary, var(--st-bg)));
+  white-space: nowrap;
+}
+
+.st-dup-group__spacer {
+  flex: 1 1 auto;
+}
+
+.st-dup-group__merge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.st-dup-group__merge:hover {
+  background: var(--st-bg-hover, var(--st-bg-secondary, var(--st-bg)));
+  border-color: var(--st-accent, var(--st-border));
+}
+
+/* --- Records within a group --------------------------------------------- */
+
+.st-dup-records {
+  display: flex;
+  flex-direction: column;
+}
+
+.st-dup-record {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+}
+
+.st-dup-record + .st-dup-record {
+  border-top: 1px solid var(--st-border);
+}
+
+.st-dup-record__link {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-accent, var(--st-text));
+  text-decoration: none;
+}
+
+.st-dup-record__link:hover {
+  text-decoration: underline;
+}
+
+.st-dup-record__spacer {
+  flex: 1 1 auto;
+}
+
+.st-dup-record__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+.st-dup-record__id {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}

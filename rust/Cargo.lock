@@ -11595,6 +11595,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-pipelines"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-records"
 version = "0.1.0"
 dependencies = [
@@ -11657,6 +11677,26 @@ dependencies = [
 
 [[package]]
 name = "sabcrm-tags"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "sabcrm-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -12976,10 +13016,12 @@ dependencies = [
  "sabcrm-invites",
  "sabcrm-notifications",
  "sabcrm-objects",
+ "sabcrm-pipelines",
  "sabcrm-records",
  "sabcrm-roles",
  "sabcrm-settings",
  "sabcrm-tags",
+ "sabcrm-templates",
  "sabcrm-views",
  "sabcrm-workflows",
  "sabdesk-automations",

@@ -38,9 +38,9 @@ use tracing::instrument;
 use crate::dto::{
     AggregateGroup, AggregateInput, AggregateResponse, BulkDeleteInput, BulkDeleteResponse,
     BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse, CreateRecordInput,
-    DistinctQuery, DistinctResponse, GroupRecordsInput, GroupResponse, ListQuery, ListResponse,
-    MergeRecordsInput, OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationsResponse,
-    ScopeQuery, UpdateRecordInput,
+    DistinctQuery, DistinctResponse, DuplicateGroup, DuplicatesQuery, DuplicatesResponse,
+    GroupRecordsInput, GroupResponse, ListQuery, ListResponse, MergeRecordsInput, OkResponse,
+    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -62,6 +62,10 @@ const MAX_RELATION_RECORDS: i64 = 50;
 const MAX_AGGREGATE_GROUPS: i64 = 200;
 /// Hard cap on values returned by the distinct endpoint.
 const MAX_DISTINCT_VALUES: usize = 200;
+/// Hard cap on duplicate groups returned by the duplicates endpoint.
+const MAX_DUPLICATE_GROUPS: i64 = 100;
+/// Hard cap on records returned per duplicate group.
+const MAX_DUPLICATE_RECORDS: usize = 10;
 
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
@@ -1087,6 +1091,94 @@ pub async fn distinct_values(
         .collect();
 
     Ok(Json(DistinctResponse { values }))
+}
+
+// ===========================================================================
+// GET /{object}/duplicates — findDuplicates
+// ===========================================================================
+
+/// `GET /v1/sabcrm/records/{object}/duplicates?field=<key>` — find groups of
+/// records that share the same `data.<field>` value (the duplicate key) within
+/// `{ projectId, object }`.
+///
+/// Pipeline: `$match` ({@link scope} + `data.<field>` not null) → `$group` by
+/// `$data.<field>` collecting `$$ROOT` and a `$sum` count → `$match count > 1`
+/// → `$limit` [`MAX_DUPLICATE_GROUPS`]. Each returned group caps its `records`
+/// at [`MAX_DUPLICATE_RECORDS`] (the `count` still reflects the true total).
+/// An empty / missing `field` yields a `400`.
+#[instrument(skip_all, fields(object = %object, field = %query.field))]
+pub async fn find_duplicates(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Query(query): Query<DuplicatesQuery>,
+) -> Result<Json<DuplicatesResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let field = query.field.trim();
+    if field.is_empty() {
+        return Err(ApiError::BadRequest("field is required.".to_owned()));
+    }
+
+    let mut match_filter = scope(project_id, &object);
+    match_filter.insert(format!("data.{field}"), doc! { "$ne": Bson::Null });
+
+    let group_path = format!("$data.{field}");
+    let pipeline = vec![
+        doc! { "$match": match_filter },
+        doc! { "$sort": { "updatedAt": -1 } },
+        doc! {
+            "$group": {
+                "_id": group_path,
+                "records": { "$push": "$$ROOT" },
+                "count": { "$sum": 1 },
+            }
+        },
+        doc! { "$match": { "count": { "$gt": 1 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$limit": MAX_DUPLICATE_GROUPS },
+    ];
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let mut cursor = coll.aggregate(pipeline).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate(duplicates)"))
+    })?;
+
+    let mut groups = Vec::new();
+    while let Some(mut bucket) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.duplicates.cursor"))
+    })? {
+        let value = bucket
+            .remove("_id")
+            .map(sabnode_db::bson_helpers::bson_to_clean_json)
+            .unwrap_or(Value::Null);
+
+        let count = bucket
+            .get("count")
+            .and_then(Bson::as_i64)
+            .or_else(|| bucket.get("count").and_then(Bson::as_i32).map(i64::from))
+            .unwrap_or(0)
+            .max(0) as u64;
+
+        let records = match bucket.remove("records") {
+            Some(Bson::Array(arr)) => arr
+                .into_iter()
+                .take(MAX_DUPLICATE_RECORDS)
+                .filter_map(|b| match b {
+                    Bson::Document(d) => Some(record_to_wire(d)),
+                    _ => None,
+                })
+                .collect(),
+            _ => Vec::new(),
+        };
+
+        groups.push(DuplicateGroup {
+            value,
+            count,
+            records,
+        });
+    }
+
+    Ok(Json(DuplicatesResponse { groups }))
 }
 
 // ===========================================================================

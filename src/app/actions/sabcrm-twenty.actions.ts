@@ -48,6 +48,7 @@ import type {
   SabcrmRecordsTwPage,
   SabcrmRecordTwGroups,
   SabcrmRecordTwAggregate,
+  SabcrmRecordDuplicateGroup,
   SabcrmRustRecord,
   RecordRelation,
   ListSabcrmActivitiesTwParams,
@@ -486,6 +487,36 @@ export async function distinctSabcrmRecordValuesTw(
     return { ok: true, data: res.values };
   } catch (e) {
     return fail(e, 'Failed to load distinct values.');
+  }
+}
+
+/**
+ * Finds groups of records that share the same `data.<field>` value (the
+ * duplicate key) for an object — e.g. to surface duplicate emails or names
+ * for a merge workflow. Each group carries the shared `value`, the true
+ * `count`, and up to 10 of the matching records (groups capped at 100
+ * server-side). Gated on `view`, mirroring the distinct/aggregate pipeline.
+ */
+export async function findDuplicateRecordsTw(
+  object: string,
+  field: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordDuplicateGroup[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!field) return { ok: false, error: 'A field is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.duplicates(
+      object,
+      field,
+      g.ctx.projectId,
+    );
+    return { ok: true, data: res.groups };
+  } catch (e) {
+    return fail(e, 'Failed to find duplicate records.');
   }
 }
 

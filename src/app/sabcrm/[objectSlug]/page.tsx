@@ -32,6 +32,8 @@ import {
   Loader2,
   Star,
   X,
+  Check,
+  Tag as TagIcon,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
@@ -39,6 +41,7 @@ import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
 import './kanban-dnd.css';
+import './record-tags.css';
 import {
   SabcrmViewBar,
   EMPTY_VIEW_STATE,
@@ -67,6 +70,8 @@ import {
   bulkDeleteRecordsTw,
   bulkUpdateRecordsTw,
 } from '@/app/actions/sabcrm-bulk.actions';
+import { listTagsTw } from '@/app/actions/sabcrm-tags.actions';
+import type { SabcrmRustTag } from '@/app/actions/sabcrm-tags.actions.types';
 import type {
   SabcrmRustRecord,
   SabcrmRecordTwGroup,
@@ -185,6 +190,276 @@ function coerceInput(field: FieldMetadata, raw: string): unknown {
     return Number.isNaN(n) ? raw : n;
   }
   return raw;
+}
+
+// ---------------------------------------------------------------------------
+// Record tags (per-record labels stored on `data.__tags`: string[] of tag ids)
+// ---------------------------------------------------------------------------
+
+/** The reserved record-data key the applied tag-id list lives under. */
+const TAGS_KEY = '__tags';
+
+/** Read a record's applied tag ids (defensive against bad/legacy shapes). */
+function recordTagIds(record: SabcrmRustRecord): string[] {
+  const raw = record.data[TAGS_KEY];
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((v): v is string => typeof v === 'string');
+}
+
+interface TagPickerCellProps {
+  /** All workspace tag definitions ({ id, name, color }). */
+  tags: SabcrmRustTag[];
+  /** Tag ids currently applied to this record. */
+  appliedIds: string[];
+  /** Toggle one tag id on/off for this record (page persists optimistically). */
+  onToggle: (tagId: string, next: boolean) => void;
+  /** Loading flag — disables the "+" while the tag list is still resolving. */
+  tagsLoading: boolean;
+}
+
+/**
+ * One table cell rendering a record's applied tags as colored chips plus a "+"
+ * that opens a checklist popover toggling every workspace tag on the record.
+ * Self-contained (open/close + outside-click); the actual persistence lives in
+ * the page so it can be optimistic with rollback.
+ */
+function TagPickerCell({ tags, appliedIds, onToggle, tagsLoading }: TagPickerCellProps) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  const tagById = React.useMemo(
+    () => new Map(tags.map((t) => [t.id, t] as const)),
+    [tags],
+  );
+  const appliedSet = React.useMemo(() => new Set(appliedIds), [appliedIds]);
+
+  // Only render chips for ids that still resolve to a live tag definition.
+  const appliedTags = React.useMemo(
+    () =>
+      appliedIds
+        .map((id) => tagById.get(id))
+        .filter((t): t is SabcrmRustTag => !!t),
+    [appliedIds, tagById],
+  );
+
+  // Close on outside click / Escape while the popover is open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const hasTags = appliedTags.length > 0;
+
+  return (
+    <span
+      className="stg-cell"
+      // The cell's click affordances must never bubble into row selection /
+      // keyboard-cursor parking or the link navigation.
+      onClick={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+    >
+      {appliedTags.map((t) => (
+        <span
+          className="stg-chip"
+          key={t.id}
+          title={t.name}
+          style={t.color ? { borderColor: 'transparent' } : undefined}
+        >
+          <span
+            className="stg-chip__dot"
+            style={chipColor(t.color) ? { background: chipColor(t.color) } : undefined}
+            aria-hidden="true"
+          />
+          <span className="stg-chip__label">{t.name}</span>
+          <button
+            type="button"
+            className="stg-chip__x"
+            aria-label={`Remove tag ${t.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle(t.id, false);
+            }}
+          >
+            <X size={10} />
+          </button>
+        </span>
+      ))}
+
+      <span className="stg-anchor" ref={ref}>
+        <button
+          type="button"
+          className={`stg-add${hasTags ? '' : ' stg-add--empty'}${open ? ' is-open' : ''}`}
+          aria-label="Add tag"
+          aria-haspopup="true"
+          aria-expanded={open}
+          disabled={tagsLoading}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((o) => !o);
+          }}
+        >
+          <Plus size={12} />
+        </button>
+
+        {open && (
+          <div className="stg-pop stg-pop--right" role="menu" aria-label="Toggle tags">
+            <p className="stg-pop__title">Tags</p>
+            {tags.length === 0 ? (
+              <div className="stg-pop__empty">No tags defined yet.</div>
+            ) : (
+              <div className="stg-pop__list">
+                {tags.map((t) => {
+                  const applied = appliedSet.has(t.id);
+                  return (
+                    <button
+                      type="button"
+                      key={t.id}
+                      role="menuitemcheckbox"
+                      aria-checked={applied}
+                      className={`stg-opt${applied ? ' is-applied' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggle(t.id, !applied);
+                      }}
+                    >
+                      <span className="stg-opt__check" aria-hidden="true">
+                        {applied ? <Check size={13} /> : null}
+                      </span>
+                      <span
+                        className="stg-opt__dot"
+                        style={
+                          chipColor(t.color)
+                            ? { background: chipColor(t.color) }
+                            : undefined
+                        }
+                        aria-hidden="true"
+                      />
+                      <span className="stg-opt__label">{t.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </span>
+    </span>
+  );
+}
+
+interface TagFilterControlProps {
+  tags: SabcrmRustTag[];
+  /** Currently-selected filter tag id, or `null` for "all rows". */
+  value: string | null;
+  onChange: (tagId: string | null) => void;
+}
+
+/** Toolbar "Tag" filter — pick one tag to narrow the table to rows carrying it. */
+function TagFilterControl({ tags, value, onChange }: TagFilterControlProps) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const active = tags.find((t) => t.id === value) ?? null;
+
+  return (
+    <div className="stg-filter" ref={ref}>
+      <button
+        type="button"
+        className={`stg-filter__btn${open ? ' is-open' : ''}${
+          active ? ' is-active' : ''
+        }`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        title="Filter by tag"
+      >
+        {active && chipColor(active.color) ? (
+          <span
+            className="stg-filter__dot"
+            style={{ background: chipColor(active.color) }}
+            aria-hidden="true"
+          />
+        ) : (
+          <TagIcon size={14} aria-hidden="true" />
+        )}
+        {active ? active.name : 'Tag'}
+      </button>
+
+      {open && (
+        <div className="stg-filter__pop" role="menu" aria-label="Filter by tag">
+          <p className="stg-pop__title">Filter by tag</p>
+          {tags.length === 0 ? (
+            <div className="stg-pop__empty">No tags defined yet.</div>
+          ) : (
+            <div className="stg-pop__list">
+              {tags.map((t) => {
+                const isSel = t.id === value;
+                return (
+                  <button
+                    type="button"
+                    key={t.id}
+                    role="menuitemradio"
+                    aria-checked={isSel}
+                    className={`stg-opt${isSel ? ' is-applied' : ''}`}
+                    onClick={() => {
+                      onChange(isSel ? null : t.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <span className="stg-opt__check" aria-hidden="true">
+                      {isSel ? <Check size={13} /> : null}
+                    </span>
+                    <span
+                      className="stg-opt__dot"
+                      style={
+                        chipColor(t.color) ? { background: chipColor(t.color) } : undefined
+                      }
+                      aria-hidden="true"
+                    />
+                    <span className="stg-opt__label">{t.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {value && (
+            <div className="stg-pop__row stg-filter__clear">
+              <TwentyButton variant="secondary" onClick={() => { onChange(null); setOpen(false); }}>
+                Clear tag filter
+              </TwentyButton>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -368,6 +643,14 @@ interface TableViewProps {
   /** Per-group + total aggregates; `null` while loading / unavailable. */
   aggregate: SabcrmAggregateResult | null;
   aggregateLoading: boolean;
+
+  // ---- Record tags (owned by the page) -----------------------------------
+  /** Workspace tag definitions ({ id, name, color }) for the picker. */
+  tags: SabcrmRustTag[];
+  /** Still resolving the tag list — disables the per-row "+". */
+  tagsLoading: boolean;
+  /** Toggle a tag id on/off for a record (page persists optimistically). */
+  onToggleTag: (recordId: string, tagId: string, next: boolean) => void;
 }
 
 /** Where a drag currently wants to drop, relative to a hovered header. */
@@ -402,13 +685,17 @@ function TableView({
   metricField,
   aggregate,
   aggregateLoading,
+  tags,
+  tagsLoading,
+  onToggleTag,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
 
   // Total span of every data column (used by full-width group / footer cells:
-  // the selection + favorite leading columns plus one per visible column).
-  const colSpan = columns.length + 2;
+  // the selection + favorite + tags leading columns plus one per visible
+  // column). Keep in sync with the leading <th>/<td> count below.
+  const colSpan = columns.length + 3;
 
   // When a group-by field is active we render an inline stat band before the
   // first row of each new group value. Resolve a label for each group value.
@@ -525,9 +812,10 @@ function TableView({
       <table className={`st-table${hasWidths ? ' st-table--fixed' : ''}`}>
         {hasWidths && (
           <colgroup>
-            {/* selection + favorite columns keep their fixed kit widths */}
+            {/* selection + favorite + tags columns keep their fixed widths */}
             <col style={{ width: 36 }} />
             <col style={{ width: 32 }} />
+            <col style={{ width: 160 }} />
             {columns.map((col) => (
               <col
                 key={col.key}
@@ -555,6 +843,9 @@ function TableView({
               />
             </th>
             <th aria-label="Favorite" style={{ width: 32 }} />
+            <th className="stg-th" style={{ width: 160 }}>
+              Tags
+            </th>
             {columns.map((col) => {
               const sortable = SORTABLE_HEADER.has(col.type);
               const active = sortBy === col.key;
@@ -761,6 +1052,14 @@ function TableView({
                 >
                   <Star size={13} fill={isFav ? 'currentColor' : 'none'} />
                 </button>
+              </td>
+              <td className="stg-th">
+                <TagPickerCell
+                  tags={tags}
+                  appliedIds={recordTagIds(record)}
+                  tagsLoading={tagsLoading}
+                  onToggle={(tagId, next) => onToggleTag(record.id, tagId, next)}
+                />
               </td>
               {columns.map((col) => {
                 const isFirst = labelField
@@ -1251,6 +1550,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
   const [favBusy, setFavBusy] = React.useState<Set<string>>(new Set());
 
+  // Workspace tag definitions ({ id, name, color }), loaded once per project.
+  // Applied tags live on each record at `data.__tags` (string[] of tag ids).
+  const [tags, setTags] = React.useState<SabcrmRustTag[]>([]);
+  const [tagsLoading, setTagsLoading] = React.useState(true);
+  // Toolbar "Tag" filter: the selected tag id to narrow rows to, or null.
+  const [tagFilter, setTagFilter] = React.useState<string | null>(null);
+
   // Multi-select state for bulk actions (set of recordIds).
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
@@ -1275,6 +1581,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setSearch('');
     setView('table');
     setViewState(EMPTY_VIEW_STATE);
+    setTagFilter(null);
   }, [objectSlug]);
 
   // Selection must not leak across object / filter / search / view changes —
@@ -1558,6 +1865,15 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     () => new Set(columns.map((c) => c.key)),
     [columns],
   );
+  // Client-side "Tag" filter: narrow the loaded page to records carrying the
+  // chosen tag id on `data.__tags`. The engine filter is string-based, so a
+  // client filter over the loaded page is the faithful behavior here. When no
+  // tag is selected this is the identity of `records`.
+  const visibleRecords = React.useMemo(() => {
+    if (!tagFilter) return records;
+    return records.filter((r) => recordTagIds(r).includes(tagFilter));
+  }, [records, tagFilter]);
+
   const labelField = React.useMemo(
     () => object?.fields.find((f) => f.isLabel),
     [object],
@@ -1717,6 +2033,66 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     };
   }, [objectSlug, activeProjectId]);
 
+  // Load the workspace tag definitions once per project (graceful on failure).
+  React.useEffect(() => {
+    let cancelled = false;
+    setTagsLoading(true);
+    (async () => {
+      const res = await listTagsTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      setTags(res.ok ? res.data : []);
+      setTagsLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
+
+  // Optimistic apply/remove of a tag on a record. Persists the full new
+  // `__tags` id list via the existing record-update action; rolls back the
+  // local record (and surfaces the engine error) on failure.
+  const handleToggleTag = React.useCallback(
+    async (recordId: string, tagId: string, next: boolean) => {
+      const prev = records;
+      const target = prev.find((r) => r.id === recordId);
+      if (!target) return;
+
+      const current = recordTagIds(target);
+      const has = current.includes(tagId);
+      if (next === has) return; // already in the desired state — no write
+
+      const nextIds = next
+        ? [...current, tagId]
+        : current.filter((id) => id !== tagId);
+
+      // Optimistic local update.
+      setRecords((rs) =>
+        rs.map((r) =>
+          r.id === recordId
+            ? { ...r, data: { ...r.data, [TAGS_KEY]: nextIds } }
+            : r,
+        ),
+      );
+      setDataError(null);
+
+      const res = await updateSabcrmRecordTw(
+        objectSlug,
+        recordId,
+        { [TAGS_KEY]: nextIds },
+        activeProjectId ?? undefined,
+      );
+
+      if (!res.ok) {
+        setRecords(prev); // rollback
+        setDataError(res.error);
+        return;
+      }
+      // Reconcile with the engine's canonical record.
+      setRecords((rs) => rs.map((r) => (r.id === recordId ? res.data : r)));
+    },
+    [records, objectSlug, activeProjectId],
+  );
+
   // Optimistic favorite toggle with rollback on error.
   const handleToggleFavorite = React.useCallback(
     async (recordId: string) => {
@@ -1773,10 +2149,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const toggleSelectAll = React.useCallback(() => {
     setSelected((prev) => {
       const allSelected =
-        records.length > 0 && records.every((r) => prev.has(r.id));
-      return allSelected ? new Set() : new Set(records.map((r) => r.id));
+        visibleRecords.length > 0 && visibleRecords.every((r) => prev.has(r.id));
+      return allSelected ? new Set() : new Set(visibleRecords.map((r) => r.id));
     });
-  }, [records]);
+  }, [visibleRecords]);
 
   const clearSelection = React.useCallback(() => setSelected(new Set()), []);
 
@@ -1786,7 +2162,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   // reset it whenever that window changes (object / page / filters / view).
   React.useEffect(() => {
     setActiveRow(null);
-  }, [objectSlug, search, viewState, view, page, limit, refreshTick]);
+  }, [objectSlug, search, viewState, view, page, limit, refreshTick, tagFilter]);
 
   const onSetActiveRow = React.useCallback((index: number | null) => {
     setActiveRow(index);
@@ -1806,9 +2182,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         target?.isContentEditable === true;
       if (isTyping) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (records.length === 0) return;
+      if (visibleRecords.length === 0) return;
 
-      const last = records.length - 1;
+      const last = visibleRecords.length - 1;
       const moveTo = (next: number) => {
         e.preventDefault();
         const clamped = Math.max(0, Math.min(last, next));
@@ -1832,7 +2208,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           break;
         case 'Enter': {
           if (activeRow === null) return;
-          const rec = records[activeRow];
+          const rec = visibleRecords[activeRow];
           if (rec) {
             e.preventDefault();
             router.push(`/sabcrm/${objectSlug}/${rec.id}`);
@@ -1842,7 +2218,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         case 'x':
         case 'X': {
           if (activeRow === null) return;
-          const rec = records[activeRow];
+          const rec = visibleRecords[activeRow];
           if (rec) {
             e.preventDefault();
             toggleSelect(rec.id);
@@ -1858,7 +2234,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           break;
       }
     },
-    [records, activeRow, router, objectSlug, toggleSelect, clearSelection],
+    [visibleRecords, activeRow, router, objectSlug, toggleSelect, clearSelection],
   );
 
   // The first SELECT field is what we offer for bulk-edit (e.g. stage/status).
@@ -1989,10 +2365,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   const isEmpty = grouped
     ? groups.every((g) => g.records.length === 0)
-    : records.length === 0;
+    : visibleRecords.length === 0;
 
   const hasActiveQuery =
-    !!search || countConditions(viewState.filters) > 0 || !!viewState.sortBy;
+    !!search ||
+    countConditions(viewState.filters) > 0 ||
+    !!viewState.sortBy ||
+    !!tagFilter;
 
   return (
     <div className="st-page">
@@ -2016,6 +2395,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             aria-label={`Search ${object.labelPlural}`}
           />
         </div>
+        {!grouped && (
+          <TagFilterControl
+            tags={tags}
+            value={tagFilter}
+            onChange={setTagFilter}
+          />
+        )}
         <div className="st-toolbar__spacer" />
         {!loadingData && !grouped && (
           <span className="st-count">
@@ -2090,7 +2476,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             object={object}
             columns={columns}
             labelField={labelField}
-            records={records}
+            records={visibleRecords}
             onEdit={handleEdit}
             favorites={favorites}
             favBusy={favBusy}
@@ -2112,12 +2498,15 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             metricField={metricField}
             aggregate={aggregate}
             aggregateLoading={aggregateLoading}
+            tags={tags}
+            tagsLoading={tagsLoading}
+            onToggleTag={handleToggleTag}
           />
           <SabcrmPagination
             page={page}
             limit={limit}
             total={total}
-            pageCount={records.length}
+            pageCount={visibleRecords.length}
             singular={object.labelSingular.toLowerCase()}
             plural={object.labelPlural.toLowerCase()}
             onPageChange={setPage}

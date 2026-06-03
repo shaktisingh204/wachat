@@ -20,6 +20,11 @@ import {
   AtSign,
   Braces,
   Beaker,
+  FileText,
+  GitBranch,
+  Bell,
+  Globe,
+  Network,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -84,6 +89,18 @@ const GROUPS: readonly SettingsGroup[] = [
         description: 'Connected email and calendar accounts',
         icon: AtSign,
       },
+      {
+        slug: 'notifications',
+        label: 'Notifications',
+        description: 'Email and in-app notification preferences',
+        icon: Bell,
+      },
+      {
+        slug: 'localization',
+        label: 'Localization',
+        description: 'Language, timezone and date formats',
+        icon: Globe,
+      },
     ],
   },
   {
@@ -112,6 +129,24 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Data model',
         description: 'Objects, fields and relations',
         icon: Database,
+      },
+      {
+        slug: 'data-model/graph',
+        label: 'Data model graph',
+        description: 'Visual map of objects and their relations',
+        icon: Network,
+      },
+      {
+        slug: 'templates',
+        label: 'Templates',
+        description: 'Reusable record and email templates',
+        icon: FileText,
+      },
+      {
+        slug: 'pipelines',
+        label: 'Pipelines',
+        description: 'Deal stages and pipeline configuration',
+        icon: GitBranch,
       },
       {
         slug: 'tags',

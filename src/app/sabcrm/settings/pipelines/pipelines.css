@@ -1,0 +1,462 @@
+/* =========================================================================
+   SabCRM — Pipelines settings (Twenty look).
+
+   Page-local classes layered on top of the shared `.st-*` kit
+   (`src/styles/sabcrm-twenty.css`). Everything here is scoped under
+   `.sabcrm-twenty` (the Twenty frame applies that class to the app shell) and
+   uses only the `--st-*` design tokens — no ZoruUI / Tailwind / clay.
+
+   Two-pane Pipelines layout:
+     [ pipeline list ]  |  [ selected pipeline's stage editor ]
+
+   The colour-swatch picker and reorder controls mirror the Data Model
+   SELECT-option editor; classes are namespaced `.pl-*` to avoid collisions.
+   ========================================================================= */
+
+.sabcrm-twenty .pl-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: var(--st-space-5);
+  align-items: start;
+  margin-top: var(--st-space-4);
+}
+
+@media (max-width: 860px) {
+  .sabcrm-twenty .pl-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ----- Left pane: pipeline list ----------------------------------------- */
+
+.sabcrm-twenty .pl-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .pl-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: none;
+  border-bottom: 1px solid var(--st-border);
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.sabcrm-twenty .pl-item:last-child {
+  border-bottom: none;
+}
+
+.sabcrm-twenty .pl-item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .pl-item.active {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .pl-item__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .pl-item.active .pl-item__icon {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .pl-item__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 1px;
+}
+
+.sabcrm-twenty .pl-item__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .pl-item__dirty {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .pl-item__meta {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .pl-item__badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs, 0.6875rem);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.sabcrm-twenty .pl-item__badge--lg {
+  padding: 3px 10px;
+  font-size: var(--st-font-size-sm);
+}
+
+/* ----- Right pane: editor ----------------------------------------------- */
+
+.sabcrm-twenty .pl-editor {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .pl-editor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .pl-editor__title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .pl-editor__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size-lg, 1rem);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .pl-editor__title svg {
+  color: var(--st-text-secondary);
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .pl-editor__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .pl-editor__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-4);
+}
+
+.sabcrm-twenty .pl-editor__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+  padding: var(--st-space-4);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+/* Field stack — same spacing as the Data Model compound editors. */
+.sabcrm-twenty .pl-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+/* ----- Stages list ------------------------------------------------------ */
+
+.sabcrm-twenty .pl-stages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .pl-stages__empty {
+  margin: 0;
+  padding: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .pl-stage {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .pl-stage__grip {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+  cursor: grab;
+}
+
+.sabcrm-twenty .pl-stage__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .pl-stage__order {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 2px;
+}
+
+.sabcrm-twenty .pl-stages__add {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .pl-stages__add:hover {
+  background: var(--st-hover);
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+/* ----- Icon buttons (reorder / remove) ---------------------------------- */
+
+.sabcrm-twenty .pl-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .pl-iconbtn:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .pl-iconbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .pl-iconbtn--danger:hover:not(:disabled) {
+  border-color: #d64545;
+  color: #d64545;
+}
+
+/* ----- Colour-swatch picker --------------------------------------------- */
+
+.sabcrm-twenty .pl-color {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .pl-color__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.sabcrm-twenty .pl-color__trigger:hover,
+.sabcrm-twenty .pl-color__trigger[aria-expanded='true'] {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .pl-swatch {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.sabcrm-twenty .pl-swatch--lg {
+  width: 20px;
+  height: 20px;
+}
+
+.sabcrm-twenty .pl-color__pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.16));
+}
+
+.sabcrm-twenty .pl-color__cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .pl-color__cell:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .pl-color__cell[aria-selected='true'] {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .pl-color__check {
+  position: absolute;
+  color: #fff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+/* ----- Default toggle --------------------------------------------------- */
+
+.sabcrm-twenty .pl-default {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+  cursor: pointer;
+}
+
+.sabcrm-twenty .pl-switch {
+  flex: 0 0 auto;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin-top: 1px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .pl-switch.is-on {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .pl-switch__knob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms ease;
+}
+
+.sabcrm-twenty .pl-switch.is-on .pl-switch__knob {
+  transform: translateX(16px);
+}
+
+.sabcrm-twenty .pl-default__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .pl-default__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .pl-default__title svg {
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .pl-default__hint {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}

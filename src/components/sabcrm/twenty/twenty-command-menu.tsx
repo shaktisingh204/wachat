@@ -13,13 +13,77 @@ import {
   LayoutDashboard,
   ListTodo,
   Keyboard,
+  Clock,
+  Star,
   type LucideIcon,
 } from 'lucide-react';
 
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
+import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 
 import './twenty-command-menu.css';
+
+/* =========================================================================
+   Recently-viewed records — small localStorage helper
+
+   We own this file, so we keep a self-contained list of the records the user
+   most recently opened *through the menu*. It's read to render the "Recent"
+   group when the query is empty, and pushed to whenever a record / recent /
+   favorite row is selected. Capped + deduped, newest first.
+   ========================================================================= */
+const RECENTS_KEY = 'sabcrm:cmdk:recents';
+const RECENTS_CAP = 8;
+
+interface RecordRecent {
+  /** URL object slug, e.g. "companies". */
+  slug: string;
+  /** Record id. */
+  id: string;
+  /** Display label captured at view time. */
+  label: string;
+}
+
+function readRecents(): RecordRecent[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(RECENTS_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (e): e is RecordRecent =>
+          typeof e === 'object' &&
+          e !== null &&
+          typeof (e as RecordRecent).slug === 'string' &&
+          typeof (e as RecordRecent).id === 'string' &&
+          typeof (e as RecordRecent).label === 'string',
+      )
+      .slice(0, RECENTS_CAP);
+  } catch {
+    return [];
+  }
+}
+
+function pushRecent(entry: RecordRecent): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const existing = readRecents().filter(
+      (e) => !(e.slug === entry.slug && e.id === entry.id),
+    );
+    const next = [entry, ...existing].slice(0, RECENTS_CAP);
+    window.localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+  } catch {
+    /* storage unavailable (private mode / quota) — recents simply won't persist */
+  }
+}
+
+/** The exported helper, in case the host ever wants to seed recents directly. */
+export const recordRecents = {
+  read: readRecents,
+  push: pushRecent,
+};
 
 /* =========================================================================
    Static "Navigate" commands
@@ -158,6 +222,15 @@ const OBJECT_ICON: Record<string, LucideIcon> = {
   tasks: CheckCircle2,
 };
 
+/**
+ * Best-effort label for a favorite, which carries only `{ object, recordId }`
+ * (no record name). Mirrors the sidebar's favorite labelling.
+ */
+function favoriteLabel(object: string, recordId: string): string {
+  const objLabel = OBJECT_LABEL[object] ?? object;
+  return `${objLabel} · ${recordId.slice(-6)}`;
+}
+
 /* =========================================================================
    Keyboard-shortcuts help reference
    ========================================================================= */
@@ -190,6 +263,12 @@ interface CmdItem {
 
 interface RecordResult extends SabcrmPickerOption {
   slug: string;
+}
+
+/** A favorite as surfaced in the menu (object slug + record id). */
+interface FavoriteEntry {
+  object: string;
+  recordId: string;
 }
 
 const SEARCH_DEBOUNCE_MS = 200;
@@ -245,7 +324,11 @@ export function TwentyCommandMenu({
   const [error, setError] = React.useState<string | null>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
 
-  // Reset transient state every time the menu opens.
+  // Empty-query sections.
+  const [recents, setRecents] = React.useState<RecordRecent[]>([]);
+  const [favorites, setFavorites] = React.useState<FavoriteEntry[]>([]);
+
+  // Reset transient state every time the menu opens; refresh recents/favorites.
   React.useEffect(() => {
     if (open) {
       setQuery('');
@@ -253,12 +336,31 @@ export function TwentyCommandMenu({
       setError(null);
       setLoading(false);
       setActiveIndex(0);
+      setRecents(readRecents());
       // Autofocus once the panel has mounted.
       const id = window.setTimeout(() => inputRef.current?.focus(), 0);
       return () => window.clearTimeout(id);
     }
     return undefined;
   }, [open]);
+
+  // Load favorites whenever the menu opens (non-blocking, graceful on failure).
+  React.useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    void (async () => {
+      const res = await listSabcrmFavoritesTw(projectId);
+      if (cancelled) return;
+      setFavorites(
+        res.ok
+          ? res.data.map((f) => ({ object: f.object, recordId: f.recordId }))
+          : [],
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, projectId]);
 
   // Debounced record search, fanned out across the known object slugs.
   React.useEffect(() => {
@@ -321,6 +423,19 @@ export function TwentyCommandMenu({
       router.push(href);
     },
     [onOpenChange, router],
+  );
+
+  /**
+   * Open a record: record it in the recents list (capped + deduped), then
+   * navigate. Used by record search results, recents, and favorites alike.
+   */
+  const openRecord = React.useCallback(
+    (slug: string, id: string, label: string) => {
+      pushRecent({ slug, id, label });
+      setRecents(readRecents());
+      navigate(`/sabcrm/${slug}/${id}`);
+    },
+    [navigate],
   );
 
   const openHelp = React.useCallback(() => {
@@ -390,15 +505,62 @@ export function TwentyCommandMenu({
         label: r.label || 'Untitled',
         meta: OBJECT_LABEL[r.slug] ?? r.object,
         icon: OBJECT_ICON[r.slug] ?? Search,
-        onSelect: () => navigate(`/sabcrm/${r.slug}/${r.id}`),
+        onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
       })),
-    [records, navigate],
+    [records, openRecord],
   );
 
-  // Flattened, ordered list used for keyboard navigation.
+  // Empty-query "Recent" group (from localStorage).
+  const recentItems = React.useMemo<CmdItem[]>(
+    () =>
+      recents.map((r) => ({
+        key: `recent-${r.slug}-${r.id}`,
+        label: r.label || 'Untitled',
+        meta: OBJECT_LABEL[r.slug] ?? r.slug,
+        icon: OBJECT_ICON[r.slug] ?? Clock,
+        onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
+      })),
+    [recents, openRecord],
+  );
+
+  // Empty-query "Favorites" group (from the Rust engine).
+  const favoriteItems = React.useMemo<CmdItem[]>(
+    () =>
+      favorites.map((f) => {
+        const label = favoriteLabel(f.object, f.recordId);
+        return {
+          key: `fav-${f.object}-${f.recordId}`,
+          label,
+          meta: OBJECT_LABEL[f.object] ?? f.object,
+          icon: OBJECT_ICON[f.object] ?? Star,
+          onSelect: () => openRecord(f.object, f.recordId, label),
+        };
+      }),
+    [favorites, openRecord],
+  );
+
+  // Recent/Favorites only show when the query is empty.
+  const showSuggestions = query.trim().length === 0;
+  const visibleRecentItems = showSuggestions ? recentItems : [];
+  const visibleFavoriteItems = showSuggestions ? favoriteItems : [];
+
+  // Flattened, ordered list used for keyboard navigation. Recents + favorites
+  // sit above the static Navigate/Actions groups when the query is empty.
   const flatItems = React.useMemo<CmdItem[]>(
-    () => [...navItems, ...actionItems, ...recordItems],
-    [navItems, actionItems, recordItems],
+    () => [
+      ...visibleRecentItems,
+      ...visibleFavoriteItems,
+      ...navItems,
+      ...actionItems,
+      ...recordItems,
+    ],
+    [
+      visibleRecentItems,
+      visibleFavoriteItems,
+      navItems,
+      actionItems,
+      recordItems,
+    ],
   );
 
   // Keep the active index within bounds when the result set changes.
@@ -556,6 +718,20 @@ export function TwentyCommandMenu({
           </div>
 
           <div className="st-cmdk-body">
+            {visibleRecentItems.length > 0 ? (
+              <div className="st-cmdk-group st-cmdk-group--recent">
+                <div className="st-cmdk-group__title">Recent</div>
+                {visibleRecentItems.map(renderRow)}
+              </div>
+            ) : null}
+
+            {visibleFavoriteItems.length > 0 ? (
+              <div className="st-cmdk-group st-cmdk-group--favorites">
+                <div className="st-cmdk-group__title">Favorites</div>
+                {visibleFavoriteItems.map(renderRow)}
+              </div>
+            ) : null}
+
             {navItems.length > 0 ? (
               <div className="st-cmdk-group">
                 <div className="st-cmdk-group__title">Navigate</div>

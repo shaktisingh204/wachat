@@ -167,6 +167,21 @@ export interface SabcrmRecordDistinctResponse {
   values: unknown[];
 }
 
+/** One group of records sharing the same `data.<field>` value. */
+export interface SabcrmRecordDuplicateGroup {
+  /** The shared `data.<field>` value (the duplicate key). */
+  value: unknown;
+  /** Total records sharing this value (may exceed `records.length`). */
+  count: number;
+  /** The actual records in this group (capped at 10 server-side). */
+  records: SabcrmRustRecord[];
+}
+
+export interface SabcrmRecordDuplicatesResponse {
+  /** Groups of records sharing a duplicate value (capped at 100 groups). */
+  groups: SabcrmRecordDuplicateGroup[];
+}
+
 export interface SabcrmRecordCreateInput {
   projectId: string;
   data: Record<string, unknown>;
@@ -408,6 +423,23 @@ export const sabcrmRecordsApi = {
   ): Promise<SabcrmRecordDistinctResponse> {
     return rustFetch<SabcrmRecordDistinctResponse>(
       `${base(object)}/distinct/${encodeURIComponent(field)}${qs({ projectId })}`,
+    );
+  },
+
+  /**
+   * `GET /v1/sabcrm/records/{object}/duplicates?field=<field>` — find groups
+   * of records that share the same non-null `data.<field>` value (the
+   * duplicate key) within `projectId` + object. Groups are capped at 100 and
+   * each group's `records` at 10 server-side (`count` reflects the true
+   * total). An empty `field` is rejected server-side with a 400.
+   */
+  duplicates(
+    object: string,
+    field: string,
+    projectId: string,
+  ): Promise<SabcrmRecordDuplicatesResponse> {
+    return rustFetch<SabcrmRecordDuplicatesResponse>(
+      `${base(object)}/duplicates${qs({ projectId, field })}`,
     );
   },
 

@@ -39,6 +39,8 @@ import {
   Table2,
   Columns3,
   CalendarDays,
+  Zap,
+  Bookmark,
 } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
@@ -53,6 +55,7 @@ import type { SabcrmRustView } from '@/app/actions/sabcrm-views.actions.types';
 import './view-bar.css';
 import './advanced-filter.css';
 import './table-extras.css';
+import './saved-search.css';
 
 // ---------------------------------------------------------------------------
 // Public query-state contract (shared with the page)
@@ -950,6 +953,269 @@ function FieldsPopover({
 }
 
 // ---------------------------------------------------------------------------
+// Quick filters (saved searches) — per-object, localStorage-backed
+// ---------------------------------------------------------------------------
+
+/**
+ * One pinned quick filter: a named snapshot of the filter + sort portion of a
+ * {@link ViewState}. Stored locally (per object) so it survives reloads without
+ * touching the engine — distinct from server-persisted saved views.
+ */
+interface QuickFilter {
+  id: string;
+  name: string;
+  filters: FilterGroup;
+  sortBy: string | null;
+  sortDir: 'asc' | 'desc';
+}
+
+/** localStorage key scoped to one object slug. */
+function quickFilterKey(slug: string): string {
+  return `sabcrm.quickFilters.${slug}`;
+}
+
+/** Read & validate the pinned quick filters for an object (SSR/parse-safe). */
+function readQuickFilters(slug: string): QuickFilter[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(quickFilterKey(slug));
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const out: QuickFilter[] = [];
+    for (const item of parsed) {
+      if (!item || typeof item !== 'object') continue;
+      const o = item as Record<string, unknown>;
+      if (typeof o.id !== 'string' || typeof o.name !== 'string') continue;
+      out.push({
+        id: o.id,
+        name: o.name,
+        filters: engineFiltersToGroup(
+          // Accept either a stored editable group or an engine-shaped value.
+          o.filters && typeof o.filters === 'object'
+            ? viewStateToEngineFilters({
+                filters: o.filters as FilterGroup,
+                sortBy: null,
+                sortDir: 'asc',
+                groupBy: null,
+              })
+            : undefined,
+        ),
+        sortBy: typeof o.sortBy === 'string' ? o.sortBy : null,
+        sortDir: o.sortDir === 'desc' ? 'desc' : 'asc',
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+/** Persist the pinned quick filters for an object (best-effort). */
+function writeQuickFilters(slug: string, list: QuickFilter[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(quickFilterKey(slug), JSON.stringify(list));
+  } catch {
+    /* quota / private mode — degrade silently */
+  }
+}
+
+/**
+ * The "Quick filters" row: a strip of pinned filter+sort pills plus a "Save
+ * current" affordance. Clicking a pill recalls its snapshot into the live view
+ * state via {@link onApply} (which threads through the bar's `onStateChange`),
+ * preserving the current `groupBy` so a quick filter never silently changes the
+ * table/board layout. Purely local — never queries the engine.
+ */
+function QuickFilters({
+  object,
+  state,
+  onApply,
+  fieldByKey,
+}: {
+  object: ObjectMetadata;
+  state: ViewState;
+  onApply: (filters: FilterGroup, sortBy: string | null, sortDir: 'asc' | 'desc') => void;
+  fieldByKey: Map<string, FieldMetadata>;
+}): React.JSX.Element {
+  const slug = object.slug;
+  const [items, setItems] = React.useState<QuickFilter[]>([]);
+  const [activeId, setActiveId] = React.useState<string | null>(null);
+
+  // Hydrate from localStorage on mount / object change.
+  React.useEffect(() => {
+    setItems(readQuickFilters(slug));
+    setActiveId(null);
+  }, [slug]);
+
+  // A quick filter "matches" the live state when its filter tree + sort line up.
+  const liveKey = React.useMemo(
+    () =>
+      JSON.stringify({
+        f: viewStateToEngineFilters(state),
+        s: state.sortBy,
+        d: state.sortBy ? state.sortDir : 'asc',
+      }),
+    [state],
+  );
+
+  React.useEffect(() => {
+    const hit = items.find(
+      (qf) =>
+        JSON.stringify({
+          f: viewStateToEngineFilters({
+            filters: qf.filters,
+            sortBy: qf.sortBy,
+            sortDir: qf.sortDir,
+            groupBy: null,
+          }),
+          s: qf.sortBy,
+          d: qf.sortBy ? qf.sortDir : 'asc',
+        }) === liveKey,
+    );
+    setActiveId(hit?.id ?? null);
+  }, [items, liveKey]);
+
+  const hasLiveQuery =
+    countConditions(state.filters) > 0 || state.sortBy !== null;
+
+  const saveCurrent = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const name = window.prompt('Name this quick filter')?.trim();
+    if (!name) return;
+    const qf: QuickFilter = {
+      id:
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `qf_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      filters: state.filters,
+      sortBy: state.sortBy,
+      sortDir: state.sortDir,
+    };
+    setItems((prev) => {
+      const next = [...prev, qf];
+      writeQuickFilters(slug, next);
+      return next;
+    });
+    setActiveId(qf.id);
+  }, [slug, state]);
+
+  const removeItem = React.useCallback(
+    (id: string) => {
+      setItems((prev) => {
+        const next = prev.filter((q) => q.id !== id);
+        writeQuickFilters(slug, next);
+        return next;
+      });
+      setActiveId((cur) => (cur === id ? null : cur));
+    },
+    [slug],
+  );
+
+  const applyItem = React.useCallback(
+    (qf: QuickFilter) => {
+      setActiveId(qf.id);
+      onApply(qf.filters, qf.sortBy, qf.sortBy ? qf.sortDir : 'asc');
+    },
+    [onApply],
+  );
+
+  // Short human summary for a pill's tooltip ("Status is Open · Sort Name ↑").
+  const summarize = React.useCallback(
+    (qf: QuickFilter): string => {
+      const parts: string[] = [];
+      const walk = (g: FilterGroup) => {
+        for (const node of g.conditions) {
+          if (isFilterGroup(node)) walk(node);
+          else {
+            const f = fieldByKey.get(node.fieldKey);
+            const val = pillValue(f, node);
+            parts.push(
+              `${f?.label ?? node.fieldKey} ${OP_LABEL[node.op]}${
+                val ? ` ${val}` : ''
+              }`,
+            );
+          }
+        }
+      };
+      walk(qf.filters);
+      if (qf.sortBy) {
+        const f = fieldByKey.get(qf.sortBy);
+        parts.push(
+          `Sort ${f?.label ?? qf.sortBy} ${qf.sortDir === 'asc' ? '↑' : '↓'}`,
+        );
+      }
+      return parts.length > 0 ? parts.join(' · ') : 'No conditions';
+    },
+    [fieldByKey],
+  );
+
+  // Nothing to show and nothing to save → render the row only when relevant.
+  if (items.length === 0 && !hasLiveQuery) {
+    return <></>;
+  }
+
+  return (
+    <div className="stqf" role="group" aria-label="Quick filters">
+      <span className="stqf__label">
+        <Zap size={12} />
+        Quick filters
+      </span>
+
+      {items.map((qf) => {
+        const count = countConditions(qf.filters);
+        return (
+          <span
+            key={qf.id}
+            className={`stqf-pill${activeId === qf.id ? ' is-active' : ''}`}
+          >
+            <button
+              type="button"
+              className="stqf-pill__apply"
+              title={summarize(qf)}
+              aria-pressed={activeId === qf.id}
+              onClick={() => applyItem(qf)}
+            >
+              <span className="stqf-pill__icon">
+                <Bookmark size={12} />
+              </span>
+              <span className="stqf-pill__name">{qf.name}</span>
+              {count > 0 && <span className="stqf-pill__count">{count}</span>}
+            </button>
+            <button
+              type="button"
+              className="stqf-pill__x"
+              aria-label={`Remove quick filter ${qf.name}`}
+              title="Remove quick filter"
+              onClick={() => removeItem(qf.id)}
+            >
+              <X size={12} />
+            </button>
+          </span>
+        );
+      })}
+
+      <button
+        type="button"
+        className="stqf-save"
+        onClick={saveCurrent}
+        disabled={!hasLiveQuery}
+        title={
+          hasLiveQuery
+            ? 'Pin the current filters + sort as a quick filter'
+            : 'Add a filter or sort first'
+        }
+      >
+        <Plus size={13} />
+        Save current
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // The view bar
 // ---------------------------------------------------------------------------
 
@@ -1103,6 +1369,15 @@ export function SabcrmViewBar({
   const applyFilters = (group: FilterGroup) =>
     onStateChange({ ...state, filters: group });
 
+  // Recall a quick filter: replace the live filter tree + sort in one push,
+  // keeping the current grouping/layout intact.
+  const applyQuickFilter = React.useCallback(
+    (filters: FilterGroup, sortBy: string | null, sortDir: 'asc' | 'desc') => {
+      onStateChange({ ...state, filters, sortBy, sortDir });
+    },
+    [onStateChange, state],
+  );
+
   // A flat, path-addressed view of every leaf condition in the tree — drives
   // the removable pill summary. The `path` is the chain of child indices from
   // the root to the leaf, so a pill's "x" can prune exactly that leaf even when
@@ -1198,6 +1473,14 @@ export function SabcrmViewBar({
           <Plus size={15} />
         </button>
       </div>
+
+      {/* Quick filters (saved searches) — per-object, localStorage-backed */}
+      <QuickFilters
+        object={object}
+        state={state}
+        onApply={applyQuickFilter}
+        fieldByKey={fieldByKey}
+      />
 
       {/* Controls + active chips */}
       <div className="stv-bar">

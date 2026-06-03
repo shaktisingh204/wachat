@@ -74,6 +74,8 @@ sabcrm-workflows = { path = "../sabcrm-workflows" }
 sabcrm-audit = { path = "../sabcrm-audit" }
 sabcrm-invites = { path = "../sabcrm-invites" }
 sabcrm-tags = { path = "../sabcrm-tags" }
+sabcrm-pipelines = { path = "../sabcrm-pipelines" }
+sabcrm-templates = { path = "../sabcrm-templates" }
 sabcrm-dashboards = { path = "../sabcrm-dashboards" }
 sabcrm-notifications = { path = "../sabcrm-notifications" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }

@@ -26,6 +26,7 @@
 //! POST   /{object}/merge       — merge_records
 //! POST   /{object}/aggregate   — aggregate_records
 //! GET    /{object}/distinct/{field} — distinct_values
+//! GET    /{object}/duplicates  — find_duplicates
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
 //! DELETE /{object}/{id}        — delete_record
@@ -73,6 +74,7 @@ where
             "/{object}/distinct/{field}",
             get(handlers::distinct_values),
         )
+        .route("/{object}/duplicates", get(handlers::find_duplicates))
         .route(
             "/{object}/{id}",
             get(handlers::get_record)

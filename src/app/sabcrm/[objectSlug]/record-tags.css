@@ -1,0 +1,269 @@
+/* =========================================================================
+   SabCRM — record-level Tags (table column + toolbar filter).
+
+   Twenty-faithful styling for the per-record tag chips, the "+" tag picker
+   popover, and the toolbar "Tag" filter. Uses ONLY the shared `--st-*` design
+   tokens so it matches the rest of the `.st-*` kit. NEW classes only — nothing
+   here overrides `sabcrm-twenty.css`. All classes are namespaced `stg-` (Sabcrm
+   record TaGs) to avoid colliding with the view-bar's `stv-*` / kit `st-*`.
+   ========================================================================= */
+
+/* ---- Table cell -------------------------------------------------------- */
+
+/* The Tags column header keeps a comfortable min so chips never feel cramped. */
+.stg-th {
+  white-space: nowrap;
+}
+
+.stg-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+}
+
+/* A single applied tag rendered as a colored chip with a quick remove "×". */
+.stg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  max-width: 160px;
+  padding: 0 6px;
+  border: 1px solid var(--st-border-light, var(--st-border));
+  border-radius: 999px;
+  background: var(--st-bg-secondary, #f5f5f5);
+  color: var(--st-text-primary, #222);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs, 11px);
+  line-height: 1;
+}
+
+.stg-chip__dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--st-text-tertiary);
+}
+
+.stg-chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stg-chip__x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  margin-right: -2px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.stg-chip__x:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--st-text-primary, #111);
+}
+
+/* The "+" affordance that opens the picker. Mirrors the kit's subtle button. */
+.stg-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px dashed var(--st-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.stg-add:hover,
+.stg-add.is-open {
+  background: var(--st-bg-secondary, #f5f5f5);
+  border-style: solid;
+  border-color: var(--st-border);
+  color: var(--st-text-primary, #111);
+}
+
+.stg-add--empty {
+  /* When a row has no tags the "+" is the only thing in the cell. */
+  opacity: 0.7;
+}
+
+.stg-cell:hover .stg-add--empty {
+  opacity: 1;
+}
+
+/* The cell anchors its popover. */
+.stg-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ---- Picker popover (checklist) ---------------------------------------- */
+
+.stg-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 60;
+  width: 240px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--st-border-light);
+}
+
+/* Flip to the right edge when the cell sits near the table's trailing side. */
+.stg-pop--right {
+  left: auto;
+  right: 0;
+}
+
+.stg-pop__title {
+  margin: 0 0 var(--st-space-2);
+  padding: 0 2px;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stg-pop__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.stg-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: 6px var(--st-space-2);
+  border: 0;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-primary, #222);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.stg-opt:hover {
+  background: var(--st-bg-secondary, #f5f5f5);
+}
+
+.stg-opt__check {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  color: var(--st-accent);
+}
+
+.stg-opt__dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--st-text-tertiary);
+}
+
+.stg-opt__label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stg-opt.is-applied .stg-opt__label {
+  font-weight: 600;
+}
+
+.stg-pop__empty {
+  padding: var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+/* ---- Toolbar "Tag" filter control -------------------------------------- */
+
+.stg-filter {
+  position: relative;
+  display: inline-flex;
+}
+
+.stg-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  height: 30px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary, #555);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+}
+
+.stg-filter__btn:hover,
+.stg-filter__btn.is-open {
+  background: var(--st-bg-secondary, #f5f5f5);
+  border-color: var(--st-border);
+  color: var(--st-text-primary, #111);
+}
+
+.stg-filter__btn.is-active {
+  color: var(--st-accent);
+  border-color: var(--st-border);
+}
+
+.stg-filter__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--st-text-tertiary);
+}
+
+.stg-filter__pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  width: 240px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--st-border-light);
+}
+
+.stg-filter__clear {
+  margin-top: var(--st-space-1);
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border-light, var(--st-border));
+}

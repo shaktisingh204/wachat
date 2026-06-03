@@ -2,6 +2,12 @@
 
 import * as React from 'react';
 
+// Re-export the recently-viewed records helper so hosts can push a record into
+// the menu's "Recent" list at navigation time (e.g. when a record page mounts),
+// not only when a record is opened *through* the menu. Same localStorage list
+// the command menu reads to render its "Recent" group.
+export { recordRecents } from './twenty-command-menu';
+
 /**
  * Controls the SabCRM global command menu (⌘K / Ctrl+K) and the keyboard
  * shortcuts help overlay (?).

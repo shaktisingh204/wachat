@@ -229,6 +229,42 @@ pub struct DistinctQuery {
     pub project_id: String,
 }
 
+/// `GET /{object}/duplicates` query params — tenant scope plus the `field`
+/// whose shared `data.<field>` value defines a duplicate group.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DuplicatesQuery {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Field key whose duplicate `data.<field>` value groups records together.
+    /// Empty / missing → `400`.
+    pub field: String,
+}
+
+/// One group of records sharing the same `data.<field>` value in the
+/// [`DuplicatesResponse`].
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DuplicateGroup {
+    /// The shared `data.<field>` value (the duplicate key).
+    #[schema(value_type = Object)]
+    pub value: Value,
+    /// Total number of records sharing this value (may exceed `records.len()`
+    /// since the returned records are capped per group).
+    pub count: u64,
+    /// The actual records in this group (capped per group).
+    #[schema(value_type = Vec<Object>)]
+    pub records: Vec<Value>,
+}
+
+/// Response body for `GET /{object}/duplicates` — groups of records that share
+/// the same non-null `data.<field>` value (capped at 100 groups).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct DuplicatesResponse {
+    pub groups: Vec<DuplicateGroup>,
+}
+
 /// Response body for `GET /{object}/distinct/{field}` — the distinct
 /// `data.<field>` values (null/empty dropped, capped at 200).
 #[derive(Debug, Clone, Serialize, ToSchema)]

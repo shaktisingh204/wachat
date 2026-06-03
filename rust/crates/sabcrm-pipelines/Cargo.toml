@@ -1,0 +1,47 @@
+# SabCRM — axum router for the **sales pipelines** HTTP surface.
+#
+# CRUD over the `sabcrm_pipelines` Mongo collection: per-project sales
+# pipelines (a name, a target `object` (default "opportunities"), and an
+# ordered list of stages, each `{ id, label, color }`). Tenancy is by
+# `projectId` (a query/body string), not `userId`.
+#
+# Mirrors `rust/crates/sabcrm-views`. Mounted under `/v1/sabcrm/pipelines`
+# from the orchestrating `api` crate.
+[package]
+name = "sabcrm-pipelines"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM sales-pipelines HTTP surface (`/v1/sabcrm/pipelines/*`). Per-project pipeline + stage lists scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_pipelines"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true
