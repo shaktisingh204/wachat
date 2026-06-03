@@ -8,7 +8,8 @@ import {
     LifeBuoy, HelpCircle, Bot, Wrench, Megaphone, Globe, LucideIcon, Database, Layers, FileText,
     Cable, Activity, Share2, ShieldAlert, UserCheck, Building2, DollarSign, ClipboardList, UserCog,
     Workflow, MessageSquareText, UsersRound, Target, LayoutTemplate, BriefcaseBusiness, FileSignature, FileKey, Shield,
-    Smartphone, LayoutGrid, LayoutPanelTop, Zap, PieChart, Eye, CheckSquare,
+    Smartphone, LayoutGrid, LayoutPanelTop, Zap, PieChart, Eye, CheckSquare, Check,
+    Network, Store, Heart, Star, Gift, Truck, Receipt,
 } from 'lucide-react';
 import { MetaIcon, WhatsAppIcon, SeoIcon, InstagramIcon, SabChatIcon, TelegramIcon, CrmIcon, SabWaIcon } from '@/components/zoruui-domain/custom-sidebar-components';
 import React from 'react';
