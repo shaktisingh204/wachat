@@ -22,7 +22,7 @@ import type {
   SumByFieldResult,
   FeedPage,
   ObjectRecordCount,
-} from '@/app/actions/sabcrm.actions';
+} from '@/app/actions/sabcrm.actions.types';
 import type { CrmActivityRecord } from '@/lib/sabcrm/activities.server';
 import {
   Card,

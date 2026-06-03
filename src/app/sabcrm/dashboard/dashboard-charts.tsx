@@ -24,7 +24,7 @@ import type {
   CountByFieldResult,
   SumByFieldResult,
   TaskKpi,
-} from '@/app/actions/sabcrm.actions';
+} from '@/app/actions/sabcrm.actions.types';
 import {
   Card,
   ZoruCardContent,

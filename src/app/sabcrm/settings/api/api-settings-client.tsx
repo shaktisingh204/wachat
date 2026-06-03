@@ -88,12 +88,14 @@ import {
   updateWebhookAction,
   deleteWebhookAction,
   rotateWebhookSecretAction,
-  type SabcrmApiKey,
-  type IssuedSabcrmApiKey,
-  type WebhookSubscription,
-  type CreateWebhookInput,
-  type UpdateWebhookPatch,
 } from '@/app/actions/sabcrm.actions';
+import type {
+  SabcrmApiKey,
+  IssuedSabcrmApiKey,
+  WebhookSubscription,
+  CreateWebhookInput,
+  UpdateWebhookPatch,
+} from '@/app/actions/sabcrm.actions.types';
 import { SABCRM_WEBHOOK_EVENTS, type SabcrmWebhookEvent } from '@/lib/sabcrm/webhook-events';
 
 // ---------------------------------------------------------------------------

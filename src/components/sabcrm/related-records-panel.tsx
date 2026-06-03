@@ -62,8 +62,8 @@ import {
   listRelatedRecordsAction,
   searchRecordsForPickerAction,
   updateRecordAction,
-  type SabcrmPickerOption,
 } from "@/app/actions/sabcrm.actions";
+import type { SabcrmPickerOption } from "@/app/actions/sabcrm.actions.types";
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */

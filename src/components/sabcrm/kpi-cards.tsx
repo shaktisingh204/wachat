@@ -30,10 +30,7 @@
 
 import * as React from 'react';
 import { StatCard, ScrollArea, cn } from '@/components/zoruui';
-import {
-  CrmDashboardKpis,
-  ObjectRecordCount,
-} from '@/app/actions/sabcrm.actions';
+import type { CrmDashboardKpis, ObjectRecordCount } from '@/app/actions/sabcrm.actions.types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Icon mapping for object types (fallback when icon is a string name)

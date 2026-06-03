@@ -93,10 +93,12 @@ import {
   listWebhooksAction,
   rotateWebhookSecretAction,
   updateWebhookAction,
-  type CreateWebhookInput,
-  type UpdateWebhookPatch,
-  type WebhookSubscription,
 } from '@/app/actions/sabcrm.actions';
+import type {
+  CreateWebhookInput,
+  UpdateWebhookPatch,
+  WebhookSubscription,
+} from '@/app/actions/sabcrm.actions.types';
 
 // SabcrmWebhookEvent is an `import type` — erased at build time, so the
 // `server-only` guard in webhooks.server.ts never executes at runtime. This

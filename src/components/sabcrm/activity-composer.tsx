@@ -25,8 +25,8 @@ import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import {
   createActivityAction,
   addCommentAction,
-  type CreateActivityActionInput,
 } from "@/app/actions/sabcrm.actions";
+import type { CreateActivityActionInput } from "@/app/actions/sabcrm.actions.types";
 
 // ---------------------------------------------------------------------------
 // Types

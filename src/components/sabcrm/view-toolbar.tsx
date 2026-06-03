@@ -88,9 +88,8 @@ import {
   saveViewAction,
   deleteViewAction,
   setDefaultViewAction,
-  type SabcrmFilterValue,
-  type SabcrmSortClause,
 } from '@/app/actions/sabcrm.actions';
+import type { SabcrmFilterValue, SabcrmSortClause } from '@/app/actions/sabcrm.actions.types';
 import type { SavedView } from '@/lib/sabcrm/views.server';
 import type {
   ObjectMetadata,

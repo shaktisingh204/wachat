@@ -96,8 +96,8 @@ import {
   reorderFieldsAction,
   createRelationAction,
   listObjectsAction,
-  type CreateRelationActionInput,
 } from '@/app/actions/sabcrm.actions';
+import type { CreateRelationActionInput } from '@/app/actions/sabcrm.actions.types';
 
 import type {
   ObjectMetadata,

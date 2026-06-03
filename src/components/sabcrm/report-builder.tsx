@@ -72,10 +72,9 @@ import {
   listObjectsAction,
   runReportDefinitionAction,
   saveReportAction,
-  type SaveReportActionInput,
 } from '@/app/actions/sabcrm.actions';
-
 import type {
+  SaveReportActionInput,
   SavedReport,
   CreateReportInput,
   ReportDataSeries,
@@ -83,7 +82,7 @@ import type {
   ReportChartType,
   ReportTimeBucket,
   ReportDataPoint,
-} from '@/app/actions/sabcrm.actions';
+} from '@/app/actions/sabcrm.actions.types';
 
 import type { ObjectMetadata, FieldMetadata, FieldType } from '@/lib/sabcrm/types';
 

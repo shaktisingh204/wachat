@@ -73,8 +73,8 @@ import {
 import {
   buildColumnMappingSuggestionsAction,
   importRecordsAction,
-  type MappingValidationIssue,
 } from '@/app/actions/sabcrm.actions';
+import type { MappingValidationIssue } from '@/app/actions/sabcrm.actions.types';
 import type {
   FieldMetadata,
   ObjectMetadata,

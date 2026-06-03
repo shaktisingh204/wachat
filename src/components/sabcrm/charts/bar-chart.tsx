@@ -73,7 +73,7 @@ import {
 import type {
   CountByFieldResult,
   SumByFieldResult,
-} from "@/app/actions/sabcrm.actions";
+} from "@/app/actions/sabcrm.actions.types";
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                      */

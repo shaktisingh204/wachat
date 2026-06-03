@@ -65,9 +65,8 @@ import {
 import {
   groupRecordsAction,
   updateRecordAction,
-  type SabcrmGroupedRecordPage,
-  type SabcrmRecordGroup,
 } from '@/app/actions/sabcrm.actions';
+import type { SabcrmGroupedRecordPage, SabcrmRecordGroup } from '@/app/actions/sabcrm.actions.types';
 import type {
   ObjectMetadata,
   FieldMetadata,

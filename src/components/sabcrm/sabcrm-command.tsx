@@ -44,8 +44,8 @@ import {
 import {
   createRecordAction,
   searchRecordsForPickerAction,
-  type SabcrmPickerOption,
 } from "@/app/actions/sabcrm.actions";
+import type { SabcrmPickerOption } from "@/app/actions/sabcrm.actions.types";
 import type { ObjectMetadata } from "@/lib/sabcrm/types";
 
 /** Base route every SabCRM page lives under (matches the live page links). */

@@ -28,7 +28,7 @@ import {
   listReportsAction,
 } from '@/app/actions/sabcrm.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-import type { SavedReport } from '@/app/actions/sabcrm.actions';
+import type { SavedReport } from '@/app/actions/sabcrm.actions.types';
 
 import { ReportsClient } from './reports-client';
 

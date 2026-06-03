@@ -110,7 +110,7 @@ import type {
   ReportChartType,
   ReportTimeBucket,
   ReportDataPoint,
-} from '@/app/actions/sabcrm.actions';
+} from '@/app/actions/sabcrm.actions.types';
 
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 

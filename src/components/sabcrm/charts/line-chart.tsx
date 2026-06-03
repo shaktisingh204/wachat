@@ -49,7 +49,7 @@ import {
   ZoruChartTooltip,
   ZORU_CHART_PALETTE,
 } from '@/components/zoruui';
-import type { TimeSeriesResult, TimeInterval } from '@/app/actions/sabcrm.actions';
+import type { TimeSeriesResult, TimeInterval } from '@/app/actions/sabcrm.actions.types';
 
 /* -------------------------------------------------------------------------- */
 /* Constants                                                                  */

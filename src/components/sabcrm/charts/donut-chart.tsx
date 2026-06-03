@@ -43,10 +43,8 @@ import {
   Skeleton,
   cn,
 } from '@/components/zoruui';
-import {
-  runAnalyticsAction,
-  type CountByFieldResult,
-} from '@/app/actions/sabcrm.actions';
+import { runAnalyticsAction } from '@/app/actions/sabcrm.actions';
+import type { CountByFieldResult } from '@/app/actions/sabcrm.actions.types';
 
 // ---------------------------------------------------------------------------
 // Types

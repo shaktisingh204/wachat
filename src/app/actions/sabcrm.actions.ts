@@ -86,7 +86,6 @@ import {
   validateImportMapping,
   type ImportBatchResult,
   type ExportRecordsResult,
-  type RawRow,
   type ColumnMapping,
   type MappingValidationIssue,
 } from '@/lib/sabcrm/import-export.server';
@@ -157,34 +156,45 @@ import {
   sumByField,
   timeSeries,
   recordTotals,
-  type CountByFieldResult,
-  type SumByFieldResult,
-  type TimeSeriesResult,
-  type RecordTotalsResult,
-  type TimeInterval,
 } from '@/lib/sabcrm/analytics.server';
 import {
   getProjectFeedPage,
   getProjectFeedCursor,
   getProjectFeedDigest,
-  type FeedFilter,
-  type FeedPageOptions,
-  type FeedPage,
-  type FeedCursorOptions,
-  type FeedCursorPage,
-  type FeedDigest,
 } from '@/lib/sabcrm/feed.server';
 import { ObjectId, type Filter, type Sort } from 'mongodb';
 import type {
   ActionResult,
   ObjectMetadata,
   FieldMetadata,
-  FieldRelation,
   CrmRecord,
   CrmRecordWithLabel,
   RecordQuery,
   RecordPage,
 } from '@/lib/sabcrm/types';
+// The action-layer types live in a plain (non-"use server") sibling module so
+// this file may export ONLY async functions (an RSC 'use server' constraint).
+// These are imported here for the function signatures/bodies that reference
+// them; they are intentionally NOT re-exported from this module.
+import type {
+  SabcrmFilterValue,
+  SabcrmSortClause,
+  SabcrmRecordQuery,
+  SabcrmRecordPage,
+  SabcrmRecordGroup,
+  SabcrmGroupedRecordPage,
+  SabcrmPickerOption,
+  CreateActivityActionInput,
+  UpdateActivityActionInput,
+  CreateRelationActionInput,
+  ImportRecordsActionInput,
+  ExportRecordsActionInput,
+  AnalyticsSpec,
+  AnalyticsResult,
+  SaveReportActionInput,
+  ActivityFeedSpec,
+  ActivityFeedResult,
+} from './sabcrm.actions.types';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -576,11 +586,6 @@ export async function deleteRecordAction(
 // View actions
 // ---------------------------------------------------------------------------
 
-// Re-export the serialisable SavedView shape so client-component consumers
-// (e.g. the settings/views management page) can type their state against the
-// same interface without importing from the server-only views.server module.
-export type { SavedView, SaveViewInput } from '@/lib/sabcrm/views.server';
-
 /**
  * Lists the saved views for one object. Returns project-shared views plus the
  * caller's own private views.
@@ -730,80 +735,6 @@ export async function setDefaultViewAction(
   } catch (e) {
     return fail(e, 'Failed to set default view.');
   }
-}
-
-// ---------------------------------------------------------------------------
-// Extended query types (additive — actions-layer only)
-//
-// These wire shapes describe the table/board/relation-picker surfaces. They do
-// not change `types.ts`; `SabcrmRecordQuery` is a superset of `RecordQuery` and
-// `SabcrmRecordPage` extends `RecordPage`, so existing callers stay compatible.
-// ---------------------------------------------------------------------------
-
-/**
- * Per-field filter value: either an exact match (legacy behaviour) or an
- * operator object that maps 1:1 to Mongo query operators.
- */
-export type SabcrmFilterValue =
-  | string
-  | number
-  | boolean
-  | null
-  | {
-      $eq?: unknown;
-      $ne?: unknown;
-      $gt?: unknown;
-      $gte?: unknown;
-      $lt?: unknown;
-      $lte?: unknown;
-      $in?: unknown[];
-      $nin?: unknown[];
-      $regex?: string;
-      $options?: string;
-      $exists?: boolean;
-    };
-
-/** One clause of a multi-field sort. */
-export interface SabcrmSortClause {
-  field: string;
-  dir: 'asc' | 'desc';
-}
-
-/** Superset of {@link RecordQuery}: typed operators, multi-sort, expansion. */
-export interface SabcrmRecordQuery extends Omit<RecordQuery, 'filters'> {
-  filters?: Record<string, SabcrmFilterValue>;
-  /** Multi-field sort. Takes precedence over legacy `sortBy`/`sortDir`. */
-  multiSort?: SabcrmSortClause[];
-  /** RELATION field keys to populate alongside the page. */
-  expandRelations?: string[];
-}
-
-/** A record page that may carry resolved relations. */
-export interface SabcrmRecordPage extends RecordPage {
-  /** fieldKey -> (relatedRecordId -> related record). Present when expanded. */
-  expanded?: Record<string, Record<string, CrmRecordWithLabel>>;
-}
-
-/** A board column: one bucket per SELECT option value (plus "Ungrouped"). */
-export interface SabcrmRecordGroup {
-  key: string;
-  label: string;
-  color?: string;
-  records: CrmRecordWithLabel[];
-  total: number;
-}
-
-export interface SabcrmGroupedRecordPage {
-  groupByField: string;
-  groups: SabcrmRecordGroup[];
-  total: number;
-}
-
-/** A lightweight option used to populate a relation picker. */
-export interface SabcrmPickerOption {
-  id: string;
-  label: string;
-  object: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -1331,35 +1262,6 @@ function toDateOrUndefined(value: unknown): Date | undefined {
     if (!Number.isNaN(d.getTime())) return d;
   }
   return undefined;
-}
-
-/** Input accepted by {@link createActivityAction}. */
-export interface CreateActivityActionInput {
-  type: TimelineActivityType;
-  title: string;
-  body?: string;
-  targetObject: string;
-  targetRecordId: string;
-  attachments?: ActivityAttachment[];
-  mentions?: ActivityMention[];
-  /** TASK-only. Defaults to "TODO". */
-  status?: TaskStatus;
-  /** TASK-only assignee user id. */
-  assigneeId?: string;
-  /** TASK-only due date (ISO string or timestamp). */
-  dueAt?: string | number | Date;
-}
-
-/** Input accepted by {@link updateActivityAction}. */
-export interface UpdateActivityActionInput {
-  title?: string;
-  body?: string;
-  type?: TimelineActivityType;
-  attachments?: ActivityAttachment[];
-  mentions?: ActivityMention[];
-  status?: TaskStatus;
-  assigneeId?: string | null;
-  dueAt?: string | number | Date | null;
 }
 
 /**
@@ -2104,24 +2006,6 @@ export async function reorderFieldsAction(
 // Gated as an admin operation because it mutates two objects' schemas.
 // ---------------------------------------------------------------------------
 
-/** Input shape for {@link createRelationAction}. */
-export interface CreateRelationActionInput {
-  /** Slug of the object that owns the forward relation field. */
-  fromSlug: string;
-  /** Field key for the new relation field on `fromSlug`. */
-  fieldKey: string;
-  /** Relation descriptor (targetObject + kind, optionally labelField). */
-  relation: FieldRelation;
-  /** Optional forward field label. Defaults to the target object's singular label. */
-  forwardLabel?: string;
-  /** Set `false` to skip creating the reciprocal field on the target object. */
-  inverse?: boolean;
-  /** Override the auto-generated inverse field key. */
-  inverseFieldKey?: string;
-  /** Override the auto-generated inverse field label. */
-  inverseLabel?: string;
-}
-
 /**
  * Defines a RELATION field on a source object and, by default, creates the
  * reciprocal field on the target object so both sides are first-class fields.
@@ -2224,28 +2108,6 @@ export async function listMembersAction(
 // capability because they can create/read large numbers of records at once.
 // ---------------------------------------------------------------------------
 
-/** Input accepted by {@link importRecordsAction}. */
-export interface ImportRecordsActionInput {
-  /** Object slug to import into (e.g. `"companies"`). */
-  object: string;
-  /**
-   * Column→field mapping: field key → CSV column header. Fields absent from
-   * the mapping fall back to their `defaultValue`. RELATION and FILE field
-   * keys are silently skipped.
-   */
-  columnMapping: ColumnMapping;
-  /**
-   * Raw rows from a parsed CSV/XLSX: column header → raw string value.
-   * Must not exceed 5,000 rows per call; chunk larger files.
-   */
-  rows: RawRow[];
-  /**
-   * When `true`, aborts on the first validation or insert error.
-   * Default: `false` — per-row failures are collected and reported back.
-   */
-  stopOnFirstError?: boolean;
-}
-
 /**
  * Validates and bulk-inserts CRM records from a parsed CSV/XLSX file.
  *
@@ -2301,21 +2163,6 @@ export async function importRecordsAction(
   }
 }
 
-/** Options accepted by {@link exportRecordsAction}. */
-export interface ExportRecordsActionInput {
-  /** Object slug to export (e.g. `"opportunities"`). */
-  object: string;
-  /**
-   * Ordered list of field keys to include. Defaults to every non-RELATION,
-   * non-FILE field declared on the object.
-   */
-  fields?: string[];
-  /**
-   * Maximum rows to export. Capped at 10,000; defaults to 1,000.
-   */
-  limit?: number;
-}
-
 /**
  * Reads records for one object and serialises them into a `{ headers, rows }`
  * shape ready to pass to `downloadCsv` / `downloadXlsx` on the client.
@@ -2350,10 +2197,6 @@ export async function exportRecordsAction(
   }
 }
 
-// Re-export the MappingValidationIssue type so the import dialog can import it
-// from the actions barrel without reaching into the server-only lib directly.
-export type { MappingValidationIssue };
-
 // ---------------------------------------------------------------------------
 // Saved Reports (manage-gated CRUD + view-gated run)
 //
@@ -2367,20 +2210,6 @@ export type { MappingValidationIssue };
 //   - createReportAction / updateReportAction / deleteReportAction
 //       → gate('edit')    (sabcrm:manage — schema/definition writes)
 // ---------------------------------------------------------------------------
-
-// Re-export the types callers need without reaching into the server-only lib.
-export type {
-  SavedReport,
-  CreateReportInput,
-  UpdateReportPatch,
-  ReportDataSeries,
-};
-export type {
-  ReportMetric,
-  ReportChartType,
-  ReportTimeBucket,
-  ReportDataPoint,
-} from '@/lib/sabcrm/reports.server';
 
 const REPORTS_PATH = `${CRM_BASE_PATH}/reports`;
 
@@ -2659,16 +2488,6 @@ export async function validateImportMappingAction(
 // are caught in the library layer and zeroed out.
 // ---------------------------------------------------------------------------
 
-// Re-export the KPI types so dashboard components can import them without
-// reaching into the server-only lib directly.
-export type {
-  CrmDashboardKpis,
-  ObjectRecordCount,
-  OpportunityKpi,
-  TaskKpi,
-  NewThisWeekKpi,
-} from '@/lib/sabcrm/kpis.server';
-
 /**
  * Returns the four CRM dashboard KPI buckets for the active project.
  *
@@ -2704,46 +2523,6 @@ export async function getKpisAction(
 // forwarded, so they cover the full tenant project data not just the caller's
 // own records).
 // ---------------------------------------------------------------------------
-
-// Re-export result types so chart components can reference them without
-// importing the server-only analytics lib.
-export type {
-  CountByFieldResult,
-  SumByFieldResult,
-  TimeSeriesResult,
-  RecordTotalsResult,
-  TimeInterval,
-};
-
-/** Discriminated union describing which aggregation to run and with what args. */
-export type AnalyticsSpec =
-  | {
-      kind: 'countByField';
-      object: string;
-      fieldKey: string;
-    }
-  | {
-      kind: 'sumByField';
-      object: string;
-      groupFieldKey: string;
-      sumFieldKey: string;
-    }
-  | {
-      kind: 'timeSeries';
-      object: string;
-      dateField: string;
-      interval?: TimeInterval;
-    }
-  | {
-      kind: 'recordTotals';
-    };
-
-/** Union of all possible result shapes that {@link runAnalyticsAction} may return. */
-export type AnalyticsResult =
-  | CountByFieldResult
-  | SumByFieldResult
-  | TimeSeriesResult
-  | RecordTotalsResult;
 
 /**
  * Executes an analytics aggregation described by `spec` against the active
@@ -2823,16 +2602,6 @@ export async function runAnalyticsAction(
 // single "save" surface instead of branching on whether the report exists.
 // Gated behind `sabcrm:manage` (maps to `edit`) for both paths.
 // ---------------------------------------------------------------------------
-
-/** Input for {@link saveReportAction}: a report definition with an optional id. */
-export interface SaveReportActionInput extends CreateReportInput {
-  /**
-   * When supplied, the existing report with this id is patched rather than
-   * creating a new document. Must be a valid hex ObjectId of a report that
-   * belongs to the active project.
-   */
-  id?: string;
-}
 
 /**
  * Creates a new saved report or updates an existing one, depending on whether
@@ -2929,43 +2698,6 @@ export async function saveReportAction(
 // can see what the team has been doing.
 // ---------------------------------------------------------------------------
 
-// Re-export the feed types so dashboard components can import them without
-// reaching into the server-only lib directly.
-export type {
-  FeedFilter,
-  FeedPageOptions,
-  FeedPage,
-  FeedCursorOptions,
-  FeedCursorPage,
-  FeedDigest,
-};
-export type { FeedActivityType, FeedCursor } from '@/lib/sabcrm/feed.server';
-
-/** Discriminated union describing which feed query mode to use. */
-export type ActivityFeedSpec =
-  | {
-      /** Offset-based pagination (default). Returns total count. */
-      mode: 'page';
-      filter?: FeedFilter;
-      options?: FeedPageOptions;
-    }
-  | {
-      /** Cursor-based streaming for infinite-scroll UIs. No count query. */
-      mode: 'cursor';
-      filter?: FeedFilter;
-      options?: FeedCursorOptions;
-    }
-  | {
-      /** Aggregated digest statistics over a time window. */
-      mode: 'digest';
-      since?: string | Date;
-      until?: string | Date;
-      filter?: Omit<FeedFilter, 'since' | 'until'>;
-    };
-
-/** Union of all possible results from {@link getActivityFeedAction}. */
-export type ActivityFeedResult = FeedPage | FeedCursorPage | FeedDigest;
-
 /**
  * Retrieves the project-wide CRM activity feed in one of three modes:
  *
@@ -3044,13 +2776,6 @@ export async function getActivityFeedAction(
 // Gating: `edit` action maps to `sabcrm:admin` capability so only project
 // admins can register external endpoints.
 // ---------------------------------------------------------------------------
-
-// Re-export the serialised types callers need without reaching into the
-// server-only webhooks lib directly. NOTE: a 'use server' module may only
-// export async functions — value constants (SABCRM_WEBHOOK_EVENTS) live in the
-// framework-neutral `@/lib/sabcrm/webhook-events` module; import them from
-// there in client/server code, not from this actions file.
-export type { WebhookSubscription, CreateWebhookInput, UpdateWebhookPatch };
 
 /** Lists all webhook subscriptions for the active project, newest first. */
 export async function listWebhooksAction(
@@ -3255,9 +2980,6 @@ export async function deleteWebhookAction(
 // because they grant or revoke programmatic project access.
 // ---------------------------------------------------------------------------
 
-// Re-export the types callers need.
-export type { SabcrmApiKey, IssuedSabcrmApiKey };
-
 /**
  * Issues a new SabCRM API key for the active project.
  *
@@ -3372,26 +3094,6 @@ export async function revokeApiKeyAction(
 // Gating: `edit` action (sabcrm:admin) for all mutations; reads are also
 // admin-gated because automation rules expose internal business logic.
 // ---------------------------------------------------------------------------
-
-// Re-export the types callers need. NOTE: a 'use server' module may only
-// export async functions — the AUTOMATION_EVENTS value constant lives in the
-// framework-neutral `@/lib/sabcrm/automation-events` module; import it from
-// there in client/server code, not from this actions file.
-export type {
-  AutomationRule,
-  CreateAutomationRuleInput,
-  UpdateAutomationRulePatch,
-  AutomationRuleStatus,
-};
-export type {
-  AutomationEvent,
-  AutomationCondition,
-  AutomationConditionOp,
-  AutomationAction,
-  AutomationActionCreateTask,
-  AutomationActionSendNotification,
-  AutomationActionCallWebhook,
-} from '@/lib/sabcrm/automation.server';
 
 /**
  * Lists all automation rules for the active project, newest-updated first.

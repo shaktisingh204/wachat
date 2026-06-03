@@ -78,13 +78,15 @@ import {
   listRecordsAction,
   createRecordAction,
   groupRecordsAction,
-  type SabcrmRecordQuery,
-  type SabcrmRecordPage,
-  type SabcrmGroupedRecordPage,
-  type SabcrmRecordGroup,
-  type SabcrmSortClause,
-  type SabcrmFilterValue,
 } from '@/app/actions/sabcrm.actions';
+import type {
+  SabcrmRecordQuery,
+  SabcrmRecordPage,
+  SabcrmGroupedRecordPage,
+  SabcrmRecordGroup,
+  SabcrmSortClause,
+  SabcrmFilterValue,
+} from '@/app/actions/sabcrm.actions.types';
 import type {
   ObjectMetadata,
   FieldMetadata,

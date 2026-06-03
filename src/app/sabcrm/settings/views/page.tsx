@@ -77,8 +77,8 @@ import {
   saveViewAction,
   deleteViewAction,
   setDefaultViewAction,
-  type SavedView,
 } from '@/app/actions/sabcrm.actions';
+import type { SavedView } from '@/app/actions/sabcrm.actions.types';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
 // ---------------------------------------------------------------------------
