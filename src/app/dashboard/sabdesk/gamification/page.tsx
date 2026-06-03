@@ -106,7 +106,7 @@ const ProgressBar = ({ progress, color = 'bg-indigo-500', height = 'h-2' }: any)
   <div className={`w-full bg-slate-800 rounded-full overflow-hidden ${height}`}>
     <div 
       className={`${color} h-full rounded-full transition-all duration-1000 ease-out`}
-      style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+      style={ width: `${Math.min(100, Math.max(0, progress))}%` }
     />
   </div>
 );
@@ -423,7 +423,7 @@ const LeaderboardTab = () => (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-slate-300">{user.csat}%</span>
                     <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden hidden sm:block">
-                      <div className={`h-full rounded-full ${user.csat >= 98 ? 'bg-emerald-400' : user.csat >= 95 ? 'bg-indigo-400' : 'bg-amber-400'}`} style={{ width: `${user.csat}%` }}></div>
+                      <div className={`h-full rounded-full ${user.csat >= 98 ? 'bg-emerald-400' : user.csat >= 95 ? 'bg-indigo-400' : 'bg-amber-400'}`} style={ width: `${user.csat}%` }></div>
                     </div>
                   </div>
                 </td>
@@ -711,7 +711,7 @@ export default function GamificationPage() {
       </div>
       
       {/* Global styles for hide-scrollbar */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={__html: `
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }
@@ -719,7 +719,7 @@ export default function GamificationPage() {
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-      `}} />
+      `} />
     </div>
   );
 }

@@ -519,7 +519,7 @@ export default function ChannelsPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleStatus(channel.id);
-                            }}
+                            }
                             className={`p-1.5 rounded-md transition-colors ${channel.status === "connected" ? "text-green-500 hover:bg-green-500/10" : "text-red-500 hover:bg-red-500/10"}`}
                             title={
                               channel.status === "connected"
@@ -549,7 +549,7 @@ export default function ChannelsPage() {
                             <div className="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${channel.health > 80 ? "bg-green-500" : channel.health > 50 ? "bg-amber-500" : "bg-red-500"}`}
-                                style={{ width: `${channel.health}%` }}
+                                style={ width: `${channel.health}%` }
                               />
                             </div>
                             <span className="font-mono text-xs">

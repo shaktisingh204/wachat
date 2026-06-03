@@ -1123,3 +1123,16 @@
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
+
+/* =========================================================================
+   Spinner
+   ========================================================================= */
+.st-spin {
+  animation: st-spin 0.8s linear infinite;
+}
+
+@keyframes st-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

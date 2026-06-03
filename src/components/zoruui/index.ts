@@ -590,3 +590,14 @@ export {
   SelectSeparator,
 } from "./select";
 
+export {
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "./accordion";
+
+export {
+  ZoruPageHeading as PageHeaderHeading,
+  ZoruPageDescription as PageHeaderDescription,
+} from "./page-header";
+

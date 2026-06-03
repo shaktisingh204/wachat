@@ -307,7 +307,7 @@ export default function TriggersPage() {
                             </div>
                             <div>
                               <label className="text-xs text-gray-500 mb-1 block flex justify-between">Payload (JSON) <FileJson className="w-3 h-3" /></label>
-                              <textarea rows={4} className="w-full bg-gray-950 border border-gray-800 text-blue-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:border-blue-500 resize-none" defaultValue={`{\n  "ticket_id": "{{ticket.id}}",\n  "priority": "{{ticket.priority}}",\n  "alert_channel": "#urgent-support"\n}`}></textarea>
+                              <textarea rows={4} className="w-full bg-gray-950 border border-gray-800 text-blue-300 rounded px-3 py-2 text-xs font-mono focus:outline-none focus:border-blue-500 resize-none" defaultValue={`{\n  "ticket_id": "{ticket.id}",\n  "priority": "{ticket.priority}",\n  "alert_channel": "#urgent-support"\n}`}></textarea>
                             </div>
                           </div>
                         </div>

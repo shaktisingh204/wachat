@@ -106,7 +106,7 @@ const MetricCard = ({ title, value, change, trend, icon: Icon, colorClass }: any
 
 const ProgressBar = ({ value, color = "bg-indigo-500" }: { value: number, color?: string }) => (
   <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-    <div className={`${color} h-full rounded-full transition-all duration-1000 ease-in-out`} style={{ width: `${value}%` }}></div>
+    <div className={`${color} h-full rounded-full transition-all duration-1000 ease-in-out`} style={ width: `${value}%` }></div>
   </div>
 );
 
@@ -173,7 +173,7 @@ const OverviewTab = () => (
                   i < 6 ? 'bg-amber-500/80 hover:bg-amber-400' : 
                   'bg-emerald-500/80 hover:bg-emerald-400'
                 }`}
-                style={{ height: `${val}%` }}
+                style={ height: `${val}%` }
               ></div>
               <span className="text-[10px] text-gray-500 mt-2 block">{i * 10}</span>
               {/* Tooltip */}

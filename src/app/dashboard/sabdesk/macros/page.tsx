@@ -83,7 +83,7 @@ export default function MacrosPage() {
                   {mockMacros.map((macro, idx) => (
                     <tr 
                       key={macro.id} 
-                      onClick={() => { setSelectedMacro(macro.id); setIsCreating(false); }}
+                      onClick={() => { setSelectedMacro(macro.id); setIsCreating(false); }
                       className={`hover:bg-gray-800/40 transition-colors cursor-pointer group ${selectedMacro === macro.id ? 'bg-purple-900/10 border-l-2 border-purple-500' : 'border-l-2 border-transparent'}`}
                     >
                       <td className="px-6 py-4">
@@ -133,7 +133,7 @@ export default function MacrosPage() {
             </div>
             <div className="flex gap-2">
               <button 
-                onClick={() => { setSelectedMacro(null); setIsCreating(false); }}
+                onClick={() => { setSelectedMacro(null); setIsCreating(false); }
                 className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700"
               >
                 Cancel
@@ -282,7 +282,7 @@ export default function MacrosPage() {
                         <textarea 
                           rows={4}
                           className="w-full bg-transparent p-3 text-sm text-gray-300 focus:outline-none resize-y"
-                          defaultValue="Hi {{requester.first_name}},\n\nI have gone ahead and triggered a password reset for your account. You should receive an email shortly with instructions on how to set a new password.\n\nLet me know if you need anything else!"
+                          defaultValue="Hi {requester.first_name},\n\nI have gone ahead and triggered a password reset for your account. You should receive an email shortly with instructions on how to set a new password.\n\nLet me know if you need anything else!"
                         />
                       </div>
                     </div>

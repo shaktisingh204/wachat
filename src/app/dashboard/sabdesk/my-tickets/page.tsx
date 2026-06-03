@@ -400,7 +400,7 @@ export default function MyTicketsPage() {
                     setSearch("");
                     setStatusFilter("all");
                     setPriorityFilter("all");
-                  }}
+                  }
                   className="mt-6 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors text-sm"
                 >
                   Clear Filters
@@ -555,9 +555,9 @@ export default function MyTicketsPage() {
                         checked={selectedIds.has(ticket.id)}
                         onChange={() => toggleSelect(ticket.id)}
                         className="rounded border-zinc-700 bg-zinc-800 text-indigo-500 focus:ring-indigo-500/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{
+                        style={
                           opacity: selectedIds.has(ticket.id) ? 1 : undefined,
-                        }}
+                        }
                       />
                     </div>
 
@@ -671,7 +671,7 @@ export default function MyTicketsPage() {
 
       {/* Internal CSS for scrollbar */}
       <style
-        dangerouslySetInnerHTML={{
+        dangerouslySetInnerHTML={
           __html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
@@ -688,7 +688,7 @@ export default function MyTicketsPage() {
           background: #52525b;
         }
       `,
-        }}
+        }
       />
     </div>
   );

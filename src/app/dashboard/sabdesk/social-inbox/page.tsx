@@ -616,7 +616,7 @@ export default function SocialInbox() {
                         onClick={() => {
                            if (!msg.isRead) markAsRead(new Set([msg.id]));
                            setActiveMessageId(msg.id);
-                        }}
+                        }
                         className={`group flex gap-3 p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden
                           ${isActive 
                             ? 'bg-indigo-500/5 border-indigo-500/30' 
@@ -634,7 +634,7 @@ export default function SocialInbox() {
                          {/* Checkbox & Avatar */}
                          <div className="flex flex-col items-center gap-2 pt-1">
                             <button 
-                              onClick={(e) => { e.stopPropagation(); toggleSelection(msg.id); }}
+                              onClick={(e) => { e.stopPropagation(); toggleSelection(msg.id); }
                               className={`p-0.5 rounded transition-colors ${isSelected ? 'text-indigo-400' : 'text-zinc-600 group-hover:text-zinc-400'}`}
                             >
                                {isSelected ? <CheckSquare className="w-5 h-5" /> : <div className="w-5 h-5 border-[1.5px] border-current rounded" />}
@@ -783,7 +783,7 @@ export default function SocialInbox() {
                                 onClick={() => {
                                   setReplyingTo(activeMessage.id);
                                   setTimeout(() => document.getElementById('reply-textarea')?.focus(), 100);
-                                }}
+                                }
                                 className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors shadow-lg shadow-indigo-500/20"
                               >
                                 <CornerUpLeft className="w-4 h-4" /> Reply
@@ -934,7 +934,7 @@ export default function SocialInbox() {
       </main>
 
       {/* Global CSS overrides for scrollbar */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={__html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
           height: 6px;
@@ -949,7 +949,7 @@ export default function SocialInbox() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-      `}} />
+      `} />
     </div>
   );
 }

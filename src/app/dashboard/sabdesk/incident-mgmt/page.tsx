@@ -230,7 +230,7 @@ const OverviewDashboard = () => {
                 <div className="relative w-full">
                   <div
                     className="w-full bg-indigo-500/80 hover:bg-indigo-400 rounded-t-sm transition-all"
-                    style={{ height: `${Math.max(10, Math.random() * 100)}px` }}
+                    style={ height: `${Math.max(10, Math.random() * 100)}px` }
                   />
                   {/* Tooltip on hover */}
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
@@ -261,7 +261,7 @@ const OverviewDashboard = () => {
                   <span className="text-slate-400 font-mono">{s.val}%</span>
                 </div>
                 <div className="w-full bg-slate-950 rounded-full h-2">
-                  <div className={`${s.color} h-2 rounded-full`} style={{ w: `${s.val}%`, width: `${s.val}%` }}></div>
+                  <div className={`${s.color} h-2 rounded-full`} style={ w: `${s.val}%`, width: `${s.val}%` }></div>
                 </div>
               </div>
             ))}
@@ -670,7 +670,7 @@ const StatusPageBuilder = () => {
                   </div>
                   <div className="flex-1 flex items-end gap-1">
                     {Array.from({ length: 40 }).map((_, i) => (
-                      <div key={i} className="flex-1 bg-indigo-200 hover:bg-indigo-300 rounded-t-sm" style={{ height: `${20 + Math.random() * (i > 30 ? 60 : 30)}%` }}></div>
+                      <div key={i} className="flex-1 bg-indigo-200 hover:bg-indigo-300 rounded-t-sm" style={ height: `${20 + Math.random() * (i > 30 ? 60 : 30)}%` }></div>
                     ))}
                   </div>
                 </div>

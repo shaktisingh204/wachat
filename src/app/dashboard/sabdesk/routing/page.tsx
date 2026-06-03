@@ -347,11 +347,11 @@ export default function RoutingPage() {
               {/* Mock Canvas Area */}
               <div
                 className="flex-1 w-full h-full relative"
-                style={{
+                style={
                   backgroundSize: "40px 40px",
                   backgroundImage:
                     "radial-gradient(circle, #1f2937 1px, transparent 1px)",
-                }}
+                }
               >
                 {/* Lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -463,7 +463,7 @@ export default function RoutingPage() {
                             ? "bg-amber-900/20 border-amber-500/50"
                             : "bg-blue-900/20 border-blue-500/50"
                       }`}
-                    style={{ left: node.x, top: node.y }}
+                    style={ left: node.x, top: node.y }
                   >
                     <div className="flex items-center gap-3">
                       <div

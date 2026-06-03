@@ -15,10 +15,10 @@ export default function NewKbArticlePage() {
     <EntityDetailShell
       eyebrow="KNOWLEDGE BASE"
       title="New Knowledge Base article"
-      back={{
+      back={
         href: "/dashboard/sabdesk/knowledge-base",
         label: "Knowledge Base",
-      }}
+      }
     >
       <KbArticleForm mode="create" />
     </EntityDetailShell>

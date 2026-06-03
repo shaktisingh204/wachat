@@ -84,3 +84,8 @@ export function ZoruPageActions({
     />
   );
 }
+
+export {
+  ZoruPageHeading as PageHeaderHeading,
+  ZoruPageDescription as PageHeaderDescription,
+};

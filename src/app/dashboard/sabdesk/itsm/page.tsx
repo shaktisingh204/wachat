@@ -184,11 +184,11 @@ const DashboardOverview = () => {
                 <div key={i} className="flex-1 flex flex-col justify-end gap-1 group relative">
                   <div 
                     className="w-full bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 rounded-t-sm transition-all"
-                    style={{ height: `${height1}%` }}
+                    style={ height: `${height1}%` }
                   />
                   <div 
                     className="w-full bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/30 rounded-t-sm transition-all"
-                    style={{ height: `${height2}%` }}
+                    style={ height: `${height2}%` }
                   />
                   {/* Tooltip mock */}
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black border border-white/10 px-3 py-1.5 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-xl">
@@ -332,7 +332,7 @@ const IncidentManagement = () => {
                     <div className="h-1.5 w-full bg-black/50 rounded-full overflow-hidden border border-white/5">
                       <div 
                         className={`h-full rounded-full ${inc.sla > 90 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : inc.sla > 75 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                        style={{ width: `${inc.sla}%` }}
+                        style={ width: `${inc.sla}%` }
                       />
                     </div>
                   </div>
@@ -480,7 +480,7 @@ const CMDBGraph = () => {
 
         {/* App Servers */}
         {[-1, 0, 1].map((offset, idx) => (
-          <div key={idx} className="absolute top-[70%] left-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10" style={{ transform: `translate(calc(-50% + ${offset * 150}px), -50%)`}}>
+          <div key={idx} className="absolute top-[70%] left-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-10" style={ transform: `translate(calc(-50% + ${offset * 150}px), -50%)`}>
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.5)] flex items-center justify-center relative cursor-pointer transition-colors group hover:border-${offset === 0 ? 'rose' : 'blue'}-400`}>
               <Server className={`w-6 h-6 text-${offset === 0 ? 'rose' : 'slate'}-400`} />
               <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-900 ${offset === 0 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.8)]' : 'bg-emerald-400'}`} />
@@ -692,7 +692,7 @@ export default function SabDeskITSM() {
       </main>
 
       {/* Global Styles for Scrollbar */}
-      <style dangerouslySetInnerHTML={{__html: `
+      <style dangerouslySetInnerHTML={__html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
           height: 6px;
@@ -707,7 +707,7 @@ export default function SabDeskITSM() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-      `}} />
+      `} />
     </div>
   );
 }

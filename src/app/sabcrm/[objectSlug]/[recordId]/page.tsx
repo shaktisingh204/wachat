@@ -1,93 +1,135 @@
-export const dynamic = 'force-dynamic';
+'use client';
 
 /**
- * SabCRM record DETAIL page — `/sabcrm/[objectSlug]/[recordId]`.
+ * SabCRM — Twenty-faithful record DETAIL page (`/sabcrm/[objectSlug]/[recordId]`).
  *
- * Server component. Auth / onboarding / RBAC / project context are already
- * enforced by the `/sabcrm` layout (which wraps every child in `RBACGuard` +
- * `ProjectProvider` inside the `.zoruui` scope), and the SabCRM server actions
- * themselves re-run the full session → project → RBAC → plan gate on every
- * call — so this page does NOT re-implement that pipeline. It simply:
+ * A Client Component: the `/sabcrm` layout already enforces auth / onboarding /
+ * RBAC and mounts ProjectProvider, and every server action re-runs the full
+ * gate, so this page just resolves the active project (via `useProject`), loads
+ * the object metadata + the record through the gated Twenty actions, and hands
+ * them to the {@link RecordDetailTw} client runtime.
  *
- *   1. resolves the object metadata (the field schema that drives the panel)
- *      via {@link listObjectsAction}, filtered to the route's `objectSlug`,
- *   2. loads the single record via {@link getRecordAction},
- *   3. resolves the record's RELATION fields via
- *      {@link listRelatedRecordsAction} (server-side, gated), and
- *   4. hands all three to the `RecordDetailTabs` client component, which frames
- *      them in ZoruUI tabs: **Details** (the per-type field panel, inline-edited
- *      through `updateRecordAction`), **Related** (one panel per relation) and
- *      **Activity** — the timeline + composer surface, mounted here via the
- *      `RecordActivity` client component into `RecordDetailTabs`'s `activitySlot`.
- *      `RecordActivity` owns its own gated data fetching (list/create/update/
- *      delete activities) so the tab loads lazily and refreshes after each
- *      mutation without a full page reload.
- *
- * Any gate failure or missing object/record resolves to a 404 — the actions
- * never throw, returning a typed `{ ok: false, error }` instead. The related
- * map is best-effort: if relation resolution fails the page still renders with
- * an empty Related tab rather than 404-ing.
+ * The Rust engine may be DOWN: each action returns an `ActionResult`, so a
+ * failure renders an inline error/empty state in Twenty's frame rather than
+ * crashing or 404-ing the whole route.
  */
 
-import { notFound } from 'next/navigation';
+import * as React from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { AlertTriangle, Database } from 'lucide-react';
 
+import { TwentyButton } from '@/components/sabcrm/twenty';
+import { useProject } from '@/context/project-context';
 import {
-  getRecordAction,
-  listObjectsAction,
-  listRelatedRecordsAction,
-} from '@/app/actions/sabcrm.actions';
-import { RecordActivity } from '@/components/sabcrm/record-activity';
-import { RecordDetailTabs } from '@/components/sabcrm/record-detail-tabs';
-import type { CrmRecordWithLabel, ObjectMetadata } from '@/lib/sabcrm/types';
+  listSabcrmObjectsTw,
+  getSabcrmRecordTw,
+} from '@/app/actions/sabcrm-twenty.actions';
+import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
+import type { ObjectMetadata } from '@/lib/sabcrm/types';
+import { RecordDetailTw } from './record-detail-tw';
 
-interface RecordDetailPageProps {
-  /** Next.js async route params. */
-  params: Promise<{ objectSlug: string; recordId: string }>;
-}
+export default function SabcrmTwentyDetailPage(): React.JSX.Element {
+  const params = useParams<{ objectSlug: string; recordId: string }>();
+  const objectSlug = params?.objectSlug ?? '';
+  const recordId = params?.recordId ?? '';
+  const { activeProjectId } = useProject();
 
-export default async function RecordDetailPage({ params }: RecordDetailPageProps) {
-  const { objectSlug, recordId } = await params;
+  const [object, setObject] = React.useState<ObjectMetadata | null>(null);
+  const [record, setRecord] = React.useState<SabcrmRustRecord | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Resolve object metadata — this is the field schema the detail panel renders
-  // by. The action runs the full auth/RBAC/plan gate internally.
-  const objectsResult = await listObjectsAction();
-  if (!objectsResult.ok) {
-    notFound();
+  React.useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    (async () => {
+      const objRes = await listSabcrmObjectsTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      if (!objRes.ok) {
+        setError(objRes.error);
+        setObject(null);
+        setLoading(false);
+        return;
+      }
+      const found = objRes.data.find((o) => o.slug === objectSlug) ?? null;
+      setObject(found);
+      if (!found) {
+        setLoading(false);
+        return;
+      }
+
+      const recRes = await getSabcrmRecordTw(
+        objectSlug,
+        recordId,
+        activeProjectId ?? undefined,
+      );
+      if (cancelled) return;
+      if (!recRes.ok) {
+        setError(recRes.error);
+        setRecord(null);
+      } else {
+        setRecord(recRes.data);
+      }
+      setLoading(false);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [objectSlug, recordId, activeProjectId]);
+
+  if (loading) {
+    return (
+      <div className="st-page">
+        <div className="st-skeleton" style={{ height: 16, width: 120, marginBottom: 20 }} />
+        <div className="st-skeleton" style={{ height: 28, width: 240, marginBottom: 24 }} />
+        <div className="st-skeleton" style={{ height: 220, width: '100%' }} />
+      </div>
+    );
   }
-  const object: ObjectMetadata | undefined = objectsResult.data.find(
-    (o) => o.slug === objectSlug,
-  );
-  if (!object) {
-    notFound();
+
+  if (error) {
+    return (
+      <div className="st-page">
+        <Link href={`/sabcrm/${objectSlug}`} className="st-back">
+          ← Back
+        </Link>
+        <div className="st-banner" role="alert">
+          <AlertTriangle className="st-banner__icon" size={15} />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
   }
 
-  // Load the single record (with its resolved display label). Scoping to the
-  // active project + tenant happens inside the action.
-  const recordResult = await getRecordAction(recordId);
-  if (!recordResult.ok) {
-    notFound();
+  if (!object || !record) {
+    return (
+      <div className="st-page">
+        <div className="st-empty">
+          <span className="st-empty__icon">
+            <Database size={20} />
+          </span>
+          <h2 className="st-empty__title">Record not found</h2>
+          <p className="st-empty__desc">
+            This record may have been removed, or you may not have access to it.
+          </p>
+          <TwentyButton variant="secondary">
+            <Link
+              href={`/sabcrm/${objectSlug}`}
+              style={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              Back
+            </Link>
+          </TwentyButton>
+        </div>
+      </div>
+    );
   }
-  const record: CrmRecordWithLabel = recordResult.data;
-
-  // Guard against a record that belongs to a different object than the URL.
-  if (record.object !== object.slug) {
-    notFound();
-  }
-
-  // Resolve the record's RELATION fields for the "Related" tab. Best-effort:
-  // a failure (or an object with no relations) leaves the map empty so the
-  // page still renders. The action runs the same gated pipeline internally.
-  const relatedResult = await listRelatedRecordsAction(record._id);
-  const related: Record<string, CrmRecordWithLabel[]> = relatedResult.ok
-    ? relatedResult.data
-    : {};
 
   return (
-    <RecordDetailTabs
-      object={object}
-      record={record}
-      related={related}
-      activitySlot={<RecordActivity object={object} record={record} />}
-    />
+    <RecordDetailTw object={object} record={record} projectId={activeProjectId} />
   );
 }
