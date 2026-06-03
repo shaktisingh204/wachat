@@ -1,0 +1,153 @@
+/* =========================================================================
+   SabCRM — Twenty record-table pagination + sortable column headers.
+
+   New `.st-*` utilities scoped to the `/sabcrm/[objectSlug]` index. Lives
+   alongside `page.tsx` (the shared `src/styles/sabcrm-twenty.css` kit is NOT
+   edited). Mirrors the kit's tokens (`--st-*`) for a faithful Twenty look:
+   a quiet bottom footer with a record count, a page-size <select>, and
+   Prev/Next steppers; plus a clickable column-header sort affordance.
+   ========================================================================= */
+
+/* ---- Sortable column header -------------------------------------------- */
+
+.st-th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: var(--st-fw-medium);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--st-radius-sm);
+  transition: color 100ms ease;
+}
+
+.st-th-sort:hover {
+  color: var(--st-text);
+}
+
+.st-th-sort.is-active {
+  color: var(--st-text);
+}
+
+.st-th-sort__ind {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  font-size: var(--st-font-size-xs);
+  line-height: 1;
+}
+
+/* A muted placeholder caret hinted on hover for unsorted columns. */
+.st-th-sort__ind--idle {
+  opacity: 0;
+  transition: opacity 100ms ease;
+  color: var(--st-text-tertiary);
+}
+
+.st-th-sort:hover .st-th-sort__ind--idle {
+  opacity: 1;
+}
+
+/* ---- Table footer / pagination ----------------------------------------- */
+
+.st-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+  padding: var(--st-space-2) var(--st-space-1);
+  margin-top: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.st-pagination__count {
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+.st-pagination__count strong {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+.st-pagination__spacer {
+  flex: 1 1 auto;
+}
+
+.st-pagination__sizer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  white-space: nowrap;
+}
+
+.st-pagination__select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 4px 22px 4px var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.2;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+}
+
+.st-pagination__select:focus-visible {
+  outline: none;
+  border-color: var(--st-text-tertiary);
+}
+
+.st-pagination__range {
+  white-space: nowrap;
+  color: var(--st-text-tertiary);
+}
+
+.st-pagination__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.st-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--st-space-1);
+  height: 28px;
+  min-width: 28px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease;
+}
+
+.st-pagination__btn:hover:not(:disabled) {
+  background: var(--st-hover);
+}
+
+.st-pagination__btn:disabled {
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}

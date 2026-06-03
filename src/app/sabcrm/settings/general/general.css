@@ -1,0 +1,73 @@
+/* =========================================================================
+   SabCRM Settings — General (Twenty-style supplemental classes)
+   -------------------------------------------------------------------------
+   Companion sheet for `/sabcrm/settings/general`. Holds only the few helpers
+   the General page needs on top of the base `.st-*` vocabulary in
+   `src/styles/sabcrm-twenty.css` (which must NOT be edited). All selectors are
+   scoped under `.sabcrm-twenty` (supplied by the SabCRM app frame layout) so
+   they never leak into the rest of SabNode.
+   ========================================================================= */
+
+/* Constrained form column. */
+.sabcrm-twenty .st-general-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5);
+  max-width: 480px;
+}
+
+/* Per-field helper copy under the label. */
+.sabcrm-twenty .st-field__help {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.4;
+}
+
+/* Icon field: a small preview swatch next to the text input. */
+.sabcrm-twenty .st-icon-field {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-icon-field .st-input {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-icon-preview {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--st-text-secondary);
+  overflow: hidden;
+}
+
+/* Footer action row: Save button + inline status message. */
+.sabcrm-twenty .st-general-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-form-status {
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-form-status--ok {
+  color: #2e7d32;
+}
+
+.sabcrm-twenty .st-form-status--err {
+  color: #b3261e;
+}

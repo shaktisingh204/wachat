@@ -245,3 +245,217 @@
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-sm);
 }
+
+/* =========================================================================
+   Field dialog — SELECT option editor + RELATION target picker
+   ========================================================================= */
+
+/* A roomier dialog so the option rows have breathing space. */
+.sabcrm-twenty .dm-dialog--wide {
+  width: min(560px, calc(100vw - var(--st-space-6)));
+}
+
+/* Reuse the dialog field-stack spacing for our compound editors. */
+.sabcrm-twenty .dm-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+.sabcrm-twenty .st-field__hint {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Shared small icon buttons (reorder / remove) --------------------- */
+
+.sabcrm-twenty .dm-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .dm-iconbtn:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .dm-iconbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .dm-iconbtn--danger:hover:not(:disabled) {
+  border-color: #d64545;
+  color: #d64545;
+}
+
+/* ----- SELECT options list ---------------------------------------------- */
+
+.sabcrm-twenty .dm-opts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .dm-opts__empty {
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .dm-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .dm-opt__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .dm-opt__value {
+  flex: 0 0 120px;
+  width: 120px;
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-sm);
+  text-transform: uppercase;
+}
+
+.sabcrm-twenty .dm-opt__order {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 2px;
+}
+
+.sabcrm-twenty .dm-opts__add {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .dm-opts__add:hover {
+  background: var(--st-hover);
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+/* ----- Colour swatch + picker popover ----------------------------------- */
+
+.sabcrm-twenty .dm-color {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .dm-color__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: border-color 120ms ease;
+}
+
+.sabcrm-twenty .dm-color__trigger:hover,
+.sabcrm-twenty .dm-color__trigger[aria-expanded='true'] {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-swatch {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.sabcrm-twenty .dm-swatch--lg {
+  width: 20px;
+  height: 20px;
+}
+
+.sabcrm-twenty .dm-color__pop {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.16));
+}
+
+.sabcrm-twenty .dm-color__cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .dm-color__cell:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .dm-color__cell[aria-selected='true'] {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-color__check {
+  position: absolute;
+  color: #fff;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+}
+
+/* ----- RELATION target picker ------------------------------------------- */
+
+.sabcrm-twenty .dm-relation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+}

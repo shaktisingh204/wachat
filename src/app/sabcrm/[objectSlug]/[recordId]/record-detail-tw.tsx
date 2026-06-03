@@ -27,6 +27,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   AlertTriangle,
@@ -46,6 +47,8 @@ import {
   Activity,
   Paperclip,
   FileText,
+  MoreHorizontal,
+  Trash2,
   X,
   type LucideIcon,
 } from 'lucide-react';
@@ -60,6 +63,7 @@ import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import {
   updateSabcrmRecordTw,
+  deleteSabcrmRecordTw,
   listSabcrmActivitiesTw,
   createSabcrmActivityTw,
   updateSabcrmActivityTw,
@@ -84,6 +88,7 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import './record-tabs.css';
 import './attachments.css';
+import './detail-polish.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -405,6 +410,77 @@ function relationRecordLabel(
 }
 
 // ---------------------------------------------------------------------------
+// Composer — shared multi-line body (auto-grow + ⌘/Ctrl+Enter to submit)
+// ---------------------------------------------------------------------------
+
+/** True for the platform "submit" chord on a body textarea: ⌘/Ctrl + Enter. */
+function isSubmitChord(e: React.KeyboardEvent): boolean {
+  return e.key === 'Enter' && (e.metaKey || e.ctrlKey);
+}
+
+interface ComposerBodyProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  placeholder: string;
+  ariaLabel: string;
+  disabled?: boolean;
+}
+
+/**
+ * A Twenty-style multi-line composer body: it grows with its content (up to a
+ * CSS max-height, then scrolls) and submits the parent form on ⌘/Ctrl+Enter.
+ */
+function ComposerBody({
+  value,
+  onChange,
+  onSubmit,
+  placeholder,
+  ariaLabel,
+  disabled,
+}: ComposerBodyProps): React.JSX.Element {
+  const ref = React.useRef<HTMLTextAreaElement | null>(null);
+
+  // Auto-grow: reset to natural height, then snap to scrollHeight each change.
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
+
+  return (
+    <textarea
+      ref={ref}
+      className="st-composer__body stp-composer__body"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => {
+        if (isSubmitChord(e)) {
+          e.preventDefault();
+          onSubmit();
+        }
+      }}
+      placeholder={placeholder}
+      aria-label={ariaLabel}
+      disabled={disabled}
+      rows={2}
+    />
+  );
+}
+
+/** The ⌘/Ctrl+Enter affordance shown in a composer footer. */
+function SubmitHint(): React.JSX.Element {
+  return (
+    <span className="stp-composer__hint" aria-hidden="true">
+      <kbd className="stp-kbd">⌘</kbd>
+      <kbd className="stp-kbd">↵</kbd>
+      to add
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Composer
 // ---------------------------------------------------------------------------
 
@@ -432,8 +508,7 @@ function Composer({ onAdd }: ComposerProps) {
   const removeAttachment = (fileId: string) =>
     setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
 
-  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitForm = React.useCallback(async () => {
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
@@ -446,6 +521,11 @@ function Composer({ onAdd }: ComposerProps) {
     } else {
       setError('Could not add activity.');
     }
+  }, [saving, title, body, type, attachments, onAdd]);
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void submitForm();
   };
 
   return (
@@ -471,12 +551,13 @@ function Composer({ onAdd }: ComposerProps) {
           aria-label="Activity title"
         />
       </div>
-      <textarea
-        className="st-composer__body"
+      <ComposerBody
         value={body}
-        onChange={(e) => setBody(e.target.value)}
+        onChange={setBody}
+        onSubmit={submitForm}
         placeholder="Add a note (optional)…"
-        aria-label="Activity body"
+        ariaLabel="Activity body"
+        disabled={saving}
       />
       <div className="st-composer__footer">
         <AttachControl
@@ -485,7 +566,11 @@ function Composer({ onAdd }: ComposerProps) {
           onRemove={removeAttachment}
           disabled={saving}
         />
-        {error && <span className="st-composer__error">{error}</span>}
+        {error ? (
+          <span className="st-composer__error">{error}</span>
+        ) : (
+          <SubmitHint />
+        )}
         <button
           type="submit"
           className="st-composer__add"
@@ -527,6 +612,144 @@ function StarToggle({ active, busy, onToggle, className }: StarToggleProps) {
     >
       <Star size={15} fill={active ? 'currentColor' : 'none'} />
     </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Record overflow menu ("...") + confirm-delete dialog
+// ---------------------------------------------------------------------------
+
+interface RecordMenuProps {
+  onDelete: () => void;
+}
+
+/** A Twenty "..." overflow menu; currently surfaces a destructive Delete. */
+function RecordMenu({ onDelete }: RecordMenuProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  // Dismiss on outside click / Escape while open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="stp-menu" ref={ref}>
+      <button
+        type="button"
+        className="stp-menu__trigger"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Record actions"
+        title="Record actions"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <MoreHorizontal size={16} />
+      </button>
+      {open ? (
+        <div className="stp-menu__pop" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            className="stp-menu__item is-danger"
+            onClick={() => {
+              setOpen(false);
+              onDelete();
+            }}
+          >
+            <Trash2 size={14} aria-hidden="true" />
+            Delete record
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+interface DeleteDialogProps {
+  label: string;
+  objectLabel: string;
+  deleting: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+/** Modal confirm before a destructive record delete. */
+function DeleteDialog({
+  label,
+  objectLabel,
+  deleting,
+  error,
+  onCancel,
+  onConfirm,
+}: DeleteDialogProps): React.JSX.Element {
+  // Escape dismisses (unless mid-delete).
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !deleting) onCancel();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [deleting, onCancel]);
+
+  return (
+    <div
+      className="stp-overlay"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget && !deleting) onCancel();
+      }}
+    >
+      <div
+        className="stp-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-label={`Delete ${objectLabel.toLowerCase()}`}
+      >
+        <h2 className="stp-dialog__title">Delete {objectLabel.toLowerCase()}?</h2>
+        <p className="stp-dialog__body">
+          <strong>{label}</strong> will be permanently deleted. This action
+          cannot be undone.
+        </p>
+        {error ? <p className="stp-dialog__error">{error}</p> : null}
+        <div className="stp-dialog__actions">
+          <button
+            type="button"
+            className="stp-btn"
+            onClick={onCancel}
+            disabled={deleting}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="stp-btn stp-btn--danger"
+            onClick={onConfirm}
+            disabled={deleting}
+          >
+            {deleting ? (
+              <Loader2 size={13} className="st-spin" />
+            ) : (
+              <Trash2 size={13} aria-hidden="true" />
+            )}
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -602,8 +825,7 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
   const removeAttachment = (fileId: string) =>
     setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
 
-  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitForm = React.useCallback(async () => {
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
@@ -616,6 +838,11 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
     } else {
       setError('Could not add note.');
     }
+  }, [saving, title, body, attachments, onAdd]);
+
+  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void submitForm();
   };
 
   return (
@@ -629,12 +856,13 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
           aria-label="Note title"
         />
       </div>
-      <textarea
-        className="st-composer__body"
+      <ComposerBody
         value={body}
-        onChange={(e) => setBody(e.target.value)}
+        onChange={setBody}
+        onSubmit={submitForm}
         placeholder="Write a note…"
-        aria-label="Note body"
+        ariaLabel="Note body"
+        disabled={saving}
       />
       <div className="st-composer__footer">
         <AttachControl
@@ -643,7 +871,11 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
           onRemove={removeAttachment}
           disabled={saving}
         />
-        {error && <span className="st-composer__error">{error}</span>}
+        {error ? (
+          <span className="st-composer__error">{error}</span>
+        ) : (
+          <SubmitHint />
+        )}
         <button
           type="submit"
           className="st-composer__add"
@@ -909,8 +1141,14 @@ export function RecordDetailTw({
   record: initialRecord,
   projectId,
 }: RecordDetailTwProps): React.JSX.Element {
+  const router = useRouter();
   const [record, setRecord] = React.useState<SabcrmRustRecord>(initialRecord);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Confirm-delete dialog state.
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteError, setDeleteError] = React.useState<string | null>(null);
 
   // Timeline state.
   const [activities, setActivities] = React.useState<SabcrmRustActivity[]>([]);
@@ -956,6 +1194,25 @@ export function RecordDetailTw({
     },
     [record, object.slug, projectId],
   );
+
+  // Confirm-delete: removes the record, then returns to the object index.
+  const handleConfirmDelete = React.useCallback(async () => {
+    if (deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    const res = await deleteSabcrmRecordTw(
+      object.slug,
+      record.id,
+      projectId ?? undefined,
+    );
+    if (res.ok) {
+      // Leave the (now-gone) detail page; the index revalidates server-side.
+      router.push(`/sabcrm/${object.slug}`);
+      return;
+    }
+    setDeleteError(res.error);
+    setDeleting(false);
+  }, [deleting, object.slug, record.id, projectId, router]);
 
   // Load the record's timeline (graceful: empty on failure / engine down).
   React.useEffect(() => {
@@ -1146,6 +1403,8 @@ export function RecordDetailTw({
     [editableFields.length, notes.length, tasks.length, activities.length],
   );
 
+  const label = recordLabel(object, record);
+
   return (
     <div className="st-page">
       <Link href={`/sabcrm/${object.slug}`} className="st-back">
@@ -1153,17 +1412,54 @@ export function RecordDetailTw({
         {object.labelPlural}
       </Link>
 
+      {/* Twenty breadcrumb: {Object plural} / {record label} */}
+      <nav className="stp-breadcrumb" aria-label="Breadcrumb">
+        <Link href={`/sabcrm/${object.slug}`} className="stp-breadcrumb__crumb">
+          <ObjectIcon size={13} aria-hidden="true" />
+          {object.labelPlural}
+        </Link>
+        <ChevronRight
+          size={13}
+          className="stp-breadcrumb__sep"
+          aria-hidden="true"
+        />
+        <span className="stp-breadcrumb__current" aria-current="page">
+          {label}
+        </span>
+      </nav>
+
       <div className="st-detail-header">
         <span className="st-page-header__icon" aria-hidden="true">
           <ObjectIcon size={16} />
         </span>
-        <h1 className="st-page-header__title">{recordLabel(object, record)}</h1>
-        <StarToggle
-          active={favorite}
-          busy={favBusy}
-          onToggle={handleToggleFavorite}
-        />
+        <h1 className="st-page-header__title">{label}</h1>
+        <div className="stp-header-actions">
+          <StarToggle
+            active={favorite}
+            busy={favBusy}
+            onToggle={handleToggleFavorite}
+          />
+          <RecordMenu
+            onDelete={() => {
+              setDeleteError(null);
+              setDeleteOpen(true);
+            }}
+          />
+        </div>
       </div>
+
+      {deleteOpen ? (
+        <DeleteDialog
+          label={label}
+          objectLabel={object.labelSingular}
+          deleting={deleting}
+          error={deleteError}
+          onCancel={() => {
+            if (!deleting) setDeleteOpen(false);
+          }}
+          onConfirm={handleConfirmDelete}
+        />
+      ) : null}
 
       {error && (
         <div className="st-banner" role="alert">

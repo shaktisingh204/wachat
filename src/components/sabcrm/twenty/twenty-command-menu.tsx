@@ -10,6 +10,9 @@ import {
   CheckCircle2,
   Settings,
   Search,
+  LayoutDashboard,
+  ListTodo,
+  Keyboard,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -46,6 +49,98 @@ const NAV_COMMANDS: readonly NavCommand[] = [
   { id: 'nav-settings', label: 'Settings', href: '/sabcrm/settings', icon: Settings },
 ] as const;
 
+/* =========================================================================
+   "Actions" commands
+
+   Each action either navigates to a route (most), or runs an in-app handler
+   (e.g. opening the shortcuts help overlay). Routes to object-index pages use
+   `?new=1` to hint the index to surface its create flow; the index renders
+   fine without it, so this degrades gracefully.
+   ========================================================================= */
+type ActionRun = (ctx: { navigate: (href: string) => void; openHelp: () => void }) => void;
+
+interface ActionCommand {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  /** Keywords (beyond the label) the action matches against in search. */
+  keywords?: string;
+  run: ActionRun;
+}
+
+const ACTION_COMMANDS: readonly ActionCommand[] = [
+  {
+    id: 'act-create-company',
+    label: 'Create Company',
+    icon: Building2,
+    keywords: 'new add company',
+    run: ({ navigate }) => navigate('/sabcrm/companies?new=1'),
+  },
+  {
+    id: 'act-create-person',
+    label: 'Create Person',
+    icon: Users,
+    keywords: 'new add person contact',
+    run: ({ navigate }) => navigate('/sabcrm/people?new=1'),
+  },
+  {
+    id: 'act-create-opportunity',
+    label: 'Create Opportunity',
+    icon: Briefcase,
+    keywords: 'new add opportunity deal',
+    run: ({ navigate }) => navigate('/sabcrm/opportunities?new=1'),
+  },
+  {
+    id: 'act-create-note',
+    label: 'Create Note',
+    icon: StickyNote,
+    keywords: 'new add note',
+    run: ({ navigate }) => navigate('/sabcrm/notes?new=1'),
+  },
+  {
+    id: 'act-create-task',
+    label: 'Create Task',
+    icon: CheckCircle2,
+    keywords: 'new add task todo',
+    run: ({ navigate }) => navigate('/sabcrm/tasks?new=1'),
+  },
+  {
+    id: 'act-open-dashboard',
+    label: 'Open Dashboard',
+    icon: LayoutDashboard,
+    keywords: 'home dashboard overview',
+    run: ({ navigate }) => navigate('/sabcrm/dashboard'),
+  },
+  {
+    id: 'act-my-work',
+    label: 'My Work',
+    icon: ListTodo,
+    keywords: 'my work assigned tasks mine',
+    run: ({ navigate }) => navigate('/sabcrm/my-work'),
+  },
+  {
+    id: 'act-open-settings',
+    label: 'Open Settings',
+    icon: Settings,
+    keywords: 'settings preferences configuration',
+    run: ({ navigate }) => navigate('/sabcrm/settings'),
+  },
+  {
+    id: 'act-search',
+    label: 'Search…',
+    icon: Search,
+    keywords: 'search find records',
+    run: ({ navigate }) => navigate('/sabcrm/search'),
+  },
+  {
+    id: 'act-shortcuts',
+    label: 'Keyboard shortcuts',
+    icon: Keyboard,
+    keywords: 'keyboard shortcuts help keys hotkeys bindings',
+    run: ({ openHelp }) => openHelp(),
+  },
+] as const;
+
 /** Human-readable label for an object slug (used in record-row meta). */
 const OBJECT_LABEL: Record<string, string> = {
   companies: 'Company',
@@ -64,16 +159,33 @@ const OBJECT_ICON: Record<string, LucideIcon> = {
 };
 
 /* =========================================================================
+   Keyboard-shortcuts help reference
+   ========================================================================= */
+interface ShortcutEntry {
+  keys: readonly string[];
+  label: string;
+}
+
+const SHORTCUTS: readonly ShortcutEntry[] = [
+  { keys: ['⌘', 'K'], label: 'Open command menu' },
+  { keys: ['/'], label: 'Open & search' },
+  { keys: ['↑', '↓'], label: 'Navigate items' },
+  { keys: ['↵'], label: 'Select item' },
+  { keys: ['Esc'], label: 'Close' },
+  { keys: ['?'], label: 'Toggle this help' },
+] as const;
+
+/* =========================================================================
    Flattened item model (for keyboard navigation)
    ========================================================================= */
 interface CmdItem {
   /** Unique key across the whole menu. */
   key: string;
-  /** Destination route — pushed on Enter / click. */
-  href: string;
   label: string;
   meta?: string;
   icon: LucideIcon;
+  /** Invoked on Enter / click. */
+  onSelect: () => void;
 }
 
 interface RecordResult extends SabcrmPickerOption {
@@ -88,15 +200,44 @@ export interface TwentyCommandMenuProps {
   onOpenChange: (open: boolean) => void;
   /** Active SabCRM project id, forwarded to the record-search action. */
   projectId?: string;
+  /**
+   * Whether the keyboard-shortcuts help overlay is visible. Optional: when the
+   * host does not control it, the component self-manages help state and listens
+   * for the `?` shortcut itself.
+   */
+  helpOpen?: boolean;
+  /** Toggle the keyboard-shortcuts help overlay. */
+  onHelpOpenChange?: (open: boolean) => void;
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  const tag = target.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  return target.isContentEditable;
 }
 
 export function TwentyCommandMenu({
   open,
   onOpenChange,
   projectId,
+  helpOpen: helpOpenProp,
+  onHelpOpenChange,
 }: TwentyCommandMenuProps): React.JSX.Element | null {
   const router = useRouter();
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Uncontrolled fallback for the help overlay when the host doesn't drive it.
+  const isHelpControlled = helpOpenProp !== undefined;
+  const [helpOpenLocal, setHelpOpenLocal] = React.useState(false);
+  const helpOpen = isHelpControlled ? helpOpenProp : helpOpenLocal;
+  const setHelpOpen = React.useCallback(
+    (next: boolean) => {
+      if (isHelpControlled) onHelpOpenChange?.(next);
+      else setHelpOpenLocal(next);
+    },
+    [isHelpControlled, onHelpOpenChange],
+  );
 
   const [query, setQuery] = React.useState('');
   const [records, setRecords] = React.useState<RecordResult[]>([]);
@@ -174,7 +315,41 @@ export function TwentyCommandMenu({
     };
   }, [open, query, projectId]);
 
-  // Filtered static commands.
+  const navigate = React.useCallback(
+    (href: string) => {
+      onOpenChange(false);
+      router.push(href);
+    },
+    [onOpenChange, router],
+  );
+
+  const openHelp = React.useCallback(() => {
+    onOpenChange(false);
+    setHelpOpen(true);
+  }, [onOpenChange, setHelpOpen]);
+
+  // When the help overlay is uncontrolled, listen for the `?` shortcut here so
+  // it works even if the host never wires `helpOpen`/`onHelpOpenChange`.
+  React.useEffect(() => {
+    if (isHelpControlled) return undefined;
+    function onDocKeyDown(event: KeyboardEvent): void {
+      if (
+        event.key === '?' &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !isEditableTarget(event.target)
+      ) {
+        event.preventDefault();
+        onOpenChange(false);
+        setHelpOpenLocal((prev) => !prev);
+      }
+    }
+    document.addEventListener('keydown', onDocKeyDown);
+    return () => document.removeEventListener('keydown', onDocKeyDown);
+  }, [isHelpControlled, onOpenChange]);
+
+  // Filtered "Navigate" commands.
   const navItems = React.useMemo<CmdItem[]>(() => {
     const term = query.trim().toLowerCase();
     const matches = term
@@ -182,29 +357,48 @@ export function TwentyCommandMenu({
       : NAV_COMMANDS;
     return matches.map((c) => ({
       key: c.id,
-      href: c.href,
       label: c.label,
       meta: 'Navigate',
       icon: c.icon,
+      onSelect: () => navigate(c.href),
     }));
-  }, [query]);
+  }, [query, navigate]);
+
+  // Filtered "Actions" commands.
+  const actionItems = React.useMemo<CmdItem[]>(() => {
+    const term = query.trim().toLowerCase();
+    const matches = term
+      ? ACTION_COMMANDS.filter(
+          (c) =>
+            c.label.toLowerCase().includes(term) ||
+            (c.keywords?.toLowerCase().includes(term) ?? false),
+        )
+      : ACTION_COMMANDS;
+    return matches.map((c) => ({
+      key: c.id,
+      label: c.label,
+      meta: 'Action',
+      icon: c.icon,
+      onSelect: () => c.run({ navigate, openHelp }),
+    }));
+  }, [query, navigate, openHelp]);
 
   const recordItems = React.useMemo<CmdItem[]>(
     () =>
       records.map((r) => ({
         key: `rec-${r.slug}-${r.id}`,
-        href: `/sabcrm/${r.slug}/${r.id}`,
         label: r.label || 'Untitled',
         meta: OBJECT_LABEL[r.slug] ?? r.object,
         icon: OBJECT_ICON[r.slug] ?? Search,
+        onSelect: () => navigate(`/sabcrm/${r.slug}/${r.id}`),
       })),
-    [records],
+    [records, navigate],
   );
 
   // Flattened, ordered list used for keyboard navigation.
   const flatItems = React.useMemo<CmdItem[]>(
-    () => [...navItems, ...recordItems],
-    [navItems, recordItems],
+    () => [...navItems, ...actionItems, ...recordItems],
+    [navItems, actionItems, recordItems],
   );
 
   // Keep the active index within bounds when the result set changes.
@@ -214,14 +408,6 @@ export function TwentyCommandMenu({
       return Math.min(prev, flatItems.length - 1);
     });
   }, [flatItems.length]);
-
-  const navigate = React.useCallback(
-    (href: string) => {
-      onOpenChange(false);
-      router.push(href);
-    },
-    [onOpenChange, router],
-  );
 
   const onKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -247,17 +433,67 @@ export function TwentyCommandMenu({
         case 'Enter': {
           event.preventDefault();
           const item = flatItems[activeIndex];
-          if (item) navigate(item.href);
+          if (item) item.onSelect();
           break;
         }
         default:
           break;
       }
     },
-    [flatItems, activeIndex, navigate, onOpenChange],
+    [flatItems, activeIndex, onOpenChange],
   );
 
-  if (!open) return null;
+  // ----- Keyboard-shortcuts help overlay (standalone, can show on its own) ---
+  const helpOverlay = helpOpen ? (
+    <div
+      className="st-cmdk-overlay"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) setHelpOpen(false);
+      }}
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+      <div
+        className="st-cmdk-panel st-cmdk-panel--help"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Keyboard shortcuts"
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            setHelpOpen(false);
+          }
+        }}
+        tabIndex={-1}
+        ref={(node) => {
+          // Focus the panel so Escape works without an input inside.
+          if (node) node.focus();
+        }}
+      >
+        <div className="st-cmdk-help__header">
+          <Keyboard size={18} aria-hidden="true" />
+          <span className="st-cmdk-help__title">Keyboard shortcuts</span>
+          <kbd className="st-cmdk-search__esc">Esc</kbd>
+        </div>
+        <div className="st-cmdk-help__list">
+          {SHORTCUTS.map((s) => (
+            <div className="st-cmdk-help__row" key={s.label}>
+              <span className="st-cmdk-help__label">{s.label}</span>
+              <span className="st-cmdk-help__keys">
+                {s.keys.map((k, i) => (
+                  <kbd className="st-cmdk-kbd" key={`${s.label}-${i}`}>
+                    {k}
+                  </kbd>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  if (!open) return helpOverlay;
 
   const showEmpty =
     query.trim().length > 0 && !loading && !error && flatItems.length === 0;
@@ -274,7 +510,7 @@ export function TwentyCommandMenu({
         type="button"
         className={`st-cmdk-row${isActive ? ' is-active' : ''}`}
         onMouseMove={() => setActiveIndex(index)}
-        onClick={() => navigate(item.href)}
+        onClick={() => item.onSelect()}
       >
         <span className="st-cmdk-row__icon">
           <Icon size={16} aria-hidden="true" />
@@ -286,73 +522,103 @@ export function TwentyCommandMenu({
   };
 
   return (
-    <div
-      className="st-cmdk-overlay"
-      role="presentation"
-      onMouseDown={(e) => {
-        // Backdrop click (not a click that bubbled from the panel) closes.
-        if (e.target === e.currentTarget) onOpenChange(false);
-      }}
-    >
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+    <>
       <div
-        className="st-cmdk-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-label="Command menu"
-        onKeyDown={onKeyDown}
+        className="st-cmdk-overlay"
+        role="presentation"
+        onMouseDown={(e) => {
+          // Backdrop click (not a click that bubbled from the panel) closes.
+          if (e.target === e.currentTarget) onOpenChange(false);
+        }}
       >
-        <div className="st-cmdk-search">
-          <Search className="st-cmdk-search__icon" size={18} aria-hidden="true" />
-          <input
-            ref={inputRef}
-            type="text"
-            className="st-cmdk-search__input"
-            placeholder="Search commands and records…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            spellCheck={false}
-            autoComplete="off"
-            aria-label="Search commands and records"
-          />
-          <kbd className="st-cmdk-search__esc">Esc</kbd>
-        </div>
+        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
+        <div
+          className="st-cmdk-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Command menu"
+          onKeyDown={onKeyDown}
+        >
+          <div className="st-cmdk-search">
+            <Search className="st-cmdk-search__icon" size={18} aria-hidden="true" />
+            <input
+              ref={inputRef}
+              type="text"
+              className="st-cmdk-search__input"
+              placeholder="Search commands and records…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              spellCheck={false}
+              autoComplete="off"
+              aria-label="Search commands and records"
+            />
+            <kbd className="st-cmdk-search__esc">Esc</kbd>
+          </div>
 
-        <div className="st-cmdk-body">
-          {navItems.length > 0 ? (
-            <div className="st-cmdk-group">
-              <div className="st-cmdk-group__title">Navigate</div>
-              {navItems.map(renderRow)}
-            </div>
-          ) : null}
+          <div className="st-cmdk-body">
+            {navItems.length > 0 ? (
+              <div className="st-cmdk-group">
+                <div className="st-cmdk-group__title">Navigate</div>
+                {navItems.map(renderRow)}
+              </div>
+            ) : null}
 
-          {recordItems.length > 0 ? (
-            <div className="st-cmdk-group">
-              <div className="st-cmdk-group__title">Records</div>
-              {recordItems.map(renderRow)}
-            </div>
-          ) : null}
+            {actionItems.length > 0 ? (
+              <div className="st-cmdk-group">
+                <div className="st-cmdk-group__title">Actions</div>
+                {actionItems.map(renderRow)}
+              </div>
+            ) : null}
 
-          {loading ? (
-            <div className="st-cmdk-status" role="status">
-              Searching…
-            </div>
-          ) : null}
+            {recordItems.length > 0 ? (
+              <div className="st-cmdk-group">
+                <div className="st-cmdk-group__title">Records</div>
+                {recordItems.map(renderRow)}
+              </div>
+            ) : null}
 
-          {error ? (
-            <div className="st-cmdk-status st-cmdk-status--error" role="status">
-              {error}
-            </div>
-          ) : null}
+            {loading ? (
+              <div className="st-cmdk-status" role="status">
+                Searching…
+              </div>
+            ) : null}
 
-          {showEmpty ? (
-            <div className="st-cmdk-status" role="status">
-              No results for “{query.trim()}”.
-            </div>
-          ) : null}
+            {error ? (
+              <div className="st-cmdk-status st-cmdk-status--error" role="status">
+                {error}
+              </div>
+            ) : null}
+
+            {showEmpty ? (
+              <div className="st-cmdk-status" role="status">
+                No results for “{query.trim()}”.
+              </div>
+            ) : null}
+          </div>
+
+          <div className="st-cmdk-footer">
+            <span className="st-cmdk-footer__hint">
+              <kbd className="st-cmdk-kbd">↑</kbd>
+              <kbd className="st-cmdk-kbd">↓</kbd>
+              <span>navigate</span>
+            </span>
+            <span className="st-cmdk-footer__hint">
+              <kbd className="st-cmdk-kbd">↵</kbd>
+              <span>select</span>
+            </span>
+            <button
+              type="button"
+              className="st-cmdk-footer__help"
+              onClick={openHelp}
+            >
+              <kbd className="st-cmdk-kbd">?</kbd>
+              <span>shortcuts</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+      {helpOverlay}
+    </>
   );
 }
 

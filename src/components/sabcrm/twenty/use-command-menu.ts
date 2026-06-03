@@ -3,16 +3,23 @@
 import * as React from 'react';
 
 /**
- * Controls the SabCRM global command menu (⌘K / Ctrl+K).
+ * Controls the SabCRM global command menu (⌘K / Ctrl+K) and the keyboard
+ * shortcuts help overlay (?).
  *
- * Registers a single document-level `keydown` listener that toggles the menu
- * on the platform shortcut. The `/` shortcut is also supported, but only when
- * the user is not already typing into an input / textarea / contenteditable so
- * it never hijacks normal text entry.
+ * Registers a single document-level `keydown` listener that:
+ *  - toggles the command menu on the platform shortcut (⌘K / Ctrl+K),
+ *  - opens the command menu on `/` (only when the user is not already typing),
+ *  - toggles the shortcuts help overlay on `?` (only when not typing).
+ *
+ * The editable-target guard ensures the bare-key shortcuts never hijack normal
+ * text entry into inputs / textareas / contenteditable regions.
  */
 export interface UseCommandMenuResult {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  /** Whether the keyboard-shortcuts help overlay is visible. */
+  helpOpen: boolean;
+  setHelpOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
@@ -24,6 +31,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 export function useCommandMenu(): UseCommandMenuResult {
   const [open, setOpen] = React.useState(false);
+  const [helpOpen, setHelpOpen] = React.useState(false);
 
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent): void {
@@ -32,6 +40,7 @@ export function useCommandMenu(): UseCommandMenuResult {
         (event.metaKey || event.ctrlKey) && (event.key === 'k' || event.key === 'K');
       if (isToggleCombo) {
         event.preventDefault();
+        setHelpOpen(false);
         setOpen((prev) => !prev);
         return;
       }
@@ -40,7 +49,16 @@ export function useCommandMenu(): UseCommandMenuResult {
       if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey) {
         if (isEditableTarget(event.target)) return;
         event.preventDefault();
+        setHelpOpen(false);
         setOpen(true);
+        return;
+      }
+
+      // "?" toggles the keyboard-shortcuts help overlay, but never while typing.
+      if (event.key === '?' && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        if (isEditableTarget(event.target)) return;
+        event.preventDefault();
+        setHelpOpen((prev) => !prev);
       }
     }
 
@@ -48,7 +66,7 @@ export function useCommandMenu(): UseCommandMenuResult {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  return { open, setOpen };
+  return { open, setOpen, helpOpen, setHelpOpen };
 }
 
 export default useCommandMenu;

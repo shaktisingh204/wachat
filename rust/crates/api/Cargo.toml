@@ -69,6 +69,7 @@ sabcrm-objects = { path = "../sabcrm-objects" }
 sabcrm-activities = { path = "../sabcrm-activities" }
 sabcrm-views = { path = "../sabcrm-views" }
 sabcrm-roles = { path = "../sabcrm-roles" }
+sabcrm-settings = { path = "../sabcrm-settings" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }
 crm-quotations = { path = "../crm-quotations" }
 crm-invoices = { path = "../crm-invoices" }

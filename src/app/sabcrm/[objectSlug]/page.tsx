@@ -47,6 +47,8 @@ import {
   type ViewState,
 } from './view-bar';
 import { SabcrmBulkBar } from './bulk-bar';
+import { SabcrmPagination } from './pagination';
+import './pagination.css';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -72,8 +74,31 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 // Constants
 // ---------------------------------------------------------------------------
 
+/** Default page size — must be one of {@link PAGE_SIZE_OPTIONS}. */
 const PAGE_LIMIT = 50;
 const SEARCH_DEBOUNCE_MS = 300;
+
+/**
+ * Column types a header click may sort by. Mirrors the view bar's
+ * `queryableFields` rule (relations + files are not sortable server-side), so
+ * header sorting and the Sort popover always agree on what's clickable.
+ */
+const SORTABLE_HEADER: ReadonlySet<FieldMetadata['type']> = new Set<
+  FieldMetadata['type']
+>([
+  'TEXT',
+  'EMAIL',
+  'PHONE',
+  'LINK',
+  'NUMBER',
+  'CURRENCY',
+  'RATING',
+  'SELECT',
+  'MULTI_SELECT',
+  'BOOLEAN',
+  'DATE',
+  'DATE_TIME',
+]);
 
 type ViewKind = 'table' | 'board';
 
@@ -230,6 +255,11 @@ interface TableViewProps {
   selected: ReadonlySet<string>;
   onToggleSelect: (recordId: string) => void;
   onToggleSelectAll: () => void;
+  /** Active sort field key, or `null` when unsorted (shared with the view bar). */
+  sortBy: string | null;
+  sortDir: 'asc' | 'desc';
+  /** Cycle a column's sort: asc → desc → clear. */
+  onSortColumn: (key: string) => void;
 }
 
 function TableView({
@@ -244,6 +274,9 @@ function TableView({
   selected,
   onToggleSelect,
   onToggleSelectAll,
+  sortBy,
+  sortDir,
+  onSortColumn,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
@@ -266,9 +299,46 @@ function TableView({
               />
             </th>
             <th aria-label="Favorite" style={{ width: 32 }} />
-            {columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
-            ))}
+            {columns.map((col) => {
+              const sortable = SORTABLE_HEADER.has(col.type);
+              const active = sortBy === col.key;
+              if (!sortable) {
+                return <th key={col.key}>{col.label}</th>;
+              }
+              return (
+                <th
+                  key={col.key}
+                  aria-sort={
+                    active
+                      ? sortDir === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
+                >
+                  <button
+                    type="button"
+                    className={`st-th-sort${active ? ' is-active' : ''}`}
+                    onClick={() => onSortColumn(col.key)}
+                    title={`Sort by ${col.label}`}
+                  >
+                    {col.label}
+                    {active ? (
+                      <span className="st-th-sort__ind" aria-hidden="true">
+                        {sortDir === 'asc' ? '▲' : '▼'}
+                      </span>
+                    ) : (
+                      <span
+                        className="st-th-sort__ind st-th-sort__ind--idle"
+                        aria-hidden="true"
+                      >
+                        ▲
+                      </span>
+                    )}
+                  </button>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
@@ -636,6 +706,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [loadingData, setLoadingData] = React.useState(true);
   const [dataError, setDataError] = React.useState<string | null>(null);
 
+  // Pagination state for the flat table view. `total` is the server-reported
+  // count for the active query, used to derive the last page and the footer.
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState<number>(PAGE_LIMIT);
+  const [total, setTotal] = React.useState(0);
+
   const [createOpen, setCreateOpen] = React.useState(false);
   const [refreshTick, setRefreshTick] = React.useState(0);
 
@@ -661,6 +737,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   React.useEffect(() => {
     setSelected(new Set());
   }, [objectSlug, search, viewState, view, refreshTick]);
+
+  // Any change to the query window's shape (object / search / filters / sort /
+  // group / page-size) invalidates the current page index — snap back to 1.
+  React.useEffect(() => {
+    setPage(1);
+  }, [objectSlug, search, viewState, view, limit]);
 
   // Seed visible columns from the object's `inTable` fields whenever the
   // resolved object changes (the Fields popover then mutates this set).
@@ -760,7 +842,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           objectSlug,
           {
             q: search || undefined,
-            limit: PAGE_LIMIT,
+            page,
+            limit,
             sortBy: viewState.sortBy ?? undefined,
             sortDir: viewState.sortBy ? viewState.sortDir : undefined,
             filters: hasFilters ? engineFilters : undefined,
@@ -771,8 +854,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         if (!res.ok) {
           setDataError(res.error);
           setRecords([]);
+          setTotal(0);
         } else {
           setRecords(res.data.records);
+          setTotal(res.data.total);
         }
       }
       setLoadingData(false);
@@ -788,6 +873,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     groupField,
     search,
     viewState,
+    page,
+    limit,
     activeProjectId,
     refreshTick,
   ]);
@@ -839,6 +926,21 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   const handleCreated = React.useCallback(() => {
     setRefreshTick((t) => t + 1);
+  }, []);
+
+  // Header-click sort cycle: asc → desc → clear (and asc when switching column).
+  // Writes the shared view-bar sort state so the Sort popover + pill stay in
+  // sync; the list effect re-runs and the page reset effect snaps to page 1.
+  const handleSortColumn = React.useCallback((key: string) => {
+    setViewState((prev) => {
+      if (prev.sortBy !== key) {
+        return { ...prev, sortBy: key, sortDir: 'asc' };
+      }
+      if (prev.sortDir === 'asc') {
+        return { ...prev, sortDir: 'desc' };
+      }
+      return { ...prev, sortBy: null, sortDir: 'asc' };
+    });
   }, []);
 
   // Load the caller's favorites once per object/project (graceful on failure).
@@ -1086,7 +1188,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         <div className="st-toolbar__spacer" />
         {!loadingData && !grouped && (
           <span className="st-count">
-            {records.length} {records.length === 1 ? object.labelSingular.toLowerCase() : object.labelPlural.toLowerCase()}
+            {total} {total === 1 ? object.labelSingular.toLowerCase() : object.labelPlural.toLowerCase()}
           </span>
         )}
         {canBoard && (
@@ -1159,19 +1261,34 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           previewFields={previewFields}
         />
       ) : (
-        <TableView
-          object={object}
-          columns={columns}
-          labelField={labelField}
-          records={records}
-          onEdit={handleEdit}
-          favorites={favorites}
-          favBusy={favBusy}
-          onToggleFavorite={handleToggleFavorite}
-          selected={selected}
-          onToggleSelect={toggleSelect}
-          onToggleSelectAll={toggleSelectAll}
-        />
+        <>
+          <TableView
+            object={object}
+            columns={columns}
+            labelField={labelField}
+            records={records}
+            onEdit={handleEdit}
+            favorites={favorites}
+            favBusy={favBusy}
+            onToggleFavorite={handleToggleFavorite}
+            selected={selected}
+            onToggleSelect={toggleSelect}
+            onToggleSelectAll={toggleSelectAll}
+            sortBy={viewState.sortBy}
+            sortDir={viewState.sortDir}
+            onSortColumn={handleSortColumn}
+          />
+          <SabcrmPagination
+            page={page}
+            limit={limit}
+            total={total}
+            pageCount={records.length}
+            singular={object.labelSingular.toLowerCase()}
+            plural={object.labelPlural.toLowerCase()}
+            onPageChange={setPage}
+            onLimitChange={setLimit}
+          />
+        </>
       )}
 
       {/* Selection bar — only meaningful in the flat table view. */}

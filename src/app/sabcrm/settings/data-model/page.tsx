@@ -31,13 +31,16 @@
 import * as React from 'react';
 import {
   Plus,
-  Search,
   AlertTriangle,
   Database,
   Loader2,
   Lock,
   Trash2,
   X,
+  Check,
+  ArrowUp,
+  ArrowDown,
+  Pencil,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
@@ -47,14 +50,69 @@ import {
   createObjectTw,
   addFieldTw,
   removeFieldTw,
+  updateObjectTw,
 } from '@/app/actions/sabcrm-objects.actions';
 import type {
   ObjectMetadata,
   FieldMetadata,
   FieldType,
+  FieldOption,
+  FieldRelation,
 } from '@/lib/sabcrm/types';
 
 import './data-model.css';
+
+// ---------------------------------------------------------------------------
+// Twenty SELECT-option colour palette
+// ---------------------------------------------------------------------------
+
+/**
+ * Twenty's fixed option-colour palette. `token` is what we persist (a
+ * `--zoru-*` name, to stay consistent with the seeded schema) and `swatch` is
+ * the literal hex we paint in the picker — the data-model page renders under
+ * the `.sabcrm-twenty` scope where `--zoru-*` vars are NOT in scope, so the
+ * swatch must be a concrete colour.
+ */
+interface PaletteColor {
+  name: string;
+  token: string;
+  swatch: string;
+}
+
+const OPTION_PALETTE: ReadonlyArray<PaletteColor> = [
+  { name: 'Green', token: '--zoru-green', swatch: '#3dab5a' },
+  { name: 'Turquoise', token: '--zoru-turquoise', swatch: '#21b8a6' },
+  { name: 'Sky', token: '--zoru-sky', swatch: '#5db4e3' },
+  { name: 'Blue', token: '--zoru-blue', swatch: '#3b7ae4' },
+  { name: 'Purple', token: '--zoru-purple', swatch: '#9b51e0' },
+  { name: 'Pink', token: '--zoru-pink', swatch: '#e052b0' },
+  { name: 'Red', token: '--zoru-red', swatch: '#e0484e' },
+  { name: 'Orange', token: '--zoru-orange', swatch: '#f0883e' },
+  { name: 'Yellow', token: '--zoru-yellow', swatch: '#e0c64a' },
+  { name: 'Gray', token: '--zoru-gray', swatch: '#8c8c8c' },
+];
+
+const DEFAULT_OPTION_COLOR = OPTION_PALETTE[0].token;
+
+/** Resolve a stored option colour (token or hex) to a paintable swatch. */
+function swatchFor(color: string | undefined): string {
+  if (!color) return OPTION_PALETTE[0].swatch;
+  const match = OPTION_PALETTE.find((c) => c.token === color);
+  if (match) return match.swatch;
+  // Already a hex / concrete colour → paint as-is, else fall back.
+  return /^#|^rgb|^hsl/.test(color) ? color : OPTION_PALETTE[0].swatch;
+}
+
+/** Turn a label into a stable SCREAMING_SNAKE option value. */
+function optionValue(label: string): string {
+  return (
+    label
+      .trim()
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'OPTION'
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Field-type catalogue
@@ -78,6 +136,7 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
 ];
 
 function fieldTypeLabel(type: FieldType): string {
+  if (type === 'RELATION') return 'Relation';
   return FIELD_TYPE_OPTIONS.find((t) => t.value === type)?.label ?? type;
 }
 
@@ -122,6 +181,289 @@ function ObjectBadge({ standard }: { standard: boolean }) {
     <span className="dm-badge">Standard</span>
   ) : (
     <span className="dm-badge dm-badge--custom">Custom</span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SELECT option editor (rows with colour-swatch picker, add/remove/reorder)
+// ---------------------------------------------------------------------------
+
+/** A draggable-free colour-swatch popover, Twenty style. */
+function ColorPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (token: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+
+  return (
+    <div className="dm-color" ref={ref}>
+      <button
+        type="button"
+        className="dm-color__trigger"
+        aria-label="Pick option colour"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span
+          className="dm-swatch"
+          style={{ background: swatchFor(value) }}
+          aria-hidden="true"
+        />
+      </button>
+      {open ? (
+        <div className="dm-color__pop" role="listbox" aria-label="Colours">
+          {OPTION_PALETTE.map((c) => (
+            <button
+              key={c.token}
+              type="button"
+              role="option"
+              aria-selected={c.token === value}
+              className="dm-color__cell"
+              title={c.name}
+              onClick={() => {
+                onChange(c.token);
+                setOpen(false);
+              }}
+            >
+              <span
+                className="dm-swatch dm-swatch--lg"
+                style={{ background: c.swatch }}
+                aria-hidden="true"
+              />
+              {c.token === value ? (
+                <Check className="dm-color__check" size={12} />
+              ) : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** Editable list of SELECT / MULTI_SELECT option rows. */
+function OptionRowsEditor({
+  options,
+  onChange,
+}: {
+  options: FieldOption[];
+  onChange: (next: FieldOption[]) => void;
+}) {
+  const update = (idx: number, patch: Partial<FieldOption>) => {
+    onChange(options.map((o, i) => (i === idx ? { ...o, ...patch } : o)));
+  };
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const next = [...options];
+    const target = idx + dir;
+    if (target < 0 || target >= next.length) return;
+    [next[idx], next[target]] = [next[target], next[idx]];
+    onChange(next);
+  };
+
+  const remove = (idx: number) => {
+    onChange(options.filter((_, i) => i !== idx));
+  };
+
+  const add = () => {
+    onChange([
+      ...options,
+      { value: '', label: '', color: DEFAULT_OPTION_COLOR },
+    ]);
+  };
+
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Options</span>
+      <div className="dm-opts">
+        {options.length === 0 ? (
+          <p className="dm-opts__empty">No options yet. Add one below.</p>
+        ) : (
+          options.map((opt, idx) => (
+            <div className="dm-opt" key={idx}>
+              <ColorPicker
+                value={opt.color ?? DEFAULT_OPTION_COLOR}
+                onChange={(token) => update(idx, { color: token })}
+              />
+              <input
+                className="st-input dm-opt__label"
+                value={opt.label}
+                placeholder="Label"
+                autoComplete="off"
+                onChange={(e) => {
+                  const label = e.target.value;
+                  // Auto-derive value while it still mirrors the label.
+                  const derived =
+                    !opt.value || opt.value === optionValue(opt.label);
+                  update(idx, {
+                    label,
+                    ...(derived ? { value: optionValue(label) } : null),
+                  });
+                }}
+              />
+              <input
+                className="st-input dm-opt__value"
+                value={opt.value}
+                placeholder="VALUE"
+                autoComplete="off"
+                aria-label="Option value"
+                onChange={(e) =>
+                  update(idx, {
+                    value: e.target.value
+                      .toUpperCase()
+                      .replace(/[^A-Z0-9_]+/g, '_'),
+                  })
+                }
+              />
+              <div className="dm-opt__order">
+                <button
+                  type="button"
+                  className="dm-iconbtn"
+                  aria-label="Move up"
+                  disabled={idx === 0}
+                  onClick={() => move(idx, -1)}
+                >
+                  <ArrowUp size={13} />
+                </button>
+                <button
+                  type="button"
+                  className="dm-iconbtn"
+                  aria-label="Move down"
+                  disabled={idx === options.length - 1}
+                  onClick={() => move(idx, 1)}
+                >
+                  <ArrowDown size={13} />
+                </button>
+              </div>
+              <button
+                type="button"
+                className="dm-iconbtn dm-iconbtn--danger"
+                aria-label={`Remove option ${opt.label || idx + 1}`}
+                onClick={() => remove(idx)}
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ))
+        )}
+        <button type="button" className="dm-opts__add" onClick={add}>
+          <Plus size={14} />
+          Add option
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// RELATION target editor
+// ---------------------------------------------------------------------------
+
+function RelationEditor({
+  objects,
+  selfSlug,
+  relation,
+  onChange,
+}: {
+  objects: ObjectMetadata[];
+  selfSlug: string;
+  relation: FieldRelation;
+  onChange: (next: FieldRelation) => void;
+}) {
+  const targets = React.useMemo(
+    () => objects.filter((o) => o.slug !== selfSlug),
+    [objects, selfSlug],
+  );
+
+  const targetObj = React.useMemo(
+    () => objects.find((o) => o.slug === relation.targetObject) ?? null,
+    [objects, relation.targetObject],
+  );
+
+  return (
+    <div className="dm-relation">
+      <div className="st-field">
+        <span className="st-field__label">
+          Target object<span className="st-field__req">*</span>
+        </span>
+        <select
+          className="st-select"
+          value={relation.targetObject}
+          onChange={(e) => {
+            const slug = e.target.value;
+            const obj = objects.find((o) => o.slug === slug);
+            const labelField =
+              obj?.fields.find((f) => f.isLabel)?.key ??
+              obj?.fields[0]?.key ??
+              '';
+            onChange({ ...relation, targetObject: slug, labelField });
+          }}
+        >
+          <option value="" disabled>
+            Select an object…
+          </option>
+          {targets.map((o) => (
+            <option key={o.slug} value={o.slug}>
+              {o.labelPlural}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="st-field">
+        <span className="st-field__label">Relationship</span>
+        <select
+          className="st-select"
+          value={relation.kind}
+          onChange={(e) =>
+            onChange({
+              ...relation,
+              kind: e.target.value as FieldRelation['kind'],
+            })
+          }
+        >
+          <option value="MANY_TO_ONE">
+            Many {selfSlug || 'records'} → one target
+          </option>
+          <option value="ONE_TO_MANY">
+            One {selfSlug || 'record'} → many targets
+          </option>
+        </select>
+      </div>
+
+      <div className="st-field">
+        <span className="st-field__label">Label field</span>
+        <select
+          className="st-select"
+          value={relation.labelField ?? ''}
+          disabled={!targetObj}
+          onChange={(e) => onChange({ ...relation, labelField: e.target.value })}
+        >
+          {!targetObj ? (
+            <option value="">Pick a target object first</option>
+          ) : (
+            targetObj.fields.map((f) => (
+              <option key={f.key} value={f.key}>
+                {f.label}
+              </option>
+            ))
+          )}
+        </select>
+      </div>
+    </div>
   );
 }
 
@@ -211,6 +553,7 @@ interface ObjectDetailProps {
   lockedKeys: ReadonlySet<string>;
   busyKey: string | null;
   onAddField: () => void;
+  onEditField: (fieldKey: string) => void;
   onRemoveField: (fieldKey: string) => void;
 }
 
@@ -219,6 +562,7 @@ function ObjectDetail({
   lockedKeys,
   busyKey,
   onAddField,
+  onEditField,
   onRemoveField,
 }: ObjectDetailProps) {
   return (
@@ -285,20 +629,32 @@ function ObjectDetail({
                           <Lock size={13} aria-label="Read-only" />
                         </span>
                       ) : (
-                        <button
-                          type="button"
-                          className="dm-rm"
-                          aria-label={`Remove ${field.label}`}
-                          title={`Remove ${field.label}`}
-                          disabled={busy}
-                          onClick={() => onRemoveField(field.key)}
-                        >
-                          {busy ? (
-                            <Loader2 size={14} className="st-spin" />
-                          ) : (
-                            <Trash2 size={14} />
-                          )}
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            className="dm-rm"
+                            aria-label={`Edit ${field.label}`}
+                            title={`Edit ${field.label}`}
+                            disabled={busy}
+                            onClick={() => onEditField(field.key)}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="dm-rm"
+                            aria-label={`Remove ${field.label}`}
+                            title={`Remove ${field.label}`}
+                            disabled={busy}
+                            onClick={() => onRemoveField(field.key)}
+                          >
+                            {busy ? (
+                              <Loader2 size={14} className="st-spin" />
+                            ) : (
+                              <Trash2 size={14} />
+                            )}
+                          </button>
+                        </>
                       )}
                     </span>
                   </td>
@@ -489,33 +845,59 @@ function NewObjectDialog({
 }
 
 // ---------------------------------------------------------------------------
-// Add-field dialog
+// Field dialog (add a new custom field OR edit an existing custom field)
 // ---------------------------------------------------------------------------
 
-interface AddFieldDialogProps {
+const SELECT_TYPES: ReadonlySet<FieldType> = new Set(['SELECT', 'MULTI_SELECT']);
+
+interface FieldDialogProps {
   object: ObjectMetadata;
+  /** All loaded objects — used to populate the RELATION target picker. */
+  allObjects: ObjectMetadata[];
   projectId: string | null;
+  /** When set, edit this existing field; otherwise add a new one. */
+  editKey: string | null;
   onClose: () => void;
-  onAdded: (object: ObjectMetadata) => void;
+  onSaved: (object: ObjectMetadata) => void;
 }
 
-function AddFieldDialog({
+function FieldDialog({
   object,
+  allObjects,
   projectId,
+  editKey,
   onClose,
-  onAdded,
-}: AddFieldDialogProps) {
-  const [label, setLabel] = React.useState('');
-  const [key, setKey] = React.useState('');
-  const [keyTouched, setKeyTouched] = React.useState(false);
-  const [type, setType] = React.useState<FieldType>('TEXT');
-  const [required, setRequired] = React.useState(false);
+  onSaved,
+}: FieldDialogProps) {
+  const editing = React.useMemo(
+    () => (editKey ? object.fields.find((f) => f.key === editKey) ?? null : null),
+    [editKey, object.fields],
+  );
+
+  const [label, setLabel] = React.useState(editing?.label ?? '');
+  const [key, setKey] = React.useState(editing?.key ?? '');
+  const [keyTouched, setKeyTouched] = React.useState(Boolean(editing));
+  const [type, setType] = React.useState<FieldType>(editing?.type ?? 'TEXT');
+  const [required, setRequired] = React.useState(editing?.required ?? false);
+  const [options, setOptions] = React.useState<FieldOption[]>(
+    editing?.options ? editing.options.map((o) => ({ ...o })) : [],
+  );
+  const [relation, setRelation] = React.useState<FieldRelation>(
+    editing?.relation ?? {
+      targetObject: '',
+      kind: 'MANY_TO_ONE',
+      labelField: '',
+    },
+  );
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   const existingKeys = React.useMemo(
-    () => new Set(object.fields.map((f) => f.key)),
-    [object.fields],
+    () =>
+      new Set(
+        object.fields.filter((f) => f.key !== editKey).map((f) => f.key),
+      ),
+    [object.fields, editKey],
   );
 
   const onLabelChange = (value: string) => {
@@ -524,11 +906,60 @@ function AddFieldDialog({
   };
 
   const keyConflict = key.trim().length > 0 && existingKeys.has(key.trim());
+  const isSelect = SELECT_TYPES.has(type);
+  const isRelation = type === 'RELATION';
+
+  // Type-specific validity: SELECT needs ≥1 valid option; RELATION needs a target.
+  const optionsValid =
+    !isSelect ||
+    (options.length > 0 &&
+      options.every((o) => o.label.trim() && o.value.trim()));
+  const relationValid = !isRelation || relation.targetObject.trim().length > 0;
+
   const canSubmit =
     label.trim().length > 0 &&
     key.trim().length > 0 &&
     !keyConflict &&
+    optionsValid &&
+    relationValid &&
     !saving;
+
+  // Seed an empty option row the first time SELECT is chosen.
+  React.useEffect(() => {
+    if (isSelect && options.length === 0) {
+      setOptions([{ value: '', label: '', color: DEFAULT_OPTION_COLOR }]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelect]);
+
+  /** Build the FieldMetadata payload from the current form state. */
+  const buildField = (): FieldMetadata => {
+    const next: FieldMetadata = {
+      key: key.trim(),
+      label: label.trim(),
+      type,
+      required,
+      inTable: editing?.inTable ?? true,
+    };
+    if (editing?.isLabel) next.isLabel = true;
+    if (editing?.icon) next.icon = editing.icon;
+    if (editing?.description) next.description = editing.description;
+    if (isSelect) {
+      next.options = options.map((o) => ({
+        value: o.value.trim() || optionValue(o.label),
+        label: o.label.trim(),
+        color: o.color ?? DEFAULT_OPTION_COLOR,
+      }));
+    }
+    if (isRelation) {
+      next.relation = {
+        targetObject: relation.targetObject,
+        kind: relation.kind,
+        labelField: relation.labelField || undefined,
+      };
+    }
+    return next;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -536,18 +967,26 @@ function AddFieldDialog({
     setSaving(true);
     setError(null);
 
-    const field: FieldMetadata = {
-      key: key.trim(),
-      label: label.trim(),
-      type,
-      required,
-      inTable: true,
-    };
+    const field = buildField();
 
-    const res = await addFieldTw(object.slug, field, projectId ?? undefined);
+    let res;
+    if (editing) {
+      // Patch the whole fields array, replacing the edited field in place.
+      const nextFields = object.fields.map((f) =>
+        f.key === editKey ? field : f,
+      );
+      res = await updateObjectTw(
+        object.slug,
+        { fields: nextFields },
+        projectId ?? undefined,
+      );
+    } else {
+      res = await addFieldTw(object.slug, field, projectId ?? undefined);
+    }
+
     setSaving(false);
     if (res.ok) {
-      onAdded(res.data);
+      onSaved(res.data);
     } else {
       setError(res.error);
     }
@@ -556,15 +995,21 @@ function AddFieldDialog({
   return (
     <div className="st-dialog-overlay" onClick={onClose} role="presentation">
       <div
-        className="st-dialog"
+        className="st-dialog dm-dialog--wide"
         role="dialog"
         aria-modal="true"
-        aria-label={`Add field to ${object.labelSingular}`}
+        aria-label={
+          editing
+            ? `Edit ${editing.label}`
+            : `Add field to ${object.labelSingular}`
+        }
         onClick={(e) => e.stopPropagation()}
       >
         <form onSubmit={handleSubmit}>
           <div className="st-dialog__header">
-            <h2 className="st-dialog__title">Add field</h2>
+            <h2 className="st-dialog__title">
+              {editing ? 'Edit field' : 'Add field'}
+            </h2>
             <button
               type="button"
               className="st-dialog__close"
@@ -603,8 +1048,13 @@ function AddFieldDialog({
                 placeholder="priority"
                 autoComplete="off"
                 aria-invalid={keyConflict}
+                disabled={Boolean(editing)}
               />
-              {keyConflict ? (
+              {editing ? (
+                <span className="st-field__hint">
+                  A field&apos;s key is fixed once created.
+                </span>
+              ) : keyConflict ? (
                 <span className="st-field__label" style={{ color: '#d64545' }}>
                   A field with this key already exists.
                 </span>
@@ -623,8 +1073,22 @@ function AddFieldDialog({
                     {opt.label}
                   </option>
                 ))}
+                <option value="RELATION">Relation</option>
               </select>
             </div>
+
+            {isSelect ? (
+              <OptionRowsEditor options={options} onChange={setOptions} />
+            ) : null}
+
+            {isRelation ? (
+              <RelationEditor
+                objects={allObjects}
+                selfSlug={object.slug}
+                relation={relation}
+                onChange={setRelation}
+              />
+            ) : null}
 
             <label className="st-checkbox-row">
               <input
@@ -648,7 +1112,7 @@ function AddFieldDialog({
               disabled={!canSubmit}
             >
               {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              Add field
+              {editing ? 'Save changes' : 'Add field'}
             </button>
           </div>
         </form>
@@ -671,6 +1135,8 @@ export default function DataModelPage(): React.JSX.Element {
 
   const [createOpen, setCreateOpen] = React.useState(false);
   const [addFieldOpen, setAddFieldOpen] = React.useState(false);
+  /** Key of the custom field being edited, or null when not editing. */
+  const [editFieldKey, setEditFieldKey] = React.useState<string | null>(null);
   const [busyKey, setBusyKey] = React.useState<string | null>(null);
   const [mutationError, setMutationError] = React.useState<string | null>(null);
 
@@ -849,7 +1315,14 @@ export default function DataModelPage(): React.JSX.Element {
                 object={activeObject}
                 lockedKeys={lockedKeys}
                 busyKey={busyKey}
-                onAddField={() => setAddFieldOpen(true)}
+                onAddField={() => {
+                  setEditFieldKey(null);
+                  setAddFieldOpen(true);
+                }}
+                onEditField={(fieldKey) => {
+                  setEditFieldKey(fieldKey);
+                  setAddFieldOpen(true);
+                }}
                 onRemoveField={handleRemoveField}
               />
             ) : (
@@ -875,13 +1348,19 @@ export default function DataModelPage(): React.JSX.Element {
       )}
 
       {addFieldOpen && activeObject && (
-        <AddFieldDialog
+        <FieldDialog
           object={activeObject}
+          allObjects={objects}
           projectId={activeProjectId}
-          onClose={() => setAddFieldOpen(false)}
-          onAdded={(updated) => {
+          editKey={editFieldKey}
+          onClose={() => {
+            setAddFieldOpen(false);
+            setEditFieldKey(null);
+          }}
+          onSaved={(updated) => {
             upsertObject(updated);
             setAddFieldOpen(false);
+            setEditFieldKey(null);
           }}
         />
       )}

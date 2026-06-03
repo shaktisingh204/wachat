@@ -1,0 +1,254 @@
+/*
+ * SabCRM — record DETAIL polish (Twenty-fidelity header + composer).
+ *
+ * A NEW stylesheet (kept out of the shared `sabcrm-twenty.css` / activity kit)
+ * for the breadcrumb header, the record-level "..." / delete menu + confirm
+ * dialog, and the richer auto-growing note/activity composer. Twenty look only:
+ * uses the existing `--st-*` design tokens, scoped under `.stp-*` classes.
+ */
+
+/* =========================================================================
+   Breadcrumb header
+   ========================================================================= */
+
+.stp-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin-bottom: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.stp-breadcrumb__crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--st-text-secondary);
+  text-decoration: none;
+  border-radius: var(--st-radius-sm);
+  padding: 2px 4px;
+  margin: -2px -4px;
+}
+
+.stp-breadcrumb__crumb:hover {
+  color: var(--st-text);
+  background: var(--st-bg-secondary);
+}
+
+.stp-breadcrumb__sep {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.stp-breadcrumb__current {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+/* The detail header gains a trailing actions cluster (star + "..."). */
+.stp-header-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+/* =========================================================================
+   Record "..." overflow menu + delete action
+   ========================================================================= */
+
+.stp-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.stp-menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+}
+
+.stp-menu__trigger:hover,
+.stp-menu__trigger[aria-expanded='true'] {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-border);
+  color: var(--st-text);
+}
+
+.stp-menu__pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 30;
+  min-width: 160px;
+  padding: var(--st-space-1);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  box-shadow: var(--st-shadow-pop);
+}
+
+.stp-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: 6px var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.stp-menu__item:hover {
+  background: var(--st-bg-secondary);
+}
+
+.stp-menu__item.is-danger {
+  color: var(--st-danger, #d4202c);
+}
+
+.stp-menu__item.is-danger:hover {
+  background: var(--st-danger-soft, #fdeced);
+}
+
+/* =========================================================================
+   Confirm-delete dialog
+   ========================================================================= */
+
+.stp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--st-space-4);
+  background: rgba(27, 27, 24, 0.32);
+}
+
+.stp-dialog {
+  width: 100%;
+  max-width: 380px;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-pop);
+  padding: var(--st-space-5);
+}
+
+.stp-dialog__title {
+  margin: 0 0 var(--st-space-2);
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.stp-dialog__body {
+  margin: 0 0 var(--st-space-5);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.stp-dialog__body strong {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+.stp-dialog__error {
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-danger, #d4202c);
+}
+
+.stp-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--st-space-2);
+}
+
+.stp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  height: 32px;
+  padding: 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+}
+
+.stp-btn:hover:not(:disabled) {
+  background: var(--st-bg-secondary);
+}
+
+.stp-btn--danger {
+  border-color: var(--st-danger, #d4202c);
+  background: var(--st-danger, #d4202c);
+  color: #fff;
+}
+
+.stp-btn--danger:hover:not(:disabled) {
+  background: var(--st-danger-hover, #b81b25);
+  border-color: var(--st-danger-hover, #b81b25);
+}
+
+.stp-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* =========================================================================
+   Richer composer body (auto-grow + ⌘/Ctrl+Enter hint)
+   ========================================================================= */
+
+.stp-composer__body {
+  min-height: 64px;
+  max-height: 320px;
+  overflow-y: auto;
+  resize: none;
+}
+
+.stp-composer__hint {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+.stp-kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 16px;
+  padding: 0 4px;
+  border: 1px solid var(--st-border);
+  border-bottom-width: 2px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-size: 10px;
+  font-family: inherit;
+  line-height: 1;
+}

@@ -9,6 +9,10 @@ import {
   LayoutGrid,
   Zap,
   ChevronRight,
+  UserCircle,
+  Palette,
+  SlidersHorizontal,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -47,19 +51,48 @@ type SettingsGroup = {
 
 const GROUPS: readonly SettingsGroup[] = [
   {
+    title: 'Account',
+    rows: [
+      {
+        slug: 'profile',
+        label: 'Profile',
+        description: 'Your name, photo and personal details',
+        icon: UserCircle,
+      },
+      {
+        slug: 'appearance',
+        label: 'Appearance',
+        description: 'Theme, language and display options',
+        icon: Palette,
+      },
+    ],
+  },
+  {
     title: 'Workspace',
     rows: [
       {
-        slug: 'data-model',
-        label: 'Data model',
-        description: 'Objects, fields and relations',
-        icon: Database,
+        slug: 'general',
+        label: 'General',
+        description: 'Workspace name, logo and defaults',
+        icon: SlidersHorizontal,
       },
       {
         slug: 'members',
         label: 'Members',
         description: 'Workspace access and CRM roles',
         icon: Users,
+      },
+      {
+        slug: 'roles',
+        label: 'Roles',
+        description: 'Permission sets and access control',
+        icon: ShieldCheck,
+      },
+      {
+        slug: 'data-model',
+        label: 'Data model',
+        description: 'Objects, fields and relations',
+        icon: Database,
       },
     ],
   },

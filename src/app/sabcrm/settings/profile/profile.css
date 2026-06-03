@@ -1,0 +1,161 @@
+/* =========================================================================
+   SabCRM Settings — Profile + Appearance supplemental classes
+   -------------------------------------------------------------------------
+   Companion sheet for the Profile (`/sabcrm/settings/profile`) and Appearance
+   (`/sabcrm/settings/appearance`) pages. Imported by both — Appearance pulls
+   it in via a relative `../profile/profile.css` import. New `.st-*` selectors
+   only; the base vocabulary in `src/styles/sabcrm-twenty.css` is untouched.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame) so these helpers never leak into the rest of SabNode.
+   ========================================================================= */
+
+/* ---- Stacked sections within a settings page --------------------------- */
+.sabcrm-twenty .st-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-5) 0;
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-section:first-of-type {
+  border-top: none;
+  padding-top: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-section__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sabcrm-twenty .st-section__title {
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-section__hint {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  line-height: 1.45;
+}
+
+/* ---- Profile identity header ------------------------------------------- */
+.sabcrm-twenty .st-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-4);
+  padding: var(--st-space-3) 0 var(--st-space-2);
+}
+
+.sabcrm-twenty .st-profile-identity__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-profile-identity__name {
+  font-size: var(--st-font-size-lg, 16px);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-profile-identity__email {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Constrained form column ------------------------------------------- */
+.sabcrm-twenty .st-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  max-width: 420px;
+}
+
+.sabcrm-twenty .st-field__help {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-form-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-1);
+}
+
+/* ---- Segmented control (theme / density) ------------------------------- */
+.sabcrm-twenty .st-segment {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  gap: 2px;
+}
+
+.sabcrm-twenty .st-segment__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px var(--st-space-3);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.sabcrm-twenty .st-segment__btn:hover:not(:disabled):not(.is-active) {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-segment__btn.is-active {
+  background: var(--st-bg);
+  color: var(--st-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.sabcrm-twenty .st-segment__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Compact-mode select stays inline-sized rather than full width. */
+.sabcrm-twenty .st-select--inline {
+  width: auto;
+  min-width: 200px;
+}
+
+/* ---- Density variant: tighten the module when compact is active -------- */
+.sabcrm-twenty.st-density-compact .st-table th,
+.sabcrm-twenty.st-density-compact .st-table td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.sabcrm-twenty.st-density-compact .st-section {
+  padding-top: var(--st-space-4);
+  padding-bottom: var(--st-space-4);
+}
+
+.sabcrm-twenty.st-density-compact .st-form {
+  gap: var(--st-space-3);
+}
