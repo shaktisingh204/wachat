@@ -26,6 +26,10 @@ import {
   RefreshCw,
   Pencil,
   Trash2,
+  Activity,
+  Send,
+  Info,
+  Inbox,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -45,6 +49,7 @@ import type {
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
+import './webhooks-log.css';
 
 // ---------------------------------------------------------------------------
 // Event catalogue
@@ -479,6 +484,177 @@ function RotatedSecretDialog({
 }
 
 // ---------------------------------------------------------------------------
+// Recent deliveries dialog
+//
+// The backend does not (yet) expose a per-delivery log array — there is no
+// `deliveries` / `recentDeliveries` / `logs` field on `WebhookSubscription` and
+// no "send test" server action. What it *does* carry is a single last-delivery
+// summary (`lastDeliveryAt`, `lastStatus`, `lastError`, `failureCount`). We
+// render that summary as one delivery entry when present, and otherwise show a
+// tidy "No deliveries yet" empty state. The "Send test" button is therefore an
+// explicit, non-persisted client stub (no action is invented).
+// ---------------------------------------------------------------------------
+
+/** Formats an ISO timestamp into a short, locale-aware label; falls back to the raw value. */
+function formatDeliveryTime(iso: string): string {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t)) return iso;
+  try {
+    return new Date(t).toLocaleString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return new Date(t).toISOString();
+  }
+}
+
+/** True when an HTTP status code denotes success (2xx). */
+function isSuccessStatus(status: number | null | undefined): boolean {
+  return typeof status === 'number' && status >= 200 && status < 300;
+}
+
+function DeliveriesDialog({
+  sub,
+  onClose,
+}: {
+  sub: WebhookSubscription;
+  onClose: () => void;
+}): React.JSX.Element {
+  // Local, non-persisted "Send test" stub state.
+  const [testNote, setTestNote] = React.useState<string | null>(null);
+
+  const sendTest = React.useCallback(() => {
+    // No server action exists for issuing a test delivery — keep this honest:
+    // surface a clearly-labelled stub note rather than pretending it persisted.
+    setTestNote(new Date().toLocaleTimeString());
+  }, []);
+
+  // Derive a single delivery entry from the last-delivery summary, if any.
+  const hasDelivery = Boolean(sub.lastDeliveryAt);
+  const success = isSuccessStatus(sub.lastStatus);
+
+  return (
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Recent deliveries"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="st-dialog" style={{ maxWidth: 540 }}>
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">Recent deliveries</h2>
+          <button
+            type="button"
+            className="st-dialog__close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="st-dialog__body">
+          <div className="st-whlog__target">
+            <span className="st-whlog__target-url">{sub.url}</span>
+            {sub.description ? (
+              <span className="st-whlog__target-desc">{sub.description}</span>
+            ) : null}
+          </div>
+
+          <div className="st-whlog__heading">
+            <span>Deliveries</span>
+            {hasDelivery ? (
+              <span className="st-whlog__count">last attempt</span>
+            ) : null}
+          </div>
+
+          {hasDelivery ? (
+            <ul className="st-whlog__list">
+              <li className="st-whlog__item">
+                <span
+                  className={`st-chip ${success ? 'st-chip--ok' : 'st-chip--err'}`}
+                  title={success ? 'Succeeded' : 'Failed'}
+                >
+                  <span className="st-chip__dot" aria-hidden="true" />
+                  <span className="st-chip__label">
+                    {success ? 'Success' : 'Failed'}
+                  </span>
+                </span>
+                <div className="st-whlog__item-main">
+                  <span className="st-whlog__item-event">
+                    {sub.events.map((e) => EVENT_LABEL[e] ?? e).join(', ')}
+                  </span>
+                  <span className="st-whlog__item-meta">
+                    {typeof sub.lastStatus === 'number' ? (
+                      <code>HTTP {sub.lastStatus}</code>
+                    ) : (
+                      <code>no response</code>
+                    )}
+                    <span aria-hidden="true">·</span>
+                    <span>{formatDeliveryTime(sub.lastDeliveryAt as string)}</span>
+                    {sub.failureCount > 0 ? (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span>
+                          {sub.failureCount} consecutive failure
+                          {sub.failureCount === 1 ? '' : 's'}
+                        </span>
+                      </>
+                    ) : null}
+                  </span>
+                  {!success && sub.lastError ? (
+                    <span className="st-whlog__item-error">{sub.lastError}</span>
+                  ) : null}
+                </div>
+              </li>
+            </ul>
+          ) : (
+            <div className="st-whlog__empty">
+              <span className="st-whlog__empty-icon">
+                <Inbox size={18} />
+              </span>
+              <span className="st-whlog__empty-title">No deliveries yet</span>
+              <span className="st-whlog__empty-desc">
+                Once an event matching this subscription fires, the most recent
+                delivery attempt and its response will appear here.
+              </span>
+            </div>
+          )}
+
+          {testNote ? (
+            <div className="st-whlog__note" role="status">
+              <Info className="st-whlog__note-icon" size={14} aria-hidden="true" />
+              <span>
+                <strong>Test event queued</strong> at {testNote}.
+                <span className="st-whlog__note-stub">
+                  Stub only — this is a local preview and was not sent to the
+                  endpoint. A real test-delivery action is not yet available.
+                </span>
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="st-dialog__footer st-whlog__footer">
+          <TwentyButton variant="secondary" icon={Send} onClick={sendTest}>
+            Send test
+          </TwentyButton>
+          <TwentyButton variant="primary" onClick={onClose}>
+            Done
+          </TwentyButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Loading skeleton
 // ---------------------------------------------------------------------------
 
@@ -511,6 +687,8 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
   const [deleting, setDeleting] = React.useState(false);
   const [rotatingId, setRotatingId] = React.useState<string | null>(null);
   const [rotatedSecret, setRotatedSecret] = React.useState<string | null>(null);
+  const [deliveriesTarget, setDeliveriesTarget] =
+    React.useState<WebhookSubscription | null>(null);
 
   const load = React.useCallback(async (projectId: string) => {
     setLoading(true);
@@ -697,6 +875,14 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
                     <td className="st-cell-actions">
                       <TwentyButton
                         variant="ghost"
+                        icon={Activity}
+                        onClick={() => setDeliveriesTarget(sub)}
+                        title="View recent deliveries"
+                      >
+                        Deliveries
+                      </TwentyButton>
+                      <TwentyButton
+                        variant="ghost"
                         icon={RefreshCw}
                         onClick={() => rotate(sub)}
                         disabled={rotatingId === sub._id}
@@ -752,6 +938,13 @@ export default function SabcrmWebhooksSettingsPage(): React.JSX.Element {
         <RotatedSecretDialog
           secret={rotatedSecret}
           onClose={() => setRotatedSecret(null)}
+        />
+      ) : null}
+
+      {deliveriesTarget ? (
+        <DeliveriesDialog
+          sub={deliveriesTarget}
+          onClose={() => setDeliveriesTarget(null)}
         />
       ) : null}
     </div>

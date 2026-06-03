@@ -51,6 +51,9 @@ import {
   Trash2,
   X,
   Search,
+  MessageSquare,
+  ChevronDown,
+  CornerDownLeft,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -75,6 +78,12 @@ import {
   // import as missing during the port, that's the expected interim state.
   getRecordRelationsTw,
   listSabcrmObjectsTw,
+  // In-flight: the per-activity comment-thread actions are added in parallel by
+  // another agent. If tsc flags ONLY these imports as missing during the port,
+  // that's the expected interim state — the rest of this file stays clean.
+  listActivityCommentsTw,
+  addActivityCommentTw,
+  deleteActivityCommentTw,
 } from '@/app/actions/sabcrm-twenty.actions';
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
@@ -94,6 +103,7 @@ import './record-tabs.css';
 import './attachments.css';
 import './detail-polish.css';
 import './relations-edit.css';
+import './comments.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -331,16 +341,277 @@ const TIMELINE_TYPE_ICON: Record<string, LucideIcon> = {
   EMAIL: Activity,
 };
 
+// ---------------------------------------------------------------------------
+// Comment threads (per activity)
+// ---------------------------------------------------------------------------
+
+/**
+ * Local shape for a comment returned by the in-flight `*ActivityComment*`
+ * actions: `{ id, body, authorId, createdAt }`. Declared here (rather than
+ * imported) because the action types are being added in parallel — once they
+ * land, the real exported type takes over and this stays structurally compatible.
+ */
+interface ActivityComment {
+  id: string;
+  body: string;
+  authorId: string;
+  createdAt: string;
+}
+
+/** Stable client-side id for an optimistic (not-yet-persisted) comment. */
+let optimisticCommentSeq = 0;
+function nextOptimisticId(): string {
+  optimisticCommentSeq += 1;
+  return `optimistic-${Date.now()}-${optimisticCommentSeq}`;
+}
+
+interface CommentThreadProps {
+  activityId: string;
+  /**
+   * The viewer's author id once known (captured from the first comment they
+   * successfully post). When a comment's `authorId` matches, its delete (x)
+   * affordance is shown. Lifted to the timeline so it's shared across threads.
+   */
+  currentAuthorId: string | null;
+  /** Called with the viewer's author id the first time we learn it. */
+  onLearnAuthor: (authorId: string) => void;
+}
+
+/**
+ * An expandable comment thread that hangs under one timeline item. Collapsed by
+ * default, showing only a count + toggle; expanding lazily loads the activity's
+ * comments via `listActivityCommentsTw`. Posting (`addActivityCommentTw`) is
+ * optimistic — the comment is prepended immediately and reconciled with the
+ * server's row, rolling back on failure. Deleting (`deleteActivityCommentTw`)
+ * is offered only for the viewer's own comments and is likewise optimistic.
+ */
+function CommentThread({
+  activityId,
+  currentAuthorId,
+  onLearnAuthor,
+}: CommentThreadProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [comments, setComments] = React.useState<ActivityComment[]>([]);
+  const [draft, setDraft] = React.useState('');
+  const [posting, setPosting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [busyDeleteId, setBusyDeleteId] = React.useState<string | null>(null);
+
+  // Lazy-load the thread the first time it's expanded (graceful on failure).
+  React.useEffect(() => {
+    if (!open || loaded || loading) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    (async () => {
+      const res = await listActivityCommentsTw(activityId);
+      if (cancelled) return;
+      if (res.ok) {
+        setComments(res.data as ActivityComment[]);
+        setLoaded(true);
+      } else {
+        setError(res.error);
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, loaded, loading, activityId]);
+
+  const post = React.useCallback(async () => {
+    const body = draft.trim();
+    if (!body || posting) return;
+    setPosting(true);
+    setError(null);
+
+    // Optimistic: prepend a placeholder, clear the input immediately.
+    const tempId = nextOptimisticId();
+    const optimistic: ActivityComment = {
+      id: tempId,
+      body,
+      authorId: currentAuthorId ?? '',
+      createdAt: new Date().toISOString(),
+    };
+    setComments((prev) => [optimistic, ...prev]);
+    setDraft('');
+
+    const res = await addActivityCommentTw(activityId, body);
+    setPosting(false);
+    if (res.ok) {
+      const saved = res.data as ActivityComment;
+      // Reconcile the placeholder with the persisted row.
+      setComments((prev) => prev.map((c) => (c.id === tempId ? saved : c)));
+      // Learn the viewer's identity from their own freshly-posted comment.
+      if (saved.authorId) onLearnAuthor(saved.authorId);
+    } else {
+      // Roll back the optimistic row; restore the draft so it isn't lost.
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
+      setDraft(body);
+      setError(res.error);
+    }
+  }, [draft, posting, activityId, currentAuthorId, onLearnAuthor]);
+
+  const remove = React.useCallback(
+    async (commentId: string) => {
+      if (busyDeleteId) return;
+      setBusyDeleteId(commentId);
+      setError(null);
+      const prev = comments;
+      // Optimistically drop the row.
+      setComments((cs) => cs.filter((c) => c.id !== commentId));
+      const res = await deleteActivityCommentTw(activityId, commentId);
+      if (!res.ok) {
+        setComments(prev); // roll back
+        setError(res.error);
+      }
+      setBusyDeleteId(null);
+    },
+    [busyDeleteId, comments, activityId],
+  );
+
+  // Collapsed count reflects what we know: loaded length, else a hint to open.
+  const count = comments.length;
+
+  return (
+    <div className="sc-thread">
+      <button
+        type="button"
+        className={`sc-thread__toggle${open ? ' is-open' : ''}`}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <MessageSquare size={12} aria-hidden="true" />
+        <span className="sc-thread__toggle-label">
+          {count > 0
+            ? `${count} ${count === 1 ? 'comment' : 'comments'}`
+            : 'Comment'}
+        </span>
+        <ChevronDown
+          size={12}
+          className="sc-thread__chev"
+          aria-hidden="true"
+        />
+      </button>
+
+      {open ? (
+        <div className="sc-thread__panel">
+          {loading ? (
+            <div className="sc-thread__state">
+              <Loader2 size={12} className="st-spin" aria-hidden="true" />
+              Loading comments…
+            </div>
+          ) : (
+            <>
+              {comments.length > 0 ? (
+                <ul className="sc-comments">
+                  {comments.map((c) => {
+                    const own =
+                      currentAuthorId != null &&
+                      c.authorId === currentAuthorId;
+                    const optimistic = c.id.startsWith('optimistic-');
+                    return (
+                      <li
+                        className={`sc-comment${optimistic ? ' is-pending' : ''}`}
+                        key={c.id}
+                      >
+                        <div className="sc-comment__head">
+                          <span className="sc-comment__author">
+                            {c.authorId || 'Unknown'}
+                          </span>
+                          <time
+                            className="sc-comment__time"
+                            dateTime={c.createdAt}
+                          >
+                            {relTime(c.createdAt)}
+                          </time>
+                          {own && !optimistic ? (
+                            <button
+                              type="button"
+                              className="sc-comment__del"
+                              onClick={() => void remove(c.id)}
+                              disabled={busyDeleteId === c.id}
+                              aria-label="Delete comment"
+                              title="Delete comment"
+                            >
+                              {busyDeleteId === c.id ? (
+                                <Loader2 size={11} className="st-spin" />
+                              ) : (
+                                <X size={11} />
+                              )}
+                            </button>
+                          ) : null}
+                        </div>
+                        <p className="sc-comment__body">{c.body}</p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="sc-thread__empty">No comments yet.</div>
+              )}
+
+              {error ? (
+                <div className="sc-thread__error" role="alert">
+                  {error}
+                </div>
+              ) : null}
+
+              <form
+                className="sc-addform"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void post();
+                }}
+              >
+                <input
+                  className="sc-addform__input"
+                  value={draft}
+                  onChange={(e) => setDraft(e.target.value)}
+                  placeholder="Add a comment…"
+                  aria-label="Add a comment"
+                  disabled={posting}
+                />
+                <button
+                  type="submit"
+                  className="sc-addform__send"
+                  disabled={posting || !draft.trim()}
+                  aria-label="Post comment"
+                  title="Post comment"
+                >
+                  {posting ? (
+                    <Loader2 size={12} className="st-spin" />
+                  ) : (
+                    <CornerDownLeft size={12} />
+                  )}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 interface AttachmentTimelineProps {
   activities: SabcrmRustActivity[];
   loading: boolean;
   emptyLabel: string;
+  /** Shared viewer author id (for own-comment delete affordances). */
+  currentAuthorId: string | null;
+  /** Bubble up the viewer's author id once it's learned from a posted comment. */
+  onLearnAuthor: (authorId: string) => void;
 }
 
 function AttachmentTimeline({
   activities,
   loading,
   emptyLabel,
+  currentAuthorId,
+  onLearnAuthor,
 }: AttachmentTimelineProps): React.JSX.Element {
   if (loading) {
     return <TwentyTimeline activities={[]} loading emptyLabel="" />;
@@ -372,6 +643,11 @@ function AttachmentTimeline({
                 <span className="st-timeline__author">{a.authorId}</span>
               ) : null}
               <AttachmentList attachments={atts} />
+              <CommentThread
+                activityId={a.id}
+                currentAuthorId={currentAuthorId}
+                onLearnAuthor={onLearnAuthor}
+              />
             </div>
           </li>
         );
@@ -1473,6 +1749,16 @@ export function RecordDetailTw({
   // Per-task in-flight guard for status toggles.
   const [taskBusyId, setTaskBusyId] = React.useState<string | null>(null);
 
+  // The viewer's author id, learned the first time they post a comment in any
+  // thread. Shared across all timeline comment threads so a posted comment's
+  // own-delete affordance also lights up matching comments elsewhere.
+  const [commentAuthorId, setCommentAuthorId] = React.useState<string | null>(
+    null,
+  );
+  const handleLearnCommentAuthor = React.useCallback((authorId: string) => {
+    setCommentAuthorId((prev) => prev ?? authorId);
+  }, []);
+
   const ObjectIcon = SLUG_ICON[object.slug] ?? Database;
   const editableFields = React.useMemo(
     () => object.fields.filter((f) => !f.system && f.type !== 'RELATION'),
@@ -2120,6 +2406,8 @@ export function RecordDetailTw({
                   activities={activities}
                   loading={loadingTimeline}
                   emptyLabel="No activity yet"
+                  currentAuthorId={commentAuthorId}
+                  onLearnAuthor={handleLearnCommentAuthor}
                 />
               </div>
             )}

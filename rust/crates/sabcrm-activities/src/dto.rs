@@ -126,8 +126,51 @@ pub struct ActivityResponse {
     pub activity: Value,
 }
 
-/// Tiny `{ ok: true }` envelope returned by `DELETE /{id}`.
+/// Tiny `{ ok: true }` envelope returned by `DELETE /{id}` and
+/// `DELETE /{id}/comments/{commentId}`.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OkResponse {
     pub ok: bool,
+}
+
+/// A single comment stored as a subdocument on an activity's `comments`
+/// array. `id` is a fresh ObjectId hex assigned server-side; `createdAt`
+/// is RFC3339 set at push time.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct Comment {
+    /// Comment id — fresh ObjectId hex assigned server-side.
+    pub id: String,
+    /// Free-form comment body.
+    pub body: String,
+    /// Author user id.
+    pub author_id: String,
+    /// Creation timestamp (RFC3339).
+    pub created_at: String,
+}
+
+/// `POST /{id}/comments` body — append a comment to an activity.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AddCommentInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Free-form comment body.
+    pub body: String,
+    /// Author user id.
+    pub author_id: String,
+}
+
+/// Response body for `GET /{id}/comments` — the activity's comments array.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentListResponse {
+    pub comments: Vec<Comment>,
+}
+
+/// Response body for `POST /{id}/comments` — the created comment.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentResponse {
+    pub comment: Comment,
 }

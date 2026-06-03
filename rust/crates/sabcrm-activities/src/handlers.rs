@@ -30,8 +30,8 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    ActivityResponse, CreateActivityInput, ListQuery, ListResponse, OkResponse, ScopeQuery,
-    UpdateActivityInput,
+    ActivityResponse, AddCommentInput, Comment, CommentListResponse, CommentResponse,
+    CreateActivityInput, ListQuery, ListResponse, OkResponse, ScopeQuery, UpdateActivityInput,
 };
 
 /// The Mongo collection backing the activities timeline.
@@ -269,6 +269,138 @@ pub async fn delete_activity(
         })?;
 
     if result.deleted_count == 0 {
+        return Err(ApiError::NotFound("activity".to_owned()));
+    }
+
+    Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// comments — stored as a `comments` array subdoc on the activity
+// ===========================================================================
+
+/// Coerce a stored `comments` array (raw BSON) into the wire `Comment`
+/// shape. Skips any malformed element rather than failing the whole read.
+fn comments_from_doc(doc: &Document) -> Vec<Comment> {
+    let Ok(arr) = doc.get_array("comments") else {
+        return Vec::new();
+    };
+    arr.iter()
+        .filter_map(|b| b.as_document())
+        .filter_map(|c| {
+            Some(Comment {
+                id: c.get_str("id").ok()?.to_owned(),
+                body: c.get_str("body").unwrap_or("").to_owned(),
+                author_id: c.get_str("authorId").unwrap_or("").to_owned(),
+                created_at: c.get_str("createdAt").unwrap_or("").to_owned(),
+            })
+        })
+        .collect()
+}
+
+/// `GET /v1/sabcrm/activities/{id}/comments` — the activity's comments
+/// array (or `[]`). Scoped by `{ projectId, _id }`; `404` if no match.
+#[instrument(skip_all, fields(id = %id))]
+pub async fn list_comments(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Query(query): Query<ScopeQuery>,
+) -> Result<Json<CommentListResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let coll = mongo.collection::<Document>(ACTIVITIES_COLL);
+    let activity = coll
+        .find_one(doc! { "projectId": project_id, "_id": oid })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_activities.find_one"))
+        })?
+        .ok_or_else(|| ApiError::NotFound("activity".to_owned()))?;
+
+    Ok(Json(CommentListResponse {
+        comments: comments_from_doc(&activity),
+    }))
+}
+
+/// `POST /v1/sabcrm/activities/{id}/comments` — `$push` a comment onto the
+/// activity's `comments` array. Assigns a fresh comment id + `createdAt`.
+/// Returns the created comment.
+#[instrument(skip_all, fields(id = %id))]
+pub async fn add_comment(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<AddCommentInput>,
+) -> Result<Json<CommentResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    if body.body.trim().is_empty() {
+        return Err(ApiError::Validation("body is required.".to_owned()));
+    }
+    if body.author_id.trim().is_empty() {
+        return Err(ApiError::Validation("authorId is required.".to_owned()));
+    }
+
+    let comment = Comment {
+        id: ObjectId::new().to_hex(),
+        body: body.body.trim().to_owned(),
+        author_id: body.author_id.trim().to_owned(),
+        created_at: Utc::now().to_rfc3339(),
+    };
+
+    let comment_doc = doc! {
+        "id": &comment.id,
+        "body": &comment.body,
+        "authorId": &comment.author_id,
+        "createdAt": &comment.created_at,
+    };
+
+    let coll = mongo.collection::<Document>(ACTIVITIES_COLL);
+    let result = coll
+        .update_one(
+            doc! { "projectId": project_id, "_id": oid },
+            doc! { "$push": { "comments": comment_doc } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_activities.comments.push"))
+        })?;
+
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("activity".to_owned()));
+    }
+
+    Ok(Json(CommentResponse { comment }))
+}
+
+/// `DELETE /v1/sabcrm/activities/{id}/comments/{commentId}` — `$pull` the
+/// comment with the given id from the activity's `comments` array.
+/// `404` if no matching activity.
+#[instrument(skip_all, fields(id = %id, comment_id = %comment_id))]
+pub async fn delete_comment(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((id, comment_id)): Path<(String, String)>,
+    Query(query): Query<ScopeQuery>,
+) -> Result<Json<OkResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let coll = mongo.collection::<Document>(ACTIVITIES_COLL);
+    let result = coll
+        .update_one(
+            doc! { "projectId": project_id, "_id": oid },
+            doc! { "$pull": { "comments": { "id": comment_id.as_str() } } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_activities.comments.pull"))
+        })?;
+
+    if result.matched_count == 0 {
         return Err(ApiError::NotFound("activity".to_owned()));
     }
 

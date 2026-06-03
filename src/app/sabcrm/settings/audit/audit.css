@@ -1,0 +1,166 @@
+/* =========================================================================
+   SabCRM Settings — Audit Log supplemental classes
+   -------------------------------------------------------------------------
+   Companion sheet to `src/styles/sabcrm-twenty.css` and `../settings-twenty.css`.
+   Holds the handful of `.st-audit-*` helpers the Audit Log page needs that
+   don't belong in the shared `.st-*` vocabulary: the filter bar, the
+   colour-coded action chips (create / update / delete), the record link cell,
+   and the relative-time / actor cells.
+
+   All selectors are scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so they never leak into the rest of SabNode. Colours are kept
+   to a single soft-tint-per-action palette in keeping with Twenty's flat look.
+   ========================================================================= */
+
+/* Filter bar — action + object selects above the table. */
+.sabcrm-twenty .st-audit-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-4);
+}
+
+.sabcrm-twenty .st-audit-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+}
+
+.sabcrm-twenty .st-audit-filter__label {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-audit-filter .st-select {
+  width: auto;
+  min-width: 160px;
+}
+
+.sabcrm-twenty .st-audit-filters__spacer {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-audit-filters__count {
+  align-self: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+}
+
+/* Action chip — flat soft-tint variants keyed off the action verb. */
+.sabcrm-twenty .st-audit-chip {
+  text-transform: capitalize;
+}
+
+.sabcrm-twenty .st-audit-chip--create {
+  background: #eef6ef;
+  border-color: #cfe6d1;
+  color: #2e7d32;
+}
+
+.sabcrm-twenty .st-audit-chip--create .st-chip__dot {
+  background: #2e7d32;
+}
+
+.sabcrm-twenty .st-audit-chip--update {
+  background: #eef2fb;
+  border-color: #cfdcf3;
+  color: #2c5fc9;
+}
+
+.sabcrm-twenty .st-audit-chip--update .st-chip__dot {
+  background: #2c5fc9;
+}
+
+.sabcrm-twenty .st-audit-chip--delete {
+  background: #fdf1f1;
+  border-color: #f1d2d2;
+  color: #b3261e;
+}
+
+.sabcrm-twenty .st-audit-chip--delete .st-chip__dot {
+  background: #b3261e;
+}
+
+.sabcrm-twenty .st-audit-chip--other .st-chip__dot {
+  background: var(--st-text-tertiary);
+}
+
+/* Object + record cell — chip-style object tag with optional record link. */
+.sabcrm-twenty .st-audit-target {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-audit-object {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  text-transform: capitalize;
+}
+
+.sabcrm-twenty .st-audit-record-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-accent);
+  text-decoration: none;
+}
+
+.sabcrm-twenty .st-audit-record-link:hover {
+  text-decoration: underline;
+}
+
+.sabcrm-twenty .st-audit-record-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* Summary cell — wraps to two lines, then ellipsises. */
+.sabcrm-twenty .st-audit-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 360px;
+  color: var(--st-text-secondary);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-audit-summary--empty {
+  color: var(--st-text-tertiary);
+}
+
+/* Actor + time cells. */
+.sabcrm-twenty .st-audit-actor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-audit-actor__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-audit-time {
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}

@@ -31,7 +31,10 @@ import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
 import { sabcrmActivitiesApi } from '@/lib/rust-client/sabcrm-activities';
 import { sabcrmFavoritesApi } from '@/lib/rust-client/sabcrm-favorites';
-import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
+import type {
+  SabcrmRustActivity,
+  SabcrmComment,
+} from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 import {
   listObjects,
@@ -487,6 +490,80 @@ export async function deleteSabcrmActivityTw(
     return { ok: true, data: { ok: res.ok } };
   } catch (e) {
     return fail(e, 'Failed to delete activity.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Activity comment threads — via the Rust engine
+// ---------------------------------------------------------------------------
+
+/** Lists the comment thread on an activity (chronological, as stored). */
+export async function listActivityCommentsTw(
+  activityId: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmComment[]>> {
+  if (!activityId) return { ok: false, error: 'Activity id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const comments = await sabcrmActivitiesApi.listComments(
+      activityId,
+      g.ctx.projectId,
+    );
+    return { ok: true, data: comments };
+  } catch (e) {
+    return fail(e, 'Failed to load comments.');
+  }
+}
+
+/** Appends a comment to an activity; `authorId` is the current user. */
+export async function addActivityCommentTw(
+  activityId: string,
+  body: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmComment>> {
+  if (!activityId) return { ok: false, error: 'Activity id is required.' };
+  if (!body?.trim()) return { ok: false, error: 'A comment is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const comment = await sabcrmActivitiesApi.addComment(
+      activityId,
+      g.ctx.projectId,
+      body.trim(),
+      g.ctx.userId,
+    );
+    return { ok: true, data: comment };
+  } catch (e) {
+    return fail(e, 'Failed to add comment.');
+  }
+}
+
+/** Removes a comment from an activity's thread by comment id. */
+export async function deleteActivityCommentTw(
+  activityId: string,
+  commentId: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!activityId) return { ok: false, error: 'Activity id is required.' };
+  if (!commentId) return { ok: false, error: 'Comment id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmActivitiesApi.deleteComment(
+      activityId,
+      commentId,
+      g.ctx.projectId,
+    );
+    return { ok: true, data: { ok: res.ok } };
+  } catch (e) {
+    return fail(e, 'Failed to delete comment.');
   }
 }
 

@@ -26,6 +26,7 @@ export type {
 export type {
   SabcrmRustActivity,
   SabcrmAttachment,
+  SabcrmComment,
 } from '@/lib/rust-client/sabcrm-activities';
 export type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 

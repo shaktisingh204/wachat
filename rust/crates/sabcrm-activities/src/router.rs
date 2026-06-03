@@ -16,10 +16,13 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/activities`):
 //!
 //! ```text
-//! GET    /        — list_activities  (timeline, newest first)
-//! POST   /        — create_activity
-//! PATCH  /{id}    — update_activity
-//! DELETE /{id}    — delete_activity
+//! GET    /                              — list_activities  (timeline, newest first)
+//! POST   /                              — create_activity
+//! PATCH  /{id}                          — update_activity
+//! DELETE /{id}                          — delete_activity
+//! GET    /{id}/comments                 — list_comments
+//! POST   /{id}/comments                 — add_comment
+//! DELETE /{id}/comments/{commentId}     — delete_comment
 //! ```
 
 use std::sync::Arc;
@@ -50,5 +53,13 @@ where
         .route(
             "/{id}",
             axum::routing::patch(handlers::update_activity).delete(handlers::delete_activity),
+        )
+        .route(
+            "/{id}/comments",
+            get(handlers::list_comments).post(handlers::add_comment),
+        )
+        .route(
+            "/{id}/comments/{commentId}",
+            axum::routing::delete(handlers::delete_comment),
         )
 }

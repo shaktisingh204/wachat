@@ -1,0 +1,140 @@
+/* =========================================================================
+   SabCRM — Twenty record-table column reordering + resizing.
+
+   New `.st-*` utilities scoped to the `/sabcrm/[objectSlug]` index. Lives
+   alongside `page.tsx` (the shared `src/styles/sabcrm-twenty.css` kit is NOT
+   edited). Mirrors the kit's tokens (`--st-*`) for a faithful Twenty look:
+   draggable column headers (native HTML5 DnD) you can grab to reorder, with a
+   subtle grip affordance, a "lifting" ghost on the dragged header, and an
+   accent drop-indicator on the column being hovered. The right edge of each
+   header carries a thin resize handle that drags the column width.
+   ========================================================================= */
+
+/* ---- Draggable header shell -------------------------------------------- */
+
+/* The reorderable <th> gets relative positioning so the resize handle and the
+   drop indicator can anchor to its edges. Keep `nowrap` consistent with the
+   kit's `.st-table th`. */
+.st-th-drag {
+  position: relative;
+}
+
+/* The grab surface wrapping the label (or the sort button). A faint grip dot
+   pattern appears on hover so users discover the affordance — Twenty-style. */
+.st-th-drag__grip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  max-width: 100%;
+  cursor: grab;
+}
+
+.st-th-drag__grip:active {
+  cursor: grabbing;
+}
+
+/* Tiny dotted grip handle, hidden until the header is hovered. */
+.st-th-drag__dots {
+  display: inline-flex;
+  flex: none;
+  width: 6px;
+  height: 12px;
+  margin-right: 2px;
+  opacity: 0;
+  background-image: radial-gradient(
+    var(--st-text-tertiary) 1px,
+    transparent 1px
+  );
+  background-size: 3px 4px;
+  background-position: 0 1px;
+  transition: opacity 100ms ease;
+  pointer-events: none;
+}
+
+.st-th-drag:hover .st-th-drag__dots {
+  opacity: 0.7;
+}
+
+/* The header currently being dragged — lift + fade so it reads as "in hand". */
+.st-th-drag.is-dragging {
+  opacity: 0.45;
+}
+
+.st-th-drag.is-dragging .st-th-drag__grip {
+  cursor: grabbing;
+}
+
+/* Accent drop indicator: a vertical bar on the leading edge of the column the
+   pointer is about to drop before. */
+.st-th-drag.is-drop-before::before,
+.st-th-drag.is-drop-after::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--st-accent);
+  box-shadow: 0 0 0 1px var(--st-accent-soft);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.st-th-drag.is-drop-before::before {
+  left: -1px;
+}
+
+.st-th-drag.is-drop-after::after {
+  right: -1px;
+}
+
+/* ---- Resize handle ----------------------------------------------------- */
+
+/* A thin invisible strip on the header's trailing edge; widens to an accent
+   line on hover / while actively dragging. Sits above the drag surface so the
+   resize gesture wins at the very edge. */
+.st-th-resize {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 7px;
+  margin-right: -3px;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  z-index: 3;
+}
+
+.st-th-resize::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  right: 3px;
+  width: 2px;
+  border-radius: 1px;
+  background: transparent;
+  transition: background 100ms ease;
+}
+
+.st-th-resize:hover::after,
+.st-th-resize.is-resizing::after {
+  background: var(--st-accent);
+}
+
+/* While resizing, lock the cursor across the whole document so it doesn't
+   flicker as the pointer leaves the handle. Applied to the wrapper. */
+.st-table-wrap.is-col-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.st-table-wrap.is-col-resizing * {
+  cursor: col-resize !important;
+}
+
+/* Fixed layout is required for explicit per-column widths (<col> elements) to
+   take effect; only enabled once the user has resized at least one column. */
+.st-table--fixed {
+  table-layout: fixed;
+}

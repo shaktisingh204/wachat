@@ -11463,6 +11463,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-audit"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-core"
 version = "0.1.0"
 dependencies = [
@@ -12890,6 +12910,7 @@ dependencies = [
  "sabcreator-roles",
  "sabcreator-workflows",
  "sabcrm-activities",
+ "sabcrm-audit",
  "sabcrm-favorites",
  "sabcrm-notifications",
  "sabcrm-objects",

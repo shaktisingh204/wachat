@@ -73,6 +73,58 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* =========================================================================
+   Dark theme override — Twenty-like near-black palette.
+   Applied by toggling `.st-theme-dark` on the `.sabcrm-twenty` root
+   (see use-crm-prefs.ts). Only re-maps the design tokens; every component
+   below consumes the same `--st-*` variables, so they all re-theme for free.
+   Does NOT touch the light defaults declared above.
+   ========================================================================= */
+.sabcrm-twenty.st-theme-dark {
+  /* ----- Surfaces ----- */
+  --st-bg: #181818;
+  --st-bg-secondary: #1d1d1d;
+  --st-sidebar-bg: #1a1a1a;
+  --st-sidebar-bg-alt: #202020;
+
+  /* ----- Borders ----- */
+  --st-border: #2a2a2a;
+  --st-border-light: #242424;
+
+  /* ----- Text ----- */
+  --st-text: #e8e8e8;
+  --st-text-secondary: #9a9a9a;
+  --st-text-tertiary: #6b6b6b;
+  --st-text-inverted: #ffffff;
+
+  /* ----- Accent (slightly brighter Twenty blue for dark surfaces) ----- */
+  --st-accent: #3b7bff;
+  --st-accent-hover: #5a90ff;
+  --st-accent-soft: #1b2640;
+
+  /* ----- Interaction ----- */
+  --st-hover: #242424;
+  --st-active: #2c2c2c;
+
+  /* ----- Shadow (deeper for dark surfaces) ----- */
+  --st-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  color: var(--st-text);
+}
+
+/* Error banner stays legible on dark surfaces. */
+.sabcrm-twenty.st-theme-dark .st-banner {
+  border-color: #5a2a2a;
+  background: #2a1818;
+  color: #f3b4b4;
+}
+
+/* Dialog overlay scrim sits darker over the near-black shell. */
+.sabcrm-twenty.st-theme-dark .st-dialog-overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+
 .sabcrm-twenty *,
 .sabcrm-twenty *::before,
 .sabcrm-twenty *::after {

@@ -473,6 +473,7 @@ members = [
     "crates/sabcrm-records",
     "crates/sabcrm-roles",
     "crates/sabcrm-workflows",
+    "crates/sabcrm-audit",
     "crates/sabcrm-settings",
     "crates/sabcrm-notifications",
     "crates/sabcrm-views",

@@ -9,8 +9,10 @@
  *
  *   - `displayName` / `email` — local overrides shown in the Profile form. They
  *     seed from the session user and persist edits without a server round-trip.
- *   - `theme`    — 'light' | 'system' (Twenty ships light; 'system' is a no-op
- *                  placeholder kept for parity).
+ *   - `theme`    — 'light' | 'dark' | 'system'. Toggles `st-theme-dark` on the
+ *                  SabCRM frame root (`.sabcrm-twenty`) so the whole module
+ *                  re-themes via CSS. 'system' follows `prefers-color-scheme`
+ *                  and live-updates when the OS preference flips.
  *   - `density`  — 'comfortable' | 'compact'. Applied by toggling a class on
  *                  the SabCRM frame root (`.sabcrm-twenty`) so the table / row
  *                  rhythm can tighten without touching server state.
@@ -22,7 +24,7 @@
 
 import * as React from 'react';
 
-export type CrmTheme = 'light' | 'system';
+export type CrmTheme = 'light' | 'dark' | 'system';
 export type CrmDensity = 'comfortable' | 'compact';
 
 export interface CrmPrefs {
@@ -97,6 +99,30 @@ export function useCrmPrefs(): UseCrmPrefsResult {
     if (!root) return;
     root.classList.toggle('st-density-compact', prefs.density === 'compact');
   }, [prefs.density]);
+
+  // Reflect the chosen theme onto the SabCRM frame root. 'dark' forces the dark
+  // palette; 'system' follows `prefers-color-scheme` and live-updates when the
+  // OS preference flips; 'light' (or no match) removes the override class.
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const root = document.querySelector('.sabcrm-twenty');
+    if (!root) return;
+
+    const apply = (isDark: boolean) => {
+      root.classList.toggle('st-theme-dark', isDark);
+    };
+
+    if (prefs.theme === 'system' && typeof window.matchMedia === 'function') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      apply(mq.matches);
+      const onChange = (e: MediaQueryListEvent) => apply(e.matches);
+      mq.addEventListener('change', onChange);
+      return () => mq.removeEventListener('change', onChange);
+    }
+
+    apply(prefs.theme === 'dark');
+    return undefined;
+  }, [prefs.theme]);
 
   const setPrefs = React.useCallback((patch: Partial<CrmPrefs>) => {
     setPrefsState((prev) => {

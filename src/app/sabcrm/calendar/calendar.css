@@ -1,0 +1,231 @@
+/* =========================================================================
+   SabCRM — Calendar view (companion sheet)
+
+   Twenty-style month grid that places records on day cells by a chosen DATE /
+   DATE_TIME field. Builds ONLY on the shared `.st-*` vocabulary + `--st-*`
+   tokens declared in `src/styles/sabcrm-twenty.css` (which is NOT edited).
+   Every selector here is new and `.cal-*`-namespaced so it can never collide
+   with the base kit. All colors come from the `--st-*` palette so the view
+   re-themes with light / dark automatically.
+   ========================================================================= */
+
+/* ---- Controls row ------------------------------------------------------- */
+
+.cal-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-4);
+}
+
+.cal-controls__group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.cal-controls__label {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+.cal-controls__spacer {
+  flex: 1 1 auto;
+}
+
+/* Month navigation cluster (prev / title / next + Today). */
+.cal-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.cal-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.cal-nav__btn:hover {
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  border-color: var(--st-text-tertiary);
+}
+
+.cal-nav__title {
+  min-width: 152px;
+  text-align: center;
+  font-size: var(--st-font-size-lg);
+  font-weight: 600;
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+/* ---- Month grid --------------------------------------------------------- */
+
+.cal-grid {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  overflow: hidden;
+  background: var(--st-bg);
+}
+
+/* Weekday header row. */
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+}
+
+.cal-weekday {
+  padding: var(--st-space-2) var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+  text-align: left;
+}
+
+.cal-weekday + .cal-weekday {
+  border-left: 1px solid var(--st-border-light);
+}
+
+/* Rows of day cells. */
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.cal-week + .cal-week {
+  border-top: 1px solid var(--st-border-light);
+}
+
+.cal-day {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 104px;
+  padding: var(--st-space-1) 5px 6px;
+  background: var(--st-bg);
+}
+
+.cal-day + .cal-day {
+  border-left: 1px solid var(--st-border-light);
+}
+
+/* Days outside the displayed month are dimmed (Twenty pattern). */
+.cal-day--outside {
+  background: var(--st-bg-secondary);
+}
+
+.cal-day--outside .cal-day__num {
+  color: var(--st-text-tertiary);
+}
+
+/* Day-number pill. */
+.cal-day__head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.cal-day__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 5px;
+  border-radius: 999px;
+  font-size: var(--st-font-size-sm);
+  font-weight: 500;
+  color: var(--st-text-secondary);
+  line-height: 1;
+}
+
+.cal-day--today .cal-day__num {
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+  font-weight: 600;
+}
+
+/* Stacked record chips inside a day. */
+.cal-day__items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cal-event {
+  display: block;
+  max-width: 100%;
+  padding: 2px 6px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.35;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid transparent;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.cal-event:hover {
+  border-color: var(--st-accent);
+}
+
+/* "+N more" overflow affordance. */
+.cal-more {
+  display: inline-block;
+  padding: 1px 4px;
+  font-size: var(--st-font-size-xs);
+  font-weight: 500;
+  color: var(--st-text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cal-more:hover {
+  color: var(--st-text);
+  text-decoration: underline;
+}
+
+/* ---- Footer note -------------------------------------------------------- */
+
+.cal-note {
+  margin-top: var(--st-space-3);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .cal-day {
+    min-height: 76px;
+  }
+  .cal-weekday {
+    font-size: 10px;
+    padding: 6px 4px;
+  }
+}

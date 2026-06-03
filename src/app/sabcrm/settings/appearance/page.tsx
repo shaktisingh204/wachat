@@ -4,8 +4,9 @@
  * SabCRM — Appearance settings (`/sabcrm/settings/appearance`), Twenty-style.
  *
  * Local, device-scoped display controls:
- *   - Theme   — Light / System. Twenty ships a single light theme, so 'system'
- *               is a recorded preference rather than a live re-theme.
+ *   - Theme   — Light / Dark / System. Toggles `st-theme-dark` on the SabCRM
+ *               frame root (handled inside `useCrmPrefs`); 'system' follows the
+ *               OS `prefers-color-scheme` and live-updates.
  *   - Density — Comfortable / Compact. Compact toggles `st-density-compact` on
  *               the SabCRM frame root (handled inside `useCrmPrefs`) to tighten
  *               table + section rhythm immediately.
@@ -16,7 +17,7 @@
  */
 
 import * as React from 'react';
-import { Palette, Sun, Monitor } from 'lucide-react';
+import { Palette, Sun, Moon, Monitor } from 'lucide-react';
 
 import { TwentyPageHeader } from '@/components/sabcrm/twenty';
 import { useToast } from '@/hooks/use-toast';
@@ -75,6 +76,7 @@ function Segment<T extends string>({
 
 const THEME_OPTIONS: SegmentOption<CrmTheme>[] = [
   { value: 'light', label: 'Light', icon: Sun },
+  { value: 'dark', label: 'Dark', icon: Moon },
   { value: 'system', label: 'System', icon: Monitor },
 ];
 
@@ -94,8 +96,10 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
         title: 'Theme updated',
         description:
           theme === 'system'
-            ? 'SabCRM will follow your system setting where supported.'
-            : 'Using the light theme.',
+            ? 'SabCRM will follow your system setting.'
+            : theme === 'dark'
+              ? 'Using the dark theme.'
+              : 'Using the light theme.',
       });
     },
     [setPrefs, toast],
@@ -135,8 +139,8 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
           <div className="st-section__head">
             <h2 className="st-section__title">Theme</h2>
             <p className="st-section__hint">
-              SabCRM uses a clean light theme. System mode will follow your OS
-              preference where supported.
+              Choose a light or dark theme, or let System follow your OS
+              preference.
             </p>
           </div>
           <Segment

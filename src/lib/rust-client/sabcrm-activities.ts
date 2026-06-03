@@ -101,6 +101,23 @@ export interface SabcrmActivityUpdateInput {
   [key: string]: unknown;
 }
 
+/**
+ * A comment stored as a subdocument on an activity's `comments` array.
+ * Mirrors the `Comment` struct in
+ * `rust/crates/sabcrm-activities/src/dto.rs`. `id` is a fresh ObjectId hex
+ * assigned server-side; `createdAt` is RFC3339.
+ */
+export interface SabcrmComment {
+  /** Comment id (ObjectId hex). */
+  id: string;
+  /** Free-form comment body. */
+  body: string;
+  /** Author user id. */
+  authorId: string;
+  /** Creation timestamp (RFC3339). */
+  createdAt: string;
+}
+
 /** Raw `{ activities }` envelope from `GET /`. */
 interface ListEnvelope {
   activities: SabcrmRustActivity[];
@@ -109,6 +126,16 @@ interface ListEnvelope {
 /** Raw `{ activity }` envelope from `POST /` and `PATCH /{id}`. */
 interface SingleEnvelope {
   activity: SabcrmRustActivity;
+}
+
+/** Raw `{ comments }` envelope from `GET /{id}/comments`. */
+interface CommentListEnvelope {
+  comments: SabcrmComment[];
+}
+
+/** Raw `{ comment }` envelope from `POST /{id}/comments`. */
+interface CommentEnvelope {
+  comment: SabcrmComment;
 }
 
 /** Encode query params, dropping undefined/empty values. */
@@ -168,6 +195,51 @@ export const sabcrmActivitiesApi = {
   remove(id: string, projectId: string): Promise<{ ok: boolean }> {
     return rustFetch<{ ok: boolean }>(
       `${BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    );
+  },
+
+  /** `GET /v1/sabcrm/activities/{id}/comments` — the comments array. */
+  async listComments(
+    id: string,
+    projectId: string,
+  ): Promise<SabcrmComment[]> {
+    const res = await rustFetch<CommentListEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/comments${qs({ projectId })}`,
+    );
+    return res.comments;
+  },
+
+  /** `POST /v1/sabcrm/activities/{id}/comments` — append a comment. */
+  async addComment(
+    id: string,
+    projectId: string,
+    body: string,
+    authorId: string,
+  ): Promise<SabcrmComment> {
+    const res = await rustFetch<CommentEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/comments`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ projectId, body, authorId }),
+      },
+    );
+    return res.comment;
+  },
+
+  /**
+   * `DELETE /v1/sabcrm/activities/{id}/comments/{commentId}` — remove a
+   * comment from the activity's `comments` array.
+   */
+  deleteComment(
+    id: string,
+    commentId: string,
+    projectId: string,
+  ): Promise<{ ok: boolean }> {
+    return rustFetch<{ ok: boolean }>(
+      `${BASE}/${encodeURIComponent(id)}/comments/${encodeURIComponent(
+        commentId,
+      )}${qs({ projectId })}`,
       { method: 'DELETE' },
     );
   },

@@ -50,6 +50,7 @@ import {
 import { SabcrmBulkBar } from './bulk-bar';
 import { SabcrmPagination } from './pagination';
 import './pagination.css';
+import './column-reorder.css';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -78,6 +79,10 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 /** Default page size — must be one of {@link PAGE_SIZE_OPTIONS}. */
 const PAGE_LIMIT = 50;
 const SEARCH_DEBOUNCE_MS = 300;
+
+/** Column-resize clamps (px) — keep columns grabbable but never collapsed. */
+const COL_MIN_WIDTH = 80;
+const COL_MAX_WIDTH = 640;
 
 /**
  * Column types a header click may sort by. Mirrors the view bar's
@@ -261,6 +266,22 @@ interface TableViewProps {
   sortDir: 'asc' | 'desc';
   /** Cycle a column's sort: asc → desc → clear. */
   onSortColumn: (key: string) => void;
+  /**
+   * Reorder: move the dragged column so it lands immediately before
+   * `targetKey` (or at the end when `targetKey` is `null`). The page owns the
+   * order array; this just reports the intent.
+   */
+  onReorderColumn: (sourceKey: string, targetKey: string | null) => void;
+  /** Per-column explicit widths (px), keyed by field key. Empty = auto. */
+  columnWidths: Readonly<Record<string, number>>;
+  /** Commit a resized column width (px, already clamped by the handle). */
+  onResizeColumn: (key: string, width: number) => void;
+}
+
+/** Where a drag currently wants to drop, relative to a hovered header. */
+interface ColDropTarget {
+  key: string;
+  edge: 'before' | 'after';
 }
 
 function TableView({
@@ -278,13 +299,111 @@ function TableView({
   sortBy,
   sortDir,
   onSortColumn,
+  onReorderColumn,
+  columnWidths,
+  onResizeColumn,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
 
+  // The header column currently being dragged, and where it would drop. React
+  // state is the real channel; `dataTransfer` carries a plain-text fallback.
+  const [dragKey, setDragKey] = React.useState<string | null>(null);
+  const [dropTarget, setDropTarget] = React.useState<ColDropTarget | null>(null);
+
+  // Live column-resize gesture (pointer-driven). `null` when not resizing.
+  const [resizing, setResizing] = React.useState<{
+    key: string;
+    startX: number;
+    startWidth: number;
+  } | null>(null);
+
+  // The label/first column stays pinned — it carries the record link and must
+  // not be dragged out of the leading slot (Twenty keeps it fixed too).
+  const pinnedKey = labelField
+    ? labelField.key
+    : columns.length > 0
+      ? columns[0].key
+      : null;
+
+  const endDrag = React.useCallback(() => {
+    setDragKey(null);
+    setDropTarget(null);
+  }, []);
+
+  const handleColDrop = React.useCallback(() => {
+    if (!dragKey || !dropTarget) return endDrag();
+    if (dragKey !== dropTarget.key) {
+      // Resolve "after the hovered column" to "before the next column" so the
+      // page only ever reasons about an insert-before target (null = append).
+      const idx = columns.findIndex((c) => c.key === dropTarget.key);
+      const targetKey =
+        dropTarget.edge === 'before'
+          ? dropTarget.key
+          : (columns[idx + 1]?.key ?? null);
+      if (targetKey !== dragKey) onReorderColumn(dragKey, targetKey);
+    }
+    endDrag();
+  }, [dragKey, dropTarget, columns, onReorderColumn, endDrag]);
+
+  // ---- Column resize (native pointer drag) --------------------------------
+  // Bind move/up listeners on the window while a handle is held so the gesture
+  // survives the pointer leaving the thin handle strip.
+  React.useEffect(() => {
+    if (!resizing) return;
+    const onMove = (e: PointerEvent) => {
+      const delta = e.clientX - resizing.startX;
+      const next = Math.max(
+        COL_MIN_WIDTH,
+        Math.min(COL_MAX_WIDTH, Math.round(resizing.startWidth + delta)),
+      );
+      onResizeColumn(resizing.key, next);
+    };
+    const onUp = () => setResizing(null);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [resizing, onResizeColumn]);
+
+  const beginResize = React.useCallback(
+    (e: React.PointerEvent, col: FieldMetadata) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const th = (e.currentTarget as HTMLElement).closest('th');
+      const startWidth =
+        columnWidths[col.key] ?? th?.getBoundingClientRect().width ?? COL_MIN_WIDTH;
+      setResizing({ key: col.key, startX: e.clientX, startWidth: Math.round(startWidth) });
+    },
+    [columnWidths],
+  );
+
+  const hasWidths = Object.keys(columnWidths).length > 0;
+
   return (
-    <div className="st-table-wrap">
-      <table className="st-table">
+    <div className={`st-table-wrap${resizing ? ' is-col-resizing' : ''}`}>
+      <table className={`st-table${hasWidths ? ' st-table--fixed' : ''}`}>
+        {hasWidths && (
+          <colgroup>
+            {/* selection + favorite columns keep their fixed kit widths */}
+            <col style={{ width: 36 }} />
+            <col style={{ width: 32 }} />
+            {columns.map((col) => (
+              <col
+                key={col.key}
+                style={
+                  columnWidths[col.key]
+                    ? { width: columnWidths[col.key] }
+                    : undefined
+                }
+              />
+            ))}
+          </colgroup>
+        )}
         <thead>
           <tr>
             <th className="st-checkbox-cell">
@@ -303,40 +422,130 @@ function TableView({
             {columns.map((col) => {
               const sortable = SORTABLE_HEADER.has(col.type);
               const active = sortBy === col.key;
-              if (!sortable) {
-                return <th key={col.key}>{col.label}</th>;
-              }
+              const pinned = col.key === pinnedKey;
+              const draggable = !pinned && !resizing;
+
+              const isDragging = dragKey === col.key;
+              const isDropBefore =
+                dropTarget?.key === col.key && dropTarget.edge === 'before';
+              const isDropAfter =
+                dropTarget?.key === col.key && dropTarget.edge === 'after';
+
+              const thClass = [
+                'st-th-drag',
+                isDragging ? 'is-dragging' : '',
+                isDropBefore ? 'is-drop-before' : '',
+                isDropAfter ? 'is-drop-after' : '',
+              ]
+                .filter(Boolean)
+                .join(' ');
+
+              // Decide the drop edge from the pointer position within the th:
+              // left half → drop before this column, right half → after it.
+              const computeEdge = (e: React.DragEvent): 'before' | 'after' => {
+                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                return e.clientX - rect.left < rect.width / 2 ? 'before' : 'after';
+              };
+
+              const dndProps = dragKey
+                ? {
+                    onDragOver: (e: React.DragEvent) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      // Never offer to drop onto the pinned slot's leading edge.
+                      const edge =
+                        pinned ? 'after' : computeEdge(e);
+                      if (
+                        dropTarget?.key !== col.key ||
+                        dropTarget.edge !== edge
+                      ) {
+                        setDropTarget({ key: col.key, edge });
+                      }
+                    },
+                    onDrop: (e: React.DragEvent) => {
+                      e.preventDefault();
+                      handleColDrop();
+                    },
+                  }
+                : {};
+
+              // Inner content: the existing sort button (sortable cols) or a
+              // plain label (everything else), wrapped in the grab surface.
+              const inner = sortable ? (
+                <button
+                  type="button"
+                  className={`st-th-sort${active ? ' is-active' : ''}`}
+                  onClick={() => onSortColumn(col.key)}
+                  title={`Sort by ${col.label}`}
+                >
+                  {col.label}
+                  {active ? (
+                    <span className="st-th-sort__ind" aria-hidden="true">
+                      {sortDir === 'asc' ? '▲' : '▼'}
+                    </span>
+                  ) : (
+                    <span
+                      className="st-th-sort__ind st-th-sort__ind--idle"
+                      aria-hidden="true"
+                    >
+                      ▲
+                    </span>
+                  )}
+                </button>
+              ) : (
+                <span>{col.label}</span>
+              );
+
               return (
                 <th
                   key={col.key}
+                  className={thClass}
                   aria-sort={
-                    active
-                      ? sortDir === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                      : 'none'
+                    sortable
+                      ? active
+                        ? sortDir === 'asc'
+                          ? 'ascending'
+                          : 'descending'
+                        : 'none'
+                      : undefined
                   }
+                  {...dndProps}
                 >
-                  <button
-                    type="button"
-                    className={`st-th-sort${active ? ' is-active' : ''}`}
-                    onClick={() => onSortColumn(col.key)}
-                    title={`Sort by ${col.label}`}
+                  <span
+                    className="st-th-drag__grip"
+                    draggable={draggable}
+                    onDragStart={
+                      draggable
+                        ? (e) => {
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('text/plain', col.key);
+                            setDragKey(col.key);
+                            setDropTarget(null);
+                          }
+                        : undefined
+                    }
+                    onDragEnd={draggable ? endDrag : undefined}
                   >
-                    {col.label}
-                    {active ? (
-                      <span className="st-th-sort__ind" aria-hidden="true">
-                        {sortDir === 'asc' ? '▲' : '▼'}
-                      </span>
-                    ) : (
+                    {draggable && (
                       <span
-                        className="st-th-sort__ind st-th-sort__ind--idle"
+                        className="st-th-drag__dots"
                         aria-hidden="true"
-                      >
-                        ▲
-                      </span>
+                        title="Drag to reorder"
+                      />
                     )}
-                  </button>
+                    {inner}
+                  </span>
+                  {/* Resize handle on the trailing edge. */}
+                  <span
+                    className={`st-th-resize${
+                      resizing?.key === col.key ? ' is-resizing' : ''
+                    }`}
+                    aria-hidden="true"
+                    title="Drag to resize"
+                    onPointerDown={(e) => beginResize(e, col)}
+                    onDragStart={(e) => e.preventDefault()}
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </th>
               );
             })}
@@ -814,6 +1023,15 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
     new Set(),
   );
+  // Explicit left-to-right order of the visible columns (field keys). This is
+  // what drag-reorder mutates; it's also the order persisted into a saved
+  // view's `fields` list. Keys not present fall back to metadata order.
+  const [columnOrder, setColumnOrder] = React.useState<string[]>([]);
+  // Per-column explicit widths (px) keyed by field key, set via the header
+  // resize handle. Empty ⇒ the table auto-sizes (default Twenty behavior).
+  const [columnWidths, setColumnWidths] = React.useState<Record<string, number>>(
+    {},
+  );
 
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
   const [groups, setGroups] = React.useState<SabcrmRecordTwGroup[]>([]);
@@ -861,11 +1079,17 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   }, [objectSlug, search, viewState, view, limit]);
 
   // Seed visible columns from the object's `inTable` fields whenever the
-  // resolved object changes (the Fields popover then mutates this set).
+  // resolved object changes (the Fields popover then mutates this set). The
+  // explicit order + any per-column widths reset to the metadata default.
   React.useEffect(() => {
     if (!object) return;
     const defaults = object.fields.filter((f) => f.inTable).map((f) => f.key);
-    setVisibleColumns(new Set(defaults.length ? defaults : object.fields.slice(0, 5).map((f) => f.key)));
+    const keys = defaults.length
+      ? defaults
+      : object.fields.slice(0, 5).map((f) => f.key);
+    setVisibleColumns(new Set(keys));
+    setColumnOrder(keys);
+    setColumnWidths({});
   }, [object]);
 
   const toggleColumn = React.useCallback((key: string) => {
@@ -875,6 +1099,44 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       else next.add(key);
       return next;
     });
+    // Keep the order list in sync: newly shown columns append to the end,
+    // hidden ones are dropped (re-showing puts them last — matches Twenty).
+    setColumnOrder((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  }, []);
+
+  // Replace the whole visible set + order (saved-view restore, or the Fields
+  // popover's "set all"). The incoming array order is authoritative.
+  const setColumns = React.useCallback((keys: string[]) => {
+    setVisibleColumns(new Set(keys));
+    setColumnOrder(keys);
+  }, []);
+
+  // Drag-reorder: lift `sourceKey` and re-insert it immediately before
+  // `targetKey` (or append when `targetKey` is null). Mutating `columnOrder`
+  // re-derives `columns`; if a view is active the next save persists this order
+  // through the view bar's `fields: Array.from(visibleColumns)` contract, which
+  // we keep aligned to `columnOrder` below.
+  const handleReorderColumn = React.useCallback(
+    (sourceKey: string, targetKey: string | null) => {
+      setColumnOrder((prev) => {
+        if (!prev.includes(sourceKey)) return prev;
+        const without = prev.filter((k) => k !== sourceKey);
+        if (targetKey === null) return [...without, sourceKey];
+        const idx = without.indexOf(targetKey);
+        if (idx < 0) return [...without, sourceKey];
+        return [...without.slice(0, idx), sourceKey, ...without.slice(idx)];
+      });
+    },
+    [],
+  );
+
+  // Commit a resized column width (already clamped by the handle).
+  const handleResizeColumn = React.useCallback((key: string, width: number) => {
+    setColumnWidths((prev) =>
+      prev[key] === width ? prev : { ...prev, [key]: width },
+    );
   }, []);
 
   // Debounce search input.
@@ -995,10 +1257,38 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     refreshTick,
   ]);
 
-  const columns = React.useMemo(
-    () =>
-      object ? object.fields.filter((f) => visibleColumns.has(f.key)) : [],
-    [object, visibleColumns],
+  // Visible columns in their explicit drag-order. `columnOrder` drives the
+  // sequence; any visible field missing from it (e.g. a freshly-restored saved
+  // view, or metadata drift) is appended in its original metadata order so a
+  // column never silently vanishes.
+  const columns = React.useMemo(() => {
+    if (!object) return [];
+    const byKey = new Map(object.fields.map((f) => [f.key, f] as const));
+    const seen = new Set<string>();
+    const ordered: FieldMetadata[] = [];
+    for (const key of columnOrder) {
+      if (!visibleColumns.has(key)) continue;
+      const field = byKey.get(key);
+      if (field && !seen.has(key)) {
+        ordered.push(field);
+        seen.add(key);
+      }
+    }
+    for (const field of object.fields) {
+      if (visibleColumns.has(field.key) && !seen.has(field.key)) {
+        ordered.push(field);
+        seen.add(field.key);
+      }
+    }
+    return ordered;
+  }, [object, visibleColumns, columnOrder]);
+  // An order-preserving view of the visible columns. The view bar persists
+  // saved-view `fields` via `Array.from(visibleColumns)`, so feeding it a Set
+  // whose iteration order is the drag-order makes column reordering durable in
+  // saved views — not just local component state.
+  const orderedVisibleColumns = React.useMemo(
+    () => new Set(columns.map((c) => c.key)),
+    [columns],
   );
   const labelField = React.useMemo(
     () => object?.fields.find((f) => f.isLabel),
@@ -1413,9 +1703,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         object={object}
         state={viewState}
         onStateChange={setViewState}
-        visibleColumns={visibleColumns}
+        visibleColumns={orderedVisibleColumns}
         onToggleColumn={toggleColumn}
-        onSetColumns={(keys) => setVisibleColumns(new Set(keys))}
+        onSetColumns={setColumns}
         projectId={activeProjectId}
         refreshTick={refreshTick}
       />
@@ -1471,6 +1761,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             sortBy={viewState.sortBy}
             sortDir={viewState.sortDir}
             onSortColumn={handleSortColumn}
+            onReorderColumn={handleReorderColumn}
+            columnWidths={columnWidths}
+            onResizeColumn={handleResizeColumn}
           />
           <SabcrmPagination
             page={page}
