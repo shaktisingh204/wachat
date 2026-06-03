@@ -7,6 +7,9 @@ members = [
     "crates/db",
     "crates/observability",
     "crates/users",
+    "crates/sabvault-secrets",
+    "crates/sabvault-shares",
+    "crates/sabvault-breach-alerts",
     "crates/admin",
     "crates/wachat-media",
     "crates/wachat-meta-auth",
@@ -399,6 +402,7 @@ members = [
     "crates/sabshop-orders",
     "crates/sabshop-shipping-zones",
     "crates/sabshop-storefronts",
+    "crates/sabshop-products",
     "crates/sabshop-tax-rules",
     "crates/sabshop-themes",
     "crates/sabvault-audit",
@@ -439,6 +443,8 @@ members = [
     "crates/sabchat-channel-gbm",
     "crates/sabchat-channel-x",
     "crates/sabchat-marketplace",
+    "crates/sabcrm-core",
+    "crates/sabcrm-records",
     "crates/sabcheckout-customers",
     "crates/sabcheckout-invoices",
     "crates/sabcheckout-pages",
@@ -534,7 +540,8 @@ members = [
     "crates/sabwriter-suggestions",
     "crates/sabwriter-templates",
     "crates/sabwriter-versions",
-    "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace", "crates/sabtables-workspaces", "crates/sabtables-bases", "crates/sabtables-tables", "crates/sabtables-records", "crates/sabtables-views", "crates/sabtables-automations", "crates/sabtables-comments", "crates/sabcreator-apps", "crates/sabcreator-forms", "crates/sabcreator-pages", "crates/sabcreator-workflows", "crates/sabcreator-roles", "crates/sabcreator-role-assignments", "crates/sabcreator-publishing", "crates/sabpractice-firms", "crates/sabpractice-clients", "crates/sabpractice-engagements", "crates/sabpractice-document-requests", "crates/sabpractice-tasks", "crates/sabpractice-time-logs", "crates/sabpractice-advisory-notes", "crates/sabpractice-deadlines", "crates/sabops-endpoints", "crates/sabops-software-inventory", "crates/sabops-hardware-inventory", "crates/sabops-patches", "crates/sabops-patch-policies", "crates/sabops-mdm-profiles", "crates/sabops-mdm-commands", "crates/sabops-ad-domains", "crates/sabops-ad-users", "crates/sabops-ad-groups", "crates/sabops-alerts", "crates/sabops-agent-tokens"]
+    "crates/sabdesk-tickets",
+    "crates/sabchat-channel-apple", "crates/sabchat-channel-gbm", "crates/sabchat-channel-x", "crates/sabchat-marketplace", "crates/sabtables-workspaces", "crates/sabtables-bases", "crates/sabtables-tables", "crates/sabtables-records", "crates/sabtables-views", "crates/sabtables-automations", "crates/sabtables-comments", "crates/sabcreator-apps", "crates/sabcreator-forms", "crates/sabcreator-pages", "crates/sabcreator-workflows", "crates/sabcreator-roles", "crates/sabcreator-role-assignments", "crates/sabcreator-publishing", "crates/sabpractice-firms", "crates/sabpractice-clients", "crates/sabpractice-engagements", "crates/sabpractice-document-requests", "crates/sabpractice-tasks", "crates/sabpractice-time-logs", "crates/sabpractice-advisory-notes", "crates/sabpractice-deadlines", "crates/sabops-endpoints", "crates/sabops-software-inventory", "crates/sabops-hardware-inventory", "crates/sabops-patches", "crates/sabops-patch-policies", "crates/sabops-mdm-profiles", "crates/sabops-mdm-commands", "crates/sabops-ad-domains", "crates/sabops-ad-users", "crates/sabops-ad-groups", "crates/sabops-alerts", "crates/sabops-agent-tokens", "crates/sabdesk-field-service", "crates/sabdesk-itsm", "crates/sabdesk-voice-center", "crates/sabdesk-customer-success", "crates/sabdesk-incident-mgmt", "crates/sabdesk-surveys", "crates/sabdesk-gamification", "crates/sabdesk-billing", "crates/sabdesk-social-inbox", "crates/sabdesk-localization", "crates/sabcheckout-products", "crates/sabcheckout-coupons", "crates/sabcheckout-taxes", "crates/sabcheckout-links", "crates/sabcheckout-custom-domains", "crates/sabcheckout-abandoned", "crates/sabcheckout-analytics", "crates/sabcheckout-reports-mrr", "crates/sabcheckout-reports-churn", "crates/sabcheckout-webhooks", "crates/sabcheckout-api-keys", "crates/sabcheckout-integrations", "crates/sabcheckout-settings", "crates/sabcheckout-upsells", "crates/sabcheckout-order-bumps", "crates/sabcheckout-ab-testing", "crates/sabcheckout-affiliates", "crates/sabcheckout-gift-cards", "crates/sabcheckout-store-credit", "crates/sabcheckout-loyalty", "crates/sabcheckout-multi-currency", "crates/sabcheckout-dunning", "crates/sabcheckout-fraud-prevention", "crates/sabcheckout-tax-exemptions", "crates/sabcheckout-metered-billing", "crates/sabcheckout-tiered-pricing", "crates/sabcheckout-license-keys", "crates/sabcheckout-digital-watermarking", "crates/sabcheckout-preorders", "crates/sabcheckout-fulfillment", "crates/sabcheckout-inventory", "crates/sabcheckout-customer-portal", "crates/sabcheckout-reseller", "crates/sabcheckout-payouts", "crates/sabcheckout-payment-gateways", "crates/sabcheckout-disputes", "crates/sabsprints-sprints", "crates/sabsprints-epics", "crates/sabsprints-velocity", "crates/sabsign-form-builder", "crates/sabsign-signer", "crates/sabsign-notary", "crates/sabsign-integrations", "crates/sabsign-settings"]
 
 [workspace.package]
 edition = "2024"

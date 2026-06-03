@@ -1,0 +1,32 @@
+# SabCRM — metadata core (pure library, no router).
+#
+# Holds the metadata-driven CRM type system (`ObjectMetadata` /
+# `FieldMetadata` / relation + select descriptors) and the six built-in
+# STANDARD_OBJECTS, ported verbatim from:
+#   * src/lib/sabcrm/types.ts
+#   * src/lib/sabcrm/schema.ts
+#
+# Consumed by `sabcrm-records` (and any future SabCRM router crate). Mirrors
+# the `crm-core` pure-library conventions: edition 2024, serde + bson + utoipa,
+# no axum / mongodb deps.
+[package]
+name = "sabcrm-core"
+version = "0.1.0"
+edition = "2024"
+description = "SabCRM metadata core — ObjectMetadata/FieldMetadata type system + the six STANDARD_OBJECTS (companies, people, opportunities, notes, tasks, activities). Ports src/lib/sabcrm/{types,schema}.ts."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_core"
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+[lints]
+workspace = true
