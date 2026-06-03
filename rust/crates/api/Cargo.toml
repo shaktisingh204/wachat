@@ -64,6 +64,7 @@ crm-contacts = { path = "../crm-contacts" }
 crm-items = { path = "../crm-items" }
 crm-leads = { path = "../crm-leads" }
 crm-deals = { path = "../crm-deals" }
+sabcrm-records = { path = "../sabcrm-records" }
 crm-quotations = { path = "../crm-quotations" }
 crm-invoices = { path = "../crm-invoices" }
 crm-sales-orders = { path = "../crm-sales-orders" }
@@ -351,6 +352,7 @@ sabsense-sites = { path = "../sabsense-sites" }
 sabshop-carts = { path = "../sabshop-carts" }
 sabshop-checkouts = { path = "../sabshop-checkouts" }
 sabshop-collections = { path = "../sabshop-collections" }
+sabshop-products = { path = "../sabshop-products" }
 sabshop-orders = { path = "../sabshop-orders" }
 sabshop-shipping-zones = { path = "../sabshop-shipping-zones" }
 sabshop-storefronts = { path = "../sabshop-storefronts" }
@@ -360,11 +362,6 @@ sabsign-audit = { path = "../sabsign-audit" }
 sabsign-envelopes = { path = "../sabsign-envelopes" }
 sabsign-fields = { path = "../sabsign-fields" }
 sabsign-templates = { path = "../sabsign-templates" }
-sabsprints-burndown = { path = "../sabsprints-burndown" }
-sabsprints-epics = { path = "../sabsprints-epics" }
-sabsprints-sprints = { path = "../sabsprints-sprints" }
-sabsprints-stories = { path = "../sabsprints-stories" }
-sabsprints-velocity = { path = "../sabsprints-velocity" }
 sabvoice-agents-presence = { path = "../sabvoice-agents-presence" }
 sabvoice-calls = { path = "../sabvoice-calls" }
 sabvoice-dids = { path = "../sabvoice-dids" }
@@ -374,16 +371,15 @@ sabvoice-voicemail = { path = "../sabvoice-voicemail" }
 
 # SabOps — endpoint / MDM / AD / patch management
 sabops-endpoints = { path = "../sabops-endpoints" }
-sabops-software-inventory = { path = "../sabops-software-inventory" }
-sabops-hardware-inventory = { path = "../sabops-hardware-inventory" }
+# sabops-hardware-inventory = { path = "../sabops-hardware-inventory" }
 sabops-patches = { path = "../sabops-patches" }
 sabops-patch-policies = { path = "../sabops-patch-policies" }
-sabops-mdm-profiles = { path = "../sabops-mdm-profiles" }
+# sabops-mdm-profiles = { path = "../sabops-mdm-profiles" }
 sabops-mdm-commands = { path = "../sabops-mdm-commands" }
 sabops-ad-domains = { path = "../sabops-ad-domains" }
 sabops-ad-users = { path = "../sabops-ad-users" }
 sabops-ad-groups = { path = "../sabops-ad-groups" }
-sabops-alerts = { path = "../sabops-alerts" }
+# sabops-alerts = { path = "../sabops-alerts" }
 sabops-agent-tokens = { path = "../sabops-agent-tokens" }
 
 
@@ -402,12 +398,48 @@ sabcatalyst-auth-sessions = { path = "../sabcatalyst-auth-sessions" }
 sabcatalyst-file-store = { path = "../sabcatalyst-file-store" }
 sabcatalyst-records = { path = "../sabcatalyst-records" }
 sabcatalyst-usage = { path = "../sabcatalyst-usage" }
+sabcheckout-ab-testing = { path = "../sabcheckout-ab-testing" }
+sabcheckout-abandoned = { path = "../sabcheckout-abandoned" }
+sabcheckout-affiliates = { path = "../sabcheckout-affiliates" }
+sabcheckout-analytics = { path = "../sabcheckout-analytics" }
+sabcheckout-api-keys = { path = "../sabcheckout-api-keys" }
+sabcheckout-coupons = { path = "../sabcheckout-coupons" }
+sabcheckout-custom-domains = { path = "../sabcheckout-custom-domains" }
+sabcheckout-customer-portal = { path = "../sabcheckout-customer-portal" }
 sabcheckout-customers = { path = "../sabcheckout-customers" }
+sabcheckout-digital-watermarking = { path = "../sabcheckout-digital-watermarking" }
+sabcheckout-disputes = { path = "../sabcheckout-disputes" }
+sabcheckout-dunning = { path = "../sabcheckout-dunning" }
+sabcheckout-fraud-prevention = { path = "../sabcheckout-fraud-prevention" }
+sabcheckout-fulfillment = { path = "../sabcheckout-fulfillment" }
+sabcheckout-gift-cards = { path = "../sabcheckout-gift-cards" }
+sabcheckout-integrations = { path = "../sabcheckout-integrations" }
+sabcheckout-inventory = { path = "../sabcheckout-inventory" }
 sabcheckout-invoices = { path = "../sabcheckout-invoices" }
+sabcheckout-license-keys = { path = "../sabcheckout-license-keys" }
+sabcheckout-links = { path = "../sabcheckout-links" }
+sabcheckout-loyalty = { path = "../sabcheckout-loyalty" }
+sabcheckout-metered-billing = { path = "../sabcheckout-metered-billing" }
+sabcheckout-multi-currency = { path = "../sabcheckout-multi-currency" }
+sabcheckout-order-bumps = { path = "../sabcheckout-order-bumps" }
 sabcheckout-pages = { path = "../sabcheckout-pages" }
+sabcheckout-payment-gateways = { path = "../sabcheckout-payment-gateways" }
+sabcheckout-payouts = { path = "../sabcheckout-payouts" }
 sabcheckout-plans = { path = "../sabcheckout-plans" }
+sabcheckout-preorders = { path = "../sabcheckout-preorders" }
+sabcheckout-products = { path = "../sabcheckout-products" }
+sabcheckout-reports-churn = { path = "../sabcheckout-reports-churn" }
+sabcheckout-reports-mrr = { path = "../sabcheckout-reports-mrr" }
+sabcheckout-reseller = { path = "../sabcheckout-reseller" }
 sabcheckout-sessions = { path = "../sabcheckout-sessions" }
+sabcheckout-settings = { path = "../sabcheckout-settings" }
+sabcheckout-store-credit = { path = "../sabcheckout-store-credit" }
 sabcheckout-subscriptions = { path = "../sabcheckout-subscriptions" }
+sabcheckout-tax-exemptions = { path = "../sabcheckout-tax-exemptions" }
+sabcheckout-taxes = { path = "../sabcheckout-taxes" }
+sabcheckout-tiered-pricing = { path = "../sabcheckout-tiered-pricing" }
+sabcheckout-upsells = { path = "../sabcheckout-upsells" }
+sabcheckout-webhooks = { path = "../sabcheckout-webhooks" }
 sabcliq-workspaces = { path = "../sabcliq-workspaces" }
 sabcreator-apps = { path = "../sabcreator-apps" }
 sabcreator-forms = { path = "../sabcreator-forms" }
@@ -474,12 +506,10 @@ sabtables-tables = { path = "../sabtables-tables" }
 sabtables-views = { path = "../sabtables-views" }
 sabtables-workspaces = { path = "../sabtables-workspaces" }
 sabvault-audit = { path = "../sabvault-audit" }
-sabvault-breach-alerts = { path = "../sabvault-breach-alerts" }
 sabvault-folders = { path = "../sabvault-folders" }
 sabvault-secrets = { path = "../sabvault-secrets" }
 sabvault-shares = { path = "../sabvault-shares" }
 sabwebinar-analytics = { path = "../sabwebinar-analytics" }
-sabwebinar-chat = { path = "../sabwebinar-chat" }
 sabwebinar-polls = { path = "../sabwebinar-polls" }
 sabwebinar-qna = { path = "../sabwebinar-qna" }
 sabwebinar-registrations = { path = "../sabwebinar-registrations" }
@@ -498,6 +528,19 @@ sabwriter-presence = { path = "../sabwriter-presence" }
 sabwriter-suggestions = { path = "../sabwriter-suggestions" }
 sabwriter-templates = { path = "../sabwriter-templates" }
 sabwriter-versions = { path = "../sabwriter-versions" }
+
+# sabdesk-tickets = { path = "../sabdesk-tickets" }
+sabdesk-automations = { path = "../sabdesk-automations" }
+sabdesk-kb = { path = "../sabdesk-kb" }
+sabsprints-sprints = { path = "../sabsprints-sprints" }
+sabsprints-epics = { path = "../sabsprints-epics" }
+sabsprints-velocity = { path = "../sabsprints-velocity" }
+
+
+
+sabops-mdm-profiles = { path = "../sabops-mdm-profiles" }
+sabops-hardware-inventory = { path = "../sabops-hardware-inventory" }
+sabops-alerts = { path = "../sabops-alerts" }
 
 [lints]
 workspace = true

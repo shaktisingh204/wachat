@@ -84,19 +84,21 @@ pub fn build(state: AppState) -> Router {
     let sabshop_carts_r = sabshop_carts::router::<AppState>();
     let sabshop_checkouts_r = sabshop_checkouts::router::<AppState>();
     let sabshop_collections_r = sabshop_collections::router::<AppState>();
+    let sabshop_products_r = sabshop_products::router::<AppState>();
     let sabshop_orders_r = sabshop_orders::router::<AppState>();
     let sabshop_shipping_zones_r = sabshop_shipping_zones::router::<AppState>();
     let sabshop_storefronts_r = sabshop_storefronts::router::<AppState>();
     let sabshop_tax_rules_r = sabshop_tax_rules::router::<AppState>();
     let sabshop_themes_r = sabshop_themes::router::<AppState>();
+    //     let sabshop_analytics_r = sabshop_analytics::router::<AppState>();
     let sabsign_audit_r = sabsign_audit::router::<AppState>();
     let sabsign_envelopes_r = sabsign_envelopes::router::<AppState>();
     let sabsign_fields_r = sabsign_fields::router::<AppState>();
     let sabsign_templates_r = sabsign_templates::router::<AppState>();
-    let sabsprints_burndown_r = sabsprints_burndown::router::<AppState>();
+    //     let sabsprints_burndown_r = sabsprints_burndown::router::<AppState>();
     let sabsprints_epics_r = sabsprints_epics::router::<AppState>();
     let sabsprints_sprints_r = sabsprints_sprints::router::<AppState>();
-    let sabsprints_stories_r = sabsprints_stories::router::<AppState>();
+    //     let sabsprints_stories_r = sabsprints_stories::router::<AppState>();
     let sabsprints_velocity_r = sabsprints_velocity::router::<AppState>();
     let sabvoice_agents_presence_r = sabvoice_agents_presence::router::<AppState>();
     let sabvoice_calls_r = sabvoice_calls::router::<AppState>();
@@ -113,18 +115,17 @@ pub fn build(state: AppState) -> Router {
 
     // SabOps — IT operations suite (endpoints / MDM / AD / patches)
     let sabops_endpoints_r = sabops_endpoints::router::<AppState>();
-    let sabops_software_r = sabops_software_inventory::router::<AppState>();
-    let sabops_hardware_r = sabops_hardware_inventory::router::<AppState>();
+    //     let sabops_software_r = sabops_software_inventory::router::<AppState>();
+    // let sabops_hardware_inventory_r = sabops_hardware_inventory::router::<AppState>();
     let sabops_patches_r = sabops_patches::router::<AppState>();
     let sabops_patch_policies_r = sabops_patch_policies::router::<AppState>();
-    let sabops_mdm_profiles_r = sabops_mdm_profiles::router::<AppState>();
+    // let sabops_mdm_profiles_r = sabops_mdm_profiles::router::<AppState>();
     let sabops_mdm_commands_r = sabops_mdm_commands::router::<AppState>();
     let sabops_ad_domains_r = sabops_ad_domains::router::<AppState>();
     let sabops_ad_users_r = sabops_ad_users::router::<AppState>();
     let sabops_ad_groups_r = sabops_ad_groups::router::<AppState>();
-    let sabops_alerts_r = sabops_alerts::router::<AppState>();
+    // let sabops_alerts_r = sabops_alerts::router::<AppState>();
     let sabops_agent_tokens_r = sabops_agent_tokens::router::<AppState>();
-
 
     // ─── §17 newly wired sab-* module routers ───────────────────────
     let sabassist_access_tokens_r = sabassist_access_tokens::router::<AppState>();
@@ -145,6 +146,45 @@ pub fn build(state: AppState) -> Router {
     let sabcheckout_invoices_r = sabcheckout_invoices::router::<AppState>();
     let sabcheckout_pages_r = sabcheckout_pages::router::<AppState>();
     let sabcheckout_plans_r = sabcheckout_plans::router::<AppState>();
+    let sabcheckout_products_r = sabcheckout_products::router::<AppState>();
+    let sabcheckout_coupons_r = sabcheckout_coupons::router::<AppState>();
+    let sabcheckout_taxes_r = sabcheckout_taxes::router::<AppState>();
+    let sabcheckout_links_r = sabcheckout_links::router::<AppState>();
+    let sabcheckout_custom_domains_r = sabcheckout_custom_domains::router::<AppState>();
+    let sabcheckout_abandoned_r = sabcheckout_abandoned::router::<AppState>();
+    let sabcheckout_analytics_r = sabcheckout_analytics::router::<AppState>();
+    let sabcheckout_reports_mrr_r = sabcheckout_reports_mrr::router::<AppState>();
+    let sabcheckout_reports_churn_r = sabcheckout_reports_churn::router::<AppState>();
+    let sabcheckout_webhooks_r = sabcheckout_webhooks::router::<AppState>();
+    let sabcheckout_api_keys_r = sabcheckout_api_keys::router::<AppState>();
+    let sabcheckout_integrations_r = sabcheckout_integrations::router::<AppState>();
+    let sabcheckout_settings_r = sabcheckout_settings::router::<AppState>();
+    let sabcheckout_upsells_r = sabcheckout_upsells::router::<AppState>();
+    let sabcheckout_order_bumps_r = sabcheckout_order_bumps::router::<AppState>();
+    let sabcheckout_ab_testing_r = sabcheckout_ab_testing::router::<AppState>();
+    let sabcheckout_affiliates_r = sabcheckout_affiliates::router::<AppState>();
+    let sabcheckout_gift_cards_r = sabcheckout_gift_cards::router::<AppState>();
+    let sabcheckout_store_credit_r = sabcheckout_store_credit::router::<AppState>();
+    let sabcheckout_loyalty_r = sabcheckout_loyalty::router::<AppState>();
+    let sabcheckout_multi_currency_r = sabcheckout_multi_currency::router::<AppState>();
+    let sabcheckout_dunning_r = sabcheckout_dunning::router::<AppState>();
+    let sabcheckout_fraud_prevention_r = sabcheckout_fraud_prevention::router::<AppState>();
+    let sabcheckout_tax_exemptions_r = sabcheckout_tax_exemptions::router::<AppState>();
+    let sabcheckout_metered_billing_r = sabcheckout_metered_billing::router::<AppState>();
+    let sabcheckout_tiered_pricing_r = sabcheckout_tiered_pricing::router::<AppState>();
+    let sabcheckout_license_keys_r = sabcheckout_license_keys::router::<AppState>();
+    let sabcheckout_digital_watermarking_r = sabcheckout_digital_watermarking::router::<AppState>();
+    let sabcheckout_preorders_r = sabcheckout_preorders::router::<AppState>();
+    let sabcheckout_fulfillment_r = sabcheckout_fulfillment::router::<AppState>();
+    let sabcheckout_inventory_r = sabcheckout_inventory::router::<AppState>();
+    let sabcheckout_customer_portal_r = sabcheckout_customer_portal::router::<AppState>();
+    let sabcheckout_reseller_r = sabcheckout_reseller::router::<AppState>();
+    let sabcheckout_payouts_r = sabcheckout_payouts::router::<AppState>();
+    let sabcheckout_payment_gateways_r = sabcheckout_payment_gateways::router::<AppState>();
+    let sabcheckout_disputes_r = sabcheckout_disputes::router::<AppState>();
+    let sabvault_secrets_r = sabvault_secrets::router::<AppState>();
+    let sabvault_shares_r = sabvault_shares::router::<AppState>();
+    //     let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
     let sabcheckout_sessions_r = sabcheckout_sessions::router::<AppState>();
     let sabcheckout_subscriptions_r = sabcheckout_subscriptions::router::<AppState>();
     let sabcliq_workspaces_r = sabcliq_workspaces::router::<AppState>();
@@ -213,12 +253,12 @@ pub fn build(state: AppState) -> Router {
     let sabtables_views_r = sabtables_views::router::<AppState>();
     let sabtables_workspaces_r = sabtables_workspaces::router::<AppState>();
     let sabvault_audit_r = sabvault_audit::router::<AppState>();
-    let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
+    //     let sabvault_breach_alerts_r = sabvault_breach_alerts::router::<AppState>();
     let sabvault_folders_r = sabvault_folders::router::<AppState>();
     let sabvault_secrets_r = sabvault_secrets::router::<AppState>();
     let sabvault_shares_r = sabvault_shares::router::<AppState>();
     let sabwebinar_analytics_r = sabwebinar_analytics::router::<AppState>();
-    let sabwebinar_chat_r = sabwebinar_chat::router::<AppState>();
+    //     let sabwebinar_chat_r = sabwebinar_chat::router::<AppState>();
     let sabwebinar_polls_r = sabwebinar_polls::router::<AppState>();
     let sabwebinar_qna_r = sabwebinar_qna::router::<AppState>();
     let sabwebinar_registrations_r = sabwebinar_registrations::router::<AppState>();
@@ -237,6 +277,13 @@ pub fn build(state: AppState) -> Router {
     let sabwriter_suggestions_r = sabwriter_suggestions::router::<AppState>();
     let sabwriter_templates_r = sabwriter_templates::router::<AppState>();
     let sabwriter_versions_r = sabwriter_versions::router::<AppState>();
+
+    //     let sabdesk_tickets_r = sabdesk_tickets::router::<AppState>();
+    let sabsprints_epics_r = sabsprints_epics::router::<AppState>();
+    let sabsprints_sprints_r = sabsprints_sprints::router::<AppState>();
+    let sabsprints_velocity_r = sabsprints_velocity::router::<AppState>();
+    let sabdesk_automations_r = sabdesk_automations::router::<AppState>();
+    let sabdesk_kb_r = sabdesk_kb::router::<AppState>();
 
     let wachat_templates = wachat_templates_router::router::<AppState>();
     let wachat_templates_actions = wachat_templates_actions::router::<AppState>();
@@ -266,6 +313,7 @@ pub fn build(state: AppState) -> Router {
     let crm_items = crm_items::router::<AppState>();
     let crm_leads = crm_leads::router::<AppState>();
     let crm_deals = crm_deals::router::<AppState>();
+    let sabcrm_records = sabcrm_records::router::<AppState>();
     let crm_quotations = crm_quotations::router::<AppState>();
     let crm_invoices = crm_invoices::router::<AppState>();
     let crm_sales_orders = crm_sales_orders::router::<AppState>();
@@ -457,7 +505,7 @@ pub fn build(state: AppState) -> Router {
     let sabchat_commerce_webhook_r = sabchat_commerce::webhook_router::<AppState>();
     let sabchat_reports_r = sabchat_reports::router::<AppState>();
     let sabchat_teams_r = sabchat_teams::router::<AppState>();
-    
+
     let sabchat_webhooks_r = sabchat_webhooks::router::<AppState>();
     let sabchat_public_api_r = sabchat_public_api::router::<AppState>();
     let sabchat_events_r = sabchat_events::router::<AppState>();
@@ -519,6 +567,7 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/crm/items", crm_items)
         .nest("/v1/crm/leads", crm_leads)
         .nest("/v1/crm/deals", crm_deals)
+        .nest("/v1/sabcrm/records", sabcrm_records)
         .nest("/v1/crm/quotations", crm_quotations)
         .nest("/v1/crm/invoices", crm_invoices)
         .nest("/v1/crm/sales-orders", crm_sales_orders)
@@ -667,14 +716,19 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/flows", telegram_flows_router)
         .nest("/v1/telegram/mini-apps", telegram_mini_apps_router)
         .nest("/v1/telegram/ads", telegram_ads_router)
-        .nest("/v1/telegram/api-credentials", telegram_api_credentials_router)
-        .nest("/v1/telegram/business-inbox", telegram_business_inbox_router)
+        .nest(
+            "/v1/telegram/api-credentials",
+            telegram_api_credentials_router,
+        )
+        .nest(
+            "/v1/telegram/business-inbox",
+            telegram_business_inbox_router,
+        )
         .nest("/v1/telegram/contacts", telegram_contacts_router)
         .nest("/v1/telegram/settings", telegram_settings_router)
         .nest("/v1/telegram/webhooks", telegram_webhooks_router)
         .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
-        .nest("/v1/sabflow", sabflow_engine_runtime::router::<AppState>())
-        .nest("/v1/email/audience", email_audience)
+        .nest("/v1/sabcrm/pipelines", sabcrm_pipelines::router::<AppState>())
         .nest("/v1/email/templates", email_templates)
         .nest("/v1/email/inbox", email_inbox)
         .nest("/v1/email/inbound", email_inbound)
@@ -694,7 +748,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabchat/widget", sabchat_widget_r)
         .nest("/v1/sabchat/ws", sabchat_ws_r)
         .nest("/v1/sabchat/channels/whatsapp", sabchat_channel_whatsapp_r)
-        .nest("/v1/sabchat/channels/instagram", sabchat_channel_instagram_r)
+        .nest(
+            "/v1/sabchat/channels/instagram",
+            sabchat_channel_instagram_r,
+        )
         .nest("/v1/sabchat/channels/facebook", sabchat_channel_facebook_r)
         .nest("/v1/sabchat/channels/telegram", sabchat_channel_telegram_r)
         .nest("/v1/sabchat/channels/email", sabchat_channel_email_r)
@@ -731,9 +788,15 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabchat/ai-voc", sabchat_ai_voc_r)
         .nest("/v1/sabchat/sabflow-nodes", sabchat_sabflow_nodes_r)
         .nest("/v1/sabchat/cart-recovery", sabchat_cart_recovery_r)
-        .nest("/v1/sabchat/cart-recovery-public", sabchat_cart_recovery_public_r)
+        .nest(
+            "/v1/sabchat/cart-recovery-public",
+            sabchat_cart_recovery_public_r,
+        )
         .nest("/v1/sabchat/ad-attribution", sabchat_ad_attribution_r)
-        .nest("/v1/sabchat/ad-attribution-public", sabchat_ad_attribution_public_r)
+        .nest(
+            "/v1/sabchat/ad-attribution-public",
+            sabchat_ad_attribution_public_r,
+        )
         .nest("/v1/sabchat/channels/line", sabchat_channel_line_r)
         .nest("/v1/sabchat/channels/viber", sabchat_channel_viber_r)
         .nest("/v1/sabchat/channels/apple", sabchat_channel_apple_r)
@@ -743,7 +806,7 @@ pub fn build(state: AppState) -> Router {
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
         // (SabflowWebhooksState) is not yet wired into AppState — public
         // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].
-                .nest("/v1/sabbi/charts", sabbi_charts_r)
+        .nest("/v1/sabbi/charts", sabbi_charts_r)
         .nest("/v1/sabbi/dataset-joins", sabbi_dataset_joins_r)
         .nest("/v1/sabbi/datasets", sabbi_datasets_r)
         .nest("/v1/sabbi/schedules", sabbi_schedules_r)
@@ -784,19 +847,21 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabshop/carts", sabshop_carts_r)
         .nest("/v1/sabshop/checkouts", sabshop_checkouts_r)
         .nest("/v1/sabshop/collections", sabshop_collections_r)
+        .nest("/v1/sabshop/products", sabshop_products_r)
         .nest("/v1/sabshop/orders", sabshop_orders_r)
         .nest("/v1/sabshop/shipping-zones", sabshop_shipping_zones_r)
         .nest("/v1/sabshop/storefronts", sabshop_storefronts_r)
         .nest("/v1/sabshop/tax-rules", sabshop_tax_rules_r)
         .nest("/v1/sabshop/themes", sabshop_themes_r)
+        //         .nest("/v1/sabshop/analytics", sabshop_analytics_r)
         .nest("/v1/sabsign/audit", sabsign_audit_r)
         .nest("/v1/sabsign/envelopes", sabsign_envelopes_r)
         .nest("/v1/sabsign/fields", sabsign_fields_r)
         .nest("/v1/sabsign/templates", sabsign_templates_r)
-        .nest("/v1/agile/burndown", sabsprints_burndown_r)
+        //         .nest("/v1/agile/burndown", sabsprints_burndown_r)
         .nest("/v1/sabsprints/epics", sabsprints_epics_r)
         .nest("/v1/sabsprints/sprints", sabsprints_sprints_r)
-        .nest("/v1/sabsprints/stories", sabsprints_stories_r)
+        //         .nest("/v1/sabsprints/stories", sabsprints_stories_r)
         .nest("/v1/agile/velocity", sabsprints_velocity_r)
         .nest("/v1/sabvoice/agents-presence", sabvoice_agents_presence_r)
         .nest("/v1/sabvoice/calls", sabvoice_calls_r)
@@ -804,24 +869,23 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabvoice/ivrs", sabvoice_ivrs_r)
         .nest("/v1/sabvoice/queues", sabvoice_queues_r)
         .nest("/v1/sabvoice/voicemail", sabvoice_voicemail_r)
-                .nest("/v1/sabbi/embeds", sabbi_embeds_r)
+        .nest("/v1/sabbi/embeds", sabbi_embeds_r)
         .nest("/v1/sabprep/profiles", sabprep_profiles_r)
         .nest("/v1/sabprep/runs", sabprep_runs_r)
         .nest("/v1/sabrequests/orgcharts", sabrequests_orgcharts_r)
         .nest("/v1/sabrequests/stage-actions", sabrequests_stage_actions_r)
         .nest("/v1/sabops/endpoints", sabops_endpoints_r)
-        .nest("/v1/sabops/software", sabops_software_r)
-        .nest("/v1/sabops/hardware", sabops_hardware_r)
+        // .nest("/v1/sabops/software", sabops_software_r)
+        // .nest("/v1/sabops/hardware-inventory", sabops_hardware_inventory_r)
         .nest("/v1/sabops/patches", sabops_patches_r)
         .nest("/v1/sabops/patch-policies", sabops_patch_policies_r)
-        .nest("/v1/sabops/mdm/profiles", sabops_mdm_profiles_r)
-        .nest("/v1/sabops/mdm/commands", sabops_mdm_commands_r)
-        .nest("/v1/sabops/ad/domains", sabops_ad_domains_r)
-        .nest("/v1/sabops/ad/users", sabops_ad_users_r)
-        .nest("/v1/sabops/ad/groups", sabops_ad_groups_r)
-        .nest("/v1/sabops/alerts", sabops_alerts_r)
+        // .nest("/v1/sabops/mdm-profiles", sabops_mdm_profiles_r)
+        .nest("/v1/sabops/mdm-commands", sabops_mdm_commands_r)
+        .nest("/v1/sabops/ad-domains", sabops_ad_domains_r)
+        .nest("/v1/sabops/ad-users", sabops_ad_users_r)
+        .nest("/v1/sabops/ad-groups", sabops_ad_groups_r)
+        // .nest("/v1/sabops/alerts", sabops_alerts_r)
         .nest("/v1/sabops/agent-tokens", sabops_agent_tokens_r)
-
         // ─── §17 newly wired sab-* module routers ───────────────────────
         .nest("/v1/sabassist/access-tokens", sabassist_access_tokens_r)
         .nest("/v1/sabassist/actions-log", sabassist_actions_log_r)
@@ -841,6 +905,72 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcheckout/invoices", sabcheckout_invoices_r)
         .nest("/v1/sabcheckout/pages", sabcheckout_pages_r)
         .nest("/v1/sabcheckout/plans", sabcheckout_plans_r)
+        .nest("/v1/sabcheckout/products", sabcheckout_products_r)
+        .nest("/v1/sabcheckout/coupons", sabcheckout_coupons_r)
+        .nest("/v1/sabcheckout/taxes", sabcheckout_taxes_r)
+        .nest("/v1/sabcheckout/links", sabcheckout_links_r)
+        .nest(
+            "/v1/sabcheckout/custom-domains",
+            sabcheckout_custom_domains_r,
+        )
+        .nest("/v1/sabcheckout/abandoned", sabcheckout_abandoned_r)
+        .nest("/v1/sabcheckout/analytics", sabcheckout_analytics_r)
+        .nest("/v1/sabcheckout/reports/mrr", sabcheckout_reports_mrr_r)
+        .nest("/v1/sabcheckout/reports/churn", sabcheckout_reports_churn_r)
+        .nest("/v1/sabcheckout/webhooks", sabcheckout_webhooks_r)
+        .nest("/v1/sabcheckout/api-keys", sabcheckout_api_keys_r)
+        .nest("/v1/sabcheckout/integrations", sabcheckout_integrations_r)
+        .nest("/v1/sabcheckout/settings", sabcheckout_settings_r)
+        .nest("/v1/sabcheckout/upsells", sabcheckout_upsells_r)
+        .nest("/v1/sabcheckout/order-bumps", sabcheckout_order_bumps_r)
+        .nest("/v1/sabcheckout/ab-testing", sabcheckout_ab_testing_r)
+        .nest("/v1/sabcheckout/affiliates", sabcheckout_affiliates_r)
+        .nest("/v1/sabcheckout/gift-cards", sabcheckout_gift_cards_r)
+        .nest("/v1/sabcheckout/store-credit", sabcheckout_store_credit_r)
+        .nest("/v1/sabcheckout/loyalty", sabcheckout_loyalty_r)
+        .nest(
+            "/v1/sabcheckout/multi-currency",
+            sabcheckout_multi_currency_r,
+        )
+        .nest("/v1/sabcheckout/dunning", sabcheckout_dunning_r)
+        .nest(
+            "/v1/sabcheckout/fraud-prevention",
+            sabcheckout_fraud_prevention_r,
+        )
+        .nest(
+            "/v1/sabcheckout/tax-exemptions",
+            sabcheckout_tax_exemptions_r,
+        )
+        .nest(
+            "/v1/sabcheckout/metered-billing",
+            sabcheckout_metered_billing_r,
+        )
+        .nest(
+            "/v1/sabcheckout/tiered-pricing",
+            sabcheckout_tiered_pricing_r,
+        )
+        .nest("/v1/sabcheckout/license-keys", sabcheckout_license_keys_r)
+        .nest(
+            "/v1/sabcheckout/digital-watermarking",
+            sabcheckout_digital_watermarking_r,
+        )
+        .nest("/v1/sabcheckout/preorders", sabcheckout_preorders_r)
+        .nest("/v1/sabcheckout/fulfillment", sabcheckout_fulfillment_r)
+        .nest("/v1/sabcheckout/inventory", sabcheckout_inventory_r)
+        .nest(
+            "/v1/sabcheckout/customer-portal",
+            sabcheckout_customer_portal_r,
+        )
+        .nest("/v1/sabcheckout/reseller", sabcheckout_reseller_r)
+        .nest("/v1/sabcheckout/payouts", sabcheckout_payouts_r)
+        .nest(
+            "/v1/sabcheckout/payment-gateways",
+            sabcheckout_payment_gateways_r,
+        )
+        .nest("/v1/sabcheckout/disputes", sabcheckout_disputes_r)
+        .nest("/v1/sabvault/secrets", sabvault_secrets_r)
+        .nest("/v1/sabvault/shares", sabvault_shares_r)
+        //         .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
         .nest("/v1/sabcheckout/sessions", sabcheckout_sessions_r)
         .nest("/v1/sabcheckout/subscriptions", sabcheckout_subscriptions_r)
         .nest("/v1/sabcliq/workspaces", sabcliq_workspaces_r)
@@ -848,7 +978,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabcreator/forms", sabcreator_forms_r)
         .nest("/v1/sabcreator/pages", sabcreator_pages_r)
         .nest("/v1/sabcreator/publishing", sabcreator_publishing_r)
-        .nest("/v1/sabcreator/role-assignments", sabcreator_role_assignments_r)
+        .nest(
+            "/v1/sabcreator/role-assignments",
+            sabcreator_role_assignments_r,
+        )
         .nest("/v1/sabcreator/roles", sabcreator_roles_r)
         .nest("/v1/sabcreator/workflows", sabcreator_workflows_r)
         .nest("/v1/sablens/actions-log", sablens_actions_log_r)
@@ -864,24 +997,39 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabmail/messages", sabmail_messages_r)
         .nest("/v1/sabmail/rules", sabmail_rules_r)
         .nest("/v1/sabmonitor/alert-policies", sabmonitor_alert_policies_r)
-        .nest("/v1/sabmonitor/api-transactions", sabmonitor_api_transactions_r)
+        .nest(
+            "/v1/sabmonitor/api-transactions",
+            sabmonitor_api_transactions_r,
+        )
         .nest("/v1/sabmonitor/check-runs", sabmonitor_check_runs_r)
         .nest("/v1/sabmonitor/checks", sabmonitor_checks_r)
         .nest("/v1/sabmonitor/incidents", sabmonitor_incidents_r)
         .nest("/v1/sabmonitor/probes", sabmonitor_probes_r)
-        .nest("/v1/sabmonitor/status-page-incidents", sabmonitor_status_page_incidents_r)
+        .nest(
+            "/v1/sabmonitor/status-page-incidents",
+            sabmonitor_status_page_incidents_r,
+        )
         .nest("/v1/sabmonitor/status-pages", sabmonitor_status_pages_r)
-        .nest("/v1/sabmonitor/synthetic-scripts", sabmonitor_synthetic_scripts_r)
+        .nest(
+            "/v1/sabmonitor/synthetic-scripts",
+            sabmonitor_synthetic_scripts_r,
+        )
         .nest("/v1/sabmonitor/trace-spans", sabmonitor_trace_spans_r)
         .nest("/v1/sabmonitor/traces", sabmonitor_traces_r)
         .nest("/v1/sabnotebook/attachments", sabnotebook_attachments_r)
         .nest("/v1/sabnotebook/notebooks", sabnotebook_notebooks_r)
         .nest("/v1/sabnotebook/notes", sabnotebook_notes_r)
         .nest("/v1/sabnotebook/sections", sabnotebook_sections_r)
-        .nest("/v1/sabpractice/advisory-notes", sabpractice_advisory_notes_r)
+        .nest(
+            "/v1/sabpractice/advisory-notes",
+            sabpractice_advisory_notes_r,
+        )
         .nest("/v1/sabpractice/clients", sabpractice_clients_r)
         .nest("/v1/sabpractice/deadlines", sabpractice_deadlines_r)
-        .nest("/v1/sabpractice/document-requests", sabpractice_document_requests_r)
+        .nest(
+            "/v1/sabpractice/document-requests",
+            sabpractice_document_requests_r,
+        )
         .nest("/v1/sabpractice/engagements", sabpractice_engagements_r)
         .nest("/v1/sabpractice/firms", sabpractice_firms_r)
         .nest("/v1/sabpractice/tasks", sabpractice_tasks_r)
@@ -909,12 +1057,10 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabtables/views", sabtables_views_r)
         .nest("/v1/sabtables/workspaces", sabtables_workspaces_r)
         .nest("/v1/sabvault/audit", sabvault_audit_r)
-        .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
+        //         .nest("/v1/sabvault/breach-alerts", sabvault_breach_alerts_r)
         .nest("/v1/sabvault/folders", sabvault_folders_r)
-        .nest("/v1/sabvault/secrets", sabvault_secrets_r)
-        .nest("/v1/sabvault/shares", sabvault_shares_r)
         .nest("/v1/sabwebinar/analytics", sabwebinar_analytics_r)
-        .nest("/v1/sabwebinar/chat", sabwebinar_chat_r)
+        //         .nest("/v1/sabwebinar/chat", sabwebinar_chat_r)
         .nest("/v1/sabwebinar/polls", sabwebinar_polls_r)
         .nest("/v1/sabwebinar/qna", sabwebinar_qna_r)
         .nest("/v1/sabwebinar/registrations", sabwebinar_registrations_r)
@@ -933,6 +1079,9 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/sabwriter/suggestions", sabwriter_suggestions_r)
         .nest("/v1/sabwriter/templates", sabwriter_templates_r)
         .nest("/v1/sabwriter/versions", sabwriter_versions_r)
+        //         .nest("/v1/sabdesk/tickets", sabdesk_tickets_r)
+        .nest("/v1/sabdesk/automations", sabdesk_automations_r)
+        .nest("/v1/sabdesk/kb", sabdesk_kb_r)
         .nest("/v1/admin", admin_router)
         .nest("/v1", v1)
         .with_state(state)
