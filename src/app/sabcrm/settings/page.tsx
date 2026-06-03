@@ -28,6 +28,8 @@ import {
   Network,
   Filter,
   HelpCircle,
+  Boxes,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -222,6 +224,12 @@ const GROUPS: readonly SettingsGroup[] = [
         description: 'Serverless functions and code hooks',
         icon: Braces,
       },
+      {
+        slug: 'applications',
+        label: 'Applications',
+        description: 'Installed apps and integrations',
+        icon: Boxes,
+      },
     ],
   },
   {
@@ -260,6 +268,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Lab',
         description: 'Experimental and beta features',
         icon: Beaker,
+      },
+      {
+        slug: 'admin',
+        label: 'Admin Panel',
+        description: 'Workspace administration and system controls',
+        icon: ShieldAlert,
       },
     ],
   },

@@ -1,0 +1,190 @@
+/* =========================================================================
+   SabCRM Settings → Applications (apps & integrations marketplace)
+   -------------------------------------------------------------------------
+   Supplemental Twenty-style (`.st-*`) classes for the Applications settings
+   page — a marketplace card grid plus a localStorage-backed "installed" list.
+   Companion to `sabcrm-twenty.css` and `../settings-twenty.css`; only the
+   bits this page needs that aren't already in the shared `.st-*` vocabulary
+   live here.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   Tailwind / clay — Twenty look only.
+   ========================================================================= */
+
+/* ---- Section scaffolding ---------------------------------------------- */
+
+.sabcrm-twenty .st-apps-section {
+  margin-top: var(--st-space-6, 24px);
+}
+
+.sabcrm-twenty .st-apps-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-apps-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size, 13px);
+  font-weight: var(--st-fw-semibold, 600);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-apps-section__title-icon {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-apps-section__desc {
+  margin: 0 0 var(--st-space-3);
+  font-size: var(--st-font-size-sm, 12px);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+  max-width: 64ch;
+}
+
+/* ---- Marketplace card grid -------------------------------------------- */
+
+.sabcrm-twenty .st-apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--st-space-3, 12px);
+}
+
+.sabcrm-twenty .st-app-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4, 16px);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius, 8px);
+  background: var(--st-bg-secondary, var(--st-bg));
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.sabcrm-twenty .st-app-card:hover {
+  border-color: var(--st-border-strong, var(--st-border));
+  box-shadow: var(--st-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.06));
+}
+
+.sabcrm-twenty .st-app-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-app-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--st-radius-sm, 6px);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-app-card__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-app-card__name {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size, 13px);
+  font-weight: var(--st-fw-semibold, 600);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-app-card__desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm, 12px);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-app-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-top: auto;
+}
+
+/* Availability chip variants (reuse the base .st-chip shape) */
+.sabcrm-twenty .st-chip--available {
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-chip--available .st-chip__dot {
+  background: var(--st-green, #3f9d58);
+}
+
+.sabcrm-twenty .st-chip--soon .st-chip__dot {
+  background: var(--st-text-tertiary, #9aa0a6);
+}
+
+/* ---- Installed list rows ---------------------------------------------- */
+
+.sabcrm-twenty .st-installed-add {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-installed-add .st-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-installed__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sabcrm-twenty .st-installed__name {
+  font-size: var(--st-font-size, 13px);
+  font-weight: var(--st-fw-medium, 500);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-installed__time {
+  font-size: var(--st-font-size-xs, 11px);
+  color: var(--st-text-tertiary);
+}
+
+/* ---- Honest informational callout (shared shape with invites) --------- */
+
+.sabcrm-twenty .st-apps-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3, 12px);
+  margin-bottom: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm, 6px);
+  background: var(--st-bg-secondary, var(--st-bg));
+  font-size: var(--st-font-size-sm, 12px);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-apps-callout__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}

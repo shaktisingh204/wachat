@@ -26,6 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Filter,
   ArrowUpDown,
@@ -41,6 +42,7 @@ import {
   CalendarDays,
   Zap,
   Bookmark,
+  Link2,
 } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
@@ -56,6 +58,7 @@ import './view-bar.css';
 import './advanced-filter.css';
 import './table-extras.css';
 import './saved-search.css';
+import './view-url.css';
 
 // ---------------------------------------------------------------------------
 // Public query-state contract (shared with the page)
@@ -282,6 +285,142 @@ function savedViewToState(view: SabcrmRustView): ViewState {
     sortBy: view.sortBy ?? null,
     sortDir: view.sortDir ?? 'asc',
     groupBy: view.groupByField ?? null,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// URL view-state codec (Twenty-style shareable URLs)
+// ---------------------------------------------------------------------------
+//
+// The view bar mirrors the dimensions it owns into the page query string so a
+// filtered/sorted/grouped view is shareable and survives back/forward:
+//
+//   ?sort=<field>:<asc|desc>     – active sort (omitted when no sort)
+//   &group=<fieldKey>            – group/board field (omitted when flat)
+//   &filters=<uri-encoded JSON>  – the engine-shaped filter tree (omitted when empty)
+//   &vk=board                    – view kind, only when not the default `table`
+//   &view=<savedViewId>          – active saved-view tab (omitted for "All")
+//
+// A free-text search (`q`) is owned by the page, not the view bar, so it is
+// never written here — but it is read on mount and left untouched on every
+// rewrite, so the two coexist in one shareable URL.
+
+/** Param keys the view bar owns; any other key (e.g. `q`) is preserved as-is. */
+const URL_KEYS = {
+  sort: 'sort',
+  group: 'group',
+  filters: 'filters',
+  viewKind: 'vk',
+  view: 'view',
+} as const;
+
+/** State the view bar mirrors into the URL (ViewState + view-kind + saved view). */
+interface UrlViewState {
+  state: ViewState;
+  viewKind: 'table' | 'board';
+  viewId: string | null;
+}
+
+/** Encode a ViewState's filter tree into a compact URI-safe string, or `''`. */
+function encodeFilters(filters: FilterGroup): string {
+  if (countConditions(filters) === 0) return '';
+  try {
+    return encodeURIComponent(JSON.stringify(viewStateToEngineFilters({
+      filters,
+      sortBy: null,
+      sortDir: 'asc',
+      groupBy: null,
+    })));
+  } catch {
+    return '';
+  }
+}
+
+/** Decode a URI-encoded engine-filter JSON back into an editable FilterGroup. */
+function decodeFilters(raw: string | null): FilterGroup | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(decodeURIComponent(raw));
+    const group = engineFiltersToGroup(parsed);
+    return countConditions(group) > 0 ? group : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build the params for the view bar's owned keys, layered onto whatever is
+ * already in the live query string (so `q` and any unknown params survive).
+ * Returns a fresh `URLSearchParams`.
+ */
+function buildUrlParams(
+  base: URLSearchParams,
+  { state, viewKind, viewId }: UrlViewState,
+): URLSearchParams {
+  const next = new URLSearchParams(base);
+
+  // Clear the keys we own, then re-set the active ones.
+  for (const key of Object.values(URL_KEYS)) next.delete(key);
+
+  if (state.sortBy) {
+    next.set(URL_KEYS.sort, `${state.sortBy}:${state.sortDir}`);
+  }
+  if (state.groupBy) {
+    next.set(URL_KEYS.group, state.groupBy);
+  }
+  const f = encodeFilters(state.filters);
+  if (f) next.set(URL_KEYS.filters, f);
+
+  // Only `board` is worth encoding; `table` is the implicit default.
+  if (viewKind === 'board') next.set(URL_KEYS.viewKind, 'board');
+
+  if (viewId) next.set(URL_KEYS.view, viewId);
+
+  return next;
+}
+
+/** Stable, order-independent signature of the params we own (dirty-check). */
+function ownedSignature(params: URLSearchParams): string {
+  return (Object.values(URL_KEYS) as string[])
+    .map((k) => `${k}=${params.get(k) ?? ''}`)
+    .join('&');
+}
+
+/**
+ * Read the view-bar dimensions out of a query string. Returns `null` for any
+ * dimension absent from the URL so callers can apply only what's present.
+ */
+function decodeUrlState(params: URLSearchParams): {
+  filters: FilterGroup | null;
+  sortBy: string | null;
+  sortDir: 'asc' | 'desc' | null;
+  groupBy: string | null;
+  viewKind: 'table' | 'board' | null;
+  viewId: string | null;
+} {
+  const sortRaw = params.get(URL_KEYS.sort);
+  let sortBy: string | null = null;
+  let sortDir: 'asc' | 'desc' | null = null;
+  if (sortRaw) {
+    const sep = sortRaw.lastIndexOf(':');
+    if (sep > 0) {
+      sortBy = sortRaw.slice(0, sep);
+      sortDir = sortRaw.slice(sep + 1) === 'desc' ? 'desc' : 'asc';
+    } else {
+      sortBy = sortRaw;
+      sortDir = 'asc';
+    }
+  }
+
+  const vk = params.get(URL_KEYS.viewKind);
+
+  return {
+    filters: decodeFilters(params.get(URL_KEYS.filters)),
+    sortBy,
+    sortDir,
+    groupBy: params.get(URL_KEYS.group) || null,
+    viewKind: vk === 'board' ? 'board' : vk === 'table' ? 'table' : null,
+    viewId: params.get(URL_KEYS.view) || null,
   };
 }
 
@@ -1265,6 +1404,12 @@ export function SabcrmViewBar({
     return m;
   }, [object]);
 
+  // ---- URL view-state sync (shareable / back-forward) -------------------
+  // `useSearchParams` is null during the static-export pass and SSR before
+  // hydration, so every read is guarded.
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   // ---- Saved views ------------------------------------------------------
   const [views, setViews] = React.useState<SabcrmRustView[]>([]);
   const [viewsError, setViewsError] = React.useState(false);
@@ -1362,6 +1507,126 @@ export function SabcrmViewBar({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [views]);
+
+  // ---- URL → state (once, on mount) ------------------------------------
+  // Read the shareable view state out of the query string and push the
+  // present dimensions up through the page's setters. Runs a single time per
+  // object slug; `hydratedFromUrl` then unlocks the state → URL writer below.
+  const hydratedFromUrl = React.useRef(false);
+  React.useEffect(() => {
+    // Re-hydrate when the object changes (its URL belongs to a different table).
+    hydratedFromUrl.current = false;
+  }, [object.slug]);
+
+  React.useEffect(() => {
+    if (hydratedFromUrl.current) return;
+    if (typeof window === 'undefined') return;
+
+    // Prefer the router's params; fall back to the live location so a hard
+    // navigation that beats the hook still hydrates.
+    const params = searchParams
+      ? new URLSearchParams(searchParams.toString())
+      : new URLSearchParams(window.location.search);
+
+    const decoded = decodeUrlState(params);
+    const hasUrlState =
+      decoded.filters !== null ||
+      decoded.sortBy !== null ||
+      decoded.groupBy !== null ||
+      decoded.viewKind !== null ||
+      decoded.viewId !== null;
+
+    hydratedFromUrl.current = true;
+
+    if (!hasUrlState) return;
+
+    // The URL is authoritative for this load — don't let the saved-view
+    // default-apply clobber a shared link.
+    didAutoApply.current = true;
+
+    // Push the merged state up via the existing onChange the view bar uses.
+    onStateChange({
+      filters: decoded.filters ?? EMPTY_FILTER_GROUP,
+      sortBy: decoded.sortBy,
+      sortDir: decoded.sortDir ?? 'asc',
+      groupBy: decoded.groupBy,
+    });
+
+    if (decoded.viewKind && decoded.viewKind !== viewKind) {
+      onViewKindChange?.(decoded.viewKind);
+    }
+    if (decoded.viewId) {
+      setActiveViewId(decoded.viewId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [object.slug, searchParams]);
+
+  // ---- state → URL (after hydration) -----------------------------------
+  // Mirror the live filter / sort / group / view-kind / active-view into the
+  // query string with a shallow, scroll-free `router.replace`, so the URL is
+  // shareable and back/forward restores the view. Other params (notably the
+  // page-owned `q` search) are preserved untouched.
+  React.useEffect(() => {
+    if (!hydratedFromUrl.current) return;
+    if (typeof window === 'undefined') return;
+
+    // Read the freshest query string off the live location so a `q` (or any
+    // other param) the page set after our hydrate pass is preserved, not the
+    // possibly-stale `searchParams` closure.
+    const base = new URLSearchParams(window.location.search);
+
+    const next = buildUrlParams(base, {
+      state,
+      viewKind,
+      viewId: activeViewId,
+    });
+
+    // Skip the rewrite when nothing we own actually changed (avoids redundant
+    // history churn and feedback loops with the hydrate effect).
+    if (ownedSignature(next) === ownedSignature(base)) return;
+
+    const qs = next.toString();
+    router.replace(qs ? `?${qs}` : window.location.pathname, {
+      scroll: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, viewKind, activeViewId]);
+
+  // ---- Copy-link affordance --------------------------------------------
+  const [copied, setCopied] = React.useState(false);
+  const copyTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(
+    () => () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    },
+    [],
+  );
+
+  const copyLink = React.useCallback(async () => {
+    if (typeof window === 'undefined') return;
+    const url = window.location.href;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        // Legacy fallback for non-secure contexts.
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked — no-op */
+    }
+  }, []);
 
   // ---- Active-state derived bits ---------------------------------------
 
@@ -1568,6 +1833,21 @@ export function SabcrmViewBar({
             </Link>
           )}
         </div>
+
+        {/* Copy a shareable link to the current view (URL already encodes the
+            live filter / sort / group / view-kind / active saved view). */}
+        <button
+          type="button"
+          className={`stv-copy${copied ? ' is-copied' : ''}`}
+          onClick={copyLink}
+          title="Copy a shareable link to this view"
+          aria-label="Copy link to this view"
+        >
+          <span className="stv-copy__icon" aria-hidden="true">
+            {copied ? <Check size={14} /> : <Link2 size={14} />}
+          </span>
+          {copied ? 'Copied!' : 'Copy link'}
+        </button>
 
         <div className="stv-bar__spacer" />
 

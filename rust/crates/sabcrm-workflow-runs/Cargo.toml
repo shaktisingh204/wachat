@@ -1,0 +1,48 @@
+# SabCRM — axum router for the **workflow runs** HTTP surface.
+#
+# Durable workflow run history + per-step status over the
+# `sabcrm_workflow_runs` Mongo collection. Each doc records ONE execution
+# of a workflow: `status` (running|success|failed), `trigger`, timing, and
+# an ordered `steps` array (`{ id, type, status, output?, error? }`).
+# Tenancy is by `projectId` (a query/body string), not `userId`.
+#
+# Mounted under `/v1/sabcrm/workflow-runs` from the orchestrating `api`
+# crate. Mirrors the shape of the sibling `sabcrm-views` crate.
+[package]
+name = "sabcrm-workflow-runs"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM workflow-run HTTP surface (`/v1/sabcrm/workflow-runs/*`). Durable run history + per-step status scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_workflow_runs"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

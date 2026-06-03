@@ -79,6 +79,7 @@ sabcrm-templates = { path = "../sabcrm-templates" }
 sabcrm-segments = { path = "../sabcrm-segments" }
 sabcrm-targets = { path = "../sabcrm-targets" }
 sabcrm-page-layouts = { path = "../sabcrm-page-layouts" }
+sabcrm-workflow-runs = { path = "../sabcrm-workflow-runs" }
 sabcrm-dashboards = { path = "../sabcrm-dashboards" }
 sabcrm-notifications = { path = "../sabcrm-notifications" }
 sabcrm-favorites = { path = "../sabcrm-favorites" }
