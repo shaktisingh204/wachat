@@ -11,7 +11,10 @@
  */
 
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
-import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
+import type {
+  SabcrmRustRecord,
+  SabcrmRecordFilters,
+} from '@/lib/rust-client/sabcrm-records';
 import type {
   SabcrmRustActivity,
   SabcrmAttachment,
@@ -22,6 +25,9 @@ export type { ObjectMetadata } from '@/lib/sabcrm/types';
 export type {
   SabcrmRustRecord,
   RecordRelation,
+  SabcrmRecordFilters,
+  SabcrmFilterGroup,
+  SabcrmFilterCondition,
 } from '@/lib/rust-client/sabcrm-records';
 export type {
   SabcrmRustActivity,
@@ -40,12 +46,13 @@ export interface ListSabcrmRecordsTwParams {
   page?: number;
   limit?: number;
   /**
-   * Structured field filters keyed by field key. Each value is either a bare
-   * scalar (equality on `data.<fieldKey>`) or an object `{ op, value }` with
-   * `op` in `eq`|`ne`|`contains`|`gt`|`lt`|`gte`|`lte`|`in`|`isEmpty`|
-   * `isNotEmpty`. Threaded to the engine's `filters` query param.
+   * Structured field filters — either a flat field→condition map (each value a
+   * bare scalar for equality, or `{ op, value }` with `op` in
+   * `eq`|`ne`|`contains`|`gt`|`lt`|`gte`|`lte`|`in`|`isEmpty`|`isNotEmpty`) OR
+   * a nested AND/OR group `{ op, conditions }` ({@link SabcrmRecordFilters}).
+   * Threaded to the engine's `filters` query param.
    */
-  filters?: Record<string, unknown>;
+  filters?: SabcrmRecordFilters;
 }
 
 /** Result of a record list call. */
@@ -59,11 +66,12 @@ export interface CountSabcrmRecordsTwParams {
   /** Free-text query (regex over common data.* fields, server-side). */
   q?: string;
   /**
-   * Structured field filters keyed by field key — same shape as
-   * {@link ListSabcrmRecordsTwParams.filters}. Threaded to the engine's
-   * `filters` query param so the count respects the active filter set.
+   * Structured field filters — same shape as
+   * {@link ListSabcrmRecordsTwParams.filters} (flat map OR nested AND/OR
+   * group). Threaded to the engine's `filters` query param so the count
+   * respects the active filter set.
    */
-  filters?: Record<string, unknown>;
+  filters?: SabcrmRecordFilters;
 }
 
 /** One kanban bucket returned by {@link groupSabcrmRecordsTw}. */

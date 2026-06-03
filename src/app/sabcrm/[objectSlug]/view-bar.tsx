@@ -31,6 +31,7 @@ import {
   Rows3,
   SlidersHorizontal,
   Plus,
+  FolderPlus,
   Star,
   X,
   Check,
@@ -46,6 +47,7 @@ import {
 import type { SabcrmRustView } from '@/app/actions/sabcrm-views.actions.types';
 
 import './view-bar.css';
+import './advanced-filter.css';
 
 // ---------------------------------------------------------------------------
 // Public query-state contract (shared with the page)
@@ -63,7 +65,7 @@ export type FilterOp =
   | 'isEmpty'
   | 'isNotEmpty';
 
-/** One active filter condition. */
+/** One active filter condition (a leaf in the advanced-filter tree). */
 export interface FilterCondition {
   fieldKey: string;
   op: FilterOp;
@@ -71,35 +73,117 @@ export interface FilterCondition {
   value?: string;
 }
 
+/** Boolean conjunction joining the members of a {@link FilterGroup}. */
+export type FilterConjunction = 'and' | 'or';
+
+/**
+ * A node in the advanced filter tree — either a leaf {@link FilterCondition}
+ * or a nested {@link FilterGroup}. A type guard ({@link isFilterGroup})
+ * discriminates the two.
+ */
+export type FilterNode = FilterCondition | FilterGroup;
+
+/**
+ * A condition group: a conjunction (`and`/`or`) over a list of child nodes,
+ * each of which is itself a condition or a (nested) sub-group. This is the
+ * tree shape emitted to `listSabcrmRecordsTw`'s widened `filters` param:
+ * `{ op, conditions: [ { fieldKey, op, value } | <nested group> ] }`.
+ */
+export interface FilterGroup {
+  op: FilterConjunction;
+  conditions: FilterNode[];
+}
+
+/** Discriminate a {@link FilterGroup} from a leaf {@link FilterCondition}. */
+export function isFilterGroup(node: FilterNode): node is FilterGroup {
+  return (
+    typeof (node as FilterGroup).op === 'string' &&
+    Array.isArray((node as FilterGroup).conditions)
+  );
+}
+
 /** The full query state the view bar drives. */
 export interface ViewState {
-  filters: FilterCondition[];
+  /**
+   * The advanced filter tree (root group). The source of truth for filtering.
+   * A single flat AND group of conditions is the common (backwards-compatible)
+   * case; nested sub-groups with their own conjunction are also supported.
+   */
+  filters: FilterGroup;
   sortBy: string | null;
   sortDir: 'asc' | 'desc';
   /** SELECT field key the table/board groups by, or `null` for a flat table. */
   groupBy: string | null;
 }
 
+/** An empty root group (AND over no conditions). */
+export const EMPTY_FILTER_GROUP: FilterGroup = { op: 'and', conditions: [] };
+
 export const EMPTY_VIEW_STATE: ViewState = {
-  filters: [],
+  filters: EMPTY_FILTER_GROUP,
   sortBy: null,
   sortDir: 'asc',
   groupBy: null,
 };
 
-/** Translate a {@link ViewState} into the engine's `filters` query map. */
+/** Total leaf-condition count in a tree (drives the "active" indicator). */
+export function countConditions(group: FilterGroup): number {
+  let n = 0;
+  for (const node of group.conditions) {
+    if (isFilterGroup(node)) n += countConditions(node);
+    else n += 1;
+  }
+  return n;
+}
+
+/** Whether a tree is a single flat AND group (no nested sub-groups). */
+function isFlatAndGroup(group: FilterGroup): boolean {
+  return (
+    group.op === 'and' && group.conditions.every((c) => !isFilterGroup(c))
+  );
+}
+
+/** Serialize one leaf condition into the engine's `{ op, value }` shape. */
+function conditionToEngine(c: FilterCondition): Record<string, unknown> {
+  if (c.op === 'isEmpty' || c.op === 'isNotEmpty') {
+    return { op: c.op };
+  }
+  return { op: c.op, value: coerceFilterValue(c.value ?? '') };
+}
+
+/** Serialize a whole tree into the engine's nested `{ op, conditions }` shape. */
+function groupToEngineTree(group: FilterGroup): Record<string, unknown> {
+  return {
+    op: group.op,
+    conditions: group.conditions.map((node) =>
+      isFilterGroup(node)
+        ? groupToEngineTree(node)
+        : { field: node.fieldKey, ...conditionToEngine(node) },
+    ),
+  };
+}
+
+/**
+ * Translate a {@link ViewState} into the engine's `filters` query value.
+ *
+ * Backwards-compatible: a single flat AND group serializes to the legacy
+ * field-keyed map (`{ fieldKey: { op, value } }`) the engine has always
+ * understood. Any nested sub-group, or an OR root, serializes to the widened
+ * tree shape (`{ op, conditions: [...] }`) that RUST-A now also accepts.
+ */
 export function viewStateToEngineFilters(
   state: ViewState,
 ): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const c of state.filters) {
-    if (c.op === 'isEmpty' || c.op === 'isNotEmpty') {
-      out[c.fieldKey] = { op: c.op };
-    } else {
-      out[c.fieldKey] = { op: c.op, value: coerceFilterValue(c.value ?? '') };
+  const group = state.filters;
+  if (isFlatAndGroup(group)) {
+    const out: Record<string, unknown> = {};
+    for (const node of group.conditions) {
+      if (isFilterGroup(node)) continue; // unreachable in a flat group
+      out[node.fieldKey] = conditionToEngine(node);
     }
+    return out;
   }
-  return out;
+  return groupToEngineTree(group);
 }
 
 /** Best-effort numeric coercion so `gt`/`lt` compare numerically. */
@@ -121,46 +205,72 @@ const FILTER_OPS: ReadonlySet<string> = new Set<string>([
   'isNotEmpty',
 ]);
 
-/**
- * Reverse of {@link viewStateToEngineFilters}: turn a persisted `filters` map
- * (`{ fieldKey: scalar | { op, value } }`) back into the editable condition
- * list the chips render. Tolerant of the bare-scalar form (→ `eq`).
- */
-function engineFiltersToConditions(
-  filters: unknown,
-): FilterCondition[] {
-  if (!filters || typeof filters !== 'object') return [];
-  const out: FilterCondition[] = [];
-  for (const [fieldKey, raw] of Object.entries(filters as Record<string, unknown>)) {
-    if (
-      raw &&
-      typeof raw === 'object' &&
-      'op' in (raw as Record<string, unknown>) &&
-      FILTER_OPS.has(String((raw as Record<string, unknown>).op))
-    ) {
-      const op = String((raw as Record<string, unknown>).op) as FilterOp;
-      const value = (raw as Record<string, unknown>).value;
-      out.push({
-        fieldKey,
-        op,
-        value:
-          op === 'isEmpty' || op === 'isNotEmpty'
-            ? undefined
-            : value === undefined || value === null
-              ? ''
-              : String(value),
-      });
-    } else if (raw !== undefined && raw !== null) {
-      out.push({ fieldKey, op: 'eq', value: String(raw) });
-    }
+/** Parse one persisted `{ op, value }` (or bare scalar) into a {@link FilterOp}/value. */
+function parseLeafOpValue(raw: unknown): { op: FilterOp; value?: string } {
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    'op' in (raw as Record<string, unknown>) &&
+    FILTER_OPS.has(String((raw as Record<string, unknown>).op))
+  ) {
+    const op = String((raw as Record<string, unknown>).op) as FilterOp;
+    const value = (raw as Record<string, unknown>).value;
+    return {
+      op,
+      value:
+        op === 'isEmpty' || op === 'isNotEmpty'
+          ? undefined
+          : value === undefined || value === null
+            ? ''
+            : String(value),
+    };
   }
-  return out;
+  return { op: 'eq', value: raw === undefined || raw === null ? '' : String(raw) };
+}
+
+/**
+ * Reverse of {@link viewStateToEngineFilters}: turn a persisted `filters`
+ * value back into the editable {@link FilterGroup} the builder renders.
+ *
+ * Accepts BOTH shapes:
+ *   - legacy field-keyed map `{ fieldKey: scalar | { op, value } }` → a flat
+ *     AND group, and
+ *   - the widened tree `{ op, conditions: [...] }` (with `field` on leaves) →
+ *     parsed recursively, preserving nested sub-groups.
+ */
+function engineFiltersToGroup(filters: unknown): FilterGroup {
+  if (!filters || typeof filters !== 'object') return { ...EMPTY_FILTER_GROUP };
+
+  const obj = filters as Record<string, unknown>;
+
+  // Tree shape: an explicit conjunction + a `conditions` array.
+  if (Array.isArray(obj.conditions) && (obj.op === 'and' || obj.op === 'or')) {
+    const conditions: FilterNode[] = [];
+    for (const node of obj.conditions as unknown[]) {
+      if (!node || typeof node !== 'object') continue;
+      const n = node as Record<string, unknown>;
+      if (Array.isArray(n.conditions)) {
+        conditions.push(engineFiltersToGroup(n));
+      } else if (typeof n.field === 'string') {
+        conditions.push({ fieldKey: n.field, ...parseLeafOpValue(n) });
+      }
+    }
+    return { op: obj.op as FilterConjunction, conditions };
+  }
+
+  // Legacy field-keyed map → a flat AND group.
+  const conditions: FilterNode[] = [];
+  for (const [fieldKey, raw] of Object.entries(obj)) {
+    if (raw === undefined || raw === null) continue;
+    conditions.push({ fieldKey, ...parseLeafOpValue(raw) });
+  }
+  return { op: 'and', conditions };
 }
 
 /** Map a persisted saved view (Rust wire shape) into editable {@link ViewState}. */
 function savedViewToState(view: SabcrmRustView): ViewState {
   return {
-    filters: engineFiltersToConditions(view.filters),
+    filters: engineFiltersToGroup(view.filters),
     sortBy: view.sortBy ?? null,
     sortDir: view.sortDir ?? 'asc',
     groupBy: view.groupByField ?? null,
@@ -295,119 +405,361 @@ function ControlPopover({
 }
 
 // ---------------------------------------------------------------------------
-// Filter popover
+// Advanced filter builder (nested condition groups with AND/OR)
 // ---------------------------------------------------------------------------
+
+/** A fresh condition seeded on the first queryable field + its default op. */
+function defaultCondition(object: ObjectMetadata): FilterCondition {
+  const field = queryableFields(object)[0];
+  if (!field) return { fieldKey: '', op: 'eq', value: '' };
+  const op = opsForField(field)[0] ?? 'eq';
+  return {
+    fieldKey: field.key,
+    op,
+    value: op === 'isEmpty' || op === 'isNotEmpty' ? undefined : '',
+  };
+}
+
+/** A fresh empty sub-group (defaults to AND, seeded with one condition). */
+function defaultGroup(object: ObjectMetadata): FilterGroup {
+  return { op: 'and', conditions: [defaultCondition(object)] };
+}
+
+/** Small AND / OR segmented toggle shared by every group header. */
+function ConjunctionToggle({
+  value,
+  onChange,
+}: {
+  value: FilterConjunction;
+  onChange: (next: FilterConjunction) => void;
+}): React.JSX.Element {
+  return (
+    <span className="staf-conj" role="group" aria-label="Match conjunction">
+      <button
+        type="button"
+        className={`staf-conj__btn${value === 'and' ? ' is-active' : ''}`}
+        aria-pressed={value === 'and'}
+        onClick={() => onChange('and')}
+      >
+        And
+      </button>
+      <button
+        type="button"
+        className={`staf-conj__btn${value === 'or' ? ' is-active' : ''}`}
+        aria-pressed={value === 'or'}
+        onClick={() => onChange('or')}
+      >
+        Or
+      </button>
+    </span>
+  );
+}
+
+/** One editable condition row: field → operator → (typed) value. */
+function ConditionRow({
+  fields,
+  condition,
+  lead,
+  onChange,
+  onRemove,
+}: {
+  fields: FieldMetadata[];
+  condition: FilterCondition;
+  /** Leading label: "Where" for the first row, else the parent conjunction. */
+  lead: string;
+  onChange: (next: FilterCondition) => void;
+  onRemove: () => void;
+}): React.JSX.Element {
+  const field = fields.find((f) => f.key === condition.fieldKey);
+  const ops = field ? opsForField(field) : (['eq'] as FilterOp[]);
+  const unary = condition.op === 'isEmpty' || condition.op === 'isNotEmpty';
+
+  const setField = (key: string) => {
+    const nextField = fields.find((f) => f.key === key);
+    const nextOps = nextField ? opsForField(nextField) : (['eq'] as FilterOp[]);
+    const nextOp = nextOps.includes(condition.op) ? condition.op : nextOps[0] ?? 'eq';
+    const nextUnary = nextOp === 'isEmpty' || nextOp === 'isNotEmpty';
+    onChange({ fieldKey: key, op: nextOp, value: nextUnary ? undefined : '' });
+  };
+
+  const setOp = (op: FilterOp) => {
+    const nextUnary = op === 'isEmpty' || op === 'isNotEmpty';
+    onChange({
+      fieldKey: condition.fieldKey,
+      op,
+      value: nextUnary ? undefined : (condition.value ?? ''),
+    });
+  };
+
+  const setValue = (value: string) =>
+    onChange({ fieldKey: condition.fieldKey, op: condition.op, value });
+
+  return (
+    <div className="staf-row">
+      <span className="staf-row__lead" aria-hidden="true">
+        {lead}
+      </span>
+      <select
+        className="staf-select staf-row__field"
+        value={condition.fieldKey}
+        onChange={(e) => setField(e.target.value)}
+        aria-label="Filter field"
+      >
+        {fields.map((f) => (
+          <option key={f.key} value={f.key}>
+            {f.label}
+          </option>
+        ))}
+      </select>
+      <select
+        className="staf-select staf-row__op"
+        value={condition.op}
+        onChange={(e) => setOp(e.target.value as FilterOp)}
+        aria-label="Filter operator"
+      >
+        {ops.map((o) => (
+          <option key={o} value={o}>
+            {OP_LABEL[o]}
+          </option>
+        ))}
+      </select>
+      {!unary &&
+        (field?.type === 'SELECT' || field?.type === 'MULTI_SELECT' ? (
+          <select
+            className="staf-select staf-row__value"
+            value={condition.value ?? ''}
+            onChange={(e) => setValue(e.target.value)}
+            aria-label="Filter value"
+          >
+            <option value="">Select…</option>
+            {(field.options ?? []).map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            className="staf-input staf-row__value"
+            type={field && NUMERIC.has(field.type) ? 'number' : 'text'}
+            value={condition.value ?? ''}
+            placeholder="Value"
+            onChange={(e) => setValue(e.target.value)}
+            aria-label="Filter value"
+          />
+        ))}
+      <button
+        type="button"
+        className="staf-x"
+        aria-label="Remove condition"
+        title="Remove condition"
+        onClick={onRemove}
+      >
+        <X size={14} />
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Recursive group editor: an AND/OR header, each child condition or sub-group,
+ * and the "Add condition" / "Add group" affordances. The root renders without
+ * the nesting rail / remove button; nested groups render both.
+ */
+function GroupEditor({
+  object,
+  fields,
+  group,
+  depth,
+  onChange,
+  onRemove,
+}: {
+  object: ObjectMetadata;
+  fields: FieldMetadata[];
+  group: FilterGroup;
+  depth: number;
+  onChange: (next: FilterGroup) => void;
+  onRemove?: () => void;
+}): React.JSX.Element {
+  const conjLabel = group.op === 'and' ? 'And' : 'Or';
+
+  const setConj = (op: FilterConjunction) => onChange({ ...group, op });
+
+  const replaceChild = (idx: number, node: FilterNode) =>
+    onChange({
+      ...group,
+      conditions: group.conditions.map((c, i) => (i === idx ? node : c)),
+    });
+
+  const removeChild = (idx: number) =>
+    onChange({
+      ...group,
+      conditions: group.conditions.filter((_, i) => i !== idx),
+    });
+
+  const addCondition = () =>
+    onChange({
+      ...group,
+      conditions: [...group.conditions, defaultCondition(object)],
+    });
+
+  const addGroup = () =>
+    onChange({
+      ...group,
+      conditions: [...group.conditions, defaultGroup(object)],
+    });
+
+  return (
+    <div className={`staf-group${depth > 0 ? ' staf-group--nested' : ''}`}>
+      <div className="staf-group__head">
+        <ConjunctionToggle value={group.op} onChange={setConj} />
+        <span className="staf-group__lead">
+          {depth === 0 ? 'Match conditions' : 'Group'}
+        </span>
+        <span className="staf-group__spacer" />
+        {onRemove && (
+          <button
+            type="button"
+            className="staf-x"
+            aria-label="Remove group"
+            title="Remove group"
+            onClick={onRemove}
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
+      {group.conditions.length === 0 && (
+        <div className="staf-empty">No conditions yet.</div>
+      )}
+
+      {group.conditions.map((node, idx) =>
+        isFilterGroup(node) ? (
+          <GroupEditor
+            key={idx}
+            object={object}
+            fields={fields}
+            group={node}
+            depth={depth + 1}
+            onChange={(next) => replaceChild(idx, next)}
+            onRemove={() => removeChild(idx)}
+          />
+        ) : (
+          <ConditionRow
+            key={idx}
+            fields={fields}
+            condition={node}
+            lead={idx === 0 ? 'Where' : conjLabel}
+            onChange={(next) => replaceChild(idx, next)}
+            onRemove={() => removeChild(idx)}
+          />
+        ),
+      )}
+
+      <div className="staf-adds">
+        <button type="button" className="staf-add" onClick={addCondition}>
+          <Plus size={13} />
+          Add condition
+        </button>
+        {/* Cap nesting at a sensible depth so the rail stays readable. */}
+        {depth < 3 && (
+          <button type="button" className="staf-add" onClick={addGroup}>
+            <FolderPlus size={13} />
+            Add group
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface FilterPopoverProps {
   object: ObjectMetadata;
-  onAdd: (c: FilterCondition) => void;
+  group: FilterGroup;
+  onApply: (group: FilterGroup) => void;
   close: () => void;
 }
 
-function FilterPopover({ object, onAdd, close }: FilterPopoverProps): React.JSX.Element {
+/**
+ * The advanced filter builder, hosted in the Filter popover. Edits a working
+ * copy of the root group and commits it on Apply (or clears it). A drained
+ * group (no leaf conditions) collapses back to {@link EMPTY_FILTER_GROUP} so
+ * the Filter control's "active" state stays honest.
+ */
+function FilterPopover({
+  object,
+  group,
+  onApply,
+  close,
+}: FilterPopoverProps): React.JSX.Element {
   const fields = React.useMemo(() => queryableFields(object), [object]);
-  const [fieldKey, setFieldKey] = React.useState(fields[0]?.key ?? '');
-  const field = fields.find((f) => f.key === fieldKey);
-  const ops = field ? opsForField(field) : (['eq'] as FilterOp[]);
-  const [op, setOp] = React.useState<FilterOp>(ops[0] ?? 'eq');
-  const [value, setValue] = React.useState('');
 
-  // Keep operator valid when the field changes.
-  React.useEffect(() => {
-    if (field && !opsForField(field).includes(op)) {
-      setOp(opsForField(field)[0] ?? 'eq');
+  // Working copy — seed an empty root with one starter condition so the user
+  // lands on an editable row instead of a bare "Add condition" button.
+  const [draft, setDraft] = React.useState<FilterGroup>(() =>
+    group.conditions.length > 0
+      ? group
+      : { op: 'and', conditions: [defaultCondition(object)] },
+  );
+
+  if (fields.length === 0) {
+    return <div className="staf-empty">No filterable fields.</div>;
+  }
+
+  // Drop incomplete leaves (no value on a binary op) before committing so a
+  // half-typed row never silently filters everything out.
+  const prune = (g: FilterGroup): FilterGroup => {
+    const conditions: FilterNode[] = [];
+    for (const node of g.conditions) {
+      if (isFilterGroup(node)) {
+        const sub = prune(node);
+        if (sub.conditions.length > 0) conditions.push(sub);
+      } else {
+        const unary = node.op === 'isEmpty' || node.op === 'isNotEmpty';
+        if (node.fieldKey && (unary || (node.value ?? '').trim() !== '')) {
+          conditions.push(node);
+        }
+      }
     }
-    setValue('');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldKey]);
+    return { op: g.op, conditions };
+  };
 
-  const unary = op === 'isEmpty' || op === 'isNotEmpty';
-
-  const submit = () => {
-    if (!field) return;
-    if (!unary && value.trim() === '') return;
-    onAdd({ fieldKey, op, value: unary ? undefined : value });
+  const apply = () => {
+    const pruned = prune(draft);
+    onApply(pruned.conditions.length > 0 ? pruned : EMPTY_FILTER_GROUP);
     close();
   };
 
-  if (fields.length === 0) {
-    return <div className="stv-empty-hint">No filterable fields.</div>;
-  }
+  const clearAll = () => {
+    onApply(EMPTY_FILTER_GROUP);
+    close();
+  };
 
   return (
-    <>
-      <p className="stv-pop__title">Add filter</p>
-      <div className="stv-pop__row">
-        <select
-          className="stv-pop__select"
-          value={fieldKey}
-          onChange={(e) => setFieldKey(e.target.value)}
-          aria-label="Filter field"
-        >
-          {fields.map((f) => (
-            <option key={f.key} value={f.key}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="stv-pop__row">
-        <select
-          className="stv-pop__select"
-          value={op}
-          onChange={(e) => setOp(e.target.value as FilterOp)}
-          aria-label="Filter operator"
-        >
-          {ops.map((o) => (
-            <option key={o} value={o}>
-              {OP_LABEL[o]}
-            </option>
-          ))}
-        </select>
-      </div>
-      {!unary && (
-        <div className="stv-pop__row">
-          {field?.type === 'SELECT' ? (
-            <select
-              className="stv-pop__select"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              aria-label="Filter value"
-            >
-              <option value="">Select…</option>
-              {(field.options ?? []).map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              className="stv-pop__input"
-              type={field && NUMERIC.has(field.type) ? 'number' : 'text'}
-              value={value}
-              placeholder="Value"
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  submit();
-                }
-              }}
-              autoFocus
-            />
-          )}
-        </div>
-      )}
-      <div className="stv-pop__actions">
-        <TwentyButton variant="secondary" onClick={close}>
-          Cancel
+    <div className="staf staf--root">
+      <p className="stv-pop__title">Advanced filter</p>
+      <GroupEditor
+        object={object}
+        fields={fields}
+        group={draft}
+        depth={0}
+        onChange={setDraft}
+      />
+      <div className="staf-actions">
+        <TwentyButton variant="secondary" onClick={clearAll}>
+          Clear all
         </TwentyButton>
-        <TwentyButton variant="primary" icon={Plus} onClick={submit}>
-          Add
-        </TwentyButton>
+        <span className="staf-actions__right">
+          <TwentyButton variant="secondary" onClick={close}>
+            Cancel
+          </TwentyButton>
+          <TwentyButton variant="primary" icon={Check} onClick={apply}>
+            Apply
+          </TwentyButton>
+        </span>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -727,14 +1079,52 @@ export function SabcrmViewBar({
   }, [views]);
 
   // ---- Active-state derived bits ---------------------------------------
-  const removeFilter = (idx: number) =>
-    onStateChange({
-      ...state,
-      filters: state.filters.filter((_, i) => i !== idx),
-    });
 
-  const addFilter = (c: FilterCondition) =>
-    onStateChange({ ...state, filters: [...state.filters, c] });
+  // Commit a whole new root group from the advanced-filter builder.
+  const applyFilters = (group: FilterGroup) =>
+    onStateChange({ ...state, filters: group });
+
+  // A flat, path-addressed view of every leaf condition in the tree — drives
+  // the removable pill summary. The `path` is the chain of child indices from
+  // the root to the leaf, so a pill's "x" can prune exactly that leaf even when
+  // it lives inside a nested sub-group.
+  const leafPills = React.useMemo(() => {
+    const out: { path: number[]; condition: FilterCondition }[] = [];
+    const walk = (group: FilterGroup, prefix: number[]) => {
+      group.conditions.forEach((node, idx) => {
+        const path = [...prefix, idx];
+        if (isFilterGroup(node)) walk(node, path);
+        else out.push({ path, condition: node });
+      });
+    };
+    walk(state.filters, []);
+    return out;
+  }, [state.filters]);
+
+  // Remove the leaf at `path`, then collapse any sub-groups it emptied so the
+  // tree never keeps dangling empty groups (which would still read as nested).
+  const removeLeafAtPath = (path: number[]) => {
+    const prune = (group: FilterGroup, depth: number): FilterGroup => {
+      const targetIdx = path[depth];
+      const conditions: FilterNode[] = [];
+      group.conditions.forEach((node, idx) => {
+        if (idx === targetIdx) {
+          if (depth === path.length - 1) return; // drop the leaf itself
+          if (isFilterGroup(node)) {
+            const sub = prune(node, depth + 1);
+            if (sub.conditions.length > 0) conditions.push(sub);
+            return;
+          }
+        }
+        conditions.push(node);
+      });
+      return { op: group.op, conditions };
+    };
+    const next = prune(state.filters, 0);
+    applyFilters(next.conditions.length > 0 ? next : EMPTY_FILTER_GROUP);
+  };
+
+  const filterCount = countConditions(state.filters);
 
   const activeView = views.find((v) => v.id === activeViewId) ?? null;
 
@@ -792,13 +1182,14 @@ export function SabcrmViewBar({
 
       {/* Controls + active chips */}
       <div className="stv-bar">
-        <ControlPopover
-          label="Filter"
-          icon={Filter}
-          active={state.filters.length > 0}
-        >
+        <ControlPopover label="Filter" icon={Filter} active={filterCount > 0}>
           {(close) => (
-            <FilterPopover object={object} onAdd={addFilter} close={close} />
+            <FilterPopover
+              object={object}
+              group={state.filters}
+              onApply={applyFilters}
+              close={close}
+            />
           )}
         </ControlPopover>
 
@@ -841,10 +1232,15 @@ export function SabcrmViewBar({
 
         {/* Active filter / sort / group chips */}
         <div className="stv-chips">
-          {state.filters.map((c, idx) => {
+          {leafPills.map(({ path, condition: c }) => {
             const f = fieldByKey.get(c.fieldKey);
+            // A leaf inside a sub-group (path length > 1) is part of an
+            // advanced/nested filter — flag it so the simple pill still hints
+            // at the structure without trying to redraw the whole tree.
+            const nested = path.length > 1;
             return (
-              <span className="stv-pill" key={`${c.fieldKey}-${idx}`}>
+              <span className="stv-pill" key={path.join('-')}>
+                {nested && <span className="stv-pill__op">(…)</span>}
                 <span className="stv-pill__key">{f?.label ?? c.fieldKey}</span>
                 <span className="stv-pill__op">{OP_LABEL[c.op]}</span>
                 {c.op !== 'isEmpty' && c.op !== 'isNotEmpty' && (
@@ -854,7 +1250,7 @@ export function SabcrmViewBar({
                   type="button"
                   className="stv-pill__x"
                   aria-label="Remove filter"
-                  onClick={() => removeFilter(idx)}
+                  onClick={() => removeLeafAtPath(path)}
                 >
                   <X size={12} />
                 </button>

@@ -1,0 +1,133 @@
+/* =========================================================================
+   SabCRM Settings → Members — Invitations
+   -------------------------------------------------------------------------
+   Supplemental Twenty-style (`.st-*`) classes for the member INVITATION flow
+   added to the Members settings page. Companion to `sabcrm-twenty.css` and
+   `../settings-twenty.css` — only the bits the invite UI needs that aren't
+   already in the shared `.st-*` vocabulary live here.
+
+   Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
+   frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
+   Tailwind / clay — Twenty look only.
+   ========================================================================= */
+
+/* Section heading that splits the roster from the pending-invitations block. */
+.sabcrm-twenty .st-invites {
+  margin-top: var(--st-space-6, 24px);
+}
+
+.sabcrm-twenty .st-invites__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-invites__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold, 600);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-invites__title-icon {
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-invites__desc {
+  margin: 0 0 var(--st-space-4);
+  max-width: 640px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+/* Pending-status chip (amber dot). Sits alongside the shared `.st-chip`. */
+.sabcrm-twenty .st-chip--pending .st-chip__dot {
+  background: #b26a00;
+}
+
+.sabcrm-twenty .st-chip--revoked .st-chip__dot {
+  background: var(--st-text-tertiary);
+}
+
+/* Inline, copyable manual invite link rendered inside an invite row. */
+.sabcrm-twenty .st-invite-link {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-invite-link__label {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sabcrm-twenty .st-invite-link__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-invite-link__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 5px var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "No email delivery yet — share this link manually" callout in the dialog. */
+.sabcrm-twenty .st-invite-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  margin-top: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-invite-callout__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+/* Stacked email + invited-at meta inside an invite row's first cell. */
+.sabcrm-twenty .st-invite-meta__email {
+  display: block;
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-invite-meta__time {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}

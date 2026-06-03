@@ -25,6 +25,7 @@ import { TwentyChip } from './twenty-primitives';
 import type { FieldMetadata, FieldOption } from '@/lib/sabcrm/types';
 
 import './twenty-field.css';
+import './field-types.css';
 
 /* =========================================================================
    Value helpers
@@ -57,13 +58,154 @@ function formatNumber(n: number): string {
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
-/** Format a number as USD currency (Twenty defaults to a money string). */
-function formatCurrency(n: number): string {
-  return n.toLocaleString(undefined, {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  });
+/** Format a number as currency for `code` (defaults to USD), Intl-formatted. */
+function formatCurrency(n: number, code = 'USD'): string {
+  try {
+    return n.toLocaleString(undefined, {
+      style: 'currency',
+      currency: code,
+      maximumFractionDigits: 2,
+    });
+  } catch {
+    // Unknown / non-ISO currency code → plain number with the code appended.
+    return `${formatNumber(n)} ${code}`;
+  }
+}
+
+/* =========================================================================
+   Composite-value parsing
+   ========================================================================= */
+
+/** Narrow an unknown to a plain object record (or null). */
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+/** First non-empty string among the candidates. */
+function firstString(...candidates: unknown[]): string {
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim()) return c;
+    if (typeof c === 'number' && !Number.isNaN(c)) return String(c);
+  }
+  return '';
+}
+
+/**
+ * Resolve a CURRENCY value into `{ amount, code }`. Tolerates Twenty's
+ * `{ amountMicros, currencyCode }` (micros = amount × 1e6), the simpler
+ * `{ amount, currencyCode }`, and a plain number fallback.
+ */
+function parseCurrency(value: unknown): { amount: number; code: string } | null {
+  const rec = asRecord(value);
+  if (rec) {
+    const code = firstString(rec.currencyCode, rec.code) || 'USD';
+    if (rec.amountMicros !== undefined && rec.amountMicros !== null) {
+      const micros = Number(rec.amountMicros);
+      if (!Number.isNaN(micros)) return { amount: micros / 1_000_000, code };
+    }
+    const amount = Number(rec.amount);
+    if (!Number.isNaN(amount)) return { amount, code };
+    return null;
+  }
+  const n = Number(value);
+  return Number.isNaN(n) ? null : { amount: n, code: 'USD' };
+}
+
+/** A normalised `{ label, url }` link. */
+interface NormLink {
+  label: string;
+  url: string;
+}
+
+/**
+ * Normalise a LINKS value into a flat list of `{ label, url }`. Tolerates an
+ * array of `{ label, url }`, an array of bare url strings, or Twenty's
+ * `{ primaryLinkUrl, primaryLinkLabel, secondaryLinks }` composite.
+ */
+function parseLinks(value: unknown): NormLink[] {
+  const out: NormLink[] = [];
+  const push = (raw: unknown) => {
+    if (typeof raw === 'string' && raw.trim()) {
+      out.push({ url: raw, label: '' });
+      return;
+    }
+    const rec = asRecord(raw);
+    if (rec) {
+      const url = firstString(rec.url, rec.primaryLinkUrl, rec.href);
+      const label = firstString(rec.label, rec.primaryLinkLabel, rec.name);
+      if (url || label) out.push({ url, label });
+    }
+  };
+  if (Array.isArray(value)) {
+    value.forEach(push);
+    return out;
+  }
+  const rec = asRecord(value);
+  if (rec) {
+    push({ url: rec.primaryLinkUrl, label: rec.primaryLinkLabel });
+    if (Array.isArray(rec.secondaryLinks)) rec.secondaryLinks.forEach(push);
+    if (out.length) return out;
+  }
+  push(value);
+  return out;
+}
+
+/**
+ * Normalise an EMAILS / PHONES value into a flat string list. Tolerates a
+ * plain array, a single string, or Twenty's `{ primaryX, additionalX }`
+ * composite.
+ */
+function parseStringList(value: unknown, primaryKey: string, listKey: string): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => (asRecord(v) ? firstString((v as Record<string, unknown>).number, (v as Record<string, unknown>).email, (v as Record<string, unknown>).value) : String(v)))
+      .filter((s) => s.trim());
+  }
+  const rec = asRecord(value);
+  if (rec) {
+    const out: string[] = [];
+    const primary = firstString(rec[primaryKey]);
+    if (primary) out.push(primary);
+    const extra = rec[listKey];
+    if (Array.isArray(extra)) {
+      extra.forEach((v) => {
+        const s = asRecord(v)
+          ? firstString((v as Record<string, unknown>).number, (v as Record<string, unknown>).email, (v as Record<string, unknown>).value)
+          : String(v);
+        if (s.trim()) out.push(s);
+      });
+    }
+    return out;
+  }
+  if (typeof value === 'string' && value.trim()) return [value];
+  return [];
+}
+
+/** Normalise a FULL_NAME value into "First Last". */
+function parseFullName(value: unknown): string {
+  const rec = asRecord(value);
+  if (rec) {
+    return [firstString(rec.firstName, rec.first), firstString(rec.lastName, rec.last)]
+      .filter(Boolean)
+      .join(' ');
+  }
+  return String(value ?? '');
+}
+
+/** Normalise an ADDRESS value into ordered display lines. */
+function parseAddress(value: unknown): string[] {
+  const rec = asRecord(value);
+  if (!rec) return value ? [String(value)] : [];
+  const street = firstString(rec.street, rec.addressStreet1);
+  const street2 = firstString(rec.addressStreet2);
+  const city = firstString(rec.city, rec.addressCity);
+  const state = firstString(rec.state, rec.addressState);
+  const postcode = firstString(rec.postcode, rec.addressPostcode, rec.zip);
+  const country = firstString(rec.country, rec.addressCountry);
+  const cityLine = [city, state, postcode].filter(Boolean).join(', ');
+  return [street, street2, cityLine, country].filter(Boolean);
 }
 
 /** Humanize a date — e.g. "Apr 3, 2026" (no external date lib). */
@@ -146,20 +288,38 @@ export function TwentyFieldValue({
   field,
   value,
 }: TwentyFieldValueProps): React.JSX.Element {
-  // MULTI_SELECT may legitimately carry an array; otherwise empty collapses.
+  // Some types legitimately carry an array / object that `isEmpty` ignores
+  // (e.g. empty string), but most empty values collapse to an em-dash.
+  const ARRAY_OR_OBJECT_TYPES: ReadonlySet<FieldMetadata['type']> = new Set([
+    'MULTI_SELECT',
+    'EMAILS',
+    'PHONES',
+    'LINKS',
+    'ARRAY',
+    'FULL_NAME',
+    'ADDRESS',
+    'RAW_JSON',
+  ]);
   if (isEmpty(value) && field.type !== 'BOOLEAN') {
-    if (!(field.type === 'MULTI_SELECT' && Array.isArray(value) && value.length)) {
+    const hasComposite =
+      ARRAY_OR_OBJECT_TYPES.has(field.type) &&
+      ((Array.isArray(value) && value.length > 0) || asRecord(value) !== null);
+    if (!hasComposite) {
       return <EmptyValue />;
     }
   }
 
   switch (field.type) {
     case 'CURRENCY': {
-      const n = Number(value);
-      return Number.isNaN(n) ? (
-        <span className="st-field-text">{String(value)}</span>
-      ) : (
-        <span className="st-field-num">{formatCurrency(n)}</span>
+      const money = parseCurrency(value);
+      if (!money) {
+        return <span className="st-field-text">{String(value)}</span>;
+      }
+      return (
+        <span className="st-field-money">
+          {formatCurrency(money.amount, money.code)}
+          <span className="st-field-money__code">{money.code}</span>
+        </span>
       );
     }
 
@@ -311,6 +471,135 @@ export function TwentyFieldValue({
           {name}
         </a>
       );
+    }
+
+    case 'FULL_NAME': {
+      const name = parseFullName(value).trim();
+      return name ? (
+        <span className="st-field-text">{name}</span>
+      ) : (
+        <EmptyValue />
+      );
+    }
+
+    case 'ADDRESS': {
+      const lines = parseAddress(value);
+      if (lines.length === 0) return <EmptyValue />;
+      return (
+        <span className="st-field-stack">
+          {lines.map((line, i) => (
+            <span
+              key={i}
+              className={`st-field-stack__line${i > 0 ? ' st-field-stack__line--muted' : ''}`}
+            >
+              {line}
+            </span>
+          ))}
+        </span>
+      );
+    }
+
+    case 'EMAILS': {
+      const emails = parseStringList(value, 'primaryEmail', 'additionalEmails');
+      if (emails.length === 0) return <EmptyValue />;
+      return (
+        <span className="st-field-chips">
+          {emails.map((email, i) => (
+            <a
+              key={`${email}-${i}`}
+              href={`mailto:${email}`}
+              className="st-chip st-chip--link"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="st-chip__label">{email}</span>
+            </a>
+          ))}
+        </span>
+      );
+    }
+
+    case 'PHONES': {
+      const phones = parseStringList(value, 'primaryPhoneNumber', 'additionalPhones');
+      if (phones.length === 0) return <EmptyValue />;
+      return (
+        <span className="st-field-chips">
+          {phones.map((phone, i) => (
+            <a
+              key={`${phone}-${i}`}
+              href={`tel:${phone.replace(/\s+/g, '')}`}
+              className="st-chip st-chip--link"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="st-chip__label">{phone}</span>
+            </a>
+          ))}
+        </span>
+      );
+    }
+
+    case 'LINKS': {
+      const links = parseLinks(value).filter((l) => l.url || l.label);
+      if (links.length === 0) return <EmptyValue />;
+      return (
+        <span className="st-field-chips">
+          {links.map((link, i) => {
+            const href = link.url
+              ? link.url.includes('://')
+                ? link.url
+                : `https://${link.url}`
+              : undefined;
+            const text = link.label || (link.url ? linkLabel(link.url) : '');
+            return href ? (
+              <a
+                key={`${href}-${i}`}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="st-chip st-chip--link"
+                title={link.url}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="st-chip__label">{text}</span>
+              </a>
+            ) : (
+              <TwentyChip key={`${text}-${i}`} label={text} />
+            );
+          })}
+        </span>
+      );
+    }
+
+    case 'ARRAY': {
+      const arr = Array.isArray(value)
+        ? value
+        : String(value)
+            .split(',')
+            .map((s) => s.trim());
+      const items = arr.map((v) => String(v)).filter((s) => s.length > 0);
+      if (items.length === 0) return <EmptyValue />;
+      return (
+        <span className="st-field-chips">
+          {items.map((item, i) => (
+            <TwentyChip key={`${item}-${i}`} label={item} />
+          ))}
+        </span>
+      );
+    }
+
+    case 'RAW_JSON': {
+      let text: string;
+      try {
+        text =
+          typeof value === 'string'
+            ? JSON.stringify(JSON.parse(value), null, 2)
+            : JSON.stringify(value, null, 2);
+      } catch {
+        text = String(value);
+      }
+      if (!text || text === 'null' || text === '{}' || text === '[]') {
+        return <EmptyValue />;
+      }
+      return <pre className="st-field-json">{text}</pre>;
     }
 
     case 'TEXT':

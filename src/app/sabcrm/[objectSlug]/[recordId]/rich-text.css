@@ -1,0 +1,161 @@
+/**
+ * SabCRM — dependency-free rich-text editor + rendered bodies (Twenty fidelity).
+ *
+ * Styles the `<RichTextEditor>` composer surface (toolbar + contentEditable
+ * area) and the `<RichTextView>` read-only renderer used for note / activity
+ * bodies in record-detail-tw.tsx. All tokens are the shared Twenty `--st-*`
+ * variables so it sits flush with the timeline / composer kit — NO ZoruUI,
+ * Tailwind, or clay. New `.rte-*` namespace only; no shared CSS is touched.
+ */
+
+/* --- Editor shell --------------------------------------------------------- */
+
+.rte {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  overflow: hidden;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.rte:focus-within {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 1px var(--st-accent);
+}
+
+.rte.is-disabled {
+  opacity: 0.6;
+}
+
+/* --- Toolbar -------------------------------------------------------------- */
+
+.rte-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: var(--st-space-1) var(--st-space-1);
+  border-bottom: 1px solid var(--st-border-light);
+  background: var(--st-bg-subtle, var(--st-hover));
+}
+
+.rte-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.rte-toolbar__btn:hover:not(:disabled) {
+  background: var(--st-bg);
+  color: var(--st-text);
+  border-color: var(--st-border-light);
+}
+
+.rte-toolbar__btn:active:not(:disabled) {
+  background: var(--st-hover);
+}
+
+.rte-toolbar__btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* --- Editable area -------------------------------------------------------- */
+
+.rte-input {
+  min-height: 60px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: var(--st-space-2) var(--st-space-3);
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  outline: none;
+  word-break: break-word;
+}
+
+/* Placeholder shown only while the editor has no content. */
+.rte-input.is-empty::before {
+  content: attr(data-placeholder);
+  color: var(--st-text-tertiary);
+  pointer-events: none;
+}
+
+.rte-input p {
+  margin: 0 0 var(--st-space-2);
+}
+
+.rte-input p:last-child {
+  margin-bottom: 0;
+}
+
+.rte-input ul,
+.rte-input ol {
+  margin: 0 0 var(--st-space-2);
+  padding-left: 1.4em;
+}
+
+.rte-input li {
+  margin: 2px 0;
+}
+
+.rte-input a {
+  color: var(--st-accent);
+  text-decoration: underline;
+}
+
+/* --- Rendered (read-only) body -------------------------------------------- */
+
+.rte-view {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Legacy plain-text bodies keep their line breaks. */
+.rte-view--plain {
+  white-space: pre-wrap;
+}
+
+.rte-view p {
+  margin: 0 0 var(--st-space-2);
+}
+
+.rte-view p:last-child {
+  margin-bottom: 0;
+}
+
+.rte-view ul,
+.rte-view ol {
+  margin: 0 0 var(--st-space-2);
+  padding-left: 1.4em;
+}
+
+.rte-view li {
+  margin: 2px 0;
+}
+
+.rte-view a {
+  color: var(--st-accent);
+  text-decoration: underline;
+}
+
+.rte-view a:hover {
+  color: var(--st-accent-hover, var(--st-accent));
+}

@@ -99,11 +99,18 @@ import type {
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
+import {
+  RichTextEditor,
+  RichTextView,
+  isRichTextEmpty,
+} from './rich-text-editor';
+
 import './record-tabs.css';
 import './attachments.css';
 import './detail-polish.css';
 import './relations-edit.css';
 import './comments.css';
+import './rich-text.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -638,7 +645,9 @@ function AttachmentTimeline({
                   {relTime(a.createdAt)}
                 </time>
               </div>
-              {a.body ? <p className="st-timeline__body">{a.body}</p> : null}
+              {a.body ? (
+                <RichTextView body={a.body} className="st-timeline__body" />
+              ) : null}
               {a.authorId ? (
                 <span className="st-timeline__author">{a.authorId}</span>
               ) : null}
@@ -735,64 +744,8 @@ function groupFieldSections(
 }
 
 // ---------------------------------------------------------------------------
-// Composer — shared multi-line body (auto-grow + ⌘/Ctrl+Enter to submit)
+// Composer — rich-text body (RichTextEditor) + ⌘/Ctrl+Enter to submit
 // ---------------------------------------------------------------------------
-
-/** True for the platform "submit" chord on a body textarea: ⌘/Ctrl + Enter. */
-function isSubmitChord(e: React.KeyboardEvent): boolean {
-  return e.key === 'Enter' && (e.metaKey || e.ctrlKey);
-}
-
-interface ComposerBodyProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  placeholder: string;
-  ariaLabel: string;
-  disabled?: boolean;
-}
-
-/**
- * A Twenty-style multi-line composer body: it grows with its content (up to a
- * CSS max-height, then scrolls) and submits the parent form on ⌘/Ctrl+Enter.
- */
-function ComposerBody({
-  value,
-  onChange,
-  onSubmit,
-  placeholder,
-  ariaLabel,
-  disabled,
-}: ComposerBodyProps): React.JSX.Element {
-  const ref = React.useRef<HTMLTextAreaElement | null>(null);
-
-  // Auto-grow: reset to natural height, then snap to scrollHeight each change.
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [value]);
-
-  return (
-    <textarea
-      ref={ref}
-      className="st-composer__body stp-composer__body"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      onKeyDown={(e) => {
-        if (isSubmitChord(e)) {
-          e.preventDefault();
-          onSubmit();
-        }
-      }}
-      placeholder={placeholder}
-      aria-label={ariaLabel}
-      disabled={disabled}
-      rows={2}
-    />
-  );
-}
 
 /** The ⌘/Ctrl+Enter affordance shown in a composer footer. */
 function SubmitHint(): React.JSX.Element {
@@ -837,7 +790,10 @@ function Composer({ onAdd }: ComposerProps) {
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
-    const ok = await onAdd(type, title.trim(), body.trim(), attachments);
+    // `body` is sanitized HTML from the rich editor; collapse an empty document
+    // to '' so blank bodies don't persist stray markup.
+    const richBody = isRichTextEmpty(body) ? '' : body;
+    const ok = await onAdd(type, title.trim(), richBody, attachments);
     setSaving(false);
     if (ok) {
       setTitle('');
@@ -876,7 +832,7 @@ function Composer({ onAdd }: ComposerProps) {
           aria-label="Activity title"
         />
       </div>
-      <ComposerBody
+      <RichTextEditor
         value={body}
         onChange={setBody}
         onSubmit={submitForm}
@@ -1154,7 +1110,10 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
-    const ok = await onAdd(title.trim(), body.trim(), attachments);
+    // `body` is sanitized HTML from the rich editor; collapse an empty document
+    // (e.g. just "<br>") to '' so blank notes don't store stray markup.
+    const richBody = isRichTextEmpty(body) ? '' : body;
+    const ok = await onAdd(title.trim(), richBody, attachments);
     setSaving(false);
     if (ok) {
       setTitle('');
@@ -1181,7 +1140,7 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
           aria-label="Note title"
         />
       </div>
-      <ComposerBody
+      <RichTextEditor
         value={body}
         onChange={setBody}
         onSubmit={submitForm}
@@ -2363,7 +2322,7 @@ export function RecordDetailTw({
                           </time>
                         </div>
                         {n.body ? (
-                          <p className="rt-note__body">{n.body}</p>
+                          <RichTextView body={n.body} className="rt-note__body" />
                         ) : null}
                         <AttachmentList attachments={activityAttachments(n)} />
                       </article>

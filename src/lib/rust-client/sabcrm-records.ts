@@ -30,6 +30,43 @@ export interface SabcrmRustRecord {
   updatedAt: string;
 }
 
+/** A single leaf condition inside a nested AND/OR filter group. */
+export interface SabcrmFilterCondition {
+  field: string;
+  operator:
+    | 'eq'
+    | 'ne'
+    | 'contains'
+    | 'gt'
+    | 'lt'
+    | 'gte'
+    | 'lte'
+    | 'in'
+    | 'isEmpty'
+    | 'isNotEmpty';
+  value?: unknown;
+}
+
+/**
+ * A nested filter group — `{ op, conditions }` translated to Mongo
+ * `$and` / `$or` over `data.<field>` server-side. Each element of
+ * `conditions` is either a leaf {@link SabcrmFilterCondition} or another
+ * nested group.
+ */
+export interface SabcrmFilterGroup {
+  op: 'and' | 'or';
+  conditions: Array<SabcrmFilterCondition | SabcrmFilterGroup>;
+}
+
+/**
+ * The `filters` payload accepted by the engine. Two shapes are supported:
+ *
+ * - **flat map** — `{ "<fieldKey>": <condition> }`, ANDed together, where a
+ *   condition is a bare scalar (equality) or `{ op, value }`.
+ * - **nested group** — {@link SabcrmFilterGroup} (`{ op, conditions }`).
+ */
+export type SabcrmRecordFilters = Record<string, unknown> | SabcrmFilterGroup;
+
 export interface SabcrmRecordListParams {
   projectId: string;
   /** Free-text query (regex over common data.* fields server-side). */
@@ -40,13 +77,11 @@ export interface SabcrmRecordListParams {
   page?: number;
   limit?: number;
   /**
-   * Structured field filters, keyed by field key. Each condition is either a
-   * bare scalar (equality on `data.<fieldKey>`) or an object
-   * `{ op, value }` with `op` in `eq`|`ne`|`contains`|`gt`|`lt`|`gte`|`lte`|
-   * `in`|`isEmpty`|`isNotEmpty`. JSON-stringified into the `filters` query
-   * param; omitted when empty.
+   * Structured field filters — either a flat field→condition map or a nested
+   * AND/OR group ({@link SabcrmRecordFilters}). JSON-stringified into the
+   * `filters` query param; omitted when empty.
    */
-  filters?: Record<string, unknown>;
+  filters?: SabcrmRecordFilters;
 }
 
 export interface SabcrmRecordListResponse {
@@ -60,7 +95,7 @@ export interface SabcrmRecordCountParams {
   /** Free-text query (regex over common data.* fields server-side). */
   q?: string;
   /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
-  filters?: Record<string, unknown>;
+  filters?: SabcrmRecordFilters;
 }
 
 export interface SabcrmRecordCountResponse {
@@ -106,6 +141,17 @@ export interface SabcrmRecordCreateInput {
 export interface SabcrmRecordUpdateInput {
   projectId: string;
   data: Record<string, unknown>;
+}
+
+/** Body for {@link sabcrmRecordsApi.merge}. */
+export interface SabcrmRecordMergeInput {
+  projectId: string;
+  /** Hex id of the surviving record. */
+  primaryId: string;
+  /** Hex id of the record absorbed into (then deleted after) the merge. */
+  secondaryId: string;
+  /** Optional winning field values `$set` on the primary record. */
+  data?: Record<string, unknown>;
 }
 
 export interface SabcrmRecordBulkDeleteResponse {
@@ -268,6 +314,23 @@ export const sabcrmRecordsApi = {
       `${base(object)}/bulk-update`,
       { method: 'POST', body: JSON.stringify({ projectId, ids, data }) },
     );
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/merge` — merge two records of the same
+   * object into the surviving `primaryId`. The optional `data` map (winning
+   * field values) is `$set` on the primary, the secondary's activities are
+   * re-pointed onto the primary, then the secondary is deleted. Returns the
+   * merged primary record.
+   */
+  merge(
+    object: string,
+    input: SabcrmRecordMergeInput,
+  ): Promise<SabcrmRustRecord> {
+    return rustFetch<SabcrmRustRecord>(`${base(object)}/merge`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
   },
 
   /** `POST /v1/sabcrm/records/{object}/group` — kanban grouping. */

@@ -45,6 +45,7 @@ import {
   SabcrmViewBar,
   EMPTY_VIEW_STATE,
   viewStateToEngineFilters,
+  countConditions,
   type ViewState,
 } from './view-bar';
 import { SabcrmBulkBar } from './bulk-bar';
@@ -1643,7 +1644,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     : records.length === 0;
 
   const hasActiveQuery =
-    !!search || viewState.filters.length > 0 || !!viewState.sortBy;
+    !!search || countConditions(viewState.filters) > 0 || !!viewState.sortBy;
 
   return (
     <div className="st-page">

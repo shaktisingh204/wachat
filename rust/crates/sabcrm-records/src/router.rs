@@ -23,6 +23,7 @@
 //! POST   /{object}/group       — group_records   (kanban)
 //! POST   /{object}/bulk-delete — bulk_delete_records
 //! POST   /{object}/bulk-update — bulk_update_records
+//! POST   /{object}/merge       — merge_records
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
 //! DELETE /{object}/{id}        — delete_record
@@ -64,6 +65,7 @@ where
             "/{object}/bulk-update",
             post(handlers::bulk_update_records),
         )
+        .route("/{object}/merge", post(handlers::merge_records))
         .route(
             "/{object}/{id}",
             get(handlers::get_record)

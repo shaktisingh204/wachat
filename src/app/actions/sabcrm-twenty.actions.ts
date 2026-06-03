@@ -339,6 +339,47 @@ export async function updateSabcrmRecordTw(
   }
 }
 
+/**
+ * Merges two records of the same object into the surviving `primaryId`. The
+ * optional `data` map (winning field values chosen by the caller) is `$set`
+ * on the primary, the secondary's activities are re-pointed onto the primary,
+ * then the secondary is deleted. Returns the merged primary record. Gated on
+ * `edit`.
+ */
+export async function mergeSabcrmRecordsTw(
+  object: string,
+  primaryId: string,
+  secondaryId: string,
+  data?: Record<string, unknown>,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRecord>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!primaryId) return { ok: false, error: 'A primary record id is required.' };
+  if (!secondaryId) {
+    return { ok: false, error: 'A secondary record id is required.' };
+  }
+  if (primaryId === secondaryId) {
+    return { ok: false, error: 'Cannot merge a record into itself.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const record = await sabcrmRecordsApi.merge(object, {
+      projectId: g.ctx.projectId,
+      primaryId,
+      secondaryId,
+      data,
+    });
+    revalidatePath(`${TW_BASE_PATH}/${object}`);
+    revalidatePath(`${TW_BASE_PATH}/${object}/${primaryId}`);
+    return { ok: true, data: record };
+  } catch (e) {
+    return fail(e, 'Failed to merge records.');
+  }
+}
+
 /** Deletes a record by id. */
 export async function deleteSabcrmRecordTw(
   object: string,

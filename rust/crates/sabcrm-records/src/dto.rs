@@ -50,12 +50,20 @@ pub struct ListQuery {
     /// Page size. Clamped at 100 by the handler. Defaults to 20.
     #[serde(default)]
     pub limit: Option<u64>,
-    /// Optional URL-encoded JSON string of structured field filters of shape
-    /// `{ "<fieldKey>": <condition>, ... }`. A condition is either a bare
-    /// scalar (string/number/bool → equality on `data.<fieldKey>`) or an
-    /// object `{ "op": "...", "value": <v> }` with `op` in `eq` | `ne` |
-    /// `contains` | `gt` | `lt` | `gte` | `lte` | `in` | `isEmpty` |
-    /// `isNotEmpty`. Bad JSON is rejected with a `400`.
+    /// Optional URL-encoded JSON string of structured field filters. Two
+    /// shapes are accepted:
+    ///
+    /// - **flat map** — `{ "<fieldKey>": <condition>, ... }` where a condition
+    ///   is either a bare scalar (string/number/bool → equality on
+    ///   `data.<fieldKey>`) or an object `{ "op": "...", "value": <v> }`. All
+    ///   entries are ANDed together.
+    /// - **nested group** — `{ "op": "and" | "or", "conditions": [ ... ] }`
+    ///   where each element of `conditions` is either a leaf
+    ///   `{ "field": "<key>", "operator": "<op>", "value": <v> }` or another
+    ///   nested group. Translated to Mongo `$and` / `$or` over `data.<field>`.
+    ///
+    /// `op` in `eq` | `ne` | `contains` | `gt` | `lt` | `gte` | `lte` | `in` |
+    /// `isEmpty` | `isNotEmpty`. Bad JSON / shape is rejected with a `400`.
     #[serde(default)]
     pub filters: Option<String>,
 }
@@ -245,4 +253,26 @@ pub struct BulkUpdateResponse {
     pub ok: bool,
     /// Number of records actually modified.
     pub updated: u64,
+}
+
+/// `POST /{object}/merge` body. Merges two records of the same object: the
+/// surviving record is `primaryId`. The optional `data` map (the winning field
+/// values chosen by the caller) is `$set` as `data.<k>` on the primary and
+/// `updatedAt` is bumped; the `secondaryId` record is then deleted. Both ids
+/// must resolve within `{ projectId, object }` or the call yields a `404`.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct MergeRecordsInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Hex ObjectId of the surviving record.
+    pub primary_id: String,
+    /// Hex ObjectId of the record absorbed into (then deleted after) the merge.
+    pub secondary_id: String,
+    /// Optional winning field map — each key is written as `data.<key>` on the
+    /// surviving primary record. Absent / empty → no field overrides, but
+    /// `updatedAt` is still bumped and the secondary is still deleted.
+    #[serde(default)]
+    #[schema(value_type = Object)]
+    pub data: Option<Value>,
 }

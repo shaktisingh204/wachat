@@ -1,0 +1,168 @@
+/* =========================================================================
+   SabCRM Settings — API Playground supplemental classes
+   -------------------------------------------------------------------------
+   Companion sheet to `src/styles/sabcrm-twenty.css` for the REST API tester
+   under `/sabcrm/settings/playground`. Like the sibling settings sheet, every
+   selector is scoped under `.sabcrm-twenty` (supplied by the SabCRM app frame
+   layout) so these helpers never leak into the rest of SabNode. All values
+   derive from the base `--st-*` token vocabulary — no new colours.
+   ========================================================================= */
+
+/* The request builder card — bordered surface grouping all inputs. */
+.sabcrm-twenty .st-pg-builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+/* A row of fields that wraps on narrow viewports. */
+.sabcrm-twenty .st-pg-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-3);
+}
+
+/* One field within a builder row; grows to share the row evenly. */
+.sabcrm-twenty .st-pg-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-pg-field--method {
+  flex: 0 0 180px;
+}
+
+.sabcrm-twenty .st-pg-field__label {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-pg-field__hint {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.4;
+}
+
+/* The JSON body editor — monospace textarea. */
+.sabcrm-twenty .st-pg-code {
+  min-height: 132px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  tab-size: 2;
+  resize: vertical;
+}
+
+/* Endpoint hint line — the resolved REST path the request maps to. */
+.sabcrm-twenty .st-pg-endpoint {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-pg-method-tag {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-text);
+  color: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  letter-spacing: 0.02em;
+}
+
+/* Action row — Send button aligned to the start, helper text after. */
+.sabcrm-twenty .st-pg-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+}
+
+/* The response panel header (status + copy). */
+.sabcrm-twenty .st-pg-result {
+  margin-top: var(--st-space-5);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-pg-result__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-pg-result__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+/* Status pills — success (ok) and error (fail) variants, B&W friendly. */
+.sabcrm-twenty .st-pg-status {
+  padding: 2px 8px;
+  border-radius: var(--st-radius-pill, 999px);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  border: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-pg-status--ok {
+  color: #2e7d32;
+  border-color: #cde6cf;
+  background: #f2faf3;
+}
+
+.sabcrm-twenty .st-pg-status--fail {
+  color: #b3261e;
+  border-color: #f0d4d2;
+  background: #fdf3f3;
+}
+
+/* The pretty-printed JSON body. */
+.sabcrm-twenty .st-pg-pre {
+  margin: 0;
+  padding: var(--st-space-3);
+  max-height: 420px;
+  overflow: auto;
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Empty / pre-send placeholder inside the result area. */
+.sabcrm-twenty .st-pg-placeholder {
+  padding: var(--st-space-5) var(--st-space-3);
+  text-align: center;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}

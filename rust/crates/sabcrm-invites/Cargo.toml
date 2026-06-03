@@ -1,0 +1,48 @@
+# SabCRM — axum router for the **invites** HTTP surface.
+#
+# Create / list / revoke / delete workspace-member invitations over the
+# `sabcrm_invites` Mongo collection. Tenancy is by `projectId` (a
+# query/body string); every endpoint requires the caller's `AuthUser`.
+#
+# An invite is a pending membership offer keyed by `(projectId, email)`
+# while `status = pending`. Mounted under `/v1/sabcrm/invites` from the
+# orchestrating `api` crate. No email is sent here — that is a runtime
+# concern; this crate only persists the invite + its token.
+[package]
+name = "sabcrm-invites"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM invites HTTP surface (`/v1/sabcrm/invites/*`). Workspace-member invitations scoped by `projectId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_invites"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

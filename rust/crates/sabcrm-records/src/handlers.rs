@@ -38,12 +38,16 @@ use tracing::instrument;
 use crate::dto::{
     BulkDeleteInput, BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CountQuery,
     CountResponse, CreateRecordInput, GroupRecordsInput, GroupResponse, ListQuery, ListResponse,
-    OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery,
-    UpdateRecordInput,
+    MergeRecordsInput, OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationsResponse,
+    ScopeQuery, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
 const RECORDS_COLL: &str = "sabcrm_records";
+
+/// Timeline activities collection — re-pointed on merge so a secondary
+/// record's activities survive on the surviving primary.
+const ACTIVITIES_COLL: &str = "sabcrm_activities";
 
 /// Default page size for the list endpoint when no `limit` is supplied.
 const DEFAULT_LIMIT: u64 = 20;
@@ -178,10 +182,114 @@ fn condition_to_bson(cond: &Value) -> Result<Bson> {
     Ok(Bson::Document(predicate))
 }
 
-/// Parse the optional URL-encoded JSON `filters` query param and AND each
-/// `{ "<fieldKey>": <condition> }` entry into the supplied Mongo `filter`
-/// as `data.<fieldKey> <predicate>`. Bad JSON or an unsupported op yields a
-/// `400`; an absent / empty param is a no-op.
+/// Translate a single leaf condition `{ "field", "operator", "value" }` of a
+/// nested filter group into a Mongo predicate document
+/// `{ "data.<field>": <predicate> }`. Reuses [`condition_to_bson`] by lifting
+/// `operator`/`value` into the `{ "op", "value" }` shape it already speaks.
+fn leaf_to_filter_doc(obj: &serde_json::Map<String, Value>) -> Result<Document> {
+    let field = obj
+        .get("field")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .ok_or_else(|| {
+            ApiError::BadRequest("filter condition requires a non-empty `field`.".to_owned())
+        })?;
+
+    let operator = obj.get("operator").and_then(Value::as_str).ok_or_else(|| {
+        ApiError::BadRequest("filter condition requires an `operator`.".to_owned())
+    })?;
+
+    // Re-shape into the `{ "op", "value" }` form `condition_to_bson` consumes.
+    let cond = serde_json::json!({
+        "op": operator,
+        "value": obj.get("value").cloned().unwrap_or(Value::Null),
+    });
+    let predicate = condition_to_bson(&cond)?;
+
+    let mut out = Document::new();
+    out.insert(format!("data.{field}"), predicate);
+    Ok(out)
+}
+
+/// Translate one element of a nested group's `conditions` array into a Mongo
+/// filter document — either a leaf (has `field` + `operator`) or another
+/// nested group (has `op` + `conditions`). Recurses for nested groups.
+fn group_element_to_doc(el: &Value) -> Result<Document> {
+    let obj = match el {
+        Value::Object(map) => map,
+        _ => {
+            return Err(ApiError::BadRequest(
+                "each filter condition must be a JSON object.".to_owned(),
+            ));
+        }
+    };
+
+    // A nested group: `{ "op": "and" | "or", "conditions": [...] }`.
+    if obj.contains_key("conditions") {
+        return group_to_filter_doc(obj);
+    }
+
+    // Otherwise a leaf condition: `{ "field", "operator", "value" }`.
+    leaf_to_filter_doc(obj)
+}
+
+/// Translate a nested filter group `{ "op": "and" | "or", "conditions": [...] }`
+/// into a single Mongo `{ "$and" | "$or": [ <doc>, ... ] }` document. An empty
+/// `conditions` array yields an empty (match-all) document. A bad `op` or a
+/// malformed element yields a `400`.
+fn group_to_filter_doc(obj: &serde_json::Map<String, Value>) -> Result<Document> {
+    let op = obj
+        .get("op")
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .map(str::to_ascii_lowercase)
+        .ok_or_else(|| {
+            ApiError::BadRequest("filter group requires an `op` (`and` | `or`).".to_owned())
+        })?;
+
+    let mongo_op = match op.as_str() {
+        "and" => "$and",
+        "or" => "$or",
+        other => {
+            return Err(ApiError::BadRequest(format!(
+                "filter group `op` must be `and` or `or`, got `{other}`."
+            )));
+        }
+    };
+
+    let conditions = obj.get("conditions").and_then(Value::as_array).ok_or_else(|| {
+        ApiError::BadRequest("filter group requires a `conditions` array.".to_owned())
+    })?;
+
+    // An empty group is a match-all (no predicate added) — avoid emitting an
+    // empty `$and`/`$or`, which Mongo rejects.
+    if conditions.is_empty() {
+        return Ok(Document::new());
+    }
+
+    let branches: Vec<Bson> = conditions
+        .iter()
+        .map(|el| group_element_to_doc(el).map(Bson::Document))
+        .collect::<Result<Vec<_>>>()?;
+
+    let mut out = Document::new();
+    out.insert(mongo_op, Bson::Array(branches));
+    Ok(out)
+}
+
+/// Parse the optional URL-encoded JSON `filters` query param and merge it into
+/// the supplied Mongo `filter`. Two shapes are accepted:
+///
+/// - **flat map** — `{ "<fieldKey>": <condition>, ... }`: each entry is ANDed
+///   in as `data.<fieldKey> <predicate>` (the original behaviour).
+/// - **nested group** — `{ "op": "and" | "or", "conditions": [...] }`:
+///   translated to a Mongo `$and` / `$or` (see [`group_to_filter_doc`]) and
+///   merged into `filter` under that operator key.
+///
+/// The shape is detected by the presence of an `op` + `conditions` pair. Bad
+/// JSON, a non-object root, or an unsupported op yields a `400`; an absent /
+/// empty param is a no-op.
 fn apply_filters(filter: &mut Document, filters: Option<&str>) -> Result<()> {
     let raw = match filters.map(str::trim).filter(|s| !s.is_empty()) {
         Some(raw) => raw,
@@ -200,6 +308,17 @@ fn apply_filters(filter: &mut Document, filters: Option<&str>) -> Result<()> {
         }
     };
 
+    // Nested-group form: `{ "op", "conditions" }`. Detected by the pair so a
+    // user field literally named `op` in the flat form isn't misread.
+    if map.contains_key("op") && map.contains_key("conditions") {
+        let group = group_to_filter_doc(&map)?;
+        for (k, v) in group {
+            filter.insert(k, v);
+        }
+        return Ok(());
+    }
+
+    // Flat-map form: each `{ "<fieldKey>": <condition> }` ANDed in.
     for (field, cond) in &map {
         let key = field.trim();
         if key.is_empty() {
@@ -605,6 +724,109 @@ pub async fn bulk_update_records(
     Ok(Json(BulkUpdateResponse {
         ok: true,
         updated: result.modified_count,
+    }))
+}
+
+// ===========================================================================
+// POST /{object}/merge — mergeRecords
+// ===========================================================================
+
+/// `POST /v1/sabcrm/records/{object}/merge` — merge two records of the same
+/// object into the surviving `primaryId`.
+///
+/// Pipeline:
+/// 1. Both `primaryId` and `secondaryId` must resolve within
+///    `{ projectId, object }` (else `404` — never leak existence).
+/// 2. Apply the optional `data` map as `$set data.<k>` on the primary (the
+///    winning field values chosen by the caller) and bump `updatedAt`.
+/// 3. Re-point any activities whose `targetRecordId == secondaryId` to
+///    `primaryId` (best-effort `update_many` on `sabcrm_activities`).
+/// 4. Delete the `secondaryId` record.
+/// 5. Return the merged primary record.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn merge_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Json(body): Json<MergeRecordsInput>,
+) -> Result<Json<RecordResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let primary_oid = oid_from_str(&body.primary_id)?;
+    let secondary_oid = oid_from_str(&body.secondary_id)?;
+
+    if primary_oid == secondary_oid {
+        return Err(ApiError::Validation(
+            "primaryId and secondaryId must differ.".to_owned(),
+        ));
+    }
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    // Both must exist within the tenant + object scope before we mutate.
+    let mut secondary_filter = scope(project_id, &object);
+    secondary_filter.insert("_id", secondary_oid);
+    let secondary_exists = coll
+        .find_one(secondary_filter.clone())
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.merge.find_secondary"))
+        })?
+        .is_some();
+    if !secondary_exists {
+        return Err(ApiError::NotFound("record".to_owned()));
+    }
+
+    // Build the `$set` for the primary: the optional winning `data` map plus a
+    // fresh `updatedAt`. A non-object `data` is rejected as a `400` (via
+    // `data_to_doc`'s 422? — keep parity with update: reject non-object).
+    let mut set = Document::new();
+    if let Some(data) = body.data.as_ref().filter(|v| !v.is_null()) {
+        let data_doc = data_to_doc(data)?;
+        for (k, v) in data_doc {
+            set.insert(format!("data.{k}"), v);
+        }
+    }
+    set.insert("updatedAt", Utc::now().to_rfc3339());
+
+    let mut primary_filter = scope(project_id, &object);
+    primary_filter.insert("_id", primary_oid);
+
+    let merged = coll
+        .find_one_and_update(primary_filter, doc! { "$set": set })
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_records.merge.find_one_and_update"),
+            )
+        })?
+        .ok_or_else(|| ApiError::NotFound("record".to_owned()))?;
+
+    // Re-point the secondary's activities onto the surviving primary. The
+    // activities collection stores `targetRecordId` as a plain hex string.
+    let activities = mongo.collection::<Document>(ACTIVITIES_COLL);
+    activities
+        .update_many(
+            doc! {
+                "projectId": project_id,
+                "targetRecordId": body.secondary_id.trim(),
+            },
+            doc! { "$set": { "targetRecordId": body.primary_id.trim() } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_records.merge.repoint_activities"),
+            )
+        })?;
+
+    // Finally drop the absorbed secondary record.
+    coll.delete_one(secondary_filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.merge.delete_secondary"))
+    })?;
+
+    Ok(Json(RecordResponse {
+        record: record_to_wire(merged),
     }))
 }
 

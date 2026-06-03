@@ -1,0 +1,222 @@
+/* ===========================================================================
+   SabCRM — Twenty "advanced filter" builder.
+
+   A nested condition-group editor mirroring Twenty's advanced filter dropdown:
+   a root group with an AND/OR toggle, rows of { field, operator, value }, plus
+   "Add condition" / "Add group" affordances. Sub-groups recurse with their own
+   AND/OR toggle and a left rail that visually nests them.
+
+   Uses ONLY the shared `--st-*` design tokens (already loaded by the twenty
+   kit). New classes are namespaced `.staf-*` so they never collide with the
+   canonical `.st-*` set or the view-bar's `.stv-*` set.
+   ========================================================================= */
+
+/* Wider popover for the builder than the simple field/op/value stack. */
+.staf {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 340px;
+}
+
+.staf--root {
+  min-width: 360px;
+}
+
+/* ---- A group (root or nested) ------------------------------------------- */
+.staf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Nested groups get an indenting left rail so depth reads at a glance. */
+.staf-group--nested {
+  position: relative;
+  margin-left: var(--st-space-2);
+  padding-left: var(--st-space-3);
+  border-left: 2px solid var(--st-border);
+}
+
+/* ---- The AND/OR conjunction toggle -------------------------------------- */
+.staf-conj {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  background: var(--st-bg);
+}
+
+.staf-conj__btn {
+  appearance: none;
+  height: 24px;
+  min-width: 40px;
+  padding: 0 var(--st-space-2);
+  border: none;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.staf-conj__btn + .staf-conj__btn {
+  border-left: 1px solid var(--st-border);
+}
+
+.staf-conj__btn:hover {
+  color: var(--st-text-primary, #111);
+}
+
+.staf-conj__btn.is-active {
+  background: var(--st-accent);
+  color: #fff;
+}
+
+/* The line that introduces a group: AND/OR toggle on the left, a label, and a
+   remove button (nested groups only) on the right. */
+.staf-group__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 26px;
+}
+
+.staf-group__lead {
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.staf-group__spacer {
+  flex: 1 1 auto;
+}
+
+/* ---- A single condition row --------------------------------------------- */
+.staf-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* The leading slot: first row shows "Where", later rows echo the conjunction
+   so the row reads "AND <field> <op> <value>". Fixed width keeps fields aligned. */
+.staf-row__lead {
+  flex: 0 0 46px;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: right;
+}
+
+.staf-select,
+.staf-input {
+  height: 28px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-primary, #111);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  min-width: 0;
+}
+
+.staf-select:focus,
+.staf-input:focus {
+  outline: none;
+  border-color: var(--st-accent);
+}
+
+.staf-row__field {
+  flex: 1 1 110px;
+}
+
+.staf-row__op {
+  flex: 1 1 90px;
+}
+
+.staf-row__value {
+  flex: 1 1 110px;
+}
+
+/* The little circular remove (x) on a condition / group. */
+.staf-x {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.staf-x:hover {
+  background: var(--st-bg-secondary);
+  color: var(--st-text-primary, #111);
+}
+
+/* ---- Add-condition / Add-group affordances ------------------------------ */
+.staf-adds {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  padding-top: 2px;
+}
+
+.staf-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 var(--st-space-2);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary, #555);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+}
+
+.staf-add:hover {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-text-tertiary);
+  color: var(--st-text-primary, #111);
+}
+
+/* ---- Footer actions ----------------------------------------------------- */
+.staf-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-1);
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border-light, var(--st-border));
+}
+
+.staf-actions__right {
+  display: flex;
+  gap: var(--st-space-2);
+}
+
+.staf-empty {
+  padding: var(--st-space-1) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}

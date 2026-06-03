@@ -28,7 +28,15 @@ export type FieldType =
   | 'MULTI_SELECT'
   | 'RATING'
   | 'RELATION'
-  | 'FILE';
+  | 'FILE'
+  // Composite & multi-value field types (ported from Twenty).
+  | 'FULL_NAME'
+  | 'ADDRESS'
+  | 'EMAILS'
+  | 'PHONES'
+  | 'LINKS'
+  | 'ARRAY'
+  | 'RAW_JSON';
 
 /** A single option for SELECT / MULTI_SELECT fields. */
 export interface FieldOption {

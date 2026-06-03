@@ -61,6 +61,7 @@ import type {
 } from '@/lib/sabcrm/types';
 
 import './data-model.css';
+import '@/components/sabcrm/twenty/field-types.css';
 
 // ---------------------------------------------------------------------------
 // Twenty SELECT-option colour palette
@@ -133,12 +134,35 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
   { value: 'MULTI_SELECT', label: 'Select (multiple)' },
   { value: 'RATING', label: 'Rating' },
   { value: 'FILE', label: 'File' },
+  { value: 'FULL_NAME', label: 'Full name' },
+  { value: 'ADDRESS', label: 'Address' },
+  { value: 'EMAILS', label: 'Emails' },
+  { value: 'PHONES', label: 'Phones' },
+  { value: 'LINKS', label: 'Links' },
+  { value: 'ARRAY', label: 'Array' },
+  { value: 'RAW_JSON', label: 'Raw JSON' },
 ];
 
 function fieldTypeLabel(type: FieldType): string {
   if (type === 'RELATION') return 'Relation';
   return FIELD_TYPE_OPTIONS.find((t) => t.value === type)?.label ?? type;
 }
+
+/** Common ISO-4217 currency codes offered in the CURRENCY default editor. */
+const CURRENCY_CODES: ReadonlyArray<string> = [
+  'USD',
+  'EUR',
+  'GBP',
+  'INR',
+  'JPY',
+  'CNY',
+  'AUD',
+  'CAD',
+  'CHF',
+  'SGD',
+  'AED',
+  'BRL',
+];
 
 /** Slugify a label into a kebab-case object slug suggestion. */
 function slugify(input: string): string {
@@ -463,6 +487,421 @@ function RelationEditor({
           )}
         </select>
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Composite / multi-value default-value editors
+//
+// These edit a field's `defaultValue` for the composite & multi-value field
+// types ported from Twenty. They mirror the read shapes consumed by
+// `<TwentyFieldValue />`: CURRENCY → { amount, currencyCode }, FULL_NAME →
+// { firstName, lastName }, ADDRESS → { street, city, state, postcode,
+// country }, EMAILS/PHONES/ARRAY → string[], LINKS → { label, url }[],
+// RATING → number, RAW_JSON → object. Twenty look only (`.st-fe-*`).
+// ---------------------------------------------------------------------------
+
+/** Coerce an unknown default into a record (composite editors). */
+function recordDefault(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+/** Coerce an unknown default into a string[] (multi-value editors). */
+function stringArrayDefault(value: unknown): string[] {
+  return Array.isArray(value) ? value.map((v) => String(v)) : [];
+}
+
+/** CURRENCY default editor — amount input + currency-code select. */
+function CurrencyDefaultEditor({
+  value,
+  onChange,
+}: {
+  value: unknown;
+  onChange: (next: { amount: number; currencyCode: string }) => void;
+}) {
+  const rec = recordDefault(value);
+  const amount =
+    typeof rec.amount === 'number' ? rec.amount : Number(rec.amount) || 0;
+  const code = typeof rec.currencyCode === 'string' ? rec.currencyCode : 'USD';
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default amount</span>
+      <div className="st-fe-row">
+        <input
+          className="st-input st-fe-row__grow"
+          type="number"
+          step="0.01"
+          value={Number.isFinite(amount) ? amount : 0}
+          onChange={(e) =>
+            onChange({ amount: Number(e.target.value) || 0, currencyCode: code })
+          }
+        />
+        <select
+          className="st-select st-fe-row__shrink"
+          aria-label="Currency code"
+          value={code}
+          onChange={(e) => onChange({ amount, currencyCode: e.target.value })}
+        >
+          {CURRENCY_CODES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+}
+
+/** FULL_NAME default editor — first + last inputs. */
+function FullNameDefaultEditor({
+  value,
+  onChange,
+}: {
+  value: unknown;
+  onChange: (next: { firstName: string; lastName: string }) => void;
+}) {
+  const rec = recordDefault(value);
+  const firstName = typeof rec.firstName === 'string' ? rec.firstName : '';
+  const lastName = typeof rec.lastName === 'string' ? rec.lastName : '';
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default name</span>
+      <div className="st-fe-row">
+        <input
+          className="st-input"
+          placeholder="First"
+          autoComplete="off"
+          value={firstName}
+          onChange={(e) => onChange({ firstName: e.target.value, lastName })}
+        />
+        <input
+          className="st-input"
+          placeholder="Last"
+          autoComplete="off"
+          value={lastName}
+          onChange={(e) => onChange({ firstName, lastName: e.target.value })}
+        />
+      </div>
+    </div>
+  );
+}
+
+const ADDRESS_FIELDS: ReadonlyArray<{ key: string; label: string; full?: boolean }> = [
+  { key: 'street', label: 'Street', full: true },
+  { key: 'city', label: 'City' },
+  { key: 'state', label: 'State' },
+  { key: 'postcode', label: 'Postcode' },
+  { key: 'country', label: 'Country' },
+];
+
+/** ADDRESS default editor — street / city / state / postcode / country. */
+function AddressDefaultEditor({
+  value,
+  onChange,
+}: {
+  value: unknown;
+  onChange: (next: Record<string, string>) => void;
+}) {
+  const rec = recordDefault(value);
+  const get = (k: string) => (typeof rec[k] === 'string' ? (rec[k] as string) : '');
+  const set = (k: string, v: string) => {
+    const next: Record<string, string> = {};
+    for (const f of ADDRESS_FIELDS) next[f.key] = get(f.key);
+    next[k] = v;
+    onChange(next);
+  };
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default address</span>
+      <div className="st-fe-grid">
+        {ADDRESS_FIELDS.map((f) => (
+          <div
+            key={f.key}
+            className={`st-fe-sub${f.full ? ' st-fe-grid__full' : ''}`}
+          >
+            <span className="st-fe-sub__label">{f.label}</span>
+            <input
+              className="st-input"
+              autoComplete="off"
+              value={get(f.key)}
+              onChange={(e) => set(f.key, e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Add/remove list editor for EMAILS / PHONES / ARRAY string lists. */
+function StringListEditor({
+  label,
+  placeholder,
+  inputType,
+  value,
+  onChange,
+}: {
+  label: string;
+  placeholder: string;
+  inputType?: string;
+  value: unknown;
+  onChange: (next: string[]) => void;
+}) {
+  const items = stringArrayDefault(value);
+  const update = (idx: number, next: string) =>
+    onChange(items.map((v, i) => (i === idx ? next : v)));
+  const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
+  const add = () => onChange([...items, '']);
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">{label}</span>
+      <div className="st-fe-list">
+        {items.length === 0 ? (
+          <p className="st-fe-list__empty">None yet.</p>
+        ) : (
+          items.map((item, idx) => (
+            <div className="st-fe-list__row" key={idx}>
+              <input
+                className="st-input"
+                type={inputType ?? 'text'}
+                placeholder={placeholder}
+                autoComplete="off"
+                value={item}
+                onChange={(e) => update(idx, e.target.value)}
+              />
+              <button
+                type="button"
+                className="st-fe-iconbtn st-fe-iconbtn--danger"
+                aria-label={`Remove ${label} ${idx + 1}`}
+                onClick={() => remove(idx)}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))
+        )}
+        <button type="button" className="st-fe-add" onClick={add}>
+          <Plus size={14} />
+          Add
+        </button>
+      </div>
+    </div>
+  );
+}
+
+interface LinkItem {
+  label: string;
+  url: string;
+}
+
+/** Add/remove editor for LINKS — label + url rows. */
+function LinksEditor({
+  value,
+  onChange,
+}: {
+  value: unknown;
+  onChange: (next: LinkItem[]) => void;
+}) {
+  const items: LinkItem[] = Array.isArray(value)
+    ? value.map((v) => {
+        const rec =
+          v && typeof v === 'object' ? (v as Record<string, unknown>) : {};
+        return {
+          label: typeof rec.label === 'string' ? rec.label : '',
+          url: typeof rec.url === 'string' ? rec.url : '',
+        };
+      })
+    : [];
+  const update = (idx: number, patch: Partial<LinkItem>) =>
+    onChange(items.map((v, i) => (i === idx ? { ...v, ...patch } : v)));
+  const remove = (idx: number) => onChange(items.filter((_, i) => i !== idx));
+  const add = () => onChange([...items, { label: '', url: '' }]);
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default links</span>
+      <div className="st-fe-list">
+        {items.length === 0 ? (
+          <p className="st-fe-list__empty">None yet.</p>
+        ) : (
+          items.map((item, idx) => (
+            <div className="st-fe-list__row" key={idx}>
+              <input
+                className="st-input"
+                placeholder="Label"
+                autoComplete="off"
+                value={item.label}
+                onChange={(e) => update(idx, { label: e.target.value })}
+              />
+              <input
+                className="st-input"
+                placeholder="https://…"
+                autoComplete="off"
+                value={item.url}
+                onChange={(e) => update(idx, { url: e.target.value })}
+              />
+              <button
+                type="button"
+                className="st-fe-iconbtn st-fe-iconbtn--danger"
+                aria-label={`Remove link ${idx + 1}`}
+                onClick={() => remove(idx)}
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ))
+        )}
+        <button type="button" className="st-fe-add" onClick={add}>
+          <Plus size={14} />
+          Add link
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** MULTI_SELECT default editor — checkbox column over the field options. */
+function MultiSelectDefaultEditor({
+  options,
+  value,
+  onChange,
+}: {
+  options: FieldOption[];
+  value: unknown;
+  onChange: (next: string[]) => void;
+}) {
+  const selected = new Set(stringArrayDefault(value));
+  const toggle = (optValue: string) => {
+    const next = new Set(selected);
+    if (next.has(optValue)) next.delete(optValue);
+    else next.add(optValue);
+    onChange(Array.from(next));
+  };
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default selection</span>
+      <div className="st-fe-checks">
+        {options.length === 0 ? (
+          <p className="st-fe-list__empty">Add options above first.</p>
+        ) : (
+          options.map((opt) => (
+            <label className="st-fe-check" key={opt.value || opt.label}>
+              <input
+                type="checkbox"
+                checked={selected.has(opt.value)}
+                onChange={() => toggle(opt.value)}
+              />
+              <span
+                className="st-fe-check__swatch"
+                style={{ background: swatchFor(opt.color) }}
+                aria-hidden="true"
+              />
+              {opt.label || opt.value}
+            </label>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** RATING default editor — click a star (0–5) to set the default. */
+function RatingDefaultEditor({
+  value,
+  onChange,
+}: {
+  value: unknown;
+  onChange: (next: number) => void;
+}) {
+  const current =
+    typeof value === 'number' ? value : Number(value) || 0;
+  const clamped = Math.max(0, Math.min(5, Math.round(current)));
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default rating</span>
+      <div>
+        <span className="st-fe-stars">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={`st-fe-star${i < clamped ? ' is-on' : ''}`}
+              aria-label={`Set rating to ${i + 1}`}
+              onClick={() => onChange(i + 1)}
+            >
+              ★
+            </button>
+          ))}
+        </span>
+        {clamped > 0 ? (
+          <button
+            type="button"
+            className="st-fe-star--clear"
+            onClick={() => onChange(0)}
+          >
+            Clear
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** RAW_JSON default editor — JSON textarea with live validation. */
+function RawJsonDefaultEditor({
+  value,
+  onChange,
+  onValidityChange,
+}: {
+  value: unknown;
+  onChange: (next: unknown) => void;
+  onValidityChange: (valid: boolean) => void;
+}) {
+  const initial = React.useMemo(() => {
+    if (value === undefined || value === null) return '';
+    if (typeof value === 'string') return value;
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return '';
+    }
+  }, [value]);
+  const [text, setText] = React.useState(initial);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const onEdit = (raw: string) => {
+    setText(raw);
+    if (raw.trim() === '') {
+      setError(null);
+      onValidityChange(true);
+      onChange(undefined);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      setError(null);
+      onValidityChange(true);
+      onChange(parsed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid JSON');
+      onValidityChange(false);
+    }
+  };
+
+  return (
+    <div className="dm-field">
+      <span className="st-field__label">Default JSON</span>
+      <textarea
+        className={`st-input st-fe-json${error ? ' st-fe-json--invalid' : ''}`}
+        spellCheck={false}
+        placeholder='{ "key": "value" }'
+        value={text}
+        onChange={(e) => onEdit(e.target.value)}
+      />
+      {error ? <span className="st-fe-error">{error}</span> : null}
     </div>
   );
 }
@@ -889,6 +1328,11 @@ function FieldDialog({
       labelField: '',
     },
   );
+  const [defaultValue, setDefaultValue] = React.useState<unknown>(
+    editing?.defaultValue,
+  );
+  /** RAW_JSON validity — blocks submit while the textarea holds invalid JSON. */
+  const [jsonValid, setJsonValid] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -909,6 +1353,13 @@ function FieldDialog({
   const isSelect = SELECT_TYPES.has(type);
   const isRelation = type === 'RELATION';
 
+  /** Switch the field type, dropping any default that no longer fits. */
+  const onTypeChange = (next: FieldType) => {
+    setType(next);
+    setDefaultValue(undefined);
+    setJsonValid(true);
+  };
+
   // Type-specific validity: SELECT needs ≥1 valid option; RELATION needs a target.
   const optionsValid =
     !isSelect ||
@@ -922,6 +1373,7 @@ function FieldDialog({
     !keyConflict &&
     optionsValid &&
     relationValid &&
+    jsonValid &&
     !saving;
 
   // Seed an empty option row the first time SELECT is chosen.
@@ -957,6 +1409,9 @@ function FieldDialog({
         kind: relation.kind,
         labelField: relation.labelField || undefined,
       };
+    }
+    if (defaultValue !== undefined && defaultValue !== null) {
+      next.defaultValue = defaultValue;
     }
     return next;
   };
@@ -1066,7 +1521,7 @@ function FieldDialog({
               <select
                 className="st-select"
                 value={type}
-                onChange={(e) => setType(e.target.value as FieldType)}
+                onChange={(e) => onTypeChange(e.target.value as FieldType)}
               >
                 {FIELD_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -1087,6 +1542,83 @@ function FieldDialog({
                 selfSlug={object.slug}
                 relation={relation}
                 onChange={setRelation}
+              />
+            ) : null}
+
+            {type === 'CURRENCY' ? (
+              <CurrencyDefaultEditor
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'FULL_NAME' ? (
+              <FullNameDefaultEditor
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'ADDRESS' ? (
+              <AddressDefaultEditor
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'EMAILS' ? (
+              <StringListEditor
+                label="Default emails"
+                placeholder="name@example.com"
+                inputType="email"
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'PHONES' ? (
+              <StringListEditor
+                label="Default phones"
+                placeholder="+1 555 000 0000"
+                inputType="tel"
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'ARRAY' ? (
+              <StringListEditor
+                label="Default items"
+                placeholder="Value"
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'LINKS' ? (
+              <LinksEditor value={defaultValue} onChange={setDefaultValue} />
+            ) : null}
+
+            {type === 'MULTI_SELECT' ? (
+              <MultiSelectDefaultEditor
+                options={options}
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'RATING' ? (
+              <RatingDefaultEditor
+                value={defaultValue}
+                onChange={setDefaultValue}
+              />
+            ) : null}
+
+            {type === 'RAW_JSON' ? (
+              <RawJsonDefaultEditor
+                value={defaultValue}
+                onChange={setDefaultValue}
+                onValidityChange={setJsonValid}
               />
             ) : null}
 
