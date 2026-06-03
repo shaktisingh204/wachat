@@ -40,6 +40,10 @@
     {
       "path": "/api/cron/qr-scan-notify",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/sabcrm-workflows",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

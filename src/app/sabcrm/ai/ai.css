@@ -1,0 +1,279 @@
+/* =========================================================================
+   SabCRM — AI Assistant chat styles (`/sabcrm/ai`).
+
+   Twenty-faithful, scoped under `.st-ai`. Uses ONLY the `--st-*` design tokens
+   defined in `src/styles/sabcrm-twenty.css`. Do NOT add these rules to
+   `sabcrm-twenty.css`; they live here alongside the page.
+   ========================================================================= */
+
+.st-ai {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+}
+
+.st-ai__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ---- Scrollable transcript ------------------------------------------- */
+
+.st-ai__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--st-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+/* ---- Empty / welcome state ------------------------------------------- */
+
+.st-ai__welcome {
+  margin: auto;
+  max-width: 520px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-6) var(--st-space-4);
+}
+
+.st-ai__welcome-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--st-radius-lg);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.st-ai__welcome-title {
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.st-ai__welcome-sub {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  line-height: 1.5;
+}
+
+/* ---- Suggested-prompt chips ------------------------------------------ */
+
+.st-ai__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-3);
+}
+
+.st-ai__chip {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-radius: var(--st-radius);
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.st-ai__chip:hover:not(:disabled) {
+  background: var(--st-hover);
+  border-color: var(--st-accent);
+  color: var(--st-text);
+}
+
+.st-ai__chip:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---- Message list ----------------------------------------------------- */
+
+.st-ai__messages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+}
+
+.st-ai__msg {
+  display: flex;
+  gap: var(--st-space-3);
+  align-items: flex-start;
+}
+
+.st-ai__msg--user {
+  flex-direction: row-reverse;
+}
+
+.st-ai__avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  border: 1px solid var(--st-border);
+}
+
+.st-ai__msg--assistant .st-ai__avatar {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  border-color: transparent;
+}
+
+.st-ai__bubble {
+  max-width: 80%;
+  padding: var(--st-space-3) var(--st-space-4);
+  border-radius: var(--st-radius-lg);
+  font-size: var(--st-font-size);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  border: 1px solid var(--st-border-light);
+}
+
+.st-ai__msg--user .st-ai__bubble {
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+  border-color: transparent;
+}
+
+/* ---- Typing / streaming indicator ------------------------------------ */
+
+.st-ai__typing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-ai__spin {
+  animation: st-ai-spin 0.8s linear infinite;
+}
+
+@keyframes st-ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.st-ai__send--busy svg {
+  animation: st-ai-spin 0.8s linear infinite;
+}
+
+/* ---- Notices (unconfigured / error) ---------------------------------- */
+
+.st-ai__notice {
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  display: flex;
+  gap: var(--st-space-3);
+  align-items: flex-start;
+  padding: var(--st-space-3) var(--st-space-4);
+  border-radius: var(--st-radius);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+}
+
+.st-ai__notice p {
+  margin: 4px 0 0;
+  color: var(--st-text-secondary);
+}
+
+.st-ai__notice code {
+  font-size: 0.85em;
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-hover);
+  border: 1px solid var(--st-border-light);
+}
+
+.st-ai__notice--info {
+  background: var(--st-accent-soft);
+  border: 1px solid var(--st-border);
+  color: var(--st-text);
+}
+
+.st-ai__notice--error {
+  background: #fdecec;
+  border: 1px solid #f3c0c0;
+  color: #9a2222;
+  align-items: center;
+}
+
+/* ---- Composer --------------------------------------------------------- */
+
+.st-ai__composer {
+  flex: 0 0 auto;
+  display: flex;
+  gap: var(--st-space-3);
+  align-items: flex-end;
+  padding: var(--st-space-4) var(--st-space-5);
+  border-top: 1px solid var(--st-border);
+  background: var(--st-bg);
+}
+
+.st-ai__input {
+  flex: 1 1 auto;
+  resize: none;
+  max-height: 160px;
+  min-height: 40px;
+  padding: var(--st-space-3) var(--st-space-4);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  line-height: 1.5;
+  color: var(--st-text);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+
+.st-ai__input:focus {
+  border-color: var(--st-accent);
+}
+
+.st-ai__input:disabled {
+  opacity: 0.6;
+}
+
+.st-ai__input::placeholder {
+  color: var(--st-text-tertiary);
+}
