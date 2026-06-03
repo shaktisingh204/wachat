@@ -21,6 +21,7 @@
 //! PATCH  /{id}          — update_view
 //! DELETE /{id}          — delete_view
 //! POST   /{id}/default  — set_default_view
+//! POST   /{id}/run      — run_view
 //! ```
 
 use std::sync::Arc;
@@ -50,4 +51,5 @@ where
             axum::routing::patch(handlers::update_view).delete(handlers::delete_view),
         )
         .route("/{id}/default", post(handlers::set_default_view))
+        .route("/{id}/run", post(handlers::run_view))
 }

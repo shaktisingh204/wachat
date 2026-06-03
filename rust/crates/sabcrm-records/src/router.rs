@@ -23,6 +23,7 @@
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
 //! DELETE /{object}/{id}        — delete_record
+//! GET    /{object}/{id}/related — record_relations
 //! ```
 
 use std::sync::Arc;
@@ -56,5 +57,9 @@ where
             get(handlers::get_record)
                 .patch(handlers::update_record)
                 .delete(handlers::delete_record),
+        )
+        .route(
+            "/{object}/{id}/related",
+            get(handlers::record_relations),
         )
 }

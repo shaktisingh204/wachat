@@ -144,6 +144,32 @@ pub struct GroupResponse {
     pub groups: Vec<RecordGroup>,
 }
 
+/// One relation block in the `record_relations` response — the related
+/// records reachable from a single RELATION field of the source object.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RecordRelation {
+    /// Field key on the source object that defines this relation.
+    pub field: String,
+    /// Human label of that field.
+    pub label: String,
+    /// Slug of the related object.
+    pub target_object: String,
+    /// Cardinality from the source record's perspective
+    /// (`MANY_TO_ONE` | `ONE_TO_MANY`).
+    pub kind: String,
+    /// The related records (capped per relation).
+    #[schema(value_type = Vec<Object>)]
+    pub records: Vec<Value>,
+}
+
+/// Response body for `GET /{object}/{id}/related`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RelationsResponse {
+    pub relations: Vec<RecordRelation>,
+}
+
 /// Tiny `{ ok: true }` envelope returned by `DELETE /{object}/{id}`.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OkResponse {

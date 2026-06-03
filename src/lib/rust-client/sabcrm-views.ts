@@ -13,6 +13,7 @@ import 'server-only';
  * `rust/crates/sabcrm-views/src/{dto,handlers}.rs`.
  */
 import { rustFetch } from './fetcher';
+import type { SabcrmRustRecord } from './sabcrm-records';
 
 /** A SabCRM saved view as returned by the Rust engine (`_id` → `id` hex). */
 export interface SabcrmRustView {
@@ -61,6 +62,23 @@ interface ListEnvelope {
 /** Raw `{ view }` envelope from `POST /`, `PATCH /{id}`, `POST /{id}/default`. */
 interface SingleEnvelope {
   view: SabcrmRustView;
+}
+
+/** Pagination options accepted by `run`. */
+export interface SabcrmViewRunOpts {
+  /** 1-indexed page number. Defaults to 1 server-side. */
+  page?: number;
+  /** Page size. Clamped at 100 server-side; defaults to 50. */
+  limit?: number;
+}
+
+/**
+ * `{ records, total }` envelope from `POST /{id}/run` — a page of records
+ * matching the view's filters/sort, in the records list wire shape.
+ */
+export interface SabcrmViewRunResponse {
+  records: SabcrmRustRecord[];
+  total: number;
 }
 
 /** Encode query params, dropping undefined/empty values. */
@@ -125,5 +143,27 @@ export const sabcrmViewsApi = {
       { method: 'POST', body: JSON.stringify({ projectId }) },
     );
     return res.view;
+  },
+
+  /**
+   * `POST /v1/sabcrm/views/{id}/run` — apply the saved view's filters/sort to
+   * the records collection server-side and return a page of records.
+   */
+  run(
+    projectId: string,
+    id: string,
+    opts?: SabcrmViewRunOpts,
+  ): Promise<SabcrmViewRunResponse> {
+    return rustFetch<SabcrmViewRunResponse>(
+      `${BASE}/${encodeURIComponent(id)}/run`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          projectId,
+          page: opts?.page,
+          limit: opts?.limit,
+        }),
+      },
+    );
   },
 };

@@ -39,6 +39,12 @@ import {
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import '@/components/sabcrm/twenty/twenty-activity.css';
+import {
+  SabcrmViewBar,
+  EMPTY_VIEW_STATE,
+  viewStateToEngineFilters,
+  type ViewState,
+} from './view-bar';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -578,6 +584,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [searchInput, setSearchInput] = React.useState('');
   const [search, setSearch] = React.useState('');
 
+  // View-bar query state (filters / sort / group) + visible-column set.
+  const [viewState, setViewState] = React.useState<ViewState>(EMPTY_VIEW_STATE);
+  const [visibleColumns, setVisibleColumns] = React.useState<Set<string>>(
+    new Set(),
+  );
+
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
   const [groups, setGroups] = React.useState<SabcrmRecordTwGroup[]>([]);
   const [loadingData, setLoadingData] = React.useState(true);
@@ -595,7 +607,25 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setSearchInput('');
     setSearch('');
     setView('table');
+    setViewState(EMPTY_VIEW_STATE);
   }, [objectSlug]);
+
+  // Seed visible columns from the object's `inTable` fields whenever the
+  // resolved object changes (the Fields popover then mutates this set).
+  React.useEffect(() => {
+    if (!object) return;
+    const defaults = object.fields.filter((f) => f.inTable).map((f) => f.key);
+    setVisibleColumns(new Set(defaults.length ? defaults : object.fields.slice(0, 5).map((f) => f.key)));
+  }, [object]);
+
+  const toggleColumn = React.useCallback((key: string) => {
+    setVisibleColumns((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
 
   // Debounce search input.
   React.useEffect(() => {
@@ -636,6 +666,19 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     if (view === 'board' && !canBoard) setView('table');
   }, [view, canBoard]);
 
+  // The field the records are bucketed by: the view-bar "Group by" wins; the
+  // object's board toggle is the fallback. Either way it must be a SELECT.
+  const groupField = React.useMemo<FieldMetadata | undefined>(() => {
+    if (viewState.groupBy) {
+      const f = object?.fields.find((x) => x.key === viewState.groupBy);
+      return f && f.type === 'SELECT' ? f : undefined;
+    }
+    if (view === 'board' && boardField) return boardField;
+    return undefined;
+  }, [viewState.groupBy, view, boardField, object]);
+
+  const grouped = !!groupField;
+
   // Load records / board whenever the query changes.
   React.useEffect(() => {
     if (!object || !objectSlug) return;
@@ -643,11 +686,14 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setLoadingData(true);
     setDataError(null);
 
+    const engineFilters = viewStateToEngineFilters(viewState);
+    const hasFilters = Object.keys(engineFilters).length > 0;
+
     (async () => {
-      if (view === 'board' && boardField) {
+      if (grouped && groupField) {
         const res = await groupSabcrmRecordsTw(
           objectSlug,
-          boardField.key,
+          groupField.key,
           activeProjectId ?? undefined,
         );
         if (cancelled) return;
@@ -660,7 +706,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       } else {
         const res = await listSabcrmRecordsTw(
           objectSlug,
-          { q: search || undefined, limit: PAGE_LIMIT },
+          {
+            q: search || undefined,
+            limit: PAGE_LIMIT,
+            sortBy: viewState.sortBy ?? undefined,
+            sortDir: viewState.sortBy ? viewState.sortDir : undefined,
+            filters: hasFilters ? engineFilters : undefined,
+          },
           activeProjectId ?? undefined,
         );
         if (cancelled) return;
@@ -677,11 +729,21 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [object, objectSlug, view, search, boardField, activeProjectId, refreshTick]);
+  }, [
+    object,
+    objectSlug,
+    grouped,
+    groupField,
+    search,
+    viewState,
+    activeProjectId,
+    refreshTick,
+  ]);
 
   const columns = React.useMemo(
-    () => (object ? object.fields.filter((f) => f.inTable) : []),
-    [object],
+    () =>
+      object ? object.fields.filter((f) => visibleColumns.has(f.key)) : [],
+    [object, visibleColumns],
   );
   const labelField = React.useMemo(
     () => object?.fields.find((f) => f.isLabel),
@@ -834,10 +896,12 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     );
   }
 
-  const isEmpty =
-    view === 'board'
-      ? groups.every((g) => g.records.length === 0)
-      : records.length === 0;
+  const isEmpty = grouped
+    ? groups.every((g) => g.records.length === 0)
+    : records.length === 0;
+
+  const hasActiveQuery =
+    !!search || viewState.filters.length > 0 || !!viewState.sortBy;
 
   return (
     <div className="st-page">
@@ -862,7 +926,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           />
         </div>
         <div className="st-toolbar__spacer" />
-        {!loadingData && view === 'table' && (
+        {!loadingData && !grouped && (
           <span className="st-count">
             {records.length} {records.length === 1 ? object.labelSingular.toLowerCase() : object.labelPlural.toLowerCase()}
           </span>
@@ -893,6 +957,17 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         )}
       </div>
 
+      <SabcrmViewBar
+        object={object}
+        state={viewState}
+        onStateChange={setViewState}
+        visibleColumns={visibleColumns}
+        onToggleColumn={toggleColumn}
+        onSetColumns={(keys) => setVisibleColumns(new Set(keys))}
+        projectId={activeProjectId}
+        refreshTick={refreshTick}
+      />
+
       {dataError && <ErrorBanner message={dataError} />}
 
       {loadingData ? (
@@ -903,25 +978,25 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             <Database size={20} />
           </span>
           <h2 className="st-empty__title">
-            {search
+            {hasActiveQuery
               ? `No matching ${object.labelPlural.toLowerCase()}`
               : `No ${object.labelPlural.toLowerCase()} yet`}
           </h2>
           <p className="st-empty__desc">
-            {search
-              ? 'Try a different search term.'
+            {hasActiveQuery
+              ? 'Try a different search term or adjust your filters.'
               : `Create your first ${object.labelSingular.toLowerCase()} to get started.`}
           </p>
-          {!search && (
+          {!hasActiveQuery && (
             <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
               New {object.labelSingular}
             </TwentyButton>
           )}
         </div>
-      ) : view === 'board' && boardField ? (
+      ) : grouped && groupField ? (
         <BoardView
           object={object}
-          groupByField={boardField}
+          groupByField={groupField}
           groups={groups}
           previewFields={previewFields}
         />

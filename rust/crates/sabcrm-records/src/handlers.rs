@@ -37,7 +37,7 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateRecordInput, GroupRecordsInput, GroupResponse, ListQuery, ListResponse, OkResponse,
-    RecordGroup, RecordResponse, ScopeQuery, UpdateRecordInput,
+    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -49,6 +49,8 @@ const DEFAULT_LIMIT: u64 = 20;
 const MAX_LIMIT: u64 = 100;
 /// Hard cap on records returned per kanban column.
 const MAX_GROUP_RECORDS: i64 = 100;
+/// Hard cap on records returned per relation block.
+const MAX_RELATION_RECORDS: i64 = 50;
 
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
@@ -516,4 +518,158 @@ pub async fn group_records(
     }
 
     Ok(Json(GroupResponse { groups }))
+}
+
+// ===========================================================================
+// GET /{object}/{id}/related — recordRelations
+// ===========================================================================
+
+/// `GET /v1/sabcrm/records/{object}/{id}/related` — aggregate every related
+/// record reachable from this record's RELATION fields in one call.
+///
+/// For the source object's metadata ([`sabcrm_core::standard_object`]), each
+/// RELATION field is resolved by kind:
+///
+/// - **MANY_TO_ONE** — this record stores the target id in
+///   `data.<fieldKey>`. If present (and a valid ObjectId), the single target
+///   record is fetched from `{ projectId, object: targetObject, _id }`.
+/// - **ONE_TO_MANY** — children live in `targetObject` and point back via a
+///   MANY_TO_ONE field. We inspect the TARGET object's metadata for a
+///   MANY_TO_ONE field whose `relation.targetObject == <this object>`, take
+///   that field's key `K`, then query
+///   `{ projectId, object: targetObject, data.K == <this id> }`. If no inverse
+///   field exists, the relation yields an empty record set (not an error).
+///
+/// Unknown / custom source objects (not in the standard metadata) resolve to
+/// an empty `relations` list. Each relation block is capped at
+/// [`MAX_RELATION_RECORDS`].
+#[instrument(skip_all, fields(object = %object, id = %id))]
+pub async fn record_relations(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((object, id)): Path<(String, String)>,
+    Query(query): Query<ScopeQuery>,
+) -> Result<Json<RelationsResponse>> {
+    let project_id = require_project(&query.project_id)?;
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    let meta = match sabcrm_core::standard_object(&object) {
+        Some(m) => m,
+        None => return Ok(Json(RelationsResponse { relations: Vec::new() })),
+    };
+
+    let mut relations = Vec::new();
+
+    for f in &meta.fields {
+        let rel = match &f.relation {
+            Some(rel) => rel,
+            None => continue,
+        };
+
+        let records: Vec<Value> = match rel.kind.as_str() {
+            "MANY_TO_ONE" => {
+                // This record stores the target id at `data.<fieldKey>`.
+                let raw = doc_id_at(&coll, project_id, &object, &id, &f.key).await?;
+                match raw.as_deref().filter(|s| !s.is_empty()) {
+                    Some(target_id) => match oid_from_str(target_id) {
+                        Ok(oid) => {
+                            let mut filter = scope(project_id, &rel.target_object);
+                            filter.insert("_id", oid);
+                            match coll.find_one(filter).await.map_err(|e| {
+                                ApiError::Internal(
+                                    anyhow::Error::new(e)
+                                        .context("sabcrm_records.relations.find_one"),
+                                )
+                            })? {
+                                Some(d) => vec![record_to_wire(d)],
+                                None => Vec::new(),
+                            }
+                        }
+                        // A non-ObjectId stored value is not a fetchable id.
+                        Err(_) => Vec::new(),
+                    },
+                    None => Vec::new(),
+                }
+            }
+            "ONE_TO_MANY" => {
+                // Children live in `targetObject`, pointing back via a
+                // MANY_TO_ONE field whose target is THIS object.
+                let inverse_key = sabcrm_core::standard_object(&rel.target_object)
+                    .and_then(|t| {
+                        t.fields.into_iter().find_map(|tf| match tf.relation {
+                            Some(tr)
+                                if tr.kind == "MANY_TO_ONE"
+                                    && tr.target_object == object =>
+                            {
+                                Some(tf.key)
+                            }
+                            _ => None,
+                        })
+                    });
+
+                match inverse_key {
+                    Some(k) => {
+                        let mut filter = scope(project_id, &rel.target_object);
+                        filter.insert(format!("data.{k}"), &id);
+                        let mut cursor = coll
+                            .find(filter)
+                            .limit(MAX_RELATION_RECORDS)
+                            .await
+                            .map_err(|e| {
+                                ApiError::Internal(
+                                    anyhow::Error::new(e).context("sabcrm_records.relations.find"),
+                                )
+                            })?;
+                        let mut out = Vec::new();
+                        while let Some(d) = cursor.try_next().await.map_err(|e| {
+                            ApiError::Internal(
+                                anyhow::Error::new(e).context("sabcrm_records.relations.cursor"),
+                            )
+                        })? {
+                            out.push(record_to_wire(d));
+                        }
+                        out
+                    }
+                    // No inverse field → empty set, not an error.
+                    None => Vec::new(),
+                }
+            }
+            // Unknown cardinality → skip.
+            _ => continue,
+        };
+
+        relations.push(RecordRelation {
+            field: f.key.clone(),
+            label: f.label.clone(),
+            target_object: rel.target_object.clone(),
+            kind: rel.kind.clone(),
+            records,
+        });
+    }
+
+    Ok(Json(RelationsResponse { relations }))
+}
+
+/// Fetch the string value stored at `data.<field_key>` for the source record
+/// `{ projectId, object, _id }`. Returns `None` when the record or field is
+/// missing or the value is not a string.
+async fn doc_id_at(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    object: &str,
+    id: &str,
+    field_key: &str,
+) -> Result<Option<String>> {
+    let oid = oid_from_str(id)?;
+    let mut filter = scope(project_id, object);
+    filter.insert("_id", oid);
+
+    let doc = coll.find_one(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.relations.source"))
+    })?;
+
+    Ok(doc
+        .and_then(|d| d.get_document("data").ok().cloned())
+        .and_then(|data| data.get_str(field_key).ok().map(str::to_owned)))
 }

@@ -64,6 +64,21 @@ pub struct SetDefaultInput {
     pub project_id: String,
 }
 
+/// `POST /{id}/run` body — apply a saved view's filters/sort to the
+/// `sabcrm_records` collection server-side and return a page of records.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RunViewInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// 1-indexed page number. Defaults to 1 when absent or `<= 0`.
+    #[serde(default)]
+    pub page: Option<u64>,
+    /// Page size. Clamped at 100 by the handler. Defaults to 50.
+    #[serde(default)]
+    pub limit: Option<u64>,
+}
+
 /// Response body for `GET /` — a list of raw view documents.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
@@ -79,6 +94,17 @@ pub struct ListResponse {
 pub struct ViewResponse {
     #[schema(value_type = Object)]
     pub view: Value,
+}
+
+/// Response body for `POST /{id}/run` — a page of records matching the
+/// view's filters/sort. Mirrors the records list wire shape
+/// (`{ records, total }`, `_id` → `id`).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RunViewResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub records: Vec<Value>,
+    pub total: u64,
 }
 
 /// Tiny `{ ok: true }` envelope returned by `DELETE /{id}`.

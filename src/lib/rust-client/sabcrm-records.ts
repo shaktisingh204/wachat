@@ -63,6 +63,27 @@ export interface SabcrmRecordGroupResponse {
   groups: SabcrmRecordGroup[];
 }
 
+/**
+ * One relation block from the record-relations aggregate endpoint — the
+ * related records reachable from a single RELATION field of the source object.
+ */
+export interface RecordRelation {
+  /** Field key on the source object that defines this relation. */
+  field: string;
+  /** Human label of that field. */
+  label: string;
+  /** Slug of the related object. */
+  targetObject: string;
+  /** Cardinality from the source record's perspective. */
+  kind: 'MANY_TO_ONE' | 'ONE_TO_MANY';
+  /** The related records (capped at 50 server-side). */
+  records: SabcrmRustRecord[];
+}
+
+export interface SabcrmRecordRelationsResponse {
+  relations: RecordRelation[];
+}
+
 export interface SabcrmRecordCreateInput {
   projectId: string;
   data: Record<string, unknown>;
@@ -153,6 +174,20 @@ export const sabcrmRecordsApi = {
     return rustFetch<{ ok: boolean }>(
       `${base(object)}/${encodeURIComponent(id)}${qs({ projectId })}`,
       { method: 'DELETE' },
+    );
+  },
+
+  /**
+   * `GET /v1/sabcrm/records/{object}/{id}/related` — aggregate every related
+   * record (across all of the object's RELATION fields) in one call.
+   */
+  relations(
+    object: string,
+    id: string,
+    projectId: string,
+  ): Promise<SabcrmRecordRelationsResponse> {
+    return rustFetch<SabcrmRecordRelationsResponse>(
+      `${base(object)}/${encodeURIComponent(id)}/related${qs({ projectId })}`,
     );
   },
 

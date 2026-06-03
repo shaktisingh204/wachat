@@ -43,6 +43,7 @@ import type {
   SabcrmRecordsTwPage,
   SabcrmRecordTwGroups,
   SabcrmRustRecord,
+  RecordRelation,
   ListSabcrmActivitiesTwParams,
   CreateSabcrmActivityTwInput,
   UpdateSabcrmActivityTwPatch,
@@ -226,6 +227,34 @@ export async function getSabcrmRecordTw(
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to load record.');
+  }
+}
+
+/**
+ * Loads every related record for a single record in one call — across all of
+ * the object's RELATION fields (MANY_TO_ONE parents + ONE_TO_MANY children).
+ * Powers a record detail page's relations rail without N round-trips.
+ */
+export async function getRecordRelationsTw(
+  object: string,
+  recordId: string,
+  projectId?: string,
+): Promise<ActionResult<RecordRelation[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!recordId) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.relations(
+      object,
+      recordId,
+      g.ctx.projectId,
+    );
+    return { ok: true, data: res.relations };
+  } catch (e) {
+    return fail(e, 'Failed to load related records.');
   }
 }
 

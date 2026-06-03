@@ -31,12 +31,20 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    CreateViewInput, ListQuery, ListResponse, OkResponse, ScopeQuery, SetDefaultInput,
-    UpdateViewInput, ViewResponse,
+    CreateViewInput, ListQuery, ListResponse, OkResponse, RunViewInput, RunViewResponse,
+    ScopeQuery, SetDefaultInput, UpdateViewInput, ViewResponse,
 };
 
 /// The Mongo collection backing saved views.
 const VIEWS_COLL: &str = "sabcrm_views";
+
+/// The single Mongo collection backing every SabCRM object's records.
+const RECORDS_COLL: &str = "sabcrm_records";
+
+/// Default page size for `run_view` when no `limit` is supplied.
+const RUN_DEFAULT_LIMIT: u64 = 50;
+/// Hard cap on `run_view`'s `limit`.
+const RUN_MAX_LIMIT: u64 = 100;
 
 // ===========================================================================
 // helpers
@@ -278,4 +286,132 @@ pub async fn set_default_view(
     Ok(Json(ViewResponse {
         view: record_to_wire(updated),
     }))
+}
+
+// ===========================================================================
+// POST /{id}/run — runView
+// ===========================================================================
+
+/// Resolve the equality operand from one persisted view-filter entry. A bare
+/// scalar is used verbatim; an object `{ "value": <v>, ... }` (the structured
+/// `{ op, value }` shape) contributes its `value`. Persisted view filters are
+/// applied as equality only — `op` is ignored.
+fn view_filter_operand(cond: &Value) -> Option<&Value> {
+    match cond {
+        Value::Object(map) => map.get("value"),
+        scalar => Some(scalar),
+    }
+}
+
+/// AND each `{ "<fieldKey>": <condition> }` entry of a persisted view's
+/// `filters` into the supplied Mongo `filter` as an equality on
+/// `data.<fieldKey>`. A non-object `filters` (or absent) is a no-op; bad
+/// operands surface as a `400`.
+fn apply_view_filters(filter: &mut Document, filters: Option<&Value>) -> Result<()> {
+    let map = match filters {
+        Some(Value::Object(map)) => map,
+        _ => return Ok(()),
+    };
+
+    for (field, cond) in map {
+        let key = field.trim();
+        if key.is_empty() {
+            continue;
+        }
+        let operand = match view_filter_operand(cond) {
+            Some(v) if !v.is_null() => v,
+            _ => continue,
+        };
+        let bson = bson::to_bson(operand)
+            .map_err(|e| ApiError::BadRequest(format!("invalid view filter value: {e}")))?;
+        filter.insert(format!("data.{key}"), bson);
+    }
+
+    Ok(())
+}
+
+/// `POST /v1/sabcrm/views/{id}/run` — load the saved view by `{ projectId,
+/// _id }` (404 if missing), then query `sabcrm_records` scoped by
+/// `{ projectId, object: view.object }` with the view's `filters` applied as
+/// equalities, sorted by `data.<view.sortBy>` (else top-level `updatedAt`) in
+/// `view.sortDir` (default `desc`), paginated. Returns `{ records, total }`
+/// in the records list wire shape.
+#[instrument(skip_all, fields(id = %id))]
+pub async fn run_view(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<RunViewInput>,
+) -> Result<Json<RunViewResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    // ---- Load the view -------------------------------------------------
+    let views = mongo.collection::<Document>(VIEWS_COLL);
+    let view = views
+        .find_one(doc! { "projectId": project_id, "_id": oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_views.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("view".to_owned()))?;
+
+    let object = view
+        .get_str("object")
+        .map_err(|_| ApiError::Validation("view is missing `object`.".to_owned()))?
+        .to_owned();
+
+    // ---- Pagination ----------------------------------------------------
+    let page = body.page.filter(|p| *p > 0).unwrap_or(1);
+    let limit = body
+        .limit
+        .filter(|l| *l > 0)
+        .unwrap_or(RUN_DEFAULT_LIMIT)
+        .min(RUN_MAX_LIMIT);
+    let skip = (page - 1).saturating_mul(limit);
+
+    // ---- Filter --------------------------------------------------------
+    let mut filter = doc! { "projectId": project_id, "object": &object };
+    let filters_json: Option<Value> = view
+        .get("filters")
+        .map(|b| sabnode_db::bson_helpers::bson_to_clean_json(b.clone()));
+    apply_view_filters(&mut filter, filters_json.as_ref())?;
+
+    // ---- Sort ----------------------------------------------------------
+    let sort_dir = match view.get_str("sortDir").ok().map(str::trim) {
+        Some("asc") => 1,
+        _ => -1, // default desc
+    };
+    let sort_key = match view
+        .get_str("sortBy")
+        .ok()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        Some(key) => format!("data.{key}"),
+        None => "updatedAt".to_owned(),
+    };
+
+    // ---- Query records -------------------------------------------------
+    let records_coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    let total = records_coll
+        .count_documents(filter.clone())
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_views.run.count")))?;
+
+    let mut cursor = records_coll
+        .find(filter)
+        .sort(doc! { sort_key: sort_dir })
+        .skip(skip)
+        .limit(limit as i64)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_views.run.find")))?;
+
+    let mut records = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_views.run.cursor"))
+    })? {
+        records.push(record_to_wire(d));
+    }
+
+    Ok(Json(RunViewResponse { records, total }))
 }

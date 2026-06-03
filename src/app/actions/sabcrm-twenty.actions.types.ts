@@ -16,7 +16,10 @@ import type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
 export type { ObjectMetadata } from '@/lib/sabcrm/types';
-export type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
+export type {
+  SabcrmRustRecord,
+  RecordRelation,
+} from '@/lib/rust-client/sabcrm-records';
 export type { SabcrmRustActivity } from '@/lib/rust-client/sabcrm-activities';
 export type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
 
