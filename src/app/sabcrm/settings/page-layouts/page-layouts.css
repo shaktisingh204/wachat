@@ -229,9 +229,9 @@
 }
 
 .sabcrm-twenty .stpl-iconbtn--danger:hover:not(:disabled) {
-  color: #c0392b;
-  border-color: rgba(192, 57, 43, 0.4);
-  background: rgba(192, 57, 43, 0.08);
+  color: var(--st-danger);
+  border-color: var(--st-danger-border);
+  background: var(--st-danger-bg);
 }
 
 .sabcrm-twenty .stpl-tab__count {
@@ -411,7 +411,7 @@
 }
 
 .sabcrm-twenty .stpl-savebar__msg.is-error {
-  color: #c0392b;
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .stpl-savebar__msg.is-ok {

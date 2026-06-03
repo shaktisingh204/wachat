@@ -215,7 +215,7 @@
 
 .sabcrm-twenty .dm-rm:hover:not(:disabled) {
   background: var(--st-hover);
-  color: #d64545;
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .dm-rm:disabled {
@@ -295,8 +295,8 @@
 }
 
 .sabcrm-twenty .dm-iconbtn--danger:hover:not(:disabled) {
-  border-color: #d64545;
-  color: #d64545;
+  border-color: var(--st-danger);
+  color: var(--st-danger);
 }
 
 /* ----- SELECT options list ---------------------------------------------- */

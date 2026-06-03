@@ -33,21 +33,21 @@
 
 .sabcrm-twenty .st-form-error {
   margin: 0;
-  color: #d64545;
+  color: var(--st-danger);
   font-size: var(--st-font-size-sm);
 }
 
 /* --- Danger button (red destructive secondary) ------------------------- */
 
 .sabcrm-twenty .st-btn--danger {
-  color: #d64545;
+  color: var(--st-danger);
   border-color: var(--st-border);
 }
 
 .sabcrm-twenty .st-btn--danger:hover:not(:disabled) {
-  background: rgba(214, 69, 69, 0.08);
-  border-color: rgba(214, 69, 69, 0.4);
-  color: #d64545;
+  background: var(--st-danger-bg);
+  border-color: var(--st-danger-border);
+  color: var(--st-danger);
 }
 
 /* --- Tag chip ---------------------------------------------------------- */
@@ -95,9 +95,9 @@
 }
 
 .sabcrm-twenty .tg-iconbtn--danger:hover:not(:disabled) {
-  background: rgba(214, 69, 69, 0.08);
-  border-color: rgba(214, 69, 69, 0.35);
-  color: #d64545;
+  background: var(--st-danger-bg);
+  border-color: var(--st-danger-border);
+  color: var(--st-danger);
 }
 
 /* --- Colour-swatch picker ---------------------------------------------- */

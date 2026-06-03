@@ -301,8 +301,10 @@
 }
 
 .sabcrm-twenty .wf-icon-btn--danger:hover:not(:disabled) {
-  color: #b3261e;
-  border-color: #f0c9c6;
+  /* Shared `--st-danger*` tokens (with `.st-theme-dark` remap) live in
+     ../settings-twenty.css, loaded on the same page. */
+  color: var(--st-danger);
+  border-color: var(--st-danger-border);
 }
 
 .sabcrm-twenty .wf-step__body {

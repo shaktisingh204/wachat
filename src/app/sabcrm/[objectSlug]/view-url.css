@@ -33,7 +33,7 @@
 .stv-copy:hover {
   background: var(--st-bg-secondary);
   border-color: var(--st-border);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .stv-copy:focus-visible {

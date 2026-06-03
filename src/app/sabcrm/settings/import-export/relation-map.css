@@ -10,9 +10,11 @@
    page-local `st-iw-*` wizard kit or the shared `.st-*` kit. We never edit the
    shared `sabcrm-twenty.css` — all new classes live here.
 
-   Every colour comes from the `--st-*` design tokens (or the same literal
-   status hexes already used by `import-wizard.css`: #067647 green / #b42318
-   red / #b54708 amber) so light/dark themes track the rest of the page.
+   Status colours reuse the local `--st-iw-*` semantic tokens defined in
+   `import-wizard.css` (loaded on the same page). Those tokens are re-mapped
+   under `.st-theme-dark`, so the connect-coverage badges and per-value match
+   icons stay legible in dark mode instead of rendering dark text on a pale
+   tint. Everything else comes from the shared `--st-*` design tokens.
    --------------------------------------------------------------------------- */
 
 /* The "match by" sub-control that hangs under a relation row's CSV-column
@@ -99,19 +101,19 @@
   white-space: nowrap;
 }
 .sabcrm-twenty .st-rc-badge--ok {
-  color: #067647;
-  border-color: rgba(6, 118, 71, 0.4);
-  background: rgba(6, 118, 71, 0.08);
+  color: var(--st-iw-ok-fg);
+  border-color: var(--st-iw-ok-border);
+  background: var(--st-iw-ok-bg);
 }
 .sabcrm-twenty .st-rc-badge--partial {
-  color: #b54708;
-  border-color: rgba(181, 71, 8, 0.4);
-  background: rgba(181, 71, 8, 0.08);
+  color: var(--st-iw-warn-fg);
+  border-color: var(--st-iw-warn-border);
+  background: var(--st-iw-warn-bg);
 }
 .sabcrm-twenty .st-rc-badge--none {
-  color: #b42318;
-  border-color: rgba(180, 35, 24, 0.4);
-  background: rgba(180, 35, 24, 0.08);
+  color: var(--st-iw-err-fg);
+  border-color: var(--st-iw-err-border);
+  background: var(--st-iw-err-bg);
 }
 
 /* Sampled value → match list. */
@@ -137,10 +139,10 @@
   flex: none;
 }
 .sabcrm-twenty .st-rc-sample__icon--ok {
-  color: #067647;
+  color: var(--st-iw-ok-fg);
 }
 .sabcrm-twenty .st-rc-sample__icon--miss {
-  color: #b42318;
+  color: var(--st-iw-err-fg);
 }
 
 .sabcrm-twenty .st-rc-sample__val {
@@ -221,5 +223,5 @@
 }
 
 .sabcrm-twenty .st-rc-result__row .st-rc-result__miss {
-  color: #b54708;
+  color: var(--st-iw-warn-fg);
 }

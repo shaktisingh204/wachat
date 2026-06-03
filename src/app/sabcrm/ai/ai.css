@@ -6,6 +6,19 @@
    `sabcrm-twenty.css`; they live here alongside the page.
    ========================================================================= */
 
+/* Local danger tokens — the shared kit ships no danger colours, so define
+   theme-aware ones here (softer red surface on dark). */
+.sabcrm-twenty {
+  --ai-danger-bg: #fdecec;
+  --ai-danger-border: #f3c0c0;
+  --ai-danger-text: #9a2222;
+}
+.sabcrm-twenty.st-theme-dark {
+  --ai-danger-bg: #2e1a1a;
+  --ai-danger-border: #5a2a2a;
+  --ai-danger-text: #ff8a80;
+}
+
 .st-ai {
   display: flex;
   flex-direction: column;
@@ -231,9 +244,9 @@
 }
 
 .st-ai__notice--error {
-  background: #fdecec;
-  border: 1px solid #f3c0c0;
-  color: #9a2222;
+  background: var(--ai-danger-bg);
+  border: 1px solid var(--ai-danger-border);
+  color: var(--ai-danger-text);
   align-items: center;
 }
 

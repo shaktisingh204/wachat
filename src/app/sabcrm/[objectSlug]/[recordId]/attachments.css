@@ -6,6 +6,12 @@
    PICKER itself is a SabFiles component (exempt from the Twenty-only rule);
    everything rendered here — the attach trigger, the pending chip list and
    the timeline attachment chips — is Twenty-styled.
+
+   NOTE: this file previously referenced a stray `--t-*` token family that the
+   kit never defined, so every value fell back to a HARDCODED LIGHT literal and
+   the chips/buttons did not re-theme in dark mode. All tokens are now the
+   shared, theme-aware `--st-*` variables (with literal fallbacks for use
+   outside the `.sabcrm-twenty` cascade only).
    ========================================================================= */
 
 /* --- Attach trigger in the composer footer ---------------------------- */
@@ -15,10 +21,10 @@
   gap: 5px;
   height: 28px;
   padding: 0 9px;
-  border: 1px solid var(--t-border, #e0e0e0);
+  border: 1px solid var(--st-border, #e0e0e0);
   border-radius: 6px;
-  background: var(--t-bg, #fff);
-  color: var(--t-ink-secondary, #4a4a4a);
+  background: var(--st-bg, #fff);
+  color: var(--st-text-secondary, #4a4a4a);
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
@@ -26,10 +32,15 @@
   transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
-.sa-attach-btn:hover {
-  background: var(--t-bg-hover, #f4f4f4);
-  border-color: var(--t-border-strong, #c8c8c8);
-  color: var(--t-ink, #1a1a1a);
+.sa-attach-btn:hover:not(:disabled) {
+  background: var(--st-hover, #f4f4f4);
+  border-color: var(--st-border-strong, #c8c8c8);
+  color: var(--st-text, #1a1a1a);
+}
+
+.sa-attach-btn:focus-visible {
+  outline: 2px solid var(--st-accent, #1961ed);
+  outline-offset: 1px;
 }
 
 .sa-attach-btn:disabled {
@@ -53,17 +64,17 @@
   max-width: 220px;
   height: 24px;
   padding: 0 4px 0 8px;
-  border: 1px solid var(--t-border, #e0e0e0);
+  border: 1px solid var(--st-border, #e0e0e0);
   border-radius: 6px;
-  background: var(--t-bg-secondary, #f7f7f7);
-  color: var(--t-ink, #1a1a1a);
+  background: var(--st-bg-secondary, #f7f7f7);
+  color: var(--st-text, #1a1a1a);
   font-size: 12px;
   line-height: 1;
 }
 
 .sa-chip__icon {
   flex: 0 0 auto;
-  color: var(--t-ink-muted, #8a8a8a);
+  color: var(--st-text-muted, #8a8a8a);
 }
 
 .sa-chip__name {
@@ -73,7 +84,7 @@
 }
 
 a.sa-chip__name {
-  color: var(--t-link, #1d6fd6);
+  color: var(--st-accent, #1d6fd6);
   text-decoration: none;
 }
 
@@ -83,7 +94,7 @@ a.sa-chip__name:hover {
 
 .sa-chip__size {
   flex: 0 0 auto;
-  color: var(--t-ink-muted, #8a8a8a);
+  color: var(--st-text-muted, #8a8a8a);
   font-size: 11px;
 }
 
@@ -100,14 +111,19 @@ a.sa-chip__name:hover {
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--t-ink-muted, #8a8a8a);
+  color: var(--st-text-muted, #8a8a8a);
   cursor: pointer;
   transition: background 120ms ease, color 120ms ease;
 }
 
 .sa-chip__remove:hover {
-  background: var(--t-bg-hover, #ececec);
-  color: var(--t-ink, #1a1a1a);
+  background: var(--st-hover, #ececec);
+  color: var(--st-text, #1a1a1a);
+}
+
+.sa-chip__remove:focus-visible {
+  outline: 2px solid var(--st-accent, #1961ed);
+  outline-offset: 1px;
 }
 
 /* --- Attachment row inside the timeline / note bodies ----------------- */

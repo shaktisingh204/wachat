@@ -4,6 +4,23 @@
    defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO ZoruUI.
    ========================================================================= */
 
+/* Local semantic tokens — the shared kit ships no success/warning/danger
+   colours, so define theme-aware ones here (brighter on dark surfaces). */
+.sabcrm-twenty {
+  --dash-up: #1a7f37;
+  --dash-down: #b35900;
+  --dash-danger: #d64545;
+  --dash-danger-bg: #fdecec;
+  --dash-danger-border: #f0c2c2;
+}
+.sabcrm-twenty.st-theme-dark {
+  --dash-up: #4ade80;
+  --dash-down: #fbbf76;
+  --dash-danger: #ff8a80;
+  --dash-danger-bg: #3a1f1f;
+  --dash-danger-border: #5a2a2a;
+}
+
 /* ----- KPI card grid ----- */
 .st-dash-kpis {
   display: grid;
@@ -50,11 +67,11 @@
 }
 
 .st-kpi__delta--up {
-  color: #1a7f37;
+  color: var(--dash-up);
 }
 
 .st-kpi__delta--down {
-  color: #b35900;
+  color: var(--dash-down);
 }
 
 /* ----- Two-column panel layout ----- */
@@ -456,9 +473,9 @@
 }
 
 .st-widget__remove:hover {
-  background: #fdecec;
-  border-color: #f0c2c2;
-  color: #d64545;
+  background: var(--dash-danger-bg);
+  border-color: var(--dash-danger-border);
+  color: var(--dash-danger);
 }
 
 .st-widget__body {
@@ -487,7 +504,7 @@
 .st-widget__error svg {
   flex: 0 0 auto;
   margin-top: 1px;
-  color: #b35900;
+  color: var(--dash-down);
 }
 
 /* KPI widget body */

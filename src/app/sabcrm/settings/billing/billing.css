@@ -12,6 +12,20 @@
    self-contained — it only imports `billing.css`.
    ========================================================================= */
 
+/* Local semantic warn/danger tokens — the base `--st-*` set has no
+   success/warn/danger colours. Defaulted for light mode here and re-mapped
+   for the dark theme below so meter fills + status text stay legible on the
+   near-black settings surface. */
+.sabcrm-twenty {
+  --st-warn: #c77700;
+  --st-danger: #b3261e;
+}
+
+.sabcrm-twenty.st-theme-dark {
+  --st-warn: #e0974a;
+  --st-danger: #f3777a;
+}
+
 /* ----- Sections ----- */
 .sabcrm-twenty .st-billing-section {
   margin-top: var(--st-space-6);
@@ -276,11 +290,11 @@
 }
 
 .sabcrm-twenty .st-usage-bar__fill--warn {
-  background: #c77700;
+  background: var(--st-warn);
 }
 
 .sabcrm-twenty .st-usage-bar__fill--over {
-  background: #b3261e;
+  background: var(--st-danger);
 }
 
 .sabcrm-twenty .st-usage-meter__row {
@@ -298,11 +312,11 @@
 }
 
 .sabcrm-twenty .st-usage-meter__pct--warn {
-  color: #c77700;
+  color: var(--st-warn);
 }
 
 .sabcrm-twenty .st-usage-meter__pct--over {
-  color: #b3261e;
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .st-usage-meter__limit {

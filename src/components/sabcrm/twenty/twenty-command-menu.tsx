@@ -305,6 +305,7 @@ export function TwentyCommandMenu({
 }: TwentyCommandMenuProps): React.JSX.Element | null {
   const router = useRouter();
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const panelRef = React.useRef<HTMLDivElement>(null);
 
   // Uncontrolled fallback for the help overlay when the host doesn't drive it.
   const isHelpControlled = helpOpenProp !== undefined;
@@ -598,6 +599,29 @@ export function TwentyCommandMenu({
           if (item) item.onSelect();
           break;
         }
+        case 'Tab': {
+          // Focus trap: keep Tab/Shift+Tab inside the dialog.
+          const panel = panelRef.current;
+          if (!panel) break;
+          const focusables = panel.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          );
+          if (focusables.length === 0) {
+            event.preventDefault();
+            break;
+          }
+          const first = focusables[0]!;
+          const last = focusables[focusables.length - 1]!;
+          const activeEl = document.activeElement;
+          if (event.shiftKey && activeEl === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && activeEl === last) {
+            event.preventDefault();
+            first.focus();
+          }
+          break;
+        }
         default:
           break;
       }
@@ -669,7 +693,10 @@ export function TwentyCommandMenu({
     return (
       <button
         key={item.key}
+        id={`st-cmdk-opt-${index}`}
         type="button"
+        role="option"
+        aria-selected={isActive}
         className={`st-cmdk-row${isActive ? ' is-active' : ''}`}
         onMouseMove={() => setActiveIndex(index)}
         onClick={() => item.onSelect()}
@@ -695,6 +722,7 @@ export function TwentyCommandMenu({
       >
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
         <div
+          ref={panelRef}
           className="st-cmdk-panel"
           role="dialog"
           aria-modal="true"
@@ -712,12 +740,18 @@ export function TwentyCommandMenu({
               onChange={(e) => setQuery(e.target.value)}
               spellCheck={false}
               autoComplete="off"
+              role="combobox"
+              aria-expanded
+              aria-controls="st-cmdk-listbox"
+              aria-activedescendant={
+                flatItems.length > 0 ? `st-cmdk-opt-${activeIndex}` : undefined
+              }
               aria-label="Search commands and records"
             />
             <kbd className="st-cmdk-search__esc">Esc</kbd>
           </div>
 
-          <div className="st-cmdk-body">
+          <div className="st-cmdk-body" id="st-cmdk-listbox" role="listbox" aria-label="Results">
             {visibleRecentItems.length > 0 ? (
               <div className="st-cmdk-group st-cmdk-group--recent">
                 <div className="st-cmdk-group__title">Recent</div>

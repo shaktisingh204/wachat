@@ -43,7 +43,7 @@
   border: 1px solid var(--st-border);
   border-radius: 14px;
   background: var(--st-bg);
-  color: var(--st-text-primary, #222);
+  color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-sm);
   white-space: nowrap;

@@ -8,7 +8,8 @@
  *
  * Styling mirrors the existing `.sa-attach-btn` / `.re-picker` Twenty kit:
  * subtle bordered trigger, a floating panel with a search-less list. NO ZoruUI;
- * only `--t-*` tokens + the `.st-*` look. These classes are NEW (the shared
+ * only theme-aware `--st-*` tokens (these were stray `--t-*` refs
+ * that the kit never defined, so they broke dark mode — now fixed). These classes are NEW (the shared
  * `sabcrm-twenty.css` is not edited) and are prefixed `.ct-` so they never
  * collide with the timeline / composer classes already in play.
  * ------------------------------------------------------------------------- */
@@ -25,10 +26,10 @@
   gap: 4px;
   height: 26px;
   padding: 0 8px;
-  border: 1px solid var(--t-border, #e3e3e8);
-  border-radius: var(--t-radius-sm, 4px);
-  background: var(--t-bg, #fff);
-  color: var(--t-text-secondary, #4b4b52);
+  border: 1px solid var(--st-border, #e3e3e8);
+  border-radius: var(--st-radius, 4px);
+  background: var(--st-bg, #fff);
+  color: var(--st-text-secondary, #4b4b52);
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
@@ -37,8 +38,8 @@
 }
 
 .ct-templates__trigger:hover:not(:disabled) {
-  background: var(--t-bg-hover, #f4f4f6);
-  border-color: var(--t-border-strong, #c8c8d0);
+  background: var(--st-hover, #f4f4f6);
+  border-color: var(--st-border-strong, #c8c8d0);
 }
 
 .ct-templates__trigger:disabled {
@@ -57,14 +58,15 @@
   left: 0;
   z-index: 40;
   width: 280px;
+  max-width: 80vw;
   max-height: 300px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--t-bg, #fff);
-  border: 1px solid var(--t-border, #e3e3e8);
-  border-radius: var(--t-radius, 8px);
-  box-shadow: var(--t-shadow, 0 8px 24px rgba(0, 0, 0, 0.12));
+  background: var(--st-bg, #fff);
+  border: 1px solid var(--st-border, #e3e3e8);
+  border-radius: var(--st-radius-lg, 8px);
+  box-shadow: var(--st-shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.12));
 }
 
 .ct-templates__list {
@@ -77,12 +79,12 @@
   align-items: center;
   gap: 6px;
   padding: 12px;
-  color: var(--t-text-tertiary, #8a8a93);
+  color: var(--st-text-tertiary, #8a8a93);
   font-size: 12px;
 }
 
 .ct-templates__state.is-error {
-  color: var(--t-danger, #c0392b);
+  color: var(--st-danger, #c0392b);
 }
 
 .ct-templates__item {
@@ -93,7 +95,7 @@
   width: 100%;
   padding: 7px 8px;
   border: none;
-  border-radius: var(--t-radius-sm, 4px);
+  border-radius: var(--st-radius, 4px);
   background: transparent;
   text-align: left;
   cursor: pointer;
@@ -101,7 +103,7 @@
 }
 
 .ct-templates__item:hover {
-  background: var(--t-bg-hover, #f4f4f6);
+  background: var(--st-hover, #f4f4f6);
 }
 
 .ct-templates__item-name {
@@ -111,7 +113,7 @@
   width: 100%;
   font-size: 13px;
   font-weight: 500;
-  color: var(--t-text, #1c1c20);
+  color: var(--st-text, #1c1c20);
 }
 
 .ct-templates__item-name svg {
@@ -124,8 +126,8 @@
   margin-left: auto;
   padding: 1px 6px;
   border-radius: 999px;
-  background: var(--t-bg-muted, #f1f1f4);
-  color: var(--t-text-tertiary, #8a8a93);
+  background: var(--st-bg-muted, #f1f1f4);
+  color: var(--st-text-tertiary, #8a8a93);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -134,7 +136,7 @@
 
 .ct-templates__item-sub {
   font-size: 11px;
-  color: var(--t-text-tertiary, #8a8a93);
+  color: var(--st-text-tertiary, #8a8a93);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

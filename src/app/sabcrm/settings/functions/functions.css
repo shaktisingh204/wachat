@@ -9,7 +9,10 @@
 
    Everything is scoped under `.sabcrm-twenty` (supplied by the SabCRM app
    frame layout) so it never leaks into the rest of SabNode. No ZoruUI /
-   Tailwind / clay — Twenty look only.
+   Tailwind / clay — Twenty look only. The runtime dots + "Saved" confirmation
+   reuse the shared semantic tokens (`--st-success` / `--st-warning`) from
+   `../settings-twenty.css`, which carry `.st-theme-dark` remaps so they stay
+   legible against the dark surface.
    ========================================================================= */
 
 /* ----- Two-pane shell ---------------------------------------------------- */
@@ -134,11 +137,11 @@
 }
 
 .sabcrm-twenty .st-fn-badge--node .st-fn-badge__dot {
-  background: #2e7d32;
+  background: var(--st-success);
 }
 
 .sabcrm-twenty .st-fn-badge--deno .st-fn-badge__dot {
-  background: #b26a00;
+  background: var(--st-warning);
 }
 
 /* Empty state nested inside the list pane. */
@@ -282,7 +285,7 @@
   align-items: center;
   gap: 4px;
   font-size: var(--st-font-size-xs);
-  color: #2e7d32;
+  color: var(--st-success);
 }
 
 /* Placeholder shown in the right pane when nothing is selected. */

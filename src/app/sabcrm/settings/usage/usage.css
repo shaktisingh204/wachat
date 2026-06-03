@@ -127,11 +127,11 @@
 
 /* Warn / over-limit fill colors — color is paired with text, never alone. */
 .sabcrm-twenty .st-usage-bar__fill--warn {
-  background: #c77700;
+  background: var(--st-warning);
 }
 
 .sabcrm-twenty .st-usage-bar__fill--over {
-  background: #b3261e;
+  background: var(--st-danger);
 }
 
 .sabcrm-twenty .st-usage-meter__row {
@@ -149,11 +149,11 @@
 }
 
 .sabcrm-twenty .st-usage-meter__pct--warn {
-  color: #c77700;
+  color: var(--st-warning);
 }
 
 .sabcrm-twenty .st-usage-meter__pct--over {
-  color: #b3261e;
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .st-usage-meter__limit {

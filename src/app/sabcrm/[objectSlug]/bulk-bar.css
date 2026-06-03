@@ -40,7 +40,7 @@
 }
 
 .st-checkbox:focus-visible {
-  outline: 2px solid var(--st-accent-soft);
+  outline: 2px solid var(--st-accent);
   outline-offset: 1px;
   border-color: var(--st-accent);
 }
@@ -218,17 +218,26 @@
   color: var(--st-text);
 }
 
-/* --- Danger button (delete) ----------------------------------------------- */
+/* --- Danger button (delete) -----------------------------------------------
+   No `--st-danger` token exists in the kit, so define a local pair with a
+   dark-theme variant so the delete button stays legible in `.st-theme-dark`. */
 
 .st-btn--danger {
-  background: #d3402d;
-  border: 1px solid #d3402d;
-  color: var(--st-text-inverted);
+  --st-danger: #d3402d;
+  --st-danger-hover: #b8331f;
+  background: var(--st-danger);
+  border: 1px solid var(--st-danger);
+  color: #ffffff;
+}
+
+.sabcrm-twenty.st-theme-dark .st-btn--danger {
+  --st-danger: #e2553f;
+  --st-danger-hover: #f06a54;
 }
 
 .st-btn--danger:hover:not(:disabled) {
-  background: #b8331f;
-  border-color: #b8331f;
+  background: var(--st-danger-hover);
+  border-color: var(--st-danger-hover);
 }
 
 .st-btn--danger:disabled {

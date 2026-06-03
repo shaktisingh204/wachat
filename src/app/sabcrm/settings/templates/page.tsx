@@ -40,6 +40,7 @@ import {
   Mail,
   CheckSquare,
   LayoutTemplate,
+  X,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -342,6 +343,72 @@ function Editor({
 }
 
 // ---------------------------------------------------------------------------
+// Delete confirmation dialog
+// ---------------------------------------------------------------------------
+
+interface DeleteTemplateDialogProps {
+  name: string;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+function DeleteTemplateDialog({
+  name,
+  busy,
+  onCancel,
+  onConfirm,
+}: DeleteTemplateDialogProps): React.JSX.Element {
+  return (
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Delete template"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+    >
+      <div className="st-dialog">
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">Delete template</h2>
+          <button
+            type="button"
+            className="st-dialog__close"
+            onClick={onCancel}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <div className="st-dialog__body">
+          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+            Delete{' '}
+            <strong style={{ color: 'var(--st-text)' }}>
+              {name.trim() || 'this template'}
+            </strong>
+            ? This cannot be undone.
+          </p>
+        </div>
+        <div className="st-dialog__footer">
+          <TwentyButton variant="secondary" onClick={onCancel} disabled={busy}>
+            Cancel
+          </TwentyButton>
+          <TwentyButton
+            variant="secondary"
+            className="st-btn--danger"
+            onClick={onConfirm}
+            disabled={busy}
+          >
+            {busy ? 'Deleting…' : 'Delete template'}
+          </TwentyButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
@@ -362,6 +429,8 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
   const [editorError, setEditorError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
+  // When set, the delete-confirmation dialog is open for the current draft.
+  const [confirmingDelete, setConfirmingDelete] = React.useState(false);
 
   // ----- Loaders -----
 
@@ -505,11 +574,14 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
         setTemplates((prev) => prev.filter((t) => t.id !== targetId));
         setSelectedId(null);
         setDraft(null);
+        setConfirmingDelete(false);
       } else {
         setEditorError(res.error);
+        setConfirmingDelete(false);
       }
     } catch {
       setEditorError('Failed to delete the template. The service may be unavailable.');
+      setConfirmingDelete(false);
     } finally {
       setDeleting(false);
     }
@@ -624,7 +696,7 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
                   error={editorError}
                   onChange={patchDraft}
                   onSave={handleSave}
-                  onDelete={handleDelete}
+                  onDelete={() => setConfirmingDelete(true)}
                 />
               ) : (
                 <div className="st-tpl-editor st-tpl-editor--empty">
@@ -644,6 +716,15 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
           </>
         )}
       </div>
+
+      {confirmingDelete && draft && draft.id !== null ? (
+        <DeleteTemplateDialog
+          name={draft.name}
+          busy={deleting}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={handleDelete}
+        />
+      ) : null}
     </div>
   );
 }

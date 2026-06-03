@@ -5,6 +5,9 @@
    (`.st-whlog*`); never edit `sabcrm-twenty.css`. All selectors are prefixed
    with `.sabcrm-twenty` to match the ancestor scope the page renders under,
    and reuse the existing `--st-*` design tokens so light/dark themes follow.
+   The failed-delivery red uses the shared `--st-danger` token from
+   `../settings-twenty.css` (which carries a `.st-theme-dark` remap) so it stays
+   legible against the dark surface.
    ========================================================================= */
 
 /* Selected-endpoint summary header inside the deliveries dialog. */
@@ -95,13 +98,13 @@
 
 .sabcrm-twenty .st-whlog__item-error {
   font-size: var(--st-font-size-xs);
-  color: #b3261e;
+  color: var(--st-danger);
   word-break: break-word;
 }
 
 /* Status chip variants (extend the base .st-chip dot colouring). */
 .sabcrm-twenty .st-chip--err .st-chip__dot {
-  background: #b3261e;
+  background: var(--st-danger);
 }
 
 /* Compact empty state inside the dialog body. */

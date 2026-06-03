@@ -34,7 +34,7 @@
   border: 1px solid var(--st-border-light, var(--st-border));
   border-radius: 999px;
   background: var(--st-bg-secondary, #f5f5f5);
-  color: var(--st-text-primary, #222);
+  color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-xs, 11px);
   line-height: 1;
@@ -70,8 +70,8 @@
 }
 
 .stg-chip__x:hover {
-  background: rgba(0, 0, 0, 0.08);
-  color: var(--st-text-primary, #111);
+  background: var(--st-hover);
+  color: var(--st-text);
 }
 
 /* The "+" affordance that opens the picker. Mirrors the kit's subtle button. */
@@ -95,7 +95,7 @@
   background: var(--st-bg-secondary, #f5f5f5);
   border-style: solid;
   border-color: var(--st-border);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .stg-add--empty {
@@ -161,7 +161,7 @@
   border: 0;
   border-radius: var(--st-radius);
   background: transparent;
-  color: var(--st-text-primary, #222);
+  color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-sm);
   text-align: left;
@@ -234,7 +234,7 @@
 .stg-filter__btn.is-open {
   background: var(--st-bg-secondary, #f5f5f5);
   border-color: var(--st-border);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .stg-filter__btn.is-active {

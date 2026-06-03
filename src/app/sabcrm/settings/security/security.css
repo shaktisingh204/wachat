@@ -436,3 +436,19 @@
   margin-top: 1px;
   color: var(--st-text-tertiary);
 }
+
+/* ---- Narrow viewports -------------------------------------------------- */
+/* Stack the add-entry input + button and keep control rows from overflowing
+   on a ~380px column. */
+@media (max-width: 480px) {
+  .sabcrm-twenty .st-sec-list__input {
+    flex-wrap: wrap;
+  }
+  .sabcrm-twenty .st-sec-list__input .st-input {
+    flex: 1 1 100%;
+  }
+  .sabcrm-twenty .st-sec-row {
+    align-items: flex-start;
+    gap: var(--st-space-3);
+  }
+}

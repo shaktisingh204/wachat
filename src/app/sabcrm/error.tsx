@@ -2,8 +2,13 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import { Button, EmptyState } from '@/components/zoruui';
 
+import '@/styles/sabcrm-twenty.css';
+import { TwentyButton } from '@/components/sabcrm/twenty/twenty-primitives';
+
+/**
+ * SabCRM root error boundary — Twenty design system (`.st-*`), NOT ZoruUI.
+ */
 export default function SabcrmError({
   error,
   reset,
@@ -16,20 +21,22 @@ export default function SabcrmError({
   }, [error]);
 
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-5xl px-6 py-10 sm:px-8 sm:py-14">
-      <EmptyState
-        icon={<AlertTriangle className="text-zoru-danger" />}
-        title="Something went wrong in SabCRM"
-        description={
-          error?.message ||
-          'An unexpected error occurred while loading SabCRM. Please try again or contact support if the issue persists.'
-        }
-        action={
-          <Button onClick={() => reset()} variant="default">
+    <div className="sabcrm-twenty">
+      <main className="st-page">
+        <div className="st-empty" role="alert">
+          <span className="st-empty__icon" aria-hidden="true">
+            <AlertTriangle size={20} />
+          </span>
+          <h1 className="st-empty__title">Something went wrong in SabCRM</h1>
+          <p className="st-empty__desc">
+            {error?.message ||
+              'An unexpected error occurred while loading SabCRM. Please try again or contact support if the issue persists.'}
+          </p>
+          <TwentyButton variant="primary" onClick={() => reset()}>
             Try again
-          </Button>
-        }
-      />
-    </main>
+          </TwentyButton>
+        </div>
+      </main>
+    </div>
   );
 }

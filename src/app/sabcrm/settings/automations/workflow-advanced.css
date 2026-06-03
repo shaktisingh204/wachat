@@ -11,6 +11,10 @@
      - Run history     → past-run list + per-step status        (wf-runs / wf-runrow / …)
      - Config helpers  → condition rows for filter / if_else    (wf-cond / wf-cfg-hint)
    Reuses `.st-spin` via the existing `.wf-run__spin` animation in run-now.css.
+
+   Failed run-step errors + the "failed" run-status chip reuse the shared
+   `--st-danger*` semantic tokens from `../settings-twenty.css`, which carry
+   `.st-theme-dark` remaps so they stay legible against the dark surface.
    ========================================================================= */
 
 /* ---- Variable-aware text input -------------------------------------- */
@@ -213,6 +217,16 @@
   border-radius: var(--st-radius);
   background: var(--st-bg);
   box-shadow: var(--st-shadow);
+}
+
+/* Let the read-only flowchart shrink its nodes (rather than overflow) on
+   narrow viewports (~380px); the container clips no content. */
+@media (max-width: 420px) {
+  .sabcrm-twenty .wf-dnode {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
 }
 
 .sabcrm-twenty .wf-dnode--trigger {
@@ -511,7 +525,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #b3261e;
+  color: var(--st-danger);
 }
 
 /* ---- Status chip (shared by run rows + run steps) ------------------- */
@@ -541,9 +555,9 @@
 }
 
 .sabcrm-twenty .wf-runstat--fail {
-  border-color: #f0c9c6;
-  background: rgba(179, 38, 30, 0.08);
-  color: #b3261e;
+  border-color: var(--st-danger-border);
+  background: var(--st-danger-bg);
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .wf-runstat--run {

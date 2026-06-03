@@ -17,10 +17,21 @@
   flex-direction: column;
   gap: var(--st-space-2);
   min-width: 340px;
+  /* Never exceed the viewport on small screens (the popover is anchored to a
+     toolbar trigger, so cap to the visible width minus the page gutters). */
+  max-width: calc(100vw - var(--st-space-5) * 2);
 }
 
 .staf--root {
   min-width: 360px;
+}
+
+@media (max-width: 420px) {
+  .staf,
+  .staf--root {
+    min-width: 0;
+    width: calc(100vw - var(--st-space-5) * 2);
+  }
 }
 
 /* ---- A group (root or nested) ------------------------------------------- */
@@ -69,7 +80,7 @@
 }
 
 .staf-conj__btn:hover {
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .staf-conj__btn.is-active {
@@ -124,7 +135,7 @@
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius);
   background: var(--st-bg);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-sm);
   min-width: 0;
@@ -165,7 +176,7 @@
 
 .staf-x:hover {
   background: var(--st-bg-secondary);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 /* ---- Add-condition / Add-group affordances ------------------------------ */
@@ -196,7 +207,7 @@
 .staf-add:hover {
   background: var(--st-bg-secondary);
   border-color: var(--st-text-tertiary);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 /* ---- Footer actions ----------------------------------------------------- */

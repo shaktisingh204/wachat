@@ -280,6 +280,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
           <textarea
             className="st-ai__input"
             placeholder="Message the AI Assistant…"
+            aria-label="Message the AI Assistant"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}

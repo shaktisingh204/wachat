@@ -86,12 +86,16 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     <div className="sabcrm-twenty">
       <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
-        <aside className="st-sidebar">
+        <aside className="st-sidebar" aria-label="SabCRM navigation">
           <div className="st-sidebar__scroll">
             {/* Workspace switcher + notifications bell */}
             <div className="st-sidebar__header">
-              <button type="button" className="st-workspace-switcher">
-                <span className="st-workspace-switcher__avatar">
+              <button
+                type="button"
+                className="st-workspace-switcher"
+                aria-label={`Workspace: ${WORKSPACE_NAME}`}
+              >
+                <span className="st-workspace-switcher__avatar" aria-hidden="true">
                   {WORKSPACE_NAME.charAt(0)}
                 </span>
                 <span className="st-workspace-switcher__name">{WORKSPACE_NAME}</span>
@@ -109,6 +113,9 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               type="button"
               className="st-search-btn"
               onClick={() => setCommandMenuOpen(true)}
+              aria-label="Search (Command or Control + K)"
+              aria-haspopup="dialog"
+              aria-expanded={commandMenuOpen}
             >
               <Search className="st-search-btn__icon" size={16} aria-hidden="true" />
               <span className="st-search-btn__label">Search</span>

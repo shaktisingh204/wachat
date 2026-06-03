@@ -230,11 +230,11 @@
 }
 
 .sabcrm-twenty .rp-status--saved {
-  color: #2e7d32;
+  color: var(--st-success);
 }
 
 .sabcrm-twenty .rp-status--error {
-  color: #b3261e;
+  color: var(--st-danger);
 }
 
 /* ----- Permission matrix (toggle rows) ---------------------------------- */
@@ -331,7 +331,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--st-bg);
+  background: var(--st-knob);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   transition: transform 140ms ease;
 }
@@ -457,9 +457,9 @@
 }
 
 .sabcrm-twenty .rp-tri--deny {
-  border-color: #b3261e;
-  background: rgba(179, 38, 30, 0.08);
-  color: #b3261e;
+  border-color: var(--st-danger-border);
+  background: var(--st-danger-bg);
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .rp-tri--disabled {

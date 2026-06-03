@@ -119,7 +119,7 @@
 }
 
 .st-seg-iconbtn--danger:hover {
-  color: #ef4444;
+  color: var(--st-danger);
 }
 
 /* --------------------------------------------------------------------- */
@@ -313,7 +313,7 @@
 
 .st-seg-cond__remove:hover {
   background: var(--st-hover);
-  color: #ef4444;
+  color: var(--st-danger);
   border-color: var(--st-border-light);
 }
 

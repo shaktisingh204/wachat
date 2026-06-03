@@ -303,8 +303,8 @@
 }
 
 .sabcrm-twenty .pl-iconbtn--danger:hover:not(:disabled) {
-  border-color: #d64545;
-  color: #d64545;
+  border-color: var(--st-danger);
+  color: var(--st-danger);
 }
 
 /* ----- Colour-swatch picker --------------------------------------------- */
@@ -428,7 +428,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--st-knob);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
   transition: transform 120ms ease;
 }

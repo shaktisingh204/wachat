@@ -496,6 +496,8 @@ interface ControlPopoverProps {
   icon: React.ComponentType<{ size?: number }>;
   active?: boolean;
   alignRight?: boolean;
+  /** Widen the popover (e.g. for the nested advanced-filter builder). */
+  wide?: boolean;
   children: (close: () => void) => React.ReactNode;
 }
 
@@ -504,6 +506,7 @@ function ControlPopover({
   icon: Icon,
   active,
   alignRight,
+  wide,
   children,
 }: ControlPopoverProps): React.JSX.Element {
   const [open, setOpen] = React.useState(false);
@@ -540,7 +543,9 @@ function ControlPopover({
       </button>
       {open && (
         <div
-          className={`stv-pop${alignRight ? ' stv-pop--right' : ''}`}
+          className={`stv-pop${alignRight ? ' stv-pop--right' : ''}${
+            wide ? ' stv-pop--wide' : ''
+          }`}
           role="dialog"
           aria-label={label}
         >
@@ -1749,7 +1754,7 @@ export function SabcrmViewBar({
 
       {/* Controls + active chips */}
       <div className="stv-bar">
-        <ControlPopover label="Filter" icon={Filter} active={filterCount > 0}>
+        <ControlPopover label="Filter" icon={Filter} active={filterCount > 0} wide>
           {(close) => (
             <FilterPopover
               object={object}

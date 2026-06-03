@@ -1244,6 +1244,7 @@ export default function SabcrmImportExportPage(): React.JSX.Element {
                             <td>
                               <select
                                 className="st-select"
+                                aria-label={`CSV column for ${f.label}`}
                                 value={mapping[f.key] ?? ''}
                                 onChange={(e) =>
                                   setFieldColumn(f.key, e.target.value)

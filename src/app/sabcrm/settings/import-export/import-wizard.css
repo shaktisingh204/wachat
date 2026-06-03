@@ -11,8 +11,28 @@
    from reports-twenty.css.
 
    All colours come from the `--st-*` design tokens so light/dark themes track
-   automatically.
-   ========================================================================= */
+   automatically. The semantic status palette is derived from the shared
+   `--st-success* / --st-warning / --st-danger*` tokens in
+   `../settings-twenty.css` (which carry `.st-theme-dark` remaps). The `--st-iw-*`
+   aliases below add the few tinted-surface variants the shared set doesn't
+   expose (warning bg/border, success border) and are also consumed by the
+   sibling `relation-map.css`, so both sheets track one source of truth. */
+.sabcrm-twenty {
+  --st-iw-ok-fg: var(--st-success);
+  --st-iw-ok-bg: var(--st-success-bg);
+  --st-iw-ok-border: var(--st-success-bg);
+  --st-iw-warn-fg: var(--st-warning);
+  --st-iw-warn-bg: rgba(178, 106, 0, 0.1);
+  --st-iw-warn-border: rgba(178, 106, 0, 0.32);
+  --st-iw-err-fg: var(--st-danger);
+  --st-iw-err-bg: var(--st-danger-bg);
+  --st-iw-err-border: var(--st-danger-border);
+}
+
+.sabcrm-twenty.st-theme-dark {
+  --st-iw-warn-bg: rgba(224, 164, 74, 0.16);
+  --st-iw-warn-border: rgba(224, 164, 74, 0.32);
+}
 
 /* -------------------------------------------------------------------------
    Step indicator — a Twenty-style numbered stepper with connector rails.
@@ -184,10 +204,10 @@
   color: var(--st-text-secondary);
 }
 .sabcrm-twenty .st-iw-issues--error .st-iw-issues__head {
-  color: #b42318;
+  color: var(--st-iw-err-fg);
 }
 .sabcrm-twenty .st-iw-issues--warn .st-iw-issues__head {
-  color: #b54708;
+  color: var(--st-iw-warn-fg);
 }
 
 /* a warning row — mirrors .st-iox-issue but amber */
@@ -196,7 +216,7 @@
   align-items: flex-start;
   gap: 6px;
   font-size: var(--st-font-size-sm);
-  color: #b54708;
+  color: var(--st-iw-warn-fg);
   padding: 2px 0;
 }
 
@@ -206,7 +226,7 @@
   align-items: center;
   gap: 6px;
   font-size: var(--st-font-size-sm);
-  color: #067647;
+  color: var(--st-iw-ok-fg);
 }
 
 /* -------------------------------------------------------------------------
@@ -288,33 +308,19 @@
   border: 1px solid var(--st-border);
 }
 .sabcrm-twenty .st-iw-result-banner--ok {
-  background: #ecfdf3;
-  border-color: #abefc6;
-  color: #067647;
+  background: var(--st-iw-ok-bg);
+  border-color: var(--st-iw-ok-border);
+  color: var(--st-iw-ok-fg);
 }
 .sabcrm-twenty .st-iw-result-banner--partial {
-  background: #fffaeb;
-  border-color: #fedf89;
-  color: #b54708;
+  background: var(--st-iw-warn-bg);
+  border-color: var(--st-iw-warn-border);
+  color: var(--st-iw-warn-fg);
 }
 .sabcrm-twenty .st-iw-result-banner--fail {
-  background: #fef3f2;
-  border-color: #fecdca;
-  color: #b42318;
-}
-
-/* dark-theme softening for the coloured banners */
-.sabcrm-twenty.st-dark .st-iw-result-banner--ok,
-.sabcrm-twenty .st-dark .st-iw-result-banner--ok {
-  background: rgba(6, 118, 71, 0.12);
-}
-.sabcrm-twenty.st-dark .st-iw-result-banner--partial,
-.sabcrm-twenty .st-dark .st-iw-result-banner--partial {
-  background: rgba(181, 71, 8, 0.12);
-}
-.sabcrm-twenty.st-dark .st-iw-result-banner--fail,
-.sabcrm-twenty .st-dark .st-iw-result-banner--fail {
-  background: rgba(180, 35, 24, 0.12);
+  background: var(--st-iw-err-bg);
+  border-color: var(--st-iw-err-border);
+  color: var(--st-iw-err-fg);
 }
 
 /* -------------------------------------------------------------------------

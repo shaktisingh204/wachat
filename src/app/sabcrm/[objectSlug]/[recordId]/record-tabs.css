@@ -340,3 +340,31 @@
   flex: 0 0 auto;
   color: var(--st-text-muted, #c4c4c4);
 }
+
+/* =========================================================================
+   Narrow screens (~380px): stack the fixed two-column field rows so the
+   160px label column never squeezes the value into an unreadable strip.
+   The detail grid itself already collapses to one column in the shared kit;
+   this collapses the field-row internals + the relation tab strip.
+   ========================================================================= */
+@media (max-width: 480px) {
+  .rt-fields__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: 8px 0;
+  }
+
+  .rt-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .rt-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rt-tab {
+    flex: 0 0 auto;
+  }
+}

@@ -108,19 +108,59 @@
   white-space: nowrap;
 }
 
-/* Small destructive ghost button. */
+/* Semantic status tokens. The base `--st-*` set carries no danger / success /
+   warning colours, so they live here with explicit dark-mode fallbacks. Every
+   group-B settings sheet (roles, data-model, tags, pipelines, usage, segments,
+   page-layouts, templates) consumes these instead of hardcoding hex, so they
+   stay legible in `.st-theme-dark`. */
+.sabcrm-twenty {
+  --st-danger: #b3261e;
+  --st-danger-strong: #9b1c1c;
+  --st-danger-soft: #fdf3f3;
+  /* Translucent danger surface for chip / tri-state / pill fills. */
+  --st-danger-bg: rgba(179, 38, 30, 0.08);
+  --st-danger-border: rgba(179, 38, 30, 0.4);
+
+  --st-success: #2e7d32;
+  --st-success-strong: #1f5c23;
+  --st-success-bg: rgba(46, 125, 50, 0.1);
+
+  --st-warning: #b26a00;
+  --st-warning-strong: #8a5200;
+
+  /* Neutral knob fill for switch thumbs — stays light on dark tracks. */
+  --st-knob: #ffffff;
+}
+
+.sabcrm-twenty.st-theme-dark {
+  --st-danger: #f3777a;
+  --st-danger-strong: #ff9b9d;
+  --st-danger-soft: #2a1818;
+  --st-danger-bg: rgba(243, 119, 122, 0.16);
+  --st-danger-border: rgba(243, 119, 122, 0.45);
+
+  --st-success: #69c777;
+  --st-success-strong: #8bdc97;
+  --st-success-bg: rgba(105, 199, 119, 0.16);
+
+  --st-warning: #e0a44a;
+  --st-warning-strong: #f0bf72;
+
+  --st-knob: #d6d6d6;
+}
+
 .sabcrm-twenty .st-btn--danger {
-  color: #b3261e;
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .st-btn--danger:hover:not(:disabled) {
-  background: #fdf3f3;
-  color: #9b1c1c;
+  background: var(--st-danger-soft);
+  color: var(--st-danger-strong);
 }
 
 /* Status chips. */
 .sabcrm-twenty .st-chip--ok .st-chip__dot {
-  background: #2e7d32;
+  background: var(--st-success);
 }
 
 .sabcrm-twenty .st-chip--off .st-chip__dot {
@@ -214,7 +254,7 @@
 /* Generic inline error text inside dialogs. */
 .sabcrm-twenty .st-form-error {
   font-size: var(--st-font-size-sm);
-  color: #b3261e;
+  color: var(--st-danger, #b3261e);
 }
 
 /* Footer note row beneath a table. */

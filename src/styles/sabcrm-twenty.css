@@ -18,6 +18,9 @@
 
   /* ----- Text ----- */
   --st-text: #1b1b18;
+  /* Alias of --st-text. Pages reference --st-text-primary as the canonical
+     "primary text" token; keep it pointed at --st-text so both stay in sync. */
+  --st-text-primary: var(--st-text);
   --st-text-secondary: #666666;
   --st-text-tertiary: #b3b3b3;
   --st-text-inverted: #ffffff;
@@ -27,9 +30,46 @@
   --st-accent-hover: #1652c9;
   --st-accent-soft: #eef3fe;
 
+  /* ----- Danger / destructive (red, legible on light surfaces) ----- */
+  --st-danger: #c13c2c;
+  --st-danger-hover: #a8311f;
+  --st-danger-strong: #9b1c1c;
+  --st-danger-soft: #fdf3f3;
+
+  /* ----- Warning (amber) ----- */
+  --st-warn: #c77700;
+
+  /* ----- Status (success / error text) ----- */
+  --st-status-ok: #2e7d32;
+  --st-status-err: #b3261e;
+
   /* ----- Interaction ----- */
   --st-hover: #f5f5f5;
-  --st-active: #efefef;
+  --st-active: #ececec;
+  /* A quiet filled surface for chips / value pills / inset blocks — sits one
+     step below --st-bg-secondary. Referenced by record/show widgets. */
+  --st-bg-muted: #f4f4f4;
+
+  /* ----- Common aliases (kept centrally so pages stop re-declaring them and
+     so every alias re-themes for dark automatically). Pages that already
+     define these locally still win via the cascade. ----- */
+  --st-surface: var(--st-bg);
+  --st-surface-hover: var(--st-hover);
+  --st-surface-muted: var(--st-bg-muted);
+  --st-bg-subtle: var(--st-bg-secondary);
+  --st-text-muted: var(--st-text-secondary);
+  --st-text-soft: var(--st-text-tertiary);
+  --st-text-light: var(--st-text-tertiary);
+  --st-border-strong: #d9d9d9;
+  --st-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --st-radius-pill: 999px;
+  --st-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --st-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.14);
+
+  /* ----- Semantic color aliases ----- */
+  --st-red: var(--st-danger);
+  --st-green: var(--st-status-ok);
+  --st-success: var(--st-status-ok);
 
   /* ----- Shape / type ----- */
   --st-radius: 4px;
@@ -93,6 +133,8 @@
 
   /* ----- Text ----- */
   --st-text: #e8e8e8;
+  /* --st-text-primary inherits the var(--st-text) alias from the light block;
+     it re-resolves to the dark --st-text automatically, no override needed. */
   --st-text-secondary: #9a9a9a;
   --st-text-tertiary: #6b6b6b;
   --st-text-inverted: #ffffff;
@@ -102,9 +144,30 @@
   --st-accent-hover: #5a90ff;
   --st-accent-soft: #1b2640;
 
+  /* ----- Danger / destructive (brighter red for legibility on near-black) ----- */
+  --st-danger: #f3777a;
+  --st-danger-hover: #ff9395;
+  --st-danger-strong: #ff9b9d;
+  --st-danger-soft: #2a1818;
+
+  /* ----- Warning (warmer amber for dark surfaces) ----- */
+  --st-warn: #e0974a;
+
+  /* ----- Status (success / error text) ----- */
+  --st-status-ok: #6cc06f;
+  --st-status-err: #f3777a;
+
   /* ----- Interaction ----- */
   --st-hover: #242424;
-  --st-active: #2c2c2c;
+  --st-active: #313131;
+  /* Quiet filled surface for dark — a touch above --st-bg for separation. */
+  --st-bg-muted: #222222;
+
+  /* ----- Common aliases: only the literal-valued ones need a dark override;
+     the var()-based aliases re-resolve to their dark sources automatically. */
+  --st-border-strong: #3a3a3a;
+  --st-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --st-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
 
   /* ----- Shadow (deeper for dark surfaces) ----- */
   --st-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--st-border);
@@ -129,6 +192,25 @@
 .sabcrm-twenty *::before,
 .sabcrm-twenty *::after {
   box-sizing: border-box;
+}
+
+/* =========================================================================
+   Global focus-visible — one consistent keyboard focus ring across the kit.
+   Mouse clicks stay clean (no ring); only keyboard focus shows the accent
+   outline. Individual components may opt out / override below.
+   ========================================================================= */
+.sabcrm-twenty :focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
+  border-radius: var(--st-radius-sm);
+}
+
+/* Inputs already paint their own accent border + soft ring on focus, so keep
+   the global outline off them to avoid a doubled ring. */
+.sabcrm-twenty input:focus-visible,
+.sabcrm-twenty select:focus-visible,
+.sabcrm-twenty textarea:focus-visible {
+  outline: none;
 }
 
 /* =========================================================================
@@ -337,6 +419,25 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* =========================================================================
+   Responsive sidebar
+   At narrow viewports the fixed 240px rail crowds the content and can break
+   horizontal overflow. Below 900px we collapse to a slim icon rail; below
+   560px we hide it entirely so the main column gets the full width (mobile
+   navigation is handled by the command menu / in-page nav). No JS required.
+   ========================================================================= */
+@media (max-width: 900px) {
+  .sabcrm-twenty {
+    --st-sidebar-width: 200px;
+  }
+}
+
+@media (max-width: 560px) {
+  .st-sidebar {
+    display: none;
+  }
 }
 
 /* =========================================================================
@@ -1040,7 +1141,7 @@
 }
 
 .st-field__req {
-  color: #d64545;
+  color: var(--st-danger);
   margin-left: 2px;
 }
 

@@ -2497,6 +2497,7 @@ function EditableValue({ field, value, onCommit }: EditableValueProps) {
         className="st-cell-editable"
         role="button"
         tabIndex={0}
+        aria-label={`Edit ${field.label}`}
         onClick={begin}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
@@ -2515,6 +2516,7 @@ function EditableValue({ field, value, onCommit }: EditableValueProps) {
       <select
         className="st-cell-select"
         autoFocus
+        aria-label={field.label}
         value={draft}
         onChange={(e) => commit(e.target.value)}
         onBlur={(e) => commit(e.target.value)}
@@ -2533,6 +2535,7 @@ function EditableValue({ field, value, onCommit }: EditableValueProps) {
     <input
       className="st-cell-input"
       autoFocus
+      aria-label={field.label}
       type={
         field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING'
           ? 'number'
@@ -2794,6 +2797,9 @@ export function RecordDetailTw({
   // Timeline state.
   const [activities, setActivities] = React.useState<SabcrmRustActivity[]>([]);
   const [loadingTimeline, setLoadingTimeline] = React.useState(true);
+  // Surfaced when the timeline load fails (engine down) so the panel shows an
+  // honest error rather than a misleading "No activity yet" empty state.
+  const [timelineError, setTimelineError] = React.useState<string | null>(null);
 
   // Polymorphic targets — notes/tasks LINKED to this record (Twenty's
   // record-page Notes/Tasks tabs list everything that targets the record, not
@@ -2927,6 +2933,7 @@ export function RecordDetailTw({
   React.useEffect(() => {
     let cancelled = false;
     setLoadingTimeline(true);
+    setTimelineError(null);
     (async () => {
       const res = await listSabcrmActivitiesTw(
         object.slug,
@@ -2935,8 +2942,13 @@ export function RecordDetailTw({
         projectId ?? undefined,
       );
       if (cancelled) return;
-      if (res.ok) setActivities(res.data);
-      else setActivities([]);
+      if (res.ok) {
+        setActivities(res.data);
+        setTimelineError(null);
+      } else {
+        setActivities([]);
+        setTimelineError(res.error);
+      }
       setLoadingTimeline(false);
     })();
     return () => {
@@ -3909,10 +3921,16 @@ export function RecordDetailTw({
           recordLabel={label}
           projectId={projectId}
         />
+        {timelineError ? (
+          <div className="st-banner" role="alert">
+            <AlertTriangle className="st-banner__icon" size={15} />
+            <span>{timelineError}</span>
+          </div>
+        ) : null}
         <AttachmentTimeline
           activities={activities}
           loading={loadingTimeline}
-          emptyLabel="No activity yet"
+          emptyLabel={timelineError ? "Couldn't load activity" : 'No activity yet'}
           currentAuthorId={commentAuthorId}
           onLearnAuthor={handleLearnCommentAuthor}
         />
@@ -3925,6 +3943,7 @@ export function RecordDetailTw({
       projectId,
       activities,
       loadingTimeline,
+      timelineError,
       commentAuthorId,
       handleLearnCommentAuthor,
     ],

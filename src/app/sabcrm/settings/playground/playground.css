@@ -5,7 +5,10 @@
    under `/sabcrm/settings/playground`. Like the sibling settings sheet, every
    selector is scoped under `.sabcrm-twenty` (supplied by the SabCRM app frame
    layout) so these helpers never leak into the rest of SabNode. All values
-   derive from the base `--st-*` token vocabulary — no new colours.
+   derive from the base `--st-*` token vocabulary — no new colours. Status
+   colours reuse the shared semantic tokens (`--st-success*` / `--st-danger*`)
+   defined in `../settings-twenty.css`, which carry `.st-theme-dark` remaps so
+   the Response pills stay legible on the dark surface.
    ========================================================================= */
 
 /* The request builder card — bordered surface grouping all inputs. */
@@ -133,15 +136,15 @@
 }
 
 .sabcrm-twenty .st-pg-status--ok {
-  color: #2e7d32;
-  border-color: #cde6cf;
-  background: #f2faf3;
+  color: var(--st-success);
+  border-color: var(--st-success-bg);
+  background: var(--st-success-bg);
 }
 
 .sabcrm-twenty .st-pg-status--fail {
-  color: #b3261e;
-  border-color: #f0d4d2;
-  background: #fdf3f3;
+  color: var(--st-danger);
+  border-color: var(--st-danger-border);
+  background: var(--st-danger-bg);
 }
 
 /* The pretty-printed JSON body. */

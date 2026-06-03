@@ -958,7 +958,7 @@ function TableView({
         )}
         <thead>
           <tr>
-            <th className="st-checkbox-cell">
+            <th scope="col" className="st-checkbox-cell">
               <input
                 type="checkbox"
                 className="st-checkbox"
@@ -970,8 +970,8 @@ function TableView({
                 onChange={onToggleSelectAll}
               />
             </th>
-            <th aria-label="Favorite" style={{ width: 32 }} />
-            <th className="stg-th" style={{ width: 160 }}>
+            <th scope="col" aria-label="Favorite" style={{ width: 32 }} />
+            <th scope="col" className="stg-th" style={{ width: 160 }}>
               Tags
             </th>
             {columns.map((col) => {
@@ -1054,6 +1054,7 @@ function TableView({
               return (
                 <th
                   key={col.key}
+                  scope="col"
                   className={thClass}
                   aria-sort={
                     sortable
@@ -2011,9 +2012,15 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
 
 function TableSkeleton() {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
+    <div
+      className="st-table-wrap"
+      style={{ padding: 'var(--st-space-3)' }}
+      role="status"
+      aria-busy="true"
+      aria-label="Loading records"
+    >
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="st-skeleton st-skeleton-row" />
+        <div key={i} className="st-skeleton st-skeleton-row" aria-hidden="true" />
       ))}
     </div>
   );
@@ -3226,7 +3233,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     return (
       <div className="st-page">
         <div className="st-empty">
-          <span className="st-empty__icon">
+          <span className="st-empty__icon" aria-hidden="true">
             <Database size={20} />
           </span>
           <h2 className="st-empty__title">Object not found</h2>
@@ -3234,11 +3241,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             No CRM object matches “{objectSlug}”. It may have been removed or you
             may not have access.
           </p>
-          <TwentyButton variant="secondary">
-            <Link href="/sabcrm" style={{ color: 'inherit', textDecoration: 'none' }}>
-              Back to SabCRM
-            </Link>
-          </TwentyButton>
+          <Link
+            href="/sabcrm"
+            className="st-btn st-btn--secondary"
+            style={{ textDecoration: 'none' }}
+          >
+            Back to SabCRM
+          </Link>
         </div>
       </div>
     );
@@ -3357,7 +3366,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         <TableSkeleton />
       ) : isEmpty ? (
         <div className="st-empty">
-          <span className="st-empty__icon">
+          <span className="st-empty__icon" aria-hidden="true">
             <Database size={20} />
           </span>
           <h2 className="st-empty__title">

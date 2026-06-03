@@ -43,11 +43,11 @@
 }
 
 .stv-tab:hover {
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .stv-tab.active {
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
   border-bottom-color: var(--st-accent);
 }
 
@@ -75,7 +75,7 @@
 
 .stv-tab__add:hover {
   background: var(--st-bg-secondary);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 /* ---- Controls row -------------------------------------------------------- */
@@ -118,7 +118,7 @@
 .stv-control__btn.open {
   background: var(--st-bg-secondary);
   border-color: var(--st-border);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 .stv-control__btn.active {
@@ -142,7 +142,7 @@
   border: 1px solid var(--st-border);
   border-radius: 14px;
   background: var(--st-bg);
-  color: var(--st-text-primary, #222);
+  color: var(--st-text);
   font-size: var(--st-font-size-sm);
   white-space: nowrap;
 }
@@ -175,7 +175,7 @@
 
 .stv-pill__x:hover {
   background: var(--st-bg-secondary);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
 }
 
 /* ---- Popover ------------------------------------------------------------- */
@@ -196,6 +196,25 @@
 .stv-pop--right {
   left: auto;
   right: 0;
+}
+
+/* The advanced-filter builder needs more room than the simple field/op/value
+   stacks; widen the popover for it while still clamping to the viewport so it
+   never overflows on small screens. */
+.stv-pop--wide {
+  max-width: min(420px, calc(100vw - var(--st-space-5) * 2));
+}
+
+/* On narrow viewports, anchor any open popover to the trailing edge and cap to
+   the available width so nothing clips off-screen. */
+@media (max-width: 420px) {
+  .stv-pop,
+  .stv-pop--wide {
+    left: auto;
+    right: 0;
+    min-width: 0;
+    max-width: calc(100vw - var(--st-space-4) * 2);
+  }
 }
 
 .stv-pop__title {
@@ -223,7 +242,7 @@
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius);
   background: var(--st-bg);
-  color: var(--st-text-primary, #111);
+  color: var(--st-text);
   font-family: var(--st-font);
   font-size: var(--st-font-size-sm);
 }
@@ -256,7 +275,7 @@
   gap: var(--st-space-2);
   padding: 6px var(--st-space-2);
   border-radius: var(--st-radius);
-  color: var(--st-text-primary, #222);
+  color: var(--st-text);
   font-size: var(--st-font-size-sm);
   cursor: pointer;
 }

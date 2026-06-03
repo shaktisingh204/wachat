@@ -10,7 +10,24 @@
    All selectors are scoped under `.sabcrm-twenty` (supplied by the SabCRM app
    frame layout) so they never leak into the rest of SabNode. Colours are kept
    to a single soft-tint-per-action palette in keeping with Twenty's flat look.
+
+   create/delete chips reuse the shared semantic tokens (`--st-success*` /
+   `--st-danger*`) from `../settings-twenty.css`; the "update" blue has no shared
+   equivalent, so it lives here as a local token with a `.st-theme-dark` remap so
+   the chip stays legible against the dark surface.
    ========================================================================= */
+
+.sabcrm-twenty {
+  --st-audit-update-fg: #2c5fc9;
+  --st-audit-update-bg: #eef2fb;
+  --st-audit-update-border: #cfdcf3;
+}
+
+.sabcrm-twenty.st-theme-dark {
+  --st-audit-update-fg: #76a4ff;
+  --st-audit-update-bg: rgba(118, 164, 255, 0.12);
+  --st-audit-update-border: rgba(118, 164, 255, 0.32);
+}
 
 /* Filter bar — action + object selects above the table. */
 .sabcrm-twenty .st-audit-filters {
@@ -56,33 +73,33 @@
 }
 
 .sabcrm-twenty .st-audit-chip--create {
-  background: #eef6ef;
-  border-color: #cfe6d1;
-  color: #2e7d32;
+  background: var(--st-success-bg);
+  border-color: var(--st-success-bg);
+  color: var(--st-success);
 }
 
 .sabcrm-twenty .st-audit-chip--create .st-chip__dot {
-  background: #2e7d32;
+  background: var(--st-success);
 }
 
 .sabcrm-twenty .st-audit-chip--update {
-  background: #eef2fb;
-  border-color: #cfdcf3;
-  color: #2c5fc9;
+  background: var(--st-audit-update-bg);
+  border-color: var(--st-audit-update-border);
+  color: var(--st-audit-update-fg);
 }
 
 .sabcrm-twenty .st-audit-chip--update .st-chip__dot {
-  background: #2c5fc9;
+  background: var(--st-audit-update-fg);
 }
 
 .sabcrm-twenty .st-audit-chip--delete {
-  background: #fdf1f1;
-  border-color: #f1d2d2;
-  color: #b3261e;
+  background: var(--st-danger-bg);
+  border-color: var(--st-danger-border);
+  color: var(--st-danger);
 }
 
 .sabcrm-twenty .st-audit-chip--delete .st-chip__dot {
-  background: #b3261e;
+  background: var(--st-danger);
 }
 
 .sabcrm-twenty .st-audit-chip--other .st-chip__dot {

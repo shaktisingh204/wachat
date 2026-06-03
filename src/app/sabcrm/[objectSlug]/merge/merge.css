@@ -5,7 +5,35 @@
  * re-themes for free in light / dark. NO ZoruUI / Tailwind / clay here — only
  * `.st-merge-*` classes, alongside the reusable `.st-page / .st-input /
  * .st-btn / .st-banner / .st-empty / .st-field` primitives from the kit.
+ *
+ * Danger colors are funnelled through local `--st-danger*` vars (the shared kit
+ * defines no `--st-danger` token) so every destructive surface re-themes in one
+ * place and stays legible in dark mode.
  */
+
+/* Local danger palette — light defaults, dark fallback below. Scoped so it
+   never leaks past the merge screen. */
+.st-merge-pickers,
+.st-merge-actions,
+.st-merge-confirm__warn,
+.st-btn--danger {
+  --st-danger: #c43030;
+  --st-danger-hover: #ad2727;
+  --st-danger-contrast: #ffffff;
+  --st-danger-soft: rgba(220, 53, 69, 0.1);
+  --st-danger-text: #b02a2a;
+}
+
+.sabcrm-twenty.st-theme-dark .st-merge-pickers,
+.sabcrm-twenty.st-theme-dark .st-merge-actions,
+.sabcrm-twenty.st-theme-dark .st-merge-confirm__warn,
+.sabcrm-twenty.st-theme-dark .st-btn--danger {
+  --st-danger: #d24747;
+  --st-danger-hover: #e05c5c;
+  --st-danger-contrast: #ffffff;
+  --st-danger-soft: rgba(255, 107, 107, 0.14);
+  --st-danger-text: #ff9b9b;
+}
 
 /* --- Picker row (Primary / Secondary side-by-side) ----------------------- */
 
@@ -76,13 +104,8 @@
 }
 
 .st-merge-picker__badge--delete {
-  background: rgba(220, 53, 69, 0.1);
-  color: #c43030;
-}
-
-.sabcrm-twenty.st-theme-dark .st-merge-picker__badge--delete {
-  background: rgba(255, 107, 107, 0.14);
-  color: #ff8585;
+  background: var(--st-danger-soft);
+  color: var(--st-danger-text);
 }
 
 /* The chosen record, shown as a removable token. */
@@ -256,6 +279,11 @@
   border-color: var(--st-text-tertiary);
 }
 
+.st-merge-opt:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
 .st-merge-opt.is-chosen {
   border-color: var(--st-accent);
   box-shadow: inset 0 0 0 1px var(--st-accent);
@@ -322,14 +350,19 @@
 }
 
 .st-btn--danger {
-  background: #c43030;
-  border-color: #c43030;
-  color: #ffffff;
+  background: var(--st-danger);
+  border-color: var(--st-danger);
+  color: var(--st-danger-contrast);
 }
 
 .st-btn--danger:hover:not(:disabled) {
-  background: #ad2727;
-  border-color: #ad2727;
+  background: var(--st-danger-hover);
+  border-color: var(--st-danger-hover);
+}
+
+.st-btn--danger:focus-visible {
+  outline: 2px solid var(--st-danger);
+  outline-offset: 2px;
 }
 
 /* Confirm dialog danger emphasis. */
@@ -339,15 +372,10 @@
   gap: var(--st-space-2);
   padding: var(--st-space-3);
   border-radius: var(--st-radius);
-  background: rgba(220, 53, 69, 0.08);
-  color: #b02a2a;
+  background: var(--st-danger-soft);
+  color: var(--st-danger-text);
   font-size: var(--st-font-size-sm);
   line-height: 1.5;
-}
-
-.sabcrm-twenty.st-theme-dark .st-merge-confirm__warn {
-  background: rgba(255, 107, 107, 0.12);
-  color: #ff9b9b;
 }
 
 .st-merge-confirm__warn-icon {
@@ -357,4 +385,52 @@
 
 .st-merge-confirm__name {
   font-weight: var(--st-fw-semibold);
+}
+
+/* --- Narrow-screen stacking (~380px) ------------------------------------- */
+/* The 3-column comparison grid can't fit a phone width: collapse each row into
+   a stacked field-label + two full-width option tiles, and let the footer wrap
+   instead of overflowing. */
+@media (max-width: 560px) {
+  .st-merge-compare__head {
+    /* The column headers are meaningless once rows stack — the field label and
+       the per-tile choice carry the context. */
+    display: none;
+  }
+
+  .st-merge-row {
+    grid-template-columns: 1fr;
+    gap: var(--st-space-2);
+  }
+
+  .st-merge-row__field {
+    font-size: var(--st-font-size-xs);
+    font-weight: var(--st-fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--st-text-secondary);
+  }
+
+  .st-merge-preview__row {
+    grid-template-columns: 1fr;
+    gap: var(--st-space-1);
+  }
+
+  .st-merge-actions {
+    flex-wrap: wrap;
+    justify-content: stretch;
+  }
+
+  .st-merge-actions__note {
+    margin-right: 0;
+    width: 100%;
+  }
+
+  .st-merge-actions .st-btn--danger {
+    width: 100%;
+  }
+
+  .st-merge-toolbar {
+    flex-wrap: wrap;
+  }
 }

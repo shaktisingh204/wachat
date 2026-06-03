@@ -7,6 +7,25 @@
    Twenty visual language: same tokens (`--st-*`), same restraint.
    ========================================================================= */
 
+/* Local danger palette — the shared kit defines no `--st-danger` token, so the
+   trash screen funnels its destructive reds through scoped vars (light default,
+   dark fallback below) instead of hardcoded hex, keeping dark mode legible. */
+.str-btn-danger,
+.str-btn-danger-solid,
+.str-confirm__warn {
+  --st-danger: #d64242;
+  --st-danger-hover: #c02e2e;
+  --st-danger-contrast: #ffffff;
+}
+
+.sabcrm-twenty.st-theme-dark .str-btn-danger,
+.sabcrm-twenty.st-theme-dark .str-btn-danger-solid,
+.sabcrm-twenty.st-theme-dark .str-confirm__warn {
+  --st-danger: #e05c5c;
+  --st-danger-hover: #ec7575;
+  --st-danger-contrast: #ffffff;
+}
+
 /* Sub-header line under the page title (count + helper copy). */
 .str-sub {
   margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
@@ -41,14 +60,12 @@
   color: var(--st-text);
 }
 .str-btn-danger:not(:disabled):hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--st-danger);
+  color: var(--st-danger);
 }
-
-/* Tiny inline spinner for a row mid-flight (restore / permanent delete). */
-.str-row-busy {
-  display: inline-flex;
-  align-items: center;
+.str-btn-danger:focus-visible {
+  outline: 2px solid var(--st-danger);
+  outline-offset: 2px;
 }
 
 /* A row currently being restored / deleted dims while the write is in flight. */
@@ -79,18 +96,22 @@
 .str-confirm__warn {
   margin-top: var(--st-space-3);
   font-size: var(--st-font-size-sm);
-  color: #ef4444;
+  color: var(--st-danger);
 }
 
 /* Solid destructive button used to confirm the irreversible delete. */
 .str-btn-danger-solid {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: #fff;
+  background: var(--st-danger);
+  border-color: var(--st-danger);
+  color: var(--st-danger-contrast);
 }
 .str-btn-danger-solid:not(:disabled):hover {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: var(--st-danger-hover);
+  border-color: var(--st-danger-hover);
+}
+.str-btn-danger-solid:focus-visible {
+  outline: 2px solid var(--st-danger);
+  outline-offset: 2px;
 }
 .str-btn-danger-solid:disabled {
   opacity: 0.6;

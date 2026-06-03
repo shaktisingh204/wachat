@@ -287,3 +287,16 @@
     max-height: 240px;
   }
 }
+
+/* Very narrow viewports (~380px): let the object/field selectors fill the row
+   and keep selects from overflowing their group. */
+@media (max-width: 440px) {
+  .map-controls__group {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+  .map-controls__group .st-select {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

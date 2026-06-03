@@ -171,7 +171,7 @@ function FunctionEditor({
         </div>
         <div className="st-fn-editor__head-actions">
           {savedAt ? (
-            <span className="st-fn-saved">
+            <span className="st-fn-saved" role="status">
               <Check size={13} aria-hidden="true" />
               Saved
             </span>

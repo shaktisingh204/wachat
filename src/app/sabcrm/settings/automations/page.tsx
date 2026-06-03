@@ -2012,12 +2012,20 @@ export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
                       <span
                         className={`st-switch${w.enabled ? ' is-on' : ''}`}
                         role="switch"
+                        tabIndex={0}
                         aria-checked={w.enabled}
                         aria-label={w.enabled ? 'Disable workflow' : 'Enable workflow'}
                         title={w.enabled ? 'Enabled' : 'Disabled'}
                         onClick={(e) => {
                           e.stopPropagation();
                           void handleToggleEnabled(w);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            void handleToggleEnabled(w);
+                          }
                         }}
                       />
                     </span>

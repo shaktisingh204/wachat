@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 /**
  * SabCRM — Twenty-faithful "Merge records" screen (`/sabcrm/[objectSlug]/merge`).
@@ -30,9 +30,9 @@
  * banner / empty state and the page never crashes.
  */
 
-import * as React from 'react';
-import Link from 'next/link';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import * as React from "react";
+import Link from "next/link";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Search,
   AlertTriangle,
@@ -45,23 +45,23 @@ import {
   Columns3,
   Eye,
   Check,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
-import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
-import { useProject } from '@/context/project-context';
+import { TwentyPageHeader, TwentyButton } from "@/components/sabcrm/twenty";
+import { TwentyFieldValue } from "@/components/sabcrm/twenty/twenty-field";
+import { useProject } from "@/context/project-context";
 import {
   listSabcrmObjectsTw,
   getSabcrmRecordTw,
   mergeSabcrmRecordsTw,
-} from '@/app/actions/sabcrm-twenty.actions';
-import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
-import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
-import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
-import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
+} from "@/app/actions/sabcrm-twenty.actions";
+import { searchRecordsForPickerAction } from "@/app/actions/sabcrm.actions";
+import type { SabcrmRustRecord } from "@/app/actions/sabcrm-twenty.actions.types";
+import type { SabcrmPickerOption } from "@/app/actions/sabcrm.actions.types";
+import type { ObjectMetadata, FieldMetadata } from "@/lib/sabcrm/types";
 
-import './merge.css';
-import './merge-preview.css';
+import "./merge.css";
+import "./merge-preview.css";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -70,14 +70,14 @@ import './merge-preview.css';
 const SEARCH_DEBOUNCE_MS = 300;
 
 /** Which record a field value should be taken from on merge. */
-type Side = 'primary' | 'secondary';
+type Side = "primary" | "secondary";
 
 /** Which top-level wizard tab is active. */
-type MergeTab = 'fields' | 'preview';
+type MergeTab = "fields" | "preview";
 
 /** Treat null / undefined / empty-string as "no value". */
 function isEmpty(value: unknown): boolean {
-  return value === null || value === undefined || value === '';
+  return value === null || value === undefined || value === "";
 }
 
 /** Whether two stored field values are equivalent (so there's no conflict). */
@@ -89,12 +89,12 @@ function valuesEqual(a: unknown, b: unknown): boolean {
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
   const field =
     object.fields.find((f) => f.isLabel) ??
-    object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
+    object.fields.find((f) => f.type === "TEXT" || f.type === "EMAIL") ??
     object.fields[0];
   if (field) {
     const raw = record.data[field.key];
-    if (typeof raw === 'string' && raw.trim()) return raw;
-    if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+    if (typeof raw === "string" && raw.trim()) return raw;
+    if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
 }
@@ -105,7 +105,7 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
  * structurally by the engine, system columns are owned by it).
  */
 function mergeableFields(object: ObjectMetadata): FieldMetadata[] {
-  return object.fields.filter((f) => !f.system && f.type !== 'RELATION');
+  return object.fields.filter((f) => !f.system && f.type !== "RELATION");
 }
 
 // ---------------------------------------------------------------------------
@@ -133,8 +133,8 @@ function RecordPicker({
   onChoose,
   onClear,
 }: RecordPickerProps): React.JSX.Element {
-  const [input, setInput] = React.useState('');
-  const [query, setQuery] = React.useState('');
+  const [input, setInput] = React.useState("");
+  const [query, setQuery] = React.useState("");
   const [results, setResults] = React.useState<SabcrmPickerOption[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -174,23 +174,23 @@ function RecordPicker({
     };
   }, [open, query, chosen, object.slug, projectId]);
 
-  const isPrimary = role === 'primary';
+  const isPrimary = role === "primary";
 
   if (chosen) {
     return (
       <div
-        className={`st-merge-picker${isPrimary ? ' st-merge-picker--primary' : ''}`}
+        className={`st-merge-picker${isPrimary ? " st-merge-picker--primary" : ""}`}
       >
         <span className="st-merge-picker__label">
-          {isPrimary ? 'Primary' : 'Secondary'}
+          {isPrimary ? "Primary" : "Secondary"}
           <span
             className={`st-merge-picker__badge ${
               isPrimary
-                ? 'st-merge-picker__badge--keep'
-                : 'st-merge-picker__badge--delete'
+                ? "st-merge-picker__badge--keep"
+                : "st-merge-picker__badge--delete"
             }`}
           >
-            {isPrimary ? 'Survivor' : 'Will be deleted'}
+            {isPrimary ? "Survivor" : "Will be deleted"}
           </span>
         </span>
         <div className="st-merge-picker__chosen">
@@ -213,12 +213,12 @@ function RecordPicker({
 
   return (
     <div
-      className={`st-merge-picker${isPrimary ? ' st-merge-picker--primary' : ''}`}
+      className={`st-merge-picker${isPrimary ? " st-merge-picker--primary" : ""}`}
     >
       <span className="st-merge-picker__label">
-        {isPrimary ? 'Primary' : 'Secondary'}
+        {isPrimary ? "Primary" : "Secondary"}
         <span className="st-merge-picker__role">
-          {isPrimary ? '(survivor)' : '(deleted on merge)'}
+          {isPrimary ? "(survivor)" : "(deleted on merge)"}
         </span>
       </span>
       <div className="st-merge-search">
@@ -232,7 +232,7 @@ function RecordPicker({
             // Delay close so a result click registers before blur unmounts it.
             onBlur={() => setTimeout(() => setOpen(false), 150)}
             placeholder={`Search ${object.labelPlural.toLowerCase()}…`}
-            aria-label={`Search ${isPrimary ? 'primary' : 'secondary'} ${object.labelPlural}`}
+            aria-label={`Search ${isPrimary ? "primary" : "secondary"} ${object.labelPlural}`}
           />
         </div>
         {open && (
@@ -264,7 +264,7 @@ function RecordPicker({
                     disabled={isExcluded}
                     title={
                       isExcluded
-                        ? 'Already chosen on the other side'
+                        ? "Already chosen on the other side"
                         : undefined
                     }
                     // onMouseDown so it fires before the input's blur.
@@ -272,7 +272,7 @@ function RecordPicker({
                       e.preventDefault();
                       if (isExcluded) return;
                       onChoose(opt.id);
-                      setInput('');
+                      setInput("");
                       setOpen(false);
                     }}
                   >
@@ -309,8 +309,21 @@ function ConfirmDialog({
   onCancel,
   onConfirm,
 }: ConfirmDialogProps): React.JSX.Element {
+  // Close on Escape (but never while the merge is mid-flight).
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !merging) onCancel();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onCancel, merging]);
+
   return (
-    <div className="st-dialog-overlay" onClick={onCancel} role="presentation">
+    <div
+      className="st-dialog-overlay"
+      onClick={merging ? undefined : onCancel}
+      role="presentation"
+    >
       <div
         className="st-dialog"
         role="dialog"
@@ -319,11 +332,14 @@ function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Merge {object.labelPlural.toLowerCase()}?</h2>
+          <h2 className="st-dialog__title">
+            Merge {object.labelPlural.toLowerCase()}?
+          </h2>
           <button
             type="button"
             className="st-dialog__close"
             onClick={onCancel}
+            disabled={merging}
             aria-label="Close"
           >
             <X size={16} />
@@ -337,15 +353,20 @@ function ConfirmDialog({
               aria-hidden="true"
             />
             <span>
-              The chosen values will be written onto{' '}
-              <span className="st-merge-confirm__name">{primaryName}</span>, and{' '}
-              <span className="st-merge-confirm__name">{secondaryName}</span> will
-              be <strong>permanently deleted</strong>. This cannot be undone.
+              The chosen values will be written onto{" "}
+              <span className="st-merge-confirm__name">{primaryName}</span>, and{" "}
+              <span className="st-merge-confirm__name">{secondaryName}</span>{" "}
+              will be <strong>permanently deleted</strong>. This cannot be
+              undone.
             </span>
           </div>
         </div>
         <div className="st-dialog__footer">
-          <TwentyButton variant="secondary" onClick={onCancel} disabled={merging}>
+          <TwentyButton
+            variant="secondary"
+            onClick={onCancel}
+            disabled={merging}
+          >
             Cancel
           </TwentyButton>
           <button
@@ -382,7 +403,7 @@ function ErrorBanner({ message }: { message: string }): React.JSX.Element {
 
 export default function SabcrmMergePage(): React.JSX.Element {
   const params = useParams<{ objectSlug: string }>();
-  const objectSlug = params?.objectSlug ?? '';
+  const objectSlug = params?.objectSlug ?? "";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { activeProjectId } = useProject();
@@ -393,13 +414,15 @@ export default function SabcrmMergePage(): React.JSX.Element {
 
   // Chosen record ids (from pickers or query params) and their resolved records.
   const [primaryId, setPrimaryId] = React.useState<string | null>(
-    searchParams?.get('primary') ?? null,
+    searchParams?.get("primary") ?? null,
   );
   const [secondaryId, setSecondaryId] = React.useState<string | null>(
-    searchParams?.get('secondary') ?? null,
+    searchParams?.get("secondary") ?? null,
   );
   const [primary, setPrimary] = React.useState<SabcrmRustRecord | null>(null);
-  const [secondary, setSecondary] = React.useState<SabcrmRustRecord | null>(null);
+  const [secondary, setSecondary] = React.useState<SabcrmRustRecord | null>(
+    null,
+  );
   const [loadingRecords, setLoadingRecords] = React.useState(false);
   const [recordsError, setRecordsError] = React.useState<string | null>(null);
 
@@ -407,7 +430,7 @@ export default function SabcrmMergePage(): React.JSX.Element {
   const [choices, setChoices] = React.useState<Record<string, Side>>({});
 
   // Wizard tab (Fields winner-picker vs. read-only Preview) + Fields filter.
-  const [tab, setTab] = React.useState<MergeTab>('fields');
+  const [tab, setTab] = React.useState<MergeTab>("fields");
   const [conflictsOnly, setConflictsOnly] = React.useState(false);
 
   const [confirmOpen, setConfirmOpen] = React.useState(false);
@@ -510,7 +533,7 @@ export default function SabcrmMergePage(): React.JSX.Element {
     for (const f of fields) {
       const pVal = primary.data[f.key];
       const sVal = secondary.data[f.key];
-      next[f.key] = isEmpty(pVal) && !isEmpty(sVal) ? 'secondary' : 'primary';
+      next[f.key] = isEmpty(pVal) && !isEmpty(sVal) ? "secondary" : "primary";
     }
     setChoices(next);
   }, [primary, secondary, fields]);
@@ -532,8 +555,8 @@ export default function SabcrmMergePage(): React.JSX.Element {
     if (!primary || !secondary) return {};
     const data: Record<string, unknown> = {};
     for (const f of fields) {
-      const side = choices[f.key] ?? 'primary';
-      const src = side === 'primary' ? primary : secondary;
+      const side = choices[f.key] ?? "primary";
+      const src = side === "primary" ? primary : secondary;
       data[f.key] = src.data[f.key];
     }
     return data;
@@ -580,7 +603,10 @@ export default function SabcrmMergePage(): React.JSX.Element {
           className="st-skeleton"
           style={{ height: 28, width: 220, marginBottom: 20 }}
         />
-        <div className="st-skeleton" style={{ height: 120, marginBottom: 16 }} />
+        <div
+          className="st-skeleton"
+          style={{ height: 120, marginBottom: 16 }}
+        />
         <div className="st-skeleton" style={{ height: 240 }} />
       </div>
     );
@@ -603,13 +629,13 @@ export default function SabcrmMergePage(): React.JSX.Element {
           </span>
           <h2 className="st-empty__title">Object not found</h2>
           <p className="st-empty__desc">
-            No CRM object matches “{objectSlug}”. It may have been removed or you
-            may not have access.
+            No CRM object matches “{objectSlug}”. It may have been removed or
+            you may not have access.
           </p>
           <TwentyButton variant="secondary">
             <Link
               href="/sabcrm"
-              style={{ color: 'inherit', textDecoration: 'none' }}
+              style={{ color: "inherit", textDecoration: "none" }}
             >
               Back to SabCRM
             </Link>
@@ -619,10 +645,12 @@ export default function SabcrmMergePage(): React.JSX.Element {
     );
   }
 
-  const primaryName = primary ? recordLabel(object, primary) : 'the primary record';
+  const primaryName = primary
+    ? recordLabel(object, primary)
+    : "the primary record";
   const secondaryName = secondary
     ? recordLabel(object, secondary)
-    : 'the secondary record';
+    : "the secondary record";
 
   return (
     <div className="st-page">
@@ -632,7 +660,7 @@ export default function SabcrmMergePage(): React.JSX.Element {
           <TwentyButton variant="secondary" icon={ArrowLeft}>
             <Link
               href={`/sabcrm/${object.slug}`}
-              style={{ color: 'inherit', textDecoration: 'none' }}
+              style={{ color: "inherit", textDecoration: "none" }}
             >
               Back to {object.labelPlural.toLowerCase()}
             </Link>
@@ -689,50 +717,66 @@ export default function SabcrmMergePage(): React.JSX.Element {
           <span className="st-empty__icon">
             <GitMerge size={20} />
           </span>
-          <h2 className="st-empty__title">Choose two {object.labelPlural.toLowerCase()}</h2>
+          <h2 className="st-empty__title">
+            Choose two {object.labelPlural.toLowerCase()}
+          </h2>
           <p className="st-empty__desc">
-            Pick a <strong>primary</strong> record to keep and a{' '}
-            <strong>secondary</strong> record to merge into it. You’ll then choose
-            which value wins for each field.
+            Pick a <strong>primary</strong> record to keep and a{" "}
+            <strong>secondary</strong> record to merge into it. You’ll then
+            choose which value wins for each field.
           </p>
         </div>
       ) : (
         <>
           {/* Wizard tabs — Fields (winner picker) / Preview (survivor). */}
-          <div className="st-merge-tabs" role="tablist" aria-label="Merge sections">
+          <div
+            className="st-merge-tabs"
+            role="tablist"
+            aria-label="Merge sections"
+          >
             <button
               type="button"
               role="tab"
-              aria-selected={tab === 'fields'}
-              className={`st-merge-tab${tab === 'fields' ? ' is-active' : ''}`}
-              onClick={() => setTab('fields')}
+              id="st-merge-tab-fields"
+              aria-controls="st-merge-panel-fields"
+              aria-selected={tab === "fields"}
+              className={`st-merge-tab${tab === "fields" ? " is-active" : ""}`}
+              onClick={() => setTab("fields")}
             >
               <Columns3 size={14} aria-hidden="true" />
               Fields
               {conflictFields.length > 0 ? (
-                <span className="st-merge-tab__count">{conflictFields.length}</span>
+                <span className="st-merge-tab__count">
+                  {conflictFields.length}
+                </span>
               ) : null}
             </button>
             <button
               type="button"
               role="tab"
-              aria-selected={tab === 'preview'}
-              className={`st-merge-tab${tab === 'preview' ? ' is-active' : ''}`}
-              onClick={() => setTab('preview')}
+              id="st-merge-tab-preview"
+              aria-controls="st-merge-panel-preview"
+              aria-selected={tab === "preview"}
+              className={`st-merge-tab${tab === "preview" ? " is-active" : ""}`}
+              onClick={() => setTab("preview")}
             >
               <Eye size={14} aria-hidden="true" />
               Preview
             </button>
           </div>
 
-          {tab === 'fields' ? (
-            <>
+          {tab === "fields" ? (
+            <div
+              role="tabpanel"
+              id="st-merge-panel-fields"
+              aria-labelledby="st-merge-tab-fields"
+            >
               <div className="st-merge-toolbar">
                 <span className="st-merge-toolbar__hint">
                   {conflictFields.length === 0
-                    ? 'No conflicting fields — both records agree.'
+                    ? "No conflicting fields — both records agree."
                     : `${conflictFields.length} field${
-                        conflictFields.length === 1 ? '' : 's'
+                        conflictFields.length === 1 ? "" : "s"
                       } differ between these records.`}
                 </span>
                 <label className="st-merge-toggle">
@@ -751,8 +795,8 @@ export default function SabcrmMergePage(): React.JSX.Element {
               {conflictsOnly && conflictFields.length === 0 ? (
                 <div className="st-merge-noconflicts">
                   <Check size={15} aria-hidden="true" />
-                  These records have no conflicting fields. Toggle off “Conflicts
-                  only” to review every field.
+                  These records have no conflicting fields. Toggle off
+                  “Conflicts only” to review every field.
                 </div>
               ) : (
                 <div className="st-merge-compare">
@@ -764,42 +808,48 @@ export default function SabcrmMergePage(): React.JSX.Element {
                   {(conflictsOnly ? conflictFields : fields).map((field) => {
                     const pVal = primary!.data[field.key];
                     const sVal = secondary!.data[field.key];
-                    const side = choices[field.key] ?? 'primary';
+                    const side = choices[field.key] ?? "primary";
                     const sameValue = valuesEqual(pVal, sVal);
                     return (
                       <div className="st-merge-row" key={field.key}>
                         <div className="st-merge-row__field">{field.label}</div>
                         <button
                           type="button"
-                          className={`st-merge-opt${side === 'primary' ? ' is-chosen' : ''}`}
-                          aria-pressed={side === 'primary'}
+                          className={`st-merge-opt${side === "primary" ? " is-chosen" : ""}`}
+                          aria-pressed={side === "primary"}
                           onClick={() =>
                             setChoices((prev) => ({
                               ...prev,
-                              [field.key]: 'primary',
+                              [field.key]: "primary",
                             }))
                           }
                         >
-                          <span className="st-merge-opt__dot" aria-hidden="true" />
+                          <span
+                            className="st-merge-opt__dot"
+                            aria-hidden="true"
+                          />
                           <span className="st-merge-opt__value">
                             <TwentyFieldValue field={field} value={pVal} />
                           </span>
                         </button>
                         <button
                           type="button"
-                          className={`st-merge-opt${side === 'secondary' ? ' is-chosen' : ''}`}
-                          aria-pressed={side === 'secondary'}
+                          className={`st-merge-opt${side === "secondary" ? " is-chosen" : ""}`}
+                          aria-pressed={side === "secondary"}
                           // When both sides hold the same value, picking is moot —
                           // keep primary and disable the secondary tile for clarity.
                           disabled={sameValue}
                           onClick={() =>
                             setChoices((prev) => ({
                               ...prev,
-                              [field.key]: 'secondary',
+                              [field.key]: "secondary",
                             }))
                           }
                         >
-                          <span className="st-merge-opt__dot" aria-hidden="true" />
+                          <span
+                            className="st-merge-opt__dot"
+                            aria-hidden="true"
+                          />
                           <span className="st-merge-opt__value">
                             <TwentyFieldValue field={field} value={sVal} />
                           </span>
@@ -809,24 +859,29 @@ export default function SabcrmMergePage(): React.JSX.Element {
                   })}
                 </div>
               )}
-            </>
+            </div>
           ) : (
             /* Preview — what the survivor looks like with current selections. */
-            <div className="st-merge-preview">
+            <div
+              role="tabpanel"
+              id="st-merge-panel-preview"
+              aria-labelledby="st-merge-tab-preview"
+              className="st-merge-preview"
+            >
               <div className="st-merge-preview__head">
                 <span className="st-merge-preview__title">{primaryName}</span>
                 <span className="st-merge-preview__badge">After merge</span>
               </div>
               {fields.map((field) => {
-                const side = choices[field.key] ?? 'primary';
-                const src = side === 'primary' ? primary! : secondary!;
+                const side = choices[field.key] ?? "primary";
+                const src = side === "primary" ? primary! : secondary!;
                 const value = src.data[field.key];
                 return (
                   <div className="st-merge-preview__row" key={field.key}>
                     <div className="st-merge-preview__label">{field.label}</div>
                     <div className="st-merge-preview__value">
                       <TwentyFieldValue field={field} value={value} />
-                      {side === 'secondary' ? (
+                      {side === "secondary" ? (
                         <span className="st-merge-preview__src st-merge-preview__src--secondary">
                           from secondary
                         </span>

@@ -1,52 +1,89 @@
-'use client';
-
-import {
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageEyebrow,
-  ZoruPageTitle,
-  ZoruPageDescription,
-  Card,
-  Skeleton,
-} from '@/components/zoruui';
+import '@/styles/sabcrm-twenty.css';
 
 /**
- * SabCRM root loading skeleton.
+ * SabCRM root loading skeleton — Twenty design system (`.st-*`), NOT ZoruUI.
  *
  * Matches the overview/index layout: page header + grid of object cards.
- * Each card shows a title, description, badge, and record count.
+ * Each card shows a title line, a body block, and a footer chip/count row.
  */
 export default function SabcrmLoading() {
   return (
-    <main className="mx-auto min-h-[100dvh] w-full max-w-5xl px-6 py-10 sm:px-8 sm:py-14">
-      <PageHeader className="mb-8">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>Customer relationships</ZoruPageEyebrow>
-          <ZoruPageTitle>SabCRM</ZoruPageTitle>
-          <ZoruPageDescription>
-            Your data, organised by object. Open any object to browse, filter
-            and manage its records.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
+    <div className="sabcrm-twenty">
+      <main className="st-page" aria-busy="true" aria-label="Loading SabCRM">
+        <header className="st-page-header">
+          <span className="st-page-header__icon" aria-hidden="true">
+            <span
+              className="st-skeleton"
+              style={{ width: 16, height: 16, borderRadius: 4 }}
+            />
+          </span>
+          <span
+            className="st-skeleton"
+            style={{ width: 120, height: 18, display: 'inline-block' }}
+          />
+        </header>
 
-      <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4 p-0">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i} className="flex">
-            <Card variant="soft" className="flex h-full w-full flex-col gap-2">
-              <div className="flex items-baseline justify-between gap-3">
-                <Skeleton className="h-5 w-32" />
-                <Skeleton className="h-5 w-12" />
+        <ul
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+            gap: 'var(--st-space-3)',
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+          }}
+        >
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i}>
+              <div className="st-panel" style={{ padding: 'var(--st-space-4)' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 'var(--st-space-3)',
+                  }}
+                >
+                  <span
+                    className="st-skeleton"
+                    style={{ width: 128, height: 16, display: 'inline-block' }}
+                  />
+                  <span
+                    className="st-skeleton"
+                    style={{ width: 40, height: 16, display: 'inline-block' }}
+                  />
+                </div>
+                <span
+                  className="st-skeleton"
+                  style={{
+                    width: '100%',
+                    height: 36,
+                    display: 'block',
+                    marginTop: 'var(--st-space-3)',
+                  }}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--st-space-2)',
+                    marginTop: 'var(--st-space-3)',
+                  }}
+                >
+                  <span
+                    className="st-skeleton"
+                    style={{ width: 72, height: 20, display: 'inline-block' }}
+                  />
+                  <span
+                    className="st-skeleton"
+                    style={{ width: 56, height: 14, display: 'inline-block' }}
+                  />
+                </div>
               </div>
-              <Skeleton className="h-10 w-full" />
-              <div className="mt-auto flex items-center gap-2 pt-2">
-                <Skeleton className="h-6 w-20" />
-                <Skeleton className="h-4 w-16" />
-              </div>
-            </Card>
-          </li>
-        ))}
-      </ul>
-    </main>
+            </li>
+          ))}
+        </ul>
+      </main>
+    </div>
   );
 }

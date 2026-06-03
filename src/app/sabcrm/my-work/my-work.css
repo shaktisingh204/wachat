@@ -159,6 +159,12 @@
   background: var(--st-hover);
 }
 
+.stw-hit:focus-visible {
+  outline: none;
+  background: var(--st-hover);
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+
 .stw-hit__label {
   min-width: 0;
   overflow: hidden;

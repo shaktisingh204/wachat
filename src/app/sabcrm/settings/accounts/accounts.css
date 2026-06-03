@@ -265,8 +265,54 @@
   outline-offset: 2px;
 }
 
+/* ---- Inline "no real OAuth happens here" callout ----------------------- */
+/* Defined locally (the page imports only accounts.css) — sits inside the
+   accent-soft connect form, so it uses the plain surface to read as a card. */
+
+.sabcrm-twenty .st-invite-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-size: var(--st-font-size-xs);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-invite-callout__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
 /* ---- Sync-status chip (engine offline) --------------------------------- */
 
 .sabcrm-twenty .st-chip--idle .st-chip__dot {
   background: var(--st-text-tertiary);
+}
+
+/* ---- Narrow viewports -------------------------------------------------- */
+/* Stack the connect-form input + buttons and the account head row so nothing
+   overflows on a ~380px column. */
+@media (max-width: 540px) {
+  .sabcrm-twenty .st-connect-form__row {
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+  .sabcrm-twenty .st-connect-form__row .st-field {
+    flex: 1 1 100%;
+  }
+
+  .sabcrm-twenty .st-account__head {
+    flex-wrap: wrap;
+  }
+  .sabcrm-twenty .st-account__head-actions {
+    width: 100%;
+    margin-left: 0;
+    flex-wrap: wrap;
+    white-space: normal;
+  }
 }

@@ -70,9 +70,9 @@ type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
 /** The status SELECT options, in board column order. */
 const STATUS_OPTIONS: ReadonlyArray<{ value: TaskStatus; label: string; color: string }> = [
-  { value: 'TODO', label: 'To do', color: 'var(--st-text-light, #9b9b9b)' },
-  { value: 'IN_PROGRESS', label: 'In progress', color: 'var(--st-accent, #1b1b1b)' },
-  { value: 'DONE', label: 'Done', color: '#16a34a' },
+  { value: 'TODO', label: 'To do', color: 'var(--st-text-tertiary)' },
+  { value: 'IN_PROGRESS', label: 'In progress', color: 'var(--st-accent)' },
+  { value: 'DONE', label: 'Done', color: 'var(--stn-success, #16a34a)' },
 ];
 
 const STATUS_VALUES: readonly TaskStatus[] = STATUS_OPTIONS.map((o) => o.value);
@@ -668,21 +668,21 @@ export default function SabcrmTasksPage(): React.JSX.Element {
           <button
             type="button"
             role="tab"
-            aria-pressed={view === 'board'}
+            aria-selected={view === 'board'}
             className={`st-viewswitch__btn${view === 'board' ? ' active' : ''}`}
             onClick={() => setView('board')}
           >
-            <Columns3 size={14} />
+            <Columns3 size={14} aria-hidden="true" />
             Board
           </button>
           <button
             type="button"
             role="tab"
-            aria-pressed={view === 'table'}
+            aria-selected={view === 'table'}
             className={`st-viewswitch__btn${view === 'table' ? ' active' : ''}`}
             onClick={() => setView('table')}
           >
-            <Table2 size={14} />
+            <Table2 size={14} aria-hidden="true" />
             Table
           </button>
         </div>

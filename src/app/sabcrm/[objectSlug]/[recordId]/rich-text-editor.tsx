@@ -777,7 +777,7 @@ export function RichTextEditor({
           suppressContentEditableWarning
           role="textbox"
           aria-multiline="true"
-          aria-label={ariaLabel}
+          aria-label={ariaLabel ?? placeholder ?? 'Rich text editor'}
           data-placeholder={placeholder}
           onInput={handleInput}
           onClick={handleClick}

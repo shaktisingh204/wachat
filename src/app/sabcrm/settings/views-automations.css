@@ -8,6 +8,11 @@
      - src/app/sabcrm/settings/settings-twenty.css
    All selectors are scoped under `.sabcrm-twenty` (applied by TwentyAppFrame).
    Plain CSS, --st-* tokens only. NO Tailwind, NO ZoruUI.
+
+   The "failed" run chip + failure meta text reuse the shared `--st-danger*`
+   semantic tokens from `settings-twenty.css`, which carry `.st-theme-dark`
+   remaps so they stay legible in dark mode rather than rendering dark text on a
+   pale tint.
    ========================================================================= */
 
 /* -------------------------------------------------------------------------
@@ -151,13 +156,13 @@
 }
 
 .sabcrm-twenty .st-chip--failed {
-  background: #fdf3f3;
-  border-color: #f0c9c9;
-  color: #9b1c1c;
+  background: var(--st-danger-bg);
+  border-color: var(--st-danger-border);
+  color: var(--st-danger-strong);
 }
 
 .sabcrm-twenty .st-chip--failed .st-chip__dot {
-  background: #d64545;
+  background: var(--st-danger);
 }
 
 .sabcrm-twenty .st-chip--ready {
@@ -302,5 +307,5 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #9b1c1c;
+  color: var(--st-danger-strong);
 }

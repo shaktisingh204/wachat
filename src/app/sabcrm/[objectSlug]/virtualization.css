@@ -78,7 +78,7 @@
 }
 
 .stv-loadmore:hover:not(:disabled) {
-  background: var(--st-active, #f4f4f4);
+  background: var(--st-hover, #f4f4f4);
   border-color: var(--st-text-tertiary, #999);
 }
 
@@ -229,7 +229,7 @@
   padding: 1px 5px;
   border: 1px solid var(--st-border, #e5e5e5);
   border-radius: var(--st-radius-sm, 4px);
-  background: var(--st-active, #f4f4f4);
+  background: var(--st-hover, #f4f4f4);
   color: var(--st-text-secondary, #555);
   font-size: 11px;
 }

@@ -79,8 +79,9 @@
 
 .st-dup-group__head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--st-space-3);
+  gap: var(--st-space-2) var(--st-space-3);
   padding: var(--st-space-3) var(--st-space-4);
   border-bottom: 1px solid var(--st-border);
   background: var(--st-bg-secondary, var(--st-bg));
@@ -140,8 +141,13 @@
 }
 
 .st-dup-group__merge:hover {
-  background: var(--st-bg-hover, var(--st-bg-secondary, var(--st-bg)));
-  border-color: var(--st-accent, var(--st-border));
+  background: var(--st-hover, var(--st-bg-secondary));
+  border-color: var(--st-accent);
+}
+
+.st-dup-group__merge:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
 }
 
 /* --- Records within a group --------------------------------------------- */
@@ -173,6 +179,12 @@
   text-decoration: underline;
 }
 
+.st-dup-record__link:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+  border-radius: var(--st-radius-sm);
+}
+
 .st-dup-record__spacer {
   flex: 1 1 auto;
 }
@@ -190,4 +202,26 @@
   font-family: var(--st-font-mono, ui-monospace, monospace);
   font-size: var(--st-font-size-xs);
   color: var(--st-text-secondary);
+}
+
+/* --- Narrow-screen stacking (~380px) ------------------------------------- */
+/* Let a long record label + its trailing value/id wrap to a second line rather
+   than overflow the card on a phone width. */
+@media (max-width: 480px) {
+  .st-dup-record {
+    flex-wrap: wrap;
+    gap: var(--st-space-1) var(--st-space-2);
+  }
+
+  .st-dup-record__link {
+    flex: 1 1 100%;
+  }
+
+  .st-dup-record__spacer {
+    display: none;
+  }
+
+  .st-dup-scan__field {
+    min-width: 0;
+  }
 }

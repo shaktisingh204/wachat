@@ -545,14 +545,13 @@ export default function SabcrmMapPage(): React.JSX.Element {
             {/* Left rail — places. */}
             <div className="map-places">
               <div className="map-places__head">Places</div>
-              <div className="map-places__list" role="list">
+              <div className="map-places__list">
                 {buckets.map((bucket) => {
                   const isActive = bucket.key === activePlace;
                   return (
                     <button
                       key={bucket.key}
                       type="button"
-                      role="listitem"
                       className={`map-place${isActive ? ' is-active' : ''}`}
                       aria-pressed={isActive}
                       onClick={() => setActivePlace(bucket.key)}

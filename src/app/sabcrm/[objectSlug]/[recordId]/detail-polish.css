@@ -8,6 +8,68 @@
  */
 
 /* =========================================================================
+   Detail-page semantic token shims (DARK-MODE SAFE)
+   -------------------------------------------------------------------------
+   The shared kit (`sabcrm-twenty.css`) only defines a core token set. The
+   detail-page stylesheets (record-tabs / relations-edit / layout-render /
+   rich-text / comments …) reference a handful of EXTRA semantic tokens
+   (`--st-bg-muted`, `--st-text-muted`, `--st-danger*`, `--st-surface*` …)
+   that the kit never declared — every one carried a HARDCODED LIGHT fallback
+   (e.g. `var(--st-bg-muted, #f7f7f7)`) that broke in dark mode.
+
+   Defining them here (light under `.sabcrm-twenty`, dark under
+   `.sabcrm-twenty.st-theme-dark`) makes ALL of those references resolve to a
+   real theme-aware value, so the literal fallbacks only ever apply outside
+   the kit cascade. We do NOT edit the shared kit; these are additive and
+   scoped to the same root the kit owns.
+   ========================================================================= */
+.sabcrm-twenty {
+  /* Surfaces / fills */
+  --st-bg-muted: #f5f5f5;
+  --st-bg-subtle: #fafafa;
+  --st-surface: #ffffff;
+  --st-surface-muted: #fafafa;
+  --st-surface-hover: #f5f5f5;
+
+  /* Borders */
+  --st-border-strong: #dcdcdc;
+
+  /* Text */
+  --st-text-muted: #8a8a8a;
+  --st-text-soft: #4b4b4b;
+
+  /* Danger family (Twenty's destructive red) */
+  --st-danger: #d4202c;
+  --st-danger-hover: #b81b25;
+  --st-danger-soft: #fdeced;
+  --st-danger-bg: #fdf3f3;
+  --st-danger-border: #f6d6d6;
+}
+
+.sabcrm-twenty.st-theme-dark {
+  /* Surfaces / fills */
+  --st-bg-muted: #222222;
+  --st-bg-subtle: #1d1d1d;
+  --st-surface: #1d1d1d;
+  --st-surface-muted: #202020;
+  --st-surface-hover: #2c2c2c;
+
+  /* Borders */
+  --st-border-strong: #3a3a3a;
+
+  /* Text */
+  --st-text-muted: #7e7e7e;
+  --st-text-soft: #c4c4c4;
+
+  /* Danger family (brighter red + dim soft fills for dark surfaces) */
+  --st-danger: #ff6b6b;
+  --st-danger-hover: #ff8585;
+  --st-danger-soft: #3a1f22;
+  --st-danger-bg: #2a1718;
+  --st-danger-border: #4a2528;
+}
+
+/* =========================================================================
    Breadcrumb header
    ========================================================================= */
 
@@ -47,7 +109,25 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 360px;
+  /* Cap to the available width but never push the breadcrumb past its row,
+     so on narrow screens the record label truncates instead of overflowing. */
+  max-width: min(360px, 60vw);
+}
+
+.stp-breadcrumb {
+  min-width: 0;
+}
+
+.stp-breadcrumb__crumb {
+  min-width: 0;
+}
+
+.stp-breadcrumb__crumb:focus-visible,
+.stp-menu__item:focus-visible,
+.stp-menu__trigger:focus-visible,
+.stp-btn:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 1px;
 }
 
 /* The detail header gains a trailing actions cluster (star + "..."). */
@@ -251,4 +331,17 @@
   font-size: 10px;
   font-family: inherit;
   line-height: 1;
+}
+
+/* =========================================================================
+   Composer footer — let the controls (attach / template / hint / Add) wrap
+   on narrow rails instead of overflowing the panel. This is a scoped local
+   override of the shared `twenty-activity.css` footer (which is a no-wrap
+   flex row); our stylesheet loads after it so the override wins without
+   editing the shared kit. The error/hint keeps `flex: 1 1 auto` so the Add
+   button stays right-aligned on a single line when there's room.
+   ========================================================================= */
+.st-composer__footer {
+  flex-wrap: wrap;
+  row-gap: var(--st-space-2);
 }

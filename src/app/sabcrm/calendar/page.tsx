@@ -473,16 +473,16 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
         <GridSkeleton />
       ) : (
         <>
-          <div className="cal-grid">
-            <div className="cal-weekdays">
+          <div className="cal-grid" role="grid" aria-label={`${monthTitle} calendar`}>
+            <div className="cal-weekdays" role="row">
               {WEEKDAYS.map((w) => (
-                <div key={w} className="cal-weekday">
+                <div key={w} className="cal-weekday" role="columnheader">
                   {w}
                 </div>
               ))}
             </div>
             {Array.from({ length: 6 }).map((_, week) => (
-              <div className="cal-week" key={week}>
+              <div className="cal-week" key={week} role="row">
                 {cells.slice(week * 7, week * 7 + 7).map((cell) => {
                   const dayRecords = buckets.get(cell.key) ?? [];
                   const isExpanded = expanded.has(cell.key);
@@ -494,12 +494,25 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                   return (
                     <div
                       key={cell.key}
+                      role="gridcell"
+                      aria-label={`${cell.date.toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}${isToday ? ' (today)' : ''}${
+                        dayRecords.length > 0
+                          ? `, ${dayRecords.length} ${
+                              dayRecords.length === 1 ? 'record' : 'records'
+                            }`
+                          : ''
+                      }`}
                       className={`cal-day${
                         cell.inMonth ? '' : ' cal-day--outside'
                       }${isToday ? ' cal-day--today' : ''}`}
                     >
                       <div className="cal-day__head">
-                        <span className="cal-day__num">
+                        <span className="cal-day__num" aria-hidden="true">
                           {cell.date.getDate()}
                         </span>
                       </div>
