@@ -14,6 +14,13 @@ import {
   Star,
   ChevronDown,
   UserCheck,
+  LayoutDashboard,
+  Activity,
+  Calendar,
+  BarChart3,
+  MapPin,
+  Sparkles,
+  Rocket,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -22,24 +29,49 @@ import './twenty-activity.css';
 import './notifications.css';
 
 import { TwentyCommandMenu } from './twenty-command-menu';
+import { TwentyAppRail } from './twenty-app-rail';
 import { NotificationsBell } from './notifications-bell';
 import { useCommandMenu } from './use-command-menu';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
 import { useProject } from '@/context/project-context';
 
-type ObjectNavItem = {
+type NavItem = {
   slug: string;
   label: string;
   icon: LucideIcon;
 };
 
-const OBJECT_NAV: readonly ObjectNavItem[] = [
+/**
+ * "Workspace" group — the cross-cutting CRM surfaces (not record objects).
+ * Each entry maps to a real `/sabcrm/*` page.
+ */
+const WORKSPACE_NAV: readonly NavItem[] = [
+  { slug: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { slug: 'my-work', label: 'My Work', icon: UserCheck },
+  { slug: 'activity', label: 'Activity', icon: Activity },
+  { slug: 'calendar', label: 'Calendar', icon: Calendar },
+  { slug: 'reports', label: 'Reports', icon: BarChart3 },
+  { slug: 'map', label: 'Map', icon: MapPin },
+  { slug: 'ai', label: 'Ask AI', icon: Sparkles },
+] as const;
+
+/**
+ * "Records" group — the metadata-driven CRM objects. Also drives the
+ * favorites label resolution below.
+ */
+const OBJECT_NAV: readonly NavItem[] = [
   { slug: 'companies', label: 'Companies', icon: Building2 },
   { slug: 'people', label: 'People', icon: Users },
   { slug: 'opportunities', label: 'Opportunities', icon: Briefcase },
   { slug: 'notes', label: 'Notes', icon: StickyNote },
   { slug: 'tasks', label: 'Tasks', icon: CheckCircle2 },
+] as const;
+
+/** Pinned-to-bottom entries below the scrolling nav. */
+const FOOTER_NAV: readonly NavItem[] = [
+  { slug: 'getting-started', label: 'Getting Started', icon: Rocket },
+  { slug: 'settings', label: 'Settings', icon: Settings },
 ] as const;
 
 const WORKSPACE_NAME = 'SabCRM';
@@ -86,6 +118,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     <div className="sabcrm-twenty">
       <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
+        <TwentyAppRail />
         <aside className="st-sidebar" aria-label="SabCRM navigation">
           <div className="st-sidebar__scroll">
             {/* Workspace switcher + notifications bell */}
@@ -155,29 +188,33 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               <div className="st-fav-empty">No favorites</div>
             )}
 
-            {/* My Work */}
-            <nav aria-label="My Work">
-              {(() => {
-                const href = '/sabcrm/my-work';
-                const active = isActivePath(pathname, href);
-                return (
-                  <Link
-                    href={href}
-                    className={`st-nav-item${active ? ' active' : ''}`}
-                    aria-current={active ? 'page' : undefined}
-                  >
-                    <UserCheck className="st-nav-item__icon" size={16} aria-hidden="true" />
-                    <span className="st-nav-item__label">My Work</span>
-                  </Link>
-                );
-              })()}
-            </nav>
-
-            {/* Workspace objects */}
+            {/* Workspace surfaces */}
             <div className="st-section-title">
               <span>Workspace</span>
             </div>
             <nav aria-label="Workspace">
+              {WORKSPACE_NAV.map(({ slug, label, icon: Icon }) => {
+                const href = `/sabcrm/${slug}`;
+                const active = isActivePath(pathname, href);
+                return (
+                  <Link
+                    key={slug}
+                    href={href}
+                    className={`st-nav-item${active ? ' active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon className="st-nav-item__icon" size={16} aria-hidden="true" />
+                    <span className="st-nav-item__label">{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            {/* Records */}
+            <div className="st-section-title">
+              <span>Records</span>
+            </div>
+            <nav aria-label="Records">
               {OBJECT_NAV.map(({ slug, label, icon: Icon }) => {
                 const href = `/sabcrm/${slug}`;
                 const active = isActivePath(pathname, href);
@@ -196,16 +233,25 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
             </nav>
           </div>
 
-          {/* Settings pinned to bottom */}
+          {/* Getting Started + Settings pinned to bottom */}
           <div className="st-sidebar__footer">
-            <Link
-              href="/sabcrm/settings"
-              className={`st-nav-item${isActivePath(pathname, '/sabcrm/settings') ? ' active' : ''}`}
-              aria-current={isActivePath(pathname, '/sabcrm/settings') ? 'page' : undefined}
-            >
-              <Settings className="st-nav-item__icon" size={16} aria-hidden="true" />
-              <span className="st-nav-item__label">Settings</span>
-            </Link>
+            <nav aria-label="Workspace settings">
+              {FOOTER_NAV.map(({ slug, label, icon: Icon }) => {
+                const href = `/sabcrm/${slug}`;
+                const active = isActivePath(pathname, href);
+                return (
+                  <Link
+                    key={slug}
+                    href={href}
+                    className={`st-nav-item${active ? ' active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                  >
+                    <Icon className="st-nav-item__icon" size={16} aria-hidden="true" />
+                    <span className="st-nav-item__label">{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
         </aside>
 

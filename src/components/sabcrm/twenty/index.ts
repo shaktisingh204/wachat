@@ -1,4 +1,5 @@
 export { TwentyAppFrame, default as TwentyAppFrameDefault } from './twenty-app-frame';
+export { TwentyAppRail, default as TwentyAppRailDefault } from './twenty-app-rail';
 export {
   TwentyButton,
   TwentyChip,

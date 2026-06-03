@@ -226,6 +226,143 @@
 }
 
 /* =========================================================================
+   App rail — the SabCRM module switcher.
+   A slim 52px vertical icon strip at the far left of the shell, before the
+   sidebar. Lists every SabNode app (from ZORU_APPS); each item has a
+   CSS-only hover/focus tooltip and an active-tile state.
+   ========================================================================= */
+.st-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: var(--st-space-2) 0;
+  gap: 2px;
+  background: var(--st-sidebar-bg-alt);
+  border-right: 1px solid var(--st-border);
+  z-index: 1;
+}
+
+.st-rail__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--st-space-2);
+  border-radius: var(--st-radius);
+  text-decoration: none;
+  position: relative;
+}
+
+.st-rail__brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+}
+
+/* The icon list scrolls independently; the brand stays pinned at the top. */
+.st-rail__scroll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.st-rail__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.st-rail__item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--st-radius);
+  color: var(--st-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.st-rail__item:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-rail__item.active {
+  background: var(--st-accent);
+  color: var(--st-text-inverted);
+}
+
+.st-rail__item.active:hover {
+  background: var(--st-accent-hover);
+  color: var(--st-text-inverted);
+}
+
+.st-rail__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+/* CSS-only tooltip — shown to the right on hover / keyboard focus. */
+.st-rail__tip {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-text);
+  color: var(--st-bg);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease;
+  box-shadow: var(--st-shadow-pop);
+  z-index: 30;
+}
+
+.st-rail__brand:hover .st-rail__tip,
+.st-rail__brand:focus-visible .st-rail__tip,
+.st-rail__item:hover .st-rail__tip,
+.st-rail__item:focus-visible .st-rail__tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* On very small viewports the rail collapses with the sidebar. */
+@media (max-width: 560px) {
+  .st-rail {
+    display: none;
+  }
+}
+
+/* =========================================================================
    Sidebar
    ========================================================================= */
 .st-sidebar {
