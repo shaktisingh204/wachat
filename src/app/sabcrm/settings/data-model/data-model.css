@@ -459,3 +459,164 @@
   border-radius: var(--st-radius-lg);
   background: var(--st-bg-secondary);
 }
+
+/* =========================================================================
+   Object settings card (right pane, above the field table)
+   ========================================================================= */
+
+.sabcrm-twenty .dm-settings {
+  margin-bottom: var(--st-space-4);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .dm-settings__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .dm-settings__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .dm-settings__title svg {
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-settings__head .dm-badge {
+  margin-left: auto;
+}
+
+.sabcrm-twenty .dm-settings__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .dm-settings__full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .sabcrm-twenty .dm-settings__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sabcrm-twenty .dm-settings__desc {
+  min-height: 60px;
+  resize: vertical;
+  line-height: 1.4;
+}
+
+/* ----- Icon picker ------------------------------------------------------- */
+
+.sabcrm-twenty .dm-iconpick {
+  position: relative;
+}
+
+.sabcrm-twenty .dm-iconpick__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  height: 34px;
+  padding: 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.sabcrm-twenty .dm-iconpick__trigger:hover,
+.sabcrm-twenty .dm-iconpick__trigger[aria-expanded='true'] {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .dm-iconpick__trigger svg {
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-iconpick__name {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .dm-iconpick__grid {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.16));
+}
+
+@media (max-width: 640px) {
+  .sabcrm-twenty .dm-iconpick__grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.sabcrm-twenty .dm-iconpick__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .dm-iconpick__cell:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .dm-iconpick__cell.is-active {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Footer (save / reset) -------------------------------------------- */
+
+.sabcrm-twenty .dm-settings__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-3);
+}
+
+.sabcrm-twenty .dm-settings__saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: auto;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-accent);
+}

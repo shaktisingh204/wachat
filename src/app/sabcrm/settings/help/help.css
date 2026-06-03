@@ -1,0 +1,212 @@
+/* =========================================================================
+   SabCRM Settings — Help & Keyboard Shortcuts
+   -------------------------------------------------------------------------
+   Companion sheet for `src/app/sabcrm/settings/help/page.tsx`. Holds the
+   layout-only classes that page needs (section blocks, shortcut tables, the
+   getting-started card grid, resource rows). Shared `.st-*` vocabulary —
+   `.st-kbd`, `.st-card`, `.st-page`, etc. — comes from `sabcrm-twenty.css`
+   and is NOT redefined here. Everything is scoped under `.sabcrm-twenty` so
+   it can never leak into the rest of SabNode.
+   ========================================================================= */
+
+/* ----- Section block ----- */
+.sabcrm-twenty .st-help-section {
+  margin-bottom: var(--st-space-6);
+}
+
+.sabcrm-twenty .st-help-section__head {
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-help-section__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-help-section__desc {
+  margin: var(--st-space-1) 0 0;
+  max-width: 640px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+/* ----- Keyboard shortcut groups ----- */
+.sabcrm-twenty .st-shortcut-group {
+  margin-top: var(--st-space-4);
+}
+
+.sabcrm-twenty .st-shortcut-group__label {
+  margin: 0 0 var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+
+/* Shortcut reference table — leans on .st-table-wrap / .st-table look but
+   trims the cell padding so key/description rows read tightly. */
+.sabcrm-twenty .st-shortcut-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--st-font-size);
+}
+
+.sabcrm-twenty .st-shortcut-table tr + tr td {
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-shortcut-table td {
+  padding: var(--st-space-2) var(--st-space-3);
+  vertical-align: top;
+}
+
+.sabcrm-twenty .st-shortcut-table__keys {
+  width: 160px;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-shortcut-table__desc {
+  color: var(--st-text-secondary);
+}
+
+/* A small join glyph ("or") between alternative key chips. */
+.sabcrm-twenty .st-shortcut-keys {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sabcrm-twenty .st-shortcut-keys__sep {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Getting-started card grid ----- */
+.sabcrm-twenty .st-help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--st-space-3);
+}
+
+/* Local card flavour — like .st-card but lets the title/meta wrap and adds an
+   icon + arrow row, since these are richer than the kanban .st-card. */
+.sabcrm-twenty .st-help-card {
+  display: flex;
+  gap: var(--st-space-3);
+  align-items: flex-start;
+}
+
+.sabcrm-twenty .st-help-card__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-help-card:hover .st-help-card__icon {
+  color: var(--st-accent);
+  border-color: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-help-card__body {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-help-card__title {
+  display: block;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-help-card__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.45;
+  color: var(--st-text-secondary);
+  white-space: normal;
+}
+
+/* ----- Resource rows ----- */
+.sabcrm-twenty .st-resource-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-resource-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  background: var(--st-bg);
+  color: var(--st-text);
+  text-decoration: none;
+}
+
+.sabcrm-twenty .st-resource-row + .st-resource-row {
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty a.st-resource-row:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-resource-row__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-resource-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-resource-row__title {
+  display: block;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-resource-row__meta {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-resource-row__arrow {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+/* "Placeholder" tag for the not-yet-wired resource links. */
+.sabcrm-twenty .st-placeholder-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--st-space-2);
+  padding: 1px 6px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-tertiary);
+  vertical-align: middle;
+}

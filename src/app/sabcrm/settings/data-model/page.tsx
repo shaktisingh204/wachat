@@ -41,6 +41,33 @@ import {
   ArrowUp,
   ArrowDown,
   Pencil,
+  Settings2,
+  Users,
+  User,
+  Building2,
+  Briefcase,
+  Target,
+  CircleDollarSign,
+  FileText,
+  Mail,
+  Phone,
+  Calendar,
+  CheckSquare,
+  Tag,
+  Star,
+  Flag,
+  Folder,
+  Box,
+  ShoppingCart,
+  CreditCard,
+  Truck,
+  Globe,
+  MapPin,
+  Heart,
+  Bell,
+  Rocket,
+  Zap,
+  type LucideIcon,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
@@ -146,6 +173,52 @@ const FIELD_TYPE_OPTIONS: ReadonlyArray<{ value: FieldType; label: string }> = [
 function fieldTypeLabel(type: FieldType): string {
   if (type === 'RELATION') return 'Relation';
   return FIELD_TYPE_OPTIONS.find((t) => t.value === type)?.label ?? type;
+}
+
+// ---------------------------------------------------------------------------
+// Object icon catalogue
+// ---------------------------------------------------------------------------
+
+/**
+ * Curated grid of lucide icon names a user can assign to an object. The chosen
+ * name is persisted as the object's `icon` string (the same name nav + headers
+ * resolve through ZORU_ICONS / lucide). Keys are stored lowercase to match the
+ * seeded schema (`database`, `users`, …); the swatch renders the component.
+ */
+const OBJECT_ICONS: ReadonlyArray<{ name: string; Icon: LucideIcon }> = [
+  { name: 'database', Icon: Database },
+  { name: 'users', Icon: Users },
+  { name: 'user', Icon: User },
+  { name: 'building2', Icon: Building2 },
+  { name: 'briefcase', Icon: Briefcase },
+  { name: 'target', Icon: Target },
+  { name: 'circledollarsign', Icon: CircleDollarSign },
+  { name: 'filetext', Icon: FileText },
+  { name: 'mail', Icon: Mail },
+  { name: 'phone', Icon: Phone },
+  { name: 'calendar', Icon: Calendar },
+  { name: 'checksquare', Icon: CheckSquare },
+  { name: 'tag', Icon: Tag },
+  { name: 'star', Icon: Star },
+  { name: 'flag', Icon: Flag },
+  { name: 'folder', Icon: Folder },
+  { name: 'box', Icon: Box },
+  { name: 'shoppingcart', Icon: ShoppingCart },
+  { name: 'creditcard', Icon: CreditCard },
+  { name: 'truck', Icon: Truck },
+  { name: 'globe', Icon: Globe },
+  { name: 'mappin', Icon: MapPin },
+  { name: 'heart', Icon: Heart },
+  { name: 'bell', Icon: Bell },
+  { name: 'rocket', Icon: Rocket },
+  { name: 'zap', Icon: Zap },
+];
+
+/** Resolve a stored icon name (case-insensitive) to a lucide component. */
+function iconComponentFor(name: string | undefined): LucideIcon {
+  if (!name) return Database;
+  const key = name.trim().toLowerCase();
+  return OBJECT_ICONS.find((i) => i.name === key)?.Icon ?? Database;
 }
 
 /** Common ISO-4217 currency codes offered in the CURRENCY default editor. */
@@ -983,33 +1056,301 @@ function ObjectList({ custom, standard, activeSlug, onSelect }: ObjectListProps)
 }
 
 // ---------------------------------------------------------------------------
+// Right pane — object settings card
+//
+// An editable card above the field table for the selected object: singular /
+// plural labels, a description, an icon picker (grid of lucide names persisted
+// as the `icon` string) and a default view (table / board). Standard objects
+// are editable too — the action persists the overrides as an extendsStandard
+// doc. Saves through `updateObjectTw(slug, { … })`.
+// ---------------------------------------------------------------------------
+
+/** The default view stored on an object (first entry of `views`). */
+type DefaultView = 'table' | 'board';
+
+function objectDefaultView(object: ObjectMetadata): DefaultView {
+  return object.views?.[0] === 'board' ? 'board' : 'table';
+}
+
+interface ObjectSettingsCardProps {
+  object: ObjectMetadata;
+  projectId: string | null;
+  onSaved: (object: ObjectMetadata) => void;
+}
+
+function ObjectSettingsCard({
+  object,
+  projectId,
+  onSaved,
+}: ObjectSettingsCardProps) {
+  const [labelSingular, setLabelSingular] = React.useState(
+    object.labelSingular,
+  );
+  const [labelPlural, setLabelPlural] = React.useState(object.labelPlural);
+  const [description, setDescription] = React.useState(object.description ?? '');
+  const [icon, setIcon] = React.useState(object.icon || 'database');
+  const [defaultView, setDefaultView] = React.useState<DefaultView>(
+    objectDefaultView(object),
+  );
+  const [iconOpen, setIconOpen] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [savedTick, setSavedTick] = React.useState(false);
+
+  const iconRef = React.useRef<HTMLDivElement>(null);
+
+  // Re-seed the form whenever the selected object changes.
+  React.useEffect(() => {
+    setLabelSingular(object.labelSingular);
+    setLabelPlural(object.labelPlural);
+    setDescription(object.description ?? '');
+    setIcon(object.icon || 'database');
+    setDefaultView(objectDefaultView(object));
+    setIconOpen(false);
+    setError(null);
+    setSavedTick(false);
+  }, [object]);
+
+  // Close the icon popover on outside click.
+  React.useEffect(() => {
+    if (!iconOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (iconRef.current && !iconRef.current.contains(e.target as Node)) {
+        setIconOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [iconOpen]);
+
+  const dirty =
+    labelSingular.trim() !== object.labelSingular ||
+    labelPlural.trim() !== object.labelPlural ||
+    description.trim() !== (object.description ?? '').trim() ||
+    icon !== (object.icon || 'database') ||
+    defaultView !== objectDefaultView(object);
+
+  const canSave =
+    labelSingular.trim().length > 0 &&
+    labelPlural.trim().length > 0 &&
+    dirty &&
+    !saving;
+
+  const ActiveIcon = iconComponentFor(icon);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!canSave) return;
+    setSaving(true);
+    setError(null);
+    setSavedTick(false);
+
+    // `defaultView` orders the `views` array (table is always implied first /
+    // board moves to the front when selected). We also send `defaultView`
+    // explicitly — the engine accepts it and persists standard overrides as an
+    // extendsStandard doc.
+    const views: Array<'table' | 'board'> =
+      defaultView === 'board' ? ['board', 'table'] : ['table'];
+
+    const res = await updateObjectTw(
+      object.slug,
+      {
+        labelSingular: labelSingular.trim(),
+        labelPlural: labelPlural.trim(),
+        icon,
+        description: description.trim(),
+        defaultView,
+        views,
+      },
+      projectId ?? undefined,
+    );
+
+    setSaving(false);
+    if (res.ok) {
+      onSaved(res.data);
+      setSavedTick(true);
+    } else {
+      setError(res.error);
+    }
+  };
+
+  const handleReset = () => {
+    setLabelSingular(object.labelSingular);
+    setLabelPlural(object.labelPlural);
+    setDescription(object.description ?? '');
+    setIcon(object.icon || 'database');
+    setDefaultView(objectDefaultView(object));
+    setError(null);
+    setSavedTick(false);
+  };
+
+  return (
+    <form className="dm-settings" onSubmit={handleSubmit}>
+      <div className="dm-settings__head">
+        <h3 className="dm-settings__title">
+          <Settings2 size={15} aria-hidden="true" />
+          Object settings
+        </h3>
+        <ObjectBadge standard={object.standard === true} />
+      </div>
+
+      <div className="dm-settings__grid">
+        <div className="st-field">
+          <span className="st-field__label">
+            Singular label<span className="st-field__req">*</span>
+          </span>
+          <input
+            className="st-input"
+            value={labelSingular}
+            onChange={(e) => setLabelSingular(e.target.value)}
+            placeholder="Ticket"
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="st-field">
+          <span className="st-field__label">
+            Plural label<span className="st-field__req">*</span>
+          </span>
+          <input
+            className="st-input"
+            value={labelPlural}
+            onChange={(e) => setLabelPlural(e.target.value)}
+            placeholder="Tickets"
+            autoComplete="off"
+          />
+        </div>
+
+        <div className="st-field dm-settings__full">
+          <span className="st-field__label">Description</span>
+          <textarea
+            className="st-input dm-settings__desc"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What this object represents…"
+            spellCheck
+            rows={2}
+          />
+        </div>
+
+        <div className="dm-field dm-settings__full" ref={iconRef}>
+          <span className="st-field__label">Icon</span>
+          <div className="dm-iconpick">
+            <button
+              type="button"
+              className="dm-iconpick__trigger"
+              aria-haspopup="true"
+              aria-expanded={iconOpen}
+              onClick={() => setIconOpen((v) => !v)}
+            >
+              <ActiveIcon size={16} aria-hidden="true" />
+              <span className="dm-iconpick__name">{icon}</span>
+            </button>
+            {iconOpen ? (
+              <div
+                className="dm-iconpick__grid"
+                role="listbox"
+                aria-label="Object icons"
+              >
+                {OBJECT_ICONS.map(({ name, Icon }) => (
+                  <button
+                    key={name}
+                    type="button"
+                    role="option"
+                    aria-selected={name === icon}
+                    className={`dm-iconpick__cell${
+                      name === icon ? ' is-active' : ''
+                    }`}
+                    title={name}
+                    onClick={() => {
+                      setIcon(name);
+                      setIconOpen(false);
+                    }}
+                  >
+                    <Icon size={16} aria-hidden="true" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="st-field">
+          <span className="st-field__label">Default view</span>
+          <select
+            className="st-select"
+            value={defaultView}
+            onChange={(e) => setDefaultView(e.target.value as DefaultView)}
+          >
+            <option value="table">Table</option>
+            <option value="board">Board (Kanban)</option>
+          </select>
+        </div>
+      </div>
+
+      {error ? <ErrorBanner message={error} /> : null}
+
+      <div className="dm-settings__footer">
+        {savedTick && !dirty ? (
+          <span className="dm-settings__saved">
+            <Check size={13} aria-hidden="true" />
+            Saved
+          </span>
+        ) : null}
+        <button
+          type="button"
+          className="st-btn st-btn--secondary"
+          onClick={handleReset}
+          disabled={!dirty || saving}
+        >
+          Reset
+        </button>
+        <button
+          type="submit"
+          className="st-btn st-btn--primary"
+          disabled={!canSave}
+        >
+          {saving ? <Loader2 size={14} className="st-spin" /> : null}
+          Save settings
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Right pane — field table
 // ---------------------------------------------------------------------------
 
 interface ObjectDetailProps {
   object: ObjectMetadata;
+  projectId: string | null;
   /** Keys that are immutable (standard-object built-ins + system fields). */
   lockedKeys: ReadonlySet<string>;
   busyKey: string | null;
   onAddField: () => void;
   onEditField: (fieldKey: string) => void;
   onRemoveField: (fieldKey: string) => void;
+  onSettingsSaved: (object: ObjectMetadata) => void;
 }
 
 function ObjectDetail({
   object,
+  projectId,
   lockedKeys,
   busyKey,
   onAddField,
   onEditField,
   onRemoveField,
+  onSettingsSaved,
 }: ObjectDetailProps) {
+  const TitleIcon = iconComponentFor(object.icon);
   return (
     <section className="dm-detail" aria-label={`${object.labelPlural} fields`}>
       <div className="dm-detail__head">
         <div>
           <h2 className="dm-detail__title">
-            <Database size={18} aria-hidden="true" />
+            <TitleIcon size={18} aria-hidden="true" />
             {object.labelPlural}
             <ObjectBadge standard={object.standard === true} />
           </h2>
@@ -1025,6 +1366,13 @@ function ObjectDetail({
           </TwentyButton>
         </div>
       </div>
+
+      <ObjectSettingsCard
+        key={object.slug}
+        object={object}
+        projectId={projectId}
+        onSaved={onSettingsSaved}
+      />
 
       <div className="st-table-wrap">
         <table className="st-table">
@@ -1845,6 +2193,7 @@ export default function DataModelPage(): React.JSX.Element {
             {activeObject ? (
               <ObjectDetail
                 object={activeObject}
+                projectId={activeProjectId}
                 lockedKeys={lockedKeys}
                 busyKey={busyKey}
                 onAddField={() => {
@@ -1856,6 +2205,10 @@ export default function DataModelPage(): React.JSX.Element {
                   setAddFieldOpen(true);
                 }}
                 onRemoveField={handleRemoveField}
+                onSettingsSaved={(updated) => {
+                  upsertObject(updated);
+                  setMutationError(null);
+                }}
               />
             ) : (
               <div className="dm-detail__placeholder">

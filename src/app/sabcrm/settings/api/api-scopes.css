@@ -1,0 +1,124 @@
+/**
+ * SabCRM — API key scopes UI (Twenty look).
+ *
+ * New classes only; scoped under `.sabcrm-twenty` like the rest of the
+ * Twenty surface. Do NOT add these to `sabcrm-twenty.css` — this file is owned
+ * by the API Keys settings page and imported from `settings/api/page.tsx`.
+ *
+ * Covers the scopes checklist inside the "Create key" dialog and the inline
+ * scope chips rendered on each key row.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Scopes checklist (Create-key dialog)
+ * ------------------------------------------------------------------ */
+
+.sabcrm-twenty .st-scopes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-scopes__list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-2);
+}
+
+@media (max-width: 520px) {
+  .sabcrm-twenty .st-scopes__list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sabcrm-twenty .st-scope {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.sabcrm-twenty .st-scope:hover {
+  border-color: var(--st-border-strong, var(--st-text-tertiary));
+}
+
+.sabcrm-twenty .st-scope--on {
+  border-color: var(--st-accent, var(--st-text));
+  background: var(--st-accent-soft, var(--st-bg-secondary));
+}
+
+.sabcrm-twenty .st-scope__check {
+  margin-top: 2px;
+  flex: 0 0 auto;
+  accent-color: var(--st-accent, var(--st-text));
+}
+
+.sabcrm-twenty .st-scope__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-scope__name {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-scope__desc {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  line-height: 1.35;
+}
+
+.sabcrm-twenty .st-scopes__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  line-height: 1.4;
+}
+
+.sabcrm-twenty .st-scopes__note-icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+/* ------------------------------------------------------------------ *
+ * Scope chips (key rows + created-dialog summary)
+ * ------------------------------------------------------------------ */
+
+.sabcrm-twenty .st-scope-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-1);
+}
+
+.sabcrm-twenty .st-scope-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--st-text-secondary);
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-scope-chip--empty {
+  font-family: inherit;
+  color: var(--st-text-tertiary);
+  font-style: italic;
+}

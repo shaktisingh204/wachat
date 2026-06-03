@@ -93,9 +93,34 @@ fn require_project(project_id: &str) -> Result<&str> {
     Ok(p)
 }
 
-/// Base tenant filter shared by every query: `{ projectId, object }`.
+/// Base tenant filter shared by every query: `{ projectId, object }`. Matches
+/// ALL records in scope, **including** soft-deleted (trashed) ones — used by
+/// the by-id endpoints (get / update / delete / trash / restore / permanent)
+/// which must still resolve a trashed record.
 fn scope(project_id: &str, object: &str) -> Document {
     doc! { "projectId": project_id, "object": object }
+}
+
+/// Top-level marker field that flags a record as soft-deleted (trashed). When
+/// present it holds the RFC3339 timestamp of the trash action; absent / null
+/// means the record is live.
+const DELETED_AT: &str = "deletedAt";
+
+/// The "not trashed" predicate: `deletedAt ∈ [null]` — matches records where
+/// `deletedAt` is JSON `null` **or** the field is absent (Mongo `$in: [null]`
+/// also matches missing fields). Merged into the base [`scope`] for every
+/// normal read so trashed records are hidden from default views.
+fn not_trashed() -> (String, Bson) {
+    (DELETED_AT.to_owned(), Bson::Document(doc! { "$in": [Bson::Null] }))
+}
+
+/// `{ projectId, object }` **excluding** trashed records — the live-records
+/// scope used by list / count / group / aggregate.
+fn active_scope(project_id: &str, object: &str) -> Document {
+    let mut filter = scope(project_id, object);
+    let (k, v) = not_trashed();
+    filter.insert(k, v);
+    filter
 }
 
 /// Convert an incoming JSON `data` object into a BSON `Document`.
@@ -351,7 +376,9 @@ fn build_list_filter(
     q: Option<&str>,
     filters: Option<&str>,
 ) -> Result<Document> {
-    let mut filter = scope(project_id, object);
+    // Live records only — trashed (soft-deleted) records are hidden from
+    // normal list/count/aggregate views.
+    let mut filter = active_scope(project_id, object);
 
     if let Some(q) = q.map(str::trim).filter(|s| !s.is_empty()) {
         let ors: Vec<Bson> = SEARCH_FIELDS
@@ -609,11 +636,15 @@ pub async fn update_record(
 }
 
 // ===========================================================================
-// DELETE /{object}/{id} — deleteRecord
+// DELETE /{object}/{id} — deleteRecord (SOFT delete / trash)
 // ===========================================================================
 
-/// `DELETE /v1/sabcrm/records/{object}/{id}` — scoped delete. Returns
-/// `404` if no record matches `{ projectId, object, _id }`.
+/// `DELETE /v1/sabcrm/records/{object}/{id}` — **soft delete**. Sets the
+/// top-level `deletedAt` (RFC3339) so the record is hidden from normal views
+/// but recoverable via `POST /{object}/{id}/restore`; use
+/// `DELETE /{object}/{id}/permanent` to hard-delete. Returns `404` if no
+/// record matches `{ projectId, object, _id }`. Re-trashing an already-trashed
+/// record refreshes `deletedAt` (still `{ ok: true }`).
 #[instrument(skip_all, fields(object = %object, id = %id))]
 pub async fn delete_record(
     _user: AuthUser,
@@ -627,9 +658,185 @@ pub async fn delete_record(
     let mut filter = scope(project_id, &object);
     filter.insert("_id", oid);
 
+    let now = Utc::now().to_rfc3339();
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let result = coll
+        .update_one(
+            filter,
+            doc! { "$set": { DELETED_AT: &now, "updatedAt": &now } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.soft_delete"))
+        })?;
+
+    if result.matched_count == 0 {
+        return Err(ApiError::NotFound("record".to_owned()));
+    }
+
+    Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// POST /{object}/{id}/trash — trashRecord (soft delete)
+// ===========================================================================
+
+/// `POST /v1/sabcrm/records/{object}/{id}/trash` — soft-delete a record by
+/// setting its top-level `deletedAt` (RFC3339, server-set) and bumping
+/// `updatedAt`. Returns the (now trashed) record. `404` if no record matches
+/// `{ projectId, object, _id }`. Idempotent — re-trashing refreshes `deletedAt`.
+#[instrument(skip_all, fields(object = %object, id = %id))]
+pub async fn trash_record(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((object, id)): Path<(String, String)>,
+    Json(body): Json<crate::dto::TrashRestoreInput>,
+) -> Result<Json<RecordResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let mut filter = scope(project_id, &object);
+    filter.insert("_id", oid);
+
+    let now = Utc::now().to_rfc3339();
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let updated = coll
+        .find_one_and_update(
+            filter,
+            doc! { "$set": { DELETED_AT: &now, "updatedAt": &now } },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.trash"))
+        })?
+        .ok_or_else(|| ApiError::NotFound("record".to_owned()))?;
+
+    Ok(Json(RecordResponse {
+        record: record_to_wire(updated),
+    }))
+}
+
+// ===========================================================================
+// GET /{object}/trash — listTrash
+// ===========================================================================
+
+/// `GET /v1/sabcrm/records/{object}/trash?projectId=&limit=` — list the
+/// soft-deleted (trashed) records for `{ projectId, object }`, newest-deleted
+/// first (sorted by `deletedAt` desc). `limit` defaults to 50, clamped at 100.
+#[instrument(skip_all, fields(object = %object))]
+pub async fn list_trash(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(object): Path<String>,
+    Query(query): Query<crate::dto::TrashQuery>,
+) -> Result<Json<ListResponse>> {
+    let project_id = require_project(&query.project_id)?;
+
+    let limit = query
+        .limit
+        .filter(|l| *l > 0)
+        .unwrap_or(50)
+        .min(MAX_LIMIT);
+
+    // Trashed records: `deletedAt` present and non-null.
+    let mut filter = scope(project_id, &object);
+    filter.insert(DELETED_AT, doc! { "$ne": Bson::Null });
+
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    let total = coll
+        .count_documents(filter.clone())
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.trash.count"))
+        })?;
+
+    let mut cursor = coll
+        .find(filter)
+        .sort(doc! { DELETED_AT: -1 })
+        .limit(limit as i64)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.trash.find"))
+        })?;
+
+    let mut records = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.trash.cursor"))
+    })? {
+        records.push(record_to_wire(d));
+    }
+
+    Ok(Json(ListResponse { records, total }))
+}
+
+// ===========================================================================
+// POST /{object}/{id}/restore — restoreRecord
+// ===========================================================================
+
+/// `POST /v1/sabcrm/records/{object}/{id}/restore` — un-trash a record by
+/// `$unset`-ing its top-level `deletedAt` (and bumping `updatedAt`). Returns
+/// the restored record. `404` if no record matches `{ projectId, object, _id }`.
+/// Idempotent — restoring a live record is a no-op that still returns it.
+#[instrument(skip_all, fields(object = %object, id = %id))]
+pub async fn restore_record(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((object, id)): Path<(String, String)>,
+    Json(body): Json<crate::dto::TrashRestoreInput>,
+) -> Result<Json<RecordResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let mut filter = scope(project_id, &object);
+    filter.insert("_id", oid);
+
+    let now = Utc::now().to_rfc3339();
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+    let restored = coll
+        .find_one_and_update(
+            filter,
+            doc! {
+                "$unset": { DELETED_AT: "" },
+                "$set": { "updatedAt": &now },
+            },
+        )
+        .return_document(mongodb::options::ReturnDocument::After)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.restore"))
+        })?
+        .ok_or_else(|| ApiError::NotFound("record".to_owned()))?;
+
+    Ok(Json(RecordResponse {
+        record: record_to_wire(restored),
+    }))
+}
+
+// ===========================================================================
+// DELETE /{object}/{id}/permanent — permanentDelete (hard delete)
+// ===========================================================================
+
+/// `DELETE /v1/sabcrm/records/{object}/{id}/permanent?projectId=` — **hard
+/// delete** a record (live or trashed) from `{ projectId, object, _id }`.
+/// Irreversible. Returns `404` if no record matches.
+#[instrument(skip_all, fields(object = %object, id = %id))]
+pub async fn permanent_delete_record(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path((object, id)): Path<(String, String)>,
+    Query(query): Query<ScopeQuery>,
+) -> Result<Json<OkResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let mut filter = scope(project_id, &object);
+    filter.insert("_id", oid);
+
     let coll = mongo.collection::<Document>(RECORDS_COLL);
     let result = coll.delete_one(filter).await.map_err(|e| {
-        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.delete_one"))
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.permanent_delete"))
     })?;
 
     if result.deleted_count == 0 {
@@ -861,7 +1068,8 @@ pub async fn group_records(
 
     let group_path = format!("$data.{field}");
     let pipeline = vec![
-        doc! { "$match": scope(project_id, &object) },
+        // Live records only — trashed records are excluded from the board.
+        doc! { "$match": active_scope(project_id, &object) },
         doc! { "$sort": { "updatedAt": -1 } },
         doc! {
             "$group": {
@@ -1076,7 +1284,7 @@ pub async fn distinct_values(
 
     let coll = mongo.collection::<Document>(RECORDS_COLL);
     let raw = coll
-        .distinct(format!("data.{field}"), scope(project_id, &object))
+        .distinct(format!("data.{field}"), active_scope(project_id, &object))
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.distinct"))
@@ -1119,7 +1327,7 @@ pub async fn find_duplicates(
         return Err(ApiError::BadRequest("field is required.".to_owned()));
     }
 
-    let mut match_filter = scope(project_id, &object);
+    let mut match_filter = active_scope(project_id, &object);
     match_filter.insert(format!("data.{field}"), doc! { "$ne": Bson::Null });
 
     let group_path = format!("$data.{field}");

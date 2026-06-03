@@ -23,6 +23,7 @@ import {
   Copy,
   Check,
   AlertTriangle,
+  Info,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -39,6 +40,7 @@ import type {
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
+import './api-scopes.css';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -58,6 +60,87 @@ function formatDate(iso: string | null): string {
 /** A safe-to-display masked representation of a key from its public prefix. */
 function maskedKey(prefix: string): string {
   return `${prefix}${'•'.repeat(8)}`;
+}
+
+// ---------------------------------------------------------------------------
+// Scopes
+// ---------------------------------------------------------------------------
+
+/**
+ * The scope catalogue offered in the Create-key dialog.
+ *
+ * NOTE on persistence: the backend `issueApiKeyAction(label, projectId)` action
+ * (and the `issueApiKey` store beneath it) accepts ONLY a label — it has no
+ * scopes column. Rather than silently dropping the operator's selection, we
+ * encode the chosen scopes into the label using a machine-parseable suffix
+ * (`[scopes: a,b,c]`). The suffix round-trips through the existing store, is
+ * parsed back out for display as chips on each row, and is stripped from the
+ * human label. Enforcement at the REST layer is not yet wired, so the dialog
+ * shows an honest "display-only / enforcement coming" note.
+ */
+const SCOPE_OPTIONS = [
+  { id: 'records:read', desc: 'Read records across objects.' },
+  { id: 'records:write', desc: 'Create and update records.' },
+  { id: 'records:delete', desc: 'Delete records.' },
+  { id: 'objects:read', desc: 'Read object & field metadata.' },
+  { id: 'webhooks:manage', desc: 'Create and manage webhooks.' },
+  { id: 'views:manage', desc: 'Create and manage saved views.' },
+] as const;
+
+type ScopeId = (typeof SCOPE_OPTIONS)[number]['id'];
+
+const ALL_SCOPE_IDS = SCOPE_OPTIONS.map((s) => s.id) as readonly ScopeId[];
+
+/** Scopes pre-selected when the dialog opens. */
+const DEFAULT_SCOPES: readonly ScopeId[] = ['records:read', 'records:write'];
+
+/** Marker that carries the scope list inside the (label-only) backend field. */
+const SCOPE_TAG_RE = /\s*\[scopes:\s*([^\]]*)\]\s*$/i;
+
+/** Strip the encoded `[scopes: …]` suffix, returning the human-readable label. */
+function labelOf(rawLabel: string): string {
+  return rawLabel.replace(SCOPE_TAG_RE, '').trim() || rawLabel.trim();
+}
+
+/** Parse the encoded scopes back out of a stored label. */
+function scopesOf(rawLabel: string): ScopeId[] {
+  const m = SCOPE_TAG_RE.exec(rawLabel);
+  if (!m || !m[1]) return [];
+  const valid = new Set<string>(ALL_SCOPE_IDS);
+  return m[1]
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s): s is ScopeId => valid.has(s));
+}
+
+/** Compose the backend label from a human name + selected scopes. */
+function encodeLabel(name: string, scopes: readonly ScopeId[]): string {
+  const clean = name.trim();
+  if (scopes.length === 0) return clean;
+  return `${clean} [scopes: ${scopes.join(',')}]`;
+}
+
+// ---------------------------------------------------------------------------
+// Scope chips (key rows + created summary)
+// ---------------------------------------------------------------------------
+
+function ScopeChips({ scopes }: { scopes: ScopeId[] }): React.JSX.Element {
+  if (scopes.length === 0) {
+    return (
+      <div className="st-scope-chips">
+        <span className="st-scope-chip st-scope-chip--empty">No scopes</span>
+      </div>
+    );
+  }
+  return (
+    <div className="st-scope-chips">
+      {scopes.map((s) => (
+        <span key={s} className="st-scope-chip">
+          {s}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -107,9 +190,16 @@ function CreateKeyDialog({
   onIssued,
 }: CreateKeyDialogProps): React.JSX.Element {
   const [label, setLabel] = React.useState('');
+  const [scopes, setScopes] = React.useState<ScopeId[]>([...DEFAULT_SCOPES]);
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [issued, setIssued] = React.useState<IssuedSabcrmApiKey | null>(null);
+
+  const toggleScope = React.useCallback((id: ScopeId) => {
+    setScopes((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  }, []);
 
   const submit = React.useCallback(
     async (e: React.FormEvent) => {
@@ -118,7 +208,9 @@ function CreateKeyDialog({
       setSubmitting(true);
       setError(null);
       try {
-        const res = await issueApiKeyAction(label.trim(), projectId);
+        // The backend accepts only a label, so the selected scopes are encoded
+        // into it (`name [scopes: a,b]`) and parsed back out for display.
+        const res = await issueApiKeyAction(encodeLabel(label, scopes), projectId);
         if (res.ok) {
           setIssued(res.data);
           onIssued(res.data);
@@ -131,7 +223,7 @@ function CreateKeyDialog({
         setSubmitting(false);
       }
     },
-    [label, submitting, projectId, onIssued],
+    [label, scopes, submitting, projectId, onIssued],
   );
 
   return (
@@ -170,6 +262,12 @@ function CreateKeyDialog({
                   cannot be recovered afterwards.
                 </span>
               </div>
+              {scopes.length > 0 ? (
+                <div className="st-field" style={{ marginTop: 'var(--st-space-3)' }}>
+                  <span className="st-field__label">Scopes</span>
+                  <ScopeChips scopes={scopes} />
+                </div>
+              ) : null}
             </div>
             <div className="st-dialog__footer">
               <TwentyButton variant="primary" onClick={onClose}>
@@ -197,6 +295,52 @@ function CreateKeyDialog({
                   maxLength={80}
                 />
               </div>
+
+              <div
+                className="st-field"
+                style={{ marginTop: 'var(--st-space-4)' }}
+              >
+                <span className="st-field__label" id="api-key-scopes-label">
+                  Scopes
+                </span>
+                <div
+                  className="st-scopes"
+                  role="group"
+                  aria-labelledby="api-key-scopes-label"
+                >
+                  <div className="st-scopes__list">
+                    {SCOPE_OPTIONS.map((opt) => {
+                      const on = scopes.includes(opt.id);
+                      return (
+                        <label
+                          key={opt.id}
+                          className={`st-scope${on ? ' st-scope--on' : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="st-scope__check"
+                            checked={on}
+                            onChange={() => toggleScope(opt.id)}
+                          />
+                          <span className="st-scope__text">
+                            <span className="st-scope__name">{opt.id}</span>
+                            <span className="st-scope__desc">{opt.desc}</span>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="st-scopes__note">
+                    <Info className="st-scopes__note-icon" size={13} />
+                    <span>
+                      Scopes are recorded with the key and shown on each row, but
+                      REST-layer enforcement is not yet wired — for now they are
+                      display-only metadata. Enforcement is coming.
+                    </span>
+                  </p>
+                </div>
+              </div>
+
               {error ? <p className="st-form-error">{error}</p> : null}
             </div>
             <div className="st-dialog__footer">
@@ -259,7 +403,7 @@ function RevokeDialog({
         </div>
         <div className="st-dialog__body">
           <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Revoke <strong style={{ color: 'var(--st-text)' }}>{apiKey.label}</strong>
+            Revoke <strong style={{ color: 'var(--st-text)' }}>{labelOf(apiKey.label)}</strong>
             ? Any integration using this key will immediately stop working. This
             cannot be undone.
           </p>
@@ -423,6 +567,7 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
                 <tr>
                   <th>Name</th>
                   <th>Key</th>
+                  <th>Scopes</th>
                   <th>Created</th>
                   <th>Last used</th>
                   <th aria-label="Actions" />
@@ -431,8 +576,13 @@ export default function SabcrmApiKeysSettingsPage(): React.JSX.Element {
               <tbody>
                 {keys.map((key) => (
                   <tr key={key.id} className="st-row">
-                    <td style={{ fontWeight: 'var(--st-fw-medium)' }}>{key.label}</td>
+                    <td style={{ fontWeight: 'var(--st-fw-medium)' }}>
+                      {labelOf(key.label)}
+                    </td>
                     <td className="st-mono">{maskedKey(key.prefix)}</td>
+                    <td>
+                      <ScopeChips scopes={scopesOf(key.label)} />
+                    </td>
                     <td style={{ color: 'var(--st-text-secondary)' }}>
                       {formatDate(key.createdAt)}
                     </td>

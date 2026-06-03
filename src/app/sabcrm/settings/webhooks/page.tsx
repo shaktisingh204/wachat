@@ -30,6 +30,11 @@ import {
   Send,
   Info,
   Inbox,
+  Building2,
+  Users,
+  Target,
+  StickyNote,
+  CheckSquare,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
@@ -50,6 +55,7 @@ import type {
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import './webhooks-log.css';
+import './webhook-events.css';
 
 // ---------------------------------------------------------------------------
 // Event catalogue
@@ -97,6 +103,118 @@ const EVENT_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------------------
+// Fine-grained event-type matrix (object × action)
+//
+// The backend's `events` field is a flat `SabcrmWebhookEvent[]` constrained to
+// a *closed* 4-value vocabulary (`record.created|updated|deleted`,
+// `activity.created`) — see `@/lib/sabcrm/webhook-events`. SabCRM's record
+// events are object-agnostic: one `record.created` fires for every standard
+// object. So we present a familiar Twenty-style per-object × action checklist
+// for fine-grained selection, then map each selected cell onto the actual
+// delivered event the action accepts (deduplicated). This keeps the UI
+// granular while emitting exactly what `normaliseEvents` will validate.
+// ---------------------------------------------------------------------------
+
+type EventAction = 'created' | 'updated' | 'deleted';
+
+interface StandardObjectMeta {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number | string }>;
+  /** Whether this object emits the timeline `activity.created` event on create. */
+  isActivity: boolean;
+}
+
+const STANDARD_OBJECTS: ReadonlyArray<StandardObjectMeta> = [
+  { key: 'companies', label: 'Companies', icon: Building2, isActivity: false },
+  { key: 'people', label: 'People', icon: Users, isActivity: false },
+  {
+    key: 'opportunities',
+    label: 'Opportunities',
+    icon: Target,
+    isActivity: false,
+  },
+  { key: 'notes', label: 'Notes', icon: StickyNote, isActivity: true },
+  { key: 'tasks', label: 'Tasks', icon: CheckSquare, isActivity: true },
+];
+
+const EVENT_ACTIONS: ReadonlyArray<{ key: EventAction; label: string }> = [
+  { key: 'created', label: 'Created' },
+  { key: 'updated', label: 'Updated' },
+  { key: 'deleted', label: 'Deleted' },
+];
+
+/** A selectable matrix cell id, e.g. `companies.created`. */
+type CellId = `${string}.${EventAction}`;
+
+function cellId(objectKey: string, action: EventAction): CellId {
+  return `${objectKey}.${action}` as CellId;
+}
+
+/**
+ * Whether a given object × action cell exists. Notes / Tasks are
+ * activity-style objects with no first-class "updated" feed event, so those
+ * cells are rendered as not-applicable.
+ */
+function cellApplies(obj: StandardObjectMeta, action: EventAction): boolean {
+  if (obj.isActivity && action === 'updated') return false;
+  return true;
+}
+
+/** Maps a single matrix cell onto the concrete delivered webhook event. */
+function cellToEvent(obj: StandardObjectMeta, action: EventAction): WebhookEvent {
+  if (obj.isActivity && action === 'created') return 'activity.created';
+  if (action === 'updated') return 'record.updated';
+  if (action === 'deleted') return 'record.deleted';
+  return 'record.created';
+}
+
+/** Every applicable cell id across all objects, in render order. */
+const ALL_CELLS: ReadonlyArray<CellId> = STANDARD_OBJECTS.flatMap((obj) =>
+  EVENT_ACTIONS.filter((a) => cellApplies(obj, a.key)).map((a) =>
+    cellId(obj.key, a.key),
+  ),
+);
+
+/** Reduces a set of selected cells to the deduped delivered-event list. */
+function cellsToEvents(cells: ReadonlySet<CellId>): WebhookEvent[] {
+  const out = new Set<WebhookEvent>();
+  for (const obj of STANDARD_OBJECTS) {
+    for (const a of EVENT_ACTIONS) {
+      if (!cellApplies(obj, a.key)) continue;
+      if (cells.has(cellId(obj.key, a.key))) {
+        out.add(cellToEvent(obj, a.key));
+      }
+    }
+  }
+  // Preserve the canonical EVENT_META order in the emitted array.
+  return EVENT_META.map((e) => e.value).filter((v) => out.has(v));
+}
+
+/**
+ * Seeds the cell selection from an existing subscription's flat event list.
+ * Because record events are object-agnostic, a stored `record.created` selects
+ * the `created` cell for every non-activity object (and `activity.created`
+ * selects the activity objects' `created` cells). This round-trips cleanly:
+ * `cellsToEvents(seedCellsFromEvents(events))` returns the same event set.
+ */
+function seedCellsFromEvents(
+  events: ReadonlyArray<WebhookEvent>,
+): Set<CellId> {
+  const has = new Set<WebhookEvent>(events);
+  const cells = new Set<CellId>();
+  for (const obj of STANDARD_OBJECTS) {
+    for (const a of EVENT_ACTIONS) {
+      if (!cellApplies(obj, a.key)) continue;
+      if (has.has(cellToEvent(obj, a.key))) {
+        cells.add(cellId(obj.key, a.key));
+      }
+    }
+  }
+  return cells;
+}
+
+// ---------------------------------------------------------------------------
 // Copyable secret value
 // ---------------------------------------------------------------------------
 
@@ -128,8 +246,159 @@ function CopyValue({ value }: { value: string }): React.JSX.Element {
 interface WebhookFormState {
   url: string;
   description: string;
-  events: WebhookEvent[];
+  /** Fine-grained object × action cell selection. */
+  cells: Set<CellId>;
   active: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Grouped (object × action) event-type selector
+// ---------------------------------------------------------------------------
+
+interface EventMatrixProps {
+  cells: Set<CellId>;
+  onChange: (next: Set<CellId>) => void;
+}
+
+function EventMatrix({ cells, onChange }: EventMatrixProps): React.JSX.Element {
+  const allSelected = ALL_CELLS.every((c) => cells.has(c));
+
+  const toggleCell = React.useCallback(
+    (id: CellId) => {
+      const next = new Set(cells);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      onChange(next);
+    },
+    [cells, onChange],
+  );
+
+  const toggleObject = React.useCallback(
+    (obj: StandardObjectMeta) => {
+      const objCells = EVENT_ACTIONS.filter((a) => cellApplies(obj, a.key)).map(
+        (a) => cellId(obj.key, a.key),
+      );
+      const allOn = objCells.every((c) => cells.has(c));
+      const next = new Set(cells);
+      for (const c of objCells) {
+        if (allOn) next.delete(c);
+        else next.add(c);
+      }
+      onChange(next);
+    },
+    [cells, onChange],
+  );
+
+  const toggleAll = React.useCallback(() => {
+    onChange(allSelected ? new Set() : new Set(ALL_CELLS));
+  }, [allSelected, onChange]);
+
+  const selectedEvents = React.useMemo(() => cellsToEvents(cells), [cells]);
+
+  return (
+    <div
+      className="st-whev"
+      style={
+        { '--st-whev-cols': EVENT_ACTIONS.length } as React.CSSProperties
+      }
+    >
+      <div className="st-whev__toolbar">
+        <label className="st-whev__all">
+          <input
+            type="checkbox"
+            className="st-whev__cb"
+            checked={allSelected}
+            onChange={toggleAll}
+          />
+          All events
+        </label>
+        <span className="st-whev__count">
+          {cells.size === 0
+            ? 'No events selected'
+            : `${cells.size} selected · ${selectedEvents.length} delivered event${
+                selectedEvents.length === 1 ? '' : 's'
+              }`}
+        </span>
+      </div>
+
+      <div className="st-whev__grid">
+        <span
+          className="st-whev__colhead st-whev__colhead--spacer"
+          aria-hidden="true"
+        />
+        {EVENT_ACTIONS.map((a) => (
+          <span key={a.key} className="st-whev__colhead">
+            {a.label}
+          </span>
+        ))}
+
+        {STANDARD_OBJECTS.map((obj) => {
+          const Icon = obj.icon;
+          return (
+            <React.Fragment key={obj.key}>
+              <label
+                className="st-whev__rowlabel"
+                title={`Select all ${obj.label} events`}
+              >
+                <input
+                  type="checkbox"
+                  className="st-whev__cb"
+                  checked={EVENT_ACTIONS.filter((a) =>
+                    cellApplies(obj, a.key),
+                  ).every((a) => cells.has(cellId(obj.key, a.key)))}
+                  onChange={() => toggleObject(obj)}
+                />
+                <span className="st-whev__rowlabel-icon" aria-hidden="true">
+                  <Icon size={14} />
+                </span>
+                {obj.label}
+              </label>
+              {EVENT_ACTIONS.map((a) => {
+                if (!cellApplies(obj, a.key)) {
+                  return (
+                    <span
+                      key={a.key}
+                      className="st-whev__cell st-whev__cell--na"
+                      aria-hidden="true"
+                    />
+                  );
+                }
+                const id = cellId(obj.key, a.key);
+                return (
+                  <span key={a.key} className="st-whev__cell">
+                    <input
+                      type="checkbox"
+                      className="st-whev__cb"
+                      aria-label={`${obj.label} ${a.label}`}
+                      checked={cells.has(id)}
+                      onChange={() => toggleCell(id)}
+                    />
+                  </span>
+                );
+              })}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      <p className="st-whev__hint">
+        {selectedEvents.length === 0 ? (
+          'Pick the object events to forward. SabCRM delivers object-agnostic events, so selections map to: '
+        ) : (
+          'Delivered events: '
+        )}
+        {(selectedEvents.length === 0
+          ? EVENT_META.map((e) => e.value)
+          : selectedEvents
+        ).map((v, i) => (
+          <React.Fragment key={v}>
+            {i > 0 ? ' ' : ''}
+            <code>{v}</code>
+          </React.Fragment>
+        ))}
+      </p>
+    </div>
+  );
 }
 
 interface WebhookDialogProps {
@@ -148,7 +417,9 @@ function WebhookDialog({
   const [form, setForm] = React.useState<WebhookFormState>(() => ({
     url: existing?.url ?? '',
     description: existing?.description ?? '',
-    events: (existing?.events as WebhookEvent[] | undefined) ?? ['record.created'],
+    cells: existing
+      ? seedCellsFromEvents(existing.events as WebhookEvent[])
+      : seedCellsFromEvents(['record.created']),
     active: existing?.active ?? true,
   }));
   const [submitting, setSubmitting] = React.useState(false);
@@ -156,16 +427,8 @@ function WebhookDialog({
   // The clear-text secret surfaced once on create.
   const [createdSecret, setCreatedSecret] = React.useState<string | null>(null);
 
-  const toggleEvent = React.useCallback((value: WebhookEvent) => {
-    setForm((f) => {
-      const has = f.events.includes(value);
-      return {
-        ...f,
-        events: has
-          ? f.events.filter((e) => e !== value)
-          : [...f.events, value],
-      };
-    });
+  const setCells = React.useCallback((next: Set<CellId>) => {
+    setForm((f) => ({ ...f, cells: next }));
   }, []);
 
   const submit = React.useCallback(
@@ -176,7 +439,8 @@ function WebhookDialog({
         setError('A destination URL is required.');
         return;
       }
-      if (form.events.length === 0) {
+      const events = cellsToEvents(form.cells);
+      if (events.length === 0) {
         setError('Select at least one event.');
         return;
       }
@@ -187,7 +451,7 @@ function WebhookDialog({
           const patch: UpdateWebhookPatch = {
             url: form.url.trim(),
             description: form.description.trim() || undefined,
-            events: form.events,
+            events,
             active: form.active,
           };
           const res = await updateWebhookAction(existing._id, patch, projectId);
@@ -201,7 +465,7 @@ function WebhookDialog({
           const input: CreateWebhookInput = {
             url: form.url.trim(),
             description: form.description.trim() || undefined,
-            events: form.events,
+            events,
             active: form.active,
           };
           const res = await createWebhookAction(input, projectId);
@@ -316,22 +580,7 @@ function WebhookDialog({
                     *
                   </span>
                 </span>
-                <div className="st-checklist">
-                  {EVENT_META.map((evt) => (
-                    <label key={evt.value} className="st-checklist__item">
-                      <input
-                        type="checkbox"
-                        checked={form.events.includes(evt.value)}
-                        onChange={() => toggleEvent(evt.value)}
-                      />
-                      <span>
-                        <span className="st-checklist__title">{evt.label}</span>
-                        <br />
-                        <span className="st-checklist__desc">{evt.desc}</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
+                <EventMatrix cells={form.cells} onChange={setCells} />
               </div>
 
               <label className="st-checkbox-row">

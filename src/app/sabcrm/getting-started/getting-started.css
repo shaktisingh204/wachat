@@ -1,0 +1,286 @@
+/* =========================================================================
+   SabCRM — Getting Started (/sabcrm/getting-started)
+   Twenty-faithful, plain CSS. NO Tailwind / NO ZoruUI. Scoped under
+   .sabcrm-twenty (provided by the /sabcrm layout's TwentyAppFrame).
+   Reuses the --st-* design tokens declared in sabcrm-twenty.css.
+   New classes are namespaced .st-gs-* so they never collide with the
+   shared .st-* primitives in sabcrm-twenty.css (which must not be edited).
+   ========================================================================= */
+
+/* ----- Page scroll wrapper ----- */
+.sabcrm-twenty .st-gs {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--st-space-5);
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .st-gs__inner {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+/* ----- Lead / subtitle ----- */
+.sabcrm-twenty .st-gs__lead {
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-5);
+  max-width: 560px;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size);
+  line-height: 1.5;
+}
+
+/* =========================================================================
+   Progress bar
+   ========================================================================= */
+.sabcrm-twenty .st-gs-progress {
+  margin: 0 0 var(--st-space-6);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-gs-progress__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-gs-progress__title {
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+.sabcrm-twenty .st-gs-progress__count {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-gs-progress__count strong {
+  color: var(--st-accent);
+  font-weight: var(--st-fw-semibold);
+}
+
+.sabcrm-twenty .st-gs-progress__track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-gs-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--st-accent);
+  transition: width 240ms ease;
+}
+
+.sabcrm-twenty .st-gs-progress--done .st-gs-progress__fill {
+  background: var(--st-accent-hover);
+}
+
+.sabcrm-twenty .st-gs-progress__done-msg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--st-space-3);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .st-gs-progress__done-msg svg {
+  flex: 0 0 auto;
+}
+
+/* =========================================================================
+   Checklist
+   ========================================================================= */
+.sabcrm-twenty .st-gs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sabcrm-twenty .st-gs-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.sabcrm-twenty .st-gs-card:hover {
+  border-color: var(--st-text-tertiary);
+  box-shadow: var(--st-shadow);
+}
+
+.sabcrm-twenty .st-gs-card--done {
+  background: var(--st-bg-secondary);
+}
+
+/* ----- Checkbox (a real button toggling the done state) ----- */
+.sabcrm-twenty .st-gs-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  padding: 0;
+  border: 1.5px solid var(--st-border);
+  border-radius: 6px;
+  background: var(--st-bg);
+  color: var(--st-text-inverted);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .st-gs-check:hover {
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-gs-check:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+.sabcrm-twenty .st-gs-check svg {
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.sabcrm-twenty .st-gs-check--on {
+  border-color: var(--st-accent);
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .st-gs-check--on svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ----- Card icon ----- */
+.sabcrm-twenty .st-gs-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-gs-card--done .st-gs-card__icon {
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Card body ----- */
+.sabcrm-twenty .st-gs-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-gs-card__title {
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+.sabcrm-twenty .st-gs-card--done .st-gs-card__title {
+  color: var(--st-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-gs-card__desc {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.45;
+}
+
+/* ----- "Do it" link ----- */
+.sabcrm-twenty .st-gs-card__action {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.sabcrm-twenty .st-gs-do {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .st-gs-do:hover {
+  background: var(--st-hover);
+  border-color: var(--st-text-tertiary);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-gs-do svg {
+  transition: transform 120ms ease;
+}
+
+.sabcrm-twenty .st-gs-do:hover svg {
+  transform: translateX(2px);
+}
+
+/* ----- Footer actions (reset) ----- */
+.sabcrm-twenty .st-gs-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--st-space-5);
+}
+
+/* ----- Responsive: stack the "Do it" link below on narrow screens ----- */
+@media (max-width: 560px) {
+  .sabcrm-twenty .st-gs-card {
+    flex-wrap: wrap;
+  }
+
+  .sabcrm-twenty .st-gs-card__action {
+    align-self: stretch;
+    width: 100%;
+    padding-left: calc(22px + var(--st-space-3) + 32px + var(--st-space-3));
+  }
+
+  .sabcrm-twenty .st-gs-do {
+    width: 100%;
+    justify-content: center;
+  }
+}

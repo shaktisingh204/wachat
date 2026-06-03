@@ -92,6 +92,8 @@ import {
   deleteActivityCommentTw,
 } from '@/app/actions/sabcrm-twenty.actions';
 import { listTagsTw } from '@/app/actions/sabcrm-tags.actions';
+import { listTemplatesTw } from '@/app/actions/sabcrm-templates.actions';
+import type { SabcrmRustTemplate } from '@/lib/rust-client/sabcrm-templates';
 import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
 import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 import type {
@@ -120,6 +122,7 @@ import './comments.css';
 import './rich-text.css';
 import './show-widgets.css';
 import './detail-tags.css';
+import './composer-templates.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -969,8 +972,189 @@ function SubmitHint(): React.JSX.Element {
 }
 
 // ---------------------------------------------------------------------------
+// Insert-template control — fill the composer from a saved template
+// ---------------------------------------------------------------------------
+
+/**
+ * Coerce a raw record field value to the text we splice into a template token.
+ * Strings pass through; numbers/booleans stringify; everything else (objects,
+ * null, undefined) collapses to '' so a missing field leaves no literal token
+ * residue in the composer.
+ */
+function tokenText(raw: unknown): string {
+  if (typeof raw === 'string') return raw;
+  if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+  return '';
+}
+
+/**
+ * Light variable substitution for a template string. Replaces `{{record.<x>}}`
+ * tokens (whitespace-tolerant: `{{ record.email }}` works) with the matching
+ * value: `name` / `label` resolve to the record's display label; any other key
+ * resolves to `record.data[key]`. Unknown / empty values become ''.
+ *
+ * Operates on the raw template text whether it's plain text or HTML — the
+ * tokens are literal `{{…}}` runs, so a straight string replace is correct for
+ * both the title (plain) and the body (HTML from the saved template).
+ */
+function substituteRecordTokens(
+  text: string,
+  record: SabcrmRustRecord,
+  label: string,
+): string {
+  return text.replace(/\{\{\s*record\.([\w.-]+)\s*\}\}/g, (_match, key: string) => {
+    if (key === 'name' || key === 'label') return label;
+    return tokenText(record.data[key]);
+  });
+}
+
+interface InsertTemplateProps {
+  /** Only list templates of this kind (composer-aligned); omit for all kinds. */
+  kind?: SabcrmRustTemplate['kind'];
+  /** Active project — scopes the template list. */
+  projectId: string | null;
+  /** Fill the composer from the picked template (already substituted). */
+  onPick: (title: string, body: string) => void;
+  disabled?: boolean;
+}
+
+/**
+ * A Twenty-styled "Insert template" dropdown for a composer footer. Lazily
+ * loads `listTemplatesTw(kind)` the first time it's opened (graceful on
+ * failure / engine-down — muted empty/error states, never throws). Picking a
+ * template hands its `subject ?? name` as the title and its `body` as the body
+ * to `onPick`; the parent applies variable substitution + writes the fields.
+ * Dismisses on outside-click / Escape.
+ */
+function InsertTemplate({
+  kind,
+  projectId,
+  onPick,
+  disabled,
+}: InsertTemplateProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [templates, setTemplates] = React.useState<SabcrmRustTemplate[]>([]);
+  const [error, setError] = React.useState<string | null>(null);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  // Dismiss on outside-click / Escape while open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  // Lazy-load the list the first time the dropdown is opened.
+  React.useEffect(() => {
+    if (!open || loaded || loading) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    (async () => {
+      const res = await listTemplatesTw(kind, projectId ?? undefined);
+      if (cancelled) return;
+      if (res.ok) {
+        setTemplates(res.data);
+        setLoaded(true);
+      } else {
+        setError(res.error);
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, loaded, loading, kind, projectId]);
+
+  return (
+    <div className="ct-templates" ref={ref}>
+      <button
+        type="button"
+        className="ct-templates__trigger"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        disabled={disabled}
+        onClick={() => setOpen((v) => !v)}
+        title="Insert a saved template"
+      >
+        <FileText size={13} aria-hidden="true" />
+        Insert template
+        <ChevronDown
+          size={12}
+          className="ct-templates__trigger-chev"
+          aria-hidden="true"
+        />
+      </button>
+      {open ? (
+        <div className="ct-templates__pop" role="menu" aria-label="Templates">
+          <div className="ct-templates__list">
+            {loading ? (
+              <div className="ct-templates__state">
+                <Loader2 size={13} className="st-spin" aria-hidden="true" />
+                Loading templates…
+              </div>
+            ) : error ? (
+              <div className="ct-templates__state is-error">{error}</div>
+            ) : templates.length === 0 ? (
+              <div className="ct-templates__state">No templates yet.</div>
+            ) : (
+              templates.map((tpl) => (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  role="menuitem"
+                  className="ct-templates__item"
+                  onClick={() => {
+                    onPick(tpl.subject?.trim() || tpl.name, tpl.body);
+                    setOpen(false);
+                  }}
+                >
+                  <span className="ct-templates__item-name">
+                    <FileText size={13} aria-hidden="true" />
+                    {tpl.name}
+                    <span className="ct-templates__item-kind">{tpl.kind}</span>
+                  </span>
+                  {tpl.subject?.trim() ? (
+                    <span className="ct-templates__item-sub">{tpl.subject}</span>
+                  ) : null}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Composer
 // ---------------------------------------------------------------------------
+
+/**
+ * Map a composer activity kind to the template kind to filter by. NOTE / TASK /
+ * EMAIL have a matching template kind; CALL / MEETING have none, so we pass
+ * `undefined` and offer all templates rather than an empty list.
+ */
+const ACTIVITY_TO_TEMPLATE_KIND: Partial<
+  Record<SabcrmActivityKind, SabcrmRustTemplate['kind']>
+> = {
+  NOTE: 'note',
+  TASK: 'task',
+  EMAIL: 'email',
+};
 
 interface ComposerProps {
   onAdd: (
@@ -979,15 +1163,32 @@ interface ComposerProps {
     body: string,
     attachments: SabcrmAttachment[],
   ) => Promise<boolean>;
+  /** The record this composer posts to — source of `{{record.*}}` values. */
+  record: SabcrmRustRecord;
+  /** The record's display label — fills `{{record.name}}` / `{{record.label}}`. */
+  recordLabel: string;
+  /** Active project — scopes the template list. */
+  projectId: string | null;
 }
 
-function Composer({ onAdd }: ComposerProps) {
+function Composer({ onAdd, record, recordLabel, projectId }: ComposerProps) {
   const [type, setType] = React.useState<SabcrmActivityKind>('NOTE');
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
   const [attachments, setAttachments] = React.useState<SabcrmAttachment[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Fill the composer from a picked template, substituting `{{record.*}}`
+  // tokens against the current record. Keeps any prior content intact only by
+  // design choice — Twenty replaces, so we replace title + body wholesale.
+  const applyTemplate = React.useCallback(
+    (tplTitle: string, tplBody: string) => {
+      setTitle(substituteRecordTokens(tplTitle, record, recordLabel));
+      setBody(substituteRecordTokens(tplBody, record, recordLabel));
+    },
+    [record, recordLabel],
+  );
 
   const addAttachment = (att: SabcrmAttachment) =>
     setAttachments((prev) =>
@@ -1055,6 +1256,12 @@ function Composer({ onAdd }: ComposerProps) {
           attachments={attachments}
           onAdd={addAttachment}
           onRemove={removeAttachment}
+          disabled={saving}
+        />
+        <InsertTemplate
+          kind={ACTIVITY_TO_TEMPLATE_KIND[type]}
+          projectId={projectId}
+          onPick={applyTemplate}
           disabled={saving}
         />
         {error ? (
@@ -1315,14 +1522,35 @@ interface NoteComposerProps {
     body: string,
     attachments: SabcrmAttachment[],
   ) => Promise<boolean>;
+  /** The record this note posts to — source of `{{record.*}}` values. */
+  record: SabcrmRustRecord;
+  /** The record's display label — fills `{{record.name}}` / `{{record.label}}`. */
+  recordLabel: string;
+  /** Active project — scopes the template list. */
+  projectId: string | null;
 }
 
-function NoteComposer({ onAdd }: NoteComposerProps) {
+function NoteComposer({
+  onAdd,
+  record,
+  recordLabel,
+  projectId,
+}: NoteComposerProps) {
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
   const [attachments, setAttachments] = React.useState<SabcrmAttachment[]>([]);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // Fill the note from a picked NOTE-kind template, substituting `{{record.*}}`
+  // tokens against the current record (title from subject/name, body wholesale).
+  const applyTemplate = React.useCallback(
+    (tplTitle: string, tplBody: string) => {
+      setTitle(substituteRecordTokens(tplTitle, record, recordLabel));
+      setBody(substituteRecordTokens(tplBody, record, recordLabel));
+    },
+    [record, recordLabel],
+  );
 
   const addAttachment = (att: SabcrmAttachment) =>
     setAttachments((prev) =>
@@ -1378,6 +1606,12 @@ function NoteComposer({ onAdd }: NoteComposerProps) {
           attachments={attachments}
           onAdd={addAttachment}
           onRemove={removeAttachment}
+          disabled={saving}
+        />
+        <InsertTemplate
+          kind="note"
+          projectId={projectId}
+          onPick={applyTemplate}
           disabled={saving}
         />
         {error ? (
@@ -2866,7 +3100,12 @@ export function RecordDetailTw({
 
             {tab === 'notes' && (
               <div className="rt-panel" role="tabpanel" aria-label="Notes">
-                <NoteComposer onAdd={handleAddNote} />
+                <NoteComposer
+                  onAdd={handleAddNote}
+                  record={record}
+                  recordLabel={label}
+                  projectId={projectId}
+                />
                 {loadingTimeline ? (
                   <TwentyTimeline activities={[]} loading emptyLabel="" />
                 ) : notes.length === 0 ? (
@@ -2920,7 +3159,12 @@ export function RecordDetailTw({
                 role="tabpanel"
                 aria-label="Activity timeline"
               >
-                <Composer onAdd={handleAddActivity} />
+                <Composer
+                  onAdd={handleAddActivity}
+                  record={record}
+                  recordLabel={label}
+                  projectId={projectId}
+                />
                 <AttachmentTimeline
                   activities={activities}
                   loading={loadingTimeline}

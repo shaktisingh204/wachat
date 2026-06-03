@@ -1,0 +1,98 @@
+/* =========================================================================
+   SabCRM — Trash page (`/sabcrm/[objectSlug]/trash`)
+   -------------------------------------------------------------------------
+   New classes ONLY for the soft-deleted records screen. Reuses the shared
+   `.st-*` kit from `sabcrm-twenty.css` (NOT edited here) and adds the small
+   set of `.str-*` ("st-trash") classes the trash table + per-row actions need.
+   Twenty visual language: same tokens (`--st-*`), same restraint.
+   ========================================================================= */
+
+/* Sub-header line under the page title (count + helper copy). */
+.str-sub {
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* The deleted-at cell renders muted + tabular so the times line up. */
+.str-time {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Per-row action cluster — pinned to the trailing edge of the row. */
+.str-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  justify-content: flex-end;
+  width: 100%;
+}
+.str-actions__cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* A compact, destructive variant of the Twenty button for "Delete permanently".
+   Stays inside the kit's `.st-btn` geometry; only the color intent differs. */
+.str-btn-danger {
+  color: var(--st-text);
+}
+.str-btn-danger:not(:disabled):hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Tiny inline spinner for a row mid-flight (restore / permanent delete). */
+.str-row-busy {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* A row currently being restored / deleted dims while the write is in flight. */
+.str-row--busy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Label cell keeps the record's display name readable + slightly stronger. */
+.str-label {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+/* -------------------------------------------------------------------------
+   Confirm dialog for permanent deletion. Reuses `.st-dialog*` shell classes;
+   adds only the destructive-emphasis bits.
+   ------------------------------------------------------------------------- */
+.str-confirm__body {
+  font-size: var(--st-font-size);
+  color: var(--st-text-secondary);
+  line-height: 1.5;
+}
+.str-confirm__name {
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+.str-confirm__warn {
+  margin-top: var(--st-space-3);
+  font-size: var(--st-font-size-sm);
+  color: #ef4444;
+}
+
+/* Solid destructive button used to confirm the irreversible delete. */
+.str-btn-danger-solid {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #fff;
+}
+.str-btn-danger-solid:not(:disabled):hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+.str-btn-danger-solid:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

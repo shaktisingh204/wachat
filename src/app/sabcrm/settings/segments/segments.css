@@ -1,0 +1,322 @@
+/**
+ * SabCRM — Segments (smart lists) page styles.
+ *
+ * Segment-SPECIFIC classes only. Everything structural (`.st-page`,
+ * `.st-settings`, `.st-dialog*`, `.st-field*`, `.st-input`, `.st-select`,
+ * `.st-empty`, `.st-banner`, `.st-skeleton`, `.st-footnote`, `.st-btn--danger`,
+ * `.st-muted`, …) is reused from `sabcrm-twenty.css` / `settings-twenty.css`
+ * and is NOT redefined here. All visuals use the namespaced `--st-*` tokens so
+ * the page tracks the Twenty B&W theme.
+ */
+
+/* --------------------------------------------------------------------- */
+/* Card grid                                                             */
+/* --------------------------------------------------------------------- */
+
+.st-seg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--st-space-3);
+  margin-top: var(--st-space-4);
+}
+
+.st-seg-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.st-seg-card:hover {
+  border-color: var(--st-border-light);
+  box-shadow: var(--st-shadow);
+}
+
+.st-seg-card--skeleton,
+.st-seg-card--skeleton:hover {
+  box-shadow: none;
+  border-color: var(--st-border);
+  gap: var(--st-space-2);
+}
+
+.st-seg-skel-line {
+  height: 12px;
+  border-radius: var(--st-radius-sm);
+}
+
+/* --------------------------------------------------------------------- */
+/* Card header — color dot + name + row actions                          */
+/* --------------------------------------------------------------------- */
+
+.st-seg-card__top {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.st-seg-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06) inset;
+}
+
+.st-seg-card__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-seg-card__name:hover {
+  color: var(--st-accent);
+  text-decoration: underline;
+}
+
+.st-seg-card__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.st-seg-card:hover .st-seg-card__actions,
+.st-seg-card:focus-within .st-seg-card__actions {
+  opacity: 1;
+}
+
+.st-seg-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.st-seg-iconbtn:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-seg-iconbtn--danger:hover {
+  color: #ef4444;
+}
+
+/* --------------------------------------------------------------------- */
+/* Card meta — object + filter count                                     */
+/* --------------------------------------------------------------------- */
+
+.st-seg-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  min-width: 0;
+}
+
+.st-seg-object {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.st-seg-object svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.st-seg-sep {
+  color: var(--st-text-tertiary);
+}
+
+.st-seg-filters-n {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------- */
+/* Card footer — live count + open link                                  */
+/* --------------------------------------------------------------------- */
+
+.st-seg-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-top: auto;
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border);
+}
+
+.st-seg-count {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+.st-seg-count__num {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.st-seg-count--loading {
+  display: inline-block;
+  width: 64px;
+  height: 12px;
+  border-radius: var(--st-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--st-hover) 25%,
+    var(--st-active) 37%,
+    var(--st-hover) 63%
+  );
+  background-size: 400% 100%;
+  animation: st-seg-shimmer 1.2s ease infinite;
+}
+
+@keyframes st-seg-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.st-seg-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.st-seg-open:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------- */
+/* Empty-state CTA                                                        */
+/* --------------------------------------------------------------------- */
+
+.st-seg-empty-cta {
+  margin-top: var(--st-space-3);
+}
+
+/* --------------------------------------------------------------------- */
+/* Dialog — color swatches                                               */
+/* --------------------------------------------------------------------- */
+
+.st-seg-hint {
+  margin: 4px 0 0;
+  font-size: var(--st-font-size-xs);
+}
+
+.st-seg-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+.st-seg-swatch {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.st-seg-swatch:hover {
+  transform: scale(1.08);
+}
+
+.st-seg-swatch--active {
+  box-shadow:
+    0 0 0 2px var(--st-bg),
+    0 0 0 4px var(--st-accent);
+}
+
+/* --------------------------------------------------------------------- */
+/* Dialog — filter builder                                               */
+/* --------------------------------------------------------------------- */
+
+.st-seg-builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.st-seg-builder-empty {
+  padding: var(--st-space-3);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+.st-seg-cond {
+  display: grid;
+  grid-template-columns: 1.4fr 0.9fr 1.4fr auto;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.st-seg-cond__field,
+.st-seg-cond__op,
+.st-seg-cond__val {
+  min-width: 0;
+}
+
+.st-seg-cond__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.st-seg-cond__remove:hover {
+  background: var(--st-hover);
+  color: #ef4444;
+  border-color: var(--st-border-light);
+}
+
+.st-seg-builder-add {
+  margin-top: var(--st-space-2);
+}

@@ -25,6 +25,8 @@ import {
   Bell,
   Globe,
   Network,
+  Filter,
+  HelpCircle,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -101,6 +103,12 @@ const GROUPS: readonly SettingsGroup[] = [
         description: 'Language, timezone and date formats',
         icon: Globe,
       },
+      {
+        slug: 'help',
+        label: 'Help & Shortcuts',
+        description: 'Keyboard shortcuts, docs and support',
+        icon: HelpCircle,
+      },
     ],
   },
   {
@@ -153,6 +161,12 @@ const GROUPS: readonly SettingsGroup[] = [
         label: 'Tags',
         description: 'Labels for categorising records',
         icon: Tag,
+      },
+      {
+        slug: 'segments',
+        label: 'Segments',
+        description: 'Saved record filters and audience segments',
+        icon: Filter,
       },
       {
         slug: 'usage',

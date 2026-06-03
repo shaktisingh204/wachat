@@ -34,6 +34,7 @@ import {
   X,
   Check,
   Tag as TagIcon,
+  GitBranch,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
@@ -42,6 +43,7 @@ import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
 import './kanban-dnd.css';
 import './record-tags.css';
+import './pipeline-board.css';
 import {
   SabcrmViewBar,
   EMPTY_VIEW_STATE,
@@ -71,6 +73,8 @@ import {
   bulkUpdateRecordsTw,
 } from '@/app/actions/sabcrm-bulk.actions';
 import { listTagsTw } from '@/app/actions/sabcrm-tags.actions';
+import { listPipelinesTw } from '@/app/actions/sabcrm-pipelines.actions';
+import type { SabcrmRustPipeline } from '@/lib/rust-client/sabcrm-pipelines';
 import type { SabcrmRustTag } from '@/app/actions/sabcrm-tags.actions.types';
 import type {
   SabcrmRustRecord,
@@ -1130,16 +1134,49 @@ function TableView({
 // Board view
 // ---------------------------------------------------------------------------
 
+/**
+ * One rendered board column. The board can be driven by two sources:
+ *
+ *   - DEFAULT: the object's SELECT group-by field — one column per SELECT
+ *     option (+ an "Ungrouped" bucket). `value` is the SELECT option value the
+ *     card's group field is set to when dropped here.
+ *   - PIPELINE: a chosen sales pipeline's ordered stages — one column per
+ *     stage (label + color), in stage order. `value` is the stage id the
+ *     card's stage field is set to when dropped here.
+ *
+ * Either way a column owns its dropped-into write value (`value`), its display
+ * (`label` + optional `color`), and its bucketed records. Header stats (count +
+ * optional amount sum) are computed by the page so the same component renders
+ * both modes.
+ */
+interface BoardColumn {
+  /** Stable react key for the column. */
+  key: string;
+  /** The value the card's grouping/stage field is set to on drop here. */
+  value: string | null;
+  label: string;
+  /** Resolved CSS color for the stage dot / chip (pipeline stages carry one). */
+  color?: string;
+  records: SabcrmRustRecord[];
+  /** Summed metric (amount) for this column — present only when a metric
+      field exists; rendered as the stage amount pill (opportunities). */
+  amount?: number | null;
+}
+
 interface BoardViewProps {
   object: ObjectMetadata;
-  groupByField: FieldMetadata;
-  groups: SabcrmRecordTwGroup[];
+  /** Rendered columns (default group-by OR pipeline stages — see BoardColumn). */
+  columns: BoardColumn[];
   previewFields: FieldMetadata[];
+  /** When true, render pipeline-stage chrome (colored rail + stage header). */
+  pipelineMode: boolean;
+  /** Label of the metric field (amount) summed per column, if any. */
+  metricLabel?: string;
   /**
-   * Drop a card onto a different column → set its group field to
-   * `targetValue` (the target column's SELECT option value, or `null` for the
-   * "Ungrouped" bucket). The page owns the optimistic move + persistence +
-   * rollback; this just reports the intent.
+   * Drop a card onto a different column → set its group/stage field to
+   * `targetValue` (the target column's value, or `null` for the "Ungrouped"
+   * bucket). The page owns the optimistic move + persistence + rollback; this
+   * just reports the intent.
    */
   onMoveCard: (recordId: string, fromValue: string | null, targetValue: string | null) => void;
   /** Records mid-flight to the engine — rendered with the "saving" ring. */
@@ -1150,6 +1187,12 @@ interface BoardViewProps {
 const UNGROUPED_KEY = '__ungrouped__';
 const colKey = (value: string | null): string => value ?? UNGROUPED_KEY;
 
+/** Compact amount formatter for the per-stage sum pill. */
+function fmtAmount(n: number | null | undefined): string {
+  if (n === null || n === undefined || Number.isNaN(n)) return '';
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
 /** What `dataTransfer` carries during a card drag (also kept in React state). */
 interface DragPayload {
   recordId: string;
@@ -1158,17 +1201,13 @@ interface DragPayload {
 
 function BoardView({
   object,
-  groupByField,
-  groups,
+  columns,
   previewFields,
+  pipelineMode,
+  metricLabel,
   onMoveCard,
   savingIds,
 }: BoardViewProps) {
-  const optionFor = (value: string | null) =>
-    value === null
-      ? undefined
-      : groupByField.options?.find((o) => o.value === value);
-
   // The card being dragged (drives the source "ghost" style + drop routing)
   // and the column currently hovered (drives the drop-target highlight).
   const [drag, setDrag] = React.useState<DragPayload | null>(null);
@@ -1193,23 +1232,52 @@ function BoardView({
 
   return (
     <div className="st-board">
-      {groups.map((group) => {
-        const opt = optionFor(group.value);
-        const label = opt?.label ?? group.value ?? 'Ungrouped';
-        const key = colKey(group.value);
-        const isOver = drag !== null && overKey === key && drag.fromValue !== group.value;
-        const isCandidate = drag !== null && drag.fromValue !== group.value;
+      {columns.map((column) => {
+        const group = column;
+        const label = column.label;
+        const key = column.key;
+        const isOver = drag !== null && overKey === key && drag.fromValue !== column.value;
+        const isCandidate = drag !== null && drag.fromValue !== column.value;
+        const hasAmount =
+          column.amount !== undefined && column.amount !== null;
         return (
           <div
             className={`st-board__col st-board__col--dnd${
               isCandidate ? ' st-board__col--drop-candidate' : ''
-            }`}
+            }${pipelineMode ? ' stpb-col' : ''}`}
             key={key}
+            style={
+              pipelineMode && column.color
+                ? ({ ['--stpb-stage-color' as string]: column.color } as React.CSSProperties)
+                : undefined
+            }
           >
-            <div className="st-board__head">
-              <TwentyChip label={label} color={chipColor(opt?.color)} />
-              <span className="st-board__count">{group.records.length}</span>
-            </div>
+            {pipelineMode ? (
+              <div className="stpb-head">
+                <span className="stpb-head__name">
+                  <span className="stpb-head__dot" aria-hidden="true" />
+                  <span className="stpb-head__label" title={label}>
+                    {label}
+                  </span>
+                </span>
+                <span className="stpb-head__stats">
+                  {hasAmount && (
+                    <span
+                      className="stpb-head__amount"
+                      title={metricLabel ? `Sum of ${metricLabel}` : 'Sum'}
+                    >
+                      {fmtAmount(column.amount)}
+                    </span>
+                  )}
+                  <span className="stpb-head__count">{column.records.length}</span>
+                </span>
+              </div>
+            ) : (
+              <div className="st-board__head">
+                <TwentyChip label={label} color={column.color} />
+                <span className="st-board__count">{column.records.length}</span>
+              </div>
+            )}
             <div
               className={`st-board__body st-board__body--dnd${
                 isOver ? ' st-board__body--drop-active' : ''
@@ -1550,6 +1618,14 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [favorites, setFavorites] = React.useState<Set<string>>(new Set());
   const [favBusy, setFavBusy] = React.useState<Set<string>>(new Set());
 
+  // Sales pipelines whose `object` matches this slug, loaded once per project.
+  // When the user picks one, the board columns become that pipeline's ordered
+  // stages (label + color) instead of the default SELECT-field grouping.
+  const [pipelines, setPipelines] = React.useState<SabcrmRustPipeline[]>([]);
+  const [selectedPipelineId, setSelectedPipelineId] = React.useState<string | null>(
+    null,
+  );
+
   // Workspace tag definitions ({ id, name, color }), loaded once per project.
   // Applied tags live on each record at `data.__tags` (string[] of tag ids).
   const [tags, setTags] = React.useState<SabcrmRustTag[]>([]);
@@ -1582,6 +1658,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setView('table');
     setViewState(EMPTY_VIEW_STATE);
     setTagFilter(null);
+    setSelectedPipelineId(null);
   }, [objectSlug]);
 
   // Selection must not leak across object / filter / search / view changes —
@@ -1914,10 +1991,18 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     [records, objectSlug, activeProjectId],
   );
 
-  // Board drag-and-drop: move a card to another column = set its group field
-  // to the target column's value. Optimistic (the card jumps columns in local
-  // `groups` immediately), persisted via the Rust engine, rolled back on error
-  // into the existing `dataError` banner.
+  // Board drag-and-drop: move a card to another column = set its group/stage
+  // field to the target column's value. Optimistic (the card jumps columns
+  // immediately), persisted via the Rust engine, rolled back on error into the
+  // existing `dataError` banner.
+  //
+  // Two modes share this path:
+  //   - PIPELINE: columns are pipeline stages; `targetValue` is a STAGE ID. The
+  //     buckets are derived from each record's stage-field value, so we just
+  //     rewrite that field on the record wherever it lives in `groups` and let
+  //     `boardColumns` re-bucket it into the target stage column.
+  //   - DEFAULT: columns are engine `groups`; we lift the card from its source
+  //     group and append it to the target group (original behavior).
   const handleMoveCard = React.useCallback(
     async (recordId: string, fromValue: string | null, targetValue: string | null) => {
       if (!groupField) return;
@@ -1927,6 +2012,57 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       const key = groupField.key;
       const prevGroups = groups;
 
+      if (pipelineActive) {
+        // Find the card anywhere in the (flattened) groups and confirm it still
+        // resolves; the stage field is rewritten in place so `boardColumns`
+        // re-derives the new stage column on the next render.
+        const exists = prevGroups.some((g) =>
+          g.records.some((r) => r.id === recordId),
+        );
+        if (!exists) return;
+
+        setGroups((gs) =>
+          gs.map((g) => ({
+            ...g,
+            records: g.records.map((r) =>
+              r.id === recordId
+                ? { ...r, data: { ...r.data, [key]: targetValue } }
+                : r,
+            ),
+          })),
+        );
+        setMovingCards((m) => new Set(m).add(recordId));
+        setDataError(null);
+
+        const res = await updateSabcrmRecordTw(
+          objectSlug,
+          recordId,
+          { [key]: targetValue },
+          activeProjectId ?? undefined,
+        );
+
+        setMovingCards((m) => {
+          const n = new Set(m);
+          n.delete(recordId);
+          return n;
+        });
+
+        if (!res.ok) {
+          setGroups(prevGroups);
+          setDataError(res.error);
+          return;
+        }
+        // Reconcile the moved card with the engine's canonical record.
+        setGroups((gs) =>
+          gs.map((g) => ({
+            ...g,
+            records: g.records.map((r) => (r.id === recordId ? res.data : r)),
+          })),
+        );
+        return;
+      }
+
+      // ---- Default group-by reshuffle (unchanged) --------------------------
       // Locate + lift the record out of its source column.
       let moved: SabcrmRustRecord | undefined;
       for (const g of prevGroups) {
@@ -1987,7 +2123,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         ),
       );
     },
-    [groupField, groups, movingCards, objectSlug, activeProjectId],
+    [groupField, groups, movingCards, objectSlug, activeProjectId, pipelineActive],
   );
 
   const handleCreated = React.useCallback(() => {
@@ -2047,6 +2183,141 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       cancelled = true;
     };
   }, [activeProjectId]);
+
+  // Load the project's sales pipelines once per project (graceful on failure).
+  // We keep them all and filter to this object's slug at render time.
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await listPipelinesTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      setPipelines(res.ok ? res.data : []);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
+
+  // Pipelines targeting THIS object — these are the ones offered in the board
+  // "Pipeline" selector. A pipeline matches when `pipeline.object === slug`.
+  const objectPipelines = React.useMemo(
+    () => pipelines.filter((p) => p.object === objectSlug),
+    [pipelines, objectSlug],
+  );
+
+  // The chosen pipeline (if any). Defaults to none — the board then keeps its
+  // default SELECT-field grouping. If the selected id no longer resolves (e.g.
+  // the pipeline was deleted), this is `null` and the board falls back.
+  const selectedPipeline = React.useMemo(
+    () =>
+      selectedPipelineId
+        ? objectPipelines.find((p) => p.id === selectedPipelineId) ?? null
+        : null,
+    [objectPipelines, selectedPipelineId],
+  );
+
+  // A pipeline is only ACTIVE on the board when one is chosen AND we're in
+  // board view AND we have a stage field to bucket/persist on. (We reuse the
+  // board's group-by SELECT field as the record's stage field.)
+  const pipelineActive = !!selectedPipeline && view === 'board' && !!boardField;
+
+  // Sum a numeric (amount) metric over a record set — used for the per-stage
+  // amount pill. Returns null when there's no metric field configured.
+  const sumMetric = React.useCallback(
+    (recs: SabcrmRustRecord[]): number | null => {
+      if (!metricField) return null;
+      let total = 0;
+      for (const r of recs) {
+        const raw = r.data[metricField.key];
+        const n = typeof raw === 'number' ? raw : Number(raw);
+        if (!Number.isNaN(n)) total += n;
+      }
+      return total;
+    },
+    [metricField],
+  );
+
+  // The columns the board renders. Two modes:
+  //
+  //   - PIPELINE (a pipeline is chosen): one column per stage, in stage order,
+  //     carrying the stage's label + color. Records are bucketed by matching
+  //     their stage field value (read from `groupField`) to the stage's id OR
+  //     label (case-insensitively), so legacy records keyed by label still land
+  //     in the right column. Dropping a card writes the STAGE ID.
+  //   - DEFAULT (no pipeline): the engine-provided `groups`, mapped 1:1 — the
+  //     existing behavior, untouched.
+  const boardColumns = React.useMemo<BoardColumn[]>(() => {
+    if (pipelineActive && selectedPipeline && groupField) {
+      const key = groupField.key;
+      // Index every loaded record by its (normalized) stage value so each can
+      // be matched to a stage by id or label.
+      const norm = (v: unknown): string =>
+        v === null || v === undefined ? '' : String(v).trim().toLowerCase();
+      const allRecords = groups.flatMap((g) => g.records);
+      // Build a lookup from a normalized stage token → stage id, so a record
+      // whose field holds either the id or the label resolves to the stage.
+      const tokenToStageId = new Map<string, string>();
+      for (const stage of selectedPipeline.stages) {
+        tokenToStageId.set(norm(stage.id), stage.id);
+        tokenToStageId.set(norm(stage.label), stage.id);
+      }
+      // Bucket records.
+      const byStage = new Map<string, SabcrmRustRecord[]>();
+      const unbucketed: SabcrmRustRecord[] = [];
+      for (const rec of allRecords) {
+        const token = norm(rec.data[key]);
+        const stageId = token ? tokenToStageId.get(token) : undefined;
+        if (stageId) {
+          const arr = byStage.get(stageId) ?? [];
+          arr.push(rec);
+          byStage.set(stageId, arr);
+        } else {
+          unbucketed.push(rec);
+        }
+      }
+
+      const cols: BoardColumn[] = selectedPipeline.stages.map((stage) => {
+        const recs = byStage.get(stage.id) ?? [];
+        return {
+          key: `stage:${stage.id}`,
+          // Dropping a card here writes the stage id into the stage field.
+          value: stage.id,
+          label: stage.label,
+          color: chipColor(stage.color),
+          records: recs,
+          amount: sumMetric(recs),
+        };
+      });
+      // Records that don't match any stage get an "Unstaged" bucket so they're
+      // never hidden. Dropping into a stage moves them in; this column itself
+      // isn't a drop target value (null) — same as the default Ungrouped.
+      if (unbucketed.length > 0) {
+        cols.push({
+          key: UNGROUPED_KEY,
+          value: null,
+          label: 'Unstaged',
+          records: unbucketed,
+          amount: sumMetric(unbucketed),
+        });
+      }
+      return cols;
+    }
+
+    // Default behavior: map the engine groups 1:1 (no amount pill, no rail).
+    return groups.map((group) => {
+      const opt =
+        group.value === null
+          ? undefined
+          : groupField?.options?.find((o) => o.value === group.value);
+      return {
+        key: colKey(group.value),
+        value: group.value,
+        label: opt?.label ?? group.value ?? 'Ungrouped',
+        color: chipColor(opt?.color),
+        records: group.records,
+      };
+    });
+  }, [pipelineActive, selectedPipeline, groupField, groups, sumMetric]);
 
   // Optimistic apply/remove of a tag on a record. Persists the full new
   // `__tags` id list via the existing record-update action; rolls back the
@@ -2364,7 +2635,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   }
 
   const isEmpty = grouped
-    ? groups.every((g) => g.records.length === 0)
+    ? boardColumns.every((c) => c.records.length === 0)
     : visibleRecords.length === 0;
 
   const hasActiveQuery =
@@ -2427,6 +2698,51 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
       {dataError && <ErrorBanner message={dataError} />}
 
+      {/* Pipeline selector — board view only, and only when this object has at
+          least one sales pipeline. Choosing one makes the board columns the
+          pipeline's ordered stages (overriding the default SELECT grouping);
+          choosing "None" restores the default board behavior. */}
+      {view === 'board' && objectPipelines.length > 0 && (
+        <div className="stpb-bar" role="group" aria-label="Pipeline">
+          <span className="stpb-bar__label">
+            <GitBranch className="stpb-bar__icon" size={14} aria-hidden="true" />
+            Pipeline
+          </span>
+          <select
+            className={`stpb-select${selectedPipeline ? ' is-active' : ''}`}
+            aria-label="Choose a pipeline for the board"
+            value={selectedPipeline?.id ?? ''}
+            onChange={(e) =>
+              setSelectedPipelineId(e.target.value === '' ? null : e.target.value)
+            }
+          >
+            <option value="">None — default grouping</option>
+            {objectPipelines.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+                {p.isDefault ? ' (default)' : ''}
+              </option>
+            ))}
+          </select>
+          {selectedPipeline && (
+            <>
+              <span className="stpb-bar__pill">
+                {selectedPipeline.stages.length}{' '}
+                {selectedPipeline.stages.length === 1 ? 'stage' : 'stages'}
+              </span>
+              <button
+                type="button"
+                className="stpb-bar__clear"
+                onClick={() => setSelectedPipelineId(null)}
+              >
+                <X size={13} aria-hidden="true" />
+                Clear
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {loadingData ? (
         <TableSkeleton />
       ) : isEmpty ? (
@@ -2453,9 +2769,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       ) : grouped && groupField ? (
         <BoardView
           object={object}
-          groupByField={groupField}
-          groups={groups}
+          columns={boardColumns}
           previewFields={previewFields}
+          pipelineMode={pipelineActive}
+          metricLabel={metricField?.label}
           onMoveCard={handleMoveCard}
           savingIds={movingCards}
         />

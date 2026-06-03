@@ -11656,6 +11656,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-segments"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-settings"
 version = "0.1.0"
 dependencies = [
@@ -13019,6 +13039,7 @@ dependencies = [
  "sabcrm-pipelines",
  "sabcrm-records",
  "sabcrm-roles",
+ "sabcrm-segments",
  "sabcrm-settings",
  "sabcrm-tags",
  "sabcrm-templates",

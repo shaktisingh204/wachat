@@ -95,6 +95,27 @@ pub struct ScopeQuery {
     pub project_id: String,
 }
 
+/// `GET /{object}/trash` query params — the tenant scope plus an optional page
+/// size. Lists soft-deleted (trashed) records, newest-deleted first.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TrashQuery {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Page size. Clamped at 100 by the handler. Defaults to 50.
+    #[serde(default)]
+    pub limit: Option<u64>,
+}
+
+/// Body for the trash / restore endpoints (`POST /{object}/{id}/trash`,
+/// `POST /{object}/{id}/restore`) — tenant scope only.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TrashRestoreInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+}
+
 /// `POST /{object}` body. The handler sets `createdAt` / `updatedAt`
 /// server-side and assigns a fresh `_id`.
 #[derive(Debug, Clone, Deserialize, ToSchema)]

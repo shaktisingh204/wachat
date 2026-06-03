@@ -307,7 +307,11 @@ export const sabcrmRecordsApi = {
     );
   },
 
-  /** `DELETE /v1/sabcrm/records/{object}/{id}`. */
+  /**
+   * `DELETE /v1/sabcrm/records/{object}/{id}` — **soft delete** (trash). Sets
+   * the record's top-level `deletedAt` so it is hidden from normal views but
+   * recoverable via {@link restore}; use {@link permanentDelete} to hard-delete.
+   */
   remove(
     object: string,
     id: string,
@@ -315,6 +319,66 @@ export const sabcrmRecordsApi = {
   ): Promise<{ ok: boolean }> {
     return rustFetch<{ ok: boolean }>(
       `${base(object)}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      { method: 'DELETE' },
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/{id}/trash` — soft-delete a record by
+   * setting its `deletedAt` (server-set). Returns the now-trashed record.
+   */
+  trash(
+    object: string,
+    id: string,
+    projectId: string,
+  ): Promise<SabcrmRustRecord> {
+    return rustFetch<SabcrmRustRecord>(
+      `${base(object)}/${encodeURIComponent(id)}/trash`,
+      { method: 'POST', body: JSON.stringify({ projectId }) },
+    );
+  },
+
+  /**
+   * `GET /v1/sabcrm/records/{object}/trash` — list the soft-deleted (trashed)
+   * records for `projectId` + object, newest-deleted first. `limit` defaults
+   * to 50, clamped at 100 server-side.
+   */
+  listTrash(
+    object: string,
+    projectId: string,
+    limit?: number,
+  ): Promise<SabcrmRecordListResponse> {
+    return rustFetch<SabcrmRecordListResponse>(
+      `${base(object)}/trash${qs({ projectId, limit })}`,
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/records/{object}/{id}/restore` — un-trash a record by
+   * unsetting its `deletedAt`. Returns the restored record.
+   */
+  restore(
+    object: string,
+    id: string,
+    projectId: string,
+  ): Promise<SabcrmRustRecord> {
+    return rustFetch<SabcrmRustRecord>(
+      `${base(object)}/${encodeURIComponent(id)}/restore`,
+      { method: 'POST', body: JSON.stringify({ projectId }) },
+    );
+  },
+
+  /**
+   * `DELETE /v1/sabcrm/records/{object}/{id}/permanent` — **hard delete** a
+   * record (live or trashed). Irreversible.
+   */
+  permanentDelete(
+    object: string,
+    id: string,
+    projectId: string,
+  ): Promise<{ ok: boolean }> {
+    return rustFetch<{ ok: boolean }>(
+      `${base(object)}/${encodeURIComponent(id)}/permanent${qs({ projectId })}`,
       { method: 'DELETE' },
     );
   },

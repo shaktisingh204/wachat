@@ -27,9 +27,13 @@
 //! POST   /{object}/aggregate   — aggregate_records
 //! GET    /{object}/distinct/{field} — distinct_values
 //! GET    /{object}/duplicates  — find_duplicates
+//! GET    /{object}/trash       — list_trash
 //! GET    /{object}/{id}        — get_record
 //! PATCH  /{object}/{id}        — update_record
-//! DELETE /{object}/{id}        — delete_record
+//! DELETE /{object}/{id}        — delete_record   (soft delete / trash)
+//! POST   /{object}/{id}/trash  — trash_record
+//! POST   /{object}/{id}/restore — restore_record
+//! DELETE /{object}/{id}/permanent — permanent_delete_record (hard delete)
 //! GET    /{object}/{id}/related — record_relations
 //! ```
 
@@ -75,11 +79,18 @@ where
             get(handlers::distinct_values),
         )
         .route("/{object}/duplicates", get(handlers::find_duplicates))
+        .route("/{object}/trash", get(handlers::list_trash))
         .route(
             "/{object}/{id}",
             get(handlers::get_record)
                 .patch(handlers::update_record)
                 .delete(handlers::delete_record),
+        )
+        .route("/{object}/{id}/trash", post(handlers::trash_record))
+        .route("/{object}/{id}/restore", post(handlers::restore_record))
+        .route(
+            "/{object}/{id}/permanent",
+            axum::routing::delete(handlers::permanent_delete_record),
         )
         .route(
             "/{object}/{id}/related",

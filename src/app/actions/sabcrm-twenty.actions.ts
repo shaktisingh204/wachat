@@ -404,6 +404,113 @@ export async function deleteSabcrmRecordTw(
   }
 }
 
+/**
+ * Soft-deletes (trashes) a record by id — sets `deletedAt` server-side so the
+ * record is hidden from normal views but recoverable via
+ * {@link restoreSabcrmRecordTw}. Gated on `edit` (a recoverable action, unlike
+ * the irreversible {@link permanentDeleteSabcrmRecordTw} which gates on
+ * `delete`). Returns the now-trashed record.
+ */
+export async function trashSabcrmRecordTw(
+  object: string,
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRecord>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!id) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const record = await sabcrmRecordsApi.trash(object, id, g.ctx.projectId);
+    revalidatePath(`${TW_BASE_PATH}/${object}`);
+    revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
+    return { ok: true, data: record };
+  } catch (e) {
+    return fail(e, 'Failed to trash record.');
+  }
+}
+
+/**
+ * Lists the soft-deleted (trashed) records of an object, newest-deleted first.
+ * `limit` defaults to 50 (clamped at 100 server-side). Gated on `view`.
+ */
+export async function listSabcrmTrashTw(
+  object: string,
+  limit?: number,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordsTwPage>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.listTrash(
+      object,
+      g.ctx.projectId,
+      limit,
+    );
+    return { ok: true, data: { records: res.records, total: res.total } };
+  } catch (e) {
+    return fail(e, 'Failed to list trashed records.');
+  }
+}
+
+/**
+ * Restores a soft-deleted (trashed) record by id — unsets `deletedAt` so it
+ * returns to normal views. Gated on `edit`. Returns the restored record.
+ */
+export async function restoreSabcrmRecordTw(
+  object: string,
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRecord>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!id) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const record = await sabcrmRecordsApi.restore(object, id, g.ctx.projectId);
+    revalidatePath(`${TW_BASE_PATH}/${object}`);
+    revalidatePath(`${TW_BASE_PATH}/${object}/${id}`);
+    return { ok: true, data: record };
+  } catch (e) {
+    return fail(e, 'Failed to restore record.');
+  }
+}
+
+/**
+ * Permanently (hard) deletes a record by id — irreversible, removes it from
+ * Mongo entirely (works on live or trashed records). Gated on `delete`.
+ */
+export async function permanentDeleteSabcrmRecordTw(
+  object: string,
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ ok: boolean }>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  if (!id) return { ok: false, error: 'Record id is required.' };
+
+  const g = await gate('delete', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const res = await sabcrmRecordsApi.permanentDelete(
+      object,
+      id,
+      g.ctx.projectId,
+    );
+    revalidatePath(`${TW_BASE_PATH}/${object}`);
+    return { ok: true, data: { ok: res.ok } };
+  } catch (e) {
+    return fail(e, 'Failed to permanently delete record.');
+  }
+}
+
 /** Groups records of an object by a SELECT field (kanban board). */
 export async function groupSabcrmRecordsTw(
   object: string,
