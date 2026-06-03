@@ -50,6 +50,20 @@ function getServiceAccount(): Record<string, any> {
 const SALT_ROUNDS = 10;
 const FIREBASE_APP_NAME = 'sabnode-admin-app'; // Named app
 
+/**
+ * Thrown when the Firebase Admin SDK cannot be initialized because its
+ * service-account credentials are missing or malformed. This is a SERVER
+ * misconfiguration — distinct from a user presenting a bad/expired token —
+ * so callers can surface a 503 instead of falsely blaming the user's token
+ * with a 401 "Invalid or expired token".
+ */
+export class FirebaseConfigError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'FirebaseConfigError';
+    }
+}
+
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
@@ -74,7 +88,24 @@ function initializeFirebaseAdmin() {
             }
         } catch (e) {
             console.error("[AUTH_LIB] FATAL: Could not parse Firebase service account JSON.");
-            throw new Error("Invalid Firebase service account configuration.");
+            throw new FirebaseConfigError("Invalid Firebase service account configuration.");
+        }
+
+        // `loadFirebaseServiceAccount` returns `{}` when the env var is unset or
+        // points at a missing/unreadable file. `cert({})` would throw a cryptic
+        // error that gets swallowed and reported to users as "Invalid or expired
+        // token". Detect the empty/incomplete credential up front and raise a
+        // clear, distinctly-typed config error instead.
+        if (!parsedServiceAccount || !parsedServiceAccount.project_id || !parsedServiceAccount.private_key) {
+            const source = process.env.FIREBASE_SERVICE_ACCOUNT
+                ? 'FIREBASE_SERVICE_ACCOUNT'
+                : (process.env.FIREBASE_ADMIN_SDK_CONFIG ? `FIREBASE_ADMIN_SDK_CONFIG (${process.env.FIREBASE_ADMIN_SDK_CONFIG})` : '(neither env var set)');
+            console.error(
+                `[AUTH_LIB] FATAL: Firebase service account is missing or incomplete. ` +
+                `Source: ${source}. Set FIREBASE_SERVICE_ACCOUNT to the inline JSON, or ` +
+                `FIREBASE_ADMIN_SDK_CONFIG to a readable path of the service-account JSON for project "${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'unknown'}".`
+            );
+            throw new FirebaseConfigError('Firebase Admin credentials are not configured on the server.');
         }
 
         if (parsedServiceAccount.private_key) {
@@ -135,8 +166,11 @@ async function isTokenRevokedForUser(
 
 export async function verifyFirebaseIdToken(token: string): Promise<any | null> {
     console.log('[AUTH_LIB] Verifying Firebase ID token on server...');
+    // Initialize separately so a server-side credential misconfiguration
+    // (FirebaseConfigError) propagates to the caller as a 503, rather than
+    // being conflated with a genuinely invalid/expired user token (null → 401).
+    const firebaseAdmin = initializeFirebaseAdmin();
     try {
-        const firebaseAdmin = initializeFirebaseAdmin();
         const decodedToken = await firebaseAdmin.auth().verifyIdToken(token, true); // Set checkRevoked to true
         console.log('[AUTH_LIB] Firebase ID token verified successfully.');
         return decodedToken;
