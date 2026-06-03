@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { verifyFirebaseIdToken, createSessionToken } from '@/lib/auth';
+import { verifyFirebaseIdToken, createSessionToken, FirebaseConfigError } from '@/lib/auth';
 import { sessionCookieOptions } from '@/lib/cookies';
 import { checkRequires2fa } from '@/app/actions/two-fa.actions';
 import type { User, WithId, SessionPayload } from '@/lib/definitions';
@@ -141,6 +141,16 @@ export async function POST(request: NextRequest) {
         console.log('[API_SESSION] Session successfully created.');
         return response;
     } catch (error: any) {
+        // A server-side credential misconfiguration is NOT the user's fault —
+        // don't blame their token with a 401. Surface a 503 so the client shows
+        // "service unavailable" and the real cause is unambiguous in the logs.
+        if (error instanceof FirebaseConfigError) {
+            console.error('[API_SESSION] Firebase Admin is misconfigured on the server:', error.message);
+            return new Response(
+                'Authentication is temporarily unavailable. Please try again later.',
+                { status: 503 },
+            );
+        }
         console.error('[API_SESSION] Session creation failed:', error);
         return new Response(`Authentication error: ${error.message}`, { status: 401 });
     }
