@@ -775,7 +775,7 @@ const BusinessHoursTab = () => {
               <label className="text-sm font-medium text-gray-300">Timezone</label>
               <select 
                 value={selectedRegion.timezone}
-                onChange={() => {}
+                onChange={() => {}}
                 className="w-full bg-gray-950 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-blue-500"
               >
                 {TIMEZONES.map(tz => <option key={tz} value={tz}>{tz}</option>)}
@@ -810,9 +810,9 @@ const BusinessHoursTab = () => {
                         {dayHour.shifts.length > 0 ? (
                           dayHour.shifts.map((shift, sIdx) => (
                             <div key={sIdx} className="flex items-center gap-2">
-                              <input type="time" value={shift.start} onChange={() => {} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
+                              <input type="time" value={shift.start} onChange={() => {}} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
                               <span className="text-gray-500">-</span>
-                              <input type="time" value={shift.end} onChange={() => {} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
+                              <input type="time" value={shift.end} onChange={() => {}} className="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-sm text-gray-300 focus:outline-none" />
                               <button className="p-1.5 text-gray-500 hover:text-red-400 rounded"><X className="w-4 h-4" /></button>
                               {sIdx === dayHour.shifts.length - 1 && (
                                 <button className="p-1.5 text-gray-500 hover:text-blue-400 rounded" title="Add Shift"><Plus className="w-4 h-4" /></button>

@@ -26,7 +26,7 @@ const nextConfig = {
     // 125 GB RAM + 32 GB swap and triggers the OOM-killer. Cap to 8
     // workers (peak ~32 GB) — slower wall-clock for this phase, but
     // it actually completes.
-    cpus: 28,
+    cpus: 4,
     workerThreads: false,
   },
   // Heavy CJS packages that ship Node-only requires (`fs`, `dgram`, native

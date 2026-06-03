@@ -463,7 +463,7 @@ export default function RoutingPage() {
                             ? "bg-amber-900/20 border-amber-500/50"
                             : "bg-blue-900/20 border-blue-500/50"
                       }`}
-                    style={ left: node.x, top: node.y }
+                    style={{ left: node.x, top: node.y }}
                   >
                     <div className="flex items-center gap-3">
                       <div

@@ -248,7 +248,7 @@ export default function SurveysFeedbackPage() {
               {selectedField === field.id && (
                 <div className="absolute top-4 right-4 flex space-x-2">
                   <button className="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"><Copy className="w-4 h-4" /></button>
-                  <button onClick={(e) => { e.stopPropagation(); removeFormField(field.id); } className="p-2 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 rounded-lg text-slate-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={(e) => { e.stopPropagation(); removeFormField(field.id); }} className="p-2 bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 rounded-lg text-slate-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
                 </div>
               )}
 
@@ -259,7 +259,7 @@ export default function SurveysFeedbackPage() {
                   const newFields = [...formFields];
                   newFields[idx].label = e.target.value;
                   setFormFields(newFields);
-                }
+                }}
                 className={`text-lg font-medium bg-transparent border-b border-transparent hover:border-slate-700 focus:border-indigo-500 focus:outline-none w-3/4 pb-1 mb-4 text-white ${selectedField === field.id ? 'border-slate-700' : ''}`}
               />
 
@@ -555,13 +555,13 @@ export default function SurveysFeedbackPage() {
       </div>
 
       {/* Global Styles for Custom Scrollbar & Animations inside component scope for ease */}
-      <style dangerouslySetInnerHTML={__html: `
+      <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
         .animate-spin-slow { animation: spin 8s linear infinite; }
-      `} />
+      `}} />
     </div>
   );
 }

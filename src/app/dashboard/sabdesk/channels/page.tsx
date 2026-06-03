@@ -549,7 +549,7 @@ export default function ChannelsPage() {
                             <div className="flex-1 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${channel.health > 80 ? "bg-green-500" : channel.health > 50 ? "bg-amber-500" : "bg-red-500"}`}
-                                style={ width: `${channel.health}%` }
+                                style={{ width: `${channel.health}%` }}
                               />
                             </div>
                             <span className="font-mono text-xs">

@@ -417,7 +417,7 @@ export default function ViewsBuilderPage() {
                       setIsBuilding(false);
                       if (savedViews.length > 0)
                         setActiveViewId(savedViews[0].id);
-                    }
+                    }}
                     className="px-5 py-2.5 text-sm font-medium text-zinc-400 hover:text-white transition-colors"
                   >
                     Cancel

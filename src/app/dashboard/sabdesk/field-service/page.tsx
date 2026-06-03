@@ -461,7 +461,7 @@ function LiveMapTab({ technicians, jobs }: { technicians: any[], jobs: any[] }) 
         {technicians.slice(0, 20).map((tech) => (
           <div key={tech.id} 
                className="absolute z-20 group cursor-pointer transform -translate-x-1/2 -translate-y-1/2"
-               style={ left: `${tech.location.x}%`, top: `${tech.location.y}%` }>
+               style={{ left: `${tech.location.x}%`, top: `${tech.location.y}%` }}>
             <div className="relative">
               <div className={`w-8 h-8 rounded-full border-2 ${tech.status === 'Active' ? 'border-emerald-500 bg-emerald-500/20' : 'border-slate-500 bg-slate-500/20'} backdrop-blur-md flex items-center justify-center shadow-lg`}>
                 <Truck className={`w-4 h-4 ${tech.status === 'Active' ? 'text-emerald-400' : 'text-slate-400'}`} />
@@ -488,7 +488,7 @@ function LiveMapTab({ technicians, jobs }: { technicians: any[], jobs: any[] }) 
         {jobs.filter(j => j.status === 'Unassigned' || j.status === 'In Progress').slice(0, 15).map((job) => (
           <div key={job.id} 
                className="absolute z-10 group cursor-pointer transform -translate-x-1/2 -translate-y-1/2"
-               style={ left: `${job.location.x}%`, top: `${job.location.y}%` }>
+               style={{ left: `${job.location.x}%`, top: `${job.location.y}%` }}>
             <div className={`p-1.5 rounded-lg border ${job.status === 'In Progress' ? 'bg-blue-500/20 border-blue-500/50 text-blue-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400'} backdrop-blur-md`}>
               <Briefcase className="w-4 h-4" />
             </div>

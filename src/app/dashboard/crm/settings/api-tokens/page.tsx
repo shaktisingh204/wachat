@@ -41,6 +41,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
+  Check,
   Download,
   Key,
   LoaderCircle,

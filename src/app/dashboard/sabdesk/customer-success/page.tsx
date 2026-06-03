@@ -173,7 +173,7 @@ const OverviewTab = () => (
                   i < 6 ? 'bg-amber-500/80 hover:bg-amber-400' : 
                   'bg-emerald-500/80 hover:bg-emerald-400'
                 }`}
-                style={ height: `${val}%` }
+                style={{ height: `${val}%` }}
               ></div>
               <span className="text-[10px] text-gray-500 mt-2 block">{i * 10}</span>
               {/* Tooltip */}

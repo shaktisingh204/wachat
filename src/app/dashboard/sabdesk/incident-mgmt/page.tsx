@@ -261,7 +261,7 @@ const OverviewDashboard = () => {
                   <span className="text-slate-400 font-mono">{s.val}%</span>
                 </div>
                 <div className="w-full bg-slate-950 rounded-full h-2">
-                  <div className={`${s.color} h-2 rounded-full`} style={ w: `${s.val}%`, width: `${s.val}%` }></div>
+                  <div className={`${s.color} h-2 rounded-full`} style={{ w: `${s.val}%`, width: `${s.val}%` }}></div>
                 </div>
               </div>
             ))}
@@ -670,7 +670,7 @@ const StatusPageBuilder = () => {
                   </div>
                   <div className="flex-1 flex items-end gap-1">
                     {Array.from({ length: 40 }).map((_, i) => (
-                      <div key={i} className="flex-1 bg-indigo-200 hover:bg-indigo-300 rounded-t-sm" style={ height: `${20 + Math.random() * (i > 30 ? 60 : 30)}%` }></div>
+                      <div key={i} className="flex-1 bg-indigo-200 hover:bg-indigo-300 rounded-t-sm" style={{ height: `${20 + Math.random() * (i > 30 ? 60 : 30)}%` }}></div>
                     ))}
                   </div>
                 </div>

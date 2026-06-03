@@ -487,7 +487,7 @@ export default function CustomFormsPage() {
                               updateField(selectedField.id, {
                                 options: newOpts,
                               });
-                            }
+                            }}
                             className="flex-1 bg-neutral-900 border border-neutral-800 rounded-md px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
                           />
                           <button
@@ -498,7 +498,7 @@ export default function CustomFormsPage() {
                               updateField(selectedField.id, {
                                 options: newOpts,
                               });
-                            }
+                            }}
                             className="text-neutral-500 hover:text-red-400"
                           >
                             <X className="w-4 h-4" />
@@ -513,7 +513,7 @@ export default function CustomFormsPage() {
                               `Option ${(selectedField.options?.length || 0) + 1}`,
                             ],
                           });
-                        }
+                        }}
                         className="flex items-center gap-1 text-sm text-blue-400 hover:text-blue-300 mt-2"
                       >
                         <Plus className="w-4 h-4" /> Add Option

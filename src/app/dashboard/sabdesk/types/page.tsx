@@ -415,7 +415,7 @@ export default function TicketTypesPage() {
                                 <div className="flex items-center gap-2">
                                   <span
                                     className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
-                                    style={ backgroundColor: row.color }
+                                    style={{ backgroundColor: row.color }}
                                   />
                                   <code className="text-[12px]">
                                     {row.color}
@@ -432,7 +432,7 @@ export default function TicketTypesPage() {
                         <div className="flex items-center gap-2">
                           <span
                             className="inline-block h-4 w-4 rounded-sm border border-zoru-line"
-                            style={ backgroundColor: row.color || "#6B7280" }
+                            style={{ backgroundColor: row.color || "#6B7280" }}
                             aria-label={`Colour ${row.color || ""}`}
                           />
                           <code className="text-[12px] text-zoru-ink-muted">

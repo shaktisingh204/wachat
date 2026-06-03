@@ -565,7 +565,7 @@ export default function VoiceCenterDashboard() {
               <div className="absolute inset-0 mt-12 z-0 overflow-auto flex items-center justify-center p-20">
                 <div className="relative w-full max-w-4xl h-[600px] border border-slate-800/0">
                   {/* SVG for edges */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={ zIndex: 0 }>
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
                     <path d="M 150 110 L 150 150 L 150 200" stroke="#475569" strokeWidth="2" fill="none" strokeDasharray="4 2" className="animate-pulse" />
                     <path d="M 150 260 L 150 300 L -50 300 L -50 350" stroke="#475569" strokeWidth="2" fill="none" />
                     <path d="M 150 260 L 150 300 L 350 300 L 350 350" stroke="#475569" strokeWidth="2" fill="none" />
@@ -579,7 +579,7 @@ export default function VoiceCenterDashboard() {
                     <div 
                       key={node.id} 
                       className={`absolute w-56 bg-slate-800/90 border border-slate-700 rounded-xl shadow-xl backdrop-blur-md transform -translate-x-1/2 -translate-y-1/2 cursor-move hover:border-blue-500/50 transition-colors z-10`}
-                      style={ left: `calc(50% + ${node.x}px)`, top: node.y }
+                      style={{ left: `calc(50% + ${node.x}px)`, top: node.y }}
                     >
                       <div className="flex items-center gap-3 p-3 border-b border-slate-700/50">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -771,9 +771,9 @@ export default function VoiceCenterDashboard() {
                           <span className="text-xs font-medium text-slate-400">Customer</span>
                         </div>
                         <div className="p-3 rounded-2xl bg-slate-800 border border-slate-700 text-slate-200 rounded-tl-sm flex gap-1 items-center h-10">
-                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={animationDelay: '0ms'}></div>
-                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={animationDelay: '150ms'}></div>
-                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={animationDelay: '300ms'}></div>
+                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                          <div className="w-1.5 h-1.5 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
                         </div>
                       </div>
                   </div>
@@ -788,8 +788,8 @@ export default function VoiceCenterDashboard() {
                     <div className="flex flex-col items-center">
                       <div className="w-32 h-16 relative overflow-hidden flex items-end justify-center mb-2">
                         <div className="w-32 h-32 rounded-full border-[12px] border-slate-800 absolute top-0 border-b-transparent border-r-transparent rotate-45"></div>
-                        <div className="w-32 h-32 rounded-full border-[12px] border-emerald-500 absolute top-0 border-b-transparent border-r-transparent rotate-45" style={clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 50%)'}></div>
-                        <div className="w-1 h-14 bg-slate-300 absolute bottom-0 origin-bottom rounded-full shadow-md z-10" style={transform: 'rotate(30deg)'}></div>
+                        <div className="w-32 h-32 rounded-full border-[12px] border-emerald-500 absolute top-0 border-b-transparent border-r-transparent rotate-45" style={{clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 50%)'}}></div>
+                        <div className="w-1 h-14 bg-slate-300 absolute bottom-0 origin-bottom rounded-full shadow-md z-10" style={{transform: 'rotate(30deg)'}}></div>
                         <div className="w-3 h-3 bg-slate-200 rounded-full absolute bottom-[-6px] z-20"></div>
                       </div>
                       <div className="text-lg font-bold text-emerald-400">Positive (78%)</div>
@@ -899,7 +899,7 @@ const KeypadButton = ({ digit, letters, onClick }: { digit: string, letters: str
 const SignalIcon = ({ strength }: { strength: number }) => (
   <div className="flex items-end gap-[2px] h-4">
     {[1, 2, 3, 4].map(i => (
-      <div key={i} className={`w-1 rounded-t-sm ${i <= strength ? 'bg-emerald-500' : 'bg-slate-700'}`} style={ height: `${i * 25}%` }></div>
+      <div key={i} className={`w-1 rounded-t-sm ${i <= strength ? 'bg-emerald-500' : 'bg-slate-700'}`} style={{ height: `${i * 25}%` }}></div>
     ))}
   </div>
 );

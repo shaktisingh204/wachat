@@ -80,7 +80,7 @@ export default function AnnouncementsPage() {
       {/* Tabs */}
       <div className="flex overflow-x-auto border-b border-slate-800 mb-6 pb-2 gap-6 scrollbar-hide">
         <button
-          onClick={() => { setActiveTab("campaigns"); setIsComposerOpen(false); }
+          onClick={() => { setActiveTab("campaigns"); setIsComposerOpen(false); }}
           className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "campaigns" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
@@ -88,7 +88,7 @@ export default function AnnouncementsPage() {
           <Megaphone className="w-4 h-4" /> All Campaigns
         </button>
         <button
-          onClick={() => { setActiveTab("analytics"); setIsComposerOpen(false); }
+          onClick={() => { setActiveTab("analytics"); setIsComposerOpen(false); }}
           className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "analytics" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
@@ -96,7 +96,7 @@ export default function AnnouncementsPage() {
           <BarChart className="w-4 h-4" /> Performance Analytics
         </button>
         <button
-          onClick={() => { setActiveTab("audience"); setIsComposerOpen(false); }
+          onClick={() => { setActiveTab("audience"); setIsComposerOpen(false); }}
           className={`pb-2 border-b-2 font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "audience" ? "border-amber-500 text-amber-400" : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
