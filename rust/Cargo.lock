@@ -11494,6 +11494,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabcrm-notifications"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
 name = "sabcrm-objects"
 version = "0.1.0"
 dependencies = [
@@ -11577,6 +11597,26 @@ dependencies = [
 
 [[package]]
 name = "sabcrm-views"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "utoipa",
+]
+
+[[package]]
+name = "sabcrm-workflows"
 version = "0.1.0"
 dependencies = [
  "anyhow",
@@ -12851,11 +12891,13 @@ dependencies = [
  "sabcreator-workflows",
  "sabcrm-activities",
  "sabcrm-favorites",
+ "sabcrm-notifications",
  "sabcrm-objects",
  "sabcrm-records",
  "sabcrm-roles",
  "sabcrm-settings",
  "sabcrm-views",
+ "sabcrm-workflows",
  "sabdesk-automations",
  "sabdesk-kb",
  "sabfiles",

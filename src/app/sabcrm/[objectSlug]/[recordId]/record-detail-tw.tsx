@@ -50,6 +50,7 @@ import {
   MoreHorizontal,
   Trash2,
   X,
+  Search,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -73,7 +74,10 @@ import {
   // In-flight: added in parallel by another agent. If tsc flags ONLY this
   // import as missing during the port, that's the expected interim state.
   getRecordRelationsTw,
+  listSabcrmObjectsTw,
 } from '@/app/actions/sabcrm-twenty.actions';
+import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
+import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 import type {
   SabcrmRustRecord,
   SabcrmRustActivity,
@@ -89,6 +93,7 @@ import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import './record-tabs.css';
 import './attachments.css';
 import './detail-polish.css';
+import './relations-edit.css';
 
 /** Map a known object slug to a Twenty sidebar icon (best-effort). */
 const SLUG_ICON: Record<string, LucideIcon> = {
@@ -407,6 +412,50 @@ function relationRecordLabel(
     if (composed) return composed;
   }
   return `#${record.id.slice(-6)}`;
+}
+
+/**
+ * For a ONE_TO_MANY relation, resolve the inverse field key on the target
+ * object: its MANY_TO_ONE RELATION field that points back at `sourceSlug`.
+ * That key is the one whose value (on a child record) must be set/cleared to
+ * attach/detach the child from this record. Returns null when unresolvable
+ * (target metadata missing, or no matching inverse field).
+ */
+function resolveInverseKey(
+  target: ObjectMetadata | undefined,
+  sourceSlug: string,
+): string | null {
+  if (!target) return null;
+  const inverse = target.fields.find(
+    (f) =>
+      f.type === 'RELATION' &&
+      f.relation?.kind === 'MANY_TO_ONE' &&
+      f.relation.targetObject === sourceSlug,
+  );
+  return inverse ? inverse.key : null;
+}
+
+// ---------------------------------------------------------------------------
+// Left field panel — labelled sections (Twenty fidelity)
+// ---------------------------------------------------------------------------
+
+/**
+ * Split the editable field list into Twenty-style labelled groups. "Links"
+ * collects URL/email/phone fields; everything else stays under "Details".
+ * Sections with no fields are dropped, so a plain object renders one group.
+ */
+function groupFieldSections(
+  fields: FieldMetadata[],
+): Array<{ label: string; fields: FieldMetadata[] }> {
+  const linkTypes: ReadonlySet<FieldMetadata['type']> = new Set<
+    FieldMetadata['type']
+  >(['LINK', 'EMAIL', 'PHONE']);
+  const links = fields.filter((f) => linkTypes.has(f.type));
+  const details = fields.filter((f) => !linkTypes.has(f.type));
+  return [
+    { label: 'Details', fields: details },
+    { label: 'Links', fields: links },
+  ].filter((s) => s.fields.length > 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -991,45 +1040,290 @@ function TaskRow({ task, busy, onToggle }: TaskRowProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Relation section (one related-records group)
+// Relation picker — search target records to attach
+// ---------------------------------------------------------------------------
+
+interface RelationPickerProps {
+  /** Object slug to search records within. */
+  targetObject: string;
+  /** Active project (scopes the search). */
+  projectId: string | null;
+  /** Ids already attached — hidden from results so they can't be re-picked. */
+  excludeIds: ReadonlySet<string>;
+  /** Invoked with the chosen record's id; returns when the attach settles. */
+  onPick: (option: SabcrmPickerOption) => Promise<void>;
+  /** Accessible label for the trigger. */
+  addLabel: string;
+}
+
+/**
+ * A Twenty-style "+ Add" affordance that opens a search popover over
+ * `targetObject` (via `searchRecordsForPickerAction`) and calls `onPick` with
+ * the selected record. Dismisses on outside-click / Escape; debounces the
+ * query; degrades to muted empty / error states.
+ */
+function RelationPicker({
+  targetObject,
+  projectId,
+  excludeIds,
+  onPick,
+  addLabel,
+}: RelationPickerProps): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
+  const [options, setOptions] = React.useState<SabcrmPickerOption[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [attachingId, setAttachingId] = React.useState<string | null>(null);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLInputElement | null>(null);
+
+  // Dismiss on outside-click / Escape while open.
+  React.useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  // Focus the search input when the popover opens; reset transient state.
+  React.useEffect(() => {
+    if (open) {
+      const id = window.setTimeout(() => inputRef.current?.focus(), 0);
+      return () => window.clearTimeout(id);
+    }
+    setQuery('');
+    setOptions([]);
+    setError(null);
+    setAttachingId(null);
+    return undefined;
+  }, [open]);
+
+  // Debounced search over the target object whenever the query changes.
+  React.useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const handle = window.setTimeout(async () => {
+      const res = await searchRecordsForPickerAction(
+        targetObject,
+        query.trim(),
+        20,
+        projectId ?? undefined,
+      );
+      if (cancelled) return;
+      if (res.ok) setOptions(res.data);
+      else {
+        setOptions([]);
+        setError(res.error);
+      }
+      setLoading(false);
+    }, 200);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(handle);
+    };
+  }, [open, query, targetObject, projectId]);
+
+  const visible = options.filter((o) => !excludeIds.has(o.id));
+
+  const choose = async (option: SabcrmPickerOption) => {
+    if (attachingId) return;
+    setAttachingId(option.id);
+    await onPick(option);
+    // Parent owns the relation list; closing here gives immediate feedback.
+    setAttachingId(null);
+    setOpen(false);
+  };
+
+  return (
+    <div className="re-picker" ref={ref}>
+      <button
+        type="button"
+        className="re-add-btn"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-label={addLabel}
+        title={addLabel}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Plus size={13} aria-hidden="true" />
+        Add
+      </button>
+      {open ? (
+        <div className="re-picker__pop" role="dialog" aria-label={addLabel}>
+          <div className="re-picker__search">
+            <Search
+              size={14}
+              className="re-picker__search-icon"
+              aria-hidden="true"
+            />
+            <input
+              ref={inputRef}
+              className="re-picker__input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search records…"
+              aria-label="Search records to attach"
+            />
+          </div>
+          <div className="re-picker__list">
+            {loading ? (
+              <div className="re-picker__state">
+                <span className="re-picker__state-spin">
+                  <Loader2 size={13} className="re-spin" aria-hidden="true" />
+                  Searching…
+                </span>
+              </div>
+            ) : error ? (
+              <div className="re-picker__state is-error">{error}</div>
+            ) : visible.length === 0 ? (
+              <div className="re-picker__state">
+                {query.trim() ? 'No matching records.' : 'No records to add.'}
+              </div>
+            ) : (
+              visible.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className="re-picker__item"
+                  disabled={attachingId !== null}
+                  onClick={() => void choose(option)}
+                >
+                  <span className="re-picker__item-icon" aria-hidden="true">
+                    {attachingId === option.id ? (
+                      <Loader2 size={13} className="re-spin" />
+                    ) : (
+                      <Database size={13} />
+                    )}
+                  </span>
+                  <span className="re-picker__item-label">{option.label}</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Relation section (one related-records group) — attach + detach
 // ---------------------------------------------------------------------------
 
 interface RelationSectionProps {
   relation: RecordRelation;
+  projectId: string | null;
+  /** Attach a target record to this relation (kind-aware; see container). */
+  onAttach: (relation: RecordRelation, option: SabcrmPickerOption) => Promise<void>;
+  /** Detach a related record from this relation (kind-aware; see container). */
+  onDetach: (relation: RecordRelation, childId: string) => Promise<void>;
+  /** Id of the row currently being detached (for the busy/disabled state). */
+  busyChildId: string | null;
+  /**
+   * For ONE_TO_MANY: the inverse MANY_TO_ONE field key on the target object
+   * (resolved by the container). When unresolved, attach/detach is unavailable
+   * and the controls are hidden so the section stays read-only.
+   */
+  inverseKey: string | null;
 }
 
-function RelationSection({ relation }: RelationSectionProps) {
-  const { label, targetObject, records } = relation;
+function RelationSection({
+  relation,
+  projectId,
+  onAttach,
+  onDetach,
+  busyChildId,
+  inverseKey,
+}: RelationSectionProps) {
+  const { label, targetObject, records, kind } = relation;
+  // MANY_TO_ONE always supports attach (writes this record's own field).
+  // ONE_TO_MANY needs the target's inverse field to be resolvable.
+  const canEdit = kind === 'MANY_TO_ONE' || inverseKey !== null;
+  // MANY_TO_ONE holds at most one record; hide "Add" once it's set.
+  const atCapacity = kind === 'MANY_TO_ONE' && records.length > 0;
+  const excludeIds = React.useMemo(
+    () => new Set(records.map((r) => r.id)),
+    [records],
+  );
+
   return (
     <section className="rt-relation" aria-label={label}>
       <div className="rt-relation__head">
-        <Link2 size={14} className="rt-relrow__icon" aria-hidden="true" />
-        <span className="rt-relation__label">{label}</span>
-        <span className="rt-relation__count">{records.length}</span>
+        <div className="re-relhead">
+          <Link2 size={14} className="rt-relrow__icon" aria-hidden="true" />
+          <span className="rt-relation__label">{label}</span>
+          <span className="rt-relation__count">{records.length}</span>
+          <span className="re-relhead__spacer" />
+          {canEdit && !atCapacity ? (
+            <RelationPicker
+              targetObject={targetObject}
+              projectId={projectId}
+              excludeIds={excludeIds}
+              addLabel={`Add to ${label}`}
+              onPick={(option) => onAttach(relation, option)}
+            />
+          ) : null}
+        </div>
       </div>
       {records.length === 0 ? (
         <div className="rt-relation__empty">No {label.toLowerCase()}</div>
       ) : (
         <div className="rt-relation__list">
-          {records.map((rec) => (
-            <Link
-              key={rec.id}
-              href={`/sabcrm/${targetObject}/${rec.id}`}
-              className="rt-relrow"
-            >
-              <span className="rt-relrow__icon" aria-hidden="true">
-                <Database size={13} />
-              </span>
-              <span className="rt-relrow__label">
-                {relationRecordLabel(rec)}
-              </span>
-              <ChevronRight
-                size={14}
-                className="rt-relrow__chevron"
-                aria-hidden="true"
-              />
-            </Link>
-          ))}
+          {records.map((rec) => {
+            const busy = busyChildId === rec.id;
+            return (
+              <div
+                key={rec.id}
+                className={`rt-relrow re-relrow${busy ? ' is-busy' : ''}`}
+              >
+                <Link
+                  href={`/sabcrm/${targetObject}/${rec.id}`}
+                  className="re-relrow__link"
+                >
+                  <span className="rt-relrow__icon" aria-hidden="true">
+                    <Database size={13} />
+                  </span>
+                  <span className="rt-relrow__label">
+                    {relationRecordLabel(rec)}
+                  </span>
+                </Link>
+                {canEdit ? (
+                  <button
+                    type="button"
+                    className="re-detach"
+                    disabled={busy}
+                    onClick={() => void onDetach(relation, rec.id)}
+                    aria-label={`Detach ${relationRecordLabel(rec)} from ${label}`}
+                    title="Detach"
+                  >
+                    {busy ? (
+                      <Loader2 size={13} className="re-spin" />
+                    ) : (
+                      <X size={14} />
+                    )}
+                  </button>
+                ) : (
+                  <ChevronRight
+                    size={14}
+                    className="rt-relrow__chevron"
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
@@ -1164,6 +1458,17 @@ export function RecordDetailTw({
   // Related-records sections (graceful: empty on failure / engine down).
   const [relations, setRelations] = React.useState<RecordRelation[]>([]);
   const [loadingRelations, setLoadingRelations] = React.useState(true);
+
+  // Object catalogue (slug → metadata) — used to resolve the inverse field key
+  // for ONE_TO_MANY attach/detach. Graceful: empty until loaded / on failure.
+  const [objectsBySlug, setObjectsBySlug] = React.useState<
+    Record<string, ObjectMetadata>
+  >({});
+
+  // Per-row in-flight guard for relation detach.
+  const [detachBusyId, setDetachBusyId] = React.useState<string | null>(null);
+  // Inline per-section attach/detach error, keyed by relation field key.
+  const [relationError, setRelationError] = React.useState<string | null>(null);
 
   // Per-task in-flight guard for status toggles.
   const [taskBusyId, setTaskBusyId] = React.useState<string | null>(null);
@@ -1301,7 +1606,22 @@ export function RecordDetailTw({
     setFavBusy(false);
   }, [favBusy, favorite, object.slug, record.id, projectId]);
 
-  // Load related-records sections (graceful: empty on failure / engine down).
+  // Re-fetch the related-records sections (graceful: empty on failure / engine
+  // down). Used both on mount and after an attach/detach commits.
+  const refreshRelations = React.useCallback(async () => {
+    try {
+      const res = await getRecordRelationsTw(
+        object.slug,
+        record.id,
+        projectId ?? undefined,
+      );
+      setRelations(res.ok ? res.data : []);
+    } catch {
+      setRelations([]);
+    }
+  }, [object.slug, record.id, projectId]);
+
+  // Initial relations load.
   React.useEffect(() => {
     let cancelled = false;
     setLoadingRelations(true);
@@ -1324,6 +1644,211 @@ export function RecordDetailTw({
       cancelled = true;
     };
   }, [object.slug, record.id, projectId]);
+
+  // Load the object catalogue once (for inverse-key resolution on ONE_TO_MANY).
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await listSabcrmObjectsTw(projectId ?? undefined);
+      if (cancelled || !res.ok) return;
+      const map: Record<string, ObjectMetadata> = {};
+      for (const o of res.data) map[o.slug] = o;
+      setObjectsBySlug(map);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
+
+  // Attach a target record to a relation (kind-aware, optimistic + rollback):
+  //   MANY_TO_ONE → set THIS record's `data[field]` to the picked id.
+  //   ONE_TO_MANY → set the CHILD's inverse field to THIS record's id.
+  const handleAttachRelation = React.useCallback(
+    async (relation: RecordRelation, option: SabcrmPickerOption) => {
+      setRelationError(null);
+      const prevRelations = relations;
+
+      if (relation.kind === 'MANY_TO_ONE') {
+        // Optimistically reflect the new single value + record's own field.
+        setRecord((r) => ({
+          ...r,
+          data: { ...r.data, [relation.field]: option.id },
+        }));
+        setRelations((rels) =>
+          rels.map((rel) =>
+            rel.field === relation.field
+              ? {
+                  ...rel,
+                  records: [
+                    {
+                      id: option.id,
+                      projectId: '',
+                      object: relation.targetObject,
+                      data: { name: option.label },
+                      createdAt: '',
+                      updatedAt: '',
+                    },
+                  ],
+                }
+              : rel,
+          ),
+        );
+        const res = await updateSabcrmRecordTw(
+          object.slug,
+          record.id,
+          { [relation.field]: option.id },
+          projectId ?? undefined,
+        );
+        if (!res.ok) {
+          setRecord((r) => ({
+            ...r,
+            data: { ...r.data, [relation.field]: record.data[relation.field] },
+          }));
+          setRelations(prevRelations);
+          setRelationError(res.error);
+          return;
+        }
+        setRecord(res.data);
+        await refreshRelations();
+        return;
+      }
+
+      // ONE_TO_MANY: point the child's inverse field at this record.
+      const inverseKey = resolveInverseKey(
+        objectsBySlug[relation.targetObject],
+        object.slug,
+      );
+      if (!inverseKey) {
+        setRelationError('Cannot resolve the related field to attach.');
+        return;
+      }
+      // Optimistically append the child to this section.
+      setRelations((rels) =>
+        rels.map((rel) =>
+          rel.field === relation.field
+            ? {
+                ...rel,
+                records: [
+                  ...rel.records,
+                  {
+                    id: option.id,
+                    projectId: '',
+                    object: relation.targetObject,
+                    data: { name: option.label },
+                    createdAt: '',
+                    updatedAt: '',
+                  },
+                ],
+              }
+            : rel,
+        ),
+      );
+      const res = await updateSabcrmRecordTw(
+        relation.targetObject,
+        option.id,
+        { [inverseKey]: record.id },
+        projectId ?? undefined,
+      );
+      if (!res.ok) {
+        setRelations(prevRelations);
+        setRelationError(res.error);
+        return;
+      }
+      await refreshRelations();
+    },
+    [
+      relations,
+      object.slug,
+      record.id,
+      record.data,
+      projectId,
+      objectsBySlug,
+      refreshRelations,
+    ],
+  );
+
+  // Detach a related record (kind-aware, optimistic + rollback):
+  //   MANY_TO_ONE → null THIS record's `data[field]`.
+  //   ONE_TO_MANY → null the CHILD's inverse field.
+  const handleDetachRelation = React.useCallback(
+    async (relation: RecordRelation, childId: string) => {
+      if (detachBusyId) return;
+      setRelationError(null);
+      setDetachBusyId(childId);
+      const prevRelations = relations;
+
+      // Optimistically drop the row from this section.
+      setRelations((rels) =>
+        rels.map((rel) =>
+          rel.field === relation.field
+            ? { ...rel, records: rel.records.filter((r) => r.id !== childId) }
+            : rel,
+        ),
+      );
+
+      if (relation.kind === 'MANY_TO_ONE') {
+        const prevValue = record.data[relation.field];
+        setRecord((r) => ({
+          ...r,
+          data: { ...r.data, [relation.field]: null },
+        }));
+        const res = await updateSabcrmRecordTw(
+          object.slug,
+          record.id,
+          { [relation.field]: null },
+          projectId ?? undefined,
+        );
+        if (!res.ok) {
+          setRecord((r) => ({
+            ...r,
+            data: { ...r.data, [relation.field]: prevValue },
+          }));
+          setRelations(prevRelations);
+          setRelationError(res.error);
+        } else {
+          setRecord(res.data);
+          await refreshRelations();
+        }
+        setDetachBusyId(null);
+        return;
+      }
+
+      // ONE_TO_MANY: clear the child's inverse field.
+      const inverseKey = resolveInverseKey(
+        objectsBySlug[relation.targetObject],
+        object.slug,
+      );
+      if (!inverseKey) {
+        setRelations(prevRelations);
+        setRelationError('Cannot resolve the related field to detach.');
+        setDetachBusyId(null);
+        return;
+      }
+      const res = await updateSabcrmRecordTw(
+        relation.targetObject,
+        childId,
+        { [inverseKey]: null },
+        projectId ?? undefined,
+      );
+      if (!res.ok) {
+        setRelations(prevRelations);
+        setRelationError(res.error);
+      } else {
+        await refreshRelations();
+      }
+      setDetachBusyId(null);
+    },
+    [
+      detachBusyId,
+      relations,
+      object.slug,
+      record.id,
+      record.data,
+      projectId,
+      objectsBySlug,
+      refreshRelations,
+    ],
+  );
 
   // Add a NOTE-kind activity (Notes tab composer).
   const handleAddNote = React.useCallback(
@@ -1403,6 +1928,12 @@ export function RecordDetailTw({
     [editableFields.length, notes.length, tasks.length, activities.length],
   );
 
+  // Group the left details panel into Twenty-style labelled sections.
+  const fieldSections = React.useMemo(
+    () => groupFieldSections(editableFields),
+    [editableFields],
+  );
+
   const label = recordLabel(object, record);
 
   return (
@@ -1469,20 +2000,29 @@ export function RecordDetailTw({
       )}
 
       <div className="st-detail-grid">
-        {/* Main column — field list */}
+        {/* Main column — field list, grouped into labelled sections */}
         <section className="st-panel" aria-label="Record fields">
           <div className="st-panel__head">Details</div>
           <div className="st-panel__body">
-            {editableFields.map((field) => (
-              <div className="st-field-row" key={field.key}>
-                <span className="st-field-row__key">{field.label}</span>
-                <span className="st-field-row__val">
-                  <EditableValue
-                    field={field}
-                    value={record.data[field.key]}
-                    onCommit={(v) => handleCommit(field.key, v)}
-                  />
-                </span>
+            {fieldSections.map((section) => (
+              <div
+                className="re-fieldsection"
+                key={section.label}
+                aria-label={section.label}
+              >
+                <div className="re-fieldsection__head">{section.label}</div>
+                {section.fields.map((field) => (
+                  <div className="st-field-row" key={field.key}>
+                    <span className="st-field-row__key">{field.label}</span>
+                    <span className="st-field-row__val">
+                      <EditableValue
+                        field={field}
+                        value={record.data[field.key]}
+                        onCommit={(v) => handleCommit(field.key, v)}
+                      />
+                    </span>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -1587,11 +2127,27 @@ export function RecordDetailTw({
         </aside>
       </div>
 
-      {/* Relations — Twenty's related-records sections */}
+      {/* Relations — Twenty's related-records sections (attach / detach) */}
       {!loadingRelations && relations.length > 0 && (
         <div className="rt-relations" aria-label="Related records">
+          {relationError ? (
+            <div className="re-relerror" role="alert">
+              {relationError}
+            </div>
+          ) : null}
           {relations.map((rel) => (
-            <RelationSection key={rel.field} relation={rel} />
+            <RelationSection
+              key={rel.field}
+              relation={rel}
+              projectId={projectId}
+              onAttach={handleAttachRelation}
+              onDetach={handleDetachRelation}
+              busyChildId={detachBusyId}
+              inverseKey={resolveInverseKey(
+                objectsBySlug[rel.targetObject],
+                object.slug,
+              )}
+            />
           ))}
         </div>
       )}

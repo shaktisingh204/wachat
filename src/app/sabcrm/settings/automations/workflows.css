@@ -1,0 +1,431 @@
+/* =========================================================================
+   SabCRM — Workflows builder (Twenty-style)
+   Scoped under `.sabcrm-twenty` (applied by TwentyAppFrame). Uses only the
+   namespaced `--st-*` tokens. New classes are prefixed `wf-` so they never
+   collide with the shared `.st-*` kit in sabcrm-twenty.css (which we do NOT
+   edit). Reused `.st-*` primitives: st-input, st-select, st-textarea,
+   st-field, st-switch, st-btn, st-banner, st-empty, st-chip, st-skeleton.
+   ========================================================================= */
+
+/* ---- Two-pane shell -------------------------------------------------- */
+.sabcrm-twenty .wf-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--st-space-4);
+  align-items: start;
+  margin-top: var(--st-space-4);
+}
+
+@media (max-width: 900px) {
+  .sabcrm-twenty .wf-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Left pane: workflow list --------------------------------------- */
+.sabcrm-twenty .wf-list {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .wf-list__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .wf-list__scroll {
+  display: flex;
+  flex-direction: column;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .wf-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: none;
+  border-bottom: 1px solid var(--st-border-light);
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--st-text);
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .wf-list__item:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .wf-list__item.is-active {
+  background: var(--st-accent-soft);
+  border-left-color: var(--st-accent);
+}
+
+.sabcrm-twenty .wf-list__name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .wf-list__name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .wf-list__trigger {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Right pane: builder -------------------------------------------- */
+.sabcrm-twenty .wf-builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  min-width: 0;
+}
+
+.sabcrm-twenty .wf-builder__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+.sabcrm-twenty .wf-builder__title {
+  flex: 1 1 auto;
+  min-width: 160px;
+}
+
+.sabcrm-twenty .wf-builder__spacer {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .wf-builder__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ---- Card ------------------------------------------------------------ */
+.sabcrm-twenty .wf-card {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow);
+}
+
+.sabcrm-twenty .wf-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .wf-card__head-icon {
+  display: inline-flex;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .wf-card__body {
+  padding: var(--st-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .wf-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-3);
+}
+
+@media (max-width: 560px) {
+  .sabcrm-twenty .wf-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Flow (vertical steps with connectors) -------------------------- */
+.sabcrm-twenty .wf-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.sabcrm-twenty .wf-flow__node {
+  position: relative;
+}
+
+/* connector line linking nodes */
+.sabcrm-twenty .wf-flow__connector {
+  display: flex;
+  justify-content: center;
+  height: var(--st-space-4);
+}
+
+.sabcrm-twenty .wf-flow__connector::before {
+  content: '';
+  width: 2px;
+  height: 100%;
+  background: var(--st-border);
+}
+
+/* trigger pill at top of the flow */
+.sabcrm-twenty .wf-trigger-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  align-self: flex-start;
+  padding: 6px 12px;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .wf-trigger-pill__icon {
+  display: inline-flex;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .wf-trigger-pill strong {
+  color: var(--st-text);
+  font-weight: var(--st-fw-semibold);
+}
+
+/* ---- Step card ------------------------------------------------------- */
+.sabcrm-twenty .wf-step {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow);
+}
+
+.sabcrm-twenty .wf-step__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .wf-step__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .wf-step__icon {
+  display: inline-flex;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .wf-step__title {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .wf-step__tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.sabcrm-twenty .wf-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .wf-icon-btn:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+  border-color: var(--st-border-light);
+}
+
+.sabcrm-twenty .wf-icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .wf-icon-btn--danger:hover:not(:disabled) {
+  color: #b3261e;
+  border-color: #f0c9c6;
+}
+
+.sabcrm-twenty .wf-step__body {
+  padding: var(--st-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+/* ---- Add-step row ---------------------------------------------------- */
+.sabcrm-twenty .wf-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .wf-add__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: 8px 14px;
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.sabcrm-twenty .wf-add__btn:hover {
+  background: var(--st-hover);
+  border-color: var(--st-accent);
+  color: var(--st-text);
+}
+
+/* type picker menu */
+.sabcrm-twenty .wf-typepicker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-pop);
+}
+
+.sabcrm-twenty .wf-typepicker__opt {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .wf-typepicker__opt:hover {
+  background: var(--st-accent-soft);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .wf-typepicker__opt svg {
+  color: var(--st-text-secondary);
+  flex: 0 0 auto;
+}
+
+/* empty steps hint */
+.sabcrm-twenty .wf-steps-empty {
+  padding: var(--st-space-4);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+/* builder placeholder when nothing selected */
+.sabcrm-twenty .wf-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--st-space-2);
+  min-height: 280px;
+  padding: var(--st-space-5);
+  text-align: center;
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .wf-placeholder__icon {
+  color: var(--st-text-tertiary);
+}
+
+/* dirty / save hint */
+.sabcrm-twenty .wf-dirty {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .wf-saved {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+/* small inline list skeleton */
+.sabcrm-twenty .wf-list-skel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+}

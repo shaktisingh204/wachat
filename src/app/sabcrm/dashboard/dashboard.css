@@ -116,6 +116,134 @@
   transition: width 200ms ease;
 }
 
+/* ----- Recent records widget ----- */
+.st-reclist {
+  display: flex;
+  flex-direction: column;
+  padding: var(--st-space-2);
+  margin: 0;
+  list-style: none;
+}
+
+.st-reclist__row {
+  display: block;
+}
+
+.st-reclist__link {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  border-radius: var(--st-radius);
+  color: var(--st-text);
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.st-reclist__link:hover {
+  background: var(--st-bg-secondary);
+}
+
+.st-reclist__label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-font-size);
+}
+
+.st-reclist__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-reclist__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.st-reclist__link:hover .st-reclist__chevron {
+  opacity: 1;
+}
+
+/* ----- Pipeline summary widget ----- */
+.st-pipesum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+}
+
+.st-pipesum__total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.st-pipesum__total-label {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+}
+
+.st-pipesum__total-value {
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+}
+
+.st-pipesum__stages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.st-pipesum__stage {
+  display: flex;
+  align-items: baseline;
+  gap: var(--st-space-2);
+}
+
+.st-pipesum__stage-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+}
+
+.st-pipesum__stage-value {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-pipesum__stage-pct {
+  flex: 0 0 auto;
+  min-width: 36px;
+  text-align: right;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ----- Skeleton sizing for the dashboard ----- */
 .st-skel-kpi {
   height: 96px;

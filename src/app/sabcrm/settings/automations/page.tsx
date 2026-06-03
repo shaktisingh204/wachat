@@ -1,644 +1,632 @@
 'use client';
 
 /**
- * SabCRM Settings — Automations (`/sabcrm/settings/automations`), Twenty-style.
+ * SabCRM Settings — Workflows (`/sabcrm/settings/automations`), Twenty-style.
  *
- * Lists the active project's event-driven automation rules in a Twenty table:
- * name, trigger → action summary, a status chip (derived from
- * listAutomationRuleStatusesAction), and an enable/disable toggle. Supports
- * create / edit via a Twenty dialog (mirroring the rule capabilities: identity,
- * trigger event + object scope, and one of three action types) and delete via a
- * confirmation dialog.
+ * A Twenty-faithful WORKFLOW builder: a vertical "flow" of a single trigger
+ * followed by ordered steps. The left pane lists every workflow (name, enabled
+ * toggle, trigger summary); the right pane is the builder for the selected one:
  *
- * All mutations go through the gated server actions in
- * `src/app/actions/sabcrm.actions.ts`; the gate re-runs
- * session → project → RBAC (`sabcrm:admin`) → plan → Mongo so direct API access
- * fails closed. Auth / project guards are enforced upstream by `../../layout.tsx`.
+ *   - Trigger card  → event select + object select.
+ *   - Steps flow    → connector-linked cards, each with a small per-type config
+ *                     form (create_task / send_notification / update_field /
+ *                     webhook). Add (type picker), remove, and reorder (up/down).
  *
- * Twenty visual language only (`.st-*` + views-automations.css). No ZoruUI,
- * no Tailwind. The `.sabcrm-twenty` scope is applied by TwentyAppFrame.
+ * Wired to the workflows engine through the gated server actions in
+ * `@/app/actions/sabcrm-workflows.actions` (list / get / create / update /
+ * delete). Object + field pickers read `listObjectsTw` from
+ * `@/app/actions/sabcrm-objects.actions`. The engine may be DOWN at dev time —
+ * every call is normalised to `{ ok, ... }` and the UI degrades to graceful
+ * loading / empty / error states and never crashes.
+ *
+ * Twenty visual language only (`.st-*` from sabcrm-twenty.css + new `wf-*`
+ * classes in `./workflows.css`). No ZoruUI, no Tailwind. The `.sabcrm-twenty`
+ * scope is applied by TwentyAppFrame. Auth / project / RBAC guards are enforced
+ * upstream by the layout and re-checked inside each server action.
  */
 
 import * as React from 'react';
 import {
   Zap,
   Plus,
-  Pencil,
   Trash2,
   X,
-  ChevronRight,
+  ChevronUp,
+  ChevronDown,
   AlertTriangle,
   ClipboardList,
   Bell,
   Webhook,
+  PenLine,
+  Workflow as WorkflowIcon,
+  Save,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
-  listAutomationRulesAction,
-  listAutomationRuleStatusesAction,
-  createAutomationRuleAction,
-  updateAutomationRuleAction,
-  deleteAutomationRuleAction,
-} from '@/app/actions/sabcrm.actions';
-import type {
-  AutomationRule,
-  AutomationAction,
-  AutomationRuleStatus,
-} from '@/lib/sabcrm/automation.server';
+  listWorkflowsTw,
+  getWorkflowTw,
+  createWorkflowTw,
+  updateWorkflowTw,
+  deleteWorkflowTw,
+} from '@/app/actions/sabcrm-workflows.actions';
+import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
+import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
-import '../views-automations.css';
+import './workflows.css';
 
 // ---------------------------------------------------------------------------
-// Local catalogues
-//
-// Declared locally (rather than importing from the server-only automation
-// module) so this client page never pulls a `server-only` guard into the
-// bundle. Kept in sync with `AUTOMATION_EVENTS` / the action union.
+// Local types (mirrors the workflow shape exposed by the engine actions; kept
+// local so this client page never pulls a `server-only` guard into the bundle).
 // ---------------------------------------------------------------------------
 
-type AutomationEvent =
-  | 'record_created'
-  | 'record_updated'
-  | 'record_deleted'
-  | 'activity_created'
-  | 'field_changed';
+type TriggerEvent = 'record.created' | 'record.updated' | 'record.deleted';
+type StepType = 'create_task' | 'send_notification' | 'update_field' | 'webhook';
 
-type ActionType = AutomationAction['type'];
+interface WorkflowTrigger {
+  event: TriggerEvent;
+  object: string;
+}
 
-const EVENT_OPTIONS: ReadonlyArray<{ value: AutomationEvent; label: string }> = [
-  { value: 'record_created', label: 'Record Created' },
-  { value: 'record_updated', label: 'Record Updated' },
-  { value: 'record_deleted', label: 'Record Deleted' },
-  { value: 'activity_created', label: 'Activity Created' },
-  { value: 'field_changed', label: 'Field Changed' },
+interface WorkflowStep {
+  id: string;
+  type: StepType;
+  config: Record<string, unknown>;
+}
+
+interface Workflow {
+  id: string;
+  name: string;
+  description?: string;
+  enabled: boolean;
+  trigger: WorkflowTrigger;
+  steps: WorkflowStep[];
+  [key: string]: unknown;
+}
+
+type CreateInput = {
+  name: string;
+  description?: string;
+  enabled: boolean;
+  trigger: WorkflowTrigger;
+  steps: WorkflowStep[];
+};
+
+type WorkflowPatch = Partial<CreateInput>;
+
+// ---------------------------------------------------------------------------
+// Catalogues
+// ---------------------------------------------------------------------------
+
+const EVENT_OPTIONS: ReadonlyArray<{ value: TriggerEvent; label: string }> = [
+  { value: 'record.created', label: 'Record Created' },
+  { value: 'record.updated', label: 'Record Updated' },
+  { value: 'record.deleted', label: 'Record Deleted' },
 ];
 
 const EVENT_LABEL: Record<string, string> = Object.fromEntries(
   EVENT_OPTIONS.map((e) => [e.value, e.label]),
 );
 
-const ACTION_LABEL: Record<ActionType, string> = {
-  create_task: 'Create Task',
-  send_notification: 'Send Notification',
-  call_webhook: 'Call Webhook',
+const STEP_META: Record<
+  StepType,
+  { label: string; icon: React.ComponentType<{ size?: number }>; blurb: string }
+> = {
+  create_task: { label: 'Create Task', icon: ClipboardList, blurb: 'Add a task' },
+  send_notification: { label: 'Send Notification', icon: Bell, blurb: 'Notify a user' },
+  update_field: { label: 'Update Field', icon: PenLine, blurb: 'Set a field value' },
+  webhook: { label: 'Webhook', icon: Webhook, blurb: 'Call an external URL' },
 };
 
-const ACTION_ICON: Record<ActionType, React.ComponentType<{ size?: number }>> = {
-  create_task: ClipboardList,
-  send_notification: Bell,
-  call_webhook: Webhook,
-};
+const STEP_ORDER: StepType[] = ['create_task', 'send_notification', 'update_field', 'webhook'];
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function relativeTime(iso: string | undefined): string {
-  if (!iso) return 'Never';
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 60_000) return 'Just now';
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
-  return `${Math.floor(diff / 86_400_000)}d ago`;
+function newId(prefix: string): string {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+  return `${prefix}_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
 }
 
-function actionSummary(action: AutomationAction): string {
-  if (action.type === 'create_task') return `Create task: "${action.title}"`;
-  if (action.type === 'send_notification') return `Notify: ${action.title}`;
-  return `POST ${action.url}`;
+function str(config: Record<string, unknown>, key: string): string {
+  const v = config[key];
+  return typeof v === 'string' ? v : '';
 }
 
-type StatusKind = 'active' | 'failed' | 'ready' | 'disabled';
-
-function statusOf(rule: AutomationRule, st: AutomationRuleStatus | undefined): StatusKind {
-  const enabled = st?.enabled ?? rule.enabled;
-  const lastFiredAt = st?.lastFiredAt ?? rule.lastFiredAt;
-  const lastFailedAt = st?.lastFailedAt ?? rule.lastFailedAt;
-  if (!enabled) return 'disabled';
-  if (lastFailedAt && (!lastFiredAt || lastFailedAt > lastFiredAt)) return 'failed';
-  if (lastFiredAt) return 'active';
-  return 'ready';
+function emptyStep(type: StepType): WorkflowStep {
+  return { id: newId('step'), type, config: {} };
 }
 
-const STATUS_META: Record<StatusKind, { className: string; label: string }> = {
-  active: { className: 'st-chip--active', label: 'Active' },
-  failed: { className: 'st-chip--failed', label: 'Failed' },
-  ready: { className: 'st-chip--ready', label: 'Ready' },
-  disabled: { className: 'st-chip--disabled-state', label: 'Disabled' },
-};
+function triggerSummary(t: WorkflowTrigger): string {
+  const ev = EVENT_LABEL[t.event] ?? t.event;
+  return t.object ? `${ev} on ${t.object}` : `${ev} on all objects`;
+}
+
+/** Stable-ish equality for the dirty flag (avoids JSON key-order traps lightly). */
+function sameWorkflow(a: Workflow, b: Workflow): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
 
 // ---------------------------------------------------------------------------
-// Status chip
+// Step config form (per type)
 // ---------------------------------------------------------------------------
 
-function StatusChip({ kind }: { kind: StatusKind }): React.JSX.Element {
-  const meta = STATUS_META[kind];
+interface StepConfigProps {
+  step: WorkflowStep;
+  objects: ObjectMetadata[];
+  triggerObject: string;
+  onPatch: (config: Record<string, unknown>) => void;
+}
+
+function StepConfig({ step, objects, triggerObject, onPatch }: StepConfigProps): React.JSX.Element {
+  const set = (key: string, value: string) => onPatch({ ...step.config, [key]: value });
+
+  if (step.type === 'create_task') {
+    return (
+      <div className="st-field">
+        <label className="st-field__label" htmlFor={`${step.id}-title`}>
+          Task title
+        </label>
+        <input
+          id={`${step.id}-title`}
+          className="st-input"
+          value={str(step.config, 'title')}
+          placeholder="e.g. Follow up with new lead"
+          autoComplete="off"
+          onChange={(e) => set('title', e.target.value)}
+        />
+      </div>
+    );
+  }
+
+  if (step.type === 'send_notification') {
+    return (
+      <>
+        <div className="st-field">
+          <label className="st-field__label" htmlFor={`${step.id}-ntitle`}>
+            Title
+          </label>
+          <input
+            id={`${step.id}-ntitle`}
+            className="st-input"
+            value={str(step.config, 'title')}
+            placeholder="Notification title"
+            autoComplete="off"
+            onChange={(e) => set('title', e.target.value)}
+          />
+        </div>
+        <div className="st-field">
+          <label className="st-field__label" htmlFor={`${step.id}-nbody`}>
+            Body
+          </label>
+          <textarea
+            id={`${step.id}-nbody`}
+            className="st-textarea"
+            value={str(step.config, 'body')}
+            placeholder="Optional notification body"
+            onChange={(e) => set('body', e.target.value)}
+          />
+        </div>
+      </>
+    );
+  }
+
+  if (step.type === 'update_field') {
+    // Field options come from the trigger's object when known.
+    const obj = objects.find((o) => o.slug === triggerObject);
+    const fields = obj?.fields.filter((f) => !f.system) ?? [];
+    return (
+      <div className="wf-grid-2">
+        <div className="st-field">
+          <label className="st-field__label" htmlFor={`${step.id}-field`}>
+            Field
+          </label>
+          {fields.length > 0 ? (
+            <select
+              id={`${step.id}-field`}
+              className="st-select"
+              value={str(step.config, 'field')}
+              onChange={(e) => set('field', e.target.value)}
+            >
+              <option value="">Select a field…</option>
+              {fields.map((f) => (
+                <option key={f.key} value={f.key}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={`${step.id}-field`}
+              className="st-input"
+              value={str(step.config, 'field')}
+              placeholder="field key"
+              autoComplete="off"
+              onChange={(e) => set('field', e.target.value)}
+            />
+          )}
+        </div>
+        <div className="st-field">
+          <label className="st-field__label" htmlFor={`${step.id}-value`}>
+            Value
+          </label>
+          <input
+            id={`${step.id}-value`}
+            className="st-input"
+            value={str(step.config, 'value')}
+            placeholder="New value"
+            autoComplete="off"
+            onChange={(e) => set('value', e.target.value)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // webhook
   return (
-    <span className={`st-chip ${meta.className}`}>
-      <span className="st-chip__dot" aria-hidden="true" />
-      <span className="st-chip__label">{meta.label}</span>
-    </span>
+    <div className="st-field">
+      <label className="st-field__label" htmlFor={`${step.id}-url`}>
+        URL
+      </label>
+      <input
+        id={`${step.id}-url`}
+        className="st-input"
+        type="url"
+        value={str(step.config, 'url')}
+        placeholder="https://example.com/webhook"
+        autoComplete="off"
+        onChange={(e) => set('url', e.target.value)}
+      />
+    </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Trigger → action flow cell
+// Step card
 // ---------------------------------------------------------------------------
 
-function FlowCell({ rule }: { rule: AutomationRule }): React.JSX.Element {
-  const ActionIcon = ACTION_ICON[rule.action.type];
+interface StepCardProps {
+  step: WorkflowStep;
+  index: number;
+  count: number;
+  objects: ObjectMetadata[];
+  triggerObject: string;
+  onPatchConfig: (config: Record<string, unknown>) => void;
+  onMove: (dir: -1 | 1) => void;
+  onRemove: () => void;
+}
+
+function StepCard({
+  step,
+  index,
+  count,
+  objects,
+  triggerObject,
+  onPatchConfig,
+  onMove,
+  onRemove,
+}: StepCardProps): React.JSX.Element {
+  const meta = STEP_META[step.type];
+  const Icon = meta.icon;
   return (
-    <span className="st-flow">
-      <span className="st-flow__seg">
-        <Zap size={12} aria-hidden="true" />
-        <span className="st-flow__strong">
-          {EVENT_LABEL[rule.trigger.event] ?? rule.trigger.event}
+    <div className="wf-step">
+      <div className="wf-step__head">
+        <span className="wf-step__index">{index + 1}</span>
+        <span className="wf-step__icon">
+          <Icon size={14} />
         </span>
-      </span>
-      {rule.trigger.objectSlug ? (
-        <span>
-          on <span className="st-flow__obj">{rule.trigger.objectSlug}</span>
-        </span>
-      ) : (
-        <span>on all objects</span>
-      )}
-      <span className="st-flow__arrow">
-        <ChevronRight size={12} aria-hidden="true" />
-      </span>
-      <span className="st-flow__seg">
-        <ActionIcon size={12} />
-        <span>{actionSummary(rule.action)}</span>
-      </span>
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Create / edit dialog
-// ---------------------------------------------------------------------------
-
-interface FormState {
-  name: string;
-  description: string;
-  enabled: boolean;
-  event: AutomationEvent;
-  objectSlug: string;
-  actionType: ActionType;
-  taskTitle: string;
-  taskBody: string;
-  taskAssigneeId: string;
-  notifRecipientUserId: string;
-  notifTitle: string;
-  notifBody: string;
-  webhookUrl: string;
-  webhookSecret: string;
-}
-
-function initialForm(rule: AutomationRule | null): FormState {
-  const base: FormState = {
-    name: rule?.name ?? '',
-    description: rule?.description ?? '',
-    enabled: rule?.enabled ?? true,
-    event: (rule?.trigger.event as AutomationEvent | undefined) ?? 'record_created',
-    objectSlug: rule?.trigger.objectSlug ?? '',
-    actionType: rule?.action.type ?? 'create_task',
-    taskTitle: '',
-    taskBody: '',
-    taskAssigneeId: '',
-    notifRecipientUserId: '',
-    notifTitle: '',
-    notifBody: '',
-    webhookUrl: '',
-    webhookSecret: '',
-  };
-  if (rule) {
-    const a = rule.action;
-    if (a.type === 'create_task') {
-      base.taskTitle = a.title;
-      base.taskBody = a.body ?? '';
-      base.taskAssigneeId = a.assigneeId ?? '';
-    } else if (a.type === 'send_notification') {
-      base.notifRecipientUserId = a.recipientUserId;
-      base.notifTitle = a.title;
-      base.notifBody = a.body ?? '';
-    } else if (a.type === 'call_webhook') {
-      base.webhookUrl = a.url;
-      base.webhookSecret = a.secret ?? '';
-    }
-  }
-  return base;
-}
-
-function buildAction(form: FormState): AutomationAction | null {
-  if (form.actionType === 'create_task') {
-    if (!form.taskTitle.trim()) return null;
-    return {
-      type: 'create_task',
-      title: form.taskTitle.trim(),
-      ...(form.taskBody.trim() ? { body: form.taskBody.trim() } : {}),
-      ...(form.taskAssigneeId.trim() ? { assigneeId: form.taskAssigneeId.trim() } : {}),
-    };
-  }
-  if (form.actionType === 'send_notification') {
-    if (!form.notifRecipientUserId.trim() || !form.notifTitle.trim()) return null;
-    return {
-      type: 'send_notification',
-      recipientUserId: form.notifRecipientUserId.trim(),
-      title: form.notifTitle.trim(),
-      ...(form.notifBody.trim() ? { body: form.notifBody.trim() } : {}),
-    };
-  }
-  if (!form.webhookUrl.trim()) return null;
-  return {
-    type: 'call_webhook',
-    url: form.webhookUrl.trim(),
-    ...(form.webhookSecret.trim() ? { secret: form.webhookSecret.trim() } : {}),
-  };
-}
-
-function validate(form: FormState): string | null {
-  if (!form.name.trim()) return 'Rule name is required.';
-  if (form.actionType === 'create_task' && !form.taskTitle.trim()) {
-    return 'Task title is required for the Create Task action.';
-  }
-  if (form.actionType === 'send_notification') {
-    if (!form.notifRecipientUserId.trim()) return 'Recipient user ID is required.';
-    if (!form.notifTitle.trim()) return 'Notification title is required.';
-  }
-  if (form.actionType === 'call_webhook') {
-    if (!form.webhookUrl.trim()) return 'Webhook URL is required.';
-    if (!/^https?:\/\//i.test(form.webhookUrl.trim())) {
-      return 'Webhook URL must start with https:// or http://';
-    }
-  }
-  return null;
-}
-
-interface RuleDialogProps {
-  projectId: string;
-  existing: AutomationRule | null;
-  onClose: () => void;
-  onSaved: (rule: AutomationRule) => void;
-}
-
-function RuleDialog({ projectId, existing, onClose, onSaved }: RuleDialogProps): React.JSX.Element {
-  const [form, setForm] = React.useState<FormState>(() => initialForm(existing));
-  const [submitting, setSubmitting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const patch = React.useCallback((updates: Partial<FormState>) => {
-    setForm((prev) => ({ ...prev, ...updates }));
-  }, []);
-
-  const submit = React.useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (submitting) return;
-
-      const validationError = validate(form);
-      if (validationError) {
-        setError(validationError);
-        return;
-      }
-      const action = buildAction(form);
-      if (!action) {
-        setError('Please fill in all required action fields.');
-        return;
-      }
-
-      setSubmitting(true);
-      setError(null);
-      try {
-        if (existing) {
-          const res = await updateAutomationRuleAction(
-            existing.id,
-            {
-              name: form.name.trim(),
-              description: form.description.trim() || undefined,
-              enabled: form.enabled,
-              trigger: {
-                event: form.event,
-                objectSlug: form.objectSlug.trim() || undefined,
-                conditions: existing.trigger.conditions,
-              },
-              action,
-            },
-            projectId,
-          );
-          if (res.ok) {
-            onSaved(res.data);
-            onClose();
-          } else {
-            setError(res.error);
-          }
-        } else {
-          const res = await createAutomationRuleAction(
-            {
-              name: form.name.trim(),
-              ...(form.description.trim() ? { description: form.description.trim() } : {}),
-              enabled: form.enabled,
-              trigger: {
-                event: form.event,
-                ...(form.objectSlug.trim() ? { objectSlug: form.objectSlug.trim() } : {}),
-                conditions: [],
-              },
-              action,
-            },
-            projectId,
-          );
-          if (res.ok) {
-            onSaved(res.data);
-            onClose();
-          } else {
-            setError(res.error);
-          }
-        }
-      } catch {
-        setError('Failed to save the rule. The service may be unavailable.');
-      } finally {
-        setSubmitting(false);
-      }
-    },
-    [form, existing, submitting, projectId, onSaved, onClose],
-  );
-
-  return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={existing ? 'Edit automation rule' : 'New automation rule'}
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
-      <div className="st-dialog" style={{ maxWidth: 520 }}>
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">
-            {existing ? 'Edit automation rule' : 'New automation rule'}
-          </h2>
-          <button type="button" className="st-dialog__close" onClick={onClose} aria-label="Close">
-            <X size={16} />
+        <span className="wf-step__title">{meta.label}</span>
+        <span className="wf-step__tools">
+          <button
+            type="button"
+            className="wf-icon-btn"
+            aria-label="Move step up"
+            title="Move up"
+            disabled={index === 0}
+            onClick={() => onMove(-1)}
+          >
+            <ChevronUp size={15} />
           </button>
+          <button
+            type="button"
+            className="wf-icon-btn"
+            aria-label="Move step down"
+            title="Move down"
+            disabled={index === count - 1}
+            onClick={() => onMove(1)}
+          >
+            <ChevronDown size={15} />
+          </button>
+          <button
+            type="button"
+            className="wf-icon-btn wf-icon-btn--danger"
+            aria-label="Remove step"
+            title="Remove step"
+            onClick={onRemove}
+          >
+            <Trash2 size={14} />
+          </button>
+        </span>
+      </div>
+      <div className="wf-step__body">
+        <StepConfig
+          step={step}
+          objects={objects}
+          triggerObject={triggerObject}
+          onPatch={onPatchConfig}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Add-step row (type picker)
+// ---------------------------------------------------------------------------
+
+function AddStep({ onAdd }: { onAdd: (type: StepType) => void }): React.JSX.Element {
+  const [open, setOpen] = React.useState(false);
+  if (!open) {
+    return (
+      <div className="wf-add">
+        <button type="button" className="wf-add__btn" onClick={() => setOpen(true)}>
+          <Plus size={14} aria-hidden="true" />
+          Add step
+        </button>
+      </div>
+    );
+  }
+  return (
+    <div className="wf-add">
+      <div className="wf-typepicker" role="menu" aria-label="Choose a step type">
+        {STEP_ORDER.map((type) => {
+          const meta = STEP_META[type];
+          const Icon = meta.icon;
+          return (
+            <button
+              key={type}
+              type="button"
+              role="menuitem"
+              className="wf-typepicker__opt"
+              onClick={() => {
+                onAdd(type);
+                setOpen(false);
+              }}
+            >
+              <Icon size={16} aria-hidden="true" />
+              <span>{meta.label}</span>
+            </button>
+          );
+        })}
+      </div>
+      <button type="button" className="wf-add__btn" onClick={() => setOpen(false)}>
+        <X size={14} aria-hidden="true" />
+        Cancel
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Builder (right pane)
+// ---------------------------------------------------------------------------
+
+interface BuilderProps {
+  draft: Workflow;
+  baseline: Workflow;
+  objects: ObjectMetadata[];
+  saving: boolean;
+  deleting: boolean;
+  onChange: (next: Workflow) => void;
+  onSave: () => void;
+  onToggleEnabled: () => void;
+  onDelete: () => void;
+}
+
+function Builder({
+  draft,
+  baseline,
+  objects,
+  saving,
+  deleting,
+  onChange,
+  onSave,
+  onToggleEnabled,
+  onDelete,
+}: BuilderProps): React.JSX.Element {
+  const dirty = !sameWorkflow(draft, baseline);
+
+  const setTrigger = (patch: Partial<WorkflowTrigger>) =>
+    onChange({ ...draft, trigger: { ...draft.trigger, ...patch } });
+
+  const addStep = (type: StepType) =>
+    onChange({ ...draft, steps: [...draft.steps, emptyStep(type)] });
+
+  const removeStep = (id: string) =>
+    onChange({ ...draft, steps: draft.steps.filter((s) => s.id !== id) });
+
+  const patchStepConfig = (id: string, config: Record<string, unknown>) =>
+    onChange({
+      ...draft,
+      steps: draft.steps.map((s) => (s.id === id ? { ...s, config } : s)),
+    });
+
+  const moveStep = (index: number, dir: -1 | 1) => {
+    const target = index + dir;
+    if (target < 0 || target >= draft.steps.length) return;
+    const steps = [...draft.steps];
+    const [moved] = steps.splice(index, 1);
+    steps.splice(target, 0, moved);
+    onChange({ ...draft, steps });
+  };
+
+  return (
+    <div className="wf-builder">
+      <div className="wf-builder__bar">
+        <input
+          className="st-input wf-builder__title"
+          value={draft.name}
+          maxLength={120}
+          placeholder="Workflow name"
+          aria-label="Workflow name"
+          autoComplete="off"
+          onChange={(e) => onChange({ ...draft, name: e.target.value })}
+        />
+        <span className="wf-builder__spacer" />
+        <button
+          type="button"
+          className={`st-switch${draft.enabled ? ' is-on' : ''}`}
+          role="switch"
+          aria-checked={draft.enabled}
+          aria-label={draft.enabled ? 'Disable workflow' : 'Enable workflow'}
+          title={draft.enabled ? 'Enabled' : 'Disabled'}
+          onClick={onToggleEnabled}
+        />
+        {dirty ? (
+          <span className="wf-dirty">Unsaved changes</span>
+        ) : (
+          <span className="wf-saved">Saved</span>
+        )}
+        <TwentyButton
+          variant="primary"
+          icon={Save}
+          disabled={saving || !dirty || !draft.name.trim()}
+          onClick={onSave}
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </TwentyButton>
+        <TwentyButton
+          variant="ghost"
+          icon={Trash2}
+          className="st-btn--danger"
+          disabled={deleting}
+          onClick={onDelete}
+          title="Delete workflow"
+        >
+          Delete
+        </TwentyButton>
+      </div>
+
+      <div className="st-field">
+        <textarea
+          className="st-textarea"
+          value={draft.description ?? ''}
+          placeholder="Description (optional)"
+          aria-label="Workflow description"
+          onChange={(e) => onChange({ ...draft, description: e.target.value })}
+        />
+      </div>
+
+      <div className="wf-flow">
+        {/* Trigger card */}
+        <div className="wf-flow__node">
+          <div className="wf-card">
+            <div className="wf-card__head">
+              <span className="wf-card__head-icon">
+                <Zap size={13} />
+              </span>
+              Trigger
+            </div>
+            <div className="wf-card__body">
+              <span className="wf-trigger-pill">
+                <span className="wf-trigger-pill__icon">
+                  <Zap size={12} />
+                </span>
+                When&nbsp;<strong>{triggerSummary(draft.trigger)}</strong>
+              </span>
+              <div className="wf-grid-2">
+                <div className="st-field">
+                  <label className="st-field__label" htmlFor="wf-event">
+                    Event
+                  </label>
+                  <select
+                    id="wf-event"
+                    className="st-select"
+                    value={draft.trigger.event}
+                    onChange={(e) => setTrigger({ event: e.target.value as TriggerEvent })}
+                  >
+                    {EVENT_OPTIONS.map((ev) => (
+                      <option key={ev.value} value={ev.value}>
+                        {ev.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="st-field">
+                  <label className="st-field__label" htmlFor="wf-object">
+                    Object
+                  </label>
+                  {objects.length > 0 ? (
+                    <select
+                      id="wf-object"
+                      className="st-select"
+                      value={draft.trigger.object}
+                      onChange={(e) => setTrigger({ object: e.target.value })}
+                    >
+                      <option value="">All objects</option>
+                      {objects.map((o) => (
+                        <option key={o.slug} value={o.slug}>
+                          {o.labelPlural}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      id="wf-object"
+                      className="st-input"
+                      value={draft.trigger.object}
+                      placeholder="e.g. opportunities"
+                      autoComplete="off"
+                      onChange={(e) => setTrigger({ object: e.target.value.toLowerCase() })}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={submit}>
-          <div className="st-dialog__body">
-            {/* Identity */}
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="rule-name">
-                Name
-                <span className="st-field__req" aria-hidden="true">
-                  *
-                </span>
-              </label>
-              <input
-                id="rule-name"
-                className="st-input"
-                value={form.name}
-                maxLength={120}
-                autoComplete="off"
-                autoFocus
-                placeholder="e.g. Notify on new opportunity"
-                onChange={(e) => patch({ name: e.target.value })}
-              />
-            </div>
-
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="rule-desc">
-                Description
-              </label>
-              <textarea
-                id="rule-desc"
-                className="st-textarea"
-                value={form.description}
-                placeholder="Optional note about what this rule does"
-                onChange={(e) => patch({ description: e.target.value })}
-              />
-            </div>
-
-            <label className="st-checkbox-row">
-              <input
-                type="checkbox"
-                checked={form.enabled}
-                onChange={(e) => patch({ enabled: e.target.checked })}
-              />
-              Enabled
-            </label>
-
-            {/* Trigger */}
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="rule-event">
-                Trigger event
-                <span className="st-field__req" aria-hidden="true">
-                  *
-                </span>
-              </label>
-              <select
-                id="rule-event"
-                className="st-select"
-                value={form.event}
-                onChange={(e) => patch({ event: e.target.value as AutomationEvent })}
-              >
-                {EVENT_OPTIONS.map((ev) => (
-                  <option key={ev.value} value={ev.value}>
-                    {ev.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="rule-object">
-                Object slug
-                <span className="st-field__hint">(optional — blank fires for all objects)</span>
-              </label>
-              <input
-                id="rule-object"
-                className="st-input"
-                value={form.objectSlug}
-                autoComplete="off"
-                placeholder="e.g. opportunities"
-                onChange={(e) => patch({ objectSlug: e.target.value.toLowerCase() })}
-              />
-            </div>
-
-            {/* Action */}
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="rule-action">
-                Action
-                <span className="st-field__req" aria-hidden="true">
-                  *
-                </span>
-              </label>
-              <select
-                id="rule-action"
-                className="st-select"
-                value={form.actionType}
-                onChange={(e) => patch({ actionType: e.target.value as ActionType })}
-              >
-                {(['create_task', 'send_notification', 'call_webhook'] as ActionType[]).map((t) => (
-                  <option key={t} value={t}>
-                    {ACTION_LABEL[t]}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {form.actionType === 'create_task' ? (
-              <div className="st-subpanel">
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="task-title">
-                    Task title
-                    <span className="st-field__req" aria-hidden="true">
-                      *
-                    </span>
-                  </label>
-                  <input
-                    id="task-title"
-                    className="st-input"
-                    value={form.taskTitle}
-                    placeholder="e.g. Follow up with new lead"
-                    onChange={(e) => patch({ taskTitle: e.target.value })}
-                  />
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="task-body">
-                    Description
-                  </label>
-                  <textarea
-                    id="task-body"
-                    className="st-textarea"
-                    value={form.taskBody}
-                    placeholder="Optional task description"
-                    onChange={(e) => patch({ taskBody: e.target.value })}
-                  />
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="task-assignee">
-                    Assignee user ID
-                    <span className="st-field__hint">
-                      (optional — use <code>$record.assigneeId</code>)
-                    </span>
-                  </label>
-                  <input
-                    id="task-assignee"
-                    className="st-input"
-                    value={form.taskAssigneeId}
-                    autoComplete="off"
-                    placeholder="User ID or $record.assigneeId"
-                    onChange={(e) => patch({ taskAssigneeId: e.target.value })}
-                  />
-                </div>
+        {/* Steps */}
+        {draft.steps.length === 0 ? (
+          <>
+            <div className="wf-flow__connector" aria-hidden="true" />
+            <div className="wf-flow__node">
+              <div className="wf-steps-empty">
+                No steps yet. Add a step below to run an action when this trigger fires.
               </div>
-            ) : null}
-
-            {form.actionType === 'send_notification' ? (
-              <div className="st-subpanel">
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="notif-recipient">
-                    Recipient user ID
-                    <span className="st-field__req" aria-hidden="true">
-                      *
-                    </span>
-                    <span className="st-field__hint">
-                      (use <code>$record.assigneeId</code> for the record assignee)
-                    </span>
-                  </label>
-                  <input
-                    id="notif-recipient"
-                    className="st-input"
-                    value={form.notifRecipientUserId}
-                    autoComplete="off"
-                    placeholder="User ID or $record.assigneeId"
-                    onChange={(e) => patch({ notifRecipientUserId: e.target.value })}
-                  />
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="notif-title">
-                    Title
-                    <span className="st-field__req" aria-hidden="true">
-                      *
-                    </span>
-                  </label>
-                  <input
-                    id="notif-title"
-                    className="st-input"
-                    value={form.notifTitle}
-                    placeholder="Notification title"
-                    onChange={(e) => patch({ notifTitle: e.target.value })}
-                  />
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="notif-body">
-                    Body
-                  </label>
-                  <textarea
-                    id="notif-body"
-                    className="st-textarea"
-                    value={form.notifBody}
-                    placeholder="Optional notification body"
-                    onChange={(e) => patch({ notifBody: e.target.value })}
-                  />
-                </div>
+            </div>
+          </>
+        ) : (
+          draft.steps.map((step, index) => (
+            <React.Fragment key={step.id}>
+              <div className="wf-flow__connector" aria-hidden="true" />
+              <div className="wf-flow__node">
+                <StepCard
+                  step={step}
+                  index={index}
+                  count={draft.steps.length}
+                  objects={objects}
+                  triggerObject={draft.trigger.object}
+                  onPatchConfig={(config) => patchStepConfig(step.id, config)}
+                  onMove={(dir) => moveStep(index, dir)}
+                  onRemove={() => removeStep(step.id)}
+                />
               </div>
-            ) : null}
+            </React.Fragment>
+          ))
+        )}
 
-            {form.actionType === 'call_webhook' ? (
-              <div className="st-subpanel">
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="webhook-url">
-                    URL
-                    <span className="st-field__req" aria-hidden="true">
-                      *
-                    </span>
-                  </label>
-                  <input
-                    id="webhook-url"
-                    className="st-input"
-                    type="url"
-                    value={form.webhookUrl}
-                    autoComplete="off"
-                    placeholder="https://example.com/webhook"
-                    onChange={(e) => patch({ webhookUrl: e.target.value })}
-                  />
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="webhook-secret">
-                    Secret
-                    <span className="st-field__hint">
-                      (optional — adds <code>X-SabCRM-Signature</code> header)
-                    </span>
-                  </label>
-                  <input
-                    id="webhook-secret"
-                    className="st-input"
-                    type="password"
-                    value={form.webhookSecret}
-                    autoComplete="new-password"
-                    placeholder="Signing secret"
-                    onChange={(e) => patch({ webhookSecret: e.target.value })}
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {error ? <p className="st-form-error">{error}</p> : null}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={submitting}>
-              Cancel
-            </TwentyButton>
-            <TwentyButton type="submit" variant="primary" disabled={submitting}>
-              {submitting ? 'Saving…' : existing ? 'Save changes' : 'Create rule'}
-            </TwentyButton>
-          </div>
-        </form>
+        <div className="wf-flow__connector" aria-hidden="true" />
+        <div className="wf-flow__node">
+          <AddStep onAdd={addStep} />
+        </div>
       </div>
     </div>
   );
@@ -649,34 +637,39 @@ function RuleDialog({ projectId, existing, onClose, onSaved }: RuleDialogProps):
 // ---------------------------------------------------------------------------
 
 interface DeleteDialogProps {
-  rule: AutomationRule;
+  workflow: Workflow;
   busy: boolean;
   onCancel: () => void;
   onConfirm: () => void;
 }
 
-function DeleteDialog({ rule, busy, onCancel, onConfirm }: DeleteDialogProps): React.JSX.Element {
+function DeleteDialog({
+  workflow,
+  busy,
+  onCancel,
+  onConfirm,
+}: DeleteDialogProps): React.JSX.Element {
   return (
     <div
       className="st-dialog-overlay"
       role="dialog"
       aria-modal="true"
-      aria-label="Delete automation rule"
+      aria-label="Delete workflow"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onCancel();
       }}
     >
       <div className="st-dialog">
         <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Delete automation rule</h2>
+          <h2 className="st-dialog__title">Delete workflow</h2>
           <button type="button" className="st-dialog__close" onClick={onCancel} aria-label="Close">
             <X size={16} />
           </button>
         </div>
         <div className="st-dialog__body">
           <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
-            Delete <strong style={{ color: 'var(--st-text)' }}>{rule.name}</strong>? Future events
-            matching this trigger will no longer fire its action. This cannot be undone.
+            Delete <strong style={{ color: 'var(--st-text)' }}>{workflow.name || 'this workflow'}</strong>?
+            Its trigger will stop firing and its steps will no longer run. This cannot be undone.
           </p>
         </div>
         <div className="st-dialog__footer">
@@ -689,7 +682,7 @@ function DeleteDialog({ rule, busy, onCancel, onConfirm }: DeleteDialogProps): R
             onClick={onConfirm}
             disabled={busy}
           >
-            {busy ? 'Deleting…' : 'Delete rule'}
+            {busy ? 'Deleting…' : 'Delete workflow'}
           </TwentyButton>
         </div>
       </div>
@@ -698,13 +691,13 @@ function DeleteDialog({ rule, busy, onCancel, onConfirm }: DeleteDialogProps): R
 }
 
 // ---------------------------------------------------------------------------
-// Loading skeleton
+// Loading skeleton (left list)
 // ---------------------------------------------------------------------------
 
-function RulesSkeleton(): React.JSX.Element {
+function ListSkeleton(): React.JSX.Element {
   return (
-    <div className="st-table-wrap" style={{ padding: 'var(--st-space-3)' }}>
-      {Array.from({ length: 3 }).map((_, i) => (
+    <div className="wf-list-skel">
+      {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="st-skeleton st-skeleton-row" />
       ))}
     </div>
@@ -715,40 +708,44 @@ function RulesSkeleton(): React.JSX.Element {
 // Page
 // ---------------------------------------------------------------------------
 
-export default function SabcrmAutomationsSettingsPage(): React.JSX.Element {
+export default function SabcrmWorkflowsSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
 
-  const [rules, setRules] = React.useState<AutomationRule[]>([]);
-  const [statuses, setStatuses] = React.useState<Record<string, AutomationRuleStatus>>({});
+  const [workflows, setWorkflows] = React.useState<Workflow[]>([]);
+  const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [editing, setEditing] = React.useState<AutomationRule | null>(null);
-  const [deleteTarget, setDeleteTarget] = React.useState<AutomationRule | null>(null);
-  const [deleting, setDeleting] = React.useState(false);
-  const [togglingId, setTogglingId] = React.useState<string | null>(null);
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  /** Server-known state of the selected workflow (the "baseline" for dirty). */
+  const [baseline, setBaseline] = React.useState<Workflow | null>(null);
+  /** Locally-edited draft of the selected workflow. */
+  const [draft, setDraft] = React.useState<Workflow | null>(null);
 
+  const [saving, setSaving] = React.useState(false);
+  const [creating, setCreating] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState<Workflow | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+
+  // -- Load list + objects -------------------------------------------------
   const load = React.useCallback(async (projectId: string) => {
     setLoading(true);
     setError(null);
     try {
-      const [rulesRes, statusRes] = await Promise.all([
-        listAutomationRulesAction(projectId),
-        listAutomationRuleStatusesAction(projectId),
+      const [wfRes, objRes] = await Promise.all([
+        listWorkflowsTw(projectId),
+        listObjectsTw(projectId),
       ]);
-      if (!rulesRes.ok) {
-        setError(rulesRes.error);
-        setRules([]);
+      if (!wfRes.ok) {
+        setError(wfRes.error);
+        setWorkflows([]);
         return;
       }
-      setRules(rulesRes.data);
-      if (statusRes.ok) {
-        setStatuses(Object.fromEntries(statusRes.data.map((s) => [s.id, s])));
-      }
+      setWorkflows(wfRes.data as Workflow[]);
+      if (objRes.ok) setObjects(objRes.data);
     } catch {
-      setError('Automation rules could not be loaded. The service may be unavailable.');
-      setRules([]);
+      setError('Workflows could not be loaded. The service may be unavailable.');
+      setWorkflows([]);
     } finally {
       setLoading(false);
     }
@@ -763,108 +760,188 @@ export default function SabcrmAutomationsSettingsPage(): React.JSX.Element {
     void load(activeProjectId);
   }, [activeProjectId, isLoadingProject, load]);
 
-  const upsertRule = React.useCallback((rule: AutomationRule) => {
-    setRules((prev) => {
-      const idx = prev.findIndex((r) => r.id === rule.id);
-      if (idx === -1) return [rule, ...prev];
-      const next = [...prev];
-      next[idx] = rule;
-      return next;
-    });
-    setStatuses((prev) => ({
-      ...prev,
-      [rule.id]: {
-        id: rule.id,
-        name: rule.name,
-        enabled: rule.enabled,
-        lastFiredAt: rule.lastFiredAt,
-        lastFailedAt: rule.lastFailedAt,
-        lastError: rule.lastError,
-      },
-    }));
-  }, []);
-
-  const handleToggle = React.useCallback(
-    async (rule: AutomationRule) => {
+  // -- Select a workflow → fetch its full detail (steps/trigger) ----------
+  const select = React.useCallback(
+    async (workflow: Workflow) => {
+      setSelectedId(workflow.id);
+      // Seed immediately from the list row so the pane is never blank.
+      setBaseline(workflow);
+      setDraft(workflow);
       if (!activeProjectId) return;
-      const next = !rule.enabled;
-      setTogglingId(rule.id);
-      setError(null);
-      // Optimistic
-      upsertRule({ ...rule, enabled: next });
       try {
-        const res = await updateAutomationRuleAction(rule.id, { enabled: next }, activeProjectId);
+        const res = await getWorkflowTw(workflow.id, activeProjectId);
         if (res.ok) {
-          upsertRule(res.data);
+          const full = res.data as Workflow;
+          setBaseline(full);
+          // Only overwrite the draft if the user hasn't started editing.
+          setDraft((prev) => (prev && prev.id === full.id && sameWorkflow(prev, workflow) ? full : prev));
+          setWorkflows((prev) => prev.map((w) => (w.id === full.id ? full : w)));
+        }
+      } catch {
+        /* keep the list-seeded version; non-fatal */
+      }
+    },
+    [activeProjectId],
+  );
+
+  // -- Create -------------------------------------------------------------
+  const handleCreate = React.useCallback(async () => {
+    if (!activeProjectId || creating) return;
+    setCreating(true);
+    setError(null);
+    const input: CreateInput = {
+      name: 'Untitled workflow',
+      enabled: false,
+      trigger: { event: 'record.created', object: '' },
+      steps: [],
+    };
+    try {
+      const res = await createWorkflowTw(input, activeProjectId);
+      if (res.ok) {
+        const created = res.data as Workflow;
+        setWorkflows((prev) => [created, ...prev]);
+        setSelectedId(created.id);
+        setBaseline(created);
+        setDraft(created);
+      } else {
+        setError(res.error);
+      }
+    } catch {
+      setError('Failed to create the workflow. The service may be unavailable.');
+    } finally {
+      setCreating(false);
+    }
+  }, [activeProjectId, creating]);
+
+  // -- Save (persist the draft) -------------------------------------------
+  const handleSave = React.useCallback(async () => {
+    if (!activeProjectId || !draft || saving) return;
+    if (!draft.name.trim()) {
+      setError('Workflow name is required.');
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    const patch: WorkflowPatch = {
+      name: draft.name.trim(),
+      description: draft.description?.trim() || undefined,
+      enabled: draft.enabled,
+      trigger: draft.trigger,
+      steps: draft.steps,
+    };
+    try {
+      const res = await updateWorkflowTw(draft.id, patch, activeProjectId);
+      if (res.ok) {
+        const saved = res.data as Workflow;
+        setBaseline(saved);
+        setDraft(saved);
+        setWorkflows((prev) => prev.map((w) => (w.id === saved.id ? saved : w)));
+      } else {
+        setError(res.error);
+      }
+    } catch {
+      setError('Failed to save the workflow. The service may be unavailable.');
+    } finally {
+      setSaving(false);
+    }
+  }, [activeProjectId, draft, saving]);
+
+  // -- Toggle enabled (persists immediately, optimistic) ------------------
+  const handleToggleEnabled = React.useCallback(
+    async (workflow: Workflow) => {
+      if (!activeProjectId) return;
+      const next = !workflow.enabled;
+      // Optimistic update across list + draft/baseline.
+      setWorkflows((prev) => prev.map((w) => (w.id === workflow.id ? { ...w, enabled: next } : w)));
+      setDraft((prev) => (prev && prev.id === workflow.id ? { ...prev, enabled: next } : prev));
+      setBaseline((prev) => (prev && prev.id === workflow.id ? { ...prev, enabled: next } : prev));
+      try {
+        const res = await updateWorkflowTw(workflow.id, { enabled: next }, activeProjectId);
+        if (res.ok) {
+          const saved = res.data as Workflow;
+          setWorkflows((prev) => prev.map((w) => (w.id === saved.id ? saved : w)));
+          setBaseline((prev) => (prev && prev.id === saved.id ? { ...prev, enabled: saved.enabled } : prev));
+          setDraft((prev) => (prev && prev.id === saved.id ? { ...prev, enabled: saved.enabled } : prev));
         } else {
-          upsertRule({ ...rule, enabled: rule.enabled });
+          // revert
+          setWorkflows((prev) =>
+            prev.map((w) => (w.id === workflow.id ? { ...w, enabled: workflow.enabled } : w)),
+          );
+          setDraft((prev) =>
+            prev && prev.id === workflow.id ? { ...prev, enabled: workflow.enabled } : prev,
+          );
+          setBaseline((prev) =>
+            prev && prev.id === workflow.id ? { ...prev, enabled: workflow.enabled } : prev,
+          );
           setError(res.error);
         }
       } catch {
-        upsertRule({ ...rule, enabled: rule.enabled });
-        setError('Failed to update the rule. The service may be unavailable.');
-      } finally {
-        setTogglingId(null);
+        setWorkflows((prev) =>
+          prev.map((w) => (w.id === workflow.id ? { ...w, enabled: workflow.enabled } : w)),
+        );
+        setError('Failed to update the workflow. The service may be unavailable.');
       }
     },
-    [activeProjectId, upsertRule],
+    [activeProjectId],
   );
 
+  // -- Delete -------------------------------------------------------------
   const confirmDelete = React.useCallback(async () => {
     if (!deleteTarget || !activeProjectId) return;
     setDeleting(true);
     setError(null);
     try {
-      const res = await deleteAutomationRuleAction(deleteTarget.id, activeProjectId);
+      const res = await deleteWorkflowTw(deleteTarget.id, activeProjectId);
       if (res.ok) {
-        setRules((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+        setWorkflows((prev) => prev.filter((w) => w.id !== deleteTarget.id));
+        if (selectedId === deleteTarget.id) {
+          setSelectedId(null);
+          setDraft(null);
+          setBaseline(null);
+        }
         setDeleteTarget(null);
       } else {
         setError(res.error);
         setDeleteTarget(null);
       }
     } catch {
-      setError('Failed to delete the rule. The service may be unavailable.');
+      setError('Failed to delete the workflow. The service may be unavailable.');
       setDeleteTarget(null);
     } finally {
       setDeleting(false);
     }
-  }, [deleteTarget, activeProjectId]);
+  }, [deleteTarget, activeProjectId, selectedId]);
 
-  const openCreate = React.useCallback(() => {
-    setEditing(null);
-    setDialogOpen(true);
-  }, []);
-
-  const openEdit = React.useCallback((rule: AutomationRule) => {
-    setEditing(rule);
-    setDialogOpen(true);
-  }, []);
-
-  const enabledCount = rules.filter((r) => r.enabled).length;
+  const enabledCount = workflows.filter((w) => w.enabled).length;
 
   return (
     <div className="st-page">
       <div className="st-settings">
         <TwentyPageHeader
-          title="Automations"
-          icon={Zap}
+          title="Workflows"
+          icon={WorkflowIcon}
           actions={
             activeProjectId ? (
-              <TwentyButton variant="primary" icon={Plus} onClick={openCreate}>
-                New rule
+              <TwentyButton
+                variant="primary"
+                icon={Plus}
+                onClick={() => void handleCreate()}
+                disabled={creating}
+              >
+                {creating ? 'Creating…' : 'New workflow'}
               </TwentyButton>
             ) : null
           }
         />
         <p className="st-settings__intro">
-          Define event-driven rules that automatically create tasks, send
-          notifications, or call webhooks when CRM records change. Managing rules
-          requires the <code>sabcrm:admin</code> capability.
-          {rules.length > 0 ? (
+          Build event-driven workflows: a trigger fires when a CRM record changes,
+          then runs an ordered list of steps. Managing workflows requires the{' '}
+          <code>sabcrm:admin</code> capability.
+          {workflows.length > 0 ? (
             <>
               {' '}
-              {enabledCount} of {rules.length} {rules.length === 1 ? 'rule' : 'rules'} active.
+              {enabledCount} of {workflows.length}{' '}
+              {workflows.length === 1 ? 'workflow' : 'workflows'} enabled.
             </>
           ) : null}
         </p>
@@ -877,124 +954,107 @@ export default function SabcrmAutomationsSettingsPage(): React.JSX.Element {
         ) : null}
 
         {isLoadingProject || loading ? (
-          <RulesSkeleton />
+          <div className="wf-layout">
+            <div className="wf-list">
+              <ListSkeleton />
+            </div>
+            <div className="wf-placeholder">
+              <WorkflowIcon className="wf-placeholder__icon" size={22} />
+              <span>Loading workflows…</span>
+            </div>
+          </div>
         ) : !activeProjectId ? (
           <div className="st-empty">
             <span className="st-empty__icon">
               <AlertTriangle size={20} />
             </span>
             <h2 className="st-empty__title">No project selected</h2>
-            <p className="st-empty__desc">Select a project to manage its automation rules.</p>
+            <p className="st-empty__desc">Select a project to manage its workflows.</p>
           </div>
-        ) : rules.length === 0 ? (
+        ) : workflows.length === 0 ? (
           <div className="st-empty">
             <span className="st-empty__icon">
-              <Zap size={20} />
+              <WorkflowIcon size={20} />
             </span>
-            <h2 className="st-empty__title">No automation rules yet</h2>
+            <h2 className="st-empty__title">No workflows yet</h2>
             <p className="st-empty__desc">
-              Create your first rule to automatically create tasks, send
-              notifications, or call webhooks when CRM events occur.
+              Create your first workflow to automatically run steps — create tasks,
+              send notifications, update fields, or call webhooks — when CRM events occur.
             </p>
-            <TwentyButton variant="secondary" icon={Plus} onClick={openCreate}>
-              New rule
+            <TwentyButton
+              variant="secondary"
+              icon={Plus}
+              onClick={() => void handleCreate()}
+              disabled={creating}
+            >
+              New workflow
             </TwentyButton>
           </div>
         ) : (
-          <div className="st-table-wrap">
-            <table className="st-table">
-              <thead>
-                <tr>
-                  <th>Rule</th>
-                  <th>Trigger &amp; action</th>
-                  <th>Status</th>
-                  <th>Enabled</th>
-                  <th aria-label="Actions" />
-                </tr>
-              </thead>
-              <tbody>
-                {rules.map((rule) => {
-                  const st = statuses[rule.id];
-                  const kind = statusOf(rule, st);
-                  const lastFiredAt = st?.lastFiredAt ?? rule.lastFiredAt;
-                  const lastFailedAt = st?.lastFailedAt ?? rule.lastFailedAt;
-                  return (
-                    <tr key={rule.id} className="st-row">
-                      <td>
-                        <span className="st-cell-link">{rule.name}</span>
-                        {rule.description ? (
-                          <div className="st-identity__sub">{rule.description}</div>
-                        ) : null}
-                        <div className="st-meta" style={{ marginTop: 4 }}>
-                          <span>Fired: {relativeTime(lastFiredAt)}</span>
-                          {kind === 'failed' ? (
-                            <span className="st-meta__fail" title={st?.lastError ?? rule.lastError}>
-                              <AlertTriangle size={11} />
-                              Failed {relativeTime(lastFailedAt)}
-                            </span>
-                          ) : null}
-                        </div>
-                      </td>
-                      <td>
-                        <FlowCell rule={rule} />
-                      </td>
-                      <td>
-                        <StatusChip kind={kind} />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className={`st-switch${rule.enabled ? ' is-on' : ''}`}
-                          role="switch"
-                          aria-checked={rule.enabled}
-                          aria-label={rule.enabled ? 'Disable rule' : 'Enable rule'}
-                          disabled={togglingId === rule.id}
-                          onClick={() => void handleToggle(rule)}
-                        />
-                      </td>
-                      <td className="st-cell-actions">
-                        <TwentyButton
-                          variant="ghost"
-                          icon={Pencil}
-                          onClick={() => openEdit(rule)}
-                          title="Edit rule"
-                        >
-                          Edit
-                        </TwentyButton>
-                        <TwentyButton
-                          variant="ghost"
-                          icon={Trash2}
-                          className="st-btn--danger"
-                          onClick={() => setDeleteTarget(rule)}
-                          title="Delete rule"
-                        >
-                          Delete
-                        </TwentyButton>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="wf-layout">
+            {/* Left: list */}
+            <div className="wf-list">
+              <div className="wf-list__head">
+                <span>Workflows</span>
+                <span>{workflows.length}</span>
+              </div>
+              <div className="wf-list__scroll">
+                {workflows.map((w) => (
+                  <button
+                    key={w.id}
+                    type="button"
+                    className={`wf-list__item${w.id === selectedId ? ' is-active' : ''}`}
+                    onClick={() => void select(w)}
+                  >
+                    <span className="wf-list__name">
+                      <span className="wf-list__name-text">{w.name || 'Untitled workflow'}</span>
+                      <span
+                        className={`st-switch${w.enabled ? ' is-on' : ''}`}
+                        role="switch"
+                        aria-checked={w.enabled}
+                        aria-label={w.enabled ? 'Disable workflow' : 'Enable workflow'}
+                        title={w.enabled ? 'Enabled' : 'Disabled'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void handleToggleEnabled(w);
+                        }}
+                      />
+                    </span>
+                    <span className="wf-list__trigger">{triggerSummary(w.trigger)}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: builder */}
+            {draft && baseline ? (
+              <Builder
+                draft={draft}
+                baseline={baseline}
+                objects={objects}
+                saving={saving}
+                deleting={deleting && deleteTarget?.id === draft.id}
+                onChange={setDraft}
+                onSave={() => void handleSave()}
+                onToggleEnabled={() => void handleToggleEnabled(draft)}
+                onDelete={() => setDeleteTarget(draft)}
+              />
+            ) : (
+              <div className="wf-placeholder">
+                <WorkflowIcon className="wf-placeholder__icon" size={22} />
+                <span>Select a workflow to edit, or create a new one.</span>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {dialogOpen && activeProjectId ? (
-        <RuleDialog
-          projectId={activeProjectId}
-          existing={editing}
-          onClose={() => setDialogOpen(false)}
-          onSaved={upsertRule}
-        />
-      ) : null}
-
       {deleteTarget ? (
         <DeleteDialog
-          rule={deleteTarget}
+          workflow={deleteTarget}
           busy={deleting}
           onCancel={() => setDeleteTarget(null)}
-          onConfirm={confirmDelete}
+          onConfirm={() => void confirmDelete()}
         />
       ) : null}
     </div>

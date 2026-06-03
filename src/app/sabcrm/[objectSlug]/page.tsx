@@ -40,6 +40,7 @@ import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
+import './kanban-dnd.css';
 import {
   SabcrmViewBar,
   EMPTY_VIEW_STATE,
@@ -429,49 +430,162 @@ interface BoardViewProps {
   groupByField: FieldMetadata;
   groups: SabcrmRecordTwGroup[];
   previewFields: FieldMetadata[];
+  /**
+   * Drop a card onto a different column → set its group field to
+   * `targetValue` (the target column's SELECT option value, or `null` for the
+   * "Ungrouped" bucket). The page owns the optimistic move + persistence +
+   * rollback; this just reports the intent.
+   */
+  onMoveCard: (recordId: string, fromValue: string | null, targetValue: string | null) => void;
+  /** Records mid-flight to the engine — rendered with the "saving" ring. */
+  savingIds: ReadonlySet<string>;
 }
 
-function BoardView({ object, groupByField, groups, previewFields }: BoardViewProps) {
+/** Stable key for a board column (the SELECT value, or a sentinel for null). */
+const UNGROUPED_KEY = '__ungrouped__';
+const colKey = (value: string | null): string => value ?? UNGROUPED_KEY;
+
+/** What `dataTransfer` carries during a card drag (also kept in React state). */
+interface DragPayload {
+  recordId: string;
+  fromValue: string | null;
+}
+
+function BoardView({
+  object,
+  groupByField,
+  groups,
+  previewFields,
+  onMoveCard,
+  savingIds,
+}: BoardViewProps) {
   const optionFor = (value: string | null) =>
     value === null
       ? undefined
       : groupByField.options?.find((o) => o.value === value);
+
+  // The card being dragged (drives the source "ghost" style + drop routing)
+  // and the column currently hovered (drives the drop-target highlight).
+  const [drag, setDrag] = React.useState<DragPayload | null>(null);
+  const [overKey, setOverKey] = React.useState<string | null>(null);
+
+  const endDrag = React.useCallback(() => {
+    setDrag(null);
+    setOverKey(null);
+  }, []);
+
+  const handleDrop = React.useCallback(
+    (targetValue: string | null) => {
+      if (!drag) return endDrag();
+      // Same column → no-op (avoids a pointless write + reorder churn).
+      if (drag.fromValue !== targetValue) {
+        onMoveCard(drag.recordId, drag.fromValue, targetValue);
+      }
+      endDrag();
+    },
+    [drag, onMoveCard, endDrag],
+  );
 
   return (
     <div className="st-board">
       {groups.map((group) => {
         const opt = optionFor(group.value);
         const label = opt?.label ?? group.value ?? 'Ungrouped';
+        const key = colKey(group.value);
+        const isOver = drag !== null && overKey === key && drag.fromValue !== group.value;
+        const isCandidate = drag !== null && drag.fromValue !== group.value;
         return (
-          <div className="st-board__col" key={group.value ?? '__ungrouped__'}>
+          <div
+            className={`st-board__col st-board__col--dnd${
+              isCandidate ? ' st-board__col--drop-candidate' : ''
+            }`}
+            key={key}
+          >
             <div className="st-board__head">
               <TwentyChip label={label} color={chipColor(opt?.color)} />
               <span className="st-board__count">{group.records.length}</span>
             </div>
-            <div className="st-board__body">
+            <div
+              className={`st-board__body st-board__body--dnd${
+                isOver ? ' st-board__body--drop-active' : ''
+              }`}
+              onDragOver={(e) => {
+                // Without preventDefault the browser refuses the drop.
+                if (!drag) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (overKey !== key) setOverKey(key);
+              }}
+              onDragEnter={(e) => {
+                if (!drag) return;
+                e.preventDefault();
+                setOverKey(key);
+              }}
+              onDragLeave={(e) => {
+                // Only clear when the pointer truly leaves the column body,
+                // not when crossing between child cards inside it.
+                if (
+                  e.relatedTarget instanceof Node &&
+                  e.currentTarget.contains(e.relatedTarget)
+                ) {
+                  return;
+                }
+                if (overKey === key) setOverKey(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleDrop(group.value);
+              }}
+            >
               {group.records.length === 0 ? (
-                <div className="st-board__empty">Nothing here</div>
+                <div className="st-board__empty">
+                  {isOver ? 'Drop here' : 'Nothing here'}
+                </div>
               ) : (
-                group.records.map((record) => (
-                  <Link
-                    key={record.id}
-                    href={`/sabcrm/${object.slug}/${record.id}`}
-                    className="st-card"
-                  >
-                    <div className="st-card__title">
-                      {recordLabel(object, record)}
-                    </div>
-                    {previewFields.map((f) => {
-                      const v = record.data[f.key];
-                      if (v === null || v === undefined || v === '') return null;
-                      return (
-                        <div key={f.key} className="st-card__meta">
-                          <TwentyFieldValue field={f} value={v} />
-                        </div>
-                      );
-                    })}
-                  </Link>
-                ))
+                group.records.map((record) => {
+                  const isDragging = drag?.recordId === record.id;
+                  const isSaving = savingIds.has(record.id);
+                  return (
+                    <Link
+                      key={record.id}
+                      href={`/sabcrm/${object.slug}/${record.id}`}
+                      className={`st-card st-card--draggable${
+                        isDragging ? ' st-card--dragging' : ''
+                      }${isSaving ? ' st-card--saving' : ''}`}
+                      draggable={!isSaving}
+                      onDragStart={(e) => {
+                        const payload: DragPayload = {
+                          recordId: record.id,
+                          fromValue: group.value,
+                        };
+                        e.dataTransfer.effectAllowed = 'move';
+                        // Plain-text fallback so external/native targets see
+                        // something sane; React state is the real channel.
+                        e.dataTransfer.setData('text/plain', record.id);
+                        setDrag(payload);
+                        setOverKey(null);
+                      }}
+                      onDragEnd={endDrag}
+                      // A drag must not also fire the link navigation.
+                      onClick={(e) => {
+                        if (drag) e.preventDefault();
+                      }}
+                    >
+                      <div className="st-card__title">
+                        {recordLabel(object, record)}
+                      </div>
+                      {previewFields.map((f) => {
+                        const v = record.data[f.key];
+                        if (v === null || v === undefined || v === '') return null;
+                        return (
+                          <div key={f.key} className="st-card__meta">
+                            <TwentyFieldValue field={f} value={v} />
+                          </div>
+                        );
+                      })}
+                    </Link>
+                  );
+                })
               )}
             </div>
           </div>
@@ -703,6 +817,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
   const [groups, setGroups] = React.useState<SabcrmRecordTwGroup[]>([]);
+  // Board cards currently persisting a column move (drives the "saving" ring).
+  const [movingCards, setMovingCards] = React.useState<Set<string>>(new Set());
   const [loadingData, setLoadingData] = React.useState(true);
   const [dataError, setDataError] = React.useState<string | null>(null);
 
@@ -922,6 +1038,82 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       }
     },
     [records, objectSlug, activeProjectId],
+  );
+
+  // Board drag-and-drop: move a card to another column = set its group field
+  // to the target column's value. Optimistic (the card jumps columns in local
+  // `groups` immediately), persisted via the Rust engine, rolled back on error
+  // into the existing `dataError` banner.
+  const handleMoveCard = React.useCallback(
+    async (recordId: string, fromValue: string | null, targetValue: string | null) => {
+      if (!groupField) return;
+      if (fromValue === targetValue) return;
+      if (movingCards.has(recordId)) return;
+
+      const key = groupField.key;
+      const prevGroups = groups;
+
+      // Locate + lift the record out of its source column.
+      let moved: SabcrmRustRecord | undefined;
+      for (const g of prevGroups) {
+        if (g.value === fromValue) {
+          moved = g.records.find((r) => r.id === recordId);
+          break;
+        }
+      }
+      if (!moved) return;
+      const updated: SabcrmRustRecord = {
+        ...moved,
+        data: { ...moved.data, [key]: targetValue },
+      };
+
+      // Optimistic reshuffle: drop from source, append to target.
+      setGroups((gs) =>
+        gs.map((g) => {
+          if (g.value === fromValue) {
+            return { ...g, records: g.records.filter((r) => r.id !== recordId) };
+          }
+          if (g.value === targetValue) {
+            return { ...g, records: [...g.records, updated] };
+          }
+          return g;
+        }),
+      );
+      setMovingCards((m) => new Set(m).add(recordId));
+      setDataError(null);
+
+      const res = await updateSabcrmRecordTw(
+        objectSlug,
+        recordId,
+        { [key]: targetValue },
+        activeProjectId ?? undefined,
+      );
+
+      setMovingCards((m) => {
+        const n = new Set(m);
+        n.delete(recordId);
+        return n;
+      });
+
+      if (!res.ok) {
+        // Roll back to the pre-drag grouping + surface the engine error.
+        setGroups(prevGroups);
+        setDataError(res.error);
+        return;
+      }
+      // Reconcile the target card with the engine's canonical record.
+      setGroups((gs) =>
+        gs.map((g) =>
+          g.value === targetValue
+            ? {
+                ...g,
+                records: g.records.map((r) => (r.id === recordId ? res.data : r)),
+              }
+            : g,
+        ),
+      );
+    },
+    [groupField, groups, movingCards, objectSlug, activeProjectId],
   );
 
   const handleCreated = React.useCallback(() => {
@@ -1259,6 +1451,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           groupByField={groupField}
           groups={groups}
           previewFields={previewFields}
+          onMoveCard={handleMoveCard}
+          savingIds={movingCards}
         />
       ) : (
         <>

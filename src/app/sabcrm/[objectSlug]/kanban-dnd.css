@@ -1,0 +1,59 @@
+/* =========================================================================
+   SabCRM board (kanban) drag-and-drop — Twenty-faithful visual feedback.
+
+   Layered on top of the `.st-board*` / `.st-card` classes from
+   `src/styles/sabcrm-twenty.css` (which is NOT edited). These classes only
+   add the drag affordances: a grab cursor, the lifted "dragging" card, and
+   the column drop-target highlight. They reuse the shared `--st-*` design
+   tokens so the look stays consistent with the rest of the Twenty kit.
+   ========================================================================= */
+
+/* The card becomes a draggable surface. Keep the link affordance, but hint at
+   the drag handle via cursor; the actual cursor flips to grabbing on press. */
+.st-card--draggable {
+  cursor: grab;
+  /* Avoids the browser's default text/link drag-image flicker on press. */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.st-card--draggable:active {
+  cursor: grabbing;
+}
+
+/* The card currently under the pointer while a drag is in flight: dimmed +
+   slightly lifted, matching Twenty's "ghost" source card. */
+.st-card--dragging {
+  opacity: 0.45;
+  border-color: var(--st-accent);
+  box-shadow: var(--st-shadow);
+  cursor: grabbing;
+}
+
+/* A column that is a valid drop target while a card hovers over it. Twenty
+   tints the whole body with the accent-soft wash and outlines it. */
+.st-board__body--dnd {
+  border-radius: var(--st-radius);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.st-board__body--drop-active {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+
+/* While any drag is in flight, every other column gets a subtle dashed
+   outline so the user can see all the places a card may land. */
+.st-board__col--dnd.st-board__col--drop-candidate .st-board__body {
+  outline: 1px dashed var(--st-border);
+  outline-offset: -1px;
+  border-radius: var(--st-radius);
+}
+
+/* The card is busy persisting its new column (server round-trip in flight):
+   a soft accent ring so the move reads as "saving" rather than done. */
+.st-card--saving {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+  pointer-events: none;
+}

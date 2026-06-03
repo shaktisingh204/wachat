@@ -1,0 +1,47 @@
+# SabCRM — axum router for the **notifications** HTTP surface.
+#
+# Create / list / count / mark-read / mark-all-read / delete over the
+# `sabcrm_notifications` Mongo collection: per-user in-app notifications
+# within a project. Tenancy is by `projectId` (a query/body string); rows
+# are additionally scoped to the caller's `userId` (from `AuthUser`), except
+# that POST may fan a notification out to another user.
+#
+# Mounted under `/v1/sabcrm/notifications` from the orchestrating `api` crate.
+[package]
+name = "sabcrm-notifications"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that mounts the SabCRM notifications HTTP surface (`/v1/sabcrm/notifications/*`). Per-user in-app notifications scoped by `projectId` + caller `userId`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabcrm_notifications"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+mongodb = "3"
+futures = "0.3"
+
+tracing = "0.1"
+
+anyhow = "1"
+
+utoipa = { version = "5", features = ["axum_extras", "chrono"] }
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

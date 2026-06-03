@@ -218,6 +218,231 @@
 }
 
 /* =========================================================================
+   Chart renderer — shared by run output + builder preview.
+   Pure CSS/SVG, no chart library. (report-chart.tsx)
+   ========================================================================= */
+
+/* Inline note when a chart can't be drawn (e.g. all-zero pie). */
+.sabcrm-twenty .st-chart-empty {
+  padding: var(--st-space-4);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-align: center;
+}
+
+/* ----- Line chart ----- */
+.sabcrm-twenty .st-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-chart__svg {
+  width: 100%;
+  height: 240px;
+  display: block;
+  overflow: visible;
+}
+
+.sabcrm-twenty .st-chart__grid {
+  stroke: var(--st-border-light);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sabcrm-twenty .st-chart__tick {
+  fill: var(--st-text-tertiary);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-chart__area {
+  fill: var(--st-text);
+  opacity: 0.06;
+}
+
+.sabcrm-twenty .st-chart__line {
+  fill: none;
+  stroke: var(--st-text);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sabcrm-twenty .st-chart__dot {
+  fill: var(--st-bg);
+  stroke: var(--st-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.sabcrm-twenty .st-chart__xaxis {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-chart__xlabel {
+  flex: 1 1 0;
+  min-width: 0;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-chart__xlabel:first-child {
+  text-align: left;
+}
+
+.sabcrm-twenty .st-chart__xlabel:last-child {
+  text-align: right;
+}
+
+/* ----- Pie / donut chart ----- */
+.sabcrm-twenty .st-pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-5, var(--st-space-4));
+}
+
+.sabcrm-twenty .st-pie__svg {
+  width: 180px;
+  height: 180px;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-pie__center-num {
+  fill: var(--st-text);
+  font-size: 22px;
+  font-weight: var(--st-fw-semibold);
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+.sabcrm-twenty .st-pie__center-cap {
+  fill: var(--st-text-tertiary);
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+.sabcrm-twenty .st-pie__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 200px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-pie__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .st-pie__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-pie__legend-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-pie__legend-val {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-pie__legend-pct {
+  color: var(--st-text-tertiary);
+  font-weight: var(--st-fw-regular, 400);
+  font-size: var(--st-font-size-xs);
+}
+
+/* ----- Table chart ----- */
+.sabcrm-twenty .st-rtable-wrap {
+  overflow-x: auto;
+}
+
+.sabcrm-twenty .st-rtable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--st-font-size-sm);
+}
+
+.sabcrm-twenty .st-rtable th,
+.sabcrm-twenty .st-rtable td {
+  padding: var(--st-space-2) var(--st-space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-rtable thead th {
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sabcrm-twenty .st-rtable tbody tr:hover {
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-rtable__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sabcrm-twenty .st-rtable__muted {
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-rtable__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-rtable__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.sabcrm-twenty .st-rtable tfoot td {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  border-bottom: none;
+  border-top: 1px solid var(--st-border);
+}
+
+/* =========================================================================
    Reports list rows
    ========================================================================= */
 .sabcrm-twenty .st-rep-row {

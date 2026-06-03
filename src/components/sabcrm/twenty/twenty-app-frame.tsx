@@ -19,8 +19,10 @@ import {
 
 import '@/styles/sabcrm-twenty.css';
 import './twenty-activity.css';
+import './notifications.css';
 
 import { TwentyCommandMenu } from './twenty-command-menu';
+import { NotificationsBell } from './notifications-bell';
 import { useCommandMenu } from './use-command-menu';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
@@ -86,18 +88,21 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
       <div className="st-shell">
         <aside className="st-sidebar">
           <div className="st-sidebar__scroll">
-            {/* Workspace switcher */}
-            <button type="button" className="st-workspace-switcher">
-              <span className="st-workspace-switcher__avatar">
-                {WORKSPACE_NAME.charAt(0)}
-              </span>
-              <span className="st-workspace-switcher__name">{WORKSPACE_NAME}</span>
-              <ChevronDown
-                className="st-workspace-switcher__chevron"
-                size={14}
-                aria-hidden="true"
-              />
-            </button>
+            {/* Workspace switcher + notifications bell */}
+            <div className="st-sidebar__header">
+              <button type="button" className="st-workspace-switcher">
+                <span className="st-workspace-switcher__avatar">
+                  {WORKSPACE_NAME.charAt(0)}
+                </span>
+                <span className="st-workspace-switcher__name">{WORKSPACE_NAME}</span>
+                <ChevronDown
+                  className="st-workspace-switcher__chevron"
+                  size={14}
+                  aria-hidden="true"
+                />
+              </button>
+              <NotificationsBell />
+            </div>
 
             {/* Search */}
             <button

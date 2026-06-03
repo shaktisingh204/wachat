@@ -47,6 +47,8 @@ import type {
   ReportMetric,
 } from '@/app/actions/sabcrm.actions.types';
 
+import { ReportChart } from './report-chart';
+
 import './reports-twenty.css';
 
 // ---------------------------------------------------------------------------
@@ -69,11 +71,6 @@ function metricCaption(report: SavedReport): string {
   return base;
 }
 
-function formatValue(n: number): string {
-  if (!Number.isFinite(n)) return '0';
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
-}
-
 // ---------------------------------------------------------------------------
 // Per-report run state
 // ---------------------------------------------------------------------------
@@ -85,7 +82,8 @@ type RunState =
   | { status: 'done'; series: ReportDataSeries };
 
 // ---------------------------------------------------------------------------
-// Result visualisation (Twenty bar list / single value tile)
+// Result visualisation — delegates to the shared Twenty chart renderer,
+// switching on the report's `chartType` (bar / line / pie / number / table).
 // ---------------------------------------------------------------------------
 
 function ReportResult({
@@ -95,56 +93,12 @@ function ReportResult({
   report: SavedReport;
   series: ReportDataSeries;
 }): React.JSX.Element {
-  const single =
-    !series.groupByField ||
-    series.rows.length === 0 ||
-    (series.rows.length === 1 && series.rows[0]?.key === '__total__');
-
-  if (single) {
-    const value = series.rows[0]?.value ?? 0;
-    return (
-      <div className="st-metric">
-        <span className="st-metric__value">{formatValue(value)}</span>
-        <span className="st-metric__caption">{metricCaption(report)}</span>
-        <div className="st-result-foot">
-          <span>{series.recordCount} record(s) matched</span>
-        </div>
-      </div>
-    );
-  }
-
-  const max = series.rows.reduce((m, r) => Math.max(m, r.value), 0) || 1;
-
   return (
-    <div>
-      <div className="st-bars">
-        {series.rows.map((row) => {
-          const pct = Math.max(2, Math.round((row.value / max) * 100));
-          return (
-            <div className="st-bar" key={row.key}>
-              <span className="st-bar__label" title={row.label}>
-                {row.label}
-              </span>
-              <span className="st-bar__track">
-                <span
-                  className="st-bar__fill"
-                  style={{
-                    width: `${pct}%`,
-                    ...(row.color ? { background: row.color } : null),
-                  }}
-                />
-              </span>
-              <span className="st-bar__value">{formatValue(row.value)}</span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="st-result-foot">
-        <span>
-          {series.rows.length} group(s) · {series.recordCount} record(s) matched
-        </span>
-      </div>
-    </div>
+    <ReportChart
+      series={series}
+      chartType={report.chartType ?? 'bar'}
+      metricCaption={metricCaption(report)}
+    />
   );
 }
 

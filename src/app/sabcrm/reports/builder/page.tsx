@@ -46,6 +46,8 @@ import type {
   SaveReportActionInput,
 } from '@/app/actions/sabcrm.actions.types';
 
+import { ReportChart } from '../report-chart';
+
 import '../reports-twenty.css';
 
 // ---------------------------------------------------------------------------
@@ -154,64 +156,25 @@ function buildSaveInput(d: Draft): SaveReportActionInput {
   return input;
 }
 
-function formatValue(n: number): string {
-  if (!Number.isFinite(n)) return '0';
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(n);
-}
-
 // ---------------------------------------------------------------------------
-// Preview visualisation
+// Preview visualisation — delegates to the shared Twenty chart renderer so the
+// live preview matches exactly what the saved-reports run output will show,
+// switching on the draft's `chartType` (bar / line / pie / number / table).
 // ---------------------------------------------------------------------------
 
-function PreviewSeries({ series }: { series: ReportDataSeries }): React.JSX.Element {
-  const single =
-    !series.groupByField ||
-    series.rows.length === 0 ||
-    (series.rows.length === 1 && series.rows[0]?.key === '__total__');
-
-  if (single) {
-    const value = series.rows[0]?.value ?? 0;
-    return (
-      <div className="st-metric">
-        <span className="st-metric__value">{formatValue(value)}</span>
-        <span className="st-metric__caption">
-          {series.metric} · {series.recordCount} record(s)
-        </span>
-      </div>
-    );
-  }
-
-  const max = series.rows.reduce((m, r) => Math.max(m, r.value), 0) || 1;
+function PreviewSeries({
+  series,
+  chartType,
+}: {
+  series: ReportDataSeries;
+  chartType: ReportChartType;
+}): React.JSX.Element {
   return (
-    <div>
-      <div className="st-bars">
-        {series.rows.map((row) => {
-          const pct = Math.max(2, Math.round((row.value / max) * 100));
-          return (
-            <div className="st-bar" key={row.key}>
-              <span className="st-bar__label" title={row.label}>
-                {row.label}
-              </span>
-              <span className="st-bar__track">
-                <span
-                  className="st-bar__fill"
-                  style={{
-                    width: `${pct}%`,
-                    ...(row.color ? { background: row.color } : null),
-                  }}
-                />
-              </span>
-              <span className="st-bar__value">{formatValue(row.value)}</span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="st-result-foot">
-        <span>
-          {series.rows.length} group(s) · {series.recordCount} record(s) matched
-        </span>
-      </div>
-    </div>
+    <ReportChart
+      series={series}
+      chartType={chartType}
+      metricCaption={`${series.metric} · ${series.recordCount} record(s)`}
+    />
   );
 }
 
@@ -674,7 +637,7 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                   <span>{previewError}</span>
                 </div>
               ) : preview ? (
-                <PreviewSeries series={preview} />
+                <PreviewSeries series={preview} chartType={draft.chartType} />
               ) : (
                 <div className="st-stack st-stack--tight">
                   {[0, 1, 2].map((i) => (
