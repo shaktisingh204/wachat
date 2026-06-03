@@ -38,6 +38,65 @@ interface PageProps {
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */
 
+/**
+ * Normalize an id field coming off the Rust BFF.
+ *
+ * The vendor-bid handler returns a typed `VendorBid` whose `_id`,
+ * `rfqId`, and `vendorId` are `ObjectId`s — serde serializes those as
+ * MongoDB extended JSON (`{ "$oid": "<hex>" }`), NOT a bare string. A
+ * naive `String(value)` on that object yields `"[object Object]"`, so
+ * we unwrap the `$oid` form (and tolerate plain strings / nullish).
+ */
+function normId(value: unknown): string {
+  if (value == null) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && '$oid' in (value as Record<string, unknown>)) {
+    const oid = (value as { $oid?: unknown }).$oid;
+    return typeof oid === 'string' ? oid : '';
+  }
+  return String(value);
+}
+
+/**
+ * Normalize a date field coming off the Rust BFF into an ISO string.
+ *
+ * `submittedAt` and the `audit.*` timestamps serialize through bson's
+ * `chrono_datetime_as_bson_datetime`, which emits extended JSON —
+ * either `{ "$date": "<iso>" }` or `{ "$date": { "$numberLong": "<ms>" } }`.
+ * Feeding that object straight into `new Date(...).toISOString()` produces
+ * an `Invalid Date` and `.toISOString()` then throws `RangeError: Invalid
+ * time value`, crashing the whole Server Component render. We unwrap the
+ * known shapes and guard validity, returning `undefined` for anything we
+ * can't parse rather than throwing.
+ */
+function normDate(...candidates: unknown[]): string | undefined {
+  for (const raw of candidates) {
+    if (raw == null) continue;
+    let input: string | number | Date | null = null;
+    if (raw instanceof Date) {
+      input = raw;
+    } else if (typeof raw === 'string' || typeof raw === 'number') {
+      input = raw;
+    } else if (typeof raw === 'object') {
+      const inner = (raw as { $date?: unknown }).$date;
+      if (typeof inner === 'string' || typeof inner === 'number') {
+        input = inner;
+      } else if (
+        inner != null &&
+        typeof inner === 'object' &&
+        '$numberLong' in (inner as Record<string, unknown>)
+      ) {
+        const ms = Number((inner as { $numberLong?: unknown }).$numberLong);
+        if (Number.isFinite(ms)) input = ms;
+      }
+    }
+    if (input == null) continue;
+    const d = new Date(input);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
+  }
+  return undefined;
+}
+
 function maxLeadTime(items?: CrmVendorBidDoc['items']): number | undefined {
   if (!Array.isArray(items) || items.length === 0) return undefined;
   let max = -Infinity;
@@ -50,22 +109,22 @@ function maxLeadTime(items?: CrmVendorBidDoc['items']): number | undefined {
 
 function toRow(doc: CrmVendorBidDoc): VendorBidListRow {
   const rawStatus = (typeof doc.status === 'string' ? doc.status : 'submitted').toLowerCase();
-  const idStr = String(doc._id);
+  const idStr = normId(doc._id);
   const bidNo = `VB-${idStr.slice(-6).toUpperCase()}`;
   return {
     _id: idStr,
     bidNo,
-    vendorId: doc.vendorId,
+    vendorId: normId(doc.vendorId),
     vendorName: doc.vendorName,
-    rfqId: doc.rfqId,
-    submittedAt: (doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt) ? new Date(doc.submittedAt ?? doc.createdAt ?? doc.audit?.createdAt).toISOString() : undefined,
+    rfqId: normId(doc.rfqId) || undefined,
+    submittedAt: normDate(doc.submittedAt, doc.createdAt, doc.audit?.createdAt),
     currency: doc.currency,
     total: doc.totals?.total,
     budget: doc.totals?.total ? doc.totals.total * 1.15 : undefined,
     leadTimeDays: maxLeadTime(doc.items),
     status: rawStatus,
-    createdAt: (doc.createdAt ?? doc.audit?.createdAt) ? new Date(doc.createdAt ?? doc.audit?.createdAt).toISOString() : undefined,
-    updatedAt: (doc.updatedAt ?? doc.audit?.updatedAt) ? new Date(doc.updatedAt ?? doc.audit?.updatedAt).toISOString() : undefined,
+    createdAt: normDate(doc.createdAt, doc.audit?.createdAt),
+    updatedAt: normDate(doc.updatedAt, doc.audit?.updatedAt),
   };
 }
 
@@ -94,10 +153,10 @@ async function VendorBidListContainer({ page, limit, q }: { page: number; limit:
     q: q || undefined,
   });
 
-  if (error) {
-    throw new Error(error);
-  }
-
+  // NB: a BFF error is recoverable — `listVendorBids` already catches and
+  // returns `{ error }` with an empty `bids[]`. Render the client's
+  // dedicated error banner (it accepts `error`) instead of throwing, which
+  // would crash the entire Server Component render with an opaque digest.
   const rows = bids.map(toRow);
   const kpi = computeKpi(rows);
 

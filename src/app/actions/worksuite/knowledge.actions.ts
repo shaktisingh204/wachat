@@ -298,6 +298,56 @@ export async function deleteDiscussion(id: string) {
   return r;
 }
 
+export async function toggleLockDiscussion(id: string) {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
+  const { db } = await connectToDatabase();
+  const current = await db
+    .collection(COLS.discussion)
+    .findOne({ _id: new ObjectId(id), userId: new ObjectId(user._id) });
+  if (!current) return { success: false, error: 'Not found' };
+  await db
+    .collection(COLS.discussion)
+    .updateOne({ _id: new ObjectId(id) }, { $set: { locked: !current.locked, updatedAt: new Date() } });
+  revalidatePath(`/dashboard/crm/workspace/discussions/${id}`);
+  revalidatePath('/dashboard/crm/workspace/discussions');
+  return { success: true, locked: !current.locked };
+}
+
+export async function togglePinDiscussion(id: string) {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
+  const { db } = await connectToDatabase();
+  const current = await db
+    .collection(COLS.discussion)
+    .findOne({ _id: new ObjectId(id), userId: new ObjectId(user._id) });
+  if (!current) return { success: false, error: 'Not found' };
+  await db
+    .collection(COLS.discussion)
+    .updateOne({ _id: new ObjectId(id) }, { $set: { pinned: !current.pinned, updatedAt: new Date() } });
+  revalidatePath(`/dashboard/crm/workspace/discussions/${id}`);
+  revalidatePath('/dashboard/crm/workspace/discussions');
+  return { success: true, pinned: !current.pinned };
+}
+
+export async function archiveDiscussion(id: string) {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid id' };
+  const { db } = await connectToDatabase();
+  const current = await db
+    .collection(COLS.discussion)
+    .findOne({ _id: new ObjectId(id), userId: new ObjectId(user._id) });
+  if (!current) return { success: false, error: 'Not found' };
+  await db
+    .collection(COLS.discussion)
+    .updateOne({ _id: new ObjectId(id) }, { $set: { archived: true, updatedAt: new Date() } });
+  revalidatePath('/dashboard/crm/workspace/discussions');
+  return { success: true };
+}
+
 export async function getDiscussionCategories() {
   return hrList<WsDiscussionCategory>(COLS.discussionCat, { sortBy: { name: 1 } });
 }

@@ -204,10 +204,12 @@ export function useBillForm({
         /* ignore */
       }
       if (submitIntent === 'save-new') {
+        router.refresh();
         router.push('/dashboard/crm/purchases/expenses/new');
         return;
       }
       if (submitIntent === 'save-pay' && state.id) {
+        router.refresh();
         router.push(
           `/dashboard/crm/purchases/payouts/new?fromKind=bill&fromId=${state.id}`,
         );
@@ -218,6 +220,9 @@ export function useBillForm({
         (state.id
           ? `/dashboard/crm/purchases/expenses/${state.id}`
           : '/dashboard/crm/purchases/expenses');
+      // Refresh the router cache so the list page reflects the new/updated
+      // bill immediately rather than serving a stale client-side snapshot.
+      router.refresh();
       router.push(next);
     }
     if (state?.error) {

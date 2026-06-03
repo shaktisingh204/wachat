@@ -104,6 +104,41 @@ function toNum(v: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/**
+ * Coerce a date value off the Rust BFF into a `yyyy-mm-dd` string for a
+ * native `<input type="date">`.
+ *
+ * `submittedAt` arrives as bson extended JSON (`{ $date: "<iso>" }` or
+ * `{ $date: { $numberLong: "<ms>" } }`), an ISO string, or an epoch. A
+ * naive `new Date(<object>).toISOString()` would throw `RangeError:
+ * Invalid time value` and crash the form render — so we unwrap the known
+ * shapes and guard validity, returning `''` for anything unparseable.
+ */
+function toDateInputValue(raw: unknown): string {
+  if (raw == null) return '';
+  let input: string | number | Date | null = null;
+  if (raw instanceof Date) {
+    input = raw;
+  } else if (typeof raw === 'string' || typeof raw === 'number') {
+    input = raw;
+  } else if (typeof raw === 'object') {
+    const inner = (raw as { $date?: unknown }).$date;
+    if (typeof inner === 'string' || typeof inner === 'number') {
+      input = inner;
+    } else if (
+      inner != null &&
+      typeof inner === 'object' &&
+      '$numberLong' in (inner as Record<string, unknown>)
+    ) {
+      const ms = Number((inner as { $numberLong?: unknown }).$numberLong);
+      if (Number.isFinite(ms)) input = ms;
+    }
+  }
+  if (input == null) return '';
+  const d = new Date(input);
+  return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+}
+
 function fmtMoney(value: number, currency: string): string {
   try {
     return new Intl.NumberFormat('en-IN', {
@@ -180,6 +215,10 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
           ? `/dashboard/crm/purchases/vendor-bids/${state.id}`
           : '/dashboard/crm/purchases/vendor-bids',
       );
+      // Invalidate the client router cache so the (revalidated) list
+      // segment re-fetches and the freshly created/updated bid is visible
+      // immediately on navigate-back — not just after a hard reload.
+      router.refresh();
     }
     if (state?.error) {
       toast({
@@ -300,11 +339,7 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
               id="validUntil"
               name="validUntil"
               type="date"
-              defaultValue={
-                initial?.submittedAt
-                  ? new Date(initial.submittedAt).toISOString().slice(0, 10)
-                  : ''
-              }
+              defaultValue={toDateInputValue(initial?.submittedAt)}
               className="mt-1.5"
             />
             <p className="mt-1 text-[11px] text-zoru-ink-muted">

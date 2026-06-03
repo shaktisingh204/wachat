@@ -39,6 +39,22 @@ function rustErr(e: unknown): string {
   return 'Unexpected error.';
 }
 
+/**
+ * Extract a plain hex id string from a doc's `_id`. The Rust client
+ * already deflates BSON extended-JSON ids, but this stays defensive
+ * against a `{ $oid }` object slipping through — `String({…})` would
+ * otherwise yield `"[object Object]"` and poison every redirect/href
+ * built from it.
+ */
+function idOf(doc: { _id?: unknown }): string {
+  const raw = doc._id;
+  if (typeof raw === 'string') return raw;
+  if (raw && typeof raw === 'object' && '$oid' in raw) {
+    return String((raw as { $oid: unknown }).$oid);
+  }
+  return String(raw ?? '');
+}
+
 /* ─── Read ────────────────────────────────────────────────────── */
 
 interface RfqListResult {
@@ -72,10 +88,17 @@ export async function listRfqs(params: CrmRfqListParams = {}): Promise<RfqListRe
   }
 }
 
+/** Mongo ObjectIds are 24-char hex strings. */
+const OBJECT_ID_RE = /^[0-9a-fA-F]{24}$/;
+
 export async function getRfq(
   id: string,
 ): Promise<{ rfq: CrmRfqDoc | null; error?: string }> {
   if (!id) return { rfq: null, error: 'Missing RFQ id.' };
+  // Guard against malformed ids (e.g. a stringified object reaching the
+  // route as `[object Object]`) before we spend a round-trip on Rust —
+  // an invalid hex id can only ever be a "not found".
+  if (!OBJECT_ID_RE.test(id)) return { rfq: null };
   const session = await getSession();
   if (!session?.user) {
     return { rfq: null, error: 'Unauthorized' };
@@ -290,23 +313,25 @@ export async function saveRfqAction(
       result = await crmRfqsApi.create(draft);
     }
 
+    const resultId = idOf(result);
+
     try {
       await writeAuditEntry({
         tenantUserId: String(session.user._id),
         actorId: String(session.user._id),
         action: id ? 'update' : 'create',
         entityKind: 'rfq',
-        entityId: String(result._id),
+        entityId: resultId,
       });
     } catch {
       /* non-fatal */
     }
 
     revalidatePath(LIST_PATH);
-    revalidatePath(`${LIST_PATH}/${String(result._id)}`);
+    revalidatePath(`${LIST_PATH}/${resultId}`);
     return {
       message: id ? 'RFQ updated.' : 'RFQ created.',
-      id: String(result._id),
+      id: resultId,
     };
   } catch (e) {
     console.error('[saveRfqAction] rust path failed; falling back:', e);

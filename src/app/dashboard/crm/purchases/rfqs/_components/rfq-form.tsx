@@ -164,8 +164,13 @@ export function RfqForm({ initial }: RfqFormProps) {
     if (state?.message) {
       toast({ title: 'Saved', description: state.message });
       localStorage.removeItem('rfq-draft');
+      // Only deep-link to the detail route when we got a real 24-hex
+      // ObjectId back — otherwise fall back to the list so a malformed id
+      // can never push the user to `/rfqs/[object%20Object]`.
+      const validId =
+        typeof state.id === 'string' && /^[0-9a-fA-F]{24}$/.test(state.id);
       router.push(
-        state.id
+        validId
           ? `/dashboard/crm/purchases/rfqs/${state.id}`
           : '/dashboard/crm/purchases/rfqs',
       );

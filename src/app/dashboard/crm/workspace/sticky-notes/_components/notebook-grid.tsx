@@ -170,14 +170,16 @@ export function NotebookGrid({
           </CardFooter>
         </Card>
 
-        {others.map((nb) => (
+        {others.map((nb) => {
+          const nbId = String(nb._id);
+          return (
           <Card
-            key={nb._id}
+            key={nbId}
             className="group relative overflow-hidden"
             style={{ borderTop: `4px solid ${nb.color ?? '#6366f1'}` }}
           >
             <Link
-              href={`${BASE}/${nb._id}`}
+              href={`${BASE}/${nbId}`}
               className="absolute inset-0 z-10"
               aria-label={`Open ${nb.name}`}
             />
@@ -199,14 +201,15 @@ export function NotebookGrid({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleArchive(nb._id);
+                  handleArchive(nbId);
                 }}
               >
                 Archive
               </Button>
             </CardFooter>
           </Card>
-        ))}
+          );
+        })}
       </section>
 
       {others.length === 0 && (

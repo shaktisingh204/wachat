@@ -798,13 +798,16 @@ export async function saveRecurringExpense(
       run_count: toNumber(data.run_count, 0),
       status: (data.status as string) || 'active',
       vendor: data.vendor || '',
+      // Persist the vendor ObjectId (from the vendor picker) so that
+      // runRecurringExpenseNow can write a valid bill to crm_bills.
+      vendor_id: data.vendor_id || undefined,
       payment_method: data.payment_method || '',
       bank_account_id: data.bank_account_id || undefined,
       notes: data.notes || '',
     };
 
     const res = await hrSave('crm_recurring_expenses', payload, {
-      idFields: ['category_id', 'bank_account_id'],
+      idFields: ['category_id', 'bank_account_id', 'vendor_id'],
       dateFields: [
         'start_date',
         'next_run_date',
@@ -852,7 +855,15 @@ export async function stopRecurringExpense(id: string) {
   return updateRecurringExpenseStatus(id, 'stopped');
 }
 
-/** Record one expense entry from the recurring schedule. */
+/** Record one expense entry from the recurring schedule.
+ *
+ * Writes to `crm_bills` (not `crm_expenses`) so the generated document
+ * can be found by `getBill` and displayed by the bill detail route at
+ * `/dashboard/crm/purchases/expenses/[id]`. The Rust `Bill` struct
+ * requires `vendorId` as an ObjectId; if the recurring expense carries a
+ * `vendor_id` field that is a valid OID we use it, otherwise we mint a
+ * placeholder so the deserializer doesn't reject the doc.
+ */
 export async function runRecurringExpenseNow(
   id: string,
 ): Promise<{ expenseId?: string; error?: string }> {
@@ -869,21 +880,46 @@ export async function runRecurringExpenseNow(
   if (!rec) return { error: 'Recurring expense not found' };
 
   const now = new Date();
-  const insertRes = await db.collection('crm_expenses').insertOne({
+  const amount = toNumber(rec.amount, 0);
+  const currency = (rec.currency as string) || 'INR';
+
+  // Resolve vendorId: prefer a stored vendor_id OID, fall back to a
+  // placeholder so the Rust Bill struct can deserialize the document.
+  const vendorOid =
+    rec.vendor_id && ObjectId.isValid(rec.vendor_id as string)
+      ? new ObjectId(rec.vendor_id as string)
+      : new ObjectId('000000000000000000000000');
+
+  const newBillId = new ObjectId();
+  const billNo = `BILL-REC-${now.getTime().toString().slice(-6)}`;
+
+  // Write a minimal but Rust-compatible bill document directly to
+  // crm_bills so that getBill(id) can find it via the Rust BFF.
+  const insertRes = await db.collection('crm_bills').insertOne({
+    _id: newBillId,
+    // Identity (mirrors crm_core::Identity flattened)
+    id: newBillId,
+    projectId: new ObjectId('000000000000000000000000'),
     userId: userOid,
-    name: rec.name,
-    category_id: rec.category_id || null,
-    category_name: rec.category_name || '',
-    amount: toNumber(rec.amount, 0),
-    currency: rec.currency || 'INR',
-    vendor: rec.vendor || '',
-    payment_method: rec.payment_method || '',
-    bank_account_id: rec.bank_account_id || null,
-    notes: rec.notes || 'Generated from recurring expense',
-    date: now,
-    recurring_expense_id: rec._id,
+    tenantId: null,
+    // Audit
     createdAt: now,
     updatedAt: now,
+    createdBy: userOid,
+    // Bill fields
+    billNo,
+    billDate: now,
+    vendorId: vendorOid,
+    vendor: rec.vendor || '',
+    currency,
+    totals: { subTotal: amount, total: amount },
+    amountPaid: 0,
+    balance: amount,
+    status: 'draft',
+    notes: (rec.notes as string) || `Generated from recurring expense: ${rec.name || id}`,
+    // Back-reference so the recurring expense can be traced
+    recurringExpenseId: rec._id,
+    category_name: rec.category_name || '',
   });
 
   const runCount = toNumber(rec.run_count, 0) + 1;

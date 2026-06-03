@@ -1,15 +1,17 @@
-'use client';
+/**
+ * Create debit note — `/dashboard/crm/purchases/debit-notes/new`.
+ *
+ * Server component: renders the canonical `<DebitNoteForm>` (backed by
+ * `saveDebitNote` → `crmDebitNotesApi.create`), the same typed store the
+ * Debit Notes list reads from. Previously this page used the generic
+ * `LiveDocumentEditor`, which persisted to the unrelated `live_documents`
+ * collection so created debit notes never appeared in the list.
+ */
 
-import React from 'react';
-import { LiveDocumentEditor } from '@/components/crm/live-editor/live-document-editor';
-import { saveLiveDocument } from '@/app/actions/crm-live-documents.actions';
+import { DebitNoteForm } from '../_components/debit-note-form-v2';
+
+export const dynamic = 'force-dynamic';
 
 export default function NewDebitNotePage() {
-    return (
-        <LiveDocumentEditor
-            documentType="debit_note"
-            saveAction={saveLiveDocument}
-            backHref="/dashboard/crm/purchases/debit-notes"
-        />
-    );
+    return <DebitNoteForm />;
 }

@@ -146,6 +146,9 @@ export interface WsDiscussion {
   category_id?: string;
   category_name?: string;
   project_id?: string;
+  locked?: boolean;
+  pinned?: boolean;
+  archived?: boolean;
   createdAt?: WsDateLike;
   updatedAt?: WsDateLike;
 }
