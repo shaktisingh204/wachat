@@ -42,6 +42,19 @@ npm install
 
 # 3a. Rust workspace → ./rust/target/release/{sabnode-api,broadcast-worker}
 if [ "$BUILD_RUST" = "1" ]; then
+  # rustup installs cargo to ~/.cargo/bin, which a non-login `sudo` shell
+  # usually drops from PATH. Source the rustup env from the likely homes.
+  if ! command -v cargo >/dev/null 2>&1; then
+    for cargo_env in "$HOME/.cargo/env" /root/.cargo/env /home/*/.cargo/env; do
+      # shellcheck disable=SC1090
+      [ -f "$cargo_env" ] && . "$cargo_env" && break
+    done
+  fi
+  if ! command -v cargo >/dev/null 2>&1; then
+    echo "❌ cargo not found. Install Rust (https://rustup.rs) or run with BUILD_RUST=0." >&2
+    exit 1
+  fi
+
   echo "🦀 Building Rust workspace (sabnode-api, broadcast-worker, sabcrm/*)..."
   ( cd rust && cargo build --release )
 
