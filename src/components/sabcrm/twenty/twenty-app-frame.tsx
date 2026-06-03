@@ -14,7 +14,6 @@ import {
   Search,
   Settings,
   Star,
-  ChevronDown,
   UserCheck,
   Activity,
   Calendar,
@@ -32,6 +31,7 @@ import './notifications.css';
 
 import { TwentyCommandMenu } from './twenty-command-menu';
 import { TwentyAppRail } from './twenty-app-rail';
+import { TwentyWorkspaceSwitcher } from './twenty-workspace-switcher';
 import { NotificationsBell } from './notifications-bell';
 import { useCommandMenu } from './use-command-menu';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
@@ -93,8 +93,6 @@ const OTHER_NAV: readonly NavItem[] = [
   { slug: 'settings', label: 'Settings', icon: Settings },
   { slug: 'help', label: 'Documentation', icon: HelpCircle, href: '/sabcrm/settings/help' },
 ] as const;
-
-const WORKSPACE_NAME = 'SabCRM';
 
 type TwentyAppFrameProps = {
   children: React.ReactNode;
@@ -164,23 +162,9 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
         <TwentyAppRail />
         <aside className="st-sidebar" aria-label="SabCRM navigation">
           <div className="st-sidebar__scroll">
-            {/* Workspace switcher + notifications bell */}
+            {/* Workspace (project) switcher + notifications bell */}
             <div className="st-sidebar__header">
-              <button
-                type="button"
-                className="st-workspace-switcher"
-                aria-label={`Workspace: ${WORKSPACE_NAME}`}
-              >
-                <span className="st-workspace-switcher__avatar" aria-hidden="true">
-                  {WORKSPACE_NAME.charAt(0)}
-                </span>
-                <span className="st-workspace-switcher__name">{WORKSPACE_NAME}</span>
-                <ChevronDown
-                  className="st-workspace-switcher__chevron"
-                  size={14}
-                  aria-hidden="true"
-                />
-              </button>
+              <TwentyWorkspaceSwitcher />
               <NotificationsBell />
             </div>
 

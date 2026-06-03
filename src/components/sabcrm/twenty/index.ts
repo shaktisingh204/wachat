@@ -1,6 +1,10 @@
 export { TwentyAppFrame, default as TwentyAppFrameDefault } from './twenty-app-frame';
 export { TwentyAppRail, default as TwentyAppRailDefault } from './twenty-app-rail';
 export {
+  TwentyWorkspaceSwitcher,
+  default as TwentyWorkspaceSwitcherDefault,
+} from './twenty-workspace-switcher';
+export {
   TwentyButton,
   TwentyChip,
   TwentyAvatar,

@@ -23,7 +23,13 @@
  */
 
 import { revalidatePath } from 'next/cache';
-import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import {
+  getCachedSession,
+  getCachedProjects,
+  invalidateProjectsCache,
+} from '@/lib/server-cache';
 import { canServer } from '@/lib/rbac-server';
 import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
@@ -996,5 +1002,79 @@ export async function removeSabcrmFavoriteTw(
     return { ok: true, data: { ok: res.ok } };
   } catch (e) {
     return fail(e, 'Failed to remove favorite.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Projects (workspace creation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Create a brand-new project to host a SabCRM workspace — the SabNode
+ * analogue of Twenty's "Create Workspace" flow (signUpInNewWorkspace).
+ *
+ * Unlike every other action in this file it does NOT go through `gate()`,
+ * because no project exists yet to scope against; it only requires an
+ * authenticated session. The new project carries `kind: 'crm'` (empty Meta
+ * credentials) so the WhatsApp/Facebook pickers skip it, while the shared
+ * `projects` collection keeps RBAC / plan / agent plumbing intact. Standard
+ * CRM objects (Companies, People, …) are seeded immediately so the freshly
+ * selected workspace is usable without an extra round-trip.
+ */
+export async function createSabcrmProjectTw(
+  name: string,
+): Promise<ActionResult<{ projectId: string; name: string }>> {
+  const trimmed = name?.trim();
+  if (!trimmed) return { ok: false, error: 'Project name is required.' };
+  if (trimmed.length > 120) {
+    return { ok: false, error: 'Project name is too long (max 120 chars).' };
+  }
+
+  const session = await getCachedSession();
+  const userIdStr = (session?.user as SessionUser | undefined)?._id;
+  if (!userIdStr) return { ok: false, error: 'Not authenticated.' };
+
+  if (!sabcrmPlanFeature.defaultEnabled) {
+    return { ok: false, error: 'Your plan does not include SabCRM.' };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(userIdStr);
+
+    // Soft duplicate guard — same owner + same name.
+    const existing = await db
+      .collection('projects')
+      .findOne({ userId, name: trimmed }, { projection: { _id: 1 } });
+    if (existing) {
+      return {
+        ok: false,
+        error: 'You already have a project with that name.',
+      };
+    }
+
+    const ins = await db.collection('projects').insertOne({
+      userId,
+      name: trimmed,
+      accessToken: '',
+      phoneNumbers: [],
+      kind: 'crm',
+      createdAt: new Date(),
+    });
+
+    const projectId = ins.insertedId.toString();
+
+    // Seed the standard CRM objects so the new workspace is usable at once.
+    await ensureStandardObjects(projectId);
+
+    // Bust the cross-request projects cache for this user; otherwise `gate()`
+    // (which reads `getCachedProjects`) would reject the brand-new project as
+    // "not a member" until the TTL expires.
+    invalidateProjectsCache(userIdStr);
+
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data: { projectId, name: trimmed } };
+  } catch (e) {
+    return fail(e, 'Failed to create project.');
   }
 }
