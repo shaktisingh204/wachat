@@ -15,6 +15,26 @@ BUILD_RUST="${BUILD_RUST:-1}"
 # Set DEPLOY_GIT_RESET=0 to deploy the current working tree instead of
 # hard-resetting to origin/main (useful for hotfix/manual deploys).
 DEPLOY_GIT_RESET="${DEPLOY_GIT_RESET:-1}"
+# TCP ports the services bind to (sabnode-web, sabwa-node, sabsms-engine,
+# sabnode-api). Freed before restart to clear stale/orphaned listeners.
+SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 ${SABNODE_PORT:-8080}}"
+# FORCE_RESTART=1 → hard restart (delete PM2 apps + kill the ports + fresh
+# start). Default does a zero-downtime `pm2 startOrReload` but still frees
+# any orphaned ports first.
+FORCE_RESTART="${FORCE_RESTART:-0}"
+
+# Kill whatever is still listening on the service ports (orphans left behind
+# by a crashed process are the usual cause of EADDRINUSE on restart).
+free_ports() {
+  local port
+  for port in $SERVICE_PORTS; do
+    if command -v fuser >/dev/null 2>&1; then
+      fuser -k "${port}/tcp" 2>/dev/null || true
+    elif command -v lsof >/dev/null 2>&1; then
+      lsof -ti "tcp:${port}" 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+    fi
+  done
+}
 
 echo "🚀 Starting deployment..."
 cd "$PROJECT_DIR"
@@ -79,12 +99,24 @@ NODE_OPTIONS="--max-old-space-size=${NODE_BUILD_MEMORY}" npm run build
 
 # ---------------------------------------------------------------------------
 # 4. Restart everything via the PM2 ecosystem file (single source of truth).
-#    startOrReload starts any new apps and zero-downtime-reloads running ones;
-#    --update-env reloads env vars. `pm2 save` persists the process list so it
-#    survives a server reboot.
+#    `pm2 save` persists the process list so it survives a server reboot.
 # ---------------------------------------------------------------------------
-echo "🔄 (Re)starting all services via ecosystem.config.js..."
-pm2 startOrReload ecosystem.config.js --update-env
+if [ "$FORCE_RESTART" = "1" ]; then
+  # Hard restart: drop PM2's process list so it can't respawn while we kill
+  # the ports, free the ports, then start fresh from the ecosystem file.
+  echo "🔪 Hard restart: deleting PM2 apps and freeing ports ($SERVICE_PORTS)..."
+  pm2 delete all 2>/dev/null || true
+  free_ports
+  echo "🔄 Starting all services via ecosystem.config.js..."
+  pm2 start ecosystem.config.js --update-env
+else
+  # Normal path: free any orphaned ports, then zero-downtime reload (starts
+  # new apps, reloads running ones, refreshes env via --update-env).
+  echo "🧹 Freeing orphaned ports ($SERVICE_PORTS)..."
+  free_ports
+  echo "🔄 (Re)starting all services via ecosystem.config.js..."
+  pm2 startOrReload ecosystem.config.js --update-env
+fi
 pm2 save
 
 echo "✅ Deployment finished successfully!"
