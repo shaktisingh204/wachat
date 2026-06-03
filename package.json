@@ -19,6 +19,7 @@
     "test:sabflow-crdt": "tsx --test src/lib/sabflow/__tests__/crdt-fuzz.test.ts src/lib/sabflow/__tests__/crdt-convergence.test.ts src/lib/sabflow/__tests__/crdt-snapshot.test.ts",
     "test:sabflow-templates": "node scripts/sabflow/template-verify.mjs --all templates",
     "db:assign-plan": "tsx scripts/assign-default-plan.ts",
+    "db:identity:migrate": "node --env-file=.env scripts/db/apply-identity-schema.ts",
     "db:sabflow:indexes": "tsx scripts/sabflow/create-indexes.ts",
     "db:clear-broadcasts": "node scripts/clear-old-broadcasts.js",
     "hash:admin-password": "tsx scripts/hash-admin-password.ts",
