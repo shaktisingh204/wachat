@@ -22,7 +22,7 @@ import {
   StatCard
 } from '@/components/zoruui';
 
-import { listSabcheckoutPages } from '@/app/actions/sabcheckout.actions';
+import { listSabcheckoutPages, listSabcheckoutSessions } from '@/app/actions/sabcheckout.actions';
 import type { SabcheckoutPageStatus } from '@/lib/rust-client/sabcheckout-pages';
 import { SabcheckoutPagesListClient } from './_components/sabcheckout-pages-list-client';
 
@@ -41,18 +41,49 @@ export default async function SabcheckoutHomePage({
 }) {
   const sp = await searchParams;
   const page = Number.parseInt(sp.page ?? '0', 10) || 0;
-  const result = await listSabcheckoutPages({
-    page,
-    limit: 20,
-    q: sp.q,
-    status: sp.status,
-  });
+  const [result, sessionsResult] = await Promise.all([
+    listSabcheckoutPages({
+      page,
+      limit: 20,
+      q: sp.q,
+      status: sp.status,
+    }),
+    listSabcheckoutSessions({ limit: 1000 }),
+  ]);
 
-  // Mock stats for demo purposes
+  let totalRevenue = 0;
+  let currency = 'USD'; // default
+  let totalSessions = 0;
+  let completedSessions = 0;
+
+  if (sessionsResult.ok) {
+    for (const session of sessionsResult.data.items) {
+      totalSessions++;
+      if (session.status === 'completed') {
+        completedSessions++;
+        totalRevenue += session.totals.totalMinor;
+        currency = session.totals.currency || currency;
+      }
+    }
+  }
+
+  const activePagesCount = result.ok 
+    ? result.data.items.filter(p => p.status === 'live').length 
+    : 0;
+    
+  const conversionRate = totalSessions > 0 
+    ? ((completedSessions / totalSessions) * 100).toFixed(1) 
+    : '0.0';
+
+  const formattedRevenue = new Intl.NumberFormat('en-US', { 
+    style: 'currency', 
+    currency: currency.toUpperCase() 
+  }).format(totalRevenue / 100);
+
   const stats = [
-    { label: 'Total Revenue', value: '$12,450', delta: 15.2, period: 'vs last month', icon: <CreditCard /> },
-    { label: 'Active Pages', value: result.ok ? result.data.items.length.toString() : '0', delta: 4.1, period: 'vs last month', icon: <Package /> },
-    { label: 'Conversion Rate', value: '3.4%', delta: -1.2, period: 'vs last month', icon: <Activity /> },
+    { label: 'Total Revenue', value: formattedRevenue, period: 'all time', icon: <CreditCard /> },
+    { label: 'Active Pages', value: activePagesCount.toString(), period: 'current', icon: <Package /> },
+    { label: 'Conversion Rate', value: `${conversionRate}%`, period: 'all time', icon: <Activity /> },
   ];
 
   return (

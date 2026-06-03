@@ -339,7 +339,7 @@ function ColorSwatch({ color }: { color?: string }) {
     <span className="inline-flex items-center gap-2">
       <span
         className="inline-block h-4 w-4 rounded-full border border-zoru-line"
-        style={ backgroundColor: color }
+        style={{ backgroundColor: color }}
         aria-hidden
       />
       <span className="font-mono text-xs text-zoru-ink">{color}</span>

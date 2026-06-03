@@ -169,7 +169,7 @@ export default function SignerPortalPage() {
               <div className="w-32 h-1.5 bg-neutral-800 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-indigo-500 rounded-full transition-all duration-500 ease-out"
-                  style={{ width: \`\${progress}%\` }}
+                  style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function SignerPortalPage() {
               <div 
                 key={page.id}
                 onClick={() => setCurrentPage(index + 1)}
-                className={\`relative cursor-pointer group \${currentPage === index + 1 ? 'ring-2 ring-indigo-500 rounded-lg' : ''}\`}
+                className={`relative cursor-pointer group ${currentPage === index + 1 ? 'ring-2 ring-indigo-500 rounded-lg' : ''}`}
               >
                 <div className="aspect-[1/1.4] bg-white rounded-lg shadow-sm overflow-hidden flex items-center justify-center p-2 transition-transform group-hover:scale-[1.02]">
                   <div className="w-full h-full border border-neutral-200 bg-neutral-50 flex flex-col relative">
@@ -237,7 +237,7 @@ export default function SignerPortalPage() {
           <div 
             className="mx-auto flex flex-col space-y-8"
             style={{ 
-              transform: \`scale(\${zoom / 100})\`, 
+              transform: `scale(${zoom / 100})`, 
               transformOrigin: "top center",
               transition: "transform 0.2s ease-out"
             }}
@@ -254,7 +254,7 @@ export default function SignerPortalPage() {
                 <div className="absolute inset-0 p-16 pointer-events-none opacity-5">
                   <div className="h-8 bg-black w-1/2 mb-10"></div>
                   {Array.from({length: 30}).map((_, i) => (
-                    <div key={i} className={\`h-3 bg-black mb-4 \${i % 4 === 0 ? 'w-5/6' : 'w-full'}\`}></div>
+                    <div key={i} className={`h-3 bg-black mb-4 ${i % 4 === 0 ? 'w-5/6' : 'w-full'}`}></div>
                   ))}
                 </div>
 
@@ -270,12 +270,12 @@ export default function SignerPortalPage() {
                   return (
                     <div 
                       key={field.id}
-                      className={\`absolute transition-all duration-200 cursor-pointer flex flex-col group \${
+                      className={`absolute transition-all duration-200 cursor-pointer flex flex-col group ${
                         field.required && !isCompleted ? 'z-20' : 'z-10'
-                      }\`}
+                      }`}
                       style={{ 
-                        left: \`\${field.x}%\`, 
-                        top: \`\${field.y}%\`,
+                        left: `${field.x}%`, 
+                        top: `${field.y}%`,
                       }}
                       onClick={() => handleFieldClick(field.id, field.type)}
                     >
@@ -288,17 +288,17 @@ export default function SignerPortalPage() {
                       )}
                       
                       {field.type === "signature" || field.type === "initials" ? (
-                        <div className={\`
+                        <div className={`
                           border-2 rounded-md flex items-center justify-center relative min-w-[200px] min-h-[60px] p-2
-                          \${isCompleted 
+                          ${isCompleted 
                             ? 'border-transparent bg-transparent text-black' 
                             : field.required 
                               ? 'border-amber-400 bg-amber-50/50 text-amber-700 hover:bg-amber-100' 
                               : 'border-neutral-300 bg-neutral-50/50 text-neutral-600 hover:bg-neutral-100'}
-                        \`}>
+                        `}>
                           {isCompleted ? (
                             <div className="flex flex-col items-center w-full">
-                              <span className={\`text-3xl text-indigo-900 \${selectedFont}\`}>{field.value}</span>
+                              <span className={`text-3xl text-indigo-900 ${selectedFont}`}>{field.value}</span>
                               <div className="text-[8px] text-neutral-400 mt-1 uppercase tracking-wider">DocuSigned by: {field.label}</div>
                               <div className="text-[6px] text-neutral-300">ID: {Math.random().toString(36).substring(7).toUpperCase()}</div>
                             </div>
@@ -317,16 +317,16 @@ export default function SignerPortalPage() {
                           <div className="text-xs text-neutral-400 absolute -top-4 left-0 font-medium">{field.label} {field.required && <span className="text-red-500">*</span>}</div>
                           <input 
                             type={field.type === "date" ? "date" : "text"}
-                            className={\`
+                            className={`
                               h-10 px-3 w-48 rounded text-sm text-black border-2 outline-none transition-colors
-                              \${isCompleted
+                              ${isCompleted
                                 ? 'border-transparent bg-transparent border-b-neutral-300 rounded-none px-0'
                                 : field.required
                                   ? 'border-amber-400 bg-amber-50/30 focus:border-indigo-500 focus:bg-indigo-50/30'
                                   : 'border-neutral-300 bg-neutral-50/30 focus:border-indigo-500 focus:bg-indigo-50/30'
                               }
-                            \`}
-                            placeholder={!isCompleted ? \`Enter \${field.label.toLowerCase()}\` : ""}
+                            `}
+                            placeholder={!isCompleted ? `Enter ${field.label.toLowerCase()}` : ""}
                             value={field.value as string}
                             onChange={(e) => updateFieldValue(field.id, e.target.value)}
                             onClick={(e) => e.stopPropagation()}
@@ -334,15 +334,15 @@ export default function SignerPortalPage() {
                         </div>
                       ) : field.type === "checkbox" ? (
                         <label className="flex items-center space-x-3 cursor-pointer p-2 rounded hover:bg-neutral-100/50" onClick={(e) => e.stopPropagation()}>
-                          <div className={\`
+                          <div className={`
                             w-6 h-6 rounded flex items-center justify-center border-2 transition-colors
-                            \${field.value 
+                            ${field.value 
                               ? 'bg-indigo-600 border-indigo-600 text-white' 
                               : field.required 
                                 ? 'border-amber-400 bg-amber-50' 
                                 : 'border-neutral-300 bg-white'
                             }
-                          \`}>
+                          `}>
                             {field.value && <Check className="w-4 h-4" />}
                           </div>
                           <span className="text-sm font-medium text-neutral-700">{field.label}</span>
@@ -368,11 +368,11 @@ export default function SignerPortalPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveSidebar(tab.id as any)}
-                className={\`flex-1 py-3 px-2 flex flex-col items-center justify-center gap-1 text-xs font-medium border-b-2 transition-colors \${
+                className={`flex-1 py-3 px-2 flex flex-col items-center justify-center gap-1 text-xs font-medium border-b-2 transition-colors ${
                   activeSidebar === tab.id 
                     ? 'border-indigo-500 text-indigo-400 bg-neutral-800/50' 
                     : 'border-transparent text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/30'
-                }\`}
+                }`}
               >
                 {tab.icon}
                 {tab.label}
@@ -512,11 +512,11 @@ export default function SignerPortalPage() {
                 <button
                   key={tab.id}
                   onClick={() => setSignatureMode(tab.id as any)}
-                  className={\`flex-1 py-4 flex items-center justify-center gap-2 text-sm font-medium transition-colors border-b-2 \${
+                  className={`flex-1 py-4 flex items-center justify-center gap-2 text-sm font-medium transition-colors border-b-2 ${
                     signatureMode === tab.id 
                       ? 'border-indigo-500 text-indigo-400 bg-neutral-900' 
                       : 'border-transparent text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50'
-                  }\`}
+                  }`}
                 >
                   {tab.icon}
                   {tab.label}
@@ -578,14 +578,14 @@ export default function SignerPortalPage() {
                         <button
                           key={font.id}
                           onClick={() => setSelectedFont(font.id)}
-                          className={\`p-4 rounded-xl border text-left transition-all \${
+                          className={`p-4 rounded-xl border text-left transition-all ${
                             selectedFont === font.id 
                               ? 'border-indigo-500 bg-indigo-500/10 ring-1 ring-indigo-500' 
                               : 'border-neutral-800 bg-neutral-950 hover:border-neutral-600'
-                          }\`}
+                          }`}
                         >
-                          <div className={\`text-2xl text-white mb-2 \${font.id}\`}>{typedSignature || "John Doe"}</div>
-                          <div className={\`text-sm text-neutral-400 \${font.id}\`}>{typedInitials || "JD"}</div>
+                          <div className={`text-2xl text-white mb-2 ${font.id}`}>{typedSignature || "John Doe"}</div>
+                          <div className={`text-sm text-neutral-400 ${font.id}`}>{typedInitials || "JD"}</div>
                         </button>
                       ))}
                     </div>

@@ -224,7 +224,7 @@ export default function ViewsBuilderPage() {
                   onClick={() => {
                     setActiveViewId(view.id);
                     setIsBuilding(false);
-                  }
+                  }}
                   className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between group transition-colors ${activeViewId === view.id && !isBuilding ? "bg-indigo-500/10 text-indigo-300" : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"}`}
                 >
                   <div className="flex items-center gap-2 truncate">
@@ -250,7 +250,7 @@ export default function ViewsBuilderPage() {
                   onClick={() => {
                     setActiveViewId(view.id);
                     setIsBuilding(false);
-                  }
+                  }}
                   className={`w-full text-left px-3 py-2 rounded-lg flex items-center justify-between group transition-colors ${activeViewId === view.id && !isBuilding ? "bg-indigo-500/10 text-indigo-300" : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"}`}
                 >
                   <div className="flex items-center gap-2 truncate">

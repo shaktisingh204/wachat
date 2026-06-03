@@ -127,61 +127,7 @@ const CONTENTS = [
   "Shoutout to the support team at SabDesk! They resolved my issue in less than 5 minutes. Stellar service!"
 ];
 
-const generateMockMessages = (count: number): SocialMessage[] => {
-  return Array.from({ length: count }).map((_, i) => {
-    const platform = ['twitter', 'facebook', 'linkedin', 'instagram'][Math.floor(Math.random() * 4)] as Platform;
-    const sentiment = ['positive', 'neutral', 'negative'][Math.floor(Math.random() * 3)] as Sentiment;
-    const status = ['open', 'pending', 'resolved', 'spam'][Math.floor(Math.random() * 4)] as Status;
-    const priority = ['high', 'medium', 'low'][Math.floor(Math.random() * 3)] as Priority;
-    
-    const authorIdx = Math.floor(Math.random() * NAMES.length);
-    const contentIdx = Math.floor(Math.random() * CONTENTS.length);
-    
-    // Adjust sentiment based on content index slightly to make it somewhat realistic
-    let finalSentiment = sentiment;
-    if (contentIdx === 1 || contentIdx === 4 || contentIdx === 6) finalSentiment = 'negative';
-    if (contentIdx === 0 || contentIdx === 2 || contentIdx === 5 || contentIdx === 7 || contentIdx === 9) finalSentiment = 'positive';
-
-    const tags = [];
-    if (finalSentiment === 'negative') tags.push('bug', 'urgent');
-    if (contentIdx === 3) tags.push('feature-request');
-    if (contentIdx === 6) tags.push('billing');
-
-    return {
-      id: `msg-${1000 + i}`,
-      platform,
-      author: {
-        id: `auth-${authorIdx}`,
-        name: NAMES[authorIdx],
-        handle: HANDLES[authorIdx],
-        avatar: AVATARS[authorIdx % AVATARS.length],
-        followers: Math.floor(Math.random() * 50000),
-        isVerified: Math.random() > 0.7,
-        vipStatus: Math.random() > 0.8,
-        location: ['San Francisco, CA', 'New York, NY', 'London, UK', 'Remote'][Math.floor(Math.random() * 4)],
-        company: ['Acme Corp', 'TechFlow', 'Stark Industries', 'Wayne Enterprises'][Math.floor(Math.random() * 4)],
-        crmId: `crm-${Math.floor(Math.random() * 10000)}`,
-        sentiment_score: Math.floor(Math.random() * 100)
-      },
-      content: CONTENTS[contentIdx],
-      timestamp: new Date(Date.now() - Math.floor(Math.random() * 1000000000)).toISOString(),
-      sentiment: finalSentiment,
-      status,
-      priority,
-      tags,
-      metrics: {
-        likes: Math.floor(Math.random() * 1000),
-        shares: Math.floor(Math.random() * 100),
-        comments: Math.floor(Math.random() * 50),
-        views: Math.floor(Math.random() * 10000)
-      },
-      isRead: Math.random() > 0.3,
-      assignedTo: Math.random() > 0.5 ? 'currentUser' : undefined,
-    };
-  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-};
-
-const initialMessages = generateMockMessages(150);
+import { getSocialInboxMessages } from '@/app/actions/sabdesk-assist.actions';
 
 // ==========================================
 // Components
@@ -264,7 +210,25 @@ const PriorityBadge = ({ priority }: { priority: Priority }) => {
 // ==========================================
 
 export default function SocialInbox() {
-  const [messages, setMessages] = useState<SocialMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<SocialMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      try {
+        const res = await getSocialInboxMessages();
+        if (res.success && res.data) {
+          setMessages(res.data as unknown as SocialMessage[]);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   
@@ -615,7 +579,7 @@ export default function SocialInbox() {
                         key={msg.id}
                         onClick={() => {
                            if (!msg.isRead) markAsRead(new Set([msg.id]));
-                           setActiveMessageId(msg.id);
+                           setActiveMessageId(msg.id); }
                         }
                         className={`group flex gap-3 p-3 rounded-xl border transition-all cursor-pointer relative overflow-hidden
                           ${isActive 
@@ -634,7 +598,7 @@ export default function SocialInbox() {
                          {/* Checkbox & Avatar */}
                          <div className="flex flex-col items-center gap-2 pt-1">
                             <button 
-                              onClick={(e) => { e.stopPropagation(); toggleSelection(msg.id); }
+                              onClick={(e) => { e.stopPropagation(); toggleSelection(msg.id); } }
                               className={`p-0.5 rounded transition-colors ${isSelected ? 'text-indigo-400' : 'text-zinc-600 group-hover:text-zinc-400'}`}
                             >
                                {isSelected ? <CheckSquare className="w-5 h-5" /> : <div className="w-5 h-5 border-[1.5px] border-current rounded" />}
@@ -782,7 +746,7 @@ export default function SocialInbox() {
                               <button 
                                 onClick={() => {
                                   setReplyingTo(activeMessage.id);
-                                  setTimeout(() => document.getElementById('reply-textarea')?.focus(), 100);
+                                  setTimeout(() => document.getElementById('reply-textarea')?.focus(), 100); }
                                 }
                                 className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white transition-colors shadow-lg shadow-indigo-500/20"
                               >
@@ -934,7 +898,7 @@ export default function SocialInbox() {
       </main>
 
       {/* Global CSS overrides for scrollbar */}
-      <style dangerouslySetInnerHTML={__html: `
+      <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
           height: 6px;
@@ -949,7 +913,7 @@ export default function SocialInbox() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(255, 255, 255, 0.2);
         }
-      `} />
+      `}} />
     </div>
   );
 }

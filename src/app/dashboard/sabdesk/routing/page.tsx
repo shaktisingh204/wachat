@@ -347,11 +347,11 @@ export default function RoutingPage() {
               {/* Mock Canvas Area */}
               <div
                 className="flex-1 w-full h-full relative"
-                style={
+                style={{
                   backgroundSize: "40px 40px",
                   backgroundImage:
                     "radial-gradient(circle, #1f2937 1px, transparent 1px)",
-                }
+                }}
               >
                 {/* Lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none">

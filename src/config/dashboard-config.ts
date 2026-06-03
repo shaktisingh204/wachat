@@ -952,6 +952,17 @@ export const sabvaultMenuGroups: MenuGroup[] = [
     }
 ];
 
+export const sabcreatorMenuGroups: MenuGroup[] = [
+    {
+        title: 'SabCreator',
+        items: [
+            { href: '/dashboard/sabcreator', label: 'Overview', icon: LayoutTemplate, permissionKey: 'sabcreator_overview' },
+            { href: '/dashboard/sabcreator/forms', label: 'Forms', icon: FileText, permissionKey: 'sabcreator_forms' },
+            { href: '/dashboard/sabcreator/workflows', label: 'Workflows', icon: Workflow, permissionKey: 'sabcreator_workflows' },
+        ]
+    }
+];
+
 export const sabsprintsMenuGroups: MenuGroup[] = [
     {
         title: 'Agile Management',

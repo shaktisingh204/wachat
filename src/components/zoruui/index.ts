@@ -591,9 +591,9 @@ export {
 } from "./select";
 
 export {
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
+  ZoruAccordionItem as AccordionItem,
+  ZoruAccordionTrigger as AccordionTrigger,
+  ZoruAccordionContent as AccordionContent,
 } from "./accordion";
 
 export {

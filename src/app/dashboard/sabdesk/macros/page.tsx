@@ -83,7 +83,7 @@ export default function MacrosPage() {
                   {mockMacros.map((macro, idx) => (
                     <tr 
                       key={macro.id} 
-                      onClick={() => { setSelectedMacro(macro.id); setIsCreating(false); }
+                      onClick={() => { setSelectedMacro(macro.id); setIsCreating(false); }}
                       className={`hover:bg-gray-800/40 transition-colors cursor-pointer group ${selectedMacro === macro.id ? 'bg-purple-900/10 border-l-2 border-purple-500' : 'border-l-2 border-transparent'}`}
                     >
                       <td className="px-6 py-4">

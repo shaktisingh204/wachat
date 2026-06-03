@@ -793,13 +793,17 @@ export async function getEcommOrderById(orderId: string): Promise<WithId<EcommOr
 }
 
 export async function getEcommOrdersForCustomer(customerId: string): Promise<WithId<EcommOrder>[]> {
-    // This is a mock function for the UI. A real implementation would query the database.
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-    return [
-        { _id: new ObjectId(), status: 'Delivered', createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), total: 1250.00 } as any,
-        { _id: new ObjectId(), status: 'Shipped', createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), total: 799.50 } as any,
-        { _id: new ObjectId(), status: 'Cancelled', createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), total: 2400.00 } as any,
-    ];
+    try {
+        const { db } = await connectToDatabase();
+        const orders = await db.collection<EcommOrder>('ecomm_orders')
+            .find({ 'customerInfo.email': customerId }) // Adjust this query as needed based on how customer is matched
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(orders));
+    } catch (e) {
+        console.error("Failed to fetch e-commerce orders for customer:", e);
+        return [];
+    }
 }
 
 export async function syncProductsToMetaCatalog(projectId: string, shopId: string, metaCatalogId: string): Promise<{ message?: string; error?: string }> {

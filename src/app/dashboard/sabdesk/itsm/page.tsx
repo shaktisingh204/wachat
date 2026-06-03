@@ -184,11 +184,11 @@ const DashboardOverview = () => {
                 <div key={i} className="flex-1 flex flex-col justify-end gap-1 group relative">
                   <div 
                     className="w-full bg-blue-500/20 hover:bg-blue-500/40 border border-blue-500/30 rounded-t-sm transition-all"
-                    style={ height: `${height1}%` }
+                    style={{ height: `${height1}%` }}
                   />
                   <div 
                     className="w-full bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/30 rounded-t-sm transition-all"
-                    style={ height: `${height2}%` }
+                    style={{ height: `${height2}%` }}
                   />
                   {/* Tooltip mock */}
                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black border border-white/10 px-3 py-1.5 rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10 shadow-xl">

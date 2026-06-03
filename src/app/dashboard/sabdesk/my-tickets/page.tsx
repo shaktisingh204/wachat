@@ -48,60 +48,7 @@ interface Ticket {
 }
 
 // --- Mock Data Generator ---
-const generateTickets = (count: number): Ticket[] => {
-  const statuses: TicketStatus[] = ["open", "pending", "resolved", "closed"];
-  const priorities: TicketPriority[] = ["low", "medium", "high", "urgent"];
-  const tagsList = [
-    "billing",
-    "technical",
-    "sales",
-    "bug",
-    "feature-request",
-    "urgent",
-    "vip",
-    "onboarding",
-  ];
-
-  return Array.from({ length: count }).map((_, i) => {
-    const id = `TIC-${10000 + i}`;
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    const priority = priorities[Math.floor(Math.random() * priorities.length)];
-
-    // Pick 1-3 random tags
-    const numTags = Math.floor(Math.random() * 3) + 1;
-    const tags = Array.from({ length: numTags }).map(
-      () => tagsList[Math.floor(Math.random() * tagsList.length)],
-    );
-
-    const isSlaBreach = status === "open" && Math.random() > 0.85;
-
-    return {
-      id,
-      subject: `Issue regarding ${tags[0]} implementation ${i}`,
-      requester: `User ${Math.floor(Math.random() * 1000)}`,
-      requesterEmail: `user${i}@example.com`,
-      status,
-      priority,
-      createdAt: new Date(
-        Date.now() - Math.random() * 10000000000,
-      ).toISOString(),
-      lastUpdated: new Date(
-        Date.now() - Math.random() * 100000000,
-      ).toISOString(),
-      tags: [...new Set(tags)],
-      replies: Math.floor(Math.random() * 20),
-      slaBreach: isSlaBreach,
-      satisfaction:
-        status === "closed"
-          ? Math.random() > 0.5
-            ? Math.floor(Math.random() * 5) + 1
-            : null
-          : null,
-    };
-  });
-};
-
-const MOCK_TICKETS = generateTickets(1200);
+import { listTickets } from '@/app/actions/crm/tickets.actions';
 
 // --- Components ---
 
@@ -142,7 +89,7 @@ const PriorityBadge = ({ priority }: { priority: TicketPriority }) => {
 };
 
 export default function MyTicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(MOCK_TICKETS);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
   const [priorityFilter, setPriorityFilter] = useState<TicketPriority | "all">(
@@ -156,9 +103,33 @@ export default function MyTicketsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
+    async function fetchTickets() {
+      setIsLoading(true);
+      try {
+        const res = await listTickets({ limit: 100 });
+        if (res.tickets) {
+          setTickets(res.tickets.map(t => ({
+            id: String(t._id),
+            subject: t.subject || 'No Subject',
+            requester: t.requesterId || 'Unknown',
+            requesterEmail: 'unknown@example.com',
+            status: (t.status || 'open') as TicketStatus,
+            priority: (t.priority || 'medium') as TicketPriority,
+            createdAt: t.createdAt || new Date().toISOString(),
+            lastUpdated: t.updatedAt || new Date().toISOString(),
+            tags: [],
+            replies: 0,
+            slaBreach: false,
+            satisfaction: null
+          })));
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTickets();
   }, []);
 
   const filteredTickets = useMemo(() => {
@@ -399,7 +370,7 @@ export default function MyTicketsPage() {
                   onClick={() => {
                     setSearch("");
                     setStatusFilter("all");
-                    setPriorityFilter("all");
+                    setPriorityFilter("all"); }
                   }
                   className="mt-6 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg transition-colors text-sm"
                 >
@@ -555,8 +526,8 @@ export default function MyTicketsPage() {
                         checked={selectedIds.has(ticket.id)}
                         onChange={() => toggleSelect(ticket.id)}
                         className="rounded border-zinc-700 bg-zinc-800 text-indigo-500 focus:ring-indigo-500/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={
-                          opacity: selectedIds.has(ticket.id) ? 1 : undefined,
+                        style={{
+                          opacity: selectedIds.has(ticket.id) ? 1 : undefined }
                         }
                       />
                     </div>
@@ -671,7 +642,7 @@ export default function MyTicketsPage() {
 
       {/* Internal CSS for scrollbar */}
       <style
-        dangerouslySetInnerHTML={
+        dangerouslySetInnerHTML={{
           __html: `
         .custom-scrollbar::-webkit-scrollbar {
           width: 8px;
@@ -687,8 +658,8 @@ export default function MyTicketsPage() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #52525b;
         }
-      `,
-        }
+      `
+        }}
       />
     </div>
   );

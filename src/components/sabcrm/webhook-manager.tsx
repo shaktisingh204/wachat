@@ -87,13 +87,13 @@ import {
 } from '@/components/zoruui';
 
 import {
-  SABCRM_WEBHOOK_EVENTS,
   createWebhookAction,
   deleteWebhookAction,
   listWebhooksAction,
   rotateWebhookSecretAction,
   updateWebhookAction,
 } from '@/app/actions/sabcrm.actions';
+import { SABCRM_WEBHOOK_EVENTS } from '@/lib/sabcrm/webhook-events';
 import type {
   CreateWebhookInput,
   UpdateWebhookPatch,

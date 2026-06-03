@@ -106,7 +106,7 @@ const ProgressBar = ({ progress, color = 'bg-indigo-500', height = 'h-2' }: any)
   <div className={`w-full bg-slate-800 rounded-full overflow-hidden ${height}`}>
     <div 
       className={`${color} h-full rounded-full transition-all duration-1000 ease-out`}
-      style={ width: `${Math.min(100, Math.max(0, progress))}%` }
+      style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
     />
   </div>
 );

@@ -554,11 +554,11 @@ export default function VoiceCenterDashboard() {
               {/* Grid Background */}
               <div 
                 className="absolute inset-0 z-0" 
-                style={
+                style={{
                   backgroundImage: `radial-gradient(circle at 1px 1px, rgba(51, 65, 85, 0.4) 1px, transparent 0)`,
                   backgroundSize: '24px 24px',
                   backgroundPosition: 'center center'
-                }
+                }}
               />
 
               {/* Nodes rendering (Mocked layout) */}

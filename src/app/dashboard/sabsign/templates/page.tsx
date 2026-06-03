@@ -49,32 +49,7 @@ const ROLE_COLORS = [
   'bg-rose-500/20 text-rose-400 border-rose-500/30',
 ];
 
-const MOCK_TEMPLATES: Template[] = Array.from({ length: 32 }).map((_, i) => {
-  const categories = CATEGORIES.slice(1);
-  const selectedCategory = categories[i % categories.length];
-  
-  return {
-    id: `tpl-${1000 + i}`,
-    title: `${['Standard', 'Mutual', 'Executive', 'Contractor', 'Enterprise', 'Vendor'][i % 6]} ${['NDA', 'Employment Agreement', 'Service Contract', 'Offer Letter', 'Lease Agreement', 'Data Processing Addendum'][i % 6]} - v${(i % 3) + 1}.0`,
-    description: `A comprehensive template for ${selectedCategory.toLowerCase()} purposes, ensuring compliance and clear role definitions. Pre-configured with essential standard clauses and signature blocks.`,
-    category: selectedCategory,
-    tags: [TAGS[i % TAGS.length], TAGS[(i + 1) % TAGS.length]],
-    roles: Array.from({ length: (i % 3) + 1 }).map((_, rIdx) => ({
-      id: `role-${rIdx}`,
-      name: ['Sender', 'Client Signer', 'Legal Approver', 'HR Manager'][rIdx],
-      description: ['Initiates the document', 'Primary external signer', 'Internal legal review', 'Final HR sign-off'][rIdx],
-      color: ROLE_COLORS[rIdx % ROLE_COLORS.length],
-      required: true,
-    })),
-    pages: (i % 15) + 1,
-    lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString().split('T')[0],
-    creator: ['Alice Johnson', 'Bob Smith', 'Charlie Davis', 'Diana Prince'][i % 4],
-    isFavorite: i % 5 === 0,
-    status: i % 7 === 0 ? 'draft' : i % 11 === 0 ? 'archived' : 'active',
-    usageCount: Math.floor(Math.random() * 500),
-    thumbnailUrl: `https://api.dicebear.com/7.x/shapes/svg?seed=${i}&backgroundColor=121214&shape1Color=3f3f46`,
-  };
-});
+// --- Removed Mock Data ---
 
 // --- Components ---
 
@@ -316,14 +291,49 @@ const UseTemplateWizard = ({ template, onClose }: { template: Template, onClose:
 
 // Main Page Component
 export default function SabSignTemplatesPage() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTemplateModal, setActiveTemplateModal] = useState<Template | null>(null);
 
+  React.useEffect(() => {
+    import('@/app/actions/sabsign.actions').then(({ listTemplates }) => {
+      listTemplates({ limit: 100 }).then(res => {
+        const mapped = res.items.map((doc: any, i: number) => ({
+          id: doc._id,
+          title: doc.name || 'Untitled Template',
+          description: doc.description || 'No description provided.',
+          category: 'All', // Since categories aren't strictly stored in doc yet
+          tags: [],
+          roles: (doc.recipientSlots || []).map((slot: any, idx: number) => ({
+            id: `role-${idx}`,
+            name: slot.label || slot.role || `Role ${idx + 1}`,
+            description: slot.role || '',
+            color: ROLE_COLORS[idx % ROLE_COLORS.length],
+            required: true,
+          })),
+          pages: 1,
+          lastUpdated: doc.updatedAt || doc.createdAt,
+          creator: doc.userId || 'System',
+          isFavorite: false,
+          status: doc.status || 'active',
+          usageCount: 0,
+          thumbnailUrl: `https://api.dicebear.com/7.x/shapes/svg?seed=${i}&backgroundColor=121214&shape1Color=3f3f46`,
+        }));
+        setTemplates(mapped);
+        setLoading(false);
+      }).catch(err => {
+        console.error('Failed to list templates', err);
+        setLoading(false);
+      });
+    });
+  }, []);
+
   // Filter Logic
   const filteredTemplates = useMemo(() => {
-    return MOCK_TEMPLATES.filter(tpl => {
+    return templates.filter(tpl => {
       const matchesSearch = tpl.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             tpl.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
       const matchesCategory = activeCategory === 'All' || tpl.category === activeCategory;
@@ -393,7 +403,7 @@ export default function SabSignTemplatesPage() {
                 >
                   {category}
                   <span className={`text-xs ${activeCategory === category ? 'text-indigo-400/80' : 'text-zinc-600'}`}>
-                    {category === 'All' ? MOCK_TEMPLATES.length : MOCK_TEMPLATES.filter(t => t.category === category).length}
+                    {category === 'All' ? templates.length : templates.filter(t => t.category === category).length}
                   </span>
                 </button>
               ))}

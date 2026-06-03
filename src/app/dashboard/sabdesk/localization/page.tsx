@@ -594,7 +594,7 @@ const RegionalSettingsTab = () => {
                       <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
                         <div 
                           className={`h-full rounded-full ${lang.completion > 90 ? 'bg-green-500' : lang.completion > 50 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                          style={ width: `${lang.completion}%` }
+                          style={{ width: `${lang.completion}%` }}
                         />
                       </div>
                       <span className="text-xs text-gray-500">{lang.completion}% translated</span>

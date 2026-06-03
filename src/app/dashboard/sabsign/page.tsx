@@ -61,52 +61,31 @@ type Envelope = {
   isStarred: boolean;
 };
 
-// --- Mock Data ---
-const generateEnvelopes = (count: number): Envelope[] => {
-  const statuses: Envelope['status'][] = ['Draft', 'Sent', 'Delivered', 'Completed', 'Declined', 'Voided', 'Action Required'];
-  const subjects = [
-    'NDA for Project Alpha',
-    'Employment Agreement - John Doe',
-    'Vendor Contract 2024 - TechCorp',
-    'Q3 Sales Commission Plan',
-    'Partnership Agreement v2',
-    'Service Level Agreement (SLA)',
-    'Master Services Agreement',
-    'Lease Agreement - 104 Main St',
-    'Non-Compete Agreement',
-    'Independent Contractor Agreement',
-    'Software License Agreement',
-    'Data Processing Addendum',
-    'Board Resolution Q2',
-    'Equity Grant Notice'
-  ];
-  const recipientNames = ['Alice Smith', 'Bob Jones', 'Charlie Brown', 'David Lee', 'Eve Davis', 'Frank Miller'];
-  
-  return Array.from({ length: count }).map((_, i) => {
-    const numRecipients = Math.floor(Math.random() * 4) + 1;
-    const recipients: Recipient[] = Array.from({ length: numRecipients }).map(() => ({
-      name: recipientNames[Math.floor(Math.random() * recipientNames.length)],
-      email: `user${Math.floor(Math.random() * 1000)}@example.com`,
-      status: ['Signed', 'Pending', 'Viewed', 'Declined'][Math.floor(Math.random() * 4)] as Recipient['status']
-    }));
+// --- Removed Mock Data ---
 
-    return {
-      id: `ENV-${100000 + i}`,
-      subject: subjects[Math.floor(Math.random() * subjects.length)] + (i % 5 === 0 ? ' (Revised)' : ''),
-      status: statuses[Math.floor(Math.random() * statuses.length)],
-      sender: 'me@sabdesk.com',
-      recipients,
-      lastModified: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
-      created: new Date(Date.now() - Math.random() * 20000000000).toISOString(),
-      size: Math.floor(Math.random() * 5000) + 100 + ' KB',
-      tags: Math.random() > 0.7 ? ['Urgent', 'Legal'] : (Math.random() > 0.5 ? ['Standard'] : []),
-      folder: Math.random() > 0.6 ? 'Contracts' : (Math.random() > 0.3 ? 'HR Documents' : 'Inbox'),
-      isStarred: Math.random() > 0.8
-    };
-  });
-};
+function mapEnvelopeStatus(rustStatus: string): Envelope['status'] {
+  switch (rustStatus) {
+    case 'draft': return 'Draft';
+    case 'sent': return 'Sent';
+    case 'in_progress': return 'Action Required';
+    case 'completed': return 'Completed';
+    case 'declined': return 'Declined';
+    case 'voided': return 'Voided';
+    case 'expired': return 'Voided';
+    default: return 'Draft';
+  }
+}
 
-const MOCK_DATA = generateEnvelopes(150);
+function mapSignerStatus(rustStatus: string): Recipient['status'] {
+  switch (rustStatus) {
+    case 'pending':
+    case 'notified': return 'Pending';
+    case 'viewed': return 'Viewed';
+    case 'completed': return 'Signed';
+    case 'declined': return 'Declined';
+    default: return 'Pending';
+  }
+}
 
 // --- Components ---
 
@@ -140,7 +119,37 @@ const StatusBadge = ({ status }: { status: Envelope['status'] }) => {
 };
 
 export default function SabSignDashboard() {
-  const [envelopes, setEnvelopes] = useState<Envelope[]>(MOCK_DATA);
+  const [envelopes, setEnvelopes] = useState<Envelope[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    import('@/app/actions/sabsign.actions').then(({ listEnvelopes }) => {
+      listEnvelopes({ limit: 100 }).then(res => {
+        const mapped = res.items.map((doc: any) => ({
+          id: doc._id,
+          subject: doc.name || doc.subject || 'Untitled',
+          status: mapEnvelopeStatus(doc.status),
+          sender: doc.userId || 'System',
+          recipients: (doc.signers || []).map((s: any) => ({
+            name: s.name,
+            email: s.email,
+            status: mapSignerStatus(s.status)
+          })),
+          lastModified: doc.updatedAt || doc.createdAt,
+          created: doc.createdAt,
+          size: '-',
+          tags: [],
+          folder: doc.status === 'draft' ? 'Drafts' : (doc.status === 'sent' || doc.status === 'in_progress' ? 'Sent' : 'Inbox'),
+          isStarred: false
+        }));
+        setEnvelopes(mapped);
+        setLoading(false);
+      }).catch(err => {
+        console.error('Failed to list envelopes', err);
+        setLoading(false);
+      });
+    });
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFolder, setSelectedFolder] = useState<string>('Inbox');
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');

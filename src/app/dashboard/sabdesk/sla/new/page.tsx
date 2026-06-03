@@ -60,7 +60,7 @@ export default function NewSlaPage() {
     <EntityDetailShell
       eyebrow="SLA POLICY"
       title="New SLA Policy"
-      back={ href: "/dashboard/sabdesk/sla", label: "SLA Policies" }
+      back={{ href: "/dashboard/sabdesk/sla", label: "SLA Policies" }}
     >
       <Card className="p-6">
         <form action={formAction} className="flex flex-col gap-6">

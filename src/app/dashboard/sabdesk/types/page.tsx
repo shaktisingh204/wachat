@@ -249,11 +249,11 @@ export default function TicketTypesPage() {
     <EntityListShell
       title="Ticket Types"
       subtitle="Ticket categorisation types with colour coding."
-      search={
+      search={{
         value: search,
         onChange: setSearch,
         placeholder: "Search types…",
-      }
+      }}
       primaryAction={
         <Button onClick={openAdd}>
           <Plus className="h-4 w-4" strokeWidth={1.75} />

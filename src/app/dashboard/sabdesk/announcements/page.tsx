@@ -68,7 +68,7 @@ export default function AnnouncementsPage() {
         </div>
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => { setActiveTab("composer"); setIsComposerOpen(true); }
+            onClick={() => { setActiveTab("composer"); setIsComposerOpen(true); }}
             className="px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-amber-500/20 font-medium"
           >
             <Plus className="w-5 h-5" />

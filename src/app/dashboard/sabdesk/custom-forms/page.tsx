@@ -348,7 +348,7 @@ export default function CustomFormsPage() {
                           onClick={(e) => {
                             e.stopPropagation();
                             removeField(field.id);
-                          }
+                          }}
                           className="p-1.5 text-red-400 hover:text-white hover:bg-red-500"
                           title="Delete"
                         >

@@ -519,7 +519,7 @@ export default function ChannelsPage() {
                             onClick={(e) => {
                               e.stopPropagation();
                               toggleStatus(channel.id);
-                            }
+                            }}
                             className={`p-1.5 rounded-md transition-colors ${channel.status === "connected" ? "text-green-500 hover:bg-green-500/10" : "text-red-500 hover:bg-red-500/10"}`}
                             title={
                               channel.status === "connected"

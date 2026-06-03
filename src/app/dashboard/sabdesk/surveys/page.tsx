@@ -94,7 +94,7 @@ const ChartMockup = ({ title, type = 'bar' }) => (
           </div>
           <div 
             className="w-full bg-gradient-to-t from-indigo-600/80 to-purple-500/80 rounded-t-sm transition-all duration-500 group-hover:from-indigo-500 group-hover:to-purple-400 relative overflow-hidden"
-            style={ height: `${Math.floor(Math.random() * 80) + 10}%` }
+            style={{ height: `${Math.floor(Math.random() * 80) + 10}%` }}
           >
             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
           </div>

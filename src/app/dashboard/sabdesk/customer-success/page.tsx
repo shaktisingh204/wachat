@@ -106,7 +106,7 @@ const MetricCard = ({ title, value, change, trend, icon: Icon, colorClass }: any
 
 const ProgressBar = ({ value, color = "bg-indigo-500" }: { value: number, color?: string }) => (
   <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-    <div className={`${color} h-full rounded-full transition-all duration-1000 ease-in-out`} style={ width: `${value}%` }></div>
+    <div className={`${color} h-full rounded-full transition-all duration-1000 ease-in-out`} style={{ width: `${value}%` }}></div>
   </div>
 );
 

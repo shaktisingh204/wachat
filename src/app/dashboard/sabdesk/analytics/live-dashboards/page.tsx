@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getLiveDashboardsData } from '@/app/actions/sabdesk-assist.actions';
 import { 
     BarChart, Activity, Users, Settings, Filter, Search, Download, 
     Share2, Plus, RefreshCw, ChevronDown, Bell, Zap, ShieldCheck, 
@@ -8,6 +9,25 @@ import {
 
 export default function AnalyticsLiveDashboardsPage() {
     const [searchTerm, setSearchTerm] = useState('');
+    const [data, setData] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        async function loadData() {
+            setIsLoading(true);
+            try {
+                const res = await getLiveDashboardsData();
+                if (res.success && res.data) {
+                    setData(res.data);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadData();
+    }, []);
     
     return (
         <div className="flex flex-col w-full h-full min-h-screen bg-neutral-950 text-neutral-200">
@@ -94,10 +114,10 @@ export default function AnalyticsLiveDashboardsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Array.from({ length: 15 }).map((_, i) => (
+                                {data.length > 0 ? data.map((item, i) => (
                                     <tr key={i} className="border-b border-white/5 hover:bg-neutral-800/50 transition-colors cursor-pointer">
-                                        <td className="p-4 text-sm text-neutral-300 font-mono">#ANA-{1000 + i}</td>
-                                        <td className="p-4 text-sm text-white font-medium">Analytics Live Dashboards Item {i + 1}</td>
+                                        <td className="p-4 text-sm text-neutral-300 font-mono">{item._id ? `#ANA-${item._id.substring(0,6)}` : `#ANA-${1000 + i}`}</td>
+                                        <td className="p-4 text-sm text-white font-medium">{item.name || `Analytics Live Dashboards Item ${i + 1}`}</td>
                                         <td className="p-4">
                                             <span className="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">Active</span>
                                         </td>
@@ -108,7 +128,7 @@ export default function AnalyticsLiveDashboardsPage() {
                                             <button className="text-blue-400 hover:text-blue-300 text-sm font-medium">View Details</button>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : <tr><td colSpan={5} className="p-4 text-center text-neutral-500">No dashboard items found.</td></tr>}
                             </tbody>
                         </table>
                     </div>
@@ -125,7 +145,7 @@ export default function AnalyticsLiveDashboardsPage() {
                                         <h4 className="font-medium text-neutral-200">Optimization Required</h4>
                                         <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Action</span>
                                     </div>
-                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for {analytics live dashboards}.</p>
+                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for analytics live dashboards.</p>
                                 </div>
                             ))}
                         </div>

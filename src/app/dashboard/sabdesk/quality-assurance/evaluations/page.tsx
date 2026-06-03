@@ -125,7 +125,7 @@ export default function QualityAssuranceEvaluationsPage() {
                                         <h4 className="font-medium text-neutral-200">Optimization Required</h4>
                                         <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">Action</span>
                                     </div>
-                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for {quality assurance evaluations}.</p>
+                                    <p className="text-sm text-neutral-400">The system has detected an anomaly in the standard workflow pattern for quality assurance evaluations.</p>
                                 </div>
                             ))}
                         </div>
