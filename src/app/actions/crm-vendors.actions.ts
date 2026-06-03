@@ -174,6 +174,11 @@ export async function saveCrmVendor(
         return { error: 'Vendor name is required.' };
     }
 
+    const country = (formData.get('country') as string | null) || '';
+    if (!country.trim()) {
+        return { error: 'Country is required.' };
+    }
+
     const logoUrlRaw = formData.get('logoUrl') as string | null;
     const attachmentsRaw = formData.get('attachmentUrls') as string | null;
     const bankRaw = formData.get('bankAccountDetails') as string | null;

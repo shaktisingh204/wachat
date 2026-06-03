@@ -37,7 +37,7 @@ interface DomainListProps {
   onUpdated: () => void;
 }
 
-function statusBadge(record: DnsRecord) {
+function statusBadge(record: DnsRecord | undefined, fallbackType: string) {
   const tone: Record<DnsRecordStatus, 'success' | 'warning' | 'destructive' | 'secondary'> = {
     valid: 'success',
     pending: 'warning',
@@ -45,8 +45,8 @@ function statusBadge(record: DnsRecord) {
     missing: 'destructive',
   };
   return (
-    <Badge variant={tone[record.status] ?? 'secondary'}>
-      {record.type}
+    <Badge variant={record ? (tone[record.status] ?? 'secondary') : 'secondary'}>
+      {record?.type ?? fallbackType}
     </Badge>
   );
 }
@@ -132,10 +132,10 @@ export function DomainList({ domains, onUpdated }: DomainListProps) {
                       )}
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      {statusBadge(d.spf)}
-                      {statusBadge(d.dkim)}
-                      {statusBadge(d.dmarc)}
-                      {statusBadge(d.mx)}
+                      {statusBadge(d.spf, 'SPF')}
+                      {statusBadge(d.dkim, 'DKIM')}
+                      {statusBadge(d.dmarc, 'DMARC')}
+                      {statusBadge(d.mx, 'MX')}
                     </div>
                     <div className="flex justify-end gap-2">
                       <Button

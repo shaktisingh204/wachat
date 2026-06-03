@@ -7,7 +7,7 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     StatCard,
     fmtMoney,
-} from '../../accounting/_components/report-toolbar';
+} from '@/app/dashboard/sabbi/reports/_components/report-toolbar';
 import {
     getBookItc,
     getItcReconciliation,

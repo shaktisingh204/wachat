@@ -115,17 +115,6 @@ export default function CrmWebhooksListPage() {
     void refresh();
   }, [refresh]);
 
-  if (!mounted) {
-    return (
-      <div className="flex h-60 items-center justify-center">
-        <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
-          Loading webhooks...
-        </span>
-      </div>
-    );
-  }
-
   /* ── KPIs ──────────────────────────────────────────────────────── */
 
   const kpis = React.useMemo(() => {
@@ -166,6 +155,17 @@ export default function CrmWebhooksListPage() {
       );
     });
   }, [rows, search, statusFilter, eventFilter]);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-60 items-center justify-center">
+        <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-zoru-ink-muted border-t-transparent" />
+          Loading webhooks...
+        </span>
+      </div>
+    );
+  }
 
   /* ── Selection ─────────────────────────────────────────────────── */
 

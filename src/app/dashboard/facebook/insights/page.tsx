@@ -134,8 +134,12 @@ export default function FacebookInsightsPage(): React.JSX.Element {
       const [sumRes, detailRes] = await Promise.all([
         getPageInsights(projectId),
         getDetailedPageInsights(projectId, {
+          // page_impressions — still valid (total post impressions for the page)
+          // page_total_actions — valid replacement for deprecated page_post_engagements
+          // page_fans — valid (page likes / fan count growth); replaces deprecated page_fan_adds_unique
+          // page_posts_impressions — valid (impressions on page-owned post content)
           metrics:
-            'page_impressions,page_post_engagements,page_views_total,page_fan_adds_unique',
+            'page_impressions,page_total_actions,page_fans,page_posts_impressions',
           period: 'day',
           since,
           until,
@@ -156,19 +160,22 @@ export default function FacebookInsightsPage(): React.JSX.Element {
   }, [refresh]);
 
   const impressions = useMemo(
-    () => pickMetric(series, ['page_impressions', 'page_impressions_unique']),
+    () => pickMetric(series, ['page_impressions', 'page_posts_impressions']),
     [series],
   );
   const engagementSeries = useMemo(
-    () => pickMetric(series, ['page_post_engagements']),
+    // page_total_actions replaces deprecated page_post_engagements
+    () => pickMetric(series, ['page_total_actions']),
     [series],
   );
   const pageViews = useMemo(
-    () => pickMetric(series, ['page_views_total']),
+    // page_views_total was deprecated in v18; fall back to page_posts_impressions
+    () => pickMetric(series, ['page_posts_impressions', 'page_impressions']),
     [series],
   );
   const newFans = useMemo(
-    () => pickMetric(series, ['page_fan_adds_unique']),
+    // page_fan_adds_unique was deprecated; page_fans gives cumulative fan count
+    () => pickMetric(series, ['page_fans']),
     [series],
   );
 
@@ -184,8 +191,8 @@ export default function FacebookInsightsPage(): React.JSX.Element {
   const primaryLabel = impressions
     ? 'Impressions'
     : engagementSeries
-    ? 'Engagement'
-    : 'Page views';
+    ? 'Total actions'
+    : 'Post impressions';
 
   if (!projectId) {
     return (
@@ -275,7 +282,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             />
             <StatCard
               icon={<Heart />}
-              label="Engagement"
+              label="Total actions"
               value={(
                 metricTotal(engagementSeries) || summary?.postEngagement || 0
               ).toLocaleString()}
@@ -283,7 +290,7 @@ export default function FacebookInsightsPage(): React.JSX.Element {
             />
             <StatCard
               icon={<Activity />}
-              label="Page views"
+              label="Post impressions"
               value={(metricTotal(pageViews) || 0).toLocaleString()}
               period={`last ${presetSince(preset).days} days`}
             />

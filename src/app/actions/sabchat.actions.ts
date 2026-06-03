@@ -12,25 +12,37 @@ export async function saveSabChatSettings(prevState: any, formData: FormData) {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required' };
 
-    // Existing settings not on this form, passed via hidden input
+    // This action is shared by several forms (widget, ai-replies, auto-reply),
+    // each submitting only a subset of inputs alongside the serialized
+    // `settings` JSON (the pass-through of fields the form doesn't edit). A
+    // hidden `_form` marker identifies the submitting form so we only override
+    // the fields that form actually owns — reading every field unconditionally
+    // would null out values carried only in the JSON (this is the root cause of
+    // the embedded widget losing its saved colours / branding).
     const existingSettings = JSON.parse(formData.get('settings') as string || '{}');
+    const formId = (formData.get('_form') as string) || '';
 
-    const settings: Partial<SabChatSettings> = {
-        ...existingSettings,
-        // AI-related fields from this form
-        aiEnabled: formData.get('aiEnabled') === 'on',
-        aiContext: formData.get('aiContext') as string,
-        // Auto-reply fields that might be on a different form but use the same action
-        welcomeEnabled: formData.get('welcomeEnabled') === 'on',
-        welcomeMessage: formData.get('welcomeMessage') as string,
-        awayMessageEnabled: formData.get('awayMessageEnabled') === 'on',
-        awayMessage: formData.get('awayMessage') as string,
-        // General fields
-        enabled: formData.get('enabled') === 'on',
-        widgetColor: formData.get('widgetColor') as string,
-        teamName: formData.get('teamName') as string,
-        avatarUrl: formData.get('avatarUrl') as string,
-    };
+    const settings: Partial<SabChatSettings> = { ...existingSettings };
+
+    if (formId === 'ai-replies') {
+        // The `aiEnabled` switch is rendered outside the tab panels, so it is
+        // always submitted by this form (Radix emits `on` when checked, omits
+        // it when off). `aiContext` lives inside a tab and may be unmounted, so
+        // only override it when actually present.
+        settings.aiEnabled = formData.get('aiEnabled') === 'on';
+        if (formData.has('aiContext')) settings.aiContext = formData.get('aiContext') as string;
+    } else if (formId === 'auto-reply') {
+        settings.welcomeEnabled = formData.get('welcomeEnabled') === 'on';
+        settings.awayMessageEnabled = formData.get('awayMessageEnabled') === 'on';
+        if (formData.has('welcomeMessage')) settings.welcomeMessage = formData.get('welcomeMessage') as string;
+        if (formData.has('awayMessage')) settings.awayMessage = formData.get('awayMessage') as string;
+    } else if (formId === 'widget') {
+        // The widget form keeps every visual field (widgetColor, teamName,
+        // avatarUrl, companyLogo, welcomeMessage, …) in the `settings` JSON,
+        // which is already spread above. The only discrete input is `enabled`
+        // (emitted only when checked), so derive it explicitly here.
+        settings.enabled = formData.get('enabled') === 'on';
+    }
 
     try {
         const { db } = await connectToDatabase();

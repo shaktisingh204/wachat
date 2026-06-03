@@ -2,7 +2,37 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronDown, Search, Star } from 'lucide-react';
+import {
+    ChevronDown,
+    Search,
+    Star,
+    FileBarChart,
+    Wallet,
+    Receipt,
+    TrendingUp,
+    Calculator,
+    Clock4,
+    CreditCard,
+    Target,
+    ArrowRightLeft,
+    Crown,
+    Package,
+    FolderKanban,
+    ListChecks,
+    AlertTriangle,
+    CalendarDays,
+    PlaneTakeoff,
+    Timer,
+    Scale,
+    Cake,
+    Ticket,
+    UserCog,
+    Banknote,
+    Briefcase,
+    Users,
+    LifeBuoy,
+    ScrollText,
+} from 'lucide-react';
 
 import {
     Card,
@@ -14,17 +44,56 @@ import {
     ZoruCollapsibleTrigger,
 } from '@/components/zoruui';
 
+/**
+ * Server → client boundary is serialization-only: icons are passed as
+ * string names (not component functions, which are non-serializable and
+ * would crash the server render). Resolve names to components here.
+ */
+const ICON_MAP: Record<string, React.ElementType> = {
+    FileBarChart,
+    Wallet,
+    Receipt,
+    TrendingUp,
+    Calculator,
+    Clock4,
+    CreditCard,
+    Target,
+    ArrowRightLeft,
+    Crown,
+    Package,
+    FolderKanban,
+    ListChecks,
+    AlertTriangle,
+    CalendarDays,
+    PlaneTakeoff,
+    Timer,
+    Scale,
+    Cake,
+    Ticket,
+    UserCog,
+    Banknote,
+    Briefcase,
+    Users,
+    LifeBuoy,
+    ScrollText,
+    Star,
+};
+
+function resolveIcon(name?: string | null): React.ElementType {
+    return (name && ICON_MAP[name]) || FileBarChart;
+}
+
 export interface ReportLink {
     href: string;
     label: string;
     description: string;
-    icon: React.ElementType;
+    iconName: string;
 }
 
 export interface ReportCategory {
     id: string;
     title: string;
-    icon: React.ElementType;
+    iconName: string;
     items: ReportLink[];
     lastRefreshAt?: string | null;
     runs?: number;
@@ -109,7 +178,7 @@ export function ReportsHubClient({
             }
             if (favItems.length > 0) {
                 cats = [
-                    { id: 'favorites', title: 'Favorites', icon: Star, items: favItems, lastRefreshAt: null, runs: 0 },
+                    { id: 'favorites', title: 'Favorites', iconName: 'Star', items: favItems, lastRefreshAt: null, runs: 0 },
                     ...cats
                 ];
             }
@@ -171,7 +240,7 @@ export function ReportsHubClient({
             {/* Category KPI cards */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
                 {displayCategories.map((cat) => {
-                    const Icon = cat.icon;
+                    const Icon = resolveIcon(cat.iconName);
                     return (
                         <Card key={cat.id} className="p-4">
                             <div className="flex items-start justify-between gap-2">
@@ -204,7 +273,7 @@ export function ReportsHubClient({
                         </Card>
                     ) : null}
                     {filteredCategories.map((cat) => {
-                        const Icon = cat.icon;
+                        const Icon = resolveIcon(cat.iconName);
                         const open = openMap[cat.id] ?? true;
                         return (
                             <section key={cat.id}>
@@ -244,7 +313,8 @@ export function ReportsHubClient({
                                     </div>
                                     <ZoruCollapsibleContent className="mt-3">
                                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                                            {cat.items.map(({ href, label, description, icon: ItemIcon }) => {
+                                            {cat.items.map(({ href, label, description, iconName }) => {
+                                                const ItemIcon = resolveIcon(iconName);
                                                 const isFav = favorites.includes(href);
                                                 return (
                                                     <Link

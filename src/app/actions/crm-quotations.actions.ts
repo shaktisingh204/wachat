@@ -255,9 +255,14 @@ export async function saveQuotation(prevState: any, formData: FormData): Promise
             }
         }
 
+        const accountIdRaw = (formData.get('accountId') as string | null) || '';
+        if (!ObjectId.isValid(accountIdRaw)) {
+            return { error: 'A valid client is required.' };
+        }
+
         const quotationData: Omit<CrmQuotation, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: userObjectId,
-            accountId: new ObjectId(formData.get('accountId') as string),
+            accountId: new ObjectId(accountIdRaw),
             quotationNumber: quotationNumber,
             quotationDate: new Date(formData.get('quotationDate') as string),
             validTillDate: formData.get('validTillDate') ? new Date(formData.get('validTillDate') as string) : undefined,

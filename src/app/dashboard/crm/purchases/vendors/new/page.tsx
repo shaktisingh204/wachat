@@ -32,7 +32,7 @@ import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-const initialState = { message: '', error: '' };
+const initialState: { message: string; error: string } = { message: '', error: '' };
 
 function SubmitButton({ isEdit }: { isEdit: boolean }) {
     const { pending } = useFormStatus();
@@ -87,6 +87,7 @@ export default function NewVendorPage() {
     const [attachmentUrls, setAttachmentUrls] = useState<{ url: string; name: string }[]>([]);
 
     // MSME / §43B(h) compliance section (§6.10).
+    const [countryError, setCountryError] = useState<string>('');
     const [isMsme, setIsMsme] = useState<boolean>(false);
     const [udyamRegistrationNumber, setUdyamRegistrationNumber] = useState<string>('');
     const udyamWarning =
@@ -98,9 +99,14 @@ export default function NewVendorPage() {
               : '';
 
     useEffect(() => {
+        // Skip the initial mount — state is still the module-level initialState
+        // object so we can safely bail out with a reference equality check.
+        if (state === initialState) return;
+
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
             router.push('/dashboard/crm/purchases/vendors');
+            return;
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -122,7 +128,21 @@ export default function NewVendorPage() {
                 onSave={(details) => setBankDetails(details)}
             />
 
-            <form action={formAction} ref={formRef} key={vendor?._id?.toString() ?? 'new'}>
+            <form
+                ref={formRef}
+                key={vendor?._id?.toString() ?? 'new'}
+                action={formAction}
+                onSubmit={(e) => {
+                    if (!countryId.trim()) {
+                        e.preventDefault();
+                        setCountryError('Country is required.');
+                        const el = formRef.current?.querySelector<HTMLElement>('[name="country"]');
+                        el?.focus();
+                    } else {
+                        setCountryError('');
+                    }
+                }}
+            >
                 {isEdit && <input type="hidden" name="vendorId" value={editVendorId} />}
                 <input type="hidden" name="bankAccountDetails" value={JSON.stringify(bankDetails)} />
                 <input type="hidden" name="logoUrl" value={logoUrl} />
@@ -180,29 +200,56 @@ export default function NewVendorPage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="country">Country *</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="country"
                                             value={countryId || null}
                                             placeholder="Select country"
-                                            onChange={(next) => setCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                            onChange={(next) => {
+                                                const val = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setCountryId(val);
+                                                if (val) setCountryError('');
+                                                // Reset cascaded fields when country changes.
+                                                setStateId('');
+                                                setCityId('');
+                                            }}
                                         />
                                         <input type="hidden" name="country" value={countryId} />
+                                        {countryError ? (
+                                            <p className="text-[11.5px] text-red-500">{countryError}</p>
+                                        ) : null}
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="state">State</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="state"
                                             value={stateId || null}
                                             placeholder="Select state"
-                                            onChange={(next) => setStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                            filter={countryId ? { countryCode: countryId } : undefined}
+                                            disabled={!countryId}
+                                            onChange={(next) => {
+                                                const val = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setStateId(val);
+                                                // Reset city when state changes.
+                                                setCityId('');
+                                            }}
                                         />
                                         <input type="hidden" name="state" value={stateId} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="city">City/Town</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="city"
                                             value={cityId || null}
                                             placeholder="Select city"
+                                            filter={
+                                                countryId || stateId
+                                                    ? {
+                                                          ...(countryId ? { countryCode: countryId } : {}),
+                                                          // stateId format is "CC:SC"; extract just the state code.
+                                                          ...(stateId ? { stateCode: stateId.includes(':') ? stateId.split(':')[1] : stateId } : {}),
+                                                      }
+                                                    : undefined
+                                            }
+                                            disabled={!countryId}
                                             onChange={(next) => setCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
                                         <input type="hidden" name="city" value={cityId} />
@@ -231,29 +278,49 @@ export default function NewVendorPage() {
                                     <div className="space-y-2">
                                         <Label>Country</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="country"
                                             value={addressCountryId || null}
                                             placeholder="Select country"
-                                            onChange={(next) => setAddressCountryId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                            onChange={(next) => {
+                                                const val = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setAddressCountryId(val);
+                                                setAddressStateId('');
+                                                setAddressCityId('');
+                                            }}
                                         />
                                         <input type="hidden" name="addressCountry" value={addressCountryId} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>State / Province</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="state"
                                             value={addressStateId || null}
                                             placeholder="Select state"
-                                            onChange={(next) => setAddressStateId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
+                                            filter={addressCountryId ? { countryCode: addressCountryId } : undefined}
+                                            disabled={!addressCountryId}
+                                            onChange={(next) => {
+                                                const val = Array.isArray(next) ? (next[0] ?? '') : (next ?? '');
+                                                setAddressStateId(val);
+                                                setAddressCityId('');
+                                            }}
                                         />
                                         <input type="hidden" name="addressState" value={addressStateId} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>City</Label>
                                         <EntityPicker
-                                            entity="location"
+                                            entity="city"
                                             value={addressCityId || null}
                                             placeholder="Select city"
+                                            filter={
+                                                addressCountryId || addressStateId
+                                                    ? {
+                                                          ...(addressCountryId ? { countryCode: addressCountryId } : {}),
+                                                          ...(addressStateId ? { stateCode: addressStateId.includes(':') ? addressStateId.split(':')[1] : addressStateId } : {}),
+                                                      }
+                                                    : undefined
+                                            }
+                                            disabled={!addressCountryId}
                                             onChange={(next) => setAddressCityId(Array.isArray(next) ? (next[0] ?? '') : (next ?? ''))}
                                         />
                                         <input type="hidden" name="addressCity" value={addressCityId} />

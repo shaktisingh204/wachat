@@ -271,6 +271,11 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
             status: (statusRaw as CrmContact['status']) ?? undefined,
             leadScore: leadScore ?? 0,
             createdAt: new Date(),
+            // Seed lastActivity so the list (default-sorted by lastActivity desc)
+            // surfaces brand-new contacts at the top of page 1 immediately after
+            // creation — otherwise a doc missing this field sorts last and the
+            // new contact never appears in the visible page.
+            lastActivity: new Date(),
         };
 
         if (linkedinUrl) newContact.linkedinUrl = linkedinUrl;

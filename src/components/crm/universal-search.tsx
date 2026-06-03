@@ -83,7 +83,11 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
     return SECTIONS.reduce((sum, s) => sum + results[s.key].length, 0);
   }, [results]);
 
-  const showDropdown = open && (query.trim().length >= 2 || query.length === 0);
+  // Keep the popover open as long as the input is focused (open=true).
+  // Content switches internally between the "type to search" hint (< 2 chars)
+  // and real results (>= 2 chars). Closing at exactly 1 char would set
+  // open=false via onOpenChange, breaking all subsequent typing.
+  const showDropdown = open;
 
   return (
     <Popover open={showDropdown} onOpenChange={setOpen}>

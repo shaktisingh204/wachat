@@ -376,10 +376,11 @@ export function CrmFormBuilder({ initialForm }: { initialForm?: WithId<CrmForm> 
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             } else {
                 toast({ title: 'Success', description: 'Form saved successfully!' });
-                if (result.formId && !initialForm) {
+                const isNewForm = !initialForm || initialForm._id.toString().startsWith('temp_');
+                if (result.formId && isNewForm) {
                     router.push(`/dashboard/crm/sales-crm/forms/${result.formId}/edit`);
                 } else {
-                     router.refresh();
+                    router.refresh();
                 }
             }
         });

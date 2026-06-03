@@ -294,6 +294,8 @@ export function EstimateTemplateForm({
                                         key={idx}
                                         className="border-t border-zoru-line"
                                     >
+                                        {/* drag-handle spacer — keeps columns aligned with thead */}
+                                        <td className="w-8 px-1 py-2" />
                                         <td className="px-3 py-2">
                                             <Input
                                                 placeholder={`Item ${idx + 1}`}

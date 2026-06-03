@@ -186,16 +186,21 @@ const ENTITY_LABEL: Record<EntityKey, string> = {
  * LRU is the source of truth (see `crm-lookup::recents`) and the
  * picker reads `LookupResult.recent` directly from the empty-state
  * response. This local cache only kicks in when the flag is off.
+ *
+ * For the `'enum'` entity the key is further namespaced by the
+ * `enumName` filter so that, e.g., recents from a `contactStatus`
+ * picker do not bleed into a `paymentMode` picker — they share the
+ * same `entity='enum'` but have completely disjoint value sets.
  */
-function recentsKey(entity: EntityKey) {
-  return `entityPicker.recent.${entity}`;
+function recentsKey(storageKey: string) {
+  return `entityPicker.recent.${storageKey}`;
 }
 
-function loadRecents(entity: EntityKey): string[] {
+function loadRecents(storageKey: string): string[] {
   if (typeof window === 'undefined') return [];
   if (USE_RUST_LOOKUP) return [];
   try {
-    const raw = window.localStorage.getItem(recentsKey(entity));
+    const raw = window.localStorage.getItem(recentsKey(storageKey));
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed)
@@ -206,16 +211,16 @@ function loadRecents(entity: EntityKey): string[] {
   }
 }
 
-function pushRecent(entity: EntityKey, id: string, max = 5) {
+function pushRecent(storageKey: string, id: string, max = 5) {
   if (typeof window === 'undefined') return;
   // When the Rust flag is on, `recordPickedRecent` already POSTs to
   // /v1/crm/lookup/{entity}/recent/{itemId} which feeds the per-tenant
   // Redis LRU. Skip the duplicate localStorage write.
   if (USE_RUST_LOOKUP) return;
   try {
-    const current = loadRecents(entity).filter((x) => x !== id);
+    const current = loadRecents(storageKey).filter((x) => x !== id);
     const next = [id, ...current].slice(0, max);
-    window.localStorage.setItem(recentsKey(entity), JSON.stringify(next));
+    window.localStorage.setItem(recentsKey(storageKey), JSON.stringify(next));
   } catch {
     /* localStorage might be unavailable / full — non-fatal. */
   }
@@ -428,6 +433,17 @@ export function EntityPicker({
     [valueAsArray],
   );
 
+  // Per-instance localStorage namespace for recents. For the 'enum'
+  // entity every distinct enumName gets its own bucket so recents from
+  // (e.g.) contactStatus never appear in paymentMode dropdowns.
+  const storageKey = React.useMemo(() => {
+    if (entity === 'enum') {
+      const enumName = (filter as { enumName?: string } | undefined)?.enumName;
+      if (enumName) return `enum.${enumName}`;
+    }
+    return entity as string;
+  }, [entity, filter]);
+
   // Hydrate selected ids on mount + whenever the upstream value changes.
   React.useEffect(() => {
     if (valueAsArray.length === 0) {
@@ -482,12 +498,12 @@ export function EntityPicker({
           if (!cancelled) setRecentItems([]);
         });
     } else {
-      const ids = loadRecents(entity).slice(0, recentLimit);
+      const ids = loadRecents(storageKey).slice(0, recentLimit);
       if (ids.length === 0) {
         setRecentItems([]);
         return;
       }
-      fetchLookup(entity, { ids })
+      fetchLookup(entity, { ids, filter })
         .then((res) => {
           if (cancelled) return;
           const byId = new Map(res.items.map((it) => [it.id, it]));
@@ -505,7 +521,7 @@ export function EntityPicker({
     return () => {
       cancelled = true;
     };
-  }, [open, entity, recentLimit]);
+  }, [open, entity, storageKey, recentLimit, filter]);
 
   // Run the search whenever the debounced query (or filter/scope) changes
   // while the popover is open. Aborts the previous in-flight request.
@@ -589,7 +605,7 @@ export function EntityPicker({
 
   const commitSelection = React.useCallback(
     (item: LookupItem) => {
-      pushRecent(entity, item.id, recentLimit);
+      pushRecent(storageKey, item.id, recentLimit);
       // When the Rust backend is enabled, also notify it so its
       // server-side LRU stays warm. No-op (and no token leak) when the
       // flag is off — see `recordPickedRecent` for the guard.
@@ -623,6 +639,7 @@ export function EntityPicker({
     },
     [
       entity,
+      storageKey,
       recentLimit,
       multi,
       valueAsArray,

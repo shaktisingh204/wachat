@@ -34,6 +34,7 @@ import type {
   SabwaRateLimitProfile,
   SabwaScheduled,
   SabwaScheduledPayload,
+  SabwaScheduledStatus,
   SabwaSession,
   SabwaSessionStatus,
   SabwaTemplate,
@@ -43,7 +44,6 @@ import type {
 import { engineFetch, SabwaEngineError } from '@/lib/sabwa/engine-client';
 import { getSession } from '@/app/actions/user.actions';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
-import { getProjects } from '@/app/actions/project.actions';
 import { ObjectId as MongoObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -75,16 +75,37 @@ async function requireAuth(): Promise<
   return { ok: true, userId: String(userId) };
 }
 
-/** Confirm auth + project ownership. */
+/** Confirm auth + project ownership via direct Mongo query.
+ *
+ * Intentionally bypasses `getProjects()` (Rust BFF) so that:
+ *   1. ObjectId serialisation differences between the BFF and the Mongo
+ *      driver can't cause a false "project not found" rejection.
+ *   2. The pairing flow keeps working even when the Rust BFF is temporarily
+ *      unavailable — the SabWa engine (Node.js) and Mongo are the only
+ *      hard dependencies for QR / pair-code generation.
+ */
 async function requireProject(
   projectId: IdLike,
 ): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
   const auth = await requireAuth();
   if (!auth.ok) return auth;
   const pid = idStr(projectId);
-  const projects = await getProjects();
-  if (!projects.some((p) => String(p._id) === pid)) {
-    return { ok: false, error: 'Project not found or access denied.' };
+  if (!pid || !MongoObjectId.isValid(pid)) {
+    return { ok: false, error: 'Invalid projectId.' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const project = await db
+      .collection('projects')
+      .findOne(
+        { _id: new MongoObjectId(pid) },
+        { projection: { _id: 1 } },
+      );
+    if (!project) {
+      return { ok: false, error: 'Project not found or access denied.' };
+    }
+  } catch {
+    return { ok: false, error: 'Could not verify project ownership.' };
   }
   return auth;
 }

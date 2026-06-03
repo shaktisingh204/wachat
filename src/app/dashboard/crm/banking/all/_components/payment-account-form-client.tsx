@@ -44,6 +44,7 @@ export function PaymentAccountFormClient({
     const [bankDetails, setBankDetails] = React.useState<Partial<BankAccountDetails>>(
         initial?.bankDetails ?? {},
     );
+    const [accountNumberError, setAccountNumberError] = React.useState<string | null>(null);
     const [openingBalanceDate, setOpeningBalanceDate] = React.useState<Date | undefined>(
         initial?.openingBalanceDate ? new Date(initial.openingBalanceDate) : undefined
     );
@@ -68,6 +69,24 @@ export function PaymentAccountFormClient({
         }
     }, [state, isEdit, initial, router, toast]);
 
+    // Guards the server action — if the account number fails client-side
+    // validation we surface the error and do not submit to the server.
+    const guardedFormAction = React.useCallback(
+        (formData: FormData) => {
+            const acctNum = bankDetails.accountNumber ?? '';
+            if (acctNum !== '' && !/^\d+$/.test(acctNum)) {
+                setAccountNumberError('Account number must contain digits only.');
+                return;
+            }
+            if (acctNum.length > 20) {
+                setAccountNumberError('Account number must be 20 digits or fewer.');
+                return;
+            }
+            formAction(formData);
+        },
+        [bankDetails.accountNumber, formAction],
+    );
+
     return (
         <EntityFormShell
             title={isEdit ? `Edit ${initial?.accountName}` : 'New Payment Account'}
@@ -76,7 +95,7 @@ export function PaymentAccountFormClient({
                     ? 'Update account details, bank info, and default flags.'
                     : 'Add a bank, cash, employee, wallet or other payment account.'
             }
-            action={formAction}
+            action={guardedFormAction}
             submitLabel={isEdit ? 'Save changes' : 'Add account'}
             cancelHref={
                 isEdit
@@ -179,13 +198,30 @@ export function PaymentAccountFormClient({
                                           <Label>Account number</Label>
                                           <Input
                                               value={bankDetails.accountNumber ?? ''}
-                                              onChange={(e) =>
+                                              inputMode="numeric"
+                                              onChange={(e) => {
+                                                  const val = e.target.value;
+                                                  if (val !== '' && !/^\d+$/.test(val)) {
+                                                      setAccountNumberError('Account number must contain digits only.');
+                                                  } else if (val.length > 20) {
+                                                      setAccountNumberError('Account number must be 20 digits or fewer.');
+                                                  } else {
+                                                      setAccountNumberError(null);
+                                                  }
+                                                  // Only update state with the new value (allows user to type)
                                                   setBankDetails((prev) => ({
                                                       ...prev,
-                                                      accountNumber: e.target.value,
-                                                  }))
-                                              }
+                                                      accountNumber: val,
+                                                  }));
+                                              }}
+                                              aria-invalid={!!accountNumberError}
+                                              aria-describedby={accountNumberError ? 'acctnum-error' : undefined}
                                           />
+                                          {accountNumberError ? (
+                                              <p id="acctnum-error" className="text-[11.5px] text-zoru-danger-ink">
+                                                  {accountNumberError}
+                                              </p>
+                                          ) : null}
                                       </div>
                                       <div className="space-y-2">
                                           <Label>IFSC</Label>

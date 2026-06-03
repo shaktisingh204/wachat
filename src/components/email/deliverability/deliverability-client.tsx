@@ -175,18 +175,18 @@ export function DeliverabilityClient() {
                   <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
                     <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Inbox</p>
                     <p className="text-2xl font-semibold text-zoru-ink">
-                      {Math.round(placement.inboxRate * 100)}%
+                      {Math.round((placement.inboxRate ?? 0) * 100)}%
                     </p>
                   </div>
                   <div className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3">
                     <p className="text-xs uppercase tracking-wide text-zoru-ink-muted">Spam</p>
                     <p className="text-2xl font-semibold text-zoru-ink">
-                      {Math.round(placement.spamRate * 100)}%
+                      {Math.round((placement.spamRate ?? 0) * 100)}%
                     </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {placement.results.map((r) => (
+                  {(placement.results ?? []).map((r) => (
                     <Badge
                       key={r.provider}
                       variant={

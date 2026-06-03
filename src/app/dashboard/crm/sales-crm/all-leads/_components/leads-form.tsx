@@ -338,9 +338,16 @@ export function LeadForm({ mode, initial, prefill, showConvert = true }: LeadFor
                             name="value"
                             type="number"
                             min={0}
+                            max={9999999999}
                             step="0.01"
                             defaultValue={initial?.value ?? prefill?.value ?? ''}
                             placeholder="0.00"
+                            onInput={(e) => {
+                                const el = e.currentTarget;
+                                if (el.value && Number(el.value) > 9999999999) {
+                                    el.value = '9999999999';
+                                }
+                            }}
                         />
                     </div>
                     <div className="space-y-2">

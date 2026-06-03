@@ -284,9 +284,14 @@ export function InvoiceListClient({
     setGridData(serverInvoices);
   }, [serverInvoices, setGridData]);
 
+  // Refetch when the actual query inputs change. `triggerFetch` itself is an
+  // unstable callback (it closes over a fresh inline `fetchFn` every render),
+  // so including it here would re-fire this effect on every render → infinite
+  // refetch loop. Depend on the real inputs only.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     triggerFetch();
-  }, [triggerFetch, gridPage, gridLimit, filters]);
+  }, [gridPage, gridLimit, filters]);
 
   /* ─── Inline Edit Save ─────────────────────────────────────────────────── */
   const handleSaveInlineEdit = async (id: string, updatedData: Partial<InvoiceListRow>) => {

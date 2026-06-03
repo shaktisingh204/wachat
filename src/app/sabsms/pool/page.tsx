@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { PoolClient, type PoolRow } from "./pool-client";
@@ -64,6 +66,10 @@ export default async function SabsmsPoolPage() {
   const rows = workspaceId ? await loadPools(workspaceId) : [];
 
   return (
-    <PoolClient rows={rows} />
+    // PoolClient reads `useSearchParams()` (via useSabsmsUrlState) — it must
+    // sit under a Suspense boundary or Next.js bails the whole route to an error.
+    <Suspense fallback={null}>
+      <PoolClient rows={rows} />
+    </Suspense>
   );
 }

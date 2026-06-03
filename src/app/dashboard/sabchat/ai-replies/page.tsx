@@ -53,7 +53,8 @@ import { Bot,
   ShieldAlert,
   Send,
   User,
-  Sparkles
+  Sparkles,
+  Plus
 } from "lucide-react";
 
 import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
@@ -165,6 +166,7 @@ export default function SabChatAiRepliesPage() {
       </PageHeader>
 
       <form action={formAction}>
+        <input type="hidden" name="_form" value="ai-replies" />
         {/* Pass-through existing settings unrelated to this form. */}
         <input
           type="hidden"

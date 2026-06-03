@@ -10,7 +10,7 @@ import {
 import type { DnsRecord, DnsRecordStatus } from '@/lib/rust-client/email-deliverability';
 
 interface DnsRecordRowProps {
-  record: DnsRecord;
+  record: DnsRecord | undefined;
   /** Override the displayed label — defaults to `record.type`. */
   label?: string;
 }
@@ -31,7 +31,8 @@ const statusToLabel: Record<DnsRecordStatus, string> = {
 
 export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
   const [copied, setCopied] = useState(false);
-  const value = record.expectedValue ?? record.value ?? '';
+  const status: DnsRecordStatus = record?.status ?? 'missing';
+  const value = record?.expectedValue ?? record?.value ?? '';
 
   const handleCopy = useCallback(async () => {
     if (!value) return;
@@ -53,14 +54,14 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
     <div className="flex flex-col gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3 sm:flex-row sm:items-center">
       <div className="flex min-w-[88px] items-center gap-2">
         <span className="text-xs font-semibold uppercase tracking-wide text-zoru-ink">
-          {label ?? record.type}
+          {label ?? record?.type ?? '—'}
         </span>
-        <Badge variant={statusToTone[record.status] ?? 'secondary'}>
-          {statusToLabel[record.status] ?? record.status}
+        <Badge variant={statusToTone[status] ?? 'secondary'}>
+          {statusToLabel[status] ?? status}
         </Badge>
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
-        {record.host ? (
+        {record?.host ? (
           <span className="truncate text-xs text-zoru-ink-muted">
             {record.host}
           </span>
@@ -68,7 +69,7 @@ export function DnsRecordRow({ record, label }: DnsRecordRowProps) {
         <code className="truncate text-xs text-zoru-ink">
           {value || '—'}
         </code>
-        {record.error ? (
+        {record?.error ? (
           <span className="text-xs text-zoru-danger-ink">{record.error}</span>
         ) : null}
       </div>

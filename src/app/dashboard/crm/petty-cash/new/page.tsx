@@ -1,16 +1,16 @@
 'use client';
 
 import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components/zoruui';
-import {
-  useActionState,
-  useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Save, LoaderCircle } from 'lucide-react';
+import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { savePettyCashFloat } from '@/app/actions/crm-petty-cash.actions';
 import { useRouter } from 'next/navigation';
-import { EntityFormField } from '@/components/crm/entity-form-field';
+
+const BASE = '/dashboard/crm/petty-cash';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -21,7 +21,7 @@ function SubmitButton() {
       ) : (
         <Save className="h-4 w-4" />
       )}
-      {pending ? 'Saving…' : 'Save float'}
+      {pending ? 'Creating…' : 'Create float'}
     </Button>
   );
 }
@@ -37,10 +37,8 @@ export default function NewPettyCashFloatPage() {
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Float created', description: state.message });
-      router.push('/dashboard/crm/petty-cash');
-    }
-    if (state?.error) {
-      toast({ title: 'Error', description: state.error, variant: 'destructive' });
+      const dest = state.id ? `${BASE}/${state.id}` : BASE;
+      router.push(dest);
     }
   }, [state, toast, router]);
 
@@ -48,37 +46,53 @@ export default function NewPettyCashFloatPage() {
     <EntityDetailShell
       eyebrow="PETTY CASH"
       title="New Petty Cash Float"
-      back={{ href: '/dashboard/crm/petty-cash', label: 'Petty Cash' }}
+      back={{ href: BASE, label: 'Petty Cash' }}
     >
-
       <Card className="p-6">
         <form action={formAction} className="grid gap-5 md:grid-cols-2">
-          {/* Branch */}
-          <div className="flex flex-col gap-1.5">
-            <Label>Branch *</Label>
-            <EntityFormField
-              entity="branch"
-              name="branchId"
-              dualWriteName="branchName"
+
+          {/* Float name */}
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Label htmlFor="name">
+              Float name <span className="text-zoru-danger-ink">*</span>
+            </Label>
+            <Input
+              id="name"
+              name="name"
               required
-              placeholder="Select branch…"
+              placeholder="e.g. Mumbai HQ petty cash"
+              className="h-10"
             />
           </div>
 
-          {/* Custodian */}
+          {/* Branch name */}
           <div className="flex flex-col gap-1.5">
-            <Label>Custodian</Label>
-            <EntityFormField
-              entity="employee"
-              name="custodianId"
-              dualWriteName="custodianName"
-              placeholder="Select custodian…"
+            <Label htmlFor="branchName">
+              Branch <span className="text-zoru-danger-ink">*</span>
+            </Label>
+            <Input
+              id="branchName"
+              name="branchName"
+              required
+              placeholder="e.g. Mumbai HQ"
+              className="h-10"
+            />
+          </div>
+
+          {/* Custodian name */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="custodianName">Custodian</Label>
+            <Input
+              id="custodianName"
+              name="custodianName"
+              placeholder="Person responsible for this float"
+              className="h-10"
             />
           </div>
 
           {/* Opening Balance */}
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="openingBalance">Opening Balance (₹)</Label>
+            <Label htmlFor="openingBalance">Opening Balance</Label>
             <Input
               id="openingBalance"
               name="openingBalance"
@@ -90,26 +104,41 @@ export default function NewPettyCashFloatPage() {
             />
           </div>
 
+          {/* Currency */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="currency">Currency</Label>
+            <Input
+              id="currency"
+              name="currency"
+              placeholder="INR"
+              defaultValue="INR"
+              maxLength={6}
+              className="h-10"
+            />
+          </div>
+
           {/* Notes */}
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <Label htmlFor="notes">Notes (optional)</Label>
             <Textarea
               id="notes"
               name="notes"
-              placeholder="Any remarks about this float…"
+              placeholder="Operating policies, signing limits, custodian handover notes."
               rows={3}
             />
           </div>
 
+          {/* Inline error / success */}
+          {state?.error ? (
+            <p className="text-[13px] text-zoru-danger-ink md:col-span-2">
+              {state.error}
+            </p>
+          ) : null}
+
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 md:col-span-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => router.back()}
-            >
-              Cancel
+            <Button type="button" variant="outline" size="sm" asChild>
+              <Link href={BASE}>Cancel</Link>
             </Button>
             <SubmitButton />
           </div>

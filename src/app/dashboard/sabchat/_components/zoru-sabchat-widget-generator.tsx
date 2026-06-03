@@ -148,6 +148,7 @@ export function ZoruSabChatWidgetGenerator({
   return (
     <Card>
       <form action={formAction}>
+        <input type="hidden" name="_form" value="widget" />
         <input
           type="hidden"
           name="settings"

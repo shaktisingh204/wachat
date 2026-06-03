@@ -24,7 +24,8 @@ const { Pie, Tooltip, Cell } = ZoruChart as unknown as typeof import('recharts')
 const RechartsPieChart = (ZoruChart as unknown as typeof import('recharts')).PieChart;
 
 export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBreakdownProps) {
-  const total = data.reduce((s, d) => s + d.count, 0);
+  const rows = data ?? [];
+  const total = rows.reduce((s, d) => s + (d.count ?? 0), 0);
 
   return (
     <Card>
@@ -42,7 +43,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
             <ZoruChartContainer height={220}>
               <RechartsPieChart>
                 <Pie
-                  data={data}
+                  data={rows}
                   dataKey="count"
                   nameKey="device"
                   innerRadius={50}
@@ -50,7 +51,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
                   paddingAngle={2}
                   stroke="hsl(var(--zoru-bg))"
                 >
-                  {data.map((_, i) => (
+                  {rows.map((_, i) => (
                     <Cell
                       key={i}
                       fill={ZORU_CHART_PALETTE[i % ZORU_CHART_PALETTE.length]}
@@ -61,7 +62,7 @@ export function DeviceBreakdown({ data, title = 'Device breakdown' }: DeviceBrea
               </RechartsPieChart>
             </ZoruChartContainer>
             <ul className="space-y-1.5 text-sm">
-              {data.map((d, i) => (
+              {rows.map((d, i) => (
                 <li key={d.device} className="flex items-center gap-2">
                   <span
                     aria-hidden

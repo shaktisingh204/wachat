@@ -26,57 +26,60 @@ function pct(rate: number | undefined): string | undefined {
 }
 
 export function KpiTiles({ totals }: KpiTilesProps) {
+  // The Rust report endpoint may omit `totals` on a brand-new account. Guard
+  // against undefined so a partial payload never crashes the page at render.
+  const t = totals ?? ({} as Partial<EmailMetricsTotals>);
   const tiles = [
     {
       label: 'Sent',
-      value: fmt(totals.sent),
+      value: fmt(t.sent),
       icon: <Send className="h-4 w-4" />,
       period: undefined,
     },
     {
       label: 'Delivered',
-      value: fmt(totals.delivered),
+      value: fmt(t.delivered),
       icon: <CheckCircle2 className="h-4 w-4" />,
-      period: pct(totals.deliveryRate),
+      period: pct(t.deliveryRate),
     },
     {
       label: 'Opened',
-      value: fmt(totals.opened),
+      value: fmt(t.opened),
       icon: <MailMinus className="h-4 w-4" />,
-      period: pct(totals.openRate),
+      period: pct(t.openRate),
     },
     {
       label: 'Clicked',
-      value: fmt(totals.clicked),
+      value: fmt(t.clicked),
       icon: <MousePointerClick className="h-4 w-4" />,
-      period: pct(totals.clickRate),
+      period: pct(t.clickRate),
     },
     {
       label: 'Bounced',
-      value: fmt(totals.bounced),
+      value: fmt(t.bounced),
       icon: <AlertCircle className="h-4 w-4" />,
-      period: pct(totals.bounceRate),
+      period: pct(t.bounceRate),
       invertDelta: true,
     },
     {
       label: 'Unsubscribed',
-      value: fmt(totals.unsubscribed),
+      value: fmt(t.unsubscribed),
       icon: <UserMinus className="h-4 w-4" />,
-      period: pct(totals.unsubscribeRate),
+      period: pct(t.unsubscribeRate),
       invertDelta: true,
     },
   ];
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-      {tiles.map((t) => (
+      {tiles.map((tile) => (
         <StatCard
-          key={t.label}
-          label={t.label}
-          value={t.value}
-          icon={t.icon}
-          period={t.period}
-          invertDelta={t.invertDelta}
+          key={tile.label}
+          label={tile.label}
+          value={tile.value}
+          icon={tile.icon}
+          period={tile.period}
+          invertDelta={tile.invertDelta}
         />
       ))}
     </div>

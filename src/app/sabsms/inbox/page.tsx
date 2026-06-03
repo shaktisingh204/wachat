@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
@@ -73,12 +75,16 @@ export default async function SabsmsInboxPage({
   const initialThread = initialThreadId ? await loadThread(workspaceId, initialThreadId) : null;
 
   return (
-    <InboxLayout
-      workspaceId={workspaceId}
-      initialConversations={conversations}
-      initialThread={initialThread}
-      templates={templates}
-      agents={agents}
-    />
+    // InboxLayout reads `useSearchParams()` (via useSabsmsUrlState) — it must
+    // sit under a Suspense boundary or Next.js bails the whole route to an error.
+    <Suspense fallback={null}>
+      <InboxLayout
+        workspaceId={workspaceId}
+        initialConversations={conversations}
+        initialThread={initialThread}
+        templates={templates}
+        agents={agents}
+      />
+    </Suspense>
   );
 }

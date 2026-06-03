@@ -71,9 +71,10 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
   return (
     <div className="grid gap-4">
       {runs.map((run) => {
-        const totalDays = run.schedule.length || 1;
-        const progressPct = Math.min(100, Math.round((run.currentDay / totalDays) * 100));
-        const peakCap = run.schedule.reduce((m, d) => Math.max(m, d.cap), 0) || 1;
+        const schedule = run.schedule ?? [];
+        const totalDays = schedule.length || 1;
+        const progressPct = Math.min(100, Math.round(((run.currentDay ?? 0) / totalDays) * 100));
+        const peakCap = schedule.reduce((m, d) => Math.max(m, d.cap), 0) || 1;
 
         return (
           <Card key={run._id}>
@@ -130,7 +131,7 @@ export function WarmupSchedule({ runs, onUpdated }: WarmupScheduleProps) {
                 />
               </div>
               <div className="grid grid-cols-7 gap-1 sm:grid-cols-14">
-                {run.schedule.map((d) => {
+                {schedule.map((d) => {
                   const isPast = d.day < run.currentDay;
                   const isCurrent = d.day === run.currentDay;
                   const height = Math.max(8, Math.round((d.cap / peakCap) * 56));

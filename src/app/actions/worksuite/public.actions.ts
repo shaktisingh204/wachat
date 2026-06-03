@@ -125,6 +125,11 @@ interface GeneratePublicTokenOptions {
  * Authenticated: generate a public shareable token for a resource.
  * The token's `userId` is resolved from the underlying resource so that
  * the public resolver can scope correctly with just the token string.
+ *
+ * Idempotent: if an active (non-revoked, non-expired, uses not exhausted)
+ * token already exists for this resource, it is returned as-is. When a
+ * fresh token is minted, all previous tokens for the same resource are
+ * revoked first so only one active link exists at any time.
  */
 export async function generatePublicToken(
   resourceType: WsPublicResourceType,
@@ -142,12 +147,49 @@ export async function generatePublicToken(
   }
 
   const { db } = await connectToDatabase();
+  const resourceObjId = new ObjectId(resourceId);
   const now = new Date();
+
+  // Reuse the existing active token if one already exists.
+  const existing = await db.collection(COL.tokens).findOne({
+    userId: tenantId,
+    resource_type: resourceType,
+    resource_id: resourceObjId,
+    revoked: { $ne: true },
+  }) as (WsPublicAccessToken & { _id: ObjectId }) | null;
+
+  if (existing) {
+    // Reject if expired or uses exhausted — fall through to mint a new one.
+    const notExpired =
+      !existing.expires_at ||
+      new Date(existing.expires_at).getTime() >= now.getTime();
+    const notExhausted =
+      typeof existing.uses_allowed !== 'number' ||
+      (existing.uses_count ?? 0) < existing.uses_allowed;
+
+    if (notExpired && notExhausted) {
+      const url = `/p/${resourceType}/${existing.token}`;
+      return { success: true, token: existing.token, url };
+    }
+  }
+
+  // Revoke ALL previous tokens for this resource before minting a new one,
+  // so old links stop working immediately.
+  await db.collection(COL.tokens).updateMany(
+    {
+      userId: tenantId,
+      resource_type: resourceType,
+      resource_id: resourceObjId,
+      revoked: { $ne: true },
+    },
+    { $set: { revoked: true, updatedAt: now } },
+  );
+
   const token = randomToken();
   const doc: Omit<WsPublicAccessToken, '_id'> = {
     userId: tenantId,
     resource_type: resourceType,
-    resource_id: new ObjectId(resourceId),
+    resource_id: resourceObjId,
     token,
     expires_at: opts.expiresAt ? new Date(opts.expiresAt) : undefined,
     uses_allowed:

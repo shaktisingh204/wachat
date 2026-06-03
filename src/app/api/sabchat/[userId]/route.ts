@@ -14,6 +14,8 @@
  * or fall back to the path param when no query is provided.
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET(
     request: NextRequest,
@@ -28,6 +30,41 @@ export async function GET(
             status: 400,
             headers: { 'Content-Type': 'application/javascript' },
         });
+    }
+
+    // Load the owner's saved widget customizations (colour, logo, welcome
+    // copy, etc.) straight from Mongo so the embedded widget renders with the
+    // saved design even before — or without — the BFF config call resolving.
+    // The embed URL path param is the owning user's id.
+    let savedConfig: Record<string, unknown> = {};
+    try {
+        const ownerId = inboxId || userId;
+        if (ownerId && ObjectId.isValid(ownerId)) {
+            const { db } = await connectToDatabase();
+            const owner = await db
+                .collection('users')
+                .findOne(
+                    { _id: new ObjectId(ownerId) },
+                    { projection: { sabChatSettings: 1 } },
+                );
+            const s = owner?.sabChatSettings || {};
+            savedConfig = {
+                enabled: s.enabled,
+                widgetColor: s.widgetColor,
+                widgetPosition: s.widgetPosition,
+                darkMode: s.darkMode,
+                welcomeMessage: s.welcomeMessage,
+                welcomeTagline: s.welcomeTagline,
+                teamName: s.teamName,
+                title: s.teamName,
+                avatarUrl: s.avatarUrl,
+                companyLogo: s.companyLogo,
+                replyTime: s.replyTime,
+            };
+        }
+    } catch {
+        // Non-fatal: fall back to defaults / BFF config below.
+        savedConfig = {};
     }
 
     // Resolve the Rust BFF base URL the embed script will talk to. Falls
@@ -45,10 +82,13 @@ export async function GET(
     const script = `(function(){
     var INBOX_ID = ${JSON.stringify(inboxId)};
     var API = ${JSON.stringify(apiBase)};
+    var SAVED_CONFIG = ${JSON.stringify(savedConfig)};
     var TOKEN_KEY = 'sabchatVisitorToken';
     var POLL_MS = 5000;
 
-    var state = { config: null, visitorToken: null, messages: [], open: false, lastLen: 0, pollTimer: null };
+    // Seed config with the owner's saved customizations so the widget renders
+    // branded immediately; the BFF /config call (if available) merges on top.
+    var state = { config: SAVED_CONFIG, visitorToken: null, messages: [], open: false, lastLen: 0, pollTimer: null };
 
     function api(path, opts){
         return fetch(API + path, Object.assign({ headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }, opts || {}))
@@ -185,8 +225,16 @@ export async function GET(
         root.id = 'sabchat-w2-root';
         document.body.appendChild(root);
         api('/v1/sabchat/widget/config?inboxId=' + encodeURIComponent(INBOX_ID))
-            .then(function(cfg){ state.config = cfg && cfg.config ? cfg.config : cfg; render(); })
-            .catch(function(){ state.config = {}; render(); });
+            .then(function(cfg){
+                var remote = cfg && cfg.config ? cfg.config : cfg;
+                // Merge remote over the saved seed; keep seeded values when the
+                // remote omits a field so customizations are never lost.
+                for (var k in remote) {
+                    if (remote.hasOwnProperty(k) && remote[k] != null) state.config[k] = remote[k];
+                }
+                render();
+            })
+            .catch(function(){ render(); });
         // Restore token + warm history without opening
         if (loadToken()) { state.visitorToken = loadToken(); poll(false); }
     }

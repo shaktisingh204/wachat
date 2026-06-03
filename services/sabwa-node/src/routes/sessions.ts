@@ -219,6 +219,57 @@ async function patchSession(req: Request, res: Response): Promise<void> {
   res.json({ sessionId: id, updated: true });
 }
 
+/**
+ * GET /v1/sessions/:id/status
+ *
+ * Returns a lightweight status snapshot for a single session.
+ * Checks the live pool first (for `qr`, `pairCode`, `lastConnectedAt`,
+ * `lastError`) and falls back to the persisted `sabwa_sessions` row for
+ * sessions that are not currently held in the pool (e.g. after a restart).
+ *
+ * Shape mirrors `SabwaSessionStatusInfo` in `sabwa.actions.ts`.
+ */
+async function getSessionStatus(req: Request, res: Response): Promise<void> {
+  const state = getState(req);
+  const id = asString(req.params.id);
+  if (!id) {
+    res.status(400).json({ error: 'session id is required', code: 'bad_request' });
+    return;
+  }
+
+  // Try the live pool first — it has the freshest ephemeral state (QR, pair code).
+  const live = state.pool.get(id);
+  if (live) {
+    const snap = live.getStatus();
+    res.json({
+      session: {
+        sessionId: id,
+        status: snap.status,
+        lastConnectedAt: snap.lastConnectedAt?.toISOString(),
+        lastError: snap.lastError,
+      },
+    });
+    return;
+  }
+
+  // Pool miss — look up the persisted row.
+  const row = await findById(state.db, id);
+  if (!row) {
+    res.status(404).json({ error: 'session not found', code: 'not_found' });
+    return;
+  }
+  res.json({
+    session: {
+      sessionId: row.sessionId,
+      status: row.status,
+      phoneE164: row.phoneE164,
+      pushName: row.pushName,
+      profilePicUrl: row.profilePicUrl,
+      lastConnectedAt: row.lastConnectedAt,
+    },
+  });
+}
+
 async function getRateLimitProfile(req: Request, res: Response): Promise<void> {
   const state = getState(req);
   const id = asString(req.params.id);
@@ -292,14 +343,19 @@ export function buildSessionsRouter(_state: AppState): Router {
   r.get('/', (req, res, next) => {
     listSessions(req, res).catch(next);
   });
+  // Static sub-paths must be registered before the dynamic /:id handler
+  // so Express doesn't swallow 'status' / 'rate-limits' as the :id segment.
+  r.get('/:id/status', (req, res, next) => {
+    getSessionStatus(req, res).catch(next);
+  });
+  r.get('/:id/rate-limits', (req, res, next) => {
+    getRateLimitProfile(req, res).catch(next);
+  });
   r.get('/:id', (req, res, next) => {
     getSession(req, res).catch(next);
   });
   r.patch('/:id', (req, res, next) => {
     patchSession(req, res).catch(next);
-  });
-  r.get('/:id/rate-limits', (req, res, next) => {
-    getRateLimitProfile(req, res).catch(next);
   });
   r.delete('/:id', (req, res, next) => {
     deleteSessionHandler(req, res).catch(next);

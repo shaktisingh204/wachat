@@ -42,7 +42,7 @@ export interface PairingFlowProps {
   /** Initial 8-character pair code (e.g. `JKLM-NPQR`). */
   initialPairCode?: string;
   /** Fired exactly once when the session first reaches 'connected'. */
-  onPaired?: () => void;
+  onPaired?: (ev?: import('@/lib/sabwa/use-sabwa-stream').SabwaEvent) => void;
   /** Force a refresh from the engine (resets the 30s QR timer). */
   onRefresh?: () => void;
   /** Toggle between QR and pair-code methods. */
@@ -165,7 +165,10 @@ export function PairingFlow({
             </p>
             <p className="mt-2 font-mono text-[28px] font-bold tracking-[0.3em] text-zoru-ink">
               {pairCode ? (
-                pairCode.replace(/(.{4})/, '$1-').replace(/-$/, '')
+                // Engine already formats as XXXX-XXXX; normalise here so
+                // both the initial value from pairSession and live SSE
+                // events (which may arrive as raw 8 chars) render uniformly.
+                pairCode.replace(/-/g, '').replace(/^(.{4})(.{4})$/, '$1-$2') || pairCode
               ) : (
                 <Loader2 className="inline h-7 w-7 animate-spin text-zoru-ink-muted" />
               )}

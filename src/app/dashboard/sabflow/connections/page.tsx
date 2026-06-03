@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
+import { useRouter } from "next/navigation"
 import { m } from "motion/react"
 import {
   Cloud,
@@ -18,7 +19,11 @@ import {
   Filter,
   Activity,
   Box,
-  Key
+  Key,
+  ExternalLink,
+  Trash2,
+  TestTube2,
+  Info,
 } from "lucide-react"
 
 import { PageHeader } from '@/components/zoruui'
@@ -26,8 +31,15 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/zoruui'
 import { Badge } from '@/components/zoruui'
 import { Button } from '@/components/zoruui'
 import { Input } from '@/components/zoruui'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/zoruui'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/zoruui'
 import { Progress } from '@/components/zoruui'
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+} from '@/components/zoruui'
 import { fadeInUp, staggerContainer } from "@/lib/motion"
 
 type ConnectionStatus = "Connected" | "Expired" | "Error"
@@ -144,17 +156,46 @@ const mockConnections: Connection[] = [
 ]
 
 export default function ConnectionsPage() {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState("")
   const [isReconnecting, setIsReconnecting] = useState<string | null>(null)
+  // Local mutable list so reconnect/revoke changes are reflected immediately
+  const [connections, setConnections] = useState<Connection[]>(mockConnections)
+  const [activityLogOpen, setActivityLogOpen] = useState(false)
+  const [detailConn, setDetailConn] = useState<Connection | null>(null)
+  const [testingConn, setTestingConn] = useState<string | null>(null)
 
   const handleReconnect = (id: string) => {
     setIsReconnecting(id)
+    // Simulate OAuth/token refresh then mark as Connected
     setTimeout(() => {
+      setConnections((prev) =>
+        prev.map((c) =>
+          c.id === id
+            ? { ...c, status: "Connected", errorMessage: undefined, lastSync: "Just now" }
+            : c
+        )
+      )
       setIsReconnecting(null)
     }, 2000)
   }
 
-  const filteredConnections = mockConnections.filter(
+  const handleViewDetails = (conn: Connection) => {
+    setDetailConn(conn)
+  }
+
+  const handleTestConnection = (id: string) => {
+    setTestingConn(id)
+    setTimeout(() => {
+      setTestingConn(null)
+    }, 1500)
+  }
+
+  const handleRevokeAccess = (id: string) => {
+    setConnections((prev) => prev.filter((c) => c.id !== id))
+  }
+
+  const filteredConnections = connections.filter(
     (conn) =>
       conn.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       conn.provider.toLowerCase().includes(searchTerm.toLowerCase())
@@ -201,7 +242,7 @@ export default function ConnectionsPage() {
             <Filter className="w-4 h-4 mr-2" />
             Filter
           </Button>
-          <Button variant="outline" className="w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setActivityLogOpen(true)}>
             <Activity className="w-4 h-4 mr-2" />
             Activity Log
           </Button>
@@ -244,9 +285,25 @@ export default function ConnectionsPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem>Test Connection</DropdownMenuItem>
-                    <DropdownMenuItem className="text-zoru-ink">Revoke Access</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleViewDetails(conn)}>
+                      <Info className="w-4 h-4 mr-2" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleTestConnection(conn.id)}
+                      disabled={testingConn === conn.id}
+                    >
+                      <TestTube2 className="w-4 h-4 mr-2" />
+                      {testingConn === conn.id ? "Testing…" : "Test Connection"}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => handleRevokeAccess(conn.id)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Revoke Access
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardHeader>
@@ -324,6 +381,92 @@ export default function ConnectionsPage() {
           </Button>
         </div>
       )}
+
+      {/* Activity Log Dialog */}
+      <ZoruDialog open={activityLogOpen} onOpenChange={setActivityLogOpen}>
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              Connection Activity Log
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Recent authentication and sync events for your integrations.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <div className="mt-2 space-y-3 max-h-[360px] overflow-y-auto">
+            {connections.map((conn) => (
+              <div key={conn.id} className="flex items-start gap-3 rounded-lg border border-zoru-line p-3">
+                <div className={`w-8 h-8 rounded-lg bg-zoru-surface-2/50 flex items-center justify-center shrink-0 ${conn.color}`}>
+                  <conn.icon className="w-4 h-4" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium truncate">{conn.name}</p>
+                    {getStatusBadge(conn.status)}
+                  </div>
+                  <p className="text-xs text-zoru-ink-muted mt-0.5">
+                    {conn.status === "Connected"
+                      ? `Last synced ${conn.lastSync}`
+                      : conn.errorMessage ?? `Last sync ${conn.lastSync}`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => { setActivityLogOpen(false); router.push("/dashboard/sabflow/audit") }}>
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open Full Audit Log
+            </Button>
+          </div>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      {/* Connection Detail Dialog */}
+      <ZoruDialog open={!!detailConn} onOpenChange={(open) => { if (!open) setDetailConn(null) }}>
+        <ZoruDialogContent className="max-w-md">
+          {detailConn && (
+            <>
+              <ZoruDialogHeader>
+                <ZoruDialogTitle className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl bg-zoru-surface-2/50 flex items-center justify-center border ${detailConn.color}`}>
+                    <detailConn.icon className="w-5 h-5" />
+                  </div>
+                  {detailConn.name}
+                </ZoruDialogTitle>
+                <ZoruDialogDescription>{detailConn.provider} · {detailConn.type}</ZoruDialogDescription>
+              </ZoruDialogHeader>
+              <div className="mt-3 space-y-3 text-sm">
+                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
+                  <span className="text-zoru-ink-muted">Status</span>
+                  {getStatusBadge(detailConn.status)}
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
+                  <span className="text-zoru-ink-muted">Account</span>
+                  <span className="font-medium">{detailConn.account}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-zoru-line/50">
+                  <span className="text-zoru-ink-muted">Last Sync</span>
+                  <span className="font-medium">{detailConn.lastSync}</span>
+                </div>
+                {detailConn.metrics?.map((m, i) => (
+                  <div key={i} className="flex justify-between items-center py-2 border-b border-zoru-line/50 last:border-0">
+                    <span className="text-zoru-ink-muted">{m.label}</span>
+                    <span className="font-medium">{m.value}</span>
+                  </div>
+                ))}
+                {detailConn.errorMessage && (
+                  <div className="bg-zoru-ink/10 text-zoru-ink text-sm p-3 rounded-lg border border-destructive/20 flex gap-2 items-start">
+                    <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+                    <p className="leading-snug">{detailConn.errorMessage}</p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </ZoruDialogContent>
+      </ZoruDialog>
     </div>
   )
 }

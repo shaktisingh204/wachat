@@ -170,25 +170,33 @@ export async function saveCrmForm(data: {
 
     const isNew = !data.formId || data.formId.startsWith('temp_');
 
-    const formData: Omit<CrmForm, '_id' | 'createdAt'> = {
-        name: data.name,
-        userId: new ObjectId(session.user._id),
-        fields: data.settings.fields || [],
-        settings: data.settings,
-        submissionCount: 0,
-        updatedAt: new Date(),
-    };
-
     try {
         const { db } = await connectToDatabase();
         if (isNew) {
-            const result = await db.collection('crm_forms').insertOne({ ...formData, createdAt: new Date() } as any);
+            const insertDoc = {
+                name: data.name,
+                userId: new ObjectId(session.user._id),
+                fields: data.settings.fields || [],
+                settings: data.settings,
+                submissionCount: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+            const result = await db.collection('crm_forms').insertOne(insertDoc as any);
             revalidatePath('/dashboard/crm/sales-crm/forms');
             return { message: 'Form created successfully.', formId: result.insertedId.toString() };
         } else {
+            // Only update mutable fields — never touch submissionCount (it is managed by handleFormSubmission).
+            const updateDoc = {
+                name: data.name,
+                userId: new ObjectId(session.user._id),
+                fields: data.settings.fields || [],
+                settings: data.settings,
+                updatedAt: new Date(),
+            };
             await db.collection('crm_forms').updateOne(
                 { _id: new ObjectId(data.formId), userId: new ObjectId(session.user._id) },
-                { $set: formData }
+                { $set: updateDoc }
             );
             revalidatePath('/dashboard/crm/sales-crm/forms');
             revalidatePath(`/dashboard/crm/sales-crm/forms/${data.formId}/edit`);

@@ -132,7 +132,7 @@ export function LeadsKanban({ onAfterMove }: LeadsKanbanProps) {
                 }
             });
         },
-        [optimistic, onAfterMove, toast],
+        [leads, updateLeadOptimistically, onAfterMove, toast],
     );
 
     // We use a ref because `dataTransfer` is unreliable in some browsers

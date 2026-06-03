@@ -79,6 +79,7 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
     return (
         <Card>
             <form action={formAction}>
+                <input type="hidden" name="_form" value="widget" />
                 <input type="hidden" name="settings" value={JSON.stringify(settings)} />
                 <ZoruCardHeader>
                     <div className="flex items-center gap-3">

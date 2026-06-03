@@ -11,7 +11,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
-import type { EmailCompareRow } from '@/lib/rust-client/email-reports';
+import type { EmailCompareRow, EmailMetricsTotals } from '@/lib/rust-client/email-reports';
 
 interface CompareTableProps {
   rows: EmailCompareRow[];
@@ -53,19 +53,22 @@ export function CompareTable({ rows }: CompareTableProps) {
           </ZoruTableRow>
         </ZoruTableHeader>
         <ZoruTableBody>
-          {rows.map((r) => (
-            <ZoruTableRow key={r.campaignId}>
-              <ZoruTableCell className="font-medium text-zoru-ink">
-                {r.campaignName}
-              </ZoruTableCell>
-              <ZoruTableCell className="text-right">{fmt(r.totals.sent)}</ZoruTableCell>
-              <ZoruTableCell className="text-right">{fmt(r.totals.delivered)}</ZoruTableCell>
-              <ZoruTableCell className="text-right">{pct(r.totals.openRate)}</ZoruTableCell>
-              <ZoruTableCell className="text-right">{pct(r.totals.clickRate)}</ZoruTableCell>
-              <ZoruTableCell className="text-right">{pct(r.totals.bounceRate)}</ZoruTableCell>
-              <ZoruTableCell className="text-right">{pct(r.totals.unsubscribeRate)}</ZoruTableCell>
-            </ZoruTableRow>
-          ))}
+          {rows.map((r) => {
+            const totals: Partial<EmailMetricsTotals> = r.totals ?? {};
+            return (
+              <ZoruTableRow key={r.campaignId}>
+                <ZoruTableCell className="font-medium text-zoru-ink">
+                  {r.campaignName}
+                </ZoruTableCell>
+                <ZoruTableCell className="text-right">{fmt(totals.sent)}</ZoruTableCell>
+                <ZoruTableCell className="text-right">{fmt(totals.delivered)}</ZoruTableCell>
+                <ZoruTableCell className="text-right">{pct(totals.openRate)}</ZoruTableCell>
+                <ZoruTableCell className="text-right">{pct(totals.clickRate)}</ZoruTableCell>
+                <ZoruTableCell className="text-right">{pct(totals.bounceRate)}</ZoruTableCell>
+                <ZoruTableCell className="text-right">{pct(totals.unsubscribeRate)}</ZoruTableCell>
+              </ZoruTableRow>
+            );
+          })}
         </ZoruTableBody>
       </Table>
     </Card>

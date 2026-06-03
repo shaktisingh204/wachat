@@ -97,7 +97,7 @@ async function ReportsOverviewContainer() {
     return {
       id: cat.id,
       title: cat.title,
-      icon: cat.icon,
+      iconName: cat.iconName,
       items: cat.items,
       lastRefreshAt,
       runs,
@@ -112,19 +112,19 @@ async function ReportsOverviewContainer() {
             label: 'Runs this month',
             value: overview.totalRunsThisMonth,
             hint: 'Across all saved report definitions',
-            icon: Activity,
+            iconName: 'Activity',
           },
           {
             label: 'Scheduled exports',
             value: overview.scheduledExportsCount,
             hint: 'Cron-backed definitions',
-            icon: CalendarClock,
+            iconName: 'CalendarClock',
           },
           {
             label: 'Top-viewed report',
             value: topViewedLabel,
             hint: 'Most runs this month',
-            icon: Star,
+            iconName: 'Star',
             tone: 'success',
           },
           {
@@ -133,7 +133,7 @@ async function ReportsOverviewContainer() {
             hint: overview.lastRefreshAt
               ? formatUTC(overview.lastRefreshAt, true)
               : 'No runs yet',
-            icon: RefreshCw,
+            iconName: 'RefreshCw',
           },
         ]}
       />

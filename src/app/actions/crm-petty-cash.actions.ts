@@ -158,12 +158,17 @@ export async function savePettyCashFloat(
   const guard = await requirePermission('crm_petty_cash', 'create');
   if (!guard.ok) return { error: guard.error };
 
-  const branchName = (formData.get('branchName') as string | null) ?? '';
+  const name = ((formData.get('name') as string | null) ?? '').trim();
+  const branchName = ((formData.get('branchName') as string | null) ?? '').trim();
   const custodianName = (formData.get('custodianName') as string | null) ?? '';
+  const currency = ((formData.get('currency') as string | null) ?? 'INR').trim().toUpperCase() || 'INR';
   const openingBalance = parseFloat((formData.get('openingBalance') as string | null) ?? '0') || 0;
   const notes = (formData.get('notes') as string | null) ?? '';
 
-  if (!branchName.trim()) {
+  if (!name) {
+    return { error: 'Float name is required.' };
+  }
+  if (!branchName) {
     return { error: 'Branch name is required.' };
   }
 
@@ -171,8 +176,10 @@ export async function savePettyCashFloat(
     const { db } = await connectToDatabase();
     const result = await db.collection('crm_petty_cash_floats').insertOne({
       userId: new ObjectId(session.user._id as string),
+      name,
       branchName,
       custodianName,
+      currency,
       openingBalance,
       totalTopUps: 0,
       totalSpent: 0,

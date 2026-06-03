@@ -41,7 +41,8 @@ export function OpenClickChart({
   title = 'Engagement over time',
   description = 'Daily opens and clicks',
 }: OpenClickChartProps) {
-  const hasData = data.length > 0 && data.some((p) => (p.opened ?? 0) + (p.clicked ?? 0) > 0);
+  const points = data ?? [];
+  const hasData = points.length > 0 && points.some((p) => (p.opened ?? 0) + (p.clicked ?? 0) > 0);
 
   return (
     <Card>
@@ -54,7 +55,7 @@ export function OpenClickChart({
       <ZoruCardContent>
         {hasData ? (
           <ZoruChartContainer height={280}>
-            <RechartsLineChart data={data} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+            <RechartsLineChart data={points} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-zoru-line" />
               <XAxis
                 dataKey="t"

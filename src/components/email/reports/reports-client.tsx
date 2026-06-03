@@ -31,6 +31,16 @@ import { OpenClickChart } from './open-click-chart';
 import { DeviceBreakdown } from './device-breakdown';
 import { CompareTable } from './compare-table';
 
+const EMPTY_TOTALS: EmailAccountReport['totals'] = {
+  sent: 0,
+  delivered: 0,
+  opened: 0,
+  clicked: 0,
+  bounced: 0,
+  complained: 0,
+  unsubscribed: 0,
+};
+
 function formatRevenue(amount: number, currency: string): string {
   try {
     return new Intl.NumberFormat(undefined, {
@@ -113,18 +123,18 @@ export function ReportsClient() {
         </div>
       ) : account ? (
         <>
-          <KpiTiles totals={account.totals} />
+          <KpiTiles totals={account.totals ?? EMPTY_TOTALS} />
 
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <OpenClickChart data={account.timeseries} />
+              <OpenClickChart data={account.timeseries ?? []} />
             </div>
             <div className="lg:col-span-1">
               <DeviceBreakdown data={account.devices ?? []} />
             </div>
           </div>
 
-          {revenue ? (
+          {revenue?.totals ? (
             <Card>
               <ZoruCardHeader>
                 <div className="flex items-start justify-between gap-3">

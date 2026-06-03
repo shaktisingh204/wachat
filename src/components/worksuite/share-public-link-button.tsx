@@ -27,9 +27,11 @@ export function SharePublicLinkButton({
   const [copied, setCopied] = useState(false);
 
   const generate = async () => {
+    // If we already have a live URL (e.g. dialog re-opened in same mount),
+    // skip the server round-trip — the server action is idempotent anyway.
+    if (url) return;
     setBusy(true);
     setError(null);
-    setUrl(null);
     setCopied(false);
     const res = await generatePublicToken(resourceType, resourceId, {});
     setBusy(false);
@@ -48,7 +50,7 @@ export function SharePublicLinkButton({
   };
   const close = () => {
     setOpen(false);
-    setUrl(null);
+    // Keep url in state so re-opening skips the server call.
     setError(null);
     setCopied(false);
   };

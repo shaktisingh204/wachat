@@ -48,9 +48,9 @@ const QUICK_LAUNCH: Array<{
   { name: "CRM", href: "/dashboard/crm", dot: "bg-violet-500", ring: "ring-violet-200", hint: "Leads + Deals" },
   { name: "SEO", href: "/dashboard/seo", dot: "bg-amber-500", ring: "ring-amber-200", hint: "Audits + Keywords" },
   { name: "HRM", href: "/dashboard/hrm", dot: "bg-rose-500", ring: "ring-rose-200", hint: "People Ops" },
-  { name: "Email", href: "/dashboard/email-marketing", dot: "bg-indigo-500", ring: "ring-indigo-200", hint: "Campaigns" },
+  { name: "Email", href: "/dashboard/email", dot: "bg-indigo-500", ring: "ring-indigo-200", hint: "Campaigns" },
   { name: "SabChat", href: "/dashboard/sabchat", dot: "bg-cyan-500", ring: "ring-cyan-200", hint: "Live Chat" },
-  { name: "Sites", href: "/dashboard/sabsite", dot: "bg-fuchsia-500", ring: "ring-fuchsia-200", hint: "Web Builder" },
+  { name: "Sites", href: "/dashboard/website-builder", dot: "bg-fuchsia-500", ring: "ring-fuchsia-200", hint: "Web Builder" },
 ];
 
 function broadcastBadgeTone(status: string): "green" | "amber" | "red" | "neutral" {
@@ -99,7 +99,7 @@ export default async function HomePage() {
             <div className="flex items-center gap-3 min-w-0">
               <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
               <div className="min-w-0">
-                <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900">
+                <h1 className="truncate text-lg font-semibold tracking-tight text-[hsl(var(--zoru-ink))]">
                   Good to see you, {userName}
                 </h1>
                 <p className="mt-0.5 text-xs text-zinc-500">
@@ -255,7 +255,7 @@ export default async function HomePage() {
                 <p className="mt-0.5 text-[11px] text-zinc-500">Latest sends across your channels</p>
               </div>
               <Link
-                href="/dashboard/marketing"
+                href="/dashboard/sabcampaigns"
                 className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
               >
                 View all <ArrowRight className="h-3 w-3" />
@@ -275,7 +275,7 @@ export default async function HomePage() {
                         className="h-8 rounded-full px-3 text-[12px] active:scale-[0.97]"
                         asChild
                       >
-                        <Link href="/dashboard/marketing">Create broadcast</Link>
+                        <Link href="/dashboard/sabcampaigns">Create broadcast</Link>
                       </Button>
                     }
                   />
@@ -343,7 +343,7 @@ export default async function HomePage() {
                 <p className="mt-0.5 text-[11px] text-zinc-500">Your team in real time</p>
               </div>
               <Link
-                href="/dashboard/activity"
+                href="/dashboard/crm/activity"
                 className="inline-flex items-center gap-0.5 rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
               >
                 Feed <ArrowRight className="h-3 w-3" />

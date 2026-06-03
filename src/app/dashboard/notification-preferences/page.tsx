@@ -126,7 +126,14 @@ export default function NotificationPreferencesPage() {
   };
 
   const handleSave = () => {
-    if (!projectId) return;
+    if (!projectId) {
+      toast({
+        title: 'No project selected',
+        description: 'Please select a project before saving notification preferences.',
+        variant: 'destructive',
+      });
+      return;
+    }
     startSaveTransition(async () => {
       const res = await saveNotificationPreferences(projectId, prefs);
       if (res.error) {

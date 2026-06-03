@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Download, RefreshCw, FileSpreadsheet, FileText } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 
 import {
@@ -181,8 +182,26 @@ export interface ReportKpiCard {
     label: string;
     value: string | number;
     hint?: string;
+    /**
+     * Either a lucide component (when rendered by a client component) or a
+     * string name (when passed across the RSC boundary from a Server
+     * Component — function values are non-serializable and would crash the
+     * server render). Names resolve via the lucide barrel.
+     */
     icon?: React.ElementType;
+    iconName?: string;
     tone?: ReportKpiTone;
+}
+
+function resolveKpiIcon(card: ReportKpiCard): React.ElementType | undefined {
+    if (card.icon) return card.icon;
+    if (card.iconName) {
+        const found = (LucideIcons as Record<string, unknown>)[card.iconName];
+        if (typeof found === 'function' || (found && typeof found === 'object')) {
+            return found as React.ElementType;
+        }
+    }
+    return undefined;
 }
 
 const reportKpiToneClass: Record<ReportKpiTone, string> = {
@@ -196,7 +215,7 @@ export function ReportKpiStrip({ cards }: { cards: ReportKpiCard[] }): React.JSX
     return (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {cards.map((card) => {
-                const Icon = card.icon;
+                const Icon = resolveKpiIcon(card);
                 const tone = card.tone ?? 'default';
                 return (
                     <Card key={card.label} className="h-full p-5">

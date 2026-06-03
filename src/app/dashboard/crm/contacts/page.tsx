@@ -219,9 +219,14 @@ export default function CrmContactsPage() {
     loadReferenceData();
   }, [loadReferenceData]);
 
+  // Refetch when the actual query inputs change. `triggerFetch` itself is an
+  // unstable callback (it closes over a fresh inline `fetchFn` every render),
+  // so including it here would re-fire this effect on every render → infinite
+  // refetch loop that hangs the page. Depend on the real inputs only.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     triggerFetch();
-  }, [triggerFetch, page, limit, filters]);
+  }, [page, limit, filters]);
 
   /* ─── Row delete handler ────────────────────────────────────── */
   const handleDelete = async () => {

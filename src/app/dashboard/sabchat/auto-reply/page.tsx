@@ -118,6 +118,7 @@ export default function SabChatAutoReplyPage() {
       </PageHeader>
 
       <form action={formAction}>
+        <input type="hidden" name="_form" value="auto-reply" />
         {/* Pass-through existing settings unrelated to this form. */}
         <input
           type="hidden"

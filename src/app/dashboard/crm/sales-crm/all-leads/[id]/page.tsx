@@ -60,16 +60,34 @@ import { convertLeadToAccount } from '@/app/actions/worksuite/conversions.action
 import type { CrmLead } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
+/** Max value we store without overflow — 10 billion. Values above this are
+ *  displayed in compact notation to prevent layout break. */
+const MAX_DISPLAY_FULL = 9_999_999_999;
+
 function formatMoney(value: number | undefined, currency: string | undefined): string {
     const ccy = currency || 'INR';
+    const v = value ?? 0;
     try {
+        // For astronomically large values use compact notation so the string
+        // stays short and cannot overflow the layout.
+        if (Math.abs(v) > MAX_DISPLAY_FULL) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: ccy,
+                notation: 'compact',
+                maximumFractionDigits: 2,
+            }).format(v);
+        }
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
             currency: ccy,
             maximumFractionDigits: 2,
-        }).format(value ?? 0);
+        }).format(v);
     } catch {
-        return `${ccy} ${(value ?? 0).toLocaleString('en-IN')}`;
+        if (Math.abs(v) > MAX_DISPLAY_FULL) {
+            return `${ccy} ${v.toExponential(2)}`;
+        }
+        return `${ccy} ${v.toLocaleString('en-IN')}`;
     }
 }
 
@@ -372,7 +390,7 @@ export default function LeadDetailPage() {
                         <Field
                             label="Estimated value"
                             value={
-                                <span className="font-mono text-base text-zoru-ink">
+                                <span className="block truncate font-mono text-base text-zoru-ink" title={formatMoney(lead.value, lead.currency)}>
                                     {formatMoney(lead.value, lead.currency)}
                                 </span>
                             }

@@ -75,7 +75,26 @@ export async function getAdAccounts(): Promise<{ accounts: AdAccount[]; error?: 
     if (!session?.user) return { accounts: [], error: 'Authentication required.' };
     try {
         const res = await rustClient.adManager.getAdAccounts();
-        return { accounts: res.accounts || [], error: res.error };
+        // If the Rust BFF returned accounts, use them directly.
+        if (res.accounts && res.accounts.length > 0) {
+            return { accounts: res.accounts };
+        }
+        // Rust BFF returned empty (endpoint not yet implemented, or no accounts
+        // cached there yet). Fall back to the server-side Graph API proxy route
+        // so the call is definitively server-side and never triggers CORS.
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        const sessionCookie = cookieStore.get('session')?.value ?? '';
+        const fallback = await fetch(`${appUrl}/api/ad-manager/accounts`, {
+            headers: { cookie: `session=${sessionCookie}` },
+            cache: 'no-store',
+        });
+        if (fallback.ok) {
+            const data = await fallback.json() as { accounts?: AdAccount[]; error?: string };
+            return { accounts: data.accounts || [] };
+        }
+        return { accounts: [], error: res.error };
     } catch (e) {
         return { accounts: [], error: rustErr(e) };
     }

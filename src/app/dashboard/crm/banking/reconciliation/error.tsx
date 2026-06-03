@@ -19,7 +19,7 @@ export default function BankReconciliationError({
   return (
     <EntityListShell title="Bank Reconciliation">
       <EmptyState
-        icon={AlertCircle}
+        icon={<AlertCircle className="h-8 w-8" />}
         title="Failed to load Bank Reconciliations"
         description="An error occurred while fetching the bank reconciliation records."
         action={<Button onClick={() => reset()}>Try again</Button>}

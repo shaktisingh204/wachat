@@ -236,9 +236,14 @@ export async function saveCreditNote(prevState: any, formData: FormData): Promis
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const total = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
+        const accountIdRaw = (formData.get('accountId') as string | null) || '';
+        if (!ObjectId.isValid(accountIdRaw)) {
+            return { error: 'A valid client is required.' };
+        }
+
         const creditNoteData: Omit<CrmCreditNote, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: userObjectId,
-            accountId: new ObjectId(formData.get('accountId') as string),
+            accountId: new ObjectId(accountIdRaw),
             creditNoteNumber: creditNoteNumber,
             creditNoteDate: new Date(formData.get('creditNoteDate') as string),
             originalInvoiceNumber: formData.get('originalInvoiceNumber') as string | undefined,

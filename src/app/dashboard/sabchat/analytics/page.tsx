@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  cn,
   ZORU_CHART_PALETTE,
   Breadcrumb,
   ZoruBreadcrumbItem,

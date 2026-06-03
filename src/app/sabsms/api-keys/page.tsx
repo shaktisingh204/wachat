@@ -96,7 +96,7 @@ function CopyableKeyDisplay({ keyValue }: { keyValue: string }) {
   );
 }
 
-export default function ApiKeysPage() {
+function ApiKeysPageContent() {
   const urlState = useSabsmsUrlState();
 
   const [selectedKeyId, setSelectedKeyId] = React.useState<string | null>(null);
@@ -517,5 +517,15 @@ export default function ApiKeysPage() {
         </div>
       </SabsmsDetailDrawer>
     </SabsmsPageShell>
+  );
+}
+
+export default function ApiKeysPage() {
+  // ApiKeysPageContent reads `useSearchParams()` (via useSabsmsUrlState) — it
+  // must sit under a Suspense boundary or Next.js bails the route to an error.
+  return (
+    <React.Suspense fallback={null}>
+      <ApiKeysPageContent />
+    </React.Suspense>
   );
 }

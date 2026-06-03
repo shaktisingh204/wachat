@@ -17,6 +17,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Plan, User } from '@/lib/definitions';
+import { invalidateSessionCache } from '@/lib/server-cache';
 
 type ActionResult<T = unknown> = {
     success: boolean;
@@ -332,6 +333,11 @@ export async function completeOnboarding(args: {
             await consumePendingInviteToken();
         } catch { /* non-fatal */ }
 
+        // Bust the in-memory session TTL cache so the next request to any
+        // guarded layout (dashboard, wachat, sabwa…) reads the updated
+        // onboarding.status from the DB rather than the stale cached value.
+        invalidateSessionCache(auth.userId.toString());
+
         revalidatePath('/onboarding');
         revalidatePath('/wachat');
         return { success: true };
@@ -371,6 +377,11 @@ export async function skipOnboarding(): Promise<ActionResult> {
         await db
             .collection('users')
             .updateOne({ _id: auth.userId }, { $set: update });
+
+        // Bust the in-memory session TTL cache so the guarded layouts
+        // (dashboard, wachat, sabwa…) pick up onboarding.status = 'complete'
+        // immediately instead of looping back to /onboarding on the stale value.
+        invalidateSessionCache(auth.userId.toString());
 
         revalidatePath('/onboarding');
         revalidatePath('/wachat');

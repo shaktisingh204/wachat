@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import { connectToDatabase } from "@/lib/mongodb";
 import { getCachedSession } from "@/lib/server-cache";
 import { SABSMS_COLLECTIONS } from "@/lib/sabsms/db/collections";
@@ -75,6 +77,10 @@ export default async function SabsmsNumbersPage() {
   const fallbackFrom = process.env.SABSMS_TWILIO_DEFAULT_FROM ?? "";
 
   return (
-    <NumbersClient rows={rows} fallbackFrom={fallbackFrom} />
+    // NumbersClient reads `useSearchParams()` (via useSabsmsUrlState) — it must
+    // sit under a Suspense boundary or Next.js bails the whole route to an error.
+    <Suspense fallback={null}>
+      <NumbersClient rows={rows} fallbackFrom={fallbackFrom} />
+    </Suspense>
   );
 }

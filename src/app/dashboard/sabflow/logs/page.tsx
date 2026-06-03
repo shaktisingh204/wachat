@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer } from "react-icons/lu";
+import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer, LuCircle } from "react-icons/lu";
 
 import { DataTable } from "@/components/zoruui/data-table";
 import { Badge } from "@/components/zoruui/badge";
@@ -181,23 +181,47 @@ const columns: ColumnDef<SystemLog>[] = [
 export default function SystemLogsPage() {
   const [logs, setLogs] = useState<SystemLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [liveTail, setLiveTail] = useState(false);
+  const liveTailRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Filters
   const [severityFilter, setSeverityFilter] = useState<string>("all");
   const [nodeFilter, setNodeFilter] = useState<string>("all");
 
-  const fetchLogs = () => {
+  const fetchLogs = useCallback(() => {
     setLoading(true);
     // Simulate network delay
     setTimeout(() => {
       setLogs(generateMockLogs(150));
       setLoading(false);
     }, 600);
-  };
+  }, []);
+
+  // Start/stop live tail polling
+  useEffect(() => {
+    if (liveTail) {
+      // Fetch immediately then poll every 3 seconds
+      fetchLogs();
+      liveTailRef.current = setInterval(() => {
+        fetchLogs();
+      }, 3000);
+    } else {
+      if (liveTailRef.current !== null) {
+        clearInterval(liveTailRef.current);
+        liveTailRef.current = null;
+      }
+    }
+    return () => {
+      if (liveTailRef.current !== null) {
+        clearInterval(liveTailRef.current);
+        liveTailRef.current = null;
+      }
+    };
+  }, [liveTail, fetchLogs]);
 
   useEffect(() => {
     fetchLogs();
-  }, []);
+  }, [fetchLogs]);
 
   const filteredData = useMemo(() => {
     return logs.filter((item) => {
@@ -222,16 +246,42 @@ export default function SystemLogsPage() {
             </ZoruPageDescription>
           </ZoruPageHeading>
           <ZoruPageActions>
-            <Button variant="outline" onClick={fetchLogs} disabled={loading}>
+            <Button variant="outline" onClick={fetchLogs} disabled={loading || liveTail}>
               <LuRefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
               Refresh
             </Button>
-            <Button variant="default">
-              <LuTerminal className="mr-2 h-4 w-4" />
-              Live Tail
+            <Button
+              variant={liveTail ? "default" : "outline"}
+              onClick={() => setLiveTail((prev) => !prev)}
+            >
+              {liveTail ? (
+                <LuCircle className="mr-2 h-4 w-4 animate-pulse fill-current" />
+              ) : (
+                <LuTerminal className="mr-2 h-4 w-4" />
+              )}
+              {liveTail ? "Stop Tail" : "Live Tail"}
             </Button>
           </ZoruPageActions>
         </PageHeader>
+
+        {/* Count summary — shows real fetched total and how many pass current filters */}
+        <div className="flex items-center gap-4 mb-3 px-1 text-xs text-zoru-ink-muted">
+          <span>
+            Showing <span className="font-semibold text-zoru-ink">{filteredData.length}</span> log
+            {filteredData.length !== 1 ? "s" : ""}
+            {filteredData.length !== logs.length ? (
+              <> (filtered from <span className="font-semibold text-zoru-ink">{logs.length}</span> total)</>
+            ) : (
+              <> total</>
+            )}
+          </span>
+          {liveTail && (
+            <span className="flex items-center gap-1 text-green-600 dark:text-green-400 font-medium">
+              <LuCircle className="w-2.5 h-2.5 animate-pulse fill-current" />
+              Live — refreshing every 3s
+            </span>
+          )}
+        </div>
 
         <Card className="p-0 border-zoru-line overflow-hidden shadow-[var(--zoru-shadow-sm)]">
           <DataTable

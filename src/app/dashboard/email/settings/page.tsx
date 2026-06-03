@@ -278,7 +278,7 @@ function EmailSettingsPageContent() {
         );
     }
 
-    if (view === 'list' && allSettings.length > 0) {
+    if (view === 'list') {
         return (
             <div className="space-y-8">
                 <div className="flex items-center justify-between">
@@ -297,6 +297,24 @@ function EmailSettingsPageContent() {
                     </Button>
                 </div>
 
+                {allSettings.length === 0 ? (
+                    <Card className="p-0">
+                        <ZoruCardContent className="flex flex-col items-center justify-center gap-4 py-16 text-center">
+                            <div className="bg-zoru-surface-2 p-4 rounded-full">
+                                <Mail className="h-10 w-10 text-zoru-ink" />
+                            </div>
+                            <div className="space-y-1">
+                                <h2 className="text-xl text-zoru-ink">No email accounts yet</h2>
+                                <p className="text-sm text-zoru-ink-muted max-w-md">
+                                    Connect a Gmail, Outlook, or custom SMTP account to start sending campaigns and syncing conversations.
+                                </p>
+                            </div>
+                            <Button onClick={() => router.push('/dashboard/email/settings?view=connect')}>
+                                <Plus className="h-4 w-4" /> Connect Your First Account
+                            </Button>
+                        </ZoruCardContent>
+                    </Card>
+                ) : (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {allSettings.map((account) => {
                         const Icon = account.provider === 'google' ? GoogleIcon : account.provider === 'outlook' ? OutlookIcon : Mail;
@@ -321,6 +339,7 @@ function EmailSettingsPageContent() {
                         )
                     })}
                 </div>
+                )}
             </div>
         );
     }

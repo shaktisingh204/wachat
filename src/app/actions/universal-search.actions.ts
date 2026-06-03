@@ -22,7 +22,7 @@ type UniversalSearchHit = {
   href: string;
 };
 
-type UniversalSearchResult = {
+export type UniversalSearchResult = {
   leads: UniversalSearchHit[];
   deals: UniversalSearchHit[];
   clients: UniversalSearchHit[];

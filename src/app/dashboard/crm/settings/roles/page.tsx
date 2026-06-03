@@ -129,17 +129,6 @@ export default function RolesPage() {
         refresh();
     }, [refresh]);
 
-    if (!mounted) {
-        return (
-            <div className="flex h-60 items-center justify-center">
-                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                    Loading roles...
-                </span>
-            </div>
-        );
-    }
-
     const filtered = React.useMemo(() => {
         let list = allRows;
         if (filter === 'system') list = list.filter((r) => r.is_system);
@@ -158,6 +147,17 @@ export default function RolesPage() {
     }, [allRows, filter, search]);
 
     const totalMembers = allRows.reduce((s, r) => s + (r.memberCount || 0), 0);
+
+    if (!mounted) {
+        return (
+            <div className="flex h-60 items-center justify-center">
+                <span className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                    Loading roles...
+                </span>
+            </div>
+        );
+    }
 
     const handleDelete = async () => {
         if (!deletingId) return;

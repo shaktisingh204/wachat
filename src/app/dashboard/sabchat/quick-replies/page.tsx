@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  cn,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,

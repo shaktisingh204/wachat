@@ -205,9 +205,14 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             }
         }
 
+        const accountIdRaw = (formData.get('accountId') as string | null) || '';
+        if (!ObjectId.isValid(accountIdRaw)) {
+            return { error: 'A valid client is required.' };
+        }
+
         const invoiceData: Omit<CrmInvoice, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: new ObjectId(session.user._id),
-            accountId: new ObjectId(formData.get('accountId') as string),
+            accountId: new ObjectId(accountIdRaw),
             invoiceNumber: formData.get('invoiceNumber') as string,
             invoiceDate: new Date(formData.get('invoiceDate') as string),
             dueDate: formData.get('dueDate') ? new Date(formData.get('dueDate') as string) : undefined,
