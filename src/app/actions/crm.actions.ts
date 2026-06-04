@@ -13,6 +13,7 @@ import { contactApi, type CrmContactDoc } from '@/lib/rust-client/crm-contacts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { crmAccessScope } from '@/lib/crm/access-scope';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -69,9 +70,11 @@ export async function getCrmContacts(
 
     try {
         const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
+        // Record-level access: owners/admins see the whole tenant; invited
+        // members are hard-limited to contacts assigned to them.
+        const scope = await crmAccessScope(session);
 
-        const filter: any = { userId: userObjectId };
+        const filter: any = { ...scope.contactList };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -138,9 +141,10 @@ export async function deleteCrmContact(contactId: string): Promise<{ success: bo
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const result = await db.collection('crm_contacts').deleteOne({
             _id: new ObjectId(contactId),
-            userId: new ObjectId(session.user._id),
+            ...scope.contactById,
         });
 
         if (result.deletedCount === 0) {
@@ -179,9 +183,10 @@ export async function getCrmContactById(contactId: string): Promise<WithId<CrmCo
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const contact = await db.collection<CrmContact>('crm_contacts').findOne({
             _id: new ObjectId(contactId),
-            userId: new ObjectId(session.user._id)
+            ...scope.contactById,
         });
 
         return contact ? JSON.parse(JSON.stringify(contact)) : null;
@@ -408,10 +413,11 @@ export async function updateCrmContact(
         }
 
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const result = await db.collection('crm_contacts').updateOne(
             {
                 _id: new ObjectId(contactId),
-                userId: new ObjectId(session.user._id),
+                ...scope.contactById,
             },
             { $set },
         );
@@ -1017,10 +1023,10 @@ export async function bulkContactAction(
 
     try {
         const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
+        const scope = await crmAccessScope(session);
         const filter = {
             _id: { $in: validIds.map((id) => new ObjectId(id)) },
-            userId: userObjectId,
+            ...scope.contactById,
         };
 
         if (op === 'delete') {

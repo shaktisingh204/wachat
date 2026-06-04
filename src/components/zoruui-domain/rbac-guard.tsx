@@ -2,13 +2,13 @@ import { Button } from '@/components/zoruui';
 import {
   headers } from 'next/headers';
 import { getCachedSession } from '@/lib/server-cache';
-import { getRequiredPermissionForPath } from '@/lib/rbac-server';
+import { getRequiredPermissionForPath, getEffectivePermissionsForProject } from '@/lib/rbac-server';
+import { can } from '@/lib/rbac';
 import { ShieldOff,
   Home,
   MessageSquare } from 'lucide-react';
 
 import Link from 'next/link';
-import { GlobalRolePermissions } from '@/lib/definitions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
@@ -125,6 +125,7 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
     // `role` field was never populated in Mongo cannot be accidentally locked
     // out by their own plan's permission ceiling.
     let isTeamMember = false;
+    let memberProjectId: string | null = null;
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(user._id);
@@ -170,6 +171,15 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
 
         // User is present in at least one project but NOT as the owner →
         // they are a team member / agent and will be subject to gating below.
+        // Remember which project they belong to (prefer the active one) so we
+        // can resolve their role + permissions from the OWNER's template below.
+        const activeId = (user as any).activeProjectId;
+        memberProjectId =
+            activeId && ObjectId.isValid(String(activeId))
+                ? String(activeId)
+                : matches.find(
+                      (p: any) => !(p.userId?.equals?.(userObjectId) ?? false),
+                  )?._id?.toString() ?? null;
         isTeamMember = true;
     } catch (e) {
         console.error('RBAC ownership check failed:', e);
@@ -188,38 +198,23 @@ export async function RBACGuard({ children }: { children: React.ReactNode }) {
         return <>{children}</>;
     }
 
-    // Plan permissions — the master overlay enforced on team users only.
-    const plan = (user as any).plan;
-    if (plan && plan.permissions && permissionKey) {
-        const requiredAction = 'view';
-        const perms = plan.permissions;
-        // Support both the new flat shape { [module]: { view, ... } }
-        // and the legacy nested shape { agent: { [module]: { view, ... } } }.
-        const planModulePerms =
-            perms[permissionKey] ??
-            (perms.agent && typeof perms.agent === 'object'
-                ? perms.agent[permissionKey]
-                : undefined);
-
-        if (planModulePerms && planModulePerms[requiredAction] === false) {
-            return <ForbiddenPage />;
-        }
-    }
-
-    // Agent (default team role) permissions
-    const userPermissions = user.crm?.permissions || {};
-    const agentPermissions = userPermissions['agent'] as GlobalRolePermissions | undefined;
-    if (agentPermissions?.[permissionKey as keyof GlobalRolePermissions]?.view) {
+    // =========================================================================
+    // CANONICAL PERMISSION RESOLUTION (team users)
+    // =========================================================================
+    // BUG FIX: the previous implementation read role permissions off the TEAM
+    // MEMBER's OWN user doc (`user.crm.permissions[role]`). But role templates
+    // are defined by the INVITER (the project owner) and live on the OWNER's
+    // user doc — so a member always resolved to empty permissions and hit the
+    // forbidden page even after the owner granted their role access (only
+    // `/wachat` worked, via the early bypass above).
+    //
+    // Resolve through `getEffectivePermissionsForProject`, the same source of
+    // truth the data layer uses: it reads the member's role from
+    // `project.agents[]`, pulls the OWNER's role template, and intersects it
+    // with the plan ceiling. `can()` then enforces both.
+    const effective = await getEffectivePermissionsForProject(memberProjectId);
+    if (can(effective, permissionKey, 'view')) {
         return <>{children}</>;
-    }
-
-    // Custom role permissions
-    if (user.crm?.customRoles) {
-        const userRole = user.role || 'agent';
-        const rolePermissions = userPermissions[userRole] as GlobalRolePermissions | undefined;
-        if (rolePermissions?.[permissionKey as keyof GlobalRolePermissions]?.view) {
-            return <>{children}</>;
-        }
     }
 
     return <ForbiddenPage />;

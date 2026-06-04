@@ -20,6 +20,7 @@ import type { CrmLead, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { z } from 'zod';
 import { requirePermission } from '@/lib/rbac-server';
+import { crmAccessScope } from '@/lib/crm/access-scope';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { crmLeadsApi, type CrmLeadDoc, type CrmLeadCreateInput, type CrmLeadUpdateInput } from '@/lib/rust-client/crm-leads';
 import { RustApiError } from '@/lib/rust-client/fetcher';
@@ -218,9 +219,11 @@ export async function getCrmLeads(
 
     try {
         const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
+        // Record-level access: owners/admins see the whole tenant; invited
+        // members are hard-limited to leads assigned to them.
+        const scope = await crmAccessScope(session);
 
-        const filter: any = { userId: userObjectId };
+        const filter: any = { ...scope.leadList };
         const text = (query ?? filters.query ?? '').trim();
         if (text) {
             const queryRegex = { $regex: text, $options: 'i' };
@@ -239,7 +242,9 @@ export async function getCrmLeads(
         if (filters.source) filter.source = filters.source;
         if (filters.pipelineId) filter.pipelineId = filters.pipelineId;
         if (filters.stage) filter.stage = filters.stage;
-        if (filters.assignedTo && ObjectId.isValid(filters.assignedTo)) {
+        // Restricted members have `assignedTo` locked to themselves by `scope`;
+        // never let the client filter widen it to another member's id.
+        if (!scope.restricted && filters.assignedTo && ObjectId.isValid(filters.assignedTo)) {
             filter.assignedTo = new ObjectId(filters.assignedTo);
         }
         if (filters.createdAfter || filters.createdBefore) {
@@ -324,10 +329,10 @@ export async function getCrmLeadKpis(): Promise<CrmLeadKpis> {
 
     try {
         const { db } = await connectToDatabase();
-        const userId = new ObjectId(session.user._id);
+        const scope = await crmAccessScope(session);
 
         const buckets = await db.collection('crm_leads').aggregate([
-            { $match: { userId } },
+            { $match: { ...scope.leadList } },
             {
                 $group: {
                     _id: { $toLower: { $ifNull: ['$status', 'new'] } },
@@ -390,9 +395,10 @@ export async function getCrmLeadById(leadId: string): Promise<WithId<CrmLead> | 
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const lead = await db.collection<CrmLead>('crm_leads').findOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
         if (!lead) return null;
         return JSON.parse(JSON.stringify(lead));
@@ -612,6 +618,7 @@ export async function updateCrmLead(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const assignedToRaw = formData.get('assignedTo');
         const set: Record<string, unknown> = {
             ...validated.data,
@@ -619,18 +626,20 @@ export async function updateCrmLead(
             currency: validated.data.currency || 'INR',
             updatedAt: new Date(),
         };
-        if (typeof assignedToRaw === 'string' && assignedToRaw && ObjectId.isValid(assignedToRaw)) {
+        // Restricted members may edit their assigned leads but must not re-assign
+        // them (which would hand the lead to someone else or drop their access).
+        if (!scope.restricted && typeof assignedToRaw === 'string' && assignedToRaw && ObjectId.isValid(assignedToRaw)) {
             set.assignedTo = new ObjectId(assignedToRaw);
         }
 
         const before = await db.collection('crm_leads').findOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
         if (!before) return { error: 'Lead not found.' };
 
         const result = await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             { $set: set },
         );
         if (result.matchedCount === 0) return { error: 'Lead not found.' };
@@ -731,14 +740,15 @@ export async function changeCrmLeadStatus(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const before = await db.collection('crm_leads').findOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
         if (!before) return { success: false, error: 'Lead not found.' };
 
         await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             { $set: { status, updatedAt: new Date() } },
         );
 
@@ -797,8 +807,9 @@ export async function archiveCrmLead(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const result = await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             { $set: { status: 'archived', archivedAt: new Date(), updatedAt: new Date() } },
         );
         if (result.matchedCount === 0) return { success: false, error: 'Lead not found.' };
@@ -856,8 +867,9 @@ export async function unarchiveCrmLead(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const result = await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             {
                 $set: { status: 'New', updatedAt: new Date() },
                 $unset: { archivedAt: '' },
@@ -922,6 +934,7 @@ export async function assignCrmLead(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const update: Record<string, unknown> = { updatedAt: new Date() };
         if (userId && ObjectId.isValid(userId)) {
             update.assignedTo = new ObjectId(userId);
@@ -930,7 +943,7 @@ export async function assignCrmLead(
         const op: Record<string, unknown> = { $set: update };
         if (unset) op.$unset = unset;
         const result = await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             op,
         );
         if (result.matchedCount === 0) return { success: false, error: 'Lead not found.' };
@@ -1021,8 +1034,8 @@ export async function bulkLeadAction(
 
     try {
         const { db } = await connectToDatabase();
-        const userId = new ObjectId(session.user._id);
-        const baseFilter = { _id: { $in: ids }, userId };
+        const scope = await crmAccessScope(session);
+        const baseFilter = { _id: { $in: ids }, ...scope.leadById };
 
         let processed = 0;
         if (op === 'delete') {
@@ -1106,9 +1119,10 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const result = await db.collection('crm_leads').deleteOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
 
         if (result.deletedCount === 0) {
@@ -1166,8 +1180,17 @@ export async function getCrmLeadRelatedCounts(
 
     try {
         const { db } = await connectToDatabase();
-        const userId = new ObjectId(session.user._id);
+        const scope = await crmAccessScope(session);
         const objId = new ObjectId(leadId);
+
+        // Only expose related counts for a lead the caller can actually access.
+        const accessibleLead = await db.collection('crm_leads').findOne(
+            { _id: objId, ...scope.leadById },
+            { projection: { _id: 1 } },
+        );
+        if (!accessibleLead) return empty;
+
+        const userId = scope.leadList.userId as ObjectId;
 
         const [deals, tasks, tickets, quotations] = await Promise.all([
             db.collection('crm_deals').countDocuments({
@@ -1220,9 +1243,10 @@ export async function updateCrmLeadStage(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const before = await db.collection('crm_leads').findOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
         if (!before) return { success: false, error: 'Lead not found.' };
 
@@ -1234,7 +1258,7 @@ export async function updateCrmLeadStage(
         if (Object.keys(unset).length) op.$unset = unset;
 
         await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             op,
         );
 
@@ -1276,14 +1300,15 @@ export async function updateCrmLeadTags(
 
     try {
         const { db } = await connectToDatabase();
+        const scope = await crmAccessScope(session);
         const before = await db.collection('crm_leads').findOne({
             _id: new ObjectId(leadId),
-            userId: new ObjectId(session.user._id),
+            ...scope.leadById,
         });
         if (!before) return { success: false, error: 'Lead not found.' };
 
         await db.collection('crm_leads').updateOne(
-            { _id: new ObjectId(leadId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(leadId), ...scope.leadById },
             { $set: { tags: next, updatedAt: new Date() } },
         );
 
