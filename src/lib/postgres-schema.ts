@@ -28,6 +28,8 @@ export interface PgUserRow {
   twenty_user_id: string | null; // bridge → twenty.user.id
   /** Monotonic revocation sentinel: tokens issued before this are invalid. */
   revoked_before: string | null; // ISO timestamp
+  /** Full Mongo user doc minus secrets — lets getSession rebuild the legacy shape. */
+  profile: unknown | null; // JSONB
   created_at: string; // ISO
   updated_at: string; // ISO
 }
@@ -61,6 +63,17 @@ export interface PgPlanRow {
   data: unknown; // JSONB — full plan document (limits/features)
   created_at: string;
   updated_at: string;
+}
+
+export interface PgMfaMethodRow {
+  id: string; // method id (matches identity MfaMethod.id)
+  user_id: string; // Mongo users._id string (legacy id, as in JWT)
+  kind: string | null; // 'totp' | 'webauthn' | 'recovery' | 'email'
+  secret: string | null; // base32 / encrypted secret where applicable
+  label: string | null;
+  data: unknown | null; // JSONB — method-specific payload (counters, codes, …)
+  created_at: string; // ISO
+  last_used_at: string | null; // ISO
 }
 
 export interface PgLoginAttemptRow {

@@ -106,6 +106,21 @@ export async function POST(request: NextRequest) {
         // Gated on shouldWritePg(); legacy mongo _id is the stable upsert key.
         if (shouldWritePg()) {
             try {
+                // Build the profile JSONB from the full user doc minus secrets,
+                // so the Postgres `profile` column stays current on every login
+                // and the PG read path can rebuild the legacy Mongo shape.
+                // We strip auth/2FA secrets — those live in mfa_methods (Lane W),
+                // never in the plaintext profile blob.
+                const profile: Record<string, any> = { ...(user as any) };
+                profile._id = user._id.toString(); // serialize ObjectId stably
+                delete profile.password;
+                delete profile.twoFactorSecret;
+                delete profile.twoFactorBackupCodes;
+                delete profile.twoFactorEmailCode;
+                delete profile.twoFactorChallengeCode;
+                delete profile.twoFactorPendingSecret;
+                delete profile.twoFactorPendingBackupCodes;
+
                 await pgUserStore.upsertByMongoId({
                     legacyMongoId: user._id.toString(),
                     email: user.email,
@@ -113,6 +128,8 @@ export async function POST(request: NextRequest) {
                     picture: (user as any).image ?? (user as any).picture ?? null,
                     planId: (user as any).planId != null ? String((user as any).planId) : null,
                     firebaseUid: decodedToken.uid ?? null,
+                    // Pass the sanitized full doc so PG profile tracks Mongo on login.
+                    profile,
                 });
             } catch (pgErr) {
                 console.error('[API_SESSION] Postgres user upsert failed (non-fatal):', pgErr);

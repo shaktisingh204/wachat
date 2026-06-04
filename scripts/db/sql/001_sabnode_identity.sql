@@ -26,6 +26,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_idx
 CREATE INDEX IF NOT EXISTS users_firebase_uid_idx
   ON sabnode_identity.users (firebase_uid);
 
+-- Full Mongo user document (minus secrets) so getSession can reconstruct the
+-- exact legacy shape from Postgres without a Mongo round-trip. Added separately
+-- (idempotent) because the identity migration may already have run on prod.
+ALTER TABLE sabnode_identity.users
+  ADD COLUMN IF NOT EXISTS profile jsonb;
+
 CREATE TABLE IF NOT EXISTS sabnode_identity.user_sessions (
   id           uuid PRIMARY KEY,
   user_id      text NOT NULL,
@@ -71,3 +77,19 @@ CREATE TABLE IF NOT EXISTS sabnode_identity.login_attempts (
 );
 CREATE INDEX IF NOT EXISTS login_attempts_email_idx
   ON sabnode_identity.login_attempts (lower(email), created_at DESC);
+
+-- MFA methods (TOTP / WebAuthn / recovery). `user_id` is the Mongo `_id` string
+-- (legacy id carried in the JWT), matching how revocation + sessions key on the
+-- legacy id rather than the generated users.id uuid. Additive + idempotent.
+CREATE TABLE IF NOT EXISTS sabnode_identity.mfa_methods (
+  id           text PRIMARY KEY,
+  user_id      text NOT NULL,
+  kind         text,
+  secret       text,
+  label        text,
+  data         jsonb,
+  created_at   timestamptz NOT NULL DEFAULT now(),
+  last_used_at timestamptz
+);
+CREATE INDEX IF NOT EXISTS mfa_methods_user_idx
+  ON sabnode_identity.mfa_methods (user_id);

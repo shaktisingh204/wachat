@@ -10,6 +10,11 @@ import { createAdminSessionToken } from '@/lib/auth';
 import { getErrorMessage, serializeMongoDoc } from '@/lib/utils';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
+// LANE R — C4 auth-backend flags + C1/C3 Postgres contracts for the PG read path.
+// All default to the safe Mongo behaviour, so untouched env == byte-identical today.
+import { authPgRead, shouldReadPg } from '@/lib/identity/auth-flags';
+import { pgQuery } from '@/lib/postgres';
+import { IDENTITY_SCHEMA } from '@/lib/postgres-schema';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 
@@ -153,6 +158,92 @@ export async function handleForgotPassword(prevState: { message?: string; error?
     return { message: "If an account with this email exists, a password reset link has been sent." };
 }
 
+/**
+ * LANE R — reconstruct the EXACT `getSession()` user shape from Postgres.
+ *
+ * Returns the same `{ user }` object the Mongo/Rust path returns today, rebuilt
+ * from the `sabnode_identity.users` row (identity columns + the `profile` JSONB
+ * = full Mongo user doc minus secrets) plus the joined plan from
+ * `sabnode_identity.plans` (keyed on `users.plan_id`, which the backfill set to
+ * the Mongo plan `_id` string — identical to `plans.id`).
+ *
+ * Returns `null` on any miss/error OR when the shape cannot be faithfully
+ * rebuilt (no `profile` blob → we'd be silently dropping every field the legacy
+ * doc carried). Returning null lets the caller fall back to the unchanged
+ * Mongo/Rust path unless `authPgRead()==='pg'` (strict), so we NEVER serve a
+ * partial/lossy session.
+ */
+async function getSessionFromPg(decoded: Awaited<ReturnType<typeof getDecodedSession>>) {
+    // `userId` on the custom JWT is the Mongo `_id` string == users.legacy_mongo_id.
+    const userId = (decoded as any)?.userId;
+    if (!userId) return null;
+
+    try {
+        // C2 contract: full (profile-bearing) row keyed on the Mongo _id.
+        const { pgUserStore } = await import('@/lib/identity/pg-stores');
+        const row = await pgUserStore.getFullByMongoId(String(userId));
+        if (!row) return null;
+
+        // The profile JSONB is the serialized Mongo user doc (minus secrets). It
+        // is the ONLY source for onboarding/credits/preferences/tags/etc., so a
+        // missing profile means we cannot reconstruct the legacy shape — bail and
+        // let the caller fall back rather than emit a stripped-down user object.
+        const profile = row.profile;
+        if (!profile || typeof profile !== 'object') {
+            console.error(
+                `[getSession] PG users row for ${userId} has no profile blob; ` +
+                'cannot reconstruct legacy session shape — falling back.',
+            );
+            return null;
+        }
+
+        // Join the plan exactly like the Mongo path: by the user's plan_id, which
+        // == plans.id (both are the Mongo plan _id string). `plans.data` is the
+        // full serialized plan doc. No row → plan stays null (same as Mongo when
+        // neither the user's plan nor a default plan exists).
+        let plan: unknown = null;
+        const planId = row.plan_id;
+        if (planId) {
+            try {
+                const { rows } = await pgQuery<{ data: unknown }>(
+                    `SELECT data FROM ${IDENTITY_SCHEMA}.plans WHERE id = $1 LIMIT 1`,
+                    [planId],
+                );
+                plan = rows[0]?.data ?? null;
+            } catch (e) {
+                // A failed plan join must not drop us into a partial session.
+                console.error(`[getSession] PG plan join failed for ${userId}:`, e);
+                return null;
+            }
+        }
+
+        const prof = profile as Record<string, any>;
+
+        // Reconstruct the identical override set getSessionFromMongo applies:
+        //   _id   → Mongo _id string (legacy_mongo_id)
+        //   planId→ plan id string
+        //   name  → persisted name, else JWT name (parity with Mongo path)
+        //   image → persisted image, else JWT picture
+        //   plan  → joined plan (or null)
+        // Identity columns (email/name/picture) win over the profile blob since
+        // they are the freshest mirror written on every dual-write.
+        return {
+            user: {
+                ...prof,
+                _id: String(row.legacy_mongo_id ?? userId),
+                email: row.email ?? prof.email,
+                planId: planId != null ? String(planId) : prof.planId,
+                name: row.name || prof.name || (decoded as any).name,
+                image: prof.image || row.picture || (decoded as any).picture,
+                plan: plan ?? null,
+            },
+        };
+    } catch (error) {
+        console.error('[getSession] PG session lookup failed:', error);
+        return null;
+    }
+}
+
 async function getSessionFromMongo(decoded: Awaited<ReturnType<typeof getDecodedSession>>) {
     const userId = (decoded as any)?.userId;
     if (!userId || !ObjectId.isValid(userId)) return null;
@@ -204,6 +295,16 @@ export async function getSession() {
 
         const decoded = await getDecodedSession(sessionCookie);
         if (!decoded) return null;
+
+        // LANE R — Postgres read path (C4-gated). Inert by default: shouldReadPg()
+        // is false unless AUTH_PG_READ is `pg` or `pg-fallback`.
+        if (shouldReadPg()) {
+            const pgSession = await getSessionFromPg(decoded);
+            if (pgSession) return pgSession;
+            // `pg` (strict): never touch Rust/Mongo — a PG miss means no session.
+            // `pg-fallback`: fall through to the UNCHANGED Rust→Mongo path below.
+            if (authPgRead() === 'pg') return null;
+        }
 
         const { sessionApi } = await import('@/lib/rust-client/session');
         let rust;

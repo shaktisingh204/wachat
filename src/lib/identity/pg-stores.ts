@@ -20,7 +20,11 @@ import 'server-only';
  */
 
 import { pgQuery } from '@/lib/postgres';
-import { IDENTITY_SCHEMA, type PgUserRow } from '@/lib/postgres-schema';
+import {
+  IDENTITY_SCHEMA,
+  type PgMfaMethodRow,
+  type PgUserRow,
+} from '@/lib/postgres-schema';
 import type { SessionStore } from './sessions';
 import type { Session } from './types';
 
@@ -122,6 +126,11 @@ export interface PgUserStore {
   findById(id: string): Promise<PgUserRow | null>;
   findByEmail(email: string): Promise<PgUserRow | null>;
   findByMongoId(legacyMongoId: string): Promise<PgUserRow | null>;
+  /**
+   * Full row (incl. the `profile` JSONB) keyed on `legacy_mongo_id`, so the
+   * read path can reconstruct the exact legacy Mongo user shape from Postgres.
+   */
+  getFullByMongoId(legacyMongoId: string): Promise<PgUserRow | null>;
   /** Upsert keyed on `legacy_mongo_id` (always present on the dual-write path). */
   upsertByMongoId(input: {
     legacyMongoId: string;
@@ -130,6 +139,8 @@ export interface PgUserStore {
     picture?: string | null;
     firebaseUid?: string | null;
     planId?: string | null;
+    /** Full Mongo user doc (minus secrets). Omitting it never wipes an existing one. */
+    profile?: unknown | null;
   }): Promise<PgUserRow>;
 }
 
@@ -154,21 +165,38 @@ export const pgUserStore: PgUserStore = {
     );
     return rows[0] ?? null;
   },
-  async upsertByMongoId(input) {
+  // SELECT * already pulls the ADD-ed `profile` column; kept as a distinct method
+  // so the read path is explicit about wanting the full (profile-bearing) row.
+  async getFullByMongoId(legacyMongoId) {
     const { rows } = await pgQuery<PgUserRow>(
-      `INSERT INTO ${U} (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6, now())
+      `SELECT * FROM ${U} WHERE legacy_mongo_id = $1`,
+      [legacyMongoId],
+    );
+    return rows[0] ?? null;
+  },
+  async upsertByMongoId(input) {
+    // `profile` is COALESCE'd against the existing value so an omitted profile
+    // (passed as null) never wipes a profile already stored by a prior write.
+    const { rows } = await pgQuery<PgUserRow>(
+      `INSERT INTO ${U} (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, profile, updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7, now())
        ON CONFLICT (legacy_mongo_id) DO UPDATE SET
          email = EXCLUDED.email,
          name = EXCLUDED.name,
          picture = EXCLUDED.picture,
          firebase_uid = COALESCE(EXCLUDED.firebase_uid, ${U}.firebase_uid),
          plan_id = COALESCE(EXCLUDED.plan_id, ${U}.plan_id),
+         profile = COALESCE(EXCLUDED.profile, ${U}.profile),
          updated_at = now()
        RETURNING *`,
       [
         input.legacyMongoId, input.email, input.name ?? null, input.picture ?? null,
         input.firebaseUid ?? null, input.planId ?? null,
+        // Serialize to JSON text for the jsonb column; undefined/null → SQL NULL
+        // which COALESCE turns into "keep existing".
+        input.profile === undefined || input.profile === null
+          ? null
+          : JSON.stringify(input.profile),
       ],
     );
     return rows[0];
@@ -216,5 +244,88 @@ export const pgRevocationStore: PgRevocationStore = {
       `UPDATE ${U} SET revoked_before = $2, updated_at = now() WHERE legacy_mongo_id = $1`,
       [userId, now.toISOString()],
     );
+  },
+};
+
+/* ── MFA method store (Postgres) ───────────────────────────── */
+
+export interface PgMfaStore {
+  /** All methods for a user, newest first. `userId` is the Mongo _id string. */
+  listForUser(userId: string): Promise<PgMfaMethodRow[]>;
+  get(id: string): Promise<PgMfaMethodRow | null>;
+  insert(row: {
+    id: string;
+    userId: string;
+    kind?: string | null;
+    secret?: string | null;
+    label?: string | null;
+    data?: unknown | null;
+    createdAt?: Date | string;
+    lastUsedAt?: Date | string | null;
+  }): Promise<PgMfaMethodRow>;
+  remove(id: string): Promise<void>;
+  markUsed(id: string, now?: Date): Promise<void>;
+}
+
+const M = `${IDENTITY_SCHEMA}.mfa_methods`;
+
+export const pgMfaStore: PgMfaStore = {
+  async listForUser(userId) {
+    const { rows } = await pgQuery<PgMfaMethodRow>(
+      `SELECT * FROM ${M} WHERE user_id = $1 ORDER BY created_at DESC`,
+      [userId],
+    );
+    return rows;
+  },
+  async get(id) {
+    const { rows } = await pgQuery<PgMfaMethodRow>(
+      `SELECT * FROM ${M} WHERE id = $1`,
+      [id],
+    );
+    return rows[0] ?? null;
+  },
+  async insert(row) {
+    // `data` is serialized to JSON text for the jsonb column. ON CONFLICT keeps
+    // the insert idempotent for backfill / replays keyed on the method id.
+    const { rows } = await pgQuery<PgMfaMethodRow>(
+      `INSERT INTO ${M} (id, user_id, kind, secret, label, data, created_at, last_used_at)
+         VALUES ($1,$2,$3,$4,$5,$6, COALESCE($7, now()), $8)
+       ON CONFLICT (id) DO UPDATE SET
+         user_id = EXCLUDED.user_id,
+         kind = EXCLUDED.kind,
+         secret = EXCLUDED.secret,
+         label = EXCLUDED.label,
+         data = EXCLUDED.data,
+         last_used_at = COALESCE(EXCLUDED.last_used_at, ${M}.last_used_at)
+       RETURNING *`,
+      [
+        row.id,
+        row.userId,
+        row.kind ?? null,
+        row.secret ?? null,
+        row.label ?? null,
+        row.data === undefined || row.data === null ? null : JSON.stringify(row.data),
+        row.createdAt
+          ? row.createdAt instanceof Date
+            ? row.createdAt.toISOString()
+            : row.createdAt
+          : null,
+        row.lastUsedAt
+          ? row.lastUsedAt instanceof Date
+            ? row.lastUsedAt.toISOString()
+            : row.lastUsedAt
+          : null,
+      ],
+    );
+    return rows[0];
+  },
+  async remove(id) {
+    await pgQuery(`DELETE FROM ${M} WHERE id = $1`, [id]);
+  },
+  async markUsed(id, now = new Date()) {
+    await pgQuery(`UPDATE ${M} SET last_used_at = $2 WHERE id = $1`, [
+      id,
+      now.toISOString(),
+    ]);
   },
 };
