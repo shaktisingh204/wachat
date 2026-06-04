@@ -20,6 +20,10 @@ import 'server-only';
 
 import { rustFetch } from './fetcher';
 
+// NOTE: no trailing slash. The Rust side nests this crate at `/v1/api-keys`
+// with an inner `route("/")`; under axum 0.8 the bare prefix `/v1/api-keys`
+// matches but `/v1/api-keys/` 404s. Hitting `${BASE}` (not `${BASE}/`) is what
+// makes list/generate resolve — do NOT re-add the trailing slash.
 const BASE = '/v1/api-keys';
 
 // ---------------------------------------------------------------------------
@@ -94,7 +98,7 @@ export const wachatApiKeysAdminApi = {
      * user, then forget it.
      */
     generate: (body: AdminApiKeyGenerateBody) =>
-        rustFetch<AdminApiKeyGenerateResult>(`${BASE}/`, {
+        rustFetch<AdminApiKeyGenerateResult>(BASE, {
             method: 'POST',
             body: JSON.stringify(body),
         }),
@@ -106,7 +110,7 @@ export const wachatApiKeysAdminApi = {
      * included so the dashboard can render them grayed out — the same
      * behavior the legacy server action had.
      */
-    list: () => rustFetch<AdminApiKeySummary[]>(`${BASE}/`),
+    list: () => rustFetch<AdminApiKeySummary[]>(BASE),
 
     /**
      * Soft-delete a key by id. The Rust handler scopes the update by

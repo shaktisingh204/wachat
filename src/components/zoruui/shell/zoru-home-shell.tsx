@@ -85,6 +85,24 @@ function isFullBleedRoute(pathname: string | null): boolean {
 }
 
 /**
+ * "Sidebar-less" routes keep the padded, scrolling <main> (unlike
+ * full-bleed) but drop the secondary <ZoruAppSidebar> column.
+ *
+ * Settings is the canonical case: `/dashboard/settings/*` is SabNode's
+ * single settings surface, and the hub page itself IS the navigation —
+ * a grouped list of every section. The old "Account & developer"
+ * sidebar just duplicated that list, so it's suppressed. The thin app
+ * rail + header stay so users can still switch apps.
+ */
+function isSidebarlessRoute(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === '/dashboard/settings' ||
+    pathname.startsWith('/dashboard/settings/')
+  );
+}
+
+/**
  * ZoruHomeShell — app rail + sidebar + header + main. Every app
  * lives in the leftmost vertical rail (was previously the bottom
  * dock). The URL-synced multi-tab strip is intentionally absent
@@ -127,6 +145,7 @@ function ZoruHomeShellContent({
   useCommandPalette();
 
   const fullBleed = isFullBleedRoute(pathname);
+  const sidebarless = isSidebarlessRoute(pathname);
 
   // Build the app rail's items from the central app registry — every
   // app that lived in the dock is now an icon in the vertical rail.
@@ -237,7 +256,7 @@ function ZoruHomeShellContent({
   return (
     <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
       <ZoruAppRail items={railItems} />
-      {!fullBleed && (
+      {!fullBleed && !sidebarless && (
         <ZoruAppSidebar
           heading={resolvedHeading}
           caption={resolvedCaption}

@@ -37,7 +37,7 @@ import { TwentyPageHeader } from '@/components/sabcrm/twenty';
 import '../../../sabcrm/home.css';
 
 export const metadata = {
-  title: 'Settings · SabCRM',
+  title: 'Settings · SabNode',
 };
 
 /**
@@ -284,20 +284,15 @@ export default function SabcrmSettingsPage(): React.JSX.Element {
     <div className="st-home">
       <div className="st-home__inner">
         <nav className="st-crumbs" aria-label="Breadcrumb">
-          <Link href="/sabcrm" className="st-crumbs__link">
-            SabCRM
-          </Link>
-          <span className="st-crumbs__sep" aria-hidden="true">
-            /
-          </span>
           <span>Settings</span>
         </nav>
 
         <TwentyPageHeader title="Settings" icon={Settings} />
         <p className="st-lead">
-          Configure your CRM workspace — manage the data model and members,
-          issue API keys and webhooks, run imports, organise views, and build
-          automations.
+          Manage your account, workspace, billing and module settings — all
+          from one place. Update your profile and security, control members and
+          roles, issue API keys and webhooks, and configure each connected
+          module.
         </p>
 
         {GROUPS.map((group) => (

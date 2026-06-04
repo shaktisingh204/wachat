@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import '@/styles/sabcrm-twenty.css';
 
 export const metadata: Metadata = {
-  title: 'CRM Settings · SabNode',
-  description: 'Configure your SabCRM workspace from the SabNode settings hub.',
+  title: 'Settings · SabNode',
+  description: 'Your account, workspace, billing and module settings in one place.',
 };
 
 /**
