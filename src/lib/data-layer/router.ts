@@ -18,6 +18,8 @@ import 'server-only';
  */
 
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
+import { createTwentyCrmDataLayer } from './twenty-impl';
+import { bridgeUserToTwenty } from '@/lib/sabcrm/twenty-user-bridge';
 
 /** A CRM record as the UI consumes it (id + free-form field bag). */
 export interface CrmRecord {
@@ -86,13 +88,44 @@ class UnwiredCrmDataLayer implements CrmDataLayer {
 }
 
 /**
- * Returns the active data layer for a project. Phase 0 returns an unwired stub
- * (both kinds) — real impls are injected in Phase 4.
+ * Returns the active data layer for a project.
+ *
+ * - `kind === 'twenty'` (CRM_DATA_LAYER === 'twenty') → the real Twenty-backed
+ *   impl (Lane 1, `twenty-impl.ts`). Its workspace-scoped bearer token is
+ *   resolved lazily on first call via the C6 bridge (`bridgeUserToTwenty`),
+ *   so this factory stays synchronous and the bridge is only hit when the
+ *   Twenty path is actually exercised. `userId` is required for the bridge; a
+ *   pre-minted `token` may be passed instead (tests / callers that already hold
+ *   one).
+ * - `kind === 'rust'` (default) → the existing unwired stub, so default
+ *   behaviour is completely unchanged.
  */
-export function getCrmDataLayer(projectId?: string): {
+export function getCrmDataLayer(
+  projectId?: string,
+  opts?: { userId?: string; token?: string | (() => Promise<string>); baseUrl?: string },
+): {
   kind: CrmDataLayerKind;
   impl: CrmDataLayer;
 } {
   const kind = resolveCrmDataLayerKind(projectId);
+
+  if (kind === 'twenty') {
+    const token =
+      opts?.token ??
+      (async () => {
+        if (!projectId || !opts?.userId) {
+          throw new Error(
+            'getCrmDataLayer("twenty") needs a userId + projectId (or an explicit token) to bridge to a Twenty workspace.',
+          );
+        }
+        const bridge = await bridgeUserToTwenty(opts.userId, projectId);
+        return bridge.token;
+      });
+    return {
+      kind,
+      impl: createTwentyCrmDataLayer({ token, baseUrl: opts?.baseUrl }),
+    };
+  }
+
   return { kind, impl: new UnwiredCrmDataLayer(kind) };
 }
