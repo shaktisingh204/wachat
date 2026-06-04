@@ -72,7 +72,7 @@ const STEPS: readonly ChecklistStep[] = [
     title: 'Customize your data model',
     description:
       'Add custom objects and fields so SabCRM mirrors exactly how your business works.',
-    href: '/sabcrm/settings/data-model',
+    href: '/dashboard/settings/crm/data-model',
     icon: Database,
   },
   {
@@ -80,7 +80,7 @@ const STEPS: readonly ChecklistStep[] = [
     title: 'Invite a teammate',
     description:
       "Bring your team on board so everyone's working from the same source of truth.",
-    href: '/sabcrm/settings/members',
+    href: '/dashboard/settings/crm/members',
     icon: UserPlus,
   },
   {
@@ -88,7 +88,7 @@ const STEPS: readonly ChecklistStep[] = [
     title: 'Set up a workflow',
     description:
       'Automate repetitive steps — trigger actions when records are created or updated.',
-    href: '/sabcrm/settings/automations',
+    href: '/dashboard/settings/crm/automations',
     icon: Workflow,
   },
   {
@@ -96,7 +96,7 @@ const STEPS: readonly ChecklistStep[] = [
     title: 'Import your data',
     description:
       'Bring existing companies and contacts in from a CSV to get up and running fast.',
-    href: '/sabcrm/settings/import-export',
+    href: '/dashboard/settings/crm/import-export',
     icon: Upload,
   },
 ] as const;

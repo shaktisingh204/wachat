@@ -66,7 +66,7 @@ const WORKSPACE_NAV: readonly NavItem[] = [
   { slug: 'tasks', label: 'Tasks', icon: CheckSquare },
   { slug: 'notes', label: 'Notes', icon: StickyNote },
   { slug: 'dashboards', label: 'Dashboards', icon: LayoutDashboard, href: '/sabcrm/dashboard' },
-  { slug: 'workflows', label: 'Workflows', icon: Workflow, href: '/sabcrm/settings/automations' },
+  { slug: 'workflows', label: 'Workflows', icon: Workflow, href: '/dashboard/settings/crm/automations' },
 ] as const;
 
 /**
@@ -90,7 +90,7 @@ const MORE_NAV: readonly NavItem[] = [
 const OTHER_NAV: readonly NavItem[] = [
   { slug: 'getting-started', label: 'Getting Started', icon: Rocket },
   { slug: 'settings', label: 'Settings', icon: Settings },
-  { slug: 'help', label: 'Documentation', icon: HelpCircle, href: '/sabcrm/settings/help' },
+  { slug: 'help', label: 'Documentation', icon: HelpCircle, href: '/dashboard/settings/crm/help' },
 ] as const;
 
 type TwentyAppFrameProps = {
@@ -111,7 +111,7 @@ const ALL_NAV_HREFS: readonly string[] = [
 
 /**
  * Active-state for the static nav items, where the *most specific* match wins.
- * `/sabcrm/settings` is a prefix of `/sabcrm/settings/automations`, so when a
+ * `/dashboard/settings/crm` is a prefix of `/dashboard/settings/crm/automations`, so when a
  * deeper nav target also matches the current path the shallower "Settings"
  * entry yields to it instead of both lighting up.
  */

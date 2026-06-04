@@ -12,7 +12,7 @@ import { connectToDatabase } from '@/lib/mongodb';
  *   2. Exchange the `code` for tokens at the provider's token endpoint.
  *   3. Best-effort look up the account email (so the settings UI can label it).
  *   4. Best-effort persist a `sabcrm_connected_accounts` doc.
- *   5. Redirect back to /sabcrm/settings/accounts with a success/error flag.
+ *   5. Redirect back to /dashboard/settings/crm/accounts with a success/error flag.
  *
  * HONEST behaviour: if the provider's OAuth credentials aren't configured, or
  * anything in the exchange fails, we never 500 — we redirect to the accounts
@@ -27,7 +27,7 @@ type Provider = 'google' | 'microsoft' | 'imap';
 
 const SUPPORTED: ReadonlySet<string> = new Set(['google', 'microsoft', 'imap']);
 
-const ACCOUNTS_PATH = '/sabcrm/settings/accounts';
+const ACCOUNTS_PATH = '/dashboard/settings/crm/accounts';
 
 function isProvider(value: string): value is Provider {
   return SUPPORTED.has(value);

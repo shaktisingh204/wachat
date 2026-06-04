@@ -1,0 +1,349 @@
+/* ==========================================================================
+   SabCRM — Notifications settings (`/dashboard/settings/crm/notifications`)
+   --------------------------------------------------------------------------
+   Twenty-style preferences surface. All selectors are scoped under
+   `.sabcrm-twenty` and namespaced `stn-` (SabCRM Twenty Notifications) so they
+   never collide with the shared `st-*` classes or the per-page `.st-switch`
+   variants defined in other settings CSS files. Colours come exclusively from
+   the Twenty `--st-*` design tokens so light / dark / density all follow.
+   ========================================================================== */
+
+/* ---- Master mute card -------------------------------------------------- */
+
+.sabcrm-twenty .stn-master {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-4);
+  padding: var(--st-space-4);
+  margin-top: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .stn-master.is-muted {
+  background: var(--st-bg-secondary);
+  border-color: var(--st-border);
+}
+
+.sabcrm-twenty .stn-master__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stn-master.is-muted .stn-master__icon {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .stn-master__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .stn-master__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stn-master__hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stn-master__control {
+  flex: 0 0 auto;
+}
+
+/* ---- Section heading --------------------------------------------------- */
+
+.sabcrm-twenty .stn-group {
+  margin-top: var(--st-space-6);
+}
+
+.sabcrm-twenty .stn-group__head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .stn-group__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stn-group__hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stn-group.is-disabled {
+  opacity: 0.55;
+}
+
+/* ---- Event table ------------------------------------------------------- */
+
+.sabcrm-twenty .stn-table {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  overflow: hidden;
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .stn-thead {
+  display: grid;
+  grid-template-columns: 1fr 84px 84px;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) var(--st-space-4);
+  background: var(--st-bg-secondary);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .stn-thead__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .stn-thead__channel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+  text-align: center;
+}
+
+.sabcrm-twenty .stn-row {
+  display: grid;
+  grid-template-columns: 1fr 84px 84px;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .stn-row:last-child {
+  border-bottom: none;
+}
+
+.sabcrm-twenty .stn-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .stn-row__label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .stn-row__desc {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stn-row__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The whole table dims while muted, but keep interaction blocked too. */
+.sabcrm-twenty .stn-group.is-disabled .stn-row__cell {
+  pointer-events: none;
+}
+
+/* ---- Switch (namespaced) ----------------------------------------------- */
+
+.sabcrm-twenty .stn-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.sabcrm-twenty .stn-switch:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+.sabcrm-twenty .stn-switch__thumb {
+  position: absolute;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow);
+  transition: transform 140ms ease;
+}
+
+.sabcrm-twenty .stn-switch--on {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .stn-switch--on .stn-switch__thumb {
+  transform: translateX(16px);
+}
+
+.sabcrm-twenty .stn-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Email "requires engine" callout ----------------------------------- */
+
+.sabcrm-twenty .stn-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .stn-callout__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .stn-callout strong {
+  color: var(--st-text);
+  font-weight: 600;
+}
+
+/* ---- Footer actions ---------------------------------------------------- */
+
+.sabcrm-twenty .stn-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  margin-top: var(--st-space-5);
+  padding-top: var(--st-space-4);
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .stn-footer__note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--st-text-tertiary);
+}
+
+/* ---- Offline / engine-down notice (in the page intro) ------------------ */
+/* The base `--st-*` set has no semantic danger colour, so it's mapped locally
+   and re-mapped for dark mode to stay legible on the settings surface. */
+.sabcrm-twenty .stn-offline {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+  color: #b3261e;
+}
+
+.sabcrm-twenty.st-theme-dark .stn-offline {
+  color: #f3777a;
+}
+
+/* ---- Loading skeleton -------------------------------------------------- */
+
+.sabcrm-twenty .stn-skeleton {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .stn-skeleton__row {
+  height: 56px;
+  border-bottom: 1px solid var(--st-border-light);
+  background: linear-gradient(
+    90deg,
+    var(--st-bg-secondary) 0%,
+    var(--st-border-light) 50%,
+    var(--st-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: stn-shimmer 1.4s ease-in-out infinite;
+}
+
+.sabcrm-twenty .stn-skeleton__row:last-child {
+  border-bottom: none;
+}
+
+@keyframes stn-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .stn-skeleton__row {
+    animation: none;
+  }
+  .sabcrm-twenty .stn-switch,
+  .sabcrm-twenty .stn-switch__thumb {
+    transition: none;
+  }
+}
+
+/* ---- Narrow viewports -------------------------------------------------- */
+
+@media (max-width: 560px) {
+  .sabcrm-twenty .stn-thead,
+  .sabcrm-twenty .stn-row {
+    grid-template-columns: 1fr 64px 64px;
+    gap: var(--st-space-2);
+  }
+  .sabcrm-twenty .stn-thead__channel .stn-thead__channel-text {
+    display: none;
+  }
+}

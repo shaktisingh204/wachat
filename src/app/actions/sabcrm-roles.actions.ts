@@ -56,7 +56,7 @@ import type {
 const MODULE_KEY = 'sabcrm';
 
 /** Base path revalidated after mutations so the roles UI re-fetches. */
-const TW_BASE_PATH = '/sabcrm/settings/roles';
+const TW_BASE_PATH = '/dashboard/settings/crm/roles';
 
 /** Minimal shape of the session user we narrow to (mirrors sibling actions). */
 interface SessionUser {

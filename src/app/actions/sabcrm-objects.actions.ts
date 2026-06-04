@@ -6,7 +6,7 @@
  * Thin, gated wrappers over the Rust *objects* engine
  * ({@link sabcrmObjectsApi} in `@/lib/rust-client/sabcrm-objects`). These power
  * the Twenty-faithful Data Model settings screen under
- * `/sabcrm/settings/data-model`, where an admin browses the object catalogue
+ * `/dashboard/settings/crm/data-model`, where an admin browses the object catalogue
  * (standard + custom) and manages each object's fields.
  *
  * Every action follows the SAME pipeline as the sibling `sabcrm-twenty.actions.ts`:
@@ -56,7 +56,7 @@ import type { ActionResult } from '@/lib/sabcrm/types';
 const MODULE_KEY = 'sabcrm';
 
 /** Settings path revalidated after mutations so the UI re-fetches. */
-const DATA_MODEL_PATH = '/sabcrm/settings/data-model';
+const DATA_MODEL_PATH = '/dashboard/settings/crm/data-model';
 
 /**
  * System object whose records mirror the project team. Seeded idempotently from

@@ -3,7 +3,7 @@
 /**
  * SabCRM — API Key Manager.
  *
- * Client component for the `/dashboard/sabcrm/settings/api-keys` page.
+ * Client component for the `/dashboard/dashboard/settings/crm/api-keys` page.
  * Lets a SabCRM admin:
  *   1. Issue a new API key (label required) — the raw key is shown ONCE in a
  *      post-creation dialog; it is never shown again.

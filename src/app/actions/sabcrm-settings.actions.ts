@@ -27,9 +27,25 @@ import { canServer } from '@/lib/rbac-server';
 import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
-import { sabcrmSettingsApi } from '@/lib/rust-client/sabcrm-settings';
+import {
+  sabcrmSettingsApi,
+  SABCRM_TYPED_SETTINGS_SECTIONS,
+  type SabcrmTypedSettingsSection,
+} from '@/lib/rust-client/sabcrm-settings';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type { CrmSettingsPatch } from './sabcrm-settings.actions.types';
+
+/** Sections backed by a typed, server-validated endpoint. */
+const TYPED_SECTIONS = new Set<string>(SABCRM_TYPED_SETTINGS_SECTIONS);
+
+/** Narrowing guard for the typed-section union. */
+function isTypedSection(s: string): s is SabcrmTypedSettingsSection {
+  return TYPED_SECTIONS.has(s);
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -137,6 +153,81 @@ export async function updateCrmSettingsTw(
   try {
     const data = await sabcrmSettingsApi.update(g.ctx.projectId, patch);
     return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to update settings.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Per-section settings — typed endpoints where they exist, blob otherwise
+// ---------------------------------------------------------------------------
+
+/**
+ * Reads one named settings section (`general`, `appearance`, …) for the active
+ * project. Reads are always done via the free-form blob so NO stored key is
+ * ever dropped (a typed `GET` would only echo schema-known fields); the bare
+ * section slice is returned (object, array, or `null` when absent).
+ */
+export async function getCrmSectionTw(
+  section: string,
+  projectId?: string,
+): Promise<ActionResult<unknown>> {
+  if (!section || typeof section !== 'string') {
+    return { ok: false, error: 'A settings section is required.' };
+  }
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const all = await sabcrmSettingsApi.get(g.ctx.projectId);
+    const slice = isPlainObject(all) ? (all[section] ?? null) : null;
+    return { ok: true, data: slice };
+  } catch (e) {
+    return fail(e, 'Failed to load settings.');
+  }
+}
+
+/**
+ * Persists one named settings section. Typed sections
+ * ({@link SABCRM_TYPED_SETTINGS_SECTIONS}) go through the server-validated
+ * `PUT /v1/sabcrm/settings/<section>` endpoint (PATCH-merge of the supplied
+ * keys, rejecting invalid values with a `400`); every other section is a
+ * whole-slice replace on the free-form blob (`data.<section> = slice`), which
+ * is how non-typed slices like `accounts` (an array) and `profile` are stored.
+ * Returns the stored slice.
+ */
+export async function updateCrmSectionTw(
+  section: string,
+  slice: unknown,
+  projectId?: string,
+): Promise<ActionResult<unknown>> {
+  if (!section || typeof section !== 'string') {
+    return { ok: false, error: 'A settings section is required.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    if (isTypedSection(section)) {
+      if (!isPlainObject(slice)) {
+        return { ok: false, error: 'A settings object is required.' };
+      }
+      const data = await sabcrmSettingsApi.putSection(
+        g.ctx.projectId,
+        section,
+        slice,
+      );
+      return { ok: true, data };
+    }
+
+    // Non-typed section → whole-slice replace on the blob.
+    const merged = await sabcrmSettingsApi.update(g.ctx.projectId, {
+      [section]: slice,
+    });
+    const stored = isPlainObject(merged) ? (merged[section] ?? slice) : slice;
+    return { ok: true, data: stored };
   } catch (e) {
     return fail(e, 'Failed to update settings.');
   }

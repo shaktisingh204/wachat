@@ -119,7 +119,7 @@ export const recordRecents = {
    Twenty surfaces a "Toggle dark/light theme" command. SabCRM persists its
    theme in the `sabcrm.prefs.v1` localStorage blob and reflects it by toggling
    `st-theme-dark` on the `.sabcrm-twenty` frame root (see
-   `app/sabcrm/settings/use-crm-prefs.ts`). We write the SAME shape here and
+   `app/dashboard/settings/crm/use-crm-prefs.ts`). We write the SAME shape here and
    apply the class immediately, so the toggle takes effect without a reload and
    Settings → Appearance picks it up on next mount. Anything that depends on a
    backend stays untouched — this is purely the device-local preference.
@@ -382,28 +382,28 @@ const SETTINGS_COMMANDS: readonly NavCommand[] = [
   {
     id: 'set-root',
     label: 'Go to Settings',
-    href: '/sabcrm/settings',
+    href: '/dashboard/settings/crm',
     icon: Settings,
     keywords: 'settings preferences configuration',
   },
   {
     id: 'set-appearance',
     label: 'Settings · Appearance',
-    href: '/sabcrm/settings/appearance',
+    href: '/dashboard/settings/crm/appearance',
     icon: Palette,
     keywords: 'theme dark light density appearance',
   },
   {
     id: 'set-profile',
     label: 'Settings · Profile',
-    href: '/sabcrm/settings/profile',
+    href: '/dashboard/settings/crm/profile',
     icon: UserCog,
     keywords: 'profile account name email',
   },
   {
     id: 'set-general',
     label: 'Settings · General',
-    href: '/sabcrm/settings/general',
+    href: '/dashboard/settings/crm/general',
     icon: SlidersHorizontal,
     keywords: 'general workspace',
   },

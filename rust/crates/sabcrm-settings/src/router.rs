@@ -40,8 +40,32 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route(
-        "/",
-        get(handlers::get_settings).put(handlers::update_settings),
-    )
+    Router::new()
+        .route(
+            "/",
+            get(handlers::get_settings).put(handlers::update_settings),
+        )
+        // Typed per-domain sections — strongly-typed, validated views over the
+        // same per-project document (`data.<section>`).
+        .route(
+            "/general",
+            get(handlers::get_general).put(handlers::put_general),
+        )
+        .route(
+            "/appearance",
+            get(handlers::get_appearance).put(handlers::put_appearance),
+        )
+        .route(
+            "/notifications",
+            get(handlers::get_notifications).put(handlers::put_notifications),
+        )
+        .route(
+            "/localization",
+            get(handlers::get_localization).put(handlers::put_localization),
+        )
+        .route("/lab", get(handlers::get_lab).put(handlers::put_lab))
+        .route(
+            "/security",
+            get(handlers::get_security).put(handlers::put_security),
+        )
 }

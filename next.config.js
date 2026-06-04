@@ -246,6 +246,20 @@ const nextConfig = {
       // Keep the old URL alive for any inbound bookmarks.
       { source: '/home', destination: '/dashboard', permanent: true },
 
+      // SabCRM settings were relocated into the SabNode settings hub
+      // (`/dashboard/settings/crm`). Keep every old `/sabcrm/settings`
+      // bookmark and deep-link alive.
+      {
+        source: '/sabcrm/settings',
+        destination: '/dashboard/settings/crm',
+        permanent: true,
+      },
+      {
+        source: '/sabcrm/settings/:path*',
+        destination: '/dashboard/settings/crm/:path*',
+        permanent: true,
+      },
+
       // Each wachat subroute and its descendants. Each wachat directory
       // moved out of /dashboard into /wachat — old bookmarks like
       // `/dashboard/broadcasts/abc` redirect to `/wachat/broadcasts/abc`.

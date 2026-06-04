@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
  *   provider ∈ google | microsoft | imap
  *
  * Mirrors Twenty's "connected account" connect flow: the accounts settings page
- * (`/sabcrm/settings/accounts`) kicks a user here, and we hand back a real
+ * (`/dashboard/settings/crm/accounts`) kicks a user here, and we hand back a real
  * provider authorization URL so the browser can complete the consent dance.
  *
  * HONEST behaviour: if the provider's OAuth credentials aren't present in the

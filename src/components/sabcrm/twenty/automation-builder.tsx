@@ -10,7 +10,7 @@
  * picker), removed, and reordered (up / down).
  *
  * This is the *controlled* primitive behind the Workflows settings page
- * (`/sabcrm/settings/automations`). It owns NO server state — the parent
+ * (`/dashboard/settings/crm/automations`). It owns NO server state — the parent
  * supplies the current `value`, the available `objects` (for object / field
  * pickers, sourced from `listObjectsTw`), and a busy flag, and receives every
  * edit through `onChange` plus discrete `onSave` / `onDelete` / `onToggleEnabled`

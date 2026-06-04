@@ -80,7 +80,7 @@ export default function SabcrmHomePage(): React.JSX.Element {
         </ul>
 
         <nav className="st-quick" aria-label="Quick links">
-          <Link href="/sabcrm/settings" className="st-quick-link">
+          <Link href="/dashboard/settings/crm" className="st-quick-link">
             <Settings size={14} aria-hidden="true" />
             Settings
           </Link>

@@ -175,15 +175,15 @@ export const sabwaMenuItems: MenuItem[] = [
 // before the root `/sabcrm` catch-all.
 export const sabcrmMenuItems: MenuItem[] = [
     // ── Settings (admin-only) — most specific first ────────────────────────
-    { href: '/sabcrm/settings/data-model',   label: 'Data Model',   icon: Database,       permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/members',      label: 'Members',      icon: Users,          permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/views',        label: 'Views',        icon: Layers,         permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/api',          label: 'API Keys',     icon: Key,            permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/automations',  label: 'Automations',  icon: Bolt,           permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/webhooks',     label: 'Webhooks',     icon: Webhook,        permissionKey: 'sabcrm:admin' },
-    { href: '/sabcrm/settings/import-export', label: 'Import / Export', icon: Repeat,      permissionKey: 'sabcrm:admin' },
-    // `/sabcrm/settings` covers any future settings sub-route not listed above.
-    { href: '/sabcrm/settings',              label: 'Settings',     icon: Settings,       permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/data-model',   label: 'Data Model',   icon: Database,       permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/members',      label: 'Members',      icon: Users,          permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/views',        label: 'Views',        icon: Layers,         permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/api',          label: 'API Keys',     icon: Key,            permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/automations',  label: 'Automations',  icon: Bolt,           permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/webhooks',     label: 'Webhooks',     icon: Webhook,        permissionKey: 'sabcrm:admin' },
+    { href: '/dashboard/settings/crm/import-export', label: 'Import / Export', icon: Repeat,      permissionKey: 'sabcrm:admin' },
+    // `/dashboard/settings/crm` covers any future settings sub-route not listed above.
+    { href: '/dashboard/settings/crm',              label: 'Settings',     icon: Settings,       permissionKey: 'sabcrm:admin' },
     // ── Main views (view-level) — specific named routes before root ────────
     { href: '/sabcrm/dashboard',             label: 'Dashboard',    icon: LayoutDashboard, permissionKey: 'sabcrm:view' },
     { href: '/sabcrm/reports/builder',       label: 'Report Builder', icon: BarChart2,    permissionKey: 'sabcrm:view' },

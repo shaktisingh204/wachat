@@ -15,14 +15,19 @@ import {
   ArrowUpRight,
   Bell,
   CreditCard,
+  Database,
   Eye,
+  GitBranch,
   Key,
   Puzzle,
   Receipt,
   Shield,
+  SlidersHorizontal,
   Star,
   User,
+  Users,
   Webhook,
+  Zap,
   } from 'lucide-react';
 
 import { useT } from '@/lib/i18n/client';
@@ -31,12 +36,18 @@ import Link from 'next/link';
 
 type Tile = {
   href: string;
-  labelKey: string;
-  descriptionKey: string;
+  /** i18n key for the label; ignored when `label` (a literal) is provided. */
+  labelKey?: string;
+  /** i18n key for the description; ignored when `description` is provided. */
+  descriptionKey?: string;
+  /** Literal label, used as-is (for sections without translation keys yet). */
+  label?: string;
+  /** Literal description, used as-is. */
+  description?: string;
   icon: React.ComponentType<{ className?: string }>;
 };
 
-const SECTIONS: Array<{ titleKey: string; tiles: Tile[] }> = [
+const SECTIONS: Array<{ titleKey?: string; title?: string; tiles: Tile[] }> = [
   {
     titleKey: 'settings.overview.sections.account',
     tiles: [
@@ -112,6 +123,44 @@ const SECTIONS: Array<{ titleKey: string; tiles: Tile[] }> = [
       },
     ],
   },
+  {
+    // CRM settings live under /dashboard/settings/crm/* (relocated from
+    // /sabcrm/settings/*). Literal labels keep this working without new i18n
+    // keys; the linked pages keep their Twenty look via the crm/ layout.
+    title: 'CRM',
+    tiles: [
+      {
+        href: '/dashboard/settings/crm',
+        label: 'CRM Settings',
+        description: 'Full SabCRM workspace configuration',
+        icon: SlidersHorizontal,
+      },
+      {
+        href: '/dashboard/settings/crm/data-model',
+        label: 'Data model',
+        description: 'Objects, fields and relations',
+        icon: Database,
+      },
+      {
+        href: '/dashboard/settings/crm/members',
+        label: 'Members & Roles',
+        description: 'Workspace access and CRM roles',
+        icon: Users,
+      },
+      {
+        href: '/dashboard/settings/crm/pipelines',
+        label: 'Pipelines',
+        description: 'Deal stages and pipeline setup',
+        icon: GitBranch,
+      },
+      {
+        href: '/dashboard/settings/crm/automations',
+        label: 'Automations',
+        description: 'Event-driven rules and actions',
+        icon: Zap,
+      },
+    ],
+  },
 ];
 
 export default function SettingsOverviewPage() {
@@ -136,9 +185,9 @@ export default function SettingsOverviewPage() {
       </PageHeader>
 
       {SECTIONS.map((section) => (
-        <div key={section.titleKey}>
+        <div key={section.title ?? section.titleKey}>
           <h2 className="mb-3 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
-            {t(section.titleKey)}
+            {section.title ?? t(section.titleKey!)}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {section.tiles.map((tile) => {
@@ -150,11 +199,13 @@ export default function SettingsOverviewPage() {
                       <Icon className="h-[18px] w-[18px]" />
                     </div>
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-[13.5px] text-zoru-ink">{t(tile.labelKey)}</p>
+                      <p className="text-[13.5px] text-zoru-ink">
+                        {tile.label ?? t(tile.labelKey!)}
+                      </p>
                       <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
                     </div>
                     <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                      {t(tile.descriptionKey)}
+                      {tile.description ?? t(tile.descriptionKey!)}
                     </p>
                   </Card>
                 </Link>

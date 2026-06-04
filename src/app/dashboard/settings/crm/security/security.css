@@ -1,0 +1,690 @@
+/* =========================================================================
+   SabCRM Settings — Security & Access (Twenty-style)
+   -------------------------------------------------------------------------
+   Page-local classes for `/dashboard/settings/crm/security`. Companion to the shared
+   `src/styles/sabcrm-twenty.css` (base `.st-*` vocabulary) and
+   `../settings-twenty.css` (settings helpers). Everything is scoped under
+   `.sabcrm-twenty` (supplied by the SabCRM app frame) so nothing leaks into the
+   rest of SabNode. Uses only the namespaced `--st-*` design tokens.
+   ========================================================================= */
+
+/* Vertical stack of security cards. */
+.sabcrm-twenty .st-sec-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+
+/* ---- Card ------------------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-card {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-sec-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-sec-card__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-sec-card__heading {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-card__title {
+  margin: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  line-height: 1.3;
+}
+
+.sabcrm-twenty .st-sec-card__desc {
+  margin: 2px 0 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  line-height: 1.45;
+}
+
+.sabcrm-twenty .st-sec-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-4);
+}
+
+/* ---- Labelled control row --------------------------------------------- */
+
+.sabcrm-twenty .st-sec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-4);
+}
+
+.sabcrm-twenty .st-sec-row__text {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-row__title {
+  display: block;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-row__hint {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  line-height: 1.45;
+}
+
+.sabcrm-twenty .st-sec-row__control {
+  flex: 0 0 auto;
+}
+
+/* ---- Switch ----------------------------------------------------------- */
+
+.sabcrm-twenty .st-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .st-switch:focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+.sabcrm-twenty .st-switch__thumb {
+  position: absolute;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow);
+  transition: transform 140ms ease;
+}
+
+.sabcrm-twenty .st-switch--on {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-switch--on .st-switch__thumb {
+  transform: translateX(16px);
+}
+
+.sabcrm-twenty .st-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Radio group (2FA method) ----------------------------------------- */
+
+.sabcrm-twenty .st-sec-radios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sabcrm-twenty .st-sec-radios__legend {
+  padding: 0;
+  margin-bottom: var(--st-space-1);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-sec-radios--disabled {
+  opacity: 0.55;
+}
+
+.sabcrm-twenty .st-sec-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.sabcrm-twenty .st-sec-radios:not(.st-sec-radios--disabled) .st-sec-radio:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-sec-radio input[type='radio'] {
+  margin: 2px 0 0;
+  flex: 0 0 auto;
+  accent-color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-sec-radio:has(input:checked) {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-sec-radio__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1px;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-sec-radio__text {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-radio__title {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-radio__desc {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  line-height: 1.45;
+}
+
+/* ---- Stepper (password min length) ------------------------------------ */
+
+.sabcrm-twenty .st-sec-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-sec-stepper__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .st-sec-stepper__btn:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-stepper__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .st-sec-stepper__value {
+  min-width: 36px;
+  padding: 0 var(--st-space-1);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text);
+  border-left: 1px solid var(--st-border);
+  border-right: 1px solid var(--st-border);
+  line-height: 30px;
+}
+
+/* ---- Sessions --------------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-session {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-sec-session__icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-sec-session__text {
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-session__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-session__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .st-sec-session__sub {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-sec-session__action {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+/* ---- List manager (IP allowlist / email domains) ---------------------- */
+
+.sabcrm-twenty .st-sec-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-sec-list__input {
+  display: flex;
+  align-items: stretch;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-sec-list__input .st-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-list__empty {
+  margin: 0;
+  padding: var(--st-space-3);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-sec-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sabcrm-twenty .st-sec-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 4px 4px 10px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-chip--mono .st-sec-chip__value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+}
+
+.sabcrm-twenty .st-sec-chip__value {
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-sec-chip__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sabcrm-twenty .st-sec-chip__remove:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+/* ---- Honest "needs backend" note -------------------------------------- */
+
+.sabcrm-twenty .st-sec-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  line-height: 1.5;
+}
+
+.sabcrm-twenty .st-sec-note__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+/* ---- State pill (2FA enabled / disabled) ------------------------------ */
+
+.sabcrm-twenty .st-sec-state {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .st-sec-state--on {
+  background: var(--st-accent-soft);
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+/* ---- Enrolment / disable sub-form ------------------------------------- */
+
+.sabcrm-twenty .st-sec-enroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-sec-qr {
+  width: 168px;
+  height: 168px;
+  align-self: flex-start;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: #fff;
+  padding: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-sec-secret {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  padding: 1px 6px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-sec-code-input {
+  max-width: 180px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+/* ---- Method buttons in the chooser ------------------------------------ */
+
+.sabcrm-twenty .st-sec-radio--button {
+  width: 100%;
+  text-align: left;
+  background: var(--st-bg);
+  font: inherit;
+  color: inherit;
+}
+
+.sabcrm-twenty .st-sec-radio--button:hover:not(:disabled) {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-sec-radio--button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Backup codes ----------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-backup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-sec-backup__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  line-height: 1.45;
+}
+
+.sabcrm-twenty .st-sec-backup__head svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-sec-backup__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sabcrm-twenty .st-sec-backup__code {
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+/* ---- Password form ---------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-sec-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  max-width: 360px;
+}
+
+.sabcrm-twenty .st-form-success {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-success, #16a34a);
+}
+
+/* ---- Recent sign-in activity ------------------------------------------ */
+
+.sabcrm-twenty .st-sec-activity {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-sec-activity__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-sec-activity__row:last-child {
+  border-bottom: 0;
+}
+
+.sabcrm-twenty .st-sec-activity__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--success {
+  background: var(--st-success, #16a34a);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--failed {
+  background: var(--st-danger, #dc2626);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--pending_2fa {
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .st-sec-activity__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-activity__status {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-activity__meta {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-sec-activity__time {
+  flex: 0 0 auto;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Inline spinner --------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-spin {
+  animation: st-sec-spin 0.8s linear infinite;
+}
+
+@keyframes st-sec-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Narrow viewports -------------------------------------------------- */
+/* Stack the add-entry input + button and keep control rows from overflowing
+   on a ~380px column. */
+@media (max-width: 480px) {
+  .sabcrm-twenty .st-sec-list__input {
+    flex-wrap: wrap;
+  }
+  .sabcrm-twenty .st-sec-list__input .st-input {
+    flex: 1 1 100%;
+  }
+  .sabcrm-twenty .st-sec-row {
+    align-items: flex-start;
+    gap: var(--st-space-3);
+  }
+}
