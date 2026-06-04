@@ -22,6 +22,7 @@ import {
   Sparkles,
   Rocket,
   HelpCircle,
+  Database,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -35,6 +36,9 @@ import { NotificationsBell } from './notifications-bell';
 import { useCommandMenu } from './use-command-menu';
 import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.types';
+import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
+import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
+import { ZORU_ICONS } from '@/components/zoruui/icon-picker';
 import { useProject } from '@/context/project-context';
 
 type NavItem = {
@@ -52,19 +56,53 @@ function navHref(item: NavItem): string {
 }
 
 /**
- * "Workspace" section — faithful to upstream Twenty's default navigation
- * (twenty-server `standard-navigation-menu-item.constant.ts`): the same
- * standard objects, in the same order, with lucide equivalents of Twenty's
- * tabler icons — Companies, People, Opportunities, Tasks, Notes, Dashboards,
- * Workflows. Dashboards/Workflows have no `/sabcrm/<slug>` record route yet,
- * so they point at their nearest SabCRM surface.
+ * Standard-object → lucide icon map, keyed by slug. Used to give the live
+ * data-model objects their familiar Twenty icons in the sidebar; custom
+ * objects fall back to the icon picked in the data model (resolved via
+ * {@link ZORU_ICONS}) or, failing that, a generic {@link Database} glyph.
  */
-const WORKSPACE_NAV: readonly NavItem[] = [
+const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
+  companies: Building2,
+  people: Users,
+  opportunities: Target,
+  tasks: CheckSquare,
+  notes: StickyNote,
+};
+
+/**
+ * Resolve a data-model object's sidebar icon. Honours the icon chosen in the
+ * data model first (`object.icon` is a {@link ZORU_ICONS} key — those values
+ * are lucide icons at runtime, so the cast is safe and `size` still works),
+ * then the standard per-slug icon, then a generic fallback.
+ */
+function objectNavIcon(object: ObjectMetadata): LucideIcon {
+  const picked = object.icon
+    ? (ZORU_ICONS[object.icon] as LucideIcon | undefined)
+    : undefined;
+  return picked ?? STANDARD_OBJECT_ICON[object.slug] ?? Database;
+}
+
+/**
+ * Fallback "Workspace" objects — faithful to upstream Twenty's default
+ * navigation (twenty-server `standard-navigation-menu-item.constant.ts`).
+ * Rendered ONLY when the live data model can't be loaded (engine down / RBAC /
+ * plan), so the sidebar never goes blank. When the data model IS available the
+ * object rows are built dynamically from it instead (see {@link TwentyAppFrame}).
+ */
+const FALLBACK_OBJECT_NAV: readonly NavItem[] = [
   { slug: 'companies', label: 'Companies', icon: Building2 },
   { slug: 'people', label: 'People', icon: Users },
   { slug: 'opportunities', label: 'Opportunities', icon: Target },
   { slug: 'tasks', label: 'Tasks', icon: CheckSquare },
   { slug: 'notes', label: 'Notes', icon: StickyNote },
+] as const;
+
+/**
+ * Non-object workspace surfaces — always appended after the (dynamic) object
+ * rows. Dashboards/Workflows are SabCRM surfaces, not data-model objects, so
+ * they're not part of the live object list and point at their nearest page.
+ */
+const WORKSPACE_EXTRA_NAV: readonly NavItem[] = [
   { slug: 'dashboards', label: 'Dashboards', icon: LayoutDashboard, href: '/sabcrm/dashboard' },
   { slug: 'workflows', label: 'Workflows', icon: Workflow, href: '/dashboard/settings/crm/automations' },
 ] as const;
@@ -102,22 +140,21 @@ function isActivePath(pathname: string | null, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** Every static nav destination — used to resolve overlapping active states. */
-const ALL_NAV_HREFS: readonly string[] = [
-  ...WORKSPACE_NAV,
-  ...MORE_NAV,
-  ...OTHER_NAV,
-].map(navHref);
-
 /**
- * Active-state for the static nav items, where the *most specific* match wins.
- * `/dashboard/settings/crm` is a prefix of `/dashboard/settings/crm/automations`, so when a
- * deeper nav target also matches the current path the shallower "Settings"
- * entry yields to it instead of both lighting up.
+ * Active-state where the *most specific* match wins. `/dashboard/settings/crm`
+ * is a prefix of `/dashboard/settings/crm/automations`, so when a deeper nav
+ * target also matches the current path the shallower "Settings" entry yields to
+ * it instead of both lighting up. `allHrefs` is the full set of rendered nav
+ * destinations (now including the dynamic object rows), passed in so the check
+ * stays correct as the data model changes.
  */
-function isBestActive(pathname: string | null, href: string): boolean {
+function isBestActive(
+  pathname: string | null,
+  href: string,
+  allHrefs: readonly string[],
+): boolean {
   if (!isActivePath(pathname, href)) return false;
-  return !ALL_NAV_HREFS.some(
+  return !allHrefs.some(
     (other) =>
       other !== href &&
       other.startsWith(`${href}/`) &&
@@ -125,10 +162,16 @@ function isBestActive(pathname: string | null, href: string): boolean {
   );
 }
 
-/** A best-effort human label for a favorite that carries no record name. */
-function favoriteLabel(fav: SabcrmRustFavorite): string {
-  const objLabel =
-    WORKSPACE_NAV.find((o) => o.slug === fav.object)?.label ?? fav.object;
+/**
+ * A best-effort human label for a favorite that carries no record name.
+ * `labelBySlug` resolves the object's plural label from the live data model,
+ * falling back to the raw slug.
+ */
+function favoriteLabel(
+  fav: SabcrmRustFavorite,
+  labelBySlug: Record<string, string>,
+): string {
+  const objLabel = labelBySlug[fav.object] ?? fav.object;
   return `${objLabel} · ${fav.recordId.slice(-6)}`;
 }
 
@@ -138,6 +181,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
   const { activeProjectId } = useProject();
 
   const [favorites, setFavorites] = React.useState<SabcrmRustFavorite[]>([]);
+  const [objects, setObjects] = React.useState<ObjectMetadata[] | null>(null);
 
   // Load the caller's favorites (non-blocking, graceful when engine down).
   React.useEffect(() => {
@@ -153,6 +197,59 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     // Re-load when the project changes or after navigation (favorites may
     // have been toggled on a record page).
   }, [activeProjectId, pathname]);
+
+  // Load the live data model so the Workspace nav reflects it. Re-loads on
+  // project change and on navigation, so creating / renaming / deleting an
+  // object in the data-model settings replicates into the sidebar without a
+  // full reload. Stays `null` (→ static fallback) until the first load lands,
+  // and on any failure (engine down / RBAC / plan) so the sidebar never blanks.
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await listObjectsTw(activeProjectId ?? undefined);
+      if (cancelled) return;
+      setObjects(res.ok ? res.data : null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // Keyed on the project only: the data-model editor lives under
+    // `/dashboard/settings/crm` (a different layout), so returning to `/sabcrm`
+    // remounts this frame and re-runs the load — picking up object changes
+    // without re-fetching on every in-CRM navigation.
+  }, [activeProjectId]);
+
+  // Build the Workspace object rows from the live data model when available,
+  // excluding internal/system objects (e.g. workspaceMembers); fall back to the
+  // canonical Twenty objects otherwise. Non-object surfaces are always appended.
+  const workspaceNav: NavItem[] = React.useMemo(() => {
+    const objectRows: NavItem[] =
+      objects && objects.length > 0
+        ? objects
+            .filter((o) => !o.isSystem)
+            .map((o) => ({
+              slug: o.slug,
+              label: o.labelPlural || o.slug,
+              icon: objectNavIcon(o),
+            }))
+        : [...FALLBACK_OBJECT_NAV];
+    return [...objectRows, ...WORKSPACE_EXTRA_NAV];
+  }, [objects]);
+
+  // Plural-label lookup for favorites, sourced from the live data model.
+  const labelBySlug: Record<string, string> = React.useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const o of objects ?? []) map[o.slug] = o.labelPlural || o.slug;
+    for (const n of FALLBACK_OBJECT_NAV) map[n.slug] ??= n.label;
+    return map;
+  }, [objects]);
+
+  // Full set of rendered nav destinations — feeds the most-specific active
+  // resolution, recomputed as the dynamic object rows change.
+  const allNavHrefs: string[] = React.useMemo(
+    () => [...workspaceNav, ...MORE_NAV, ...OTHER_NAV].map(navHref),
+    [workspaceNav],
+  );
 
   return (
     <div className="sabcrm-twenty">
@@ -203,7 +300,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
                         aria-hidden="true"
                       />
                       <span className="st-nav-item__label">
-                        {favoriteLabel(fav)}
+                        {favoriteLabel(fav, labelBySlug)}
                       </span>
                     </Link>
                   );
@@ -218,10 +315,10 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               <span>Workspace</span>
             </div>
             <nav aria-label="Workspace">
-              {WORKSPACE_NAV.map((item) => {
+              {workspaceNav.map((item) => {
                 const { slug, label, icon: Icon } = item;
                 const href = navHref(item);
-                const active = isBestActive(pathname, href);
+                const active = isBestActive(pathname, href, allNavHrefs);
                 return (
                   <Link
                     key={slug}
@@ -244,7 +341,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               {MORE_NAV.map((item) => {
                 const { slug, label, icon: Icon } = item;
                 const href = navHref(item);
-                const active = isBestActive(pathname, href);
+                const active = isBestActive(pathname, href, allNavHrefs);
                 return (
                   <Link
                     key={slug}
@@ -269,7 +366,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               {OTHER_NAV.map((item) => {
                 const { slug, label, icon: Icon } = item;
                 const href = navHref(item);
-                const active = isBestActive(pathname, href);
+                const active = isBestActive(pathname, href, allNavHrefs);
                 return (
                   <Link
                     key={slug}
