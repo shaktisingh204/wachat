@@ -44,6 +44,7 @@ import {
   type ObjectMetadata,
   type SabcrmFieldMetadata as FieldMetadata,
   type SabcrmIndexMetadata,
+  type SabcrmSyncResult,
 } from '@/lib/rust-client/sabcrm-objects';
 import type { ActionResult } from '@/lib/sabcrm/types';
 
@@ -56,6 +57,14 @@ const MODULE_KEY = 'sabcrm';
 
 /** Settings path revalidated after mutations so the UI re-fetches. */
 const DATA_MODEL_PATH = '/sabcrm/settings/data-model';
+
+/**
+ * System object whose records mirror the project team. Seeded idempotently from
+ * the team via `POST /{slug}/sync` so relation / ACTOR enrichment can resolve
+ * real people. Lazily synced (fire-and-forget) the first time a project's CRM /
+ * object list is loaded.
+ */
+const MEMBERS_OBJECT_SLUG = 'workspaceMembers';
 
 /** Minimal shape of the session user we narrow to (mirrors sibling actions). */
 interface SessionUser {
@@ -134,12 +143,34 @@ export async function listObjectsTw(
   const g = await gate('view', projectId);
   if (!g.ok) return { ok: false, error: g.error };
 
+  // Lazily ensure the project's workspaceMembers records are seeded from the
+  // team (Wave 2). Fire-and-forget: best-effort, non-blocking, never fatal — a
+  // failure here must not stop the object list from rendering.
+  void seedMembersBestEffort(g.ctx.projectId);
+
   try {
     const data = await sabcrmObjectsApi.list(g.ctx.projectId);
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to list objects.');
   }
+}
+
+/**
+ * Best-effort, fire-and-forget seed of `workspaceMembers` records from the
+ * project team. Swallows every error (engine down, sync unsupported, etc.) so
+ * it can be safely `void`-called from read paths without ever throwing or
+ * blocking the caller. The underlying sync is idempotent, so repeated calls on
+ * subsequent loads are harmless.
+ */
+function seedMembersBestEffort(projectId: string): void {
+  void (async () => {
+    try {
+      await sabcrmObjectsApi.sync(projectId, MEMBERS_OBJECT_SLUG);
+    } catch {
+      // Intentionally ignored — enrichment degrades gracefully without seeds.
+    }
+  })();
 }
 
 /** `GET /v1/sabcrm/objects/{slug}` — one merged object. */
@@ -341,5 +372,43 @@ export async function setObjectIndexesTw(
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to update indexes.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Record sync — Wave 2 idempotent seeding from the project team
+// ---------------------------------------------------------------------------
+
+/**
+ * `POST /v1/sabcrm/objects/{slug}/sync` — idempotently seed a system object's
+ * records from the project team. For `workspaceMembers` this upserts a record
+ * per team member and removes records for members no longer on the team, so
+ * relation / ACTOR enrichment can resolve real people.
+ *
+ * Unlike the lazy fire-and-forget seed in {@link listObjectsTw}, this is the
+ * explicit, gated entry point: it runs the same session → project → RBAC → plan
+ * pipeline as every mutation (gates on `edit`/admin) and surfaces the
+ * reconciliation report or a typed error. A missing/blank `projectId` is a
+ * client error (422) and is rejected before the engine is touched.
+ */
+export async function syncObjectRecordsTw(
+  slug: string,
+  projectId: string,
+): Promise<ActionResult<SabcrmSyncResult>> {
+  if (!slug?.trim()) return { ok: false, error: 'Object slug is required.' };
+  // 422 on bad projectId — this is the explicit, addressable entry point, so a
+  // missing/blank project is a hard client error rather than a fallback to the
+  // user's first project.
+  if (!projectId?.trim()) return { ok: false, error: 'A valid projectId is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmObjectsApi.sync(g.ctx.projectId, slug.trim());
+    revalidatePath(DATA_MODEL_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to sync object records.');
   }
 }

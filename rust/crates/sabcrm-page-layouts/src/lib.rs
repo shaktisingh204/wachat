@@ -24,9 +24,13 @@
 //!
 //! | Route                                        | Effect                              |
 //! |----------------------------------------------|-------------------------------------|
-//! | `GET    /?projectId=&object=`                | the object's layout (404 if none)   |
+//! | `GET    /?projectId=&object=[&withDefault=]` | the object's layout (404 if none, or the default when `withDefault=true`) |
+//! | `GET    /default?projectId=&object=`         | the per-object default layout (never 404) |
 //! | `PUT    /?projectId=&object=`                | upsert the object's layout          |
 //! | `DELETE /?projectId=&object=`                | reset to default (delete the row)   |
+//!
+//! A layout also records a [`pageLayoutType`](dto::PageLayoutType) (`DETAIL` /
+//! `FORM`, default `DETAIL`) mirroring Twenty's page-layout type.
 //!
 //! ## Tenancy
 //!

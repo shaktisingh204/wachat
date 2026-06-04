@@ -102,6 +102,20 @@ export interface SabcrmActivityUpdateInput {
 }
 
 /**
+ * A single emoji reaction aggregated by emoji. Mirrors the `ReactionGroup`
+ * struct in `rust/crates/sabcrm-activities/src/dto.rs`: one entry per distinct
+ * `emoji`, carrying the reacting member ids and a derived `count`.
+ */
+export interface SabcrmReactionGroup {
+  /** The emoji (short string, e.g. "👍" or ":thumbsup:"). */
+  emoji: string;
+  /** Member ids who reacted with this emoji. */
+  memberIds: string[];
+  /** Convenience count = `memberIds.length`. */
+  count: number;
+}
+
+/**
  * A comment stored as a subdocument on an activity's `comments` array.
  * Mirrors the `Comment` struct in
  * `rust/crates/sabcrm-activities/src/dto.rs`. `id` is a fresh ObjectId hex
@@ -114,8 +128,19 @@ export interface SabcrmComment {
   body: string;
   /** Author user id. */
   authorId: string;
+  /** Workspace member ids @mentioned in the body. */
+  mentionIds: string[];
+  /** Emoji reactions on this comment, grouped by emoji. */
+  reactions: SabcrmReactionGroup[];
   /** Creation timestamp (RFC3339). */
   createdAt: string;
+  /** Last edit timestamp (RFC3339); absent until the comment is edited. */
+  editedAt?: string;
+  /**
+   * Human-friendly relative time derived from `createdAt` (e.g. "2h ago").
+   * Computed server-side on read; never persisted.
+   */
+  createdAtRelative: string;
 }
 
 /** Raw `{ activities }` envelope from `GET /`. */
@@ -133,9 +158,17 @@ interface CommentListEnvelope {
   comments: SabcrmComment[];
 }
 
-/** Raw `{ comment }` envelope from `POST /{id}/comments`. */
+/** Raw `{ comment }` envelope from `POST /{id}/comments` and `PATCH /{id}/comments/{commentId}`. */
 interface CommentEnvelope {
   comment: SabcrmComment;
+}
+
+/**
+ * Raw `{ reactions }` envelope from the reaction-toggle endpoints — the updated
+ * reaction groups for the target (activity or comment).
+ */
+interface ReactionsEnvelope {
+  reactions: SabcrmReactionGroup[];
 }
 
 /** Encode query params, dropping undefined/empty values. */
@@ -210,18 +243,46 @@ export const sabcrmActivitiesApi = {
     return res.comments;
   },
 
-  /** `POST /v1/sabcrm/activities/{id}/comments` — append a comment. */
+  /**
+   * `POST /v1/sabcrm/activities/{id}/comments` — append a comment, optionally
+   * carrying @mentioned member ids.
+   */
   async addComment(
     id: string,
     projectId: string,
     body: string,
     authorId: string,
+    mentionIds?: string[],
   ): Promise<SabcrmComment> {
     const res = await rustFetch<CommentEnvelope>(
       `${BASE}/${encodeURIComponent(id)}/comments`,
       {
         method: 'POST',
-        body: JSON.stringify({ projectId, body, authorId }),
+        body: JSON.stringify({ projectId, body, authorId, mentionIds }),
+      },
+    );
+    return res.comment;
+  },
+
+  /**
+   * `PATCH /v1/sabcrm/activities/{id}/comments/{commentId}` — edit one's own
+   * comment. Only the original author may edit (enforced server-side);
+   * `editedAt` is bumped. `mentionIds`, when present, replaces the set.
+   */
+  async editComment(
+    id: string,
+    commentId: string,
+    projectId: string,
+    body: string,
+    mentionIds?: string[],
+  ): Promise<SabcrmComment> {
+    const res = await rustFetch<CommentEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/comments/${encodeURIComponent(
+        commentId,
+      )}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ projectId, body, mentionIds }),
       },
     );
     return res.comment;
@@ -229,7 +290,7 @@ export const sabcrmActivitiesApi = {
 
   /**
    * `DELETE /v1/sabcrm/activities/{id}/comments/{commentId}` — remove a
-   * comment from the activity's `comments` array.
+   * comment from the activity's `comments` array (delete-own, server-enforced).
    */
   deleteComment(
     id: string,
@@ -242,5 +303,42 @@ export const sabcrmActivitiesApi = {
       )}${qs({ projectId })}`,
       { method: 'DELETE' },
     );
+  },
+
+  /**
+   * `POST /v1/sabcrm/activities/{id}/reactions` — toggle the authenticated
+   * member's `emoji` reaction on the activity on/off. Returns the updated
+   * reaction groups.
+   */
+  async toggleReaction(
+    id: string,
+    projectId: string,
+    emoji: string,
+  ): Promise<SabcrmReactionGroup[]> {
+    const res = await rustFetch<ReactionsEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/reactions`,
+      { method: 'POST', body: JSON.stringify({ projectId, emoji }) },
+    );
+    return res.reactions;
+  },
+
+  /**
+   * `POST /v1/sabcrm/activities/{id}/comments/{commentId}/reactions` — toggle
+   * the authenticated member's `emoji` reaction on a comment on/off. Returns
+   * the updated reaction groups for that comment.
+   */
+  async toggleCommentReaction(
+    id: string,
+    commentId: string,
+    projectId: string,
+    emoji: string,
+  ): Promise<SabcrmReactionGroup[]> {
+    const res = await rustFetch<ReactionsEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/comments/${encodeURIComponent(
+        commentId,
+      )}/reactions`,
+      { method: 'POST', body: JSON.stringify({ projectId, emoji }) },
+    );
+    return res.reactions;
   },
 };

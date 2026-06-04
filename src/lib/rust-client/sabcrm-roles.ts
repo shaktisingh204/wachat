@@ -67,6 +67,26 @@ export const CANONICAL_PERMISSION_FLAGS = [
 export type SabcrmPermissionFlag = (typeof CANONICAL_PERMISSION_FLAGS)[number];
 
 /**
+ * `standardId` values for the three seeded standard roles (Twenty's
+ * Admin / Member / Guest). Mirrors `STANDARD_ROLE_*` in
+ * `rust/crates/sabcrm-roles/src/dto.rs`.
+ */
+export const STANDARD_ROLE_ADMIN = 'admin';
+/** `standardId` for the seeded **Member** role. */
+export const STANDARD_ROLE_MEMBER = 'member';
+/** `standardId` for the seeded **Guest** role. */
+export const STANDARD_ROLE_GUEST = 'guest';
+
+/**
+ * Recognised role-target discriminants (Twenty's `RoleTarget`). Mirrors
+ * `ROLE_TARGET_KINDS` in `rust/crates/sabcrm-roles/src/dto.rs`.
+ */
+export const ROLE_TARGET_KINDS = ['user', 'apiKey', 'agent'] as const;
+
+/** A role-target discriminant (`user` | `apiKey` | `agent`). */
+export type SabcrmRoleTarget = (typeof ROLE_TARGET_KINDS)[number];
+
+/**
  * Role-level "all records" CRUD defaults (Twenty's
  * `canReadAll/canUpdateAll/canSoftDeleteAll/canDestroyAll`). Workspace-wide
  * default-allow per verb; per-object overrides refine it. All optional.
@@ -106,11 +126,42 @@ export interface SabcrmRustRole {
   id: string;
   projectId: string;
   name: string;
+  /** Display label (Twenty's `label`); persisted, falls back to `name`. */
+  label?: string;
+  /** Optional icon key (Twenty's `icon`, e.g. `IconUserCog`). */
+  icon?: string;
   description?: string;
+  /**
+   * `standardId` of a seeded standard role (`admin` | `member` | `guest`),
+   * present only on the three seeded rows. See `STANDARD_ROLE_*`.
+   */
+  standardId?: string;
   /** Free-form permission keys (legacy / curated). */
   permissions: string[];
   /** Structured capability flags (canonical set, validated server-side). */
   permissionFlags?: SabcrmPermissionFlag[];
+  /**
+   * Settings master switch (Twenty's `canUpdateAllSettings`). When `true` the
+   * role implicitly holds every settings permission flag. Persisted; defaults
+   * to `false` on create.
+   */
+  canUpdateAllSettings?: boolean;
+  /**
+   * Tool master switch (Twenty's `canAccessAllTools`). When `true` the role
+   * implicitly holds every tool permission flag. Defaults to `false`.
+   */
+  canAccessAllTools?: boolean;
+  /** Whether the role may be assigned to workspace members. Defaults `true`. */
+  canBeAssignedToUsers?: boolean;
+  /** Whether the role may be assigned to API keys. Defaults `true`. */
+  canBeAssignedToApiKeys?: boolean;
+  /** Whether the role may be assigned to AI agents. Defaults `true`. */
+  canBeAssignedToAgents?: boolean;
+  /**
+   * Whether the role can be edited/deleted from the UI. Seeded standard roles
+   * set this `false`. Defaults `true`.
+   */
+  isEditable?: boolean;
   /** Role-level "all records" CRUD defaults. */
   defaults?: SabcrmRoleDefaults;
   /** Per-object tri-state CRUD overrides. */
@@ -129,7 +180,23 @@ export interface SabcrmRustRole {
  */
 export interface SabcrmRoleCreateInput {
   name: string;
+  /** Display label (Twenty's `label`); falls back to `name` when omitted. */
+  label?: string;
+  /** Icon key (Twenty's `icon`, e.g. `IconUserCog`). */
+  icon?: string;
   description?: string;
+  /** Settings master switch (Twenty's `canUpdateAllSettings`). Default `false`. */
+  canUpdateAllSettings?: boolean;
+  /** Tool master switch (Twenty's `canAccessAllTools`). Default `false`. */
+  canAccessAllTools?: boolean;
+  /** Whether the role may be assigned to workspace members. Default `true`. */
+  canBeAssignedToUsers?: boolean;
+  /** Whether the role may be assigned to API keys. Default `true`. */
+  canBeAssignedToApiKeys?: boolean;
+  /** Whether the role may be assigned to AI agents. Default `true`. */
+  canBeAssignedToAgents?: boolean;
+  /** Whether the role can be edited/deleted from the UI. Default `true`. */
+  isEditable?: boolean;
   permissions?: string[];
   /** Structured capability flags (canonical set; validated server-side). */
   permissionFlags?: SabcrmPermissionFlag[];
@@ -156,6 +223,44 @@ interface ListEnvelope {
 /** Raw `{ role }` envelope from `GET /{id}`, `POST /`, `PATCH /{id}`, `POST /{id}/members`. */
 interface SingleEnvelope {
   role: SabcrmRustRole;
+}
+
+/**
+ * `POST /seed` response — the three standard role documents (existing rows are
+ * reused, missing ones created) plus whether anything was newly created this
+ * call. Mirrors `SeedRolesResponse` in `rust/crates/sabcrm-roles/src/dto.rs`.
+ */
+export interface SabcrmSeedRolesResult {
+  roles: SabcrmRustRole[];
+  /** `true` if at least one role was newly created this call. */
+  createdAny: boolean;
+}
+
+/**
+ * `POST /assign-member` response — the member's new role plus the role they were
+ * moved off (if any). Mirrors `AssignMemberRoleResponse` in the Rust dto.
+ */
+export interface SabcrmAssignMemberResult {
+  role: SabcrmRustRole;
+  /** Previous role the member was removed from, when applicable. */
+  previousRole?: SabcrmRustRole;
+}
+
+/** Raw `{ roles, createdAny }` envelope from `POST /seed`. */
+interface SeedEnvelope {
+  roles: SabcrmRustRole[];
+  createdAny: boolean;
+}
+
+/** Raw `{ role, previousRole? }` envelope from `POST /assign-member`. */
+interface AssignMemberEnvelope {
+  role: SabcrmRustRole;
+  previousRole?: SabcrmRustRole;
+}
+
+/** Raw `{ memberIds }` envelope from `GET /{id}/members`. */
+interface MembersEnvelope {
+  memberIds: string[];
 }
 
 /** Encode query params, dropping undefined/empty values. */
@@ -235,6 +340,99 @@ export const sabcrmRolesApi = {
         method: 'POST',
         body: JSON.stringify({ projectId, memberId, assigned }),
       },
+    );
+    return res.role;
+  },
+
+  /**
+   * `GET /v1/sabcrm/roles/{id}/members` — the member ids assigned to a role.
+   */
+  async listMembers(projectId: string, id: string): Promise<string[]> {
+    const res = await rustFetch<MembersEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/members${qs({ projectId })}`,
+    );
+    return res.memberIds;
+  },
+
+  /**
+   * `POST /v1/sabcrm/roles/seed` — idempotently provision the three standard
+   * roles (Admin / Member / Guest) for a project. Optionally assigns the
+   * Admin role to `adminMemberId`.
+   */
+  async seed(
+    projectId: string,
+    adminMemberId?: string,
+  ): Promise<SabcrmSeedRolesResult> {
+    const res = await rustFetch<SeedEnvelope>(`${BASE}/seed`, {
+      method: 'POST',
+      body: JSON.stringify({ projectId, adminMemberId }),
+    });
+    return { roles: res.roles, createdAny: res.createdAny };
+  },
+
+  /**
+   * `POST /v1/sabcrm/roles/assign-member` — assign a member to exactly one role
+   * (unassigning them from any other role first). `updatorMemberId` blocks
+   * self-demotion server-side.
+   */
+  async assignMember(
+    projectId: string,
+    memberId: string,
+    roleId: string,
+    updatorMemberId?: string,
+  ): Promise<SabcrmAssignMemberResult> {
+    const res = await rustFetch<AssignMemberEnvelope>(`${BASE}/assign-member`, {
+      method: 'POST',
+      body: JSON.stringify({ projectId, memberId, roleId, updatorMemberId }),
+    });
+    return { role: res.role, previousRole: res.previousRole };
+  },
+
+  /**
+   * `PUT /v1/sabcrm/roles/{id}/object-permissions` — replace the role's
+   * per-object CRUD matrix wholesale (Twenty's `upsertObjectPermissions`).
+   */
+  async upsertObjectPermissions(
+    projectId: string,
+    id: string,
+    objectPermissions: SabcrmObjectPermission[],
+  ): Promise<SabcrmRustRole> {
+    const res = await rustFetch<SingleEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/object-permissions`,
+      { method: 'PUT', body: JSON.stringify({ projectId, objectPermissions }) },
+    );
+    return res.role;
+  },
+
+  /**
+   * `PUT /v1/sabcrm/roles/{id}/field-permissions` — replace the role's
+   * per-field read/update matrix wholesale (Twenty's `upsertFieldPermissions`).
+   */
+  async upsertFieldPermissions(
+    projectId: string,
+    id: string,
+    fieldPermissions: SabcrmFieldPermission[],
+  ): Promise<SabcrmRustRole> {
+    const res = await rustFetch<SingleEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/field-permissions`,
+      { method: 'PUT', body: JSON.stringify({ projectId, fieldPermissions }) },
+    );
+    return res.role;
+  },
+
+  /**
+   * `PUT /v1/sabcrm/roles/{id}/permission-flags` — replace the role's
+   * capability flags wholesale (Twenty's `upsertPermissionFlags`). Each key
+   * must be canonical (validated server-side).
+   */
+  async upsertPermissionFlags(
+    projectId: string,
+    id: string,
+    permissionFlags: SabcrmPermissionFlag[],
+  ): Promise<SabcrmRustRole> {
+    const res = await rustFetch<SingleEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/permission-flags`,
+      { method: 'PUT', body: JSON.stringify({ projectId, permissionFlags }) },
     );
     return res.role;
   },

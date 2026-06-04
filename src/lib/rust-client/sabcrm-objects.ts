@@ -89,6 +89,21 @@ interface SingleEnvelope {
   object: ObjectMetadata;
 }
 
+/**
+ * Result of `POST /{slug}/sync` — the idempotent seed reconciliation report
+ * for a system object (e.g. `workspaceMembers`) against the project team.
+ */
+export interface SabcrmSyncResult {
+  /** Whether the sync ran successfully. */
+  ok: boolean;
+  /** Records inserted or refreshed from the project team. */
+  upserted: number;
+  /** Stale records removed (no longer on the team). */
+  removed: number;
+  /** Total records of the object after reconciliation. */
+  total: number;
+}
+
 /** Encode query params, dropping undefined/empty values. */
 function qs(params: Record<string, string | number | undefined>): string {
   const sp = new URLSearchParams();
@@ -165,5 +180,19 @@ export const sabcrmObjectsApi = {
       { method: 'PUT', body: JSON.stringify({ projectId, indexes }) },
     );
     return res.object;
+  },
+
+  /**
+   * `POST /v1/sabcrm/objects/{slug}/sync` — idempotently seed the object's
+   * records from the project team (Wave 2). For `workspaceMembers` this upserts
+   * a record per team member and removes records for members no longer on the
+   * team, so relation / ACTOR enrichment can resolve real people. Returns the
+   * reconciliation report.
+   */
+  sync(projectId: string, slug: string): Promise<SabcrmSyncResult> {
+    return rustFetch<SabcrmSyncResult>(
+      `${BASE}/${encodeURIComponent(slug)}/sync`,
+      { method: 'POST', body: JSON.stringify({ projectId }) },
+    );
   },
 };

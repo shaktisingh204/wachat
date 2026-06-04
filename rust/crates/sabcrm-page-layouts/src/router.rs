@@ -16,9 +16,10 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/page-layouts`):
 //!
 //! ```text
-//! GET    /   — get_layout      (?projectId=&object=)
-//! PUT    /   — save_layout     (?projectId=&object=, JSON body)
-//! DELETE /   — reset_layout    (?projectId=&object=)
+//! GET    /         — get_layout          (?projectId=&object=[&withDefault=])
+//! GET    /default  — get_default_layout  (?projectId=&object=)
+//! PUT    /         — save_layout         (?projectId=&object=, JSON body)
+//! DELETE /         — reset_layout        (?projectId=&object=)
 //! ```
 
 use std::sync::Arc;
@@ -37,10 +38,12 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route(
-        "/",
-        get(handlers::get_layout)
-            .put(handlers::save_layout)
-            .delete(handlers::reset_layout),
-    )
+    Router::new()
+        .route(
+            "/",
+            get(handlers::get_layout)
+                .put(handlers::save_layout)
+                .delete(handlers::reset_layout),
+        )
+        .route("/default", get(handlers::get_default_layout))
 }

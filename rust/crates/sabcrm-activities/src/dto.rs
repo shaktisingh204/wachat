@@ -133,6 +133,20 @@ pub struct OkResponse {
     pub ok: bool,
 }
 
+/// A single emoji reaction aggregated by emoji. Mirrors Twenty's lightweight
+/// reaction model: one entry per distinct `emoji`, carrying the set of member
+/// ids who reacted and a derived `count`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ReactionGroup {
+    /// The emoji (a short string, e.g. "👍" or ":thumbsup:").
+    pub emoji: String,
+    /// Member ids who reacted with this emoji.
+    pub member_ids: Vec<String>,
+    /// Convenience count = `member_ids.len()`.
+    pub count: usize,
+}
+
 /// A single comment stored as a subdocument on an activity's `comments`
 /// array. `id` is a fresh ObjectId hex assigned server-side; `createdAt`
 /// is RFC3339 set at push time.
@@ -145,8 +159,20 @@ pub struct Comment {
     pub body: String,
     /// Author user id.
     pub author_id: String,
+    /// Workspace member ids @mentioned in the body (stored verbatim).
+    #[serde(default)]
+    pub mention_ids: Vec<String>,
+    /// Emoji reactions on this comment, grouped by emoji.
+    #[serde(default)]
+    pub reactions: Vec<ReactionGroup>,
     /// Creation timestamp (RFC3339).
     pub created_at: String,
+    /// Last edit timestamp (RFC3339); absent until the comment is edited.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub edited_at: Option<String>,
+    /// Human-friendly relative time derived from `created_at` (e.g. "2h ago").
+    /// Computed server-side on read; never persisted.
+    pub created_at_relative: String,
 }
 
 /// `POST /{id}/comments` body — append a comment to an activity.
@@ -159,6 +185,43 @@ pub struct AddCommentInput {
     pub body: String,
     /// Author user id.
     pub author_id: String,
+    /// Workspace member ids @mentioned in the comment body (optional).
+    #[serde(default)]
+    pub mention_ids: Option<Vec<String>>,
+}
+
+/// `PATCH /{id}/comments/{commentId}` body — edit one's own comment. Only the
+/// comment's original author (matched against the authenticated user) may
+/// edit. `editedAt` is bumped server-side.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct EditCommentInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// New comment body.
+    pub body: String,
+    /// Replacement set of @mentioned member ids (optional; absent = unchanged).
+    #[serde(default)]
+    pub mention_ids: Option<Vec<String>>,
+}
+
+/// `POST /{id}/reactions` and `POST /{id}/comments/{commentId}/reactions` body
+/// — toggle the authenticated member's reaction with `emoji` on or off.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ToggleReactionInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The emoji to toggle.
+    pub emoji: String,
+}
+
+/// Response body for reaction toggles — the updated reaction groups for the
+/// target (activity or comment).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ReactionsResponse {
+    pub reactions: Vec<ReactionGroup>,
 }
 
 /// Response body for `GET /{id}/comments` — the activity's comments array.

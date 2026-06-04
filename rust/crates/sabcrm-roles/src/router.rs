@@ -29,7 +29,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::{get, post},
+    routing::{get, post, put},
 };
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
@@ -46,11 +46,28 @@ where
 {
     Router::new()
         .route("/", get(handlers::list_roles).post(handlers::create_role))
+        .route("/seed", post(handlers::seed_standard_roles))
+        .route("/assign-member", post(handlers::assign_member_role))
         .route(
             "/{id}",
             get(handlers::get_role)
                 .patch(handlers::update_role)
                 .delete(handlers::delete_role),
         )
-        .route("/{id}/members", post(handlers::set_role_member))
+        .route(
+            "/{id}/members",
+            get(handlers::list_role_members).post(handlers::set_role_member),
+        )
+        .route(
+            "/{id}/object-permissions",
+            put(handlers::upsert_object_permissions),
+        )
+        .route(
+            "/{id}/field-permissions",
+            put(handlers::upsert_field_permissions),
+        )
+        .route(
+            "/{id}/permission-flags",
+            put(handlers::upsert_permission_flags),
+        )
 }

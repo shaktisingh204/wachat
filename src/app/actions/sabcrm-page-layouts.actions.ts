@@ -34,6 +34,7 @@ import { sabcrmPageLayoutsApi } from '@/lib/rust-client/sabcrm-page-layouts';
 import type {
   SabcrmRustPageLayout,
   SabcrmLayoutTab,
+  SabcrmPageLayoutType,
 } from '@/lib/rust-client/sabcrm-page-layouts';
 import type { ActionResult } from '@/lib/sabcrm/types';
 
@@ -141,11 +142,64 @@ export async function getPageLayoutTw(
   }
 }
 
-/** Upserts the record-page layout (tabs + widgets) for an object. */
+/**
+ * Reads the configured layout for an object, falling back to the server-built
+ * **default** layout (an empty-`id`, `isDefault: true` body) instead of a
+ * `404`/`null` when none is configured. Always resolves to a renderable
+ * layout, so callers never need their own default-tab fallback.
+ */
+export async function getPageLayoutOrDefaultTw(
+  object: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustPageLayout>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmPageLayoutsApi.get(g.ctx.projectId, object, {
+      withDefault: true,
+    });
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to load page layout.');
+  }
+}
+
+/**
+ * Returns the per-object server-built **default** layout (a Details tab + an
+ * Activity tab of Notes/Tasks/Timeline) without touching any stored row. Used
+ * by the editor's *Reset* preview.
+ */
+export async function getDefaultPageLayoutTw(
+  object: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustPageLayout>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmPageLayoutsApi.getDefault(g.ctx.projectId, object);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to load default page layout.');
+  }
+}
+
+/**
+ * Upserts the record-page layout (tabs + widgets) for an object. The optional
+ * `pageLayoutType` selects which record surface the layout composes (`DETAIL`
+ * for the record-show page, `FORM` for the create/edit surface); it defaults to
+ * `DETAIL` server-side when omitted, matching the Rust `SaveLayoutInput`.
+ */
 export async function savePageLayoutTw(
   object: string,
   tabs: SabcrmLayoutTab[],
   projectId?: string,
+  pageLayoutType?: SabcrmPageLayoutType,
 ): Promise<ActionResult<SabcrmRustPageLayout>> {
   if (!object) return { ok: false, error: 'Object is required.' };
   if (!Array.isArray(tabs)) {
@@ -156,7 +210,12 @@ export async function savePageLayoutTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
-    const layout = await sabcrmPageLayoutsApi.save(g.ctx.projectId, object, tabs);
+    const layout = await sabcrmPageLayoutsApi.save(
+      g.ctx.projectId,
+      object,
+      tabs,
+      pageLayoutType,
+    );
     revalidatePath(`${TW_BASE_PATH}/${object}`);
     return { ok: true, data: layout };
   } catch (e) {

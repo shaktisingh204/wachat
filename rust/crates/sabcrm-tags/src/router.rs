@@ -16,10 +16,16 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/tags`):
 //!
 //! ```text
-//! GET    /        — list_tags
-//! POST   /        — create_tag
-//! PATCH  /{id}    — update_tag
-//! DELETE /{id}    — delete_tag
+//! GET    /               — list_tags (with usage counts)
+//! POST   /               — create_tag
+//! GET    /counts         — tag_counts
+//! GET    /for-record     — tags_for_record
+//! GET    /{id}           — get_tag
+//! PATCH  /{id}           — update_tag
+//! DELETE /{id}           — delete_tag (cascades assignments)
+//! POST   /{id}/apply     — apply_tag
+//! DELETE /{id}/apply     — remove_tag
+//! GET    /{id}/records   — tagged_records
 //! ```
 
 use std::sync::Arc;
@@ -44,8 +50,17 @@ where
 {
     Router::new()
         .route("/", get(handlers::list_tags).post(handlers::create_tag))
+        .route("/counts", get(handlers::tag_counts))
+        .route("/for-record", get(handlers::tags_for_record))
         .route(
             "/{id}",
-            axum::routing::patch(handlers::update_tag).delete(handlers::delete_tag),
+            get(handlers::get_tag)
+                .patch(handlers::update_tag)
+                .delete(handlers::delete_tag),
         )
+        .route(
+            "/{id}/apply",
+            axum::routing::post(handlers::apply_tag).delete(handlers::remove_tag),
+        )
+        .route("/{id}/records", get(handlers::tagged_records))
 }

@@ -34,7 +34,14 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmRolesApi } from '@/lib/rust-client/sabcrm-roles';
-import type { SabcrmRustRole } from '@/lib/rust-client/sabcrm-roles';
+import type {
+  SabcrmRustRole,
+  SabcrmObjectPermission,
+  SabcrmFieldPermission,
+  SabcrmPermissionFlag,
+  SabcrmSeedRolesResult,
+  SabcrmAssignMemberResult,
+} from '@/lib/rust-client/sabcrm-roles';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
   CreateRoleTwInput,
@@ -235,5 +242,154 @@ export async function setRoleMemberTw(
     return { ok: true, data: role };
   } catch (e) {
     return fail(e, 'Failed to update role member.');
+  }
+}
+
+/** Lists the member ids assigned to a role. */
+export async function listRoleMembersTw(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<string[]>> {
+  if (!id) return { ok: false, error: 'Role id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmRolesApi.listMembers(g.ctx.projectId, id);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list role members.');
+  }
+}
+
+/**
+ * Idempotently provisions the three standard roles (Admin / Member / Guest)
+ * for the active project. Optionally assigns the Admin role to `adminMemberId`.
+ */
+export async function seedStandardRolesTw(
+  adminMemberId?: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmSeedRolesResult>> {
+  const g = await gate('create', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmRolesApi.seed(g.ctx.projectId, adminMemberId);
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to seed standard roles.');
+  }
+}
+
+/**
+ * Assigns a member to exactly one role (unassigning them from any other role
+ * first). The acting member's id (`updatorMemberId`) defaults to the session
+ * user so the engine can block self-demotion.
+ */
+export async function assignMemberRoleTw(
+  memberId: string,
+  roleId: string,
+  projectId?: string,
+): Promise<ActionResult<SabcrmAssignMemberResult>> {
+  if (!memberId?.trim()) return { ok: false, error: 'A member id is required.' };
+  if (!roleId?.trim()) return { ok: false, error: 'A role id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmRolesApi.assignMember(
+      g.ctx.projectId,
+      memberId,
+      roleId,
+      g.ctx.userId,
+    );
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to assign member role.');
+  }
+}
+
+/** Replaces a role's per-object CRUD matrix wholesale. */
+export async function upsertRoleObjectPermissionsTw(
+  id: string,
+  objectPermissions: SabcrmObjectPermission[],
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRole>> {
+  if (!id) return { ok: false, error: 'Role id is required.' };
+  if (!Array.isArray(objectPermissions)) {
+    return { ok: false, error: 'objectPermissions must be an array.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const role = await sabcrmRolesApi.upsertObjectPermissions(
+      g.ctx.projectId,
+      id,
+      objectPermissions,
+    );
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data: role };
+  } catch (e) {
+    return fail(e, 'Failed to update object permissions.');
+  }
+}
+
+/** Replaces a role's per-field read/update matrix wholesale. */
+export async function upsertRoleFieldPermissionsTw(
+  id: string,
+  fieldPermissions: SabcrmFieldPermission[],
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRole>> {
+  if (!id) return { ok: false, error: 'Role id is required.' };
+  if (!Array.isArray(fieldPermissions)) {
+    return { ok: false, error: 'fieldPermissions must be an array.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const role = await sabcrmRolesApi.upsertFieldPermissions(
+      g.ctx.projectId,
+      id,
+      fieldPermissions,
+    );
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data: role };
+  } catch (e) {
+    return fail(e, 'Failed to update field permissions.');
+  }
+}
+
+/** Replaces a role's capability flags wholesale (canonical keys only). */
+export async function upsertRolePermissionFlagsTw(
+  id: string,
+  permissionFlags: SabcrmPermissionFlag[],
+  projectId?: string,
+): Promise<ActionResult<SabcrmRustRole>> {
+  if (!id) return { ok: false, error: 'Role id is required.' };
+  if (!Array.isArray(permissionFlags)) {
+    return { ok: false, error: 'permissionFlags must be an array.' };
+  }
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const role = await sabcrmRolesApi.upsertPermissionFlags(
+      g.ctx.projectId,
+      id,
+      permissionFlags,
+    );
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data: role };
+  } catch (e) {
+    return fail(e, 'Failed to update permission flags.');
   }
 }

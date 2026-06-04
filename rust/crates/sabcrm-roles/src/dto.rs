@@ -69,6 +69,26 @@ pub fn is_canonical_permission_flag(flag: &str) -> bool {
     CANONICAL_PERMISSION_FLAGS.contains(&flag)
 }
 
+/// A standard role's `standardId` — the stable identity Twenty uses to keep the
+/// three seeded roles (`Admin`, `Member`, `Guest`) recognisable across
+/// reseeds. Persisted as the role's `standardId` string field.
+pub const STANDARD_ROLE_ADMIN: &str = "admin";
+/// `standardId` for the seeded **Member** role.
+pub const STANDARD_ROLE_MEMBER: &str = "member";
+/// `standardId` for the seeded **Guest** role.
+pub const STANDARD_ROLE_GUEST: &str = "guest";
+
+/// The recognised target kinds a role can be assigned to — Twenty's
+/// `RoleTarget` discriminant (`user` / `apiKey` / `agent`). SabCRM stores
+/// assignments inline on the role (`memberIds`, `apiKeyIds`, `agentIds`); this
+/// enum names the families for the assignment endpoints.
+pub const ROLE_TARGET_KINDS: &[&str] = &["user", "apiKey", "agent"];
+
+/// Returns `true` if `kind` is a recognised role-target discriminant.
+pub fn is_valid_role_target(kind: &str) -> bool {
+    ROLE_TARGET_KINDS.contains(&kind)
+}
+
 /// Role-level "all records" CRUD defaults — Twenty's
 /// `canReadAll/canUpdateAll/canSoftDeleteAll/canDestroyAll` matrix.
 ///
@@ -154,9 +174,37 @@ pub struct CreateRoleInput {
     pub project_id: String,
     /// Human-readable role name — required.
     pub name: String,
+    /// Optional display label (Twenty's `label`). Falls back to `name` when
+    /// omitted so existing callers keep working.
+    #[serde(default)]
+    pub label: Option<String>,
+    /// Optional icon key (Twenty's `icon`, e.g. `IconUserCog`).
+    #[serde(default)]
+    pub icon: Option<String>,
     /// Optional description.
     #[serde(default)]
     pub description: Option<String>,
+    /// Workspace-wide settings master switch — Twenty's `canUpdateAllSettings`.
+    /// When `true` the role implicitly holds every settings permission flag.
+    #[serde(default)]
+    pub can_update_all_settings: Option<bool>,
+    /// Tool master switch — Twenty's `canAccessAllTools`. When `true` the role
+    /// implicitly holds every tool permission flag.
+    #[serde(default)]
+    pub can_access_all_tools: Option<bool>,
+    /// Whether this role may be assigned to workspace members. Defaults `true`.
+    #[serde(default)]
+    pub can_be_assigned_to_users: Option<bool>,
+    /// Whether this role may be assigned to API keys. Defaults `true`.
+    #[serde(default)]
+    pub can_be_assigned_to_api_keys: Option<bool>,
+    /// Whether this role may be assigned to AI agents. Defaults `true`.
+    #[serde(default)]
+    pub can_be_assigned_to_agents: Option<bool>,
+    /// Whether the role can be edited/deleted from the UI. Seeded standard
+    /// roles set this `false`. Defaults `true`.
+    #[serde(default)]
+    pub is_editable: Option<bool>,
     /// Free-form permission keys. Defaults to empty.
     #[serde(default)]
     pub permissions: Option<Vec<String>>,
@@ -228,4 +276,113 @@ pub struct RoleResponse {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct OkResponse {
     pub ok: bool,
+}
+
+// ===========================================================================
+// Standard-role seeding
+// ===========================================================================
+
+/// `POST /seed` body — idempotently provision the three standard roles
+/// (`Admin`, `Member`, `Guest`) for a project. Mirrors Twenty's
+/// `createMemberRole` / `createGuestRole` + the admin bootstrap.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SeedRolesInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Optional member id to assign the freshly-seeded **Admin** role to (the
+    /// workspace bootstrapper). Skipped when omitted.
+    #[serde(default)]
+    pub admin_member_id: Option<String>,
+}
+
+/// Response body for `POST /seed` — the three standard role documents
+/// (existing rows are reused, missing ones are created).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SeedRolesResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub roles: Vec<Value>,
+    /// `true` if at least one role was newly created this call.
+    pub created_any: bool,
+}
+
+// ===========================================================================
+// Granular permission upserts (Twenty's upsert* mutations)
+// ===========================================================================
+
+/// `PUT /{id}/object-permissions` body — replace the role's per-object CRUD
+/// matrix wholesale (Twenty's `upsertObjectPermissions`). Write/delete grants
+/// require a read grant; this is validated server-side.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct UpsertObjectPermissionsInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The full desired set of per-object overrides.
+    pub object_permissions: Vec<ObjectPermissionTw>,
+}
+
+/// `PUT /{id}/field-permissions` body — replace the role's per-field
+/// read/update matrix wholesale (Twenty's `upsertFieldPermissions`).
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct UpsertFieldPermissionsInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The full desired set of per-field overrides.
+    pub field_permissions: Vec<FieldPermissionTw>,
+}
+
+/// `PUT /{id}/permission-flags` body — replace the role's capability flags
+/// wholesale (Twenty's `upsertPermissionFlags`). Each key must be canonical.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct UpsertPermissionFlagsInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The full desired set of capability flags.
+    pub permission_flags: Vec<String>,
+}
+
+// ===========================================================================
+// Member ↔ role assignment (Twenty's updateWorkspaceMemberRole)
+// ===========================================================================
+
+/// `POST /assign-member` body — assign a single member to exactly one role,
+/// unassigning them from any other role first (a member holds one role at a
+/// time, like Twenty's `updateWorkspaceMemberRole`). Guards prevent removing
+/// the last admin and a caller demoting themselves.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AssignMemberRoleInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The workspace member being (re)assigned — required.
+    pub member_id: String,
+    /// The destination role's id — required.
+    pub role_id: String,
+    /// The acting member's id, if known. Used to block self-demotion.
+    #[serde(default)]
+    pub updator_member_id: Option<String>,
+}
+
+/// Response body for `POST /assign-member` — the member's new role plus the
+/// role they were moved off (if any).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AssignMemberRoleResponse {
+    #[schema(value_type = Object)]
+    pub role: Value,
+    /// The previous role document the member was removed from, when applicable.
+    #[schema(value_type = Option<Object>)]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub previous_role: Option<Value>,
+}
+
+/// Response body for `GET /{id}/members` — the member ids assigned to a role.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct MembersResponse {
+    pub member_ids: Vec<String>,
 }

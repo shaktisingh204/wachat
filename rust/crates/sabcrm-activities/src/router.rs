@@ -22,7 +22,10 @@
 //! DELETE /{id}                          — delete_activity
 //! GET    /{id}/comments                 — list_comments
 //! POST   /{id}/comments                 — add_comment
-//! DELETE /{id}/comments/{commentId}     — delete_comment
+//! PATCH  /{id}/comments/{commentId}     — edit_comment   (edit-own)
+//! DELETE /{id}/comments/{commentId}     — delete_comment (delete-own)
+//! POST   /{id}/reactions                — toggle_activity_reaction
+//! POST   /{id}/comments/{commentId}/reactions — toggle_comment_reaction
 //! ```
 
 use std::sync::Arc;
@@ -60,6 +63,14 @@ where
         )
         .route(
             "/{id}/comments/{commentId}",
-            axum::routing::delete(handlers::delete_comment),
+            axum::routing::patch(handlers::edit_comment).delete(handlers::delete_comment),
+        )
+        .route(
+            "/{id}/reactions",
+            axum::routing::post(handlers::toggle_activity_reaction),
+        )
+        .route(
+            "/{id}/comments/{commentId}/reactions",
+            axum::routing::post(handlers::toggle_comment_reaction),
         )
 }

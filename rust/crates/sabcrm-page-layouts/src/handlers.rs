@@ -5,7 +5,8 @@
 //!
 //! | Endpoint                                  | Effect                          |
 //! |-------------------------------------------|---------------------------------|
-//! | `GET    /v1/sabcrm/page-layouts`          | read the object's layout (404)  |
+//! | `GET    /v1/sabcrm/page-layouts`          | read the object's layout (404 or default) |
+//! | `GET    /v1/sabcrm/page-layouts/default`  | the per-object default layout   |
 //! | `PUT    /v1/sabcrm/page-layouts`          | upsert the object's layout      |
 //! | `DELETE /v1/sabcrm/page-layouts`          | reset to default (delete row)   |
 //!
@@ -26,7 +27,10 @@ use sabnode_common::{ApiError, Result};
 use sabnode_db::{mongo::MongoHandle, oid_to_str};
 use tracing::instrument;
 
-use crate::dto::{LayoutResponse, OkResponse, SaveLayoutInput, ScopeQuery, Tab};
+use crate::dto::{
+    LayoutResponse, OkResponse, PageLayoutType, SaveLayoutInput, ScopeQuery, Tab,
+    default_layout_tabs,
+};
 
 /// The Mongo collection backing record-page layouts.
 const LAYOUTS_COLL: &str = "sabcrm_page_layouts";
@@ -71,6 +75,16 @@ fn tabs_to_bson(tabs: &[Tab]) -> Result<Bson> {
     })
 }
 
+/// Read the persisted `pageLayoutType` from a stored document, tolerating an
+/// absent / null / unknown value by falling back to the default (`DETAIL`).
+fn page_layout_type_from_doc(doc: &Document) -> PageLayoutType {
+    match doc.get_str("pageLayoutType") {
+        Ok("FORM") => PageLayoutType::Form,
+        // "DETAIL", any other string, or absent → the default detail surface.
+        _ => PageLayoutType::Detail,
+    }
+}
+
 /// Build the wire response from a freshly read/written layout document.
 fn doc_to_response(doc: &Document) -> Result<LayoutResponse> {
     let id = doc
@@ -81,25 +95,48 @@ fn doc_to_response(doc: &Document) -> Result<LayoutResponse> {
     let object = doc.get_str("object").unwrap_or_default().to_owned();
     let created_at = doc.get_str("createdAt").unwrap_or_default().to_owned();
     let updated_at = doc.get_str("updatedAt").unwrap_or_default().to_owned();
+    let page_layout_type = page_layout_type_from_doc(doc);
     let tabs = tabs_from_doc(doc)?;
 
     Ok(LayoutResponse {
         id,
         project_id,
         object,
+        page_layout_type,
+        is_default: false,
         tabs,
         created_at,
         updated_at,
     })
 }
 
+/// Build a server-side **default** layout response for an object that has no
+/// stored row. Not persisted: `id` and the timestamps are empty and
+/// `isDefault` is `true`. Shape matches the front-end's `defaultLayout`.
+fn default_response(project_id: &str, object: &str) -> LayoutResponse {
+    LayoutResponse {
+        id: String::new(),
+        project_id: project_id.to_owned(),
+        object: object.to_owned(),
+        page_layout_type: PageLayoutType::Detail,
+        is_default: true,
+        tabs: default_layout_tabs(),
+        created_at: String::new(),
+        updated_at: String::new(),
+    }
+}
+
 // ===========================================================================
 // GET / — read the object's layout
 // ===========================================================================
 
-/// `GET /v1/sabcrm/page-layouts?projectId=&object=` — the single layout for
-/// one object, scoped by `{ projectId, object }`. Returns `404` when no
-/// layout has been configured for the object yet.
+/// `GET /v1/sabcrm/page-layouts?projectId=&object=[&withDefault=true]` — the
+/// single layout for one object, scoped by `{ projectId, object }`.
+///
+/// When no layout has been configured: returns `404` by default, or — when
+/// `withDefault=true` — the per-object **default** layout (an unpersisted
+/// body with `isDefault: true`, an empty `id` and empty timestamps) so the
+/// record-detail page can render without a second round-trip.
 #[instrument(skip_all)]
 pub async fn get_layout(
     _user: AuthUser,
@@ -115,10 +152,33 @@ pub async fn get_layout(
         .await
         .map_err(|e| {
             ApiError::Internal(anyhow::Error::new(e).context("sabcrm_page_layouts.find_one"))
-        })?
-        .ok_or_else(|| ApiError::NotFound("page layout".to_owned()))?;
+        })?;
 
-    Ok(Json(doc_to_response(&found)?))
+    match found {
+        Some(doc) => Ok(Json(doc_to_response(&doc)?)),
+        None if query.with_default => Ok(Json(default_response(project_id, object))),
+        None => Err(ApiError::NotFound("page layout".to_owned())),
+    }
+}
+
+// ===========================================================================
+// GET /default — the per-object default layout (never 404, never persisted)
+// ===========================================================================
+
+/// `GET /v1/sabcrm/page-layouts/default?projectId=&object=` — the per-object
+/// **default** layout, always returned (the row is never consulted and never
+/// written). Mirrors the front-end editor's `defaultLayout(object)` and the
+/// record-detail fixed-tab fallback, so the *Reset* preview and the
+/// server-seeded default agree. The body carries `isDefault: true`, an empty
+/// `id` and empty timestamps.
+#[instrument(skip_all)]
+pub async fn get_default_layout(
+    _user: AuthUser,
+    Query(query): Query<ScopeQuery>,
+) -> Result<Json<LayoutResponse>> {
+    let project_id = require_project(&query.project_id)?;
+    let object = require_object(&query.object)?;
+    Ok(Json(default_response(project_id, object)))
 }
 
 // ===========================================================================
@@ -144,6 +204,7 @@ pub async fn save_layout(
     let _ = require_object(&body.object)?;
 
     let tabs_bson = tabs_to_bson(&body.tabs)?;
+    let page_layout_type = body.page_layout_type.as_str();
     let now = Utc::now().to_rfc3339();
 
     let coll = mongo.collection::<Document>(LAYOUTS_COLL);
@@ -151,7 +212,11 @@ pub async fn save_layout(
         .find_one_and_update(
             doc! { "projectId": project_id, "object": object },
             doc! {
-                "$set": { "tabs": tabs_bson, "updatedAt": &now },
+                "$set": {
+                    "tabs": tabs_bson,
+                    "pageLayoutType": page_layout_type,
+                    "updatedAt": &now,
+                },
                 "$setOnInsert": {
                     "_id": ObjectId::new(),
                     "projectId": project_id,
