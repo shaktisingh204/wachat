@@ -705,6 +705,55 @@
 }
 
 /* =========================================================================
+   Workspace identity (Settings → General: workspace name + icon)
+   A subtle line under the workspace switcher reflecting the configured name.
+   ========================================================================= */
+.st-ws-identity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px 6px;
+  min-width: 0;
+}
+.st-ws-identity__icon {
+  flex: 0 0 auto;
+  font-size: 14px;
+  line-height: 1;
+}
+.st-ws-identity__name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--st-fs-sm, 12px);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+
+/* =========================================================================
+   Compact density (Settings → Appearance: density = compact)
+   Tightens vertical rhythm across nav + common record surfaces. Applied via
+   `.st-density-compact` on the `.sabcrm-twenty` root.
+   ========================================================================= */
+.sabcrm-twenty.st-density-compact .st-nav-item {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.sabcrm-twenty.st-density-compact .st-section-title {
+  margin-top: 8px;
+}
+.sabcrm-twenty.st-density-compact .st-search-btn {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+/* Common record-surface rows opt in by keying off the root density class. */
+.sabcrm-twenty.st-density-compact .st-table td,
+.sabcrm-twenty.st-density-compact .st-table th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+/* =========================================================================
    Responsive sidebar
    At narrow viewports the fixed 240px rail crowds the content and can break
    horizontal overflow. Below 900px we collapse to a slim icon rail; below

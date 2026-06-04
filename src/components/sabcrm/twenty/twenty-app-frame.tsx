@@ -39,6 +39,17 @@ import type { SabcrmRustFavorite } from '@/app/actions/sabcrm-twenty.actions.typ
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/rust-client/sabcrm-objects';
 import { ZORU_ICONS } from '@/components/zoruui/icon-picker';
+import { getCrmSettingsTw } from '@/app/actions/sabcrm-settings.actions';
+import {
+  SabcrmSettingsProvider,
+  buildSabcrmFormatters,
+  resolveSabcrmTheme,
+  type SabcrmSettingsValue,
+  type SabcrmGeneralPrefs,
+  type SabcrmAppearancePrefs,
+  type SabcrmLocalizationPrefs,
+  type SabcrmNotificationPrefs,
+} from './sabcrm-settings-context';
 import { useProject } from '@/context/project-context';
 
 type NavItem = {
@@ -182,6 +193,11 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
 
   const [favorites, setFavorites] = React.useState<SabcrmRustFavorite[]>([]);
   const [objects, setObjects] = React.useState<ObjectMetadata[] | null>(null);
+  const [settingsData, setSettingsData] = React.useState<Record<
+    string,
+    unknown
+  > | null>(null);
+  const [systemDark, setSystemDark] = React.useState(false);
 
   // Load the caller's favorites (non-blocking, graceful when engine down).
   React.useEffect(() => {
@@ -251,8 +267,72 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     [workspaceNav],
   );
 
+  // Load the persisted workspace settings ONCE per project (one blob read for
+  // every section). This is what makes the settings actually "reflect": the
+  // resolved value is provided to every /sabcrm surface + applied to the frame
+  // root (theme + density) below. Fails closed → defaults until/if it lands.
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await getCrmSettingsTw();
+      if (cancelled) return;
+      setSettingsData(
+        res.ok && res.data && typeof res.data === 'object'
+          ? (res.data as Record<string, unknown>)
+          : {},
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeProjectId]);
+
+  // Track the OS colour scheme so the `system` theme (and unset) follows it.
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    setSystemDark(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setSystemDark(e.matches);
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, []);
+
+  // Resolve the raw settings document into the value consumers read.
+  const settingsValue: SabcrmSettingsValue = React.useMemo(() => {
+    const data = settingsData ?? {};
+    const pick = <T,>(key: string): T => {
+      const v = (data as Record<string, unknown>)[key];
+      return (
+        v && typeof v === 'object' && !Array.isArray(v) ? v : {}
+      ) as unknown as T;
+    };
+    const general = pick<SabcrmGeneralPrefs>('general');
+    const appearance = pick<SabcrmAppearancePrefs>('appearance');
+    const localization = pick<SabcrmLocalizationPrefs>('localization');
+    const notifications = pick<SabcrmNotificationPrefs>('notifications');
+    const labRaw = pick<{ flags?: Record<string, boolean> }>('lab');
+    const lab =
+      labRaw.flags && typeof labRaw.flags === 'object' ? labRaw.flags : {};
+    return {
+      loaded: settingsData !== null,
+      general,
+      appearance,
+      localization,
+      notifications,
+      lab,
+      resolvedTheme: resolveSabcrmTheme(appearance.theme, lab.darkMode, systemDark),
+      density: appearance.density === 'compact' ? 'compact' : 'comfortable',
+      fmt: buildSabcrmFormatters(localization),
+    };
+  }, [settingsData, systemDark]);
+
+  const rootClassName = `sabcrm-twenty${
+    settingsValue.resolvedTheme === 'dark' ? ' st-theme-dark' : ''
+  }${settingsValue.density === 'compact' ? ' st-density-compact' : ''}`;
+
   return (
-    <div className="sabcrm-twenty">
+    <SabcrmSettingsProvider value={settingsValue}>
+    <div className={rootClassName}>
       <TwentyCommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
       <div className="st-shell">
         <aside className="st-sidebar" aria-label="SabCRM navigation">
@@ -262,6 +342,21 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               <TwentyWorkspaceSwitcher />
               <NotificationsBell />
             </div>
+
+            {/* CRM workspace identity (general settings) — reflects the name +
+                icon configured in Settings → General. */}
+            {settingsValue.general.workspaceName ? (
+              <div className="st-ws-identity" title="CRM workspace">
+                {settingsValue.general.iconEmoji ? (
+                  <span className="st-ws-identity__icon" aria-hidden="true">
+                    {settingsValue.general.iconEmoji}
+                  </span>
+                ) : null}
+                <span className="st-ws-identity__name">
+                  {settingsValue.general.workspaceName}
+                </span>
+              </div>
+            ) : null}
 
             {/* Search */}
             <button
@@ -386,6 +481,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
         <main className="st-main">{children}</main>
       </div>
     </div>
+    </SabcrmSettingsProvider>
   );
 }
 
