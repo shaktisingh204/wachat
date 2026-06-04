@@ -167,16 +167,48 @@ fn value_to_regex_string(v: &Value) -> String {
     }
 }
 
+/// Escape every RegExp metacharacter in `input` so a `contains` / `notContains`
+/// operand is matched literally (and can't smuggle in a crafted, ReDoS-adjacent
+/// pattern). Mirrors `escapeRegExp` in `src/lib/sabcrm/records-filter.ts` and
+/// `escape_regex` in `sabcrm-segments/src/filter.rs`.
+fn escape_regex(input: &str) -> String {
+    let mut out = String::with_capacity(input.len());
+    for ch in input.chars() {
+        if matches!(
+            ch,
+            '.' | '*' | '+' | '?' | '^' | '$' | '{' | '}' | '(' | ')' | '|' | '[' | ']' | '\\'
+        ) {
+            out.push('\\');
+        }
+        out.push(ch);
+    }
+    out
+}
+
+/// Coerce a filter operand into a BSON array for the set operators
+/// (`in` / `notIn`): an array is mapped element-wise, while a scalar is wrapped
+/// in a single-element array. Mirrors `Array.isArray(value) ? value : [value]`
+/// in `conditionToMongo` and `coerce_array` in `sabcrm-segments/src/filter.rs`.
+fn coerce_array(v: &Value) -> Result<Vec<Bson>> {
+    match v {
+        Value::Array(items) => items.iter().map(value_to_bson).collect(),
+        other => Ok(vec![value_to_bson(other)?]),
+    }
+}
+
 /// Translate one `{ "op": ..., "value": ... }` condition (or a bare scalar)
 /// into the Mongo predicate applied to `data.<fieldKey>`. Returns the value
 /// that should be assigned to the `data.<fieldKey>` key in the Mongo filter.
 ///
-/// Supported ops:
+/// Supported ops (canonical names from `src/lib/sabcrm/records-filter.ts` and
+/// `sabcrm-segments`, with the legacy short names kept as aliases):
 /// - `eq` → `<v>` (bare equality)
-/// - `ne` → `{ "$ne": <v> }`
-/// - `contains` → `{ "$regex": <stringified v>, "$options": "i" }`
+/// - `ne` / `neq` → `{ "$ne": <v> }`
+/// - `contains` → `{ "$regex": <escaped stringified v>, "$options": "i" }`
+/// - `notContains` → `{ "$not": { "$regex": <escaped stringified v>, "$options": "i" } }`
 /// - `gt` / `lt` / `gte` / `lte` → `{ "$gt"|"$lt"|"$gte"|"$lte": <v> }`
-/// - `in` → `{ "$in": <array v> }`
+/// - `in` → `{ "$in": <array v> }` (a scalar is coerced to a one-element array)
+/// - `notIn` → `{ "$nin": <array v> }` (a scalar is coerced to a one-element array)
 /// - `isEmpty` → `{ "$in": [null, ""] }` (also matches missing via Mongo)
 /// - `isNotEmpty` → `{ "$nin": [null, ""], "$exists": true }`
 fn condition_to_bson(cond: &Value) -> Result<Bson> {
@@ -197,25 +229,25 @@ fn condition_to_bson(cond: &Value) -> Result<Bson> {
 
     let predicate = match op {
         "eq" => return value_to_bson(value),
-        "ne" => doc! { "$ne": value_to_bson(value)? },
+        "ne" | "neq" => doc! { "$ne": value_to_bson(value)? },
         "contains" => doc! {
-            "$regex": value_to_regex_string(value),
+            "$regex": escape_regex(&value_to_regex_string(value)),
             "$options": "i",
+        },
+        "notContains" => doc! {
+            "$not": doc! {
+                "$regex": escape_regex(&value_to_regex_string(value)),
+                "$options": "i",
+            },
         },
         "gt" => doc! { "$gt": value_to_bson(value)? },
         "lt" => doc! { "$lt": value_to_bson(value)? },
         "gte" => doc! { "$gte": value_to_bson(value)? },
         "lte" => doc! { "$lte": value_to_bson(value)? },
-        "in" => {
-            let arr = value.as_array().ok_or_else(|| {
-                ApiError::BadRequest("`in` filter requires an array value.".to_owned())
-            })?;
-            let items: Vec<Bson> = arr
-                .iter()
-                .map(value_to_bson)
-                .collect::<Result<Vec<_>>>()?;
-            doc! { "$in": items }
-        }
+        // `in` / `notIn` coerce a scalar operand to a one-element array
+        // (matches `conditionToMongo` + `sabcrm-segments`).
+        "in" => doc! { "$in": coerce_array(value)? },
+        "notIn" => doc! { "$nin": coerce_array(value)? },
         "isEmpty" => doc! { "$in": [Bson::Null, Bson::String(String::new())] },
         "isNotEmpty" => doc! {
             "$nin": [Bson::Null, Bson::String(String::new())],

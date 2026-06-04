@@ -64,15 +64,21 @@ export interface SabcrmRustRecord {
 /** A single leaf condition inside a nested AND/OR filter group. */
 export interface SabcrmFilterCondition {
   field: string;
+  // Dialect now matches src/lib/sabcrm/records-filter.ts + sabcrm-segments:
+  // `neq` (alias of `ne`), `notContains`, `notIn` are accepted by the engine;
+  // `contains`/`notContains` operands are regex-escaped server-side.
   operator:
     | 'eq'
     | 'ne'
+    | 'neq'
     | 'contains'
+    | 'notContains'
     | 'gt'
     | 'lt'
     | 'gte'
     | 'lte'
     | 'in'
+    | 'notIn'
     | 'isEmpty'
     | 'isNotEmpty';
   value?: unknown;
