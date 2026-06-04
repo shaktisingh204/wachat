@@ -15,6 +15,8 @@
 
 import * as React from 'react';
 
+import { useSettingsSync } from '../use-settings-sync';
+
 /** Canonical identifiers for every experimental flag. */
 export type LabFlagId =
   | 'advancedFilterGroups'
@@ -123,6 +125,25 @@ function writeStored(flags: LabFlags): void {
   }
 }
 
+/**
+ * Server slice shape for the typed `lab` settings section
+ * (`data.lab = { flags: { <id>: bool } }`). localStorage stays the instant
+ * cache; this is the cross-device copy.
+ */
+type LabSlice = { flags: Partial<LabFlags> };
+
+/** Coerce a server `lab` slice into known boolean flags, or null when absent. */
+function coerceLabSlice(raw: unknown): LabSlice | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const flagsRaw = (raw as Record<string, unknown>).flags;
+  if (!flagsRaw || typeof flagsRaw !== 'object') return null;
+  const out: Partial<LabFlags> = {};
+  for (const [key, value] of Object.entries(flagsRaw as Record<string, unknown>)) {
+    if (isKnownFlag(key) && typeof value === 'boolean') out[key] = value;
+  }
+  return { flags: out };
+}
+
 export interface UseLabFlagsResult {
   flags: LabFlags;
   /** Set a single flag to an explicit value. */
@@ -146,6 +167,12 @@ export interface UseLabFlagsResult {
 export function useLabFlags(): UseLabFlagsResult {
   const [flags, setFlagsState] = React.useState<LabFlags>(DEFAULT_FLAGS);
   const [hydrated, setHydrated] = React.useState(false);
+  // Server persistence via the typed `lab` section. Kept in a ref so the
+  // mutators stay referentially stable (empty-dep callbacks) while always
+  // calling the latest save. Fire-and-forget; fails closed when engine down.
+  const sync = useSettingsSync<LabSlice>('lab', coerceLabSlice);
+  const saveRef = React.useRef(sync.save);
+  saveRef.current = sync.save;
 
   // Hydrate from storage after mount so SSR and first client render agree.
   React.useEffect(() => {
@@ -153,11 +180,20 @@ export function useLabFlags(): UseLabFlagsResult {
     setHydrated(true);
   }, []);
 
+  // Adopt the server-stored flags as the source of truth once resolved.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    const merged = { ...DEFAULT_FLAGS, ...sync.remote.flags };
+    setFlagsState(merged);
+    writeStored(merged);
+  }, [sync.phase, sync.remote]);
+
   const setFlag = React.useCallback((id: LabFlagId, value: boolean) => {
     setFlagsState((prev) => {
       if (prev[id] === value) return prev;
       const next = { ...prev, [id]: value };
       writeStored(next);
+      void saveRef.current({ flags: next });
       return next;
     });
   }, []);
@@ -166,6 +202,7 @@ export function useLabFlags(): UseLabFlagsResult {
     setFlagsState((prev) => {
       const next = { ...prev, [id]: !prev[id] };
       writeStored(next);
+      void saveRef.current({ flags: next });
       return next;
     });
   }, []);
@@ -173,6 +210,7 @@ export function useLabFlags(): UseLabFlagsResult {
   const resetAll = React.useCallback(() => {
     setFlagsState(() => {
       writeStored(DEFAULT_FLAGS);
+      void saveRef.current({ flags: DEFAULT_FLAGS });
       return DEFAULT_FLAGS;
     });
   }, []);
