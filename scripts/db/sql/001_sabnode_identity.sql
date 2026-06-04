@@ -32,6 +32,12 @@ CREATE INDEX IF NOT EXISTS users_firebase_uid_idx
 ALTER TABLE sabnode_identity.users
   ADD COLUMN IF NOT EXISTS profile jsonb;
 
+-- Auth material: the bcrypt password hash. Kept in a DEDICATED column (NOT in the
+-- profile JSONB) so it never co-mingles with the non-secret profile blob. Added
+-- separately (idempotent) for prod where the identity migration may already exist.
+ALTER TABLE sabnode_identity.users
+  ADD COLUMN IF NOT EXISTS password_hash text;
+
 CREATE TABLE IF NOT EXISTS sabnode_identity.user_sessions (
   id           uuid PRIMARY KEY,
   user_id      text NOT NULL,

@@ -141,6 +141,8 @@ export interface PgUserStore {
     planId?: string | null;
     /** Full Mongo user doc (minus secrets). Omitting it never wipes an existing one. */
     profile?: unknown | null;
+    /** bcrypt password hash (auth material). Omitting it never wipes an existing one. */
+    passwordHash?: string | null;
   }): Promise<PgUserRow>;
 }
 
@@ -175,11 +177,11 @@ export const pgUserStore: PgUserStore = {
     return rows[0] ?? null;
   },
   async upsertByMongoId(input) {
-    // `profile` is COALESCE'd against the existing value so an omitted profile
-    // (passed as null) never wipes a profile already stored by a prior write.
+    // `profile` and `password_hash` are COALESCE'd against the existing value so
+    // an omitted value (passed as null) never wipes data stored by a prior write.
     const { rows } = await pgQuery<PgUserRow>(
-      `INSERT INTO ${U} (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, profile, updated_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7, now())
+      `INSERT INTO ${U} (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, profile, password_hash, updated_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8, now())
        ON CONFLICT (legacy_mongo_id) DO UPDATE SET
          email = EXCLUDED.email,
          name = EXCLUDED.name,
@@ -187,6 +189,7 @@ export const pgUserStore: PgUserStore = {
          firebase_uid = COALESCE(EXCLUDED.firebase_uid, ${U}.firebase_uid),
          plan_id = COALESCE(EXCLUDED.plan_id, ${U}.plan_id),
          profile = COALESCE(EXCLUDED.profile, ${U}.profile),
+         password_hash = COALESCE(EXCLUDED.password_hash, ${U}.password_hash),
          updated_at = now()
        RETURNING *`,
       [
@@ -197,6 +200,8 @@ export const pgUserStore: PgUserStore = {
         input.profile === undefined || input.profile === null
           ? null
           : JSON.stringify(input.profile),
+        // undefined/null → SQL NULL → COALESCE keeps the existing hash.
+        input.passwordHash ?? null,
       ],
     );
     return rows[0];

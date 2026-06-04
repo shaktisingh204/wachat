@@ -30,6 +30,8 @@ export interface PgUserRow {
   revoked_before: string | null; // ISO timestamp
   /** Full Mongo user doc minus secrets — lets getSession rebuild the legacy shape. */
   profile: unknown | null; // JSONB
+  /** bcrypt password hash (auth material). Dedicated column, kept OUT of `profile`. */
+  password_hash: string | null;
   created_at: string; // ISO
   updated_at: string; // ISO
 }

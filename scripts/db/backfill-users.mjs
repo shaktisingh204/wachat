@@ -128,11 +128,17 @@ try {
     for (const u of buf) {
       if (!u.email) { skipped++; continue; } // email is NOT NULL in PG
       const legacy = String(u._id);
+      // The bcrypt password hash lives in the Mongo user's `password` field in
+      // this codebase (see src/app/actions/two-fa.actions.ts, which reads
+      // `(u).password` as the hash). Fall back to alternate field names just in
+      // case. It goes ONLY to the dedicated password_hash column — never into the
+      // profile blob (it stays in SENSITIVE_USER_FIELDS, stripped by buildProfile).
+      const passwordHash = u.password ?? u.passwordHash ?? u.hash ?? null;
       if (!dryRun) {
         await pool.query(
           `INSERT INTO ${SCHEMA}.users
-             (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, profile, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+             (legacy_mongo_id, email, name, picture, firebase_uid, plan_id, profile, password_hash, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
            ON CONFLICT (legacy_mongo_id) DO UPDATE SET
              email = EXCLUDED.email,
              name = EXCLUDED.name,
@@ -140,6 +146,7 @@ try {
              firebase_uid = COALESCE(EXCLUDED.firebase_uid, ${SCHEMA}.users.firebase_uid),
              plan_id = COALESCE(EXCLUDED.plan_id, ${SCHEMA}.users.plan_id),
              profile = COALESCE(EXCLUDED.profile, ${SCHEMA}.users.profile),
+             password_hash = COALESCE(EXCLUDED.password_hash, ${SCHEMA}.users.password_hash),
              updated_at = now()`,
           [
             legacy,
@@ -149,6 +156,7 @@ try {
             u.firebaseUid ?? u.firebase_uid ?? null,
             u.planId ? String(u.planId) : null,
             JSON.stringify(buildProfile(u)),
+            passwordHash != null ? String(passwordHash) : null,
           ],
         );
       }

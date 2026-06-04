@@ -43,7 +43,7 @@ import {
   pgReadAllowsFallback,
   authPgRead,
 } from '@/lib/identity/auth-flags';
-import { pgMfaStore } from '@/lib/identity/pg-stores';
+import { pgMfaStore, pgUserStore } from '@/lib/identity/pg-stores';
 import type { PgMfaMethodRow } from '@/lib/postgres-schema';
 // Inline parameterized PG access for the email-2FA *challenge* (transient login
 // code) — mirrored into the same mfa_methods table as a distinct per-user row.
@@ -78,6 +78,34 @@ async function requireUserOid(): Promise<{ oid: ObjectId; email: string; passwor
   const id = session?.user?._id;
   if (!id || !ObjectId.isValid(String(id))) return null;
   const oid = new ObjectId(String(id));
+  const idStr = oid.toString();
+  const sessionEmail = String(session?.user?.email ?? '');
+
+  // Resolve the user (oid/email/password_hash) from Postgres when the read path
+  // is opted in. A miss/error falls back to Mongo unless strictly `pg`.
+  if (shouldReadPg()) {
+    try {
+      let pgUser = await pgUserStore.getFullByMongoId(idStr);
+      if (!pgUser && sessionEmail) {
+        pgUser = await pgUserStore.findByEmail(sessionEmail);
+      }
+      if (pgUser) {
+        return {
+          oid,
+          email: String(pgUser.email ?? sessionEmail ?? ''),
+          passwordHash: (pgUser.password_hash as string | null) ?? undefined,
+        };
+      }
+      // Miss: strict pg is authoritative (no user → unauthorized); pg-fallback
+      // drops through to the Mongo read below.
+      if (authPgRead() === 'pg') return null;
+    } catch (pgErr) {
+      console.error('[2fa] Postgres user read failed:', pgErr);
+      // On error: fall back to Mongo unless strictly pg.
+      if (authPgRead() === 'pg') throw pgErr;
+    }
+  }
+
   const { db } = await connectToDatabase();
   const u = await db
     .collection('users')
@@ -319,6 +347,41 @@ async function pgClearEmailChallenge(userId: string): Promise<void> {
 export async function getMy2faStatus(): Promise<ActionResult<TwoFactorStatus>> {
   const ctx = await requireUserOid();
   if (!ctx) return { ok: false, error: 'Unauthorized.' };
+
+  // Resolve enabled/method/backup-codes from Postgres when the read path is
+  // opted in. pgRow === undefined → Mongo fallback; null → strict-pg "no method".
+  const pgRow = await pgReadActiveMfa(ctx.oid.toString());
+  if (pgRow !== undefined) {
+    if (pgRow === null) {
+      // strict-pg authoritative: no active method → 2FA disabled.
+      return {
+        ok: true,
+        data: {
+          enabled: false,
+          method: null,
+          hasBackupCodes: false,
+          backupCodesRemaining: 0,
+          email: String(ctx.email ?? ''),
+        },
+      };
+    }
+    const data = ((pgRow.data as any) ?? {}) as Record<string, unknown>;
+    const enabled = Boolean(data.enabled);
+    const backupCodes = (((data.backupCodes as string[] | undefined) ?? []) as string[]);
+    return {
+      ok: true,
+      data: {
+        enabled,
+        method: enabled
+          ? (((data.method ?? pgRow.kind ?? null) as TwoFactorMethod | null))
+          : null,
+        hasBackupCodes: backupCodes.length > 0,
+        backupCodesRemaining: backupCodes.length,
+        email: String((data.email as string | undefined) ?? ctx.email ?? ''),
+      },
+    };
+  }
+
   const { db } = await connectToDatabase();
   const u = await db.collection('users').findOne(
     { _id: ctx.oid },
@@ -352,17 +415,20 @@ export async function enableEmail2fa(): Promise<ActionResult> {
   if (!ctx.email) return { ok: false, error: 'No email on file.' };
   const code = genEmailCode();
   const { db } = await connectToDatabase();
-  await db.collection('users').updateOne(
-    { _id: ctx.oid },
-    {
-      $set: {
-        twoFactorEmailCode: hashEmailCode(code),
-        twoFactorEmailCodeExpiresAt: new Date(Date.now() + EMAIL_CODE_TTL_MS),
-        twoFactorPendingMethod: 'email' as TwoFactorMethod,
-        updatedAt: new Date(),
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid },
+      {
+        $set: {
+          twoFactorEmailCode: hashEmailCode(code),
+          twoFactorEmailCodeExpiresAt: new Date(Date.now() + EMAIL_CODE_TTL_MS),
+          twoFactorPendingMethod: 'email' as TwoFactorMethod,
+          updatedAt: new Date(),
+        },
       },
-    },
-  );
+    );
+  }
   await deliverEmailCode(ctx.oid.toString(), ctx.email, code);
   return { ok: true };
 }
@@ -387,22 +453,25 @@ export async function verifyEmail2faCode(code: string): Promise<ActionResult> {
   if (exp.getTime() < Date.now()) return { ok: false, error: 'Code expired.' };
   if (stored !== hashEmailCode(code)) return { ok: false, error: 'Incorrect code.' };
 
-  await db.collection('users').updateOne(
-    { _id: ctx.oid },
-    {
-      $set: {
-        twoFactorEnabled: true,
-        twoFactorMethod: 'email' as TwoFactorMethod,
-        updatedAt: new Date(),
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid },
+      {
+        $set: {
+          twoFactorEnabled: true,
+          twoFactorMethod: 'email' as TwoFactorMethod,
+          updatedAt: new Date(),
+        },
+        $unset: {
+          twoFactorEmailCode: '',
+          twoFactorEmailCodeExpiresAt: '',
+          twoFactorPendingMethod: '',
+          twoFactorSecret: '',
+        },
       },
-      $unset: {
-        twoFactorEmailCode: '',
-        twoFactorEmailCodeExpiresAt: '',
-        twoFactorPendingMethod: '',
-        twoFactorSecret: '',
-      },
-    },
-  );
+    );
+  }
   // Mirror the enabled email method into Postgres (best-effort, gated).
   await pgWriteActiveMfa({
     userId: ctx.oid.toString(),
@@ -419,17 +488,20 @@ export async function disableEmail2fa(): Promise<ActionResult> {
   const ctx = await requireUserOid();
   if (!ctx) return { ok: false, error: 'Unauthorized.' };
   const { db } = await connectToDatabase();
-  await db.collection('users').updateOne(
-    { _id: ctx.oid, twoFactorMethod: 'email' },
-    {
-      $set: { twoFactorEnabled: false, updatedAt: new Date() },
-      $unset: {
-        twoFactorMethod: '',
-        twoFactorEmailCode: '',
-        twoFactorEmailCodeExpiresAt: '',
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid, twoFactorMethod: 'email' },
+      {
+        $set: { twoFactorEnabled: false, updatedAt: new Date() },
+        $unset: {
+          twoFactorMethod: '',
+          twoFactorEmailCode: '',
+          twoFactorEmailCodeExpiresAt: '',
+        },
       },
-    },
-  );
+    );
+  }
   // Mirror the disable into Postgres (best-effort, gated).
   await pgRemoveActiveMfa(ctx.oid.toString());
   revalidatePath(PROFILE_PATH);
@@ -456,18 +528,21 @@ export async function generateAuthenticator2faSecret(): Promise<
     backupCodes.map((c) => bcrypt.hash(c, BACKUP_CODE_ROUNDS)),
   );
   const { db } = await connectToDatabase();
-  await db.collection('users').updateOne(
-    { _id: ctx.oid },
-    {
-      $set: {
-        // Stored encrypted while pending; promoted on successful verify.
-        twoFactorPendingSecret: encryptData(secret),
-        twoFactorPendingBackupCodes: hashedBackup,
-        twoFactorPendingMethod: 'totp' as TwoFactorMethod,
-        updatedAt: new Date(),
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid },
+      {
+        $set: {
+          // Stored encrypted while pending; promoted on successful verify.
+          twoFactorPendingSecret: encryptData(secret),
+          twoFactorPendingBackupCodes: hashedBackup,
+          twoFactorPendingMethod: 'totp' as TwoFactorMethod,
+          updatedAt: new Date(),
+        },
       },
-    },
-  );
+    );
+  }
   return { ok: true, data: { secret, qrUrl, backupCodes } };
 }
 
@@ -499,23 +574,26 @@ export async function verifyAuthenticator2faSetup(
     return { ok: false, error: 'Incorrect code. Try again.' };
   }
   const backup = ((u as any)?.twoFactorPendingBackupCodes ?? []) as string[];
-  await db.collection('users').updateOne(
-    { _id: ctx.oid },
-    {
-      $set: {
-        twoFactorEnabled: true,
-        twoFactorMethod: 'totp' as TwoFactorMethod,
-        twoFactorSecret: pending, // already encrypted
-        twoFactorBackupCodes: backup,
-        updatedAt: new Date(),
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid },
+      {
+        $set: {
+          twoFactorEnabled: true,
+          twoFactorMethod: 'totp' as TwoFactorMethod,
+          twoFactorSecret: pending, // already encrypted
+          twoFactorBackupCodes: backup,
+          updatedAt: new Date(),
+        },
+        $unset: {
+          twoFactorPendingSecret: '',
+          twoFactorPendingBackupCodes: '',
+          twoFactorPendingMethod: '',
+        },
       },
-      $unset: {
-        twoFactorPendingSecret: '',
-        twoFactorPendingBackupCodes: '',
-        twoFactorPendingMethod: '',
-      },
-    },
-  );
+    );
+  }
   // Mirror the enabled TOTP method (encrypted secret + bcrypt backup hashes)
   // into Postgres (best-effort, gated). `pending` is already encrypted.
   await pgWriteActiveMfa({
@@ -541,12 +619,15 @@ export async function regenerateBackupCodes(): Promise<ActionResult<{ codes: str
   }
   const codes = generateBackupCodes(8);
   const hashed = await Promise.all(codes.map((c) => bcrypt.hash(c, BACKUP_CODE_ROUNDS)));
-  await db
-    .collection('users')
-    .updateOne(
-      { _id: ctx.oid },
-      { $set: { twoFactorBackupCodes: hashed, updatedAt: new Date() } },
-    );
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db
+      .collection('users')
+      .updateOne(
+        { _id: ctx.oid },
+        { $set: { twoFactorBackupCodes: hashed, updatedAt: new Date() } },
+      );
+  }
   // Mirror the new backup-code hashes into Postgres (best-effort, gated).
   await pgUpdateActiveMfaBackupCodes(ctx.oid.toString(), hashed);
   return { ok: true, data: { codes } };
@@ -568,22 +649,25 @@ export async function disable2fa(password: string): Promise<ActionResult> {
   const ok = await comparePassword(password, ctx.passwordHash);
   if (!ok) return { ok: false, error: 'Incorrect password.' };
   const { db } = await connectToDatabase();
-  await db.collection('users').updateOne(
-    { _id: ctx.oid },
-    {
-      $set: { twoFactorEnabled: false, updatedAt: new Date() },
-      $unset: {
-        twoFactorMethod: '',
-        twoFactorSecret: '',
-        twoFactorBackupCodes: '',
-        twoFactorEmailCode: '',
-        twoFactorEmailCodeExpiresAt: '',
-        twoFactorPendingSecret: '',
-        twoFactorPendingBackupCodes: '',
-        twoFactorPendingMethod: '',
+  // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+  if (shouldWriteMongo()) {
+    await db.collection('users').updateOne(
+      { _id: ctx.oid },
+      {
+        $set: { twoFactorEnabled: false, updatedAt: new Date() },
+        $unset: {
+          twoFactorMethod: '',
+          twoFactorSecret: '',
+          twoFactorBackupCodes: '',
+          twoFactorEmailCode: '',
+          twoFactorEmailCodeExpiresAt: '',
+          twoFactorPendingSecret: '',
+          twoFactorPendingBackupCodes: '',
+          twoFactorPendingMethod: '',
+        },
       },
-    },
-  );
+    );
+  }
   // Mirror the disable into Postgres (best-effort, gated).
   await pgRemoveActiveMfa(ctx.oid.toString());
   revalidatePath(PROFILE_PATH);
@@ -680,21 +764,27 @@ export async function verifyTwoFactorChallenge(
   if (!ObjectId.isValid(userId)) return { ok: false, error: 'Invalid user.' };
   if (!code || code.length < 6) return { ok: false, error: 'Code required.' };
   const { db } = await connectToDatabase();
-  // Always read the user doc from Mongo: the email-challenge transient fields
-  // (twoFactorChallengeCode/ExpiresAt) live only in Mongo regardless of mode.
-  const u = await db.collection('users').findOne(
-    { _id: new ObjectId(userId) },
-    {
-      projection: {
-        twoFactorEnabled: 1,
-        twoFactorMethod: 1,
-        twoFactorSecret: 1,
-        twoFactorBackupCodes: 1,
-        twoFactorChallengeCode: 1,
-        twoFactorChallengeExpiresAt: 1,
-      } as any,
-    },
-  );
+  // Read the user doc from Mongo for the fallback security material + the
+  // email-challenge transient fields (twoFactorChallengeCode/ExpiresAt). Guarded
+  // so it does NOT run under strict `pg`: there the PG row + PG challenge mirror
+  // are authoritative (the Mongo fallback branches below are unreachable, so `u`
+  // is never consulted). In mongo / pg-fallback modes we still need it.
+  const u =
+    authPgRead() === 'pg'
+      ? null
+      : await db.collection('users').findOne(
+          { _id: new ObjectId(userId) },
+          {
+            projection: {
+              twoFactorEnabled: 1,
+              twoFactorMethod: 1,
+              twoFactorSecret: 1,
+              twoFactorBackupCodes: 1,
+              twoFactorChallengeCode: 1,
+              twoFactorChallengeExpiresAt: 1,
+            } as any,
+          },
+        );
 
   // Resolve the security material (enabled/method/secret/backup-codes) from
   // Postgres when the read path is opted in; otherwise from the Mongo doc.
@@ -815,13 +905,56 @@ interface LoginAttempt {
 export async function getRecentLoginAttempts(): Promise<ActionResult<LoginAttempt[]>> {
   const ctx = await requireUserOid();
   if (!ctx) return { ok: false, error: 'Unauthorized.' };
+
+  // Read login_attempts from Postgres when the read path is opted in. The PG
+  // table keys `user_id` on the Mongo _id string and stores `outcome`
+  // (success|failure|locked) with no user_agent column — mapped back to the
+  // legacy LoginAttempt shape (status/userAgent) below. A miss returns an empty
+  // list under strict pg; an error falls back to Mongo unless strictly pg.
+  if (shouldReadPg()) {
+    try {
+      const res = await pgQuery<{
+        id: string;
+        ip: string | null;
+        outcome: string;
+        created_at: Date | string;
+      }>(
+        `SELECT id, ip, outcome, created_at
+           FROM ${IDENTITY_SCHEMA}.login_attempts
+          WHERE user_id = $1
+          ORDER BY created_at DESC
+          LIMIT 10`,
+        [ctx.oid.toString()],
+      );
+      const mapStatus = (outcome: string): LoginAttempt['status'] => {
+        if (outcome === 'success') return 'success';
+        if (outcome === 'pending_2fa') return 'pending_2fa';
+        return 'failed'; // failure | locked | anything else
+      };
+      return {
+        ok: true,
+        data: res.rows.map((a) => ({
+          _id: String(a.id),
+          ip: a.ip || 'Unknown',
+          userAgent: 'Unknown',
+          status: mapStatus(a.outcome),
+          createdAt: a.created_at instanceof Date ? a.created_at : new Date(a.created_at),
+        })),
+      };
+    } catch (pgErr) {
+      console.error('[2fa] Postgres login_attempts read failed:', pgErr);
+      // On error: fall back to Mongo unless strictly pg.
+      if (authPgRead() === 'pg') throw pgErr;
+    }
+  }
+
   const { db } = await connectToDatabase();
   const attempts = await db.collection('login_attempts')
     .find({ userId: ctx.oid })
     .sort({ createdAt: -1 })
     .limit(10)
     .toArray();
-  
+
   return {
     ok: true,
     data: attempts.map(a => ({
