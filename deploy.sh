@@ -22,6 +22,13 @@ SERVICE_PORTS="${SERVICE_PORTS:-3002 4001 4002 ${SABNODE_PORT:-8080}}"
 # start). Default does a zero-downtime `pm2 startOrReload` but still frees
 # any orphaned ports first.
 FORCE_RESTART="${FORCE_RESTART:-0}"
+# Run the idempotent Postgres identity-schema migration (auth → PG). Auto-skips
+# when SABNODE_PG_URL isn't set in .env. Non-fatal: auth defaults to Mongo.
+RUN_DB_MIGRATIONS="${RUN_DB_MIGRATIONS:-1}"
+# Run the one-time Mongo→Postgres auth backfill + reconcile (idempotent). Default
+# off — once AUTH_PG_WRITE=dual, logins keep PG current. Set 1 for the initial
+# migration window.
+RUN_AUTH_BACKFILL="${RUN_AUTH_BACKFILL:-0}"
 
 # Kill whatever is still listening on the service ports (orphans left behind
 # by a crashed process are the usual cause of EADDRINUSE on restart).
@@ -96,6 +103,28 @@ fi
 # 3d. Next.js application (Turbopack). Raise the heap cap to avoid OOM kills.
 echo "🛠️  Building the Next.js application (heap: ${NODE_BUILD_MEMORY}MB)..."
 NODE_OPTIONS="--max-old-space-size=${NODE_BUILD_MEMORY}" npm run build
+
+# ---------------------------------------------------------------------------
+# 3e. Database migrations — Postgres identity schema (Mongo→Postgres auth).
+#     Idempotent (CREATE/ALTER IF NOT EXISTS). Runs BEFORE restart so the new
+#     code + schema are aligned. Non-fatal + auto-skipped without SABNODE_PG_URL,
+#     so a server without Postgres (or a transient PG outage) never blocks the
+#     deploy — auth stays on Mongo while AUTH_PG_* are unset.
+#     See docs/twenty-clone/AUTH-CUTOVER-RUNBOOK.md for the flag ladder.
+# ---------------------------------------------------------------------------
+if [ "$RUN_DB_MIGRATIONS" = "1" ] && grep -qE '^SABNODE_PG_URL=.+' .env 2>/dev/null; then
+  echo "🗄️  Applying Postgres identity schema (sabnode_identity)..."
+  npm run db:identity:migrate || echo "⚠️  identity-schema migration failed (auth still runs on Mongo)."
+
+  if [ "$RUN_AUTH_BACKFILL" = "1" ]; then
+    echo "🗄️  Backfilling Mongo → Postgres users/plans/2FA..."
+    node --env-file=.env scripts/db/backfill-users.mjs || echo "⚠️  auth backfill failed."
+    echo "🔎 Reconciling Postgres ↔ Mongo users..."
+    node --env-file=.env scripts/db/reconcile-users.mjs || echo "⚠️  reconcile reported drift — review before flipping AUTH_PG_READ."
+  fi
+else
+  echo "⏭️  Skipping DB migrations (RUN_DB_MIGRATIONS=$RUN_DB_MIGRATIONS / SABNODE_PG_URL unset)."
+fi
 
 # ---------------------------------------------------------------------------
 # 4. Restart everything via the PM2 ecosystem file (single source of truth).
