@@ -437,6 +437,242 @@
   color: var(--st-text-tertiary);
 }
 
+/* ---- State pill (2FA enabled / disabled) ------------------------------ */
+
+.sabcrm-twenty .st-sec-state {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
+.sabcrm-twenty .st-sec-state--on {
+  background: var(--st-accent-soft);
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+}
+
+/* ---- Enrolment / disable sub-form ------------------------------------- */
+
+.sabcrm-twenty .st-sec-enroll {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-sec-qr {
+  width: 168px;
+  height: 168px;
+  align-self: flex-start;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: #fff;
+  padding: var(--st-space-2);
+}
+
+.sabcrm-twenty .st-sec-secret {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-xs);
+  padding: 1px 6px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-sec-code-input {
+  max-width: 180px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+/* ---- Method buttons in the chooser ------------------------------------ */
+
+.sabcrm-twenty .st-sec-radio--button {
+  width: 100%;
+  text-align: left;
+  background: var(--st-bg);
+  font: inherit;
+  color: inherit;
+}
+
+.sabcrm-twenty .st-sec-radio--button:hover:not(:disabled) {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-sec-radio--button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Backup codes ----------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-backup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-sec-backup__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  line-height: 1.45;
+}
+
+.sabcrm-twenty .st-sec-backup__head svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-sec-backup__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sabcrm-twenty .st-sec-backup__code {
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-backup__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+
+/* ---- Password form ---------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-sec-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  max-width: 360px;
+}
+
+.sabcrm-twenty .st-form-success {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-success, #16a34a);
+}
+
+/* ---- Recent sign-in activity ------------------------------------------ */
+
+.sabcrm-twenty .st-sec-activity {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-sec-activity__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-sec-activity__row:last-child {
+  border-bottom: 0;
+}
+
+.sabcrm-twenty .st-sec-activity__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--success {
+  background: var(--st-success, #16a34a);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--failed {
+  background: var(--st-danger, #dc2626);
+}
+
+.sabcrm-twenty .st-sec-activity__dot--pending_2fa {
+  background: var(--st-accent);
+}
+
+.sabcrm-twenty .st-sec-activity__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-sec-activity__status {
+  display: block;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-sec-activity__meta {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  word-break: break-all;
+}
+
+.sabcrm-twenty .st-sec-activity__time {
+  flex: 0 0 auto;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Inline spinner --------------------------------------------------- */
+
+.sabcrm-twenty .st-sec-spin {
+  animation: st-sec-spin 0.8s linear infinite;
+}
+
+@keyframes st-sec-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ---- Narrow viewports -------------------------------------------------- */
 /* Stack the add-entry input + button and keep control rows from overflowing
    on a ~380px column. */

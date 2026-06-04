@@ -53,10 +53,13 @@ import {
   Building2,
   Users,
   Briefcase,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
 import { TwentyAvatar } from './twenty-primitives';
+import { SabFilePickerButton } from '@/components/sabfiles';
+import type { SabFilePick } from '@/components/sabfiles';
 import {
   listSabcrmActivitiesTw,
   createSabcrmActivityTw,
@@ -176,6 +179,31 @@ function isTaskDone(a: SabcrmRustActivity): boolean {
 function activityAttachments(a: SabcrmRustActivity): SabcrmAttachment[] {
   const raw = (a as { attachments?: unknown }).attachments;
   return Array.isArray(raw) ? (raw as SabcrmAttachment[]) : [];
+}
+
+/** Map a SabFiles pick into the engine's attachment ref (never a raw URL). */
+function pickToAttachment(pick: SabFilePick): SabcrmAttachment {
+  return {
+    fileId: pick.id,
+    name: pick.name,
+    contentType: pick.mime,
+    size: pick.size,
+    url: pick.url,
+  };
+}
+
+/**
+ * Best-effort human label for an author id. The engine stores only the user
+ * id (no profile join yet), so we surface a short, stable handle; Twenty shows
+ * the full name + avatar, which we approximate from the same string so the
+ * avatar colour/initial stays consistent per author.
+ */
+function authorLabel(authorId?: string): string {
+  const id = (authorId ?? '').trim();
+  if (!id) return 'Unknown';
+  // A bare ObjectId/hex looks noisy in the UI — shorten it to a handle.
+  if (/^[a-f0-9]{16,}$/i.test(id)) return `User ${id.slice(-4)}`;
+  return id;
 }
 
 /** Best-effort display label for a related record from its raw `data` bag. */
@@ -462,6 +490,7 @@ function CommentThread({
                 <ul className="st-rdt-comments">
                   {comments.map((c) => {
                     const optimistic = c.id.startsWith('optimistic-');
+                    const author = authorLabel(c.authorId);
                     return (
                       <li
                         className={`st-rdt-comment${
@@ -469,18 +498,26 @@ function CommentThread({
                         }`}
                         key={c.id}
                       >
-                        <div className="st-rdt-comment__head">
-                          <span className="st-rdt-comment__author">
-                            {c.authorId || 'Unknown'}
-                          </span>
-                          <time
-                            className="st-rdt-comment__time"
-                            dateTime={c.createdAt}
-                          >
-                            {relTime(c.createdAt)}
-                          </time>
+                        <span
+                          className="st-rdt-comment__avatar"
+                          aria-hidden="true"
+                        >
+                          <TwentyAvatar name={author} size="xs" shape="round" />
+                        </span>
+                        <div className="st-rdt-comment__main">
+                          <div className="st-rdt-comment__head">
+                            <span className="st-rdt-comment__author">
+                              {author}
+                            </span>
+                            <time
+                              className="st-rdt-comment__time"
+                              dateTime={c.createdAt}
+                            >
+                              {optimistic ? 'Sending…' : relTime(c.createdAt)}
+                            </time>
+                          </div>
+                          <p className="st-rdt-comment__body">{c.body}</p>
                         </div>
-                        <p className="st-rdt-comment__body">{c.body}</p>
                       </li>
                     );
                   })}
@@ -541,14 +578,19 @@ interface QuickComposerProps {
   kind: 'NOTE' | 'TASK';
   placeholder: string;
   busyLabel: string;
-  onAdd: (title: string, body: string) => Promise<boolean>;
+  onAdd: (
+    title: string,
+    body: string,
+    attachments: SabcrmAttachment[],
+  ) => Promise<boolean>;
 }
 
 /**
- * A minimal Twenty-style composer: a title input, an optional body textarea and
- * an Add button. Posts through the parent's `onAdd` (which wraps
- * `createSabcrmActivityTw`); clears on success, surfaces an inline error on
- * failure.
+ * A minimal Twenty-style composer: a title input, an optional body textarea, a
+ * SabFiles attach control (per project policy — pick from the library or upload
+ * fresh, never a raw URL) and an Add button. Posts through the parent's `onAdd`
+ * (which wraps `createSabcrmActivityTw`); clears on success, surfaces an inline
+ * error on failure.
  */
 function QuickComposer({
   kind,
@@ -558,6 +600,7 @@ function QuickComposer({
 }: QuickComposerProps): React.JSX.Element {
   const [title, setTitle] = React.useState('');
   const [body, setBody] = React.useState('');
+  const [attachments, setAttachments] = React.useState<SabcrmAttachment[]>([]);
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -566,16 +609,30 @@ function QuickComposer({
     if (saving || !title.trim()) return;
     setSaving(true);
     setError(null);
-    const ok = await onAdd(title.trim(), body.trim());
+    const ok = await onAdd(title.trim(), body.trim(), attachments);
     setSaving(false);
     if (ok) {
       setTitle('');
       setBody('');
+      setAttachments([]);
       setOpen(false);
     } else {
       setError(`Could not add ${kind.toLowerCase()}.`);
     }
-  }, [saving, title, body, onAdd, kind]);
+  }, [saving, title, body, attachments, onAdd, kind]);
+
+  const addPick = React.useCallback((pick: SabFilePick) => {
+    setOpen(true);
+    setAttachments((prev) =>
+      prev.some((a) => a.fileId === pick.id)
+        ? prev
+        : [...prev, pickToAttachment(pick)],
+    );
+  }, []);
+
+  const removeAttachment = React.useCallback((fileId: string) => {
+    setAttachments((prev) => prev.filter((a) => a.fileId !== fileId));
+  }, []);
 
   return (
     <form
@@ -610,6 +667,30 @@ function QuickComposer({
           disabled={saving}
         />
       ) : null}
+      {attachments.length > 0 ? (
+        <div className="st-rdt-files st-rdt-composer__files">
+          {attachments.map((att) => (
+            <span className="st-rdt-file" key={att.fileId} title={att.name}>
+              <FileText
+                className="st-rdt-file__icon"
+                size={12}
+                aria-hidden="true"
+              />
+              <span className="st-rdt-file__name">{att.name}</span>
+              <button
+                type="button"
+                className="st-rdt-file__remove"
+                onClick={() => removeAttachment(att.fileId)}
+                aria-label={`Remove ${att.name}`}
+                title="Remove"
+                disabled={saving}
+              >
+                <X size={11} aria-hidden="true" />
+              </button>
+            </span>
+          ))}
+        </div>
+      ) : null}
       <div className="st-rdt-composer__footer">
         {error ? (
           <span className="st-rdt-composer__error">{error}</span>
@@ -618,6 +699,14 @@ function QuickComposer({
             {open ? '⌘↵ to add' : ''}
           </span>
         )}
+        <SabFilePickerButton
+          variant="ghost"
+          className="st-rdt-composer__attach"
+          onPick={addPick}
+        >
+          <Paperclip size={13} aria-hidden="true" />
+          Attach
+        </SabFilePickerButton>
         <button
           type="submit"
           className="st-rdt-composer__add"
@@ -682,7 +771,11 @@ function TimelineTab({
   }, [load]);
 
   const addNote = React.useCallback(
-    async (title: string, body: string): Promise<boolean> => {
+    async (
+      title: string,
+      body: string,
+      attachments: SabcrmAttachment[],
+    ): Promise<boolean> => {
       const res = await createSabcrmActivityTw(
         {
           targetObject: object.slug,
@@ -690,6 +783,7 @@ function TimelineTab({
           type: 'NOTE',
           title,
           body: body || undefined,
+          attachments: attachments.length > 0 ? attachments : undefined,
         },
         projectId,
       );
@@ -746,7 +840,14 @@ function TimelineTab({
                     <p className="st-rdt-timeline__body">{a.body}</p>
                   ) : null}
                   {a.authorId ? (
-                    <span className="st-rdt-timeline__author">{a.authorId}</span>
+                    <span className="st-rdt-timeline__author">
+                      <TwentyAvatar
+                        name={authorLabel(a.authorId)}
+                        size="xs"
+                        shape="round"
+                      />
+                      {authorLabel(a.authorId)}
+                    </span>
                   ) : null}
                   {atts.length > 0 ? (
                     <div className="st-rdt-files">
@@ -807,7 +908,11 @@ function NotesTab({
   }, [load]);
 
   const addNote = React.useCallback(
-    async (title: string, body: string): Promise<boolean> => {
+    async (
+      title: string,
+      body: string,
+      attachments: SabcrmAttachment[],
+    ): Promise<boolean> => {
       const res = await createSabcrmActivityTw(
         {
           targetObject: object.slug,
@@ -815,6 +920,7 @@ function NotesTab({
           type: 'NOTE',
           title,
           body: body || undefined,
+          attachments: attachments.length > 0 ? attachments : undefined,
         },
         projectId,
       );
@@ -920,7 +1026,11 @@ function TasksTab({
   }, [load]);
 
   const addTask = React.useCallback(
-    async (title: string, body: string): Promise<boolean> => {
+    async (
+      title: string,
+      body: string,
+      attachments: SabcrmAttachment[],
+    ): Promise<boolean> => {
       const res = await createSabcrmActivityTw(
         {
           targetObject: object.slug,
@@ -929,6 +1039,7 @@ function TasksTab({
           title,
           body: body || undefined,
           status: 'TODO',
+          attachments: attachments.length > 0 ? attachments : undefined,
         },
         projectId,
       );
@@ -1112,33 +1223,99 @@ function FilesTab({
   recordId,
   projectId,
 }: TimelineTabProps): React.JSX.Element {
-  const { data, loading, error, reload } = useLazyData<SabcrmRustActivity[]>(
-    true,
-    React.useCallback(
-      () => listSabcrmActivitiesTw(object.slug, recordId, {}, projectId),
-      [object.slug, recordId, projectId],
-    ),
+  const [items, setItems] = React.useState<SabcrmRustActivity[] | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [uploadError, setUploadError] = React.useState<string | null>(null);
+
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const res = await listSabcrmActivitiesTw(
+      object.slug,
+      recordId,
+      {},
+      projectId,
+    );
+    if (res.ok) {
+      setItems(res.data);
+    } else {
+      setError(res.error);
+    }
+    setLoading(false);
+  }, [object.slug, recordId, projectId]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!cancelled) await load();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [load]);
+
+  // Uploading a file = create a NOTE activity that carries the SabFiles ref
+  // (the engine's only file write path). The picker sources from the user's
+  // library or a fresh upload — never a raw URL, per project policy.
+  const attachFile = React.useCallback(
+    async (pick: SabFilePick) => {
+      setUploadError(null);
+      const res = await createSabcrmActivityTw(
+        {
+          targetObject: object.slug,
+          targetRecordId: recordId,
+          type: 'NOTE',
+          title: pick.name,
+          attachments: [pickToAttachment(pick)],
+        },
+        projectId,
+      );
+      if (res.ok) {
+        setItems((prev) => [res.data, ...(prev ?? [])]);
+      } else {
+        setUploadError('Could not attach file.');
+      }
+    },
+    [object.slug, recordId, projectId],
+  );
+
+  const header = (
+    <div className="st-rdt-files__bar">
+      <SabFilePickerButton
+        variant="outline"
+        className="st-rdt-files__upload"
+        onPick={(pick) => void attachFile(pick)}
+      >
+        <Paperclip size={13} aria-hidden="true" />
+        Attach files
+      </SabFilePickerButton>
+      {uploadError ? (
+        <span className="st-rdt-composer__error">{uploadError}</span>
+      ) : null}
+    </div>
   );
 
   if (loading) return <LoadingState label="Loading files…" />;
   if (error)
     return (
       <div className="st-rdt-panel">
-        <ErrorState message={error} onRetry={reload} />
+        <ErrorState message={error} onRetry={() => void load()} />
       </div>
     );
 
-  const groups = (data ?? [])
+  const groups = (items ?? [])
     .map((a) => ({ activity: a, attachments: activityAttachments(a) }))
     .filter((g) => g.attachments.length > 0);
 
   if (groups.length === 0) {
     return (
-      <div className="st-rdt-panel">
+      <div className="st-rdt-panel st-rdt-filespanel">
+        {header}
         <EmptyState
           icon={Paperclip}
           title="No files yet"
-          hint="Files attached to this record's notes and activities show up here."
+          hint="Attach a file, or files added to this record's notes and activities show up here."
         />
       </div>
     );
@@ -1146,6 +1323,7 @@ function FilesTab({
 
   return (
     <div className="st-rdt-panel st-rdt-filespanel">
+      {header}
       {groups.map(({ activity, attachments }) => (
         <div className="st-rdt-filegroup" key={activity.id}>
           <div className="st-rdt-filegroup__head">

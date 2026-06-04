@@ -5,7 +5,7 @@ import { LuArrowRight, LuMailX } from 'react-icons/lu';
 
 import { Badge, Button, Card } from '@/components/zoruui';
 import { SabNodeLogo } from '@/components/zoruui-domain/logo';
-import { getInvitationByToken, rememberPendingInviteToken } from '@/app/actions/team.actions';
+import { getInvitationByToken } from '@/app/actions/team.actions';
 import { getSession } from '@/app/actions/user.actions';
 
 import { InviteClient } from './invite-client';
@@ -21,10 +21,12 @@ export default async function InvitePage({
     const invitation = await getInvitationByToken(token);
     const session = await getSession();
 
-    // Stash the token so that downstream /onboarding or /login can auto-accept.
-    if (invitation && invitation.status === 'pending' && !invitation.isExpired) {
-        await rememberPendingInviteToken(token);
-    }
+    // NOTE: We must NOT stash the pending-invite cookie here. Writing cookies
+    // during a Server Component render throws ("Cookies can only be modified in
+    // a Server Action or Route Handler"), which crashed this page for every
+    // valid pending invite. The token is stashed client-side instead — see
+    // InviteClient.onCarryToken (rememberPendingInviteToken) — and is also
+    // carried forward as a `?invite=` query param to /login and /onboarding.
 
     if (!invitation) {
         return (

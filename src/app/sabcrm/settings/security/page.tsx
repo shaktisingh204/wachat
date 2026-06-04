@@ -3,31 +3,37 @@
 /**
  * SabCRM — Security & Access settings (`/sabcrm/settings/security`), Twenty-style.
  *
- * A self-contained, front-end-only security console modelled on Twenty's
- * Settings → Security page. There is no backend for any of this yet, so every
- * preference persists to `localStorage` via the inline `useSecurityPrefs` hook
- * and each section is honest about the fact that *enforcement* still needs a
- * server. Nothing here changes how the app actually authenticates — it captures
- * intent so the real backend can later read it.
+ * Modelled on Twenty's Settings → Security page and wired to the real account /
+ * two-factor server actions that already exist in this codebase. Sections that
+ * have a backend are live; the two that don't (IP allowlist, approved email
+ * domains) stay honest local-only preferences with a clear note.
  *
- * Sections (each a Twenty `.st-sec-card`):
+ * Wired sections:
  *
- *   1. Two-factor authentication — an enable toggle plus a method radio group
- *      (authenticator app / email code). UI only; turning it on does not yet
- *      challenge anyone.
- *   2. Sessions — a "this device" row (live, derived from the browser) and a
- *      "Sign out other sessions" button stub. There is no session registry yet,
- *      so the button only acknowledges the request.
- *   3. Password policy — minimum-length stepper and a "require symbols" toggle.
- *      Captured locally; rules aren't enforced at sign-up until wired server-side.
- *   4. IP allowlist — add / remove a list of IPs or CIDR ranges with light
- *      client-side validation. Advisory only until network enforcement exists.
- *   5. Approved email domains — add / remove a list of domains that invitations
- *      and sign-ups should be restricted to. Advisory only for now.
+ *   1. Two-factor authentication — live via `@/app/actions/two-fa.actions`:
+ *      reads `getMy2faStatus`, enrols a TOTP authenticator
+ *      (`generateAuthenticator2faSecret` → `verifyAuthenticator2faSetup`) or an
+ *      email method (`enableEmail2fa` → `verifyEmail2faCode`), disables
+ *      (`disable2fa(password)` for TOTP, `disableEmail2fa()` for email) and
+ *      regenerates backup codes (`regenerateBackupCodes`). Real challenges,
+ *      real backup codes, real persistence.
+ *   2. Sessions — live via `@/app/actions/account.actions`: lists active
+ *      sessions (`getActiveSessions`) and revokes everywhere
+ *      (`signOutEverywhere`). The backend currently tracks only the current
+ *      device, so the note is honest about per-device revocation.
+ *   3. Recent sign-in activity — live via `getRecentLoginAttempts`.
+ *   4. Password — live via `handleChangePassword` (`useActionState`). The server
+ *      action currently validates but does not yet persist the new hash; the
+ *      note says so.
  *
- * Graceful states: the page waits for client hydration before rendering stored
- * values (avoids an SSR flash), shows inline empty states for the two lists, and
- * never throws on storage failure (the hook falls back to defaults in-memory).
+ * Honest local-only sections (no backend action exists):
+ *
+ *   5. IP allowlist — add / remove IPs or CIDR ranges (advisory).
+ *   6. Approved email domains — add / remove domains (advisory).
+ *
+ * Graceful states: every action returns a typed result and is wrapped so a
+ * missing/down backend degrades to an inline message rather than a throw. The
+ * local lists persist to `localStorage` and never throw on storage failure.
  *
  * Rendered inside the settings layout's `TwentyAppFrame` (`.sabcrm-twenty`
  * scope); all visuals come from the `.st-*` Twenty design system plus this
@@ -49,44 +55,52 @@ import {
   LogOut,
   Minus,
   Check,
+  Copy,
+  RefreshCw,
+  AlertTriangle,
+  History,
+  Loader2,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+
+import {
+  getMy2faStatus,
+  enableEmail2fa,
+  verifyEmail2faCode,
+  disableEmail2fa,
+  generateAuthenticator2faSecret,
+  verifyAuthenticator2faSetup,
+  regenerateBackupCodes,
+  disable2fa,
+  getRecentLoginAttempts,
+} from '@/app/actions/two-fa.actions';
+import {
+  getActiveSessions,
+  signOutEverywhere,
+} from '@/app/actions/account.actions';
+import { handleChangePassword } from '@/app/actions/user.actions';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import './security.css';
 
 // ---------------------------------------------------------------------------
-// Local preferences store
+// Local preferences store (advisory IP allowlist + approved domains only)
 //
-// A tiny localStorage-backed shape for the security console. Mirrors the
-// `useCrmPrefs` pattern used elsewhere in settings, but kept inline here so the
-// page is fully self-contained. Everything fails closed: SSR / private-mode /
-// quota errors fall back to defaults and never throw.
+// 2FA / sessions / password are server-backed now, so the local store only
+// holds the two advisory lists that have no backend action. Everything fails
+// closed: SSR / private-mode / quota errors fall back to defaults.
 // ---------------------------------------------------------------------------
 
-type TwoFactorMethod = 'totp' | 'email';
-
 interface SecurityPrefs {
-  twoFactorEnabled: boolean;
-  twoFactorMethod: TwoFactorMethod;
-  passwordMinLength: number;
-  passwordRequireSymbols: boolean;
   ipAllowlist: string[];
   emailDomains: string[];
 }
 
 const STORAGE_KEY = 'sabcrm.security.v1';
 
-const MIN_PASSWORD_LENGTH = 6;
-const MAX_PASSWORD_LENGTH = 64;
-
 const DEFAULT_PREFS: SecurityPrefs = {
-  twoFactorEnabled: false,
-  twoFactorMethod: 'totp',
-  passwordMinLength: 12,
-  passwordRequireSymbols: false,
   ipAllowlist: [],
   emailDomains: [],
 };
@@ -95,25 +109,9 @@ const DEFAULT_PREFS: SecurityPrefs = {
 function coercePrefs(raw: unknown): SecurityPrefs {
   if (!raw || typeof raw !== 'object') return DEFAULT_PREFS;
   const src = raw as Record<string, unknown>;
-
-  const method: TwoFactorMethod = src.twoFactorMethod === 'email' ? 'email' : 'totp';
-
-  let minLen = DEFAULT_PREFS.passwordMinLength;
-  if (typeof src.passwordMinLength === 'number' && Number.isFinite(src.passwordMinLength)) {
-    minLen = Math.min(
-      MAX_PASSWORD_LENGTH,
-      Math.max(MIN_PASSWORD_LENGTH, Math.round(src.passwordMinLength)),
-    );
-  }
-
   const toStringList = (v: unknown): string[] =>
     Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
-
   return {
-    twoFactorEnabled: src.twoFactorEnabled === true,
-    twoFactorMethod: method,
-    passwordMinLength: minLen,
-    passwordRequireSymbols: src.passwordRequireSymbols === true,
     ipAllowlist: toStringList(src.ipAllowlist),
     emailDomains: toStringList(src.emailDomains),
   };
@@ -149,7 +147,6 @@ function useSecurityPrefs(): UseSecurityPrefsResult {
   const [prefs, setPrefsState] = React.useState<SecurityPrefs>(DEFAULT_PREFS);
   const [hydrated, setHydrated] = React.useState(false);
 
-  // Hydrate after mount so SSR and the first client render agree.
   React.useEffect(() => {
     setPrefsState(readStored());
     setHydrated(true);
@@ -179,12 +176,10 @@ function isValidIpEntry(value: string): boolean {
   const v = value.trim();
   if (!v) return false;
 
-  // IPv6 (very loose): anything with a colon and only hex / colon / slash chars.
   if (v.includes(':')) {
     return /^[0-9a-fA-F:]+(\/\d{1,3})?$/.test(v);
   }
 
-  // IPv4 with optional /CIDR.
   const m = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?:\/(\d{1,2}))?$/.exec(v);
   if (!m) return false;
   for (let i = 1; i <= 4; i += 1) {
@@ -242,33 +237,6 @@ function SecCard({
   );
 }
 
-/** Accessible on/off switch built on a checkbox (Twenty look). */
-function Toggle({
-  checked,
-  onChange,
-  label,
-  disabled = false,
-}: {
-  checked: boolean;
-  onChange: (next: boolean) => void;
-  label: string;
-  disabled?: boolean;
-}): React.JSX.Element {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      disabled={disabled}
-      className={`st-switch${checked ? ' st-switch--on' : ''}`}
-      onClick={() => onChange(!checked)}
-    >
-      <span className="st-switch__thumb" aria-hidden="true" />
-    </button>
-  );
-}
-
 /** A labelled row: text block on the left, control on the right. */
 function ControlRow({
   title,
@@ -298,6 +266,11 @@ function BackendNote({ children }: { children: React.ReactNode }): React.JSX.Ele
       <span>{children}</span>
     </div>
   );
+}
+
+/** A spinning loader icon sized for inline use in buttons. */
+function Spinner(): React.JSX.Element {
+  return <Loader2 size={14} className="st-sec-spin" aria-hidden="true" />;
 }
 
 // ---------------------------------------------------------------------------
@@ -462,224 +435,904 @@ function describeThisDevice(): string {
 }
 
 // ---------------------------------------------------------------------------
+// Shared types mirrored from the server actions (kept local; not re-exported).
+// ---------------------------------------------------------------------------
+
+type TwoFactorMethod = 'totp' | 'email';
+
+interface TwoFactorStatus {
+  enabled: boolean;
+  method: TwoFactorMethod | null;
+  hasBackupCodes: boolean;
+  backupCodesRemaining: number;
+  email: string | null;
+}
+
+interface LoginAttemptRow {
+  _id: string;
+  ip: string;
+  userAgent: string;
+  status: 'success' | 'failed' | 'pending_2fa';
+  createdAt: string | Date;
+}
+
+/**
+ * Mirrors the (non-exported) `ActiveSession` shape returned by
+ * `getActiveSessions` in `account.actions`. Declared locally so we don't depend
+ * on a type the server-action module doesn't re-export.
+ */
+interface ActiveSession {
+  id: string;
+  device: string;
+  ip?: string;
+  location?: string;
+  current: boolean;
+  lastSeenAt: string;
+}
+
+// ---------------------------------------------------------------------------
+// Backup-codes display block — reused after enrolment + regeneration.
+// ---------------------------------------------------------------------------
+
+function BackupCodes({
+  codes,
+  onDone,
+}: {
+  codes: string[];
+  onDone?: () => void;
+}): React.JSX.Element {
+  const [copied, setCopied] = React.useState(false);
+
+  const copy = React.useCallback(() => {
+    const text = codes.join('\n');
+    void navigator.clipboard
+      ?.writeText(text)
+      .then(() => {
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2500);
+      })
+      .catch(() => {
+        /* clipboard blocked — codes are still visible on screen */
+      });
+  }, [codes]);
+
+  return (
+    <div className="st-sec-backup">
+      <div className="st-sec-backup__head">
+        <AlertTriangle size={14} aria-hidden="true" />
+        <span>
+          Save these backup codes somewhere safe. Each can be used once if you
+          lose access to your second factor — they won&apos;t be shown again.
+        </span>
+      </div>
+      <ul className="st-sec-backup__grid">
+        {codes.map((c) => (
+          <li key={c} className="st-sec-backup__code">
+            {c}
+          </li>
+        ))}
+      </ul>
+      <div className="st-sec-backup__actions">
+        <TwentyButton
+          variant="secondary"
+          icon={copied ? Check : Copy}
+          onClick={copy}
+        >
+          {copied ? 'Copied' : 'Copy codes'}
+        </TwentyButton>
+        {onDone ? (
+          <TwentyButton variant="primary" icon={Check} onClick={onDone}>
+            I&apos;ve saved them
+          </TwentyButton>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Two-factor authentication card
+// ---------------------------------------------------------------------------
+
+type EnrollMode = 'idle' | 'choose' | 'totp' | 'email';
+
+function TwoFactorCard(): React.JSX.Element {
+  const [status, setStatus] = React.useState<TwoFactorStatus | null>(null);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  const [mode, setMode] = React.useState<EnrollMode>('idle');
+  const [busy, setBusy] = React.useState(false);
+  const [actionError, setActionError] = React.useState<string | null>(null);
+
+  // TOTP enrolment payload (secret / QR / pending backup codes).
+  const [totpSecret, setTotpSecret] = React.useState<string | null>(null);
+  const [totpQr, setTotpQr] = React.useState<string | null>(null);
+  const [pendingBackup, setPendingBackup] = React.useState<string[] | null>(null);
+
+  const [code, setCode] = React.useState('');
+
+  // Codes to display after a successful enrol / regenerate.
+  const [shownBackupCodes, setShownBackupCodes] = React.useState<string[] | null>(null);
+
+  // Disable flow needs the account password for TOTP.
+  const [disablePassword, setDisablePassword] = React.useState('');
+  const [disableOpen, setDisableOpen] = React.useState(false);
+
+  const refresh = React.useCallback(async () => {
+    try {
+      const res = await getMy2faStatus();
+      if (res.ok && res.data) {
+        setStatus(res.data as TwoFactorStatus);
+        setLoadError(null);
+      } else {
+        setLoadError(res.error || 'Could not load two-factor status.');
+      }
+    } catch {
+      setLoadError('Two-factor status is unavailable right now.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const resetEnroll = React.useCallback(() => {
+    setMode('idle');
+    setBusy(false);
+    setActionError(null);
+    setTotpSecret(null);
+    setTotpQr(null);
+    setPendingBackup(null);
+    setCode('');
+  }, []);
+
+  // --- Start TOTP enrolment ---
+  const startTotp = React.useCallback(async () => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res = await generateAuthenticator2faSecret();
+      if (res.ok && res.data) {
+        setTotpSecret(res.data.secret);
+        setTotpQr(res.data.qrUrl);
+        setPendingBackup(res.data.backupCodes);
+        setMode('totp');
+      } else {
+        setActionError(res.error || 'Could not start authenticator setup.');
+      }
+    } catch {
+      setActionError('Authenticator setup is unavailable right now.');
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  // --- Start email enrolment ---
+  const startEmail = React.useCallback(async () => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res = await enableEmail2fa();
+      if (res.ok) {
+        setMode('email');
+      } else {
+        setActionError(res.error || 'Could not send a verification email.');
+      }
+    } catch {
+      setActionError('Email verification is unavailable right now.');
+    } finally {
+      setBusy(false);
+    }
+  }, []);
+
+  // --- Verify the entered 6-digit code for the active enrolment mode ---
+  const verify = React.useCallback(async () => {
+    if (!/^\d{6}$/.test(code)) {
+      setActionError('Enter the 6-digit code.');
+      return;
+    }
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res =
+        mode === 'totp'
+          ? await verifyAuthenticator2faSetup(code)
+          : await verifyEmail2faCode(code);
+      if (res.ok) {
+        // TOTP enrolment shows the backup codes captured at start.
+        if (mode === 'totp' && pendingBackup) {
+          setShownBackupCodes(pendingBackup);
+        }
+        resetEnroll();
+        await refresh();
+      } else {
+        setActionError(res.error || 'Verification failed.');
+        setBusy(false);
+      }
+    } catch {
+      setActionError('Verification is unavailable right now.');
+      setBusy(false);
+    }
+  }, [code, mode, pendingBackup, resetEnroll, refresh]);
+
+  // --- Disable ---
+  const disable = React.useCallback(async () => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res =
+        status?.method === 'email'
+          ? await disableEmail2fa()
+          : await disable2fa(disablePassword);
+      if (res.ok) {
+        setDisableOpen(false);
+        setDisablePassword('');
+        setShownBackupCodes(null);
+        await refresh();
+      } else {
+        setActionError(res.error || 'Could not disable two-factor authentication.');
+      }
+    } catch {
+      setActionError('Disabling two-factor is unavailable right now.');
+    } finally {
+      setBusy(false);
+    }
+  }, [status?.method, disablePassword, refresh]);
+
+  // --- Regenerate backup codes ---
+  const regenerate = React.useCallback(async () => {
+    setBusy(true);
+    setActionError(null);
+    try {
+      const res = await regenerateBackupCodes();
+      if (res.ok && res.data) {
+        setShownBackupCodes(res.data.codes);
+        await refresh();
+      } else {
+        setActionError(res.error || 'Could not regenerate backup codes.');
+      }
+    } catch {
+      setActionError('Regenerating backup codes is unavailable right now.');
+    } finally {
+      setBusy(false);
+    }
+  }, [refresh]);
+
+  // ---- Render branches ----
+
+  if (loading) {
+    return (
+      <SecCard
+        icon={ShieldCheck}
+        title="Two-factor authentication"
+        description="Require a second factor in addition to a password when signing in."
+      >
+        <div className="st-sec-row">
+          <span className="st-sec-row__hint">Loading two-factor status…</span>
+        </div>
+      </SecCard>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <SecCard
+        icon={ShieldCheck}
+        title="Two-factor authentication"
+        description="Require a second factor in addition to a password when signing in."
+      >
+        <p className="st-form-error">{loadError}</p>
+        <TwentyButton variant="secondary" icon={RefreshCw} onClick={() => void refresh()}>
+          Retry
+        </TwentyButton>
+      </SecCard>
+    );
+  }
+
+  const enabled = Boolean(status?.enabled);
+
+  return (
+    <SecCard
+      icon={ShieldCheck}
+      title="Two-factor authentication"
+      description="Require a second factor in addition to a password when signing in."
+    >
+      {/* Current state row */}
+      <ControlRow
+        title={enabled ? 'Two-factor is on' : 'Two-factor is off'}
+        hint={
+          enabled
+            ? status?.method === 'totp'
+              ? 'Using an authenticator app (TOTP).'
+              : 'Using one-time email codes.'
+            : 'Protect your account by requiring a second factor at sign-in.'
+        }
+      >
+        <span
+          className={`st-sec-state${enabled ? ' st-sec-state--on' : ''}`}
+          aria-hidden="true"
+        >
+          {enabled ? 'Enabled' : 'Disabled'}
+        </span>
+      </ControlRow>
+
+      {/* Just-enrolled / regenerated backup codes */}
+      {shownBackupCodes ? (
+        <BackupCodes
+          codes={shownBackupCodes}
+          onDone={() => setShownBackupCodes(null)}
+        />
+      ) : null}
+
+      {actionError ? <p className="st-form-error">{actionError}</p> : null}
+
+      {/* ---- Enabled: manage / disable ---- */}
+      {enabled && !disableOpen ? (
+        <div className="st-sec-session__action">
+          <TwentyButton
+            variant="secondary"
+            icon={RefreshCw}
+            onClick={() => void regenerate()}
+            disabled={busy}
+          >
+            {busy ? <Spinner /> : null}
+            Regenerate backup codes
+          </TwentyButton>
+          <TwentyButton
+            variant="secondary"
+            icon={X}
+            onClick={() => {
+              setActionError(null);
+              setDisableOpen(true);
+            }}
+            disabled={busy}
+          >
+            Turn off
+          </TwentyButton>
+          {status && status.backupCodesRemaining > 0 ? (
+            <span className="st-sec-row__hint">
+              {status.backupCodesRemaining} backup code
+              {status.backupCodesRemaining === 1 ? '' : 's'} remaining.
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {/* ---- Disable confirmation ---- */}
+      {enabled && disableOpen ? (
+        <div className="st-sec-enroll">
+          {status?.method === 'email' ? (
+            <p className="st-sec-row__hint">
+              This will remove email-based two-factor from your account.
+            </p>
+          ) : (
+            <>
+              <label className="st-sec-row__title" htmlFor="twofa-disable-pw">
+                Confirm your password to turn off two-factor
+              </label>
+              <input
+                id="twofa-disable-pw"
+                className="st-input"
+                type="password"
+                autoComplete="current-password"
+                value={disablePassword}
+                placeholder="Your account password"
+                onChange={(e) => setDisablePassword(e.target.value)}
+              />
+            </>
+          )}
+          <div className="st-sec-session__action">
+            <TwentyButton
+              variant="primary"
+              icon={X}
+              onClick={() => void disable()}
+              disabled={busy || (status?.method !== 'email' && !disablePassword)}
+            >
+              {busy ? <Spinner /> : null}
+              Turn off two-factor
+            </TwentyButton>
+            <TwentyButton
+              variant="ghost"
+              onClick={() => {
+                setDisableOpen(false);
+                setDisablePassword('');
+                setActionError(null);
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </TwentyButton>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ---- Disabled: enrolment ---- */}
+      {!enabled && mode === 'idle' ? (
+        <div className="st-sec-session__action">
+          <TwentyButton
+            variant="primary"
+            icon={ShieldCheck}
+            onClick={() => {
+              setActionError(null);
+              setMode('choose');
+            }}
+          >
+            Enable two-factor
+          </TwentyButton>
+        </div>
+      ) : null}
+
+      {!enabled && mode === 'choose' ? (
+        <fieldset className="st-sec-radios" disabled={busy}>
+          <legend className="st-sec-radios__legend">Choose a method</legend>
+
+          <button
+            type="button"
+            className="st-sec-radio st-sec-radio--button"
+            onClick={() => void startTotp()}
+            disabled={busy}
+          >
+            <span className="st-sec-radio__icon" aria-hidden="true">
+              <Smartphone size={15} />
+            </span>
+            <span className="st-sec-radio__text">
+              <span className="st-sec-radio__title">Authenticator app (TOTP)</span>
+              <span className="st-sec-radio__desc">
+                Use a time-based one-time code from an app like Google
+                Authenticator or 1Password.
+              </span>
+            </span>
+            {busy ? <Spinner /> : null}
+          </button>
+
+          <button
+            type="button"
+            className="st-sec-radio st-sec-radio--button"
+            onClick={() => void startEmail()}
+            disabled={busy}
+          >
+            <span className="st-sec-radio__icon" aria-hidden="true">
+              <Mail size={15} />
+            </span>
+            <span className="st-sec-radio__text">
+              <span className="st-sec-radio__title">Email code</span>
+              <span className="st-sec-radio__desc">
+                Receive a one-time code by email
+                {status?.email ? ` at ${status.email}` : ''} at each sign-in.
+              </span>
+            </span>
+            {busy ? <Spinner /> : null}
+          </button>
+
+          <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
+            Cancel
+          </TwentyButton>
+        </fieldset>
+      ) : null}
+
+      {/* ---- TOTP enrolment: show QR/secret + verify ---- */}
+      {!enabled && mode === 'totp' ? (
+        <div className="st-sec-enroll">
+          <p className="st-sec-row__title">Scan this in your authenticator app</p>
+          {totpQr ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="st-sec-qr" src={totpQr} alt="Two-factor QR code" />
+          ) : null}
+          {totpSecret ? (
+            <p className="st-sec-row__hint">
+              Or enter this key manually:{' '}
+              <code className="st-sec-secret">{totpSecret}</code>
+            </p>
+          ) : null}
+          <label className="st-sec-row__title" htmlFor="twofa-totp-code">
+            Enter the 6-digit code from your app
+          </label>
+          <input
+            id="twofa-totp-code"
+            className="st-input st-sec-code-input"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={code}
+            placeholder="000000"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                void verify();
+              }
+            }}
+          />
+          <div className="st-sec-session__action">
+            <TwentyButton
+              variant="primary"
+              icon={Check}
+              onClick={() => void verify()}
+              disabled={busy}
+            >
+              {busy ? <Spinner /> : null}
+              Verify &amp; enable
+            </TwentyButton>
+            <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
+              Cancel
+            </TwentyButton>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ---- Email enrolment: verify ---- */}
+      {!enabled && mode === 'email' ? (
+        <div className="st-sec-enroll">
+          <p className="st-sec-row__hint">
+            We sent a 6-digit code{status?.email ? ` to ${status.email}` : ''}.
+            Enter it below to turn on email two-factor.
+          </p>
+          <label className="st-sec-row__title" htmlFor="twofa-email-code">
+            Verification code
+          </label>
+          <input
+            id="twofa-email-code"
+            className="st-input st-sec-code-input"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            value={code}
+            placeholder="000000"
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                void verify();
+              }
+            }}
+          />
+          <div className="st-sec-session__action">
+            <TwentyButton
+              variant="primary"
+              icon={Check}
+              onClick={() => void verify()}
+              disabled={busy}
+            >
+              {busy ? <Spinner /> : null}
+              Verify &amp; enable
+            </TwentyButton>
+            <TwentyButton
+              variant="secondary"
+              icon={Mail}
+              onClick={() => void startEmail()}
+              disabled={busy}
+            >
+              Resend code
+            </TwentyButton>
+            <TwentyButton variant="ghost" onClick={resetEnroll} disabled={busy}>
+              Cancel
+            </TwentyButton>
+          </div>
+        </div>
+      ) : null}
+    </SecCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Sessions card
+// ---------------------------------------------------------------------------
+
+function SessionsCard(): React.JSX.Element {
+  const [sessions, setSessions] = React.useState<ActiveSession[] | null>(null);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+  const deviceLabel = React.useMemo(describeThisDevice, []);
+
+  const [revoking, setRevoking] = React.useState(false);
+  const [revoked, setRevoked] = React.useState(false);
+
+  React.useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const list = await getActiveSessions();
+        if (active) setSessions(list);
+      } catch {
+        if (active) setLoadError('Could not load active sessions.');
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const revokeAll = React.useCallback(async () => {
+    setRevoking(true);
+    try {
+      await signOutEverywhere();
+      setRevoked(true);
+      // The current session cookie is cleared server-side; the next navigation
+      // drops to /login. Reflect the request locally in the meantime.
+    } catch {
+      setLoadError('Could not sign out other sessions.');
+    } finally {
+      setRevoking(false);
+    }
+  }, []);
+
+  return (
+    <SecCard
+      icon={Monitor}
+      title="Sessions"
+      description="Devices currently signed in to this workspace."
+    >
+      {loadError ? <p className="st-form-error">{loadError}</p> : null}
+
+      {sessions === null && !loadError ? (
+        <span className="st-sec-row__hint">Loading sessions…</span>
+      ) : null}
+
+      {sessions?.map((s) => (
+        <div key={s.id} className="st-sec-session">
+          <span className="st-sec-session__icon" aria-hidden="true">
+            <Monitor size={16} />
+          </span>
+          <div className="st-sec-session__text">
+            <span className="st-sec-session__title">
+              {s.current ? deviceLabel : s.device}
+              {s.current ? (
+                <span className="st-sec-session__badge">This device</span>
+              ) : null}
+            </span>
+            <span className="st-sec-session__sub">
+              {s.current ? 'Active now' : s.location || s.ip || 'Signed in'}
+            </span>
+          </div>
+        </div>
+      ))}
+
+      <div className="st-sec-session__action">
+        <TwentyButton
+          variant="secondary"
+          icon={revoked ? Check : LogOut}
+          onClick={() => void revokeAll()}
+          disabled={revoking || revoked}
+        >
+          {revoking ? <Spinner /> : null}
+          {revoked ? 'Signed out everywhere' : 'Sign out all sessions'}
+        </TwentyButton>
+        {revoked ? (
+          <span className="st-sec-row__hint" role="status">
+            All sessions revoked — every device, including this one, will be
+            signed out on the next request.
+          </span>
+        ) : null}
+      </div>
+
+      <BackendNote>
+        Sign-out everywhere revokes all tokens immediately. Per-device session
+        rows aren&apos;t tracked yet, so only the current device is listed —
+        once a session registry lands, every signed-in device will appear here
+        with its own revoke control.
+      </BackendNote>
+    </SecCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Recent sign-in activity card
+// ---------------------------------------------------------------------------
+
+function relativeTime(value: string | Date): string {
+  const then = value instanceof Date ? value.getTime() : Date.parse(value);
+  if (Number.isNaN(then)) return '';
+  const diff = Date.now() - then;
+  const mins = Math.round(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(then).toLocaleDateString();
+}
+
+function LoginActivityCard(): React.JSX.Element {
+  const [rows, setRows] = React.useState<LoginAttemptRow[] | null>(null);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let active = true;
+    void (async () => {
+      try {
+        const res = await getRecentLoginAttempts();
+        if (!active) return;
+        if (res.ok && res.data) {
+          setRows(res.data as LoginAttemptRow[]);
+        } else {
+          setLoadError(res.error || 'Could not load sign-in history.');
+        }
+      } catch {
+        if (active) setLoadError('Sign-in history is unavailable right now.');
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <SecCard
+      icon={History}
+      title="Recent sign-in activity"
+      description="The last few attempts to sign in to your account."
+    >
+      {loadError ? <p className="st-form-error">{loadError}</p> : null}
+
+      {rows === null && !loadError ? (
+        <span className="st-sec-row__hint">Loading activity…</span>
+      ) : null}
+
+      {rows && rows.length === 0 ? (
+        <p className="st-sec-list__empty">No recent sign-in attempts recorded.</p>
+      ) : null}
+
+      {rows && rows.length > 0 ? (
+        <ul className="st-sec-activity">
+          {rows.map((r) => (
+            <li key={r._id} className="st-sec-activity__row">
+              <span
+                className={`st-sec-activity__dot st-sec-activity__dot--${r.status}`}
+                aria-hidden="true"
+              />
+              <span className="st-sec-activity__text">
+                <span className="st-sec-activity__status">
+                  {r.status === 'success'
+                    ? 'Successful sign-in'
+                    : r.status === 'pending_2fa'
+                      ? 'Awaiting two-factor'
+                      : 'Failed attempt'}
+                </span>
+                <span className="st-sec-activity__meta">
+                  {r.ip}
+                  {r.userAgent && r.userAgent !== 'Unknown' ? ` · ${r.userAgent}` : ''}
+                </span>
+              </span>
+              <span className="st-sec-activity__time">{relativeTime(r.createdAt)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </SecCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Password card — wired to `handleChangePassword` via useActionState.
+// ---------------------------------------------------------------------------
+
+const PASSWORD_INITIAL: { message?: string; error?: string } = {
+  message: undefined,
+  error: undefined,
+};
+
+function PasswordCard(): React.JSX.Element {
+  const [state, formAction, pending] = React.useActionState(
+    handleChangePassword,
+    PASSWORD_INITIAL,
+  );
+
+  return (
+    <SecCard
+      icon={KeyRound}
+      title="Password"
+      description="Change the password used to sign in to your account."
+    >
+      <form action={formAction} className="st-sec-form">
+        <div className="st-sec-field">
+          <label className="st-sec-row__title" htmlFor="pw-current">
+            Current password
+          </label>
+          <input
+            id="pw-current"
+            name="currentPassword"
+            className="st-input"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </div>
+        <div className="st-sec-field">
+          <label className="st-sec-row__title" htmlFor="pw-new">
+            New password
+          </label>
+          <input
+            id="pw-new"
+            name="newPassword"
+            className="st-input"
+            type="password"
+            autoComplete="new-password"
+            minLength={6}
+            required
+          />
+        </div>
+        <div className="st-sec-field">
+          <label className="st-sec-row__title" htmlFor="pw-confirm">
+            Confirm new password
+          </label>
+          <input
+            id="pw-confirm"
+            name="confirmPassword"
+            className="st-input"
+            type="password"
+            autoComplete="new-password"
+            minLength={6}
+            required
+          />
+        </div>
+
+        {state.error ? <p className="st-form-error">{state.error}</p> : null}
+        {state.message ? (
+          <p className="st-form-success" role="status">
+            {state.message}
+          </p>
+        ) : null}
+
+        <div>
+          <TwentyButton
+            type="submit"
+            variant="primary"
+            icon={KeyRound}
+            disabled={pending}
+          >
+            {pending ? <Spinner /> : null}
+            Update password
+          </TwentyButton>
+        </div>
+      </form>
+
+      <BackendNote>
+        Password rules are validated server-side. Note that the change-password
+        action currently confirms the request without persisting a new hash —
+        full enforcement lands with the account-credential backend.
+      </BackendNote>
+    </SecCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
 export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
   const { prefs, setPrefs, hydrated } = useSecurityPrefs();
 
-  // Sessions stub — there is no session registry yet, so "sign out others" is
-  // a local acknowledgement only.
-  const [signedOutOthers, setSignedOutOthers] = React.useState(false);
-  const deviceLabel = React.useMemo(describeThisDevice, []);
-
-  const handleSignOutOthers = React.useCallback(() => {
-    // No backend: just acknowledge locally and clear the flag after a moment.
-    setSignedOutOthers(true);
-    window.setTimeout(() => setSignedOutOthers(false), 4000);
-  }, []);
-
-  const stepMinLength = React.useCallback(
-    (delta: number) => {
-      const next = Math.min(
-        MAX_PASSWORD_LENGTH,
-        Math.max(MIN_PASSWORD_LENGTH, prefs.passwordMinLength + delta),
-      );
-      setPrefs({ passwordMinLength: next });
-    },
-    [prefs.passwordMinLength, setPrefs],
-  );
-
   return (
     <div className="st-page">
       <div className="st-settings">
         <TwentyPageHeader title="Security" icon={ShieldCheck} />
         <p className="st-settings__intro">
-          Access controls for this workspace — two-factor authentication, active
-          sessions, password rules, and network / domain allowlists. Preferences
-          here are saved on this device; the notes call out where actual
-          enforcement still needs server support.
+          Access controls for your account and this workspace — two-factor
+          authentication, active sessions, sign-in activity, your password, and
+          network / domain allowlists. The notes call out where enforcement is
+          live and where it still needs server support.
         </p>
 
         {!hydrated ? (
           <SecuritySkeleton />
         ) : (
           <div className="st-sec-stack">
-            {/* ------------------------------------------------------------ */}
-            {/* Two-factor authentication                                     */}
-            {/* ------------------------------------------------------------ */}
-            <SecCard
-              icon={ShieldCheck}
-              title="Two-factor authentication"
-              description="Require a second factor in addition to a password when signing in."
-            >
-              <ControlRow
-                title="Enable two-factor authentication"
-                hint="Adds a verification step after the password is accepted."
-              >
-                <Toggle
-                  checked={prefs.twoFactorEnabled}
-                  onChange={(next) => setPrefs({ twoFactorEnabled: next })}
-                  label="Enable two-factor authentication"
-                />
-              </ControlRow>
+            {/* Two-factor authentication (live) */}
+            <TwoFactorCard />
 
-              <fieldset
-                className={`st-sec-radios${prefs.twoFactorEnabled ? '' : ' st-sec-radios--disabled'}`}
-                disabled={!prefs.twoFactorEnabled}
-              >
-                <legend className="st-sec-radios__legend">Verification method</legend>
+            {/* Sessions (live) */}
+            <SessionsCard />
 
-                <label className="st-sec-radio">
-                  <input
-                    type="radio"
-                    name="twofa-method"
-                    value="totp"
-                    checked={prefs.twoFactorMethod === 'totp'}
-                    onChange={() => setPrefs({ twoFactorMethod: 'totp' })}
-                  />
-                  <span className="st-sec-radio__icon" aria-hidden="true">
-                    <Smartphone size={15} />
-                  </span>
-                  <span className="st-sec-radio__text">
-                    <span className="st-sec-radio__title">Authenticator app (TOTP)</span>
-                    <span className="st-sec-radio__desc">
-                      Use a time-based one-time code from an app like Google
-                      Authenticator or 1Password.
-                    </span>
-                  </span>
-                </label>
+            {/* Recent sign-in activity (live) */}
+            <LoginActivityCard />
 
-                <label className="st-sec-radio">
-                  <input
-                    type="radio"
-                    name="twofa-method"
-                    value="email"
-                    checked={prefs.twoFactorMethod === 'email'}
-                    onChange={() => setPrefs({ twoFactorMethod: 'email' })}
-                  />
-                  <span className="st-sec-radio__icon" aria-hidden="true">
-                    <Mail size={15} />
-                  </span>
-                  <span className="st-sec-radio__text">
-                    <span className="st-sec-radio__title">Email code</span>
-                    <span className="st-sec-radio__desc">
-                      Receive a one-time code by email at each sign-in.
-                    </span>
-                  </span>
-                </label>
-              </fieldset>
+            {/* Password (live action; placeholder persistence) */}
+            <PasswordCard />
 
-              <BackendNote>
-                This captures your preference only. Two-factor challenges aren&apos;t
-                issued yet — enforcement (enrolment, code verification, recovery
-                codes) needs the authentication backend.
-              </BackendNote>
-            </SecCard>
-
-            {/* ------------------------------------------------------------ */}
-            {/* Sessions                                                      */}
-            {/* ------------------------------------------------------------ */}
-            <SecCard
-              icon={Monitor}
-              title="Sessions"
-              description="Devices currently signed in to this workspace."
-            >
-              <div className="st-sec-session">
-                <span className="st-sec-session__icon" aria-hidden="true">
-                  <Monitor size={16} />
-                </span>
-                <div className="st-sec-session__text">
-                  <span className="st-sec-session__title">
-                    {deviceLabel}
-                    <span className="st-sec-session__badge">This device</span>
-                  </span>
-                  <span className="st-sec-session__sub">Active now</span>
-                </div>
-              </div>
-
-              <div className="st-sec-session__action">
-                <TwentyButton
-                  variant="secondary"
-                  icon={signedOutOthers ? Check : LogOut}
-                  onClick={handleSignOutOthers}
-                  disabled={signedOutOthers}
-                >
-                  {signedOutOthers ? 'Requested' : 'Sign out other sessions'}
-                </TwentyButton>
-                {signedOutOthers ? (
-                  <span className="st-sec-row__hint" role="status">
-                    Acknowledged — other sessions will be cleared once session
-                    tracking is live.
-                  </span>
-                ) : null}
-              </div>
-
-              <BackendNote>
-                Only the current device can be shown — there&apos;s no session
-                registry yet. Listing and revoking other devices needs the
-                session store on the backend.
-              </BackendNote>
-            </SecCard>
-
-            {/* ------------------------------------------------------------ */}
-            {/* Password policy                                               */}
-            {/* ------------------------------------------------------------ */}
-            <SecCard
-              icon={KeyRound}
-              title="Password policy"
-              description="Rules new and updated passwords must satisfy."
-            >
-              <ControlRow
-                title="Minimum length"
-                hint={`Between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters.`}
-              >
-                <div className="st-sec-stepper">
-                  <button
-                    type="button"
-                    className="st-sec-stepper__btn"
-                    aria-label="Decrease minimum length"
-                    disabled={prefs.passwordMinLength <= MIN_PASSWORD_LENGTH}
-                    onClick={() => stepMinLength(-1)}
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="st-sec-stepper__value" aria-live="polite">
-                    {prefs.passwordMinLength}
-                  </span>
-                  <button
-                    type="button"
-                    className="st-sec-stepper__btn"
-                    aria-label="Increase minimum length"
-                    disabled={prefs.passwordMinLength >= MAX_PASSWORD_LENGTH}
-                    onClick={() => stepMinLength(1)}
-                  >
-                    <Plus size={14} />
-                  </button>
-                </div>
-              </ControlRow>
-
-              <ControlRow
-                title="Require a symbol"
-                hint="Passwords must contain at least one non-alphanumeric character."
-              >
-                <Toggle
-                  checked={prefs.passwordRequireSymbols}
-                  onChange={(next) => setPrefs({ passwordRequireSymbols: next })}
-                  label="Require a symbol in passwords"
-                />
-              </ControlRow>
-
-              <BackendNote>
-                These rules are recorded locally. They aren&apos;t enforced at
-                sign-up or password change until the authentication backend reads
-                this policy.
-              </BackendNote>
-            </SecCard>
-
-            {/* ------------------------------------------------------------ */}
-            {/* IP allowlist                                                  */}
-            {/* ------------------------------------------------------------ */}
+            {/* IP allowlist (local-only advisory) */}
             <SecCard
               icon={Network}
               title="IP allowlist"
@@ -700,13 +1353,12 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
               <BackendNote>
                 Listing addresses here doesn&apos;t block anything yet. Network
                 enforcement (checking the request IP against this list) has to
-                happen on the backend / edge.
+                happen on the backend / edge — there&apos;s no IP-allowlist
+                action to wire to.
               </BackendNote>
             </SecCard>
 
-            {/* ------------------------------------------------------------ */}
-            {/* Approved email domains                                        */}
-            {/* ------------------------------------------------------------ */}
+            {/* Approved email domains (local-only advisory) */}
             <SecCard
               icon={AtSign}
               title="Approved email domains"
@@ -726,8 +1378,8 @@ export default function SabcrmSecuritySettingsPage(): React.JSX.Element {
 
               <BackendNote>
                 Domains are stored locally as a preference. Invitations and
-                sign-ups aren&apos;t actually filtered against them until the
-                membership backend enforces the rule.
+                sign-ups aren&apos;t filtered against them until the membership
+                backend enforces the rule.
               </BackendNote>
             </SecCard>
           </div>

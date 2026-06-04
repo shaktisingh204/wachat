@@ -27,7 +27,6 @@ import {
   Pencil,
   Trash2,
   Activity,
-  Send,
   Info,
   Inbox,
   Building2,
@@ -736,12 +735,17 @@ function RotatedSecretDialog({
 // Recent deliveries dialog
 //
 // The backend does not (yet) expose a per-delivery log array — there is no
-// `deliveries` / `recentDeliveries` / `logs` field on `WebhookSubscription` and
-// no "send test" server action. What it *does* carry is a single last-delivery
-// summary (`lastDeliveryAt`, `lastStatus`, `lastError`, `failureCount`). We
-// render that summary as one delivery entry when present, and otherwise show a
-// tidy "No deliveries yet" empty state. The "Send test" button is therefore an
-// explicit, non-persisted client stub (no action is invented).
+// `deliveries` / `recentDeliveries` / `logs` field on `WebhookSubscription`, and
+// no "send test" / "ping" server action in `sabcrm.actions`. What it *does*
+// carry is a single last-delivery summary (`lastDeliveryAt`, `lastStatus`,
+// `lastError`, `failureCount`). We render that summary as one delivery entry
+// when present, and otherwise show a tidy "No deliveries yet" empty state.
+//
+// Because no test-delivery action exists, this view stays honestly read-only:
+// we do NOT render a "Send test" button that fakes a queued delivery — that
+// would imply a side-effect that never happens. Instead we surface a short,
+// clearly-labelled notice that test delivery isn't available yet. If a real
+// `testWebhookAction` / `pingWebhookAction` lands later, wire the button here.
 // ---------------------------------------------------------------------------
 
 /** Formats an ISO timestamp into a short, locale-aware label; falls back to the raw value. */
@@ -772,15 +776,6 @@ function DeliveriesDialog({
   sub: WebhookSubscription;
   onClose: () => void;
 }): React.JSX.Element {
-  // Local, non-persisted "Send test" stub state.
-  const [testNote, setTestNote] = React.useState<string | null>(null);
-
-  const sendTest = React.useCallback(() => {
-    // No server action exists for issuing a test delivery — keep this honest:
-    // surface a clearly-labelled stub note rather than pretending it persisted.
-    setTestNote(new Date().toLocaleTimeString());
-  }, []);
-
   // Derive a single delivery entry from the last-delivery summary, if any.
   const hasDelivery = Boolean(sub.lastDeliveryAt);
   const success = isSuccessStatus(sub.lastStatus);
@@ -876,24 +871,20 @@ function DeliveriesDialog({
             </div>
           )}
 
-          {testNote ? (
-            <div className="st-whlog__note" role="status">
-              <Info className="st-whlog__note-icon" size={14} aria-hidden="true" />
-              <span>
-                <strong>Test event queued</strong> at {testNote}.
-                <span className="st-whlog__note-stub">
-                  Stub only — this is a local preview and was not sent to the
-                  endpoint. A real test-delivery action is not yet available.
-                </span>
+          <div className="st-whlog__note" role="note">
+            <Info className="st-whlog__note-icon" size={14} aria-hidden="true" />
+            <span>
+              SabCRM records the most recent delivery attempt per subscription.
+              <span className="st-whlog__note-stub">
+                Sending a manual test delivery isn&rsquo;t available yet — this
+                view updates automatically the next time a subscribed event
+                fires.
               </span>
-            </div>
-          ) : null}
+            </span>
+          </div>
         </div>
 
         <div className="st-dialog__footer st-whlog__footer">
-          <TwentyButton variant="secondary" icon={Send} onClick={sendTest}>
-            Send test
-          </TwentyButton>
           <TwentyButton variant="primary" onClick={onClose}>
             Done
           </TwentyButton>

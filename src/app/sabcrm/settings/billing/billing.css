@@ -212,6 +212,45 @@
 }
 
 /* =========================================================================
+   Plan features / benefits list (Twenty SubscriptionBenefit parity)
+   ========================================================================= */
+.sabcrm-twenty .st-benefits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--st-space-2) var(--st-space-4);
+}
+
+.sabcrm-twenty .st-benefit {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-benefit__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-benefit__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* =========================================================================
    Usage stat card + meter (self-contained copy of the Usage settings styles)
    ========================================================================= */
 .sabcrm-twenty .st-stat-card {

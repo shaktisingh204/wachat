@@ -44,7 +44,8 @@ import {
 
 import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
-import { sabcrmPlanFeature } from '@/lib/plans';
+import { sabcrmPlanFeature, planFeatureMap } from '@/lib/plans';
+import type { PlanFeaturePermissions } from '@/lib/definitions';
 import { getPlans } from '@/app/actions/plan.actions';
 import {
   listSabcrmObjectsTw,
@@ -71,6 +72,25 @@ const CRM_PLAN_CATEGORIES: ReadonlySet<NonNullable<Plan['appCategory']>> =
 
 /** Nominal records ceiling for the usage meter (display only, not enforced). */
 const RECORDS_CEILING = 100_000;
+
+/**
+ * Feature keys (subset of `PlanFeaturePermissions`) most relevant to a SabCRM
+ * user, surfaced as benefit rows when enabled on the current plan. Mirrors
+ * Twenty's `SubscriptionBenefit` list of what the plan includes.
+ */
+const CRM_FEATURE_KEYS: readonly (keyof PlanFeaturePermissions)[] = [
+  'crmDashboard',
+  'crmSales',
+  'crmSalesCrm',
+  'crmPurchases',
+  'crmInventory',
+  'crmAccounting',
+  'crmBanking',
+  'crmHrPayroll',
+  'crmGstReports',
+  'crmIntegrations',
+  'crmSettings',
+];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -403,6 +423,16 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
 
   const EntitlementIcon = sabcrmPlanFeature.icon;
 
+  // CRM-relevant features enabled on the current plan, resolved to a
+  // display name via `planFeatureMap`. Empty when the plan is unknown.
+  const enabledFeatures = React.useMemo(() => {
+    const features = currentPlan?.features;
+    if (!features) return [];
+    return CRM_FEATURE_KEYS.filter((key) => features[key] === true)
+      .map((key) => planFeatureMap.find((f) => f.id === key))
+      .filter((f): f is (typeof planFeatureMap)[number] => f != null);
+  }, [currentPlan]);
+
   // -------------------------------------------------------------------------
 
   return (
@@ -521,6 +551,39 @@ export default function SabcrmBillingSettingsPage(): React.JSX.Element {
                 </div>
               </div>
             </section>
+
+            {/* ---- Plan features (what this plan includes) ---- */}
+            {enabledFeatures.length > 0 ? (
+              <section className="st-billing-section">
+                <div className="st-billing-section__head">
+                  <h2 className="st-billing-section__title">
+                    What&rsquo;s included
+                  </h2>
+                  <span className="st-billing-section__hint">
+                    CRM features on your plan
+                  </span>
+                </div>
+                <ul className="st-benefits">
+                  {enabledFeatures.map((feature) => {
+                    const FeatureIcon = feature.icon;
+                    return (
+                      <li key={feature.id} className="st-benefit">
+                        <span className="st-benefit__check" aria-hidden="true">
+                          {FeatureIcon ? (
+                            <FeatureIcon size={12} />
+                          ) : (
+                            <CheckCircle2 size={12} />
+                          )}
+                        </span>
+                        <span className="st-benefit__label" title={feature.name}>
+                          {feature.name}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </section>
+            ) : null}
 
             {/* ---- Usage vs limits ---- */}
             <section className="st-billing-section">

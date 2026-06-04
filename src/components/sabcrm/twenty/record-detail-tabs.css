@@ -263,6 +263,50 @@
   cursor: default;
 }
 
+/* SabFiles attach control — sits left of the Add button in the footer.
+   The button itself is a SabFiles primitive; these rules size/space it to
+   match the composer chrome without overriding its internals. */
+.st-rdt-composer__attach {
+  height: 30px !important;
+  padding: 0 var(--st-space-2) !important;
+  font-size: var(--st-font-size-sm) !important;
+}
+
+.st-rdt-composer__attach svg {
+  margin-right: 4px;
+}
+
+/* Pending attachment chips above the footer. */
+.st-rdt-composer__files {
+  margin-top: 0;
+}
+
+.st-rdt-file__remove {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  padding: 0;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.st-rdt-file__remove:hover:not(:disabled) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-rdt-file__remove:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* =========================================================================
    Timeline
    ========================================================================= */
@@ -348,7 +392,9 @@
 }
 
 .st-rdt-timeline__author {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
   margin-top: var(--st-space-1);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -593,6 +639,23 @@
   gap: var(--st-space-4);
 }
 
+/* Files tab upload bar. */
+.st-rdt-files__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.st-rdt-files__upload {
+  height: 30px !important;
+  padding: 0 var(--st-space-3) !important;
+  font-size: var(--st-font-size-sm) !important;
+}
+
+.st-rdt-files__upload svg {
+  margin-right: 4px;
+}
+
 .st-rdt-filegroup {
   display: flex;
   flex-direction: column;
@@ -728,8 +791,25 @@ a.st-rdt-file__name:hover {
   gap: var(--st-space-2);
 }
 
+.st-rdt-comment {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+}
+
 .st-rdt-comment.is-pending {
   opacity: 0.6;
+}
+
+.st-rdt-comment__avatar {
+  flex: 0 0 auto;
+  display: inline-flex;
+  margin-top: 1px;
+}
+
+.st-rdt-comment__main {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .st-rdt-comment__head {

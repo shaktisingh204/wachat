@@ -5,11 +5,17 @@
  *
  * Two stacked surfaces, both scoped to the active project via `useProject()`:
  *
- *   1. Members roster — read-only list of the workspace's members, each row
- *      showing avatar, name + email, workspace role, and the derived SabCRM
- *      capability chip. Data comes from `listMembersAction`. Role management
- *      stays read-only here (it's a SabNode workspace operation in
- *      Settings → Team).
+ *   1. Members roster — list of the workspace's members, each row showing
+ *      avatar, name + email, workspace role, the derived SabCRM capability
+ *      chip, and an inline SabCRM-role select. Data comes from
+ *      `listMembersAction`; the per-member role is derived from each role's
+ *      `memberIds` (via `listRolesTw`) and changed with `setRoleMemberTw`
+ *      (unassign-then-assign). Owners are pinned to full access and excluded
+ *      from reassignment. Each non-owner row also exposes a Remove action;
+ *      because there is no SabCRM member-removal server action, that opens a
+ *      dialog explaining removal is a SabNode workspace operation
+ *      (Settings → Team) — the page degrades gracefully rather than calling a
+ *      missing backend.
  *
  *   2. Pending invitations — the Twenty-style member INVITATION flow. An
  *      "Invite member" button opens a dialog (email + role select) that calls
@@ -33,9 +39,9 @@ import {
   Eye,
   AlertTriangle,
   UserPlus,
+  UserMinus,
   Mail,
   MailX,
-  Plus,
   X,
   Copy,
   Check,
@@ -53,7 +59,7 @@ import {
   revokeInviteTw,
   deleteInviteTw,
 } from '@/app/actions/sabcrm-invites.actions';
-import { listRolesTw } from '@/app/actions/sabcrm-roles.actions';
+import { listRolesTw, setRoleMemberTw } from '@/app/actions/sabcrm-roles.actions';
 import type { SabcrmRustRole } from '@/lib/rust-client/sabcrm-roles';
 
 import '@/styles/sabcrm-twenty.css';
@@ -418,6 +424,123 @@ function DeleteInviteDialog({
 }
 
 // ---------------------------------------------------------------------------
+// Member role select — inline per-member SabCRM role assignment.
+//
+// A member's current SabCRM role is the role whose `memberIds` contains the
+// member's userId. Changing the selection unassigns the member from their
+// previous role (if any) and assigns them to the new one via `setRoleMemberTw`.
+// Degrades to a read-only label when roles can't be loaded.
+// ---------------------------------------------------------------------------
+
+interface MemberRoleSelectProps {
+  member: CrmMember;
+  roles: SabcrmRustRole[];
+  rolesError: boolean;
+  currentRoleId: string;
+  busy: boolean;
+  onChange: (member: CrmMember, fromRoleId: string, toRoleId: string) => void;
+}
+
+function MemberRoleSelect({
+  member,
+  roles,
+  rolesError,
+  currentRoleId,
+  busy,
+  onChange,
+}: MemberRoleSelectProps): React.JSX.Element {
+  // Owners always retain full access — their role is not reassignable here.
+  if (member.isOwner) {
+    return <span style={{ color: 'var(--st-text-tertiary)' }}>Owner (full access)</span>;
+  }
+  if (rolesError || roles.length === 0) {
+    const name = currentRoleId
+      ? roles.find((r) => r.id === currentRoleId)?.name ?? 'Custom role'
+      : 'No role assigned';
+    return <span style={{ color: 'var(--st-text-secondary)' }}>{name}</span>;
+  }
+  return (
+    <select
+      className="st-select"
+      style={{ maxWidth: 200 }}
+      value={currentRoleId}
+      disabled={busy}
+      aria-label={`SabCRM role for ${member.name.trim() || member.email}`}
+      onChange={(e) => onChange(member, currentRoleId, e.target.value)}
+    >
+      <option value="">No role assigned</option>
+      {roles.map((role) => (
+        <option key={role.id} value={role.id}>
+          {role.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Remove-member confirmation
+//
+// Twenty removes a member from the workspace behind a confirmation modal. There
+// is no SabCRM member-removal server action yet, so this dialog degrades
+// gracefully: it explains that removal is managed centrally in SabNode
+// workspace settings and offers no destructive call.
+// ---------------------------------------------------------------------------
+
+interface RemoveMemberDialogProps {
+  member: CrmMember;
+  onCancel: () => void;
+}
+
+function RemoveMemberDialog({
+  member,
+  onCancel,
+}: RemoveMemberDialogProps): React.JSX.Element {
+  return (
+    <div
+      className="st-dialog-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Remove member"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onCancel();
+      }}
+    >
+      <div className="st-dialog">
+        <div className="st-dialog__header">
+          <h2 className="st-dialog__title">Remove member from workspace</h2>
+          <button
+            type="button"
+            className="st-dialog__close"
+            onClick={onCancel}
+            aria-label="Close"
+          >
+            <X size={16} />
+          </button>
+        </div>
+        <div className="st-dialog__body">
+          <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
+            Removing{' '}
+            <strong style={{ color: 'var(--st-text)' }}>
+              {member.name.trim() || member.email}
+            </strong>{' '}
+            from the workspace is managed centrally in SabNode workspace settings
+            (Settings → Team), alongside billing and access. Open Team settings
+            there to remove this person; their SabCRM access is revoked
+            automatically once they leave the workspace.
+          </p>
+        </div>
+        <div className="st-dialog__footer">
+          <TwentyButton variant="primary" onClick={onCancel}>
+            Got it
+          </TwentyButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Loading skeletons
 // ---------------------------------------------------------------------------
 
@@ -591,6 +714,16 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
   const [deleteTarget, setDeleteTarget] = React.useState<CrmInvite | null>(null);
   const [deleting, setDeleting] = React.useState(false);
 
+  // Member role assignment — optimistic userId→roleId map, plus the userId
+  // whose role is mid-flight (disables that row's select).
+  const [memberRoleByUser, setMemberRoleByUser] = React.useState<
+    Record<string, string>
+  >({});
+  const [roleUpdatingFor, setRoleUpdatingFor] = React.useState<string | null>(null);
+
+  // Remove-member dialog target (graceful — no destructive backend action yet).
+  const [removeTarget, setRemoveTarget] = React.useState<CrmMember | null>(null);
+
   // ----- Loaders -----
 
   const loadMembers = React.useCallback(async (projectId: string) => {
@@ -616,6 +749,15 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
       const res = await listRolesTw(projectId);
       if (res.ok) {
         setRoles(res.data);
+        // Derive each member's current SabCRM role from the roles' memberIds.
+        // First match wins; members absent from every role have no assignment.
+        const map: Record<string, string> = {};
+        for (const role of res.data) {
+          for (const memberId of role.memberIds ?? []) {
+            if (!map[memberId]) map[memberId] = role.id;
+          }
+        }
+        setMemberRoleByUser(map);
       } else {
         setRolesError(true);
       }
@@ -717,6 +859,42 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
     }
   }, [deleteTarget, activeProjectId]);
 
+  // ----- Member role assignment -----
+
+  const handleRoleChange = React.useCallback(
+    async (member: CrmMember, fromRoleId: string, toRoleId: string) => {
+      if (!activeProjectId || fromRoleId === toRoleId) return;
+      const userId = member.userId;
+      setRoleUpdatingFor(userId);
+      setError(null);
+      // Optimistically reflect the new selection; revert on failure.
+      setMemberRoleByUser((prev) => ({ ...prev, [userId]: toRoleId }));
+      try {
+        // Unassign from the previous role first (if any), then assign the new.
+        if (fromRoleId) {
+          const off = await setRoleMemberTw(fromRoleId, userId, false, activeProjectId);
+          if (!off.ok) throw new Error(off.error);
+        }
+        if (toRoleId) {
+          const on = await setRoleMemberTw(toRoleId, userId, true, activeProjectId);
+          if (!on.ok) throw new Error(on.error);
+        }
+        // Resync roles so memberIds stay authoritative.
+        await loadRoles(activeProjectId);
+      } catch (e) {
+        setMemberRoleByUser((prev) => ({ ...prev, [userId]: fromRoleId }));
+        setError(
+          e instanceof Error && e.message
+            ? e.message
+            : 'Failed to update the member role. The service may be unavailable.',
+        );
+      } finally {
+        setRoleUpdatingFor(null);
+      }
+    },
+    [activeProjectId, loadRoles],
+  );
+
   return (
     <div className="st-page">
       <div className="st-settings">
@@ -778,6 +956,8 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
                     <th>Member</th>
                     <th>Workspace role</th>
                     <th>SabCRM access</th>
+                    <th>SabCRM role</th>
+                    <th aria-label="Actions" />
                   </tr>
                 </thead>
                 <tbody>
@@ -811,6 +991,29 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
                       </td>
                       <td>
                         <CapabilityChip role={member.crmRole} />
+                      </td>
+                      <td>
+                        <MemberRoleSelect
+                          member={member}
+                          roles={roles}
+                          rolesError={rolesError}
+                          currentRoleId={memberRoleByUser[member.userId] ?? ''}
+                          busy={roleUpdatingFor === member.userId}
+                          onChange={handleRoleChange}
+                        />
+                      </td>
+                      <td className="st-cell-actions">
+                        {member.isOwner ? null : (
+                          <TwentyButton
+                            variant="ghost"
+                            icon={UserMinus}
+                            className="st-btn--danger"
+                            onClick={() => setRemoveTarget(member)}
+                            title="Remove member"
+                          >
+                            Remove
+                          </TwentyButton>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -855,6 +1058,13 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
           busy={deleting}
           onCancel={() => setDeleteTarget(null)}
           onConfirm={confirmDelete}
+        />
+      ) : null}
+
+      {removeTarget ? (
+        <RemoveMemberDialog
+          member={removeTarget}
+          onCancel={() => setRemoveTarget(null)}
         />
       ) : null}
     </div>

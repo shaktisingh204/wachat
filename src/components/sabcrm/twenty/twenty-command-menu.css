@@ -181,6 +181,18 @@
   color: var(--st-cmdk-text-2);
 }
 
+/* Record-row avatar slot — same footprint as the icon slot so record results
+   (records / recents / favorites) align flush with action rows. The avatar
+   itself (TwentyAvatar size="sm") supplies its own circle/square + initials. */
+.st-cmdk-row__avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
 .st-cmdk-row__label {
   flex: 1 1 auto;
   min-width: 0;

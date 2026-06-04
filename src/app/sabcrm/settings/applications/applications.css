@@ -188,3 +188,258 @@
   margin-top: 1px;
   color: var(--st-text-tertiary);
 }
+
+/* ---- Tab list (Marketplace / Installed / Developer) ------------------- */
+
+.sabcrm-twenty .st-apps-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--st-space-4, 16px);
+  margin: var(--st-space-4, 16px) 0 var(--st-space-5, 20px);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-apps-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: 0 0 var(--st-space-2, 8px);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--st-font-size, 13px);
+  font-weight: var(--st-fw-medium, 500);
+  color: var(--st-text-secondary);
+  transition: color 120ms ease;
+}
+
+.sabcrm-twenty .st-apps-tab:hover {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-apps-tab.is-active {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-apps-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--st-accent, var(--st-text));
+}
+
+.sabcrm-twenty .st-apps-tab:focus-visible {
+  outline: 2px solid var(--st-accent, var(--st-border-strong));
+  outline-offset: 2px;
+  border-radius: var(--st-radius-sm, 6px);
+}
+
+.sabcrm-twenty .st-apps-tab__icon {
+  display: inline-flex;
+  color: currentColor;
+}
+
+/* ---- Clickable marketplace card affordance ---------------------------- */
+
+.sabcrm-twenty .st-app-card--clickable {
+  cursor: pointer;
+}
+
+.sabcrm-twenty .st-app-card__open {
+  appearance: none;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.sabcrm-twenty .st-app-card__open:focus-visible {
+  outline: 2px solid var(--st-accent, var(--st-border-strong));
+  outline-offset: 4px;
+  border-radius: var(--st-radius-sm, 6px);
+}
+
+/* ---- App detail drawer ------------------------------------------------- */
+
+.sabcrm-twenty .st-app-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.32);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sabcrm-twenty .st-app-drawer {
+  display: flex;
+  flex-direction: column;
+  width: min(460px, 100vw);
+  height: 100%;
+  background: var(--st-bg);
+  border-left: 1px solid var(--st-border);
+  box-shadow: var(--st-shadow-lg, -8px 0 24px rgba(0, 0, 0, 0.12));
+  overflow-y: auto;
+}
+
+.sabcrm-twenty .st-app-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4, 16px);
+  border-bottom: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-app-drawer__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--st-radius-sm, 6px);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg-secondary, var(--st-bg));
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-app-drawer__titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-app-drawer__name {
+  font-size: var(--st-font-size-lg, 15px);
+  font-weight: var(--st-fw-semibold, 600);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-app-drawer__sub {
+  font-size: var(--st-font-size-sm, 12px);
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-app-drawer__close {
+  appearance: none;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm, 6px);
+  background: none;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+}
+
+.sabcrm-twenty .st-app-drawer__close:hover {
+  background: var(--st-bg-muted);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-app-drawer__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-5, 20px);
+  padding: var(--st-space-4, 16px);
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .st-app-drawer__desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm, 12px);
+  line-height: 1.6;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-app-drawer__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin: 0 0 var(--st-space-2);
+  font-size: var(--st-font-size-xs, 11px);
+  font-weight: var(--st-fw-semibold, 600);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-app-drawer__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-4, 16px);
+  border-top: 1px solid var(--st-border);
+}
+
+/* ---- Permissions / scopes list ---------------------------------------- */
+
+.sabcrm-twenty .st-scope-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius, 8px);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .st-scope-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3, 12px);
+}
+
+.sabcrm-twenty .st-scope-row + .st-scope-row {
+  border-top: 1px solid var(--st-border);
+}
+
+.sabcrm-twenty .st-scope-row__icon {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--st-text-tertiary);
+}
+
+.sabcrm-twenty .st-scope-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sabcrm-twenty .st-scope-row__label {
+  font-size: var(--st-font-size-sm, 12px);
+  font-weight: var(--st-fw-medium, 500);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-scope-row__desc {
+  font-size: var(--st-font-size-xs, 11px);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-scope-row__access {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: var(--st-font-size-xs, 11px);
+  font-weight: var(--st-fw-medium, 500);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
+}

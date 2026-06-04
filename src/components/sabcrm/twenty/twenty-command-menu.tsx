@@ -36,6 +36,8 @@ import type {
   ObjectMetadata,
   SabcrmRustRecord,
 } from '@/app/actions/sabcrm-twenty.actions.types';
+import { TwentyAvatar } from './twenty-primitives';
+import type { TwentyAvatarShape } from './twenty-primitives';
 
 import './twenty-command-menu.css';
 
@@ -57,6 +59,8 @@ interface RecordRecent {
   id: string;
   /** Display label captured at view time. */
   label: string;
+  /** Avatar image URL captured at view time (optional). */
+  avatarUrl?: string;
 }
 
 function readRecents(): RecordRecent[] {
@@ -75,6 +79,15 @@ function readRecents(): RecordRecent[] {
           typeof (e as RecordRecent).id === 'string' &&
           typeof (e as RecordRecent).label === 'string',
       )
+      .map((e) => ({
+        slug: e.slug,
+        id: e.id,
+        label: e.label,
+        avatarUrl:
+          typeof e.avatarUrl === 'string' && e.avatarUrl.length > 0
+            ? e.avatarUrl
+            : undefined,
+      }))
       .slice(0, RECENTS_CAP);
   } catch {
     return [];
@@ -179,6 +192,23 @@ const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
   tasks: CheckCircle2,
 };
 
+/**
+ * Avatar shape per standard object. People render as circles (Twenty's
+ * person-avatar treatment); companies + everything else default to the
+ * 4px-rounded square logo treatment. Custom objects inherit the square.
+ */
+const STANDARD_OBJECT_AVATAR_SHAPE: Record<string, TwentyAvatarShape> = {
+  people: 'round',
+  companies: 'square',
+  opportunities: 'square',
+  notes: 'square',
+  tasks: 'square',
+};
+
+function avatarShapeForSlug(slug: string): TwentyAvatarShape {
+  return STANDARD_OBJECT_AVATAR_SHAPE[slug] ?? 'square';
+}
+
 /** Human-readable singular label for a slug (used in record-row meta). */
 const STANDARD_OBJECT_LABEL: Record<string, string> = {
   companies: 'Company',
@@ -267,6 +297,35 @@ function deriveRecordLabel(
   }
 
   return `Untitled · ${record.id.slice(-6)}`;
+}
+
+/**
+ * Best-effort avatar image URL for a record. Mirrors Twenty's record-chip
+ * avatar resolution: people use a photo field, companies a logo/domain-derived
+ * mark, and any object may carry an explicit avatar/image field. Returns
+ * `undefined` when none is present, so the avatar falls back to initials.
+ */
+const AVATAR_FIELD_FALLBACKS = [
+  'avatarUrl',
+  'avatar',
+  'photoUrl',
+  'photo',
+  'logoUrl',
+  'logo',
+  'imageUrl',
+  'image',
+  'picture',
+] as const;
+
+function deriveRecordAvatarUrl(record: SabcrmRustRecord): string | undefined {
+  const data = record.data ?? {};
+  for (const key of AVATAR_FIELD_FALLBACKS) {
+    const v = data[key];
+    if (typeof v === 'string' && /^https?:\/\//i.test(v.trim())) {
+      return v.trim();
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -370,12 +429,25 @@ const SHORTCUTS: readonly ShortcutEntry[] = [
 /* =========================================================================
    Flattened item model (for keyboard navigation)
    ========================================================================= */
+/**
+ * Avatar descriptor for record-style rows (records / recents / favorites).
+ * When present, the row renders a {@link TwentyAvatar} instead of the Lucide
+ * `icon` — faithful to Twenty, where record results carry their own avatar.
+ */
+interface CmdItemAvatar {
+  name: string;
+  src?: string;
+  shape: TwentyAvatarShape;
+}
+
 interface CmdItem {
   /** Unique key across the whole menu. */
   key: string;
   label: string;
   meta?: string;
   icon: LucideIcon;
+  /** Record avatar; when set, replaces `icon` in the row. */
+  avatar?: CmdItemAvatar;
   /** Invoked on Enter / click. */
   onSelect: () => void;
 }
@@ -384,6 +456,7 @@ interface RecordResult {
   slug: string;
   id: string;
   label: string;
+  avatarUrl?: string;
 }
 
 /** A favorite as surfaced in the menu (object slug + record id). */
@@ -567,6 +640,7 @@ export function TwentyCommandMenu({
               slug: obj.slug,
               id: row.id,
               label: deriveRecordLabel(row, obj.labelFieldKey),
+              avatarUrl: deriveRecordAvatarUrl(row),
             })),
           );
           setRecords(flat);
@@ -601,8 +675,8 @@ export function TwentyCommandMenu({
    * navigate. Used by record search results, recents, and favorites alike.
    */
   const openRecord = React.useCallback(
-    (slug: string, id: string, label: string) => {
-      pushRecent({ slug, id, label });
+    (slug: string, id: string, label: string, avatarUrl?: string) => {
+      pushRecent({ slug, id, label, avatarUrl });
       setRecents(readRecents());
       navigate(`/sabcrm/${slug}/${id}`);
     },
@@ -751,26 +825,42 @@ export function TwentyCommandMenu({
   // ----- "Records" group: jump to a record ----------------------------------
   const recordItems = React.useMemo<CmdItem[]>(
     () =>
-      records.map((r) => ({
-        key: `rec-${r.slug}-${r.id}`,
-        label: r.label || 'Untitled',
-        meta: singularLabelForSlug(r.slug, catalogue),
-        icon: iconForSlug(r.slug),
-        onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
-      })),
+      records.map((r) => {
+        const label = r.label || 'Untitled';
+        return {
+          key: `rec-${r.slug}-${r.id}`,
+          label,
+          meta: singularLabelForSlug(r.slug, catalogue),
+          icon: iconForSlug(r.slug),
+          avatar: {
+            name: label,
+            src: r.avatarUrl,
+            shape: avatarShapeForSlug(r.slug),
+          },
+          onSelect: () => openRecord(r.slug, r.id, label, r.avatarUrl),
+        };
+      }),
     [records, catalogue, openRecord],
   );
 
   // Empty-query "Recent" group (from localStorage).
   const recentItems = React.useMemo<CmdItem[]>(
     () =>
-      recents.map((r) => ({
-        key: `recent-${r.slug}-${r.id}`,
-        label: r.label || 'Untitled',
-        meta: singularLabelForSlug(r.slug, catalogue),
-        icon: STANDARD_OBJECT_ICON[r.slug] ?? Clock,
-        onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
-      })),
+      recents.map((r) => {
+        const label = r.label || 'Untitled';
+        return {
+          key: `recent-${r.slug}-${r.id}`,
+          label,
+          meta: singularLabelForSlug(r.slug, catalogue),
+          icon: STANDARD_OBJECT_ICON[r.slug] ?? Clock,
+          avatar: {
+            name: label,
+            src: r.avatarUrl,
+            shape: avatarShapeForSlug(r.slug),
+          },
+          onSelect: () => openRecord(r.slug, r.id, label, r.avatarUrl),
+        };
+      }),
     [recents, catalogue, openRecord],
   );
 
@@ -784,6 +874,10 @@ export function TwentyCommandMenu({
           label,
           meta: singularLabelForSlug(f.object, catalogue),
           icon: STANDARD_OBJECT_ICON[f.object] ?? Star,
+          avatar: {
+            name: label,
+            shape: avatarShapeForSlug(f.object),
+          },
           onSelect: () => openRecord(f.object, f.recordId, label),
         };
       }),
@@ -955,9 +1049,20 @@ export function TwentyCommandMenu({
         onMouseMove={() => setActiveIndex(index)}
         onClick={() => item.onSelect()}
       >
-        <span className="st-cmdk-row__icon">
-          <Icon size={16} aria-hidden="true" />
-        </span>
+        {item.avatar ? (
+          <span className="st-cmdk-row__avatar">
+            <TwentyAvatar
+              name={item.avatar.name}
+              src={item.avatar.src}
+              shape={item.avatar.shape}
+              size="sm"
+            />
+          </span>
+        ) : (
+          <span className="st-cmdk-row__icon">
+            <Icon size={16} aria-hidden="true" />
+          </span>
+        )}
         <span className="st-cmdk-row__label">{item.label}</span>
         {item.meta ? <span className="st-cmdk-row__meta">{item.meta}</span> : null}
       </button>
