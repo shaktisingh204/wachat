@@ -12,7 +12,9 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { getSession } from '@/lib/actions/user.actions';
+// Use the canonical, C4-gated getSession (the one 607 call sites use) instead of
+// the legacy pure-Mongo `@/lib/actions/user.actions` variant. Same `{ user }` shape.
+import { getSession } from '@/app/actions/user.actions';
 import { generateApiKeySecret, generateSessionToken, sha256Hex } from '@/lib/sabcatalyst/hash';
 import { getFunctionExecutor } from '@/lib/sabcatalyst/executor';
 

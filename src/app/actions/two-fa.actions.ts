@@ -38,12 +38,17 @@ import { dispatchTransactionalEmail } from '@/lib/email-dispatcher';
 // Defaults (off/mongo) keep every path below byte-identical to today.
 import {
   shouldWritePg,
+  shouldWriteMongo,
   shouldReadPg,
   pgReadAllowsFallback,
   authPgRead,
 } from '@/lib/identity/auth-flags';
 import { pgMfaStore } from '@/lib/identity/pg-stores';
 import type { PgMfaMethodRow } from '@/lib/postgres-schema';
+// Inline parameterized PG access for the email-2FA *challenge* (transient login
+// code) — mirrored into the same mfa_methods table as a distinct per-user row.
+import { pgQuery } from '@/lib/postgres';
+import { IDENTITY_SCHEMA } from '@/lib/postgres-schema';
 
 const PROFILE_PATH = '/dashboard/profile/2fa-setup';
 const EMAIL_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -223,6 +228,89 @@ async function pgReadActiveMfa(
     // On error: fall back to Mongo unless strictly pg.
     if (authPgRead() === 'pg') throw pgErr;
     return undefined;
+  }
+}
+
+/* ──────────── Postgres email-2FA CHALLENGE mirror (Lane V-3) ──────────── */
+
+// The transient login challenge (hashed 6-digit email code + expiry) lives on
+// the Mongo user doc as twoFactorChallengeCode / twoFactorChallengeExpiresAt.
+// We mirror it into the SAME mfa_methods table as a distinct deterministic row
+// per user (id=`${userId}:email-challenge`, kind='email-challenge') so the
+// staged migration can read/clear the challenge from Postgres. This is separate
+// from the `${userId}:active` enabled-method row above. Inline parameterized
+// pgQuery only — no schema/store edits.
+function emailChallengeMfaId(userId: string): string {
+  return `${userId}:email-challenge`;
+}
+
+/**
+ * Best-effort dual-write of the email-2FA challenge into Postgres. `code` is the
+ * already-hashed code; `expiresAt` is an epoch-ms number stored in data jsonb so
+ * the row mirrors the Mongo twoFactorChallengeCode/ExpiresAt pair. Never throws.
+ */
+async function pgWriteEmailChallenge(
+  userId: string,
+  hashedCode: string,
+  expiresAt: number,
+): Promise<void> {
+  if (!shouldWritePg()) return;
+  try {
+    await pgQuery(
+      `INSERT INTO ${IDENTITY_SCHEMA}.mfa_methods (id, user_id, kind, data)
+         VALUES ($1, $2, 'email-challenge', $3::jsonb)
+       ON CONFLICT (id) DO UPDATE
+         SET user_id = EXCLUDED.user_id,
+             kind = EXCLUDED.kind,
+             data = EXCLUDED.data`,
+      [
+        emailChallengeMfaId(userId),
+        userId,
+        JSON.stringify({ code: hashedCode, expiresAt }),
+      ],
+    );
+  } catch (pgErr) {
+    console.error('[2fa] Postgres email-challenge upsert failed (non-fatal):', pgErr);
+  }
+}
+
+/**
+ * Read the email-2FA challenge from Postgres when the read path is opted in.
+ * Returns the { code, expiresAt } payload, `null` (strict-pg authoritative "no
+ * challenge"), or `undefined` (use the Mongo fallback — read mode off, or a
+ * recoverable miss/error under pg-fallback).
+ */
+async function pgReadEmailChallenge(
+  userId: string,
+): Promise<{ code?: string; expiresAt?: number } | null | undefined> {
+  if (!shouldReadPg()) return undefined; // mongo-only mode → caller uses Mongo
+  try {
+    const res = await pgQuery<{ data: { code?: string; expiresAt?: number } | null }>(
+      `SELECT data FROM ${IDENTITY_SCHEMA}.mfa_methods WHERE id = $1`,
+      [emailChallengeMfaId(userId)],
+    );
+    const row = res.rows[0];
+    if (row) return (row.data ?? {}) as { code?: string; expiresAt?: number };
+    // Miss: in pg-fallback let Mongo answer; in strict pg this IS the answer.
+    return pgReadAllowsFallback() ? undefined : null;
+  } catch (pgErr) {
+    console.error('[2fa] Postgres email-challenge read failed:', pgErr);
+    // On error: fall back to Mongo unless strictly pg.
+    if (authPgRead() === 'pg') throw pgErr;
+    return undefined;
+  }
+}
+
+/** Best-effort clear of the mirrored email-2FA challenge row. Never throws. */
+async function pgClearEmailChallenge(userId: string): Promise<void> {
+  if (!shouldWritePg()) return;
+  try {
+    await pgQuery(
+      `DELETE FROM ${IDENTITY_SCHEMA}.mfa_methods WHERE id = $1`,
+      [emailChallengeMfaId(userId)],
+    );
+  } catch (pgErr) {
+    console.error('[2fa] Postgres email-challenge clear failed (non-fatal):', pgErr);
   }
 }
 
@@ -547,15 +635,22 @@ export async function checkRequires2fa(userId: string): Promise<{
   if (method === 'email') {
     try {
       const code = genEmailCode();
-      await db.collection('users').updateOne(
-        { _id: new ObjectId(userId) },
-        {
-          $set: {
-            twoFactorChallengeCode: hashEmailCode(code),
-            twoFactorChallengeExpiresAt: new Date(Date.now() + EMAIL_CODE_TTL_MS),
+      const hashedCode = hashEmailCode(code);
+      const expiresAt = Date.now() + EMAIL_CODE_TTL_MS;
+      // Skip the Mongo write only under pg-only (!shouldWriteMongo()).
+      if (shouldWriteMongo()) {
+        await db.collection('users').updateOne(
+          { _id: new ObjectId(userId) },
+          {
+            $set: {
+              twoFactorChallengeCode: hashedCode,
+              twoFactorChallengeExpiresAt: new Date(expiresAt),
+            },
           },
-        },
-      );
+        );
+      }
+      // Mirror the challenge into Postgres (best-effort, gated).
+      await pgWriteEmailChallenge(userId, hashedCode, expiresAt);
       // `email` is resolved above (PG data.email or the Mongo lookup). If the
       // PG row didn't carry it, fall back to a Mongo email read for delivery.
       let deliverTo = email;
@@ -642,20 +737,41 @@ export async function verifyTwoFactorChallenge(
         }
       }
     } else if (method === 'email') {
-      const stored = (u as any)?.twoFactorChallengeCode as string | undefined;
-      const exp = (u as any)?.twoFactorChallengeExpiresAt as Date | undefined;
-      if (stored && exp && exp.getTime() >= Date.now() && stored === hashEmailCode(clean)) {
-        await db
-          .collection('users')
-          .updateOne(
-            { _id: new ObjectId(userId) },
-            {
-              $unset: {
-                twoFactorChallengeCode: '',
-                twoFactorChallengeExpiresAt: '',
+      // Resolve the challenge (hashed code + expiry) from Postgres when the read
+      // path is opted in; otherwise from the Mongo doc. pgChallenge === undefined
+      // → use Mongo; null → strict-pg "no challenge"; object → PG payload.
+      const pgChallenge = await pgReadEmailChallenge(userId);
+      let stored: string | undefined;
+      let expMs: number | undefined;
+      if (pgChallenge === null) {
+        // strict-pg: no mirrored challenge → nothing to match against here.
+        stored = undefined;
+        expMs = undefined;
+      } else if (pgChallenge !== undefined) {
+        stored = pgChallenge.code;
+        expMs = typeof pgChallenge.expiresAt === 'number' ? pgChallenge.expiresAt : undefined;
+      } else {
+        stored = (u as any)?.twoFactorChallengeCode as string | undefined;
+        const exp = (u as any)?.twoFactorChallengeExpiresAt as Date | undefined;
+        expMs = exp?.getTime();
+      }
+      if (stored && expMs != null && expMs >= Date.now() && stored === hashEmailCode(clean)) {
+        // Clear the consumed challenge. Skip Mongo only under pg-only.
+        if (shouldWriteMongo()) {
+          await db
+            .collection('users')
+            .updateOne(
+              { _id: new ObjectId(userId) },
+              {
+                $unset: {
+                  twoFactorChallengeCode: '',
+                  twoFactorChallengeExpiresAt: '',
+                },
               },
-            },
-          );
+            );
+        }
+        // Clear the mirrored PG challenge row (best-effort, gated).
+        await pgClearEmailChallenge(userId);
         return { ok: true };
       }
     }

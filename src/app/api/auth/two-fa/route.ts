@@ -19,8 +19,10 @@ import { verifyTwoFactorChallenge } from '@/app/actions/two-fa.actions';
 import type { SessionPayload, User, WithId } from '@/lib/definitions';
 // C4 flags + C2 PG user store for the staged Mongo→Postgres auth migration.
 // Defaults (mongo) keep the post-2FA session mint byte-identical to today.
-import { authPgRead } from '@/lib/identity/auth-flags';
+import { authPgRead, shouldWritePg, shouldWriteMongo } from '@/lib/identity/auth-flags';
 import { pgUserStore } from '@/lib/identity/pg-stores';
+// Inline parameterized PG access for the login_attempts dual-write.
+import { pgQuery } from '@/lib/postgres';
 
 const SESSION_DURATION_S = 7 * 24 * 60 * 60;
 
@@ -46,13 +48,30 @@ export async function POST(request: NextRequest) {
     const reqUserAgent = request.headers.get('user-agent') || 'Unknown';
     const now = new Date();
     const { db } = await connectToDatabase();
-    await db.collection('login_attempts').insertOne({
-        userId: new ObjectId(userId),
-        ip: reqIp,
-        userAgent: reqUserAgent,
-        status: result.ok ? 'success' : 'failed',
-        createdAt: now
-    });
+    const attemptStatus = result.ok ? 'success' : 'failed';
+    // Mongo login_attempts stays unless pg-only writes are configured.
+    if (shouldWriteMongo()) {
+        await db.collection('login_attempts').insertOne({
+            userId: new ObjectId(userId),
+            ip: reqIp,
+            userAgent: reqUserAgent,
+            status: attemptStatus,
+            createdAt: now
+        });
+    }
+    // Best-effort dual-write to sabnode_identity.login_attempts (never fatal).
+    // Email isn't resolved at this challenge step; user_id carries identity.
+    if (shouldWritePg()) {
+        try {
+            await pgQuery(
+                `INSERT INTO sabnode_identity.login_attempts (email, user_id, ip, outcome, reason)
+                   VALUES ($1, $2, $3, $4, $5)`,
+                [null, userId, reqIp, attemptStatus, result.ok ? null : (result.error ?? null)],
+            );
+        } catch (pgErr) {
+            console.error('[API_TWO_FA] Postgres login_attempts write failed (non-fatal):', pgErr);
+        }
+    }
 
     if (!result.ok) {
       return new Response(result.error ?? 'Invalid code.', { status: 401 });

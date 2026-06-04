@@ -7,8 +7,15 @@ import type { User, WithId, SessionPayload } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 // C4 flags + C2 PG user store for the staged Mongo→Postgres auth migration.
 // Defaults (off/mongo) keep this byte-identical to today.
-import { shouldWritePg, shouldWriteMongo } from '@/lib/identity/auth-flags';
+import {
+    shouldWritePg,
+    shouldWriteMongo,
+    shouldReadPg,
+    authPgRead,
+} from '@/lib/identity/auth-flags';
 import { pgUserStore } from '@/lib/identity/pg-stores';
+// Inline parameterized PG access for the default-plan read + login_attempts write.
+import { pgQuery } from '@/lib/postgres';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
@@ -39,7 +46,25 @@ export async function POST(request: NextRequest) {
         const location = requestBody.location; // GeoJSON object
         console.log(`[API_SESSION] Upserting user: ${decodedToken.email}`);
         
-        const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+        // Default plan resolution. Under the read flag we source the default
+        // plan from sabnode_identity.plans (the plan doc lives in the `data`
+        // jsonb). Any miss/error falls back to the Mongo read so signup is never
+        // blocked — except in strict 'pg' mode where PG is authoritative.
+        let defaultPlan: any = null;
+        if (shouldReadPg()) {
+            try {
+                const { rows } = await pgQuery<{ data: any }>(
+                    `SELECT data FROM sabnode_identity.plans WHERE data->>'isDefault' = 'true' LIMIT 1`,
+                );
+                defaultPlan = rows[0]?.data ?? null;
+            } catch (pgErr) {
+                console.error('[API_SESSION] Postgres default-plan read failed, falling back to Mongo:', pgErr);
+            }
+        }
+        // Mongo fallback on a PG miss/error, unless strict 'pg' is authoritative.
+        if (!defaultPlan && authPgRead() !== 'pg') {
+            defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+        }
 
         const setOnInsertData: any = {
             name,
@@ -74,7 +99,10 @@ export async function POST(request: NextRequest) {
         // pg-only requires the read path to source the user from Postgres
         // (Lane A), we still need a user doc here, so we re-read it from Mongo
         // even under pg-only to avoid breaking the live login flow.
-        let user: WithId<User>;
+        let user: WithId<User> | null = null;
+
+        // Mongo write/upsert remains the source of new-user creation on signup
+        // (and refreshes lastLogin). Skipped only under pg-only writes.
         if (shouldWriteMongo()) {
             const updateResult = await db.collection('users').findOneAndUpdate(
                 { email: decodedToken.email },
@@ -90,12 +118,41 @@ export async function POST(request: NextRequest) {
             }
 
             user = updateResult as WithId<User>;
-        } else {
-            // pg-only: skip the Mongo write, but resolve the existing user doc
-            // so the rest of the (Mongo-built) login flow can proceed safely.
+        }
+
+        // Strict 'pg' read: resolve the user from Postgres (identity cols +
+        // profile jsonb) and rebuild the legacy Mongo doc the flow needs. This
+        // overrides any Mongo-resolved doc above so PG is authoritative; a
+        // miss/error here intentionally leaves `user` for the Mongo fallback
+        // below — never lock out.
+        if (authPgRead() === 'pg') {
+            try {
+                const byEmail = await pgUserStore.findByEmail(decodedToken.email!);
+                if (byEmail?.legacy_mongo_id) {
+                    const pgRow = await pgUserStore.getFullByMongoId(byEmail.legacy_mongo_id);
+                    const profile = (pgRow?.profile ?? null) as Record<string, any> | null;
+                    if (profile && pgRow?.legacy_mongo_id && ObjectId.isValid(pgRow.legacy_mongo_id)) {
+                        // profile carries _id as a string; restore the ObjectId so
+                        // the rest of the flow (2FA check, session payload) is unchanged.
+                        user = {
+                            ...(profile as any),
+                            _id: new ObjectId(pgRow.legacy_mongo_id),
+                            email: profile.email ?? pgRow.email,
+                        } as WithId<User>;
+                    }
+                }
+            } catch (pgErr) {
+                console.error('[API_SESSION] Postgres user read failed, falling back to Mongo:', pgErr);
+            }
+        }
+
+        // Fallback: if we still have no user (pg-only write with no PG read, or a
+        // strict-pg miss/error), read the existing user from Mongo so the
+        // (Mongo-built) login flow can proceed safely and login never locks out.
+        if (!user) {
             const existing = await db.collection('users').findOne({ email: decodedToken.email });
             if (!existing) {
-                throw new Error('Could not find user profile after login (pg-only).');
+                throw new Error('Could not find user profile after login.');
             }
             user = existing as WithId<User>;
         }
@@ -144,13 +201,29 @@ export async function POST(request: NextRequest) {
 
         const reqIp = request.headers.get('x-forwarded-for') || request.ip || 'Unknown';
         const reqUserAgent = request.headers.get('user-agent') || 'Unknown';
-        await db.collection('login_attempts').insertOne({
-            userId: user._id,
-            ip: reqIp,
-            userAgent: reqUserAgent,
-            status: challenge.requires2fa ? 'pending_2fa' : 'success',
-            createdAt: now
-        });
+        const attemptStatus = challenge.requires2fa ? 'pending_2fa' : 'success';
+        // Mongo login_attempts stays unless pg-only writes are configured.
+        if (shouldWriteMongo()) {
+            await db.collection('login_attempts').insertOne({
+                userId: user._id,
+                ip: reqIp,
+                userAgent: reqUserAgent,
+                status: attemptStatus,
+                createdAt: now
+            });
+        }
+        // Best-effort dual-write to sabnode_identity.login_attempts (never fatal).
+        if (shouldWritePg()) {
+            try {
+                await pgQuery(
+                    `INSERT INTO sabnode_identity.login_attempts (email, user_id, ip, outcome, reason)
+                       VALUES ($1, $2, $3, $4, $5)`,
+                    [user.email, user._id.toString(), reqIp, attemptStatus, null],
+                );
+            } catch (pgErr) {
+                console.error('[API_SESSION] Postgres login_attempts write failed (non-fatal):', pgErr);
+            }
+        }
 
         if (challenge.requires2fa) {
             // Short-lived "pending" cookie so the next request can identify
