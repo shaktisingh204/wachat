@@ -25,6 +25,7 @@ import * as React from 'react';
 
 import { TwentyAvatar, TwentyChip } from './twenty-primitives';
 import { useResolveActorName, type ResolveActorName } from './sabcrm-actors-context';
+import { useSabcrmSettings } from './sabcrm-settings-context';
 import type { FieldMetadata, FieldOption } from '@/lib/sabcrm/types';
 
 import './twenty-field.css';
@@ -524,6 +525,9 @@ export function TwentyFieldValue({
   // Resolve ACTOR ids → member names (no-op outside the SabCRM layout's
   // SabcrmActorNameProvider, so this stays safe everywhere).
   const resolveActorName = useResolveActorName();
+  // Locale-aware formatters from the workspace Localization settings (date /
+  // number / currency). Defaults to en-US outside the settings provider.
+  const { fmt } = useSabcrmSettings();
   // Some types legitimately carry an array / object that `isEmpty` ignores
   // (e.g. empty string), but most empty values collapse to an em-dash.
   const ARRAY_OR_OBJECT_TYPES: ReadonlySet<FieldMetadata['type']> = new Set([
@@ -574,7 +578,7 @@ export function TwentyFieldValue({
       }
       return (
         <span className="st-field-money">
-          {formatCurrency(money.amount, money.code)}
+          {fmt.currency(money.amount, money.code)}
           <span className="st-field-money__code">{money.code}</span>
         </span>
       );
@@ -588,7 +592,7 @@ export function TwentyFieldValue({
       return Number.isNaN(n) ? (
         <span className="st-field-text">{String(value)}</span>
       ) : (
-        <span className="st-field-num">{formatNumber(n)}</span>
+        <span className="st-field-num">{fmt.number(n)}</span>
       );
     }
 
@@ -641,16 +645,16 @@ export function TwentyFieldValue({
     }
 
     case 'DATE': {
-      const out = formatDate(value, false);
+      const out = isEmpty(value) ? null : fmt.date(value);
       return (
-        <span className="st-field-date">{out ?? String(value)}</span>
+        <span className="st-field-date">{out || String(value)}</span>
       );
     }
 
     case 'DATE_TIME': {
-      const out = formatDate(value, true);
+      const out = isEmpty(value) ? null : fmt.dateTime(value);
       return (
-        <span className="st-field-date">{out ?? String(value)}</span>
+        <span className="st-field-date">{out || String(value)}</span>
       );
     }
 
