@@ -96,6 +96,7 @@ import type {
   FieldMetadata,
   FieldType,
 } from '@/lib/sabcrm/types';
+import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -271,11 +272,28 @@ function displayValue(field: FieldMetadata | undefined, raw: string): string {
  * Compile UI {@link FilterCondition}s into the per-field
  * {@link SabcrmFilterValue} map the actions layer (and Mongo) understand.
  * Multiple conditions on the same field are merged into one operator object.
+ *
+ * When `logicOp` is `'or'` (Lab: `advancedFilterGroups`), every condition is
+ * compiled independently and the results are wrapped in a Mongo `$or` array so
+ * records matching ANY condition are returned. The default `'and'` behaviour
+ * (merge per-field into a single object) is unchanged.
  */
 export function buildFilterMap(
   object: ObjectMetadata,
   conditions: FilterCondition[],
+  logicOp: 'and' | 'or' = 'and',
 ): Record<string, SabcrmFilterValue> {
+  // OR mode: compile each condition independently, then wrap in $or.
+  if (logicOp === 'or' && conditions.length > 1) {
+    const clauses: Record<string, SabcrmFilterValue>[] = conditions.map((c) =>
+      buildFilterMap(object, [c], 'and'),
+    );
+    const nonEmpty = clauses.filter((cl) => Object.keys(cl).length > 0);
+    if (nonEmpty.length === 0) return {};
+    // Mongo: { $or: [ { field: { $eq: v } }, ... ] }
+    return { $or: nonEmpty } as unknown as Record<string, SabcrmFilterValue>;
+  }
+
   const out: Record<string, SabcrmFilterValue> = {};
 
   for (const cond of conditions) {
@@ -447,6 +465,9 @@ export function ViewToolbar({
   className,
 }: ViewToolbarProps): React.ReactElement {
   const { toast } = useZoruToast();
+  const { lab } = useSabcrmSettings();
+  /** Last-applied AND/OR logic from the filter dialog (Lab: advancedFilterGroups). */
+  const filterLogicRef = React.useRef<'and' | 'or'>('and');
 
   // Stable id for the search input — generated once per mount.
   const searchInputId = React.useRef(`sabcrm-search-${++_toolbarCounter}`);
@@ -837,7 +858,9 @@ export function ViewToolbar({
         object={object}
         fields={fields}
         conditions={state.filters}
-        onApply={(conditions) => {
+        showLogicToggle={lab.advancedFilterGroups === true}
+        onApply={(conditions, logicOp) => {
+          filterLogicRef.current = logicOp;
           setActiveViewId(null);
           patch({ filters: conditions });
           setFilterOpen(false);
@@ -1093,7 +1116,9 @@ interface FilterDialogProps {
   object: ObjectMetadata;
   fields: FieldMetadata[];
   conditions: FilterCondition[];
-  onApply: (conditions: FilterCondition[]) => void;
+  /** When true (Lab: advancedFilterGroups), the AND/OR logic toggle is shown. */
+  showLogicToggle?: boolean;
+  onApply: (conditions: FilterCondition[], logicOp: 'and' | 'or') => void;
 }
 
 const FilterDialog = React.memo(function FilterDialog({
@@ -1102,12 +1127,18 @@ const FilterDialog = React.memo(function FilterDialog({
   object,
   fields,
   conditions,
+  showLogicToggle = false,
   onApply,
 }: FilterDialogProps): React.ReactElement {
   const [draft, setDraft] = React.useState<FilterCondition[]>(conditions);
+  /** AND = records must match every condition (default). OR = any condition. */
+  const [logicOp, setLogicOp] = React.useState<'and' | 'or'>('and');
 
   React.useEffect(() => {
-    if (open) setDraft(conditions);
+    if (open) {
+      setDraft(conditions);
+      setLogicOp('and');
+    }
   }, [open, conditions]);
 
   const addRow = React.useCallback(() => {
@@ -1137,8 +1168,8 @@ const FilterDialog = React.memo(function FilterDialog({
     const cleaned = draft.filter(
       (c) => VALUELESS_OPERATORS.has(c.operator) || c.value.trim() !== '',
     );
-    onApply(cleaned);
-  }, [draft, onApply]);
+    onApply(cleaned, logicOp);
+  }, [draft, logicOp, onApply]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -1146,9 +1177,39 @@ const FilterDialog = React.memo(function FilterDialog({
         <ZoruDialogHeader>
           <ZoruDialogTitle>Filters</ZoruDialogTitle>
           <ZoruDialogDescription>
-            Records must match every condition.
+            {showLogicToggle && logicOp === 'or'
+              ? 'Records must match any condition.'
+              : 'Records must match every condition.'}
           </ZoruDialogDescription>
         </ZoruDialogHeader>
+
+        {/* Lab: advancedFilterGroups — AND / OR logic toggle */}
+        {showLogicToggle && (
+          <div
+            className="inline-flex items-center gap-1 rounded-[var(--zoru-radius)] border border-zoru-line p-0.5 self-start"
+            role="group"
+            aria-label="Filter logic"
+          >
+            <Button
+              type="button"
+              size="sm"
+              variant={logicOp === 'and' ? 'secondary' : 'ghost'}
+              aria-pressed={logicOp === 'and'}
+              onClick={() => setLogicOp('and')}
+            >
+              AND
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={logicOp === 'or' ? 'secondary' : 'ghost'}
+              aria-pressed={logicOp === 'or'}
+              onClick={() => setLogicOp('or')}
+            >
+              OR
+            </Button>
+          </div>
+        )}
 
         <div
           className="flex max-h-[55vh] flex-col gap-2 overflow-y-auto py-1 pr-1"

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, X } from 'lucide-react';
+import { Bell, BellOff, X } from 'lucide-react';
 
 import {
   listNotificationsTw,
@@ -11,6 +11,7 @@ import {
   markAllNotificationsReadTw,
   deleteNotificationTw,
 } from '@/app/actions/sabcrm-notifications.actions';
+import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 /** Shape returned by {@link listNotificationsTw}. */
 type SabcrmNotification = {
@@ -51,6 +52,9 @@ function relativeTime(value: string | number | Date): string {
  */
 export function NotificationsBell(): React.JSX.Element {
   const router = useRouter();
+  const { notifications = {} } = useSabcrmSettings();
+  const muteAll = notifications.muteAll === true;
+  const eventPrefs = notifications.events ?? {};
 
   const [open, setOpen] = React.useState(false);
   const [unread, setUnread] = React.useState(0);
@@ -168,22 +172,42 @@ export function NotificationsBell(): React.JSX.Element {
     [],
   );
 
-  const hasUnread = unread > 0;
+  // Suppress badge when muted; filter items whose event kind has inApp=false.
+  const hasUnread = !muteAll && unread > 0;
   const badgeText = unread > 99 ? '99+' : String(unread);
+
+  const visibleItems = React.useMemo(
+    () =>
+      items.filter((n) => {
+        if (!n.kind) return true; // unknown kind — always show
+        const pref = eventPrefs[n.kind];
+        if (!pref) return true; // no pref for this kind — always show
+        return pref.inApp !== false;
+      }),
+    [items, eventPrefs],
+  );
 
   return (
     <div className="st-notif" ref={rootRef}>
       <button
         type="button"
-        className={`st-notif__btn${open ? ' active' : ''}`}
+        className={`st-notif__btn${open ? ' active' : ''}${muteAll ? ' st-notif__btn--muted' : ''}`}
         aria-label={
-          hasUnread ? `Notifications, ${unread} unread` : 'Notifications'
+          muteAll
+            ? 'Notifications muted'
+            : hasUnread
+              ? `Notifications, ${unread} unread`
+              : 'Notifications'
         }
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <Bell size={16} aria-hidden="true" />
+        {muteAll ? (
+          <BellOff size={16} aria-hidden="true" style={{ opacity: 0.55 }} />
+        ) : (
+          <Bell size={16} aria-hidden="true" />
+        )}
         {hasUnread ? (
           <span className="st-notif__badge" aria-hidden="true">
             {badgeText}
@@ -194,7 +218,17 @@ export function NotificationsBell(): React.JSX.Element {
       {open ? (
         <div className="st-notif__panel" role="dialog" aria-label="Notifications">
           <div className="st-notif__header">
-            <span className="st-notif__title">Notifications</span>
+            <span className="st-notif__title">
+              Notifications
+              {muteAll ? (
+                <span
+                  className="st-notif__muted-hint"
+                  style={{ marginLeft: 6, fontSize: '0.72em', opacity: 0.55, fontWeight: 400 }}
+                >
+                  Muted
+                </span>
+              ) : null}
+            </span>
             <button
               type="button"
               className="st-notif__mark-all"
@@ -206,12 +240,12 @@ export function NotificationsBell(): React.JSX.Element {
           </div>
 
           <div className="st-notif__list">
-            {loading && items.length === 0 ? (
+            {loading && visibleItems.length === 0 ? (
               <div className="st-notif__empty">Loading…</div>
-            ) : items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <div className="st-notif__empty">You're all caught up</div>
             ) : (
-              items.map((n) => (
+              visibleItems.map((n) => (
                 <button
                   key={n.id}
                   type="button"

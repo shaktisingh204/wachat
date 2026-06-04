@@ -70,6 +70,7 @@ import {
   resolveRecordTitle,
   type RelationOption,
 } from './field-renderer';
+import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 export interface RecordDetailProps {
   object: ObjectMetadata;
@@ -161,6 +162,7 @@ export function RecordDetail({
   className,
 }: RecordDetailProps): React.ReactElement {
   const { toast } = useZoruToast();
+  const { fmt } = useSabcrmSettings();
 
   const [fetched, setFetched] = React.useState<CrmRecordWithLabel | null>(
     recordProp ?? null,
@@ -586,11 +588,11 @@ export function RecordDetail({
         <div className="flex flex-wrap items-center gap-x-6 gap-y-1 px-5 py-3 text-xs text-zoru-ink-muted">
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
-            Created {formatTimestamp(record.createdAt)}
+            Created {record.createdAt ? fmt.dateTime(record.createdAt) : '—'}
           </span>
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
-            Updated {formatTimestamp(record.updatedAt)}
+            Updated {record.updatedAt ? fmt.dateTime(record.updatedAt) : '—'}
           </span>
         </div>
       </CardContent>

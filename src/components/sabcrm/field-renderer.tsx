@@ -65,6 +65,7 @@ import {
   RelationValue,
   type RelationOption,
 } from './relation-input';
+import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 // Re-export so existing call sites (e.g. record-form-dialog) keep importing
 // the RELATION option type from the field renderer barrel.
@@ -189,6 +190,8 @@ export const FieldValue = React.memo(function FieldValue({
   dense = false,
   className,
 }: FieldValueProps): React.ReactElement {
+  const { fmt } = useSabcrmSettings();
+
   const empty = (
     <span className="text-zoru-ink-muted/60" aria-label="Empty">
       <Minus className="h-3.5 w-3.5" />
@@ -199,12 +202,16 @@ export const FieldValue = React.memo(function FieldValue({
     case 'TEXT':
     case 'NUMBER':
     case 'CURRENCY': {
-      const text =
-        field.type === 'CURRENCY'
-          ? formatCurrency(value)
-          : field.type === 'NUMBER'
-            ? formatNumber(value)
-            : asString(value);
+      let text: string;
+      if (field.type === 'CURRENCY') {
+        const n = asNumber(value);
+        text = n === '' ? '' : fmt.currency(n);
+      } else if (field.type === 'NUMBER') {
+        const n = asNumber(value);
+        text = n === '' ? '' : fmt.number(n);
+      } else {
+        text = asString(value);
+      }
       if (!text) return empty;
       return (
         <span className={cn('text-zoru-ink', dense && 'truncate', className)}>
@@ -231,7 +238,8 @@ export const FieldValue = React.memo(function FieldValue({
 
     case 'DATE':
     case 'DATE_TIME': {
-      const text = formatDate(value, field.type === 'DATE_TIME');
+      const text =
+        field.type === 'DATE_TIME' ? fmt.dateTime(value) : fmt.date(value);
       if (!text) return empty;
       return (
         <span className={cn('tabular-nums text-zoru-ink', className)}>{text}</span>

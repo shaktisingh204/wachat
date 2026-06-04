@@ -24,6 +24,7 @@ import {
   UserCog,
   SlidersHorizontal,
   Palette,
+  Zap,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -38,6 +39,7 @@ import type {
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import { TwentyAvatar } from './twenty-primitives';
 import type { TwentyAvatarShape } from './twenty-primitives';
+import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 import './twenty-command-menu.css';
 
@@ -505,6 +507,7 @@ export function TwentyCommandMenu({
   onHelpOpenChange,
 }: TwentyCommandMenuProps): React.JSX.Element | null {
   const router = useRouter();
+  const { lab } = useSabcrmSettings();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
 
@@ -822,6 +825,27 @@ export function TwentyCommandMenu({
     ];
   }, [darkActive, term, runToggleTheme]);
 
+  // ----- "Actions" group: record-level actions (Lab: commandMenuActions) ----
+  // Only shown when the `commandMenuActions` Lab flag is on. With the flag off
+  // (the default) nothing changes — no regression. With it on, a new "Actions"
+  // group appears that lets the user navigate to inline-create or object-level
+  // action pages for each object. This is the _experimental_ wire; a richer
+  // implementation (delete, archive, etc.) can follow once stabilised.
+  const actionItems = React.useMemo<CmdItem[]>(() => {
+    if (!lab.commandMenuActions) return [];
+    return catalogue
+      .filter((o) =>
+        matchesTerm(term, `${o.labelSingular} actions`, `manage ${o.labelSingular}`, o.slug),
+      )
+      .map((o) => ({
+        key: `action-${o.slug}`,
+        label: `${o.labelSingular} actions`,
+        meta: 'Actions',
+        icon: Zap,
+        onSelect: () => navigate(`/sabcrm/${o.slug}?actions=1`),
+      }));
+  }, [lab.commandMenuActions, catalogue, term, navigate]);
+
   // ----- "Records" group: jump to a record ----------------------------------
   const recordItems = React.useMemo<CmdItem[]>(
     () =>
@@ -899,6 +923,7 @@ export function TwentyCommandMenu({
       ...viewItems,
       ...settingsItems,
       ...preferenceItems,
+      ...actionItems,
       ...recordItems,
     ],
     [
@@ -909,6 +934,7 @@ export function TwentyCommandMenu({
       viewItems,
       settingsItems,
       preferenceItems,
+      actionItems,
       recordItems,
     ],
   );
@@ -1141,6 +1167,7 @@ export function TwentyCommandMenu({
             {renderGroup('View', viewItems)}
             {renderGroup('Settings', settingsItems)}
             {renderGroup('Preferences', preferenceItems)}
+            {renderGroup('Actions', actionItems)}
             {renderGroup('Records', recordItems)}
 
             {loading ? (

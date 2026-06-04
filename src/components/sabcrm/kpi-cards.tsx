@@ -31,6 +31,10 @@
 import * as React from 'react';
 import { StatCard, ScrollArea, cn } from '@/components/zoruui';
 import type { CrmDashboardKpis, ObjectRecordCount } from '@/app/actions/sabcrm.actions.types';
+import {
+  useSabcrmSettings,
+  type SabcrmFormatters,
+} from '@/components/sabcrm/twenty/sabcrm-settings-context';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Icon mapping for object types (fallback when icon is a string name)
@@ -233,8 +237,10 @@ export interface KpiCardsProps {
  */
 function RecordCountCards({
   recordCounts,
+  fmt,
 }: {
   recordCounts: ObjectRecordCount[];
+  fmt: SabcrmFormatters;
 }): React.ReactElement {
   if (recordCounts.length === 0) {
     return (
@@ -249,7 +255,7 @@ function RecordCountCards({
     return (
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {recordCounts.map((objRecord) => (
-          <RecordCountCard key={objRecord.slug} record={objRecord} />
+          <RecordCountCard key={objRecord.slug} record={objRecord} fmt={fmt} />
         ))}
       </div>
     );
@@ -261,7 +267,7 @@ function RecordCountCards({
       <div className="flex gap-3 pb-3">
         {recordCounts.map((objRecord) => (
           <div key={objRecord.slug} className="flex-shrink-0" style={{ width: '280px' }}>
-            <RecordCountCard record={objRecord} />
+            <RecordCountCard record={objRecord} fmt={fmt} />
           </div>
         ))}
       </div>
@@ -274,13 +280,15 @@ function RecordCountCards({
  */
 function RecordCountCard({
   record,
+  fmt,
 }: {
   record: ObjectRecordCount;
+  fmt: SabcrmFormatters;
 }): React.ReactElement {
   return (
     <StatCard
       label={record.labelPlural}
-      value={record.count.toLocaleString()}
+      value={fmt.number(record.count)}
       icon={getIconForObject(record.icon)}
     />
   );
@@ -305,12 +313,14 @@ export function KpiCards({
   kpis,
   className,
 }: KpiCardsProps): React.ReactElement {
+  const { fmt } = useSabcrmSettings();
+
   return (
     <div className={cn('space-y-6', className)}>
       {/* Record counts per object */}
       <div>
         <h3 className="mb-3 text-sm font-semibold text-zoru-ink">Records</h3>
-        <RecordCountCards recordCounts={kpis.recordCounts} />
+        <RecordCountCards recordCounts={kpis.recordCounts} fmt={fmt} />
       </div>
 
       {/* Pipeline value + task KPIs in a 2-column grid */}
@@ -318,7 +328,7 @@ export function KpiCards({
         {/* Open opportunities + pipeline value */}
         <StatCard
           label="Pipeline Value"
-          value={`$${formatCurrency(kpis.opportunities.pipelineValue)}`}
+          value={fmt.currency(kpis.opportunities.pipelineValue)}
           icon={<Briefcase />}
         />
 
