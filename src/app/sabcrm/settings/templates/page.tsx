@@ -439,7 +439,8 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
     setError(null);
     try {
       const res = (await listTemplatesTw(
-        { projectId },
+        undefined,
+        projectId,
       )) as ActionResult<Template[]>;
       if (res.ok) {
         setTemplates(res.data);
@@ -533,7 +534,8 @@ export default function SabcrmTemplatesSettingsPage(): React.JSX.Element {
       let res: ActionResult<Template>;
       if (draft.id === null) {
         res = (await createTemplateTw(
-          { ...payload, projectId: activeProjectId },
+          payload,
+          activeProjectId,
         )) as ActionResult<Template>;
       } else {
         res = (await updateTemplateTw(

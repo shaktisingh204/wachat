@@ -6,8 +6,8 @@
  *   - collapsible left field sections (`.sw-section*`),
  *   - the compact "details summary" card at the top of the right column
  *     (`.sw-summary*`),
- *   - the Files tab (attachment chips gathered from activities) and the
- *     read-only Emails empty state (`.sw-files*`, `.sw-emails*`).
+ *   - the Files tab (attachment chips gathered from activities)
+ *     (`.sw-files*`).
  *
  * Twenty look only: reuses the existing `--st-*` design tokens, scoped under
  * `.sw-*` classes so nothing here collides with the shared kit.
@@ -222,55 +222,4 @@
   font-size: var(--st-font-size-xs);
   color: var(--st-text-tertiary);
   max-width: 280px;
-}
-
-/* =========================================================================
-   Emails tab — honest read-only empty state (no email sync)
-   ========================================================================= */
-
-.sw-emails {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: var(--st-space-5) var(--st-space-3);
-  text-align: center;
-}
-
-.sw-emails__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--st-radius);
-  background: var(--st-bg-muted);
-  color: var(--st-text-tertiary);
-}
-
-.sw-emails__title {
-  font-size: var(--st-font-size-sm);
-  font-weight: var(--st-fw-medium);
-  color: var(--st-text);
-}
-
-.sw-emails__hint {
-  font-size: var(--st-font-size-xs);
-  color: var(--st-text-tertiary);
-  max-width: 300px;
-  line-height: 1.5;
-}
-
-.sw-emails__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 2px;
-  padding: 3px 9px;
-  font-size: 11px;
-  font-weight: var(--st-fw-medium);
-  color: var(--st-text-tertiary);
-  background: var(--st-bg-muted);
-  border: 1px solid var(--st-border);
-  border-radius: 999px;
 }

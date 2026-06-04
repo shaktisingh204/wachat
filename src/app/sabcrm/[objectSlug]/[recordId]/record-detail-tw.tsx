@@ -3389,23 +3389,23 @@ export function RecordDetailTw({
   // calls them from its tab switch. Identical behavior either way.
   // -------------------------------------------------------------------------
 
+  // FIELDS widget / fields card — the Twenty-faithful editable field card. Reuses
+  // the same <RecordFieldPanel> (full per-type inline editors) + the existing
+  // optimistic `handleCommit` (→ gated `updateSabcrmRecordTw`) the left column
+  // drives, so a layout FIELDS widget edits exactly like the main field panel.
   const renderFieldsPanel = React.useCallback(
     (): React.JSX.Element =>
-      editableFields.length === 0 ? (
+      object.fields.length === 0 ? (
         <div className="rt-panel__empty">No fields.</div>
       ) : (
-        <div className="rt-fields">
-          {editableFields.map((field) => (
-            <div className="rt-fields__row" key={field.key}>
-              <span className="rt-fields__key">{field.label}</span>
-              <span className="rt-fields__val">
-                <TwentyFieldValue field={field} value={record.data[field.key]} />
-              </span>
-            </div>
-          ))}
-        </div>
+        <RecordFieldPanel
+          object={object}
+          record={record}
+          onUpdate={handleCommit}
+          canEdit
+        />
       ),
-    [editableFields, record.data],
+    [object, record, handleCommit],
   );
 
   const renderNotesPanel = React.useCallback(

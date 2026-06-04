@@ -1,0 +1,248 @@
+/* =========================================================================
+   SabCRM — Native Twenty chart primitives
+   Scoped under .sabcrm-twenty. Plain CSS only. Consumes the --st-* tokens
+   defined in src/styles/sabcrm-twenty.css. NO Tailwind, NO ZoruUI, NO Recharts.
+
+   These styles back the inline-SVG charts in twenty-charts.tsx:
+   TwentyBarChart, TwentyLineChart, TwentyDonutChart. Every chart lives inside
+   the dashboard's existing `.st-panel` chrome, so only the chart-internal
+   chrome (axes, legend, tooltip, states) is defined here.
+   ========================================================================= */
+
+/* ----- Chart frame (the body of an .st-panel that hosts a chart) ----- */
+.st-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+}
+
+.st-chart__desc {
+  margin: -6px 0 0;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* The SVG canvas — responsive width, fixed aspect via height prop. */
+.st-chart__canvas {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.st-chart__canvas text {
+  font-family: var(--st-font);
+}
+
+/* Gridlines + axis baseline. */
+.st-chart__grid {
+  stroke: var(--st-border);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.st-chart__axis {
+  stroke: var(--st-border-strong);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.st-chart__tick {
+  fill: var(--st-text-tertiary);
+  font-size: 11px;
+}
+
+/* ----- Bars ----- */
+.st-chart__bar {
+  fill: var(--st-accent);
+  transition: opacity 120ms ease;
+}
+
+.st-chart__bar:hover {
+  opacity: 0.82;
+}
+
+/* Per-bucket greyscale ramp swatches use inline fills; this is the base. */
+.st-chart__bar--muted {
+  fill: var(--st-text-secondary);
+}
+
+.st-chart__bar-value {
+  fill: var(--st-text-secondary);
+  font-size: 11px;
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Line / area ----- */
+.st-chart__area {
+  fill: var(--st-accent);
+  opacity: 0.1;
+}
+
+.st-chart__line {
+  fill: none;
+  stroke: var(--st-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.st-chart__dot {
+  fill: var(--st-bg);
+  stroke: var(--st-accent);
+  stroke-width: 2;
+}
+
+.st-chart__dot--active {
+  fill: var(--st-accent);
+  stroke: var(--st-bg);
+  stroke-width: 2;
+}
+
+/* ----- Donut ----- */
+.st-chart__donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-4);
+  flex-wrap: wrap;
+}
+
+.st-chart__donut {
+  flex: 0 0 auto;
+  position: relative;
+}
+
+.st-chart__slice {
+  transition: opacity 120ms ease;
+  stroke: var(--st-bg);
+  stroke-width: 2;
+}
+
+.st-chart__slice:hover {
+  opacity: 0.82;
+}
+
+.st-chart__donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.st-chart__donut-total {
+  font-size: 22px;
+  line-height: 1.05;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text);
+}
+
+.st-chart__donut-total-label {
+  margin-top: 2px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Legend ----- */
+.st-chart__legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+  flex: 1 1 160px;
+}
+
+.st-chart__legend--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--st-space-1) var(--st-space-4);
+}
+
+.st-chart__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+}
+
+.st-chart__legend-swatch {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--st-radius-sm);
+}
+
+.st-chart__legend-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--st-text-secondary);
+}
+
+.st-chart__legend-value {
+  flex: 0 0 auto;
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+.st-chart__legend-pct {
+  flex: 0 0 auto;
+  min-width: 40px;
+  text-align: right;
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- States (loading / error / empty) ----- */
+.st-chart__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--st-space-5) var(--st-space-4);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-chart__skel {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--st-space-2);
+  padding: var(--st-space-4);
+}
+
+.st-chart__skel-bar {
+  flex: 1 1 0;
+  border-radius: var(--st-radius);
+}
+
+/* Reuse the dashboard skeleton shimmer when present, else a quiet fill. */
+.st-chart__skel-bar:not(.st-skeleton) {
+  background: var(--st-bg-secondary);
+}
+
+/* Screen-reader-only data table fallback. */
+.st-chart__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

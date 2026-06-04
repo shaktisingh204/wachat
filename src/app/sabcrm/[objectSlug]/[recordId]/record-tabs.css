@@ -251,13 +251,6 @@
 /* =========================================================================
    Relation sections (Twenty's related-records lists)
    ========================================================================= */
-.rt-relations {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 22px;
-}
-
 .rt-relation__head {
   display: flex;
   align-items: center;

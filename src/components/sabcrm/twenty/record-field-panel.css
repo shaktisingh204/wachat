@@ -79,3 +79,285 @@
   align-items: center;
   min-height: 22px;
 }
+
+/* -------------------------------------------------------------------------
+   Inline editors (full Twenty-parity, one per field-type family). These build
+   on the shared `.st-cell-input` / `.st-cell-select` controls from
+   sabcrm-twenty.css and only add the per-type chrome.
+   ------------------------------------------------------------------------- */
+
+/* BOOLEAN — a compact inline toggle (click flips it, no edit mode). */
+.st-rfp-bool {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: 1px 4px;
+  margin: -1px -4px;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+
+.st-rfp-bool:hover {
+  background: var(--st-active);
+}
+
+.st-rfp-bool__track {
+  position: relative;
+  display: inline-block;
+  width: 26px;
+  height: 15px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-border-strong);
+  transition: background 120ms ease;
+}
+
+.st-rfp-bool.is-on .st-rfp-bool__track {
+  background: var(--st-accent);
+}
+
+.st-rfp-bool__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 120ms ease;
+}
+
+.st-rfp-bool.is-on .st-rfp-bool__thumb {
+  transform: translateX(11px);
+}
+
+.st-rfp-bool__label {
+  font-size: var(--st-font-size-sm);
+}
+
+.st-rfp-bool.is-on .st-rfp-bool__label {
+  color: var(--st-text);
+}
+
+/* CURRENCY — amount input + a narrow currency-code box. */
+.st-rfp-currency {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  width: 100%;
+}
+
+.st-rfp-currency__amount {
+  flex: 1 1 auto;
+  min-width: 80px;
+}
+
+.st-rfp-currency__code {
+  flex: 0 0 56px;
+  width: 56px;
+  min-width: 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* RATING — clickable star picker. */
+.st-rfp-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.st-rfp-rating__star {
+  border: none;
+  background: transparent;
+  padding: 0 1px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--st-border-strong);
+  cursor: pointer;
+  transition: color 80ms ease;
+}
+
+.st-rfp-rating__star.is-on {
+  color: #f5a623;
+}
+
+.st-rfp-rating__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--st-space-1);
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.st-rfp-rating__clear:hover {
+  background: var(--st-active);
+  color: var(--st-text-secondary);
+}
+
+/* MULTI_SELECT — checklist popover of options. */
+.st-rfp-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+.st-rfp-multi__empty {
+  padding: var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-rfp-multi__item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: 4px 6px;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-rfp-multi__item:hover {
+  background: var(--st-active);
+}
+
+.st-rfp-multi__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--st-border-strong);
+  color: #fff;
+}
+
+.st-rfp-multi__item[aria-pressed='true'] .st-rfp-multi__check {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.st-rfp-multi__label {
+  font-size: var(--st-font-size-sm);
+}
+
+/* Multi-value list editors (EMAILS / PHONES / ARRAY / LINKS / ADDRESS). */
+.st-rfp-list,
+.st-rfp-address {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  width: 100%;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+.st-rfp-list__row,
+.st-rfp-links__row,
+.st-rfp-address__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.st-rfp-list__row .st-cell-input,
+.st-rfp-links__row .st-cell-input,
+.st-rfp-address__row .st-cell-input {
+  /* Inputs inside the bordered popover lose their own focus ring/border to
+     avoid a double-border; the popover supplies the boundary. */
+  border-color: var(--st-border);
+  box-shadow: none;
+}
+
+.st-rfp-links__url {
+  flex: 1 1 60%;
+}
+
+.st-rfp-links__label {
+  flex: 1 1 40%;
+}
+
+.st-rfp-list__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.st-rfp-list__remove:hover {
+  background: var(--st-active);
+  color: var(--st-danger, #d4351c);
+}
+
+.st-rfp-list__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-top: 2px;
+}
+
+.st-rfp-list__add,
+.st-rfp-list__done {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  cursor: pointer;
+}
+
+.st-rfp-list__add:hover,
+.st-rfp-list__done:hover {
+  background: var(--st-active);
+  color: var(--st-text);
+}
+
+.st-rfp-list__done {
+  color: var(--st-accent);
+  border-color: var(--st-accent-soft);
+}
+
+.st-rfp-address .st-cell-input {
+  border-color: var(--st-border);
+  box-shadow: none;
+}

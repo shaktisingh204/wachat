@@ -39,6 +39,7 @@ import {
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import { InlineCreateRow } from '@/components/sabcrm/twenty/inline-create-row';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
 import './kanban-dnd.css';
@@ -706,6 +707,17 @@ interface TableViewProps {
    * for short lists — append-on-scroll then carries the feature on its own.
    */
   windowingEnabled: boolean;
+
+  // ---- Inline create row (owned by the page) -----------------------------
+  /**
+   * Commit a new record from a name typed in the inline create row. Resolves
+   * `true` on success (the row clears + re-focuses for the next entry) and
+   * `false` on failure (the draft is preserved). Omit to hide the row (e.g.
+   * grouped/board views never render the flat table anyway).
+   */
+  onCreateInline?: (name: string) => Promise<boolean>;
+  /** Focus target for the `c` create shortcut (the inline row's input). */
+  createInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 /** Where a drag currently wants to drop, relative to a hovered header. */
@@ -749,6 +761,8 @@ function TableView({
   loadingMore,
   onLoadMore,
   windowingEnabled,
+  onCreateInline,
+  createInputRef,
 }: TableViewProps) {
   const allSelected = records.length > 0 && records.every((r) => selected.has(r.id));
   const someSelected = records.some((r) => selected.has(r.id));
@@ -1265,6 +1279,20 @@ function TableView({
             </React.Fragment>
             );
           })}
+          {/* Inline "create record" row — type a name + Enter to create the
+              record (optimistic, persisted by the page). Sits at the end of the
+              loaded rows, above the infinite-scroll sentinel. Hidden while the
+              window has a bottom spacer (rows below are off-screen) so it always
+              reads as the true tail of the list. */}
+          {onCreateInline && padBottom === 0 && (
+            <InlineCreateRow
+              colSpan={colSpan}
+              labelFieldLabel={labelField?.label ?? 'Name'}
+              objectLabelSingular={object.labelSingular}
+              onCommit={onCreateInline}
+              inputRef={createInputRef}
+            />
+          )}
           {/* Bottom spacer reserving the off-screen rows below the window. */}
           {padBottom > 0 && (
             <tr
@@ -2147,6 +2175,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   // and a focusable wrapper ref the table grid lives in.
   const [activeRow, setActiveRow] = React.useState<number | null>(null);
   const tableRef = React.useRef<HTMLDivElement | null>(null);
+  // Focus targets for the global `/` (search) and `c` (inline create) shortcuts.
+  const searchInputRef = React.useRef<HTMLInputElement | null>(null);
+  const createInputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Group-by aggregations (count + optional numeric sum/avg) for the table
   // header/footer stats. `null` while loading or when the engine is unavailable
@@ -2791,6 +2822,57 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setRefreshTick((t) => t + 1);
   }, []);
 
+  // Inline create (the table's bottom "type a name + Enter" row). Seeds the
+  // object's label field with the typed name, persists via the same gated
+  // `createSabcrmRecordTw` the dialog uses, and is OPTIMISTIC: a placeholder
+  // row appears immediately and is reconciled with the engine's canonical
+  // record on success (or rolled back + the error surfaced on failure, so the
+  // page never crashes when the Rust engine is DOWN). Returns whether the
+  // create succeeded so the row knows to clear + re-focus for the next entry.
+  const handleInlineCreate = React.useCallback(
+    async (name: string): Promise<boolean> => {
+      if (!object) return false;
+      const labelKey =
+        object.fields.find((f) => f.isLabel)?.key ??
+        object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL')?.key;
+      if (!labelKey) return false;
+
+      // Optimistic placeholder so the row appears the instant Enter is pressed.
+      const tempId = `__tmp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const nowIso = new Date().toISOString();
+      const optimistic: SabcrmRustRecord = {
+        id: tempId,
+        projectId: activeProjectId ?? '',
+        object: object.slug,
+        data: { [labelKey]: name },
+        createdAt: nowIso,
+        updatedAt: nowIso,
+      };
+
+      setRecords((rs) => [...rs, optimistic]);
+      setTotal((t) => t + 1);
+      setDataError(null);
+
+      const res = await createSabcrmRecordTw(
+        object.slug,
+        { [labelKey]: name },
+        activeProjectId ?? undefined,
+      );
+
+      if (!res.ok) {
+        // Roll back the placeholder + the count bump, surface the error.
+        setRecords((rs) => rs.filter((r) => r.id !== tempId));
+        setTotal((t) => Math.max(0, t - 1));
+        setDataError(res.error);
+        return false;
+      }
+      // Swap the placeholder for the engine's canonical record.
+      setRecords((rs) => rs.map((r) => (r.id === tempId ? res.data : r)));
+      return true;
+    },
+    [object, activeProjectId],
+  );
+
   // Header-click sort cycle: asc → desc → clear (and asc when switching column).
   // Writes the shared view-bar sort state so the Sort popover + pill stay in
   // sync; the list effect re-runs and the page reset effect snaps to page 1.
@@ -3178,6 +3260,49 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setActiveRow(index);
   }, []);
 
+  // Global index shortcuts (Twenty's record-index hotkeys that work even when
+  // the table grid isn't the focused element):
+  //   /  → focus the search box
+  //   c  → focus the inline "create record" row (flat table) or open the New
+  //        dialog when the table isn't available (board/grouped views).
+  // Typing in any input/select/textarea, or a chorded Cmd/Ctrl/Alt press, is
+  // never hijacked. The j/k/↑/↓/Enter/Space/x row-cursor keys stay on the
+  // table grid's own `onKeyDown` (they only make sense with the table focused).
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      const isTyping =
+        tag === 'INPUT' ||
+        tag === 'SELECT' ||
+        tag === 'TEXTAREA' ||
+        target?.isContentEditable === true;
+      if (isTyping) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === '/') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+        return;
+      }
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        // Prefer the inline row when the flat table is on screen; otherwise
+        // fall back to the New dialog (board/grouped views have no inline row).
+        const inlineInput = createInputRef.current;
+        if (inlineInput) {
+          inlineInput.scrollIntoView({ block: 'nearest' });
+          inlineInput.focus();
+        } else {
+          setCreateOpen(true);
+        }
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
+
   // ↑/↓ (or k/j) move the cursor, Enter opens the row, x / Space toggles its
   // checkbox, Shift+↑/↓ extends the selection range, Esc clears. Typing in a
   // cell input/select/textarea is never hijacked, and Cmd/Ctrl/Alt-chorded keys
@@ -3544,10 +3669,11 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         <div className="st-search">
           <Search className="st-search__icon" size={15} aria-hidden="true" />
           <input
+            ref={searchInputRef}
             className="st-search__input"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder={`Search ${object.labelPlural.toLowerCase()}…`}
+            placeholder={`Search ${object.labelPlural.toLowerCase()}…  (press / to focus)`}
             aria-label={`Search ${object.labelPlural}`}
           />
         </div>
@@ -3667,13 +3793,15 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           <div className="stx-kbd-hint" role="note">
             <span className="stx-kbd">↑</span>
             <span className="stx-kbd">↓</span>
-            <span>to navigate</span>
+            <span>navigate</span>
             <span className="stx-kbd">↵</span>
             <span>open</span>
-            <span className="stx-kbd">x</span>
+            <span className="stx-kbd">space</span>
             <span>select</span>
-            <span className="stx-kbd">shift-↑↓</span>
-            <span>range</span>
+            <span className="stx-kbd">c</span>
+            <span>create</span>
+            <span className="stx-kbd">/</span>
+            <span>search</span>
             <span className="stx-kbd">esc</span>
             <span>clear</span>
           </div>
@@ -3741,6 +3869,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             loadingMore={loadingMore}
             onLoadMore={loadMore}
             windowingEnabled={!aggGroupField}
+            onCreateInline={handleInlineCreate}
+            createInputRef={createInputRef}
           />
           {scrollMode === 'paged' ? (
             <SabcrmPagination

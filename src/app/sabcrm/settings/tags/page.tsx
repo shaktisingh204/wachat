@@ -260,7 +260,7 @@ function TagDialog({
               { name: trimmed, color },
               projectId,
             )
-          : await createTagTw(trimmed, color, projectId);
+          : await createTagTw({ name: trimmed, color }, projectId);
         if (res.ok) {
           onSaved(res.data as CrmTag);
         } else {

@@ -77,9 +77,11 @@ import {
   type DashboardWidgetTw,
 } from './dashboard-types';
 
-import { CrmBarChart } from '@/components/sabcrm/charts/bar-chart';
-import { DonutChart } from '@/components/sabcrm/charts/donut-chart';
-import { TimeSeriesLineChart } from '@/components/sabcrm/charts/line-chart';
+import {
+  TwentyBarChart,
+  TwentyDonutChart,
+  TwentyLineChart,
+} from '@/components/sabcrm/twenty/twenty-charts';
 import {
   TwentyFunnelChart,
   type FunnelStage,
@@ -386,13 +388,11 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
       </section>
 
       <section className="st-dash-grid" aria-label="Breakdowns">
-        {/* The Recharts-based charts are ZoruUI components (--zoru-* tokens),
-            which only resolve under a .zoruui scope. display:contents keeps them
-            as direct grid items so the .st-dash-grid layout is unaffected, while
-            --st-* tokens still inherit from the .sabcrm-twenty ancestor. */}
-        <div className="zoruui" style={{ display: 'contents' }}>
-        {/* Records by stage — real bar chart (countByField). */}
-        <CrmBarChart
+        {/* Native .sabcrm-twenty charts — inline SVG + --st-* tokens, drawn
+            directly inside the .st-dash-grid (no ZoruUI scope wrapper). */}
+
+        {/* Records by stage — native bar chart (countByField). */}
+        <TwentyBarChart
           series={{
             kind: 'countByField',
             result:
@@ -409,14 +409,14 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
           error={stageCount === null ? 'This chart could not be loaded.' : undefined}
         />
 
-        {/* ARR / pipeline value over time — real line chart (timeSeries). */}
-        <TimeSeriesLineChart
+        {/* ARR / pipeline value over time — native line chart (timeSeries). */}
+        <TwentyLineChart
           data={oppsByMonth ?? undefined}
           title="New opportunities over time"
         />
 
-        {/* Pipeline value by stage — real bar chart (sumByField). */}
-        <CrmBarChart
+        {/* Pipeline value by stage — native horizontal bars (sumByField). */}
+        <TwentyBarChart
           series={{
             kind: 'sumByField',
             result:
@@ -438,14 +438,13 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
           }
         />
 
-        {/* Records by owner — real donut (self-fetching countByField). */}
-        <DonutChart
+        {/* Records by owner — native donut (self-fetching countByField). */}
+        <TwentyDonutChart
           object="opportunities"
           fieldKey="owner"
           title="Opportunities by owner"
           description="Distribution across record owners"
         />
-        </div>
 
         {/* Pipeline funnel — ordered, value-weighted bands (.sabcrm-twenty). */}
         <TwentyFunnelChart
