@@ -1,9 +1,11 @@
-//! The six built-in SabCRM standard objects.
+//! The built-in SabCRM standard objects.
 //!
 //! Faithful port of `STANDARD_OBJECTS` in `src/lib/sabcrm/schema.ts`:
-//! Companies, People, Opportunities, Notes, Tasks, Activities. Field,
-//! relation, select-option and board definitions mirror Twenty's standard
-//! data model 1:1.
+//! Companies, People, Opportunities, Notes, Tasks, Activities — plus a
+//! `workspaceMembers` object so the RELATION fields that target team members
+//! (`accountOwner`, opportunity `owner`, task `assignee`) resolve to a real
+//! person. Field, relation, select-option and board definitions mirror
+//! Twenty's standard data model 1:1.
 //!
 //! This module is pure, dependency-free metadata — safe to use from any
 //! crate. Persisted custom objects/fields are merged on top of these
@@ -14,7 +16,7 @@ use serde_json::Value;
 use crate::types::{BoardMeta, FieldMetadata, ObjectMetadata, RelationMeta, SelectOption};
 
 // ---------------------------------------------------------------------------
-// terse builders — keep the six-object table readable + 1:1 with schema.ts
+// terse builders — keep the object table readable + 1:1 with schema.ts
 // ---------------------------------------------------------------------------
 
 /// Bare field with just `key`/`label`/`type`/`icon`; every flag defaults
@@ -84,7 +86,7 @@ fn opt(value: &str, label: &str, color: &str) -> SelectOption {
 }
 
 // ---------------------------------------------------------------------------
-// the six standard objects (verbatim from schema.ts)
+// the standard objects (verbatim from schema.ts) + workspaceMembers
 // ---------------------------------------------------------------------------
 
 fn companies() -> ObjectMetadata {
@@ -102,50 +104,77 @@ fn companies() -> ObjectMetadata {
                 .required()
                 .in_table(true)
                 .is_label()
-                .description("The company's legal name"),
-            field("domainName", "Domain Name", "LINK", "globe")
+                .description("The company name"),
+            field("domainName", "Domain Name", "LINKS", "globe")
                 .in_table(true)
-                .description("Company's official website domain"),
-            field("address", "Address", "TEXT", "map-pin")
+                .description("Company's domain name"),
+            field("createdBy", "Created by", "ACTOR", "user")
+                .in_table(true)
+                .system(true)
+                .description("The creator of the record"),
+            field("accountOwner", "Account Owner", "RELATION", "user-check")
+                .in_table(true)
+                .description(
+                    "Your team member responsible for managing the company account",
+                )
+                .relation("workspaceMembers", "MANY_TO_ONE", "name"),
+            field("createdAt", "Creation date", "DATE_TIME", "calendar")
+                .in_table(true)
+                .system(true)
+                .description("Creation date"),
+            field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
                 .in_table(false)
-                .description("Company's physical address"),
+                .system(true)
+                .description("Last time the record was changed"),
+            field("updatedBy", "Updated by", "ACTOR", "user-circle")
+                .in_table(false)
+                .system(true)
+                .description("The workspace member who last updated the record"),
             field("employees", "Employees", "NUMBER", "users")
                 .in_table(true)
-                .description("Number of employees"),
-            field("linkedinLink", "LinkedIn", "LINK", "linkedin")
+                .description("Number of employees in the company"),
+            field("linkedinLink", "Linkedin", "LINKS", "linkedin")
+                .in_table(true)
+                .description("The company Linkedin account"),
+            field("address", "Address", "ADDRESS", "map-pin")
+                .in_table(true)
+                .description("Address of the company"),
+            field("xLink", "X", "LINKS", "twitter")
                 .in_table(false)
-                .description("LinkedIn company profile URL"),
-            field("xLink", "X (Twitter)", "LINK", "twitter")
-                .in_table(false)
-                .description("X (formerly Twitter) company handle"),
+                .description("The company Twitter/X account"),
             field(
                 "annualRecurringRevenue",
-                "Annual Recurring Revenue",
+                "ARR",
                 "CURRENCY",
                 "dollar-sign",
             )
-            .in_table(true)
-            .description("ARR in USD"),
+            .in_table(false)
+            .description(
+                "Annual Recurring Revenue: The actual or estimated annual revenue of the company",
+            ),
             field(
                 "idealCustomerProfile",
-                "Ideal Customer Profile",
+                "ICP",
                 "BOOLEAN",
                 "target",
             )
-            .in_table(true)
-            .description("Whether this is an ideal customer profile"),
-            field("accountOwner", "Account Owner", "RELATION", "user-check")
-                .in_table(true)
-                .description("Primary account owner/team member")
-                .relation("workspaceMembers", "MANY_TO_ONE", "name"),
+            .in_table(false)
+            .description(
+                "Ideal Customer Profile: Indicates whether the company is the most suitable and valuable customer for you",
+            ),
             field("people", "People", "RELATION", "contact")
                 .in_table(false)
-                .description("People associated with this company")
+                .description("People linked to the company.")
                 .relation("people", "ONE_TO_MANY", "name"),
-            field("opportunities", "Opportunities", "RELATION", "briefcase")
+            field("opportunities", "Opportunities", "RELATION", "target-arrow")
                 .in_table(false)
-                .description("Sales opportunities with this company")
+                .description("Opportunities linked to the company.")
                 .relation("opportunities", "ONE_TO_MANY", "name"),
+            field("attachments", "Attachments", "RELATION", "paperclip")
+                .in_table(false)
+                .system(true)
+                .description("Attachments linked to the company")
+                .relation("attachments", "ONE_TO_MANY", "name"),
         ],
     }
 }
@@ -163,21 +192,71 @@ fn people() -> ObjectMetadata {
         fields: vec![
             field("firstName", "First Name", "TEXT", "user")
                 .required()
-                .in_table(true),
+                .in_table(true)
+                .description("Contact's first name"),
             field("lastName", "Last Name", "TEXT", "user")
                 .required()
                 .in_table(true)
-                .is_label(),
-            field("email", "Email", "EMAIL", "mail").in_table(true),
-            field("phone", "Phone", "PHONE", "phone").in_table(true),
-            field("jobTitle", "Job Title", "TEXT", "briefcase").in_table(true),
-            field("city", "City", "TEXT", "map-pin").in_table(false),
-            field("linkedinLink", "LinkedIn", "LINK", "linkedin").in_table(false),
-            field("xLink", "X (Twitter)", "LINK", "twitter").in_table(false),
-            field("avatar", "Avatar", "FILE", "image").in_table(false),
+                .is_label()
+                .description("Contact's last name"),
+            field("email", "Emails", "EMAILS", "mail")
+                .in_table(true)
+                .description("Contact's Emails"),
+            field("createdBy", "Created by", "ACTOR", "user")
+                .in_table(true)
+                .system(true)
+                .description("The creator of the record"),
             field("company", "Company", "RELATION", "building")
                 .in_table(true)
+                .description("Contact's company")
                 .relation("companies", "MANY_TO_ONE", "name"),
+            field("phone", "Phones", "PHONES", "phone")
+                .in_table(true)
+                .description("Contact's phone numbers"),
+            field("createdAt", "Creation date", "DATE_TIME", "calendar")
+                .in_table(true)
+                .system(true)
+                .description("Creation date"),
+            field("city", "City", "TEXT", "map-pin")
+                .in_table(true)
+                .description("Contact's city"),
+            field("jobTitle", "Job Title", "TEXT", "briefcase")
+                .in_table(true)
+                .description("Contact's job title"),
+            field("linkedinLink", "Linkedin", "LINKS", "linkedin")
+                .in_table(true)
+                .description("Contact's Linkedin account"),
+            field("xLink", "X", "LINKS", "twitter")
+                .in_table(true)
+                .description("Contact's X/Twitter account"),
+            field("avatarUrl", "Avatar", "FILE", "image")
+                .in_table(false)
+                .system(true)
+                .description("Contact's avatar"),
+            field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
+                .in_table(false)
+                .system(true)
+                .description("Last time the record was changed"),
+            field("updatedBy", "Updated by", "ACTOR", "user-circle")
+                .in_table(false)
+                .system(true)
+                .description("The workspace member who last updated the record"),
+            field(
+                "pointOfContactForOpportunities",
+                "Opportunities",
+                "RELATION",
+                "target-arrow",
+            )
+            .in_table(false)
+            .description(
+                "List of opportunities for which that person is the point of contact",
+            )
+            .relation("opportunities", "ONE_TO_MANY", "name"),
+            field("attachments", "Attachments", "RELATION", "paperclip")
+                .in_table(false)
+                .system(true)
+                .description("Attachments linked to the contact.")
+                .relation("attachments", "ONE_TO_MANY", "name"),
         ],
     }
 }
@@ -187,7 +266,7 @@ fn opportunities() -> ObjectMetadata {
         slug: "opportunities".to_owned(),
         label_singular: "Opportunity".to_owned(),
         label_plural: "Opportunities".to_owned(),
-        icon: "briefcase".to_owned(),
+        icon: "target-arrow".to_owned(),
         standard: Some(true),
         views: vec!["table".to_owned(), "board".to_owned()],
         board: Some(BoardMeta {
@@ -195,44 +274,65 @@ fn opportunities() -> ObjectMetadata {
         }),
         description: None,
         fields: vec![
-            field("name", "Name", "TEXT", "type")
-                .description("The name or title of the opportunity")
+            field("name", "Name", "TEXT", "target-arrow")
+                .description("The opportunity name")
                 .required()
                 .in_table(true)
                 .is_label()
                 .system(false),
             field("amount", "Amount", "CURRENCY", "dollar-sign")
-                .description("Expected deal value")
+                .description("Opportunity amount")
                 .in_table(true)
                 .system(false),
-            field("closeDate", "Close Date", "DATE_TIME", "calendar")
-                .description("Expected closing date for the deal")
+            field("createdBy", "Created by", "ACTOR", "user")
+                .description("The creator of the record")
+                .in_table(true)
+                .system(true),
+            field("closeDate", "Close date", "DATE_TIME", "calendar")
+                .description("Opportunity close date")
                 .in_table(true)
                 .system(false),
-            field("stage", "Stage", "SELECT", "list")
-                .description("Current stage in the sales pipeline")
-                .required()
-                .in_table(true)
-                .system(false)
-                .options(vec![
-                    opt("NEW", "New", "--zoru-sky"),
-                    opt("SCREENING", "Screening", "--zoru-blue"),
-                    opt("MEETING", "Meeting", "--zoru-purple"),
-                    opt("PROPOSAL", "Proposal", "--zoru-orange"),
-                    opt("CUSTOMER", "Customer", "--zoru-green"),
-                ])
-                .default_value("NEW"),
-            field("pointOfContact", "Point of Contact", "RELATION", "user")
-                .description("Primary contact person for this opportunity")
-                .in_table(true)
-                .system(false)
-                .relation("people", "MANY_TO_ONE", "name"),
             field("company", "Company", "RELATION", "building-2")
-                .description("Company this opportunity is associated with")
-                .required()
+                .description("Opportunity company")
                 .in_table(true)
                 .system(false)
                 .relation("companies", "MANY_TO_ONE", "name"),
+            field("pointOfContact", "Point of Contact", "RELATION", "user")
+                .description("Opportunity point of contact")
+                .in_table(true)
+                .system(false)
+                .relation("people", "MANY_TO_ONE", "name"),
+            field("stage", "Stage", "SELECT", "progress-check")
+                .description("Opportunity stage")
+                .required()
+                .in_table(false)
+                .system(false)
+                .options(vec![
+                    opt("NEW", "New", "red"),
+                    opt("SCREENING", "Screening", "purple"),
+                    opt("MEETING", "Meeting", "sky"),
+                    opt("PROPOSAL", "Proposal", "turquoise"),
+                    opt("CUSTOMER", "Customer", "yellow"),
+                ])
+                .default_value("NEW"),
+            field("owner", "Owner", "RELATION", "user-circle")
+                .description("Opportunity owner")
+                .in_table(false)
+                .system(false)
+                .relation("workspaceMembers", "MANY_TO_ONE", "name"),
+            field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
+                .description("Last time the record was changed")
+                .in_table(false)
+                .system(true),
+            field("updatedBy", "Updated by", "ACTOR", "user-circle")
+                .description("The workspace member who last updated the record")
+                .in_table(false)
+                .system(true),
+            field("attachments", "Attachments", "RELATION", "paperclip")
+                .description("Attachments linked to the opportunity")
+                .in_table(false)
+                .system(true)
+                .relation("attachments", "ONE_TO_MANY", "name"),
         ],
     }
 }
@@ -249,29 +349,46 @@ fn notes() -> ObjectMetadata {
         description: None,
         fields: vec![
             field("title", "Title", "TEXT", "heading2")
-                .description("The title or subject of the note")
+                .description("Note title")
                 .required()
                 .in_table(true)
                 .is_label(),
-            field("body", "Body", "TEXT", "file-text")
-                .description("The main content of the note (rich text)")
-                .in_table(false),
-            field("createdBy", "Created By", "TEXT", "user")
-                .description("User who created the note")
+            field("targetPeople", "Relations", "RELATION", "arrow-up-right")
+                .description("Note targets")
+                .in_table(true)
+                .relation("people", "MANY_TO_ONE", "name"),
+            field("body", "Body", "RICH_TEXT_V2", "file-text")
+                .description("Note body")
+                .in_table(true),
+            field("createdBy", "Created by", "ACTOR", "user")
+                .description("The creator of the record")
+                .in_table(true)
+                .system(true),
+            field("createdAt", "Creation date", "DATE_TIME", "calendar")
+                .description("Creation date")
                 .in_table(true)
                 .system(true),
             field("targetCompanies", "Companies", "RELATION", "building2")
                 .description("Companies this note is related to")
                 .in_table(false)
                 .relation("companies", "MANY_TO_ONE", "name"),
-            field("targetPeople", "People", "RELATION", "user")
-                .description("People this note is related to")
-                .in_table(false)
-                .relation("people", "MANY_TO_ONE", "name"),
-            field("targetOpportunities", "Opportunities", "RELATION", "zap")
+            field("targetOpportunities", "Opportunities", "RELATION", "target-arrow")
                 .description("Opportunities this note is related to")
                 .in_table(false)
                 .relation("opportunities", "MANY_TO_ONE", "name"),
+            field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
+                .description("Last time the record was changed")
+                .in_table(false)
+                .system(true),
+            field("updatedBy", "Updated by", "ACTOR", "user-circle")
+                .description("The workspace member who last updated the record")
+                .in_table(false)
+                .system(true),
+            field("attachments", "Attachments", "RELATION", "paperclip")
+                .description("Note attachments")
+                .in_table(false)
+                .system(true)
+                .relation("attachments", "ONE_TO_MANY", "name"),
         ],
     }
 }
@@ -281,7 +398,7 @@ fn tasks() -> ObjectMetadata {
         slug: "tasks".to_owned(),
         label_singular: "Task".to_owned(),
         label_plural: "Tasks".to_owned(),
-        icon: "check-circle-2".to_owned(),
+        icon: "checkbox".to_owned(),
         standard: Some(true),
         views: vec!["table".to_owned(), "board".to_owned()],
         board: Some(BoardMeta {
@@ -294,26 +411,58 @@ fn tasks() -> ObjectMetadata {
                 .required()
                 .in_table(true)
                 .is_label(),
-            field("body", "Body", "TEXT", "align-left")
-                .description("Detailed description of the task")
-                .in_table(false),
             field("status", "Status", "SELECT", "circle-dot")
-                .description("Current status of the task")
-                .required()
+                .description("Task status")
                 .in_table(true)
                 .default_value("TODO")
                 .options(vec![
-                    opt("TODO", "To Do", "--zoru-brand-lighter"),
-                    opt("IN_PROGRESS", "In Progress", "--zoru-warning-lighter"),
-                    opt("DONE", "Done", "--zoru-success-lighter"),
+                    opt("TODO", "To do", "sky"),
+                    opt("IN_PROGRESS", "In progress", "purple"),
+                    opt("DONE", "Done", "green"),
                 ]),
-            field("dueAt", "Due Date", "DATE_TIME", "calendar")
-                .description("When the task is due")
-                .in_table(true),
-            field("assignee", "Assignee", "RELATION", "user")
-                .description("Person responsible for this task")
+            field("targetPeople", "Relations", "RELATION", "arrow-up-right")
+                .description("Task targets")
                 .in_table(true)
                 .relation("people", "MANY_TO_ONE", "name"),
+            field("assignee", "Assignee", "RELATION", "user-circle")
+                .description("Task assignee")
+                .in_table(true)
+                .relation("workspaceMembers", "MANY_TO_ONE", "name"),
+            field("createdBy", "Created by", "ACTOR", "user")
+                .description("The creator of the record")
+                .in_table(true)
+                .system(true),
+            field("dueAt", "Due Date", "DATE_TIME", "calendar")
+                .description("Task due date")
+                .in_table(true),
+            field("body", "Body", "RICH_TEXT_V2", "align-left")
+                .description("Task body")
+                .in_table(true),
+            field("createdAt", "Creation date", "DATE_TIME", "calendar")
+                .description("Creation date")
+                .in_table(true)
+                .system(true),
+            field("targetCompanies", "Companies", "RELATION", "building2")
+                .description("Companies this task is related to")
+                .in_table(false)
+                .relation("companies", "MANY_TO_ONE", "name"),
+            field("targetOpportunities", "Opportunities", "RELATION", "target-arrow")
+                .description("Opportunities this task is related to")
+                .in_table(false)
+                .relation("opportunities", "MANY_TO_ONE", "name"),
+            field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
+                .description("Last time the record was changed")
+                .in_table(false)
+                .system(true),
+            field("updatedBy", "Updated by", "ACTOR", "user-circle")
+                .description("The workspace member who last updated the record")
+                .in_table(false)
+                .system(true),
+            field("attachments", "Attachments", "RELATION", "paperclip")
+                .description("Task attachments")
+                .in_table(false)
+                .system(true)
+                .relation("attachments", "ONE_TO_MANY", "name"),
         ],
     }
 }
@@ -366,7 +515,62 @@ fn activities() -> ObjectMetadata {
     }
 }
 
-/// All six standard CRM objects, in the same order as `schema.ts`.
+/// `workspaceMembers` — the project's team/members surfaced as a CRM object
+/// so RELATION fields like `accountOwner`, opportunity `owner` and task
+/// `assignee` resolve to a real person.
+///
+/// Records of this object are sourced from the project's team/members (not
+/// hand-created in the CRM), so every field is `system: true`. Mirrors
+/// Twenty's `workspaceMember` standard object (id, name, userEmail,
+/// avatarUrl), plus a `role` SELECT for the member's workspace role.
+fn workspace_members() -> ObjectMetadata {
+    ObjectMetadata {
+        slug: "workspaceMembers".to_owned(),
+        label_singular: "Member".to_owned(),
+        label_plural: "Members".to_owned(),
+        icon: "user-circle".to_owned(),
+        standard: Some(true),
+        views: vec!["table".to_owned()],
+        board: None,
+        description: Some(
+            "Your team members. Sourced from the project's team; used as the target of accountOwner / owner / assignee relations.".to_owned(),
+        ),
+        fields: vec![
+            field("id", "Id", "TEXT", "hash")
+                .system(true)
+                .in_table(false)
+                .description("The member's stable identifier (project member id)"),
+            field("name", "Name", "TEXT", "user-circle")
+                .required()
+                .in_table(true)
+                .is_label()
+                .system(true)
+                .description("The member's full name"),
+            field("email", "Email", "EMAILS", "mail")
+                .in_table(true)
+                .system(true)
+                .description("The member's email address"),
+            field("avatarUrl", "Avatar", "FILE", "image")
+                .in_table(true)
+                .system(true)
+                .description("The member's avatar"),
+            field("role", "Role", "SELECT", "shield")
+                .in_table(true)
+                .system(true)
+                .default_value("MEMBER")
+                .options(vec![
+                    opt("OWNER", "Owner", "--zoru-orange-50"),
+                    opt("ADMIN", "Admin", "--zoru-purple-50"),
+                    opt("MEMBER", "Member", "--zoru-blue-50"),
+                    opt("GUEST", "Guest", "--zoru-gray-50"),
+                ])
+                .description("The member's workspace role"),
+        ],
+    }
+}
+
+/// All standard CRM objects, in the same order as `schema.ts`, followed by
+/// the `workspaceMembers` relation target.
 pub fn standard_objects() -> Vec<ObjectMetadata> {
     vec![
         companies(),
@@ -375,6 +579,7 @@ pub fn standard_objects() -> Vec<ObjectMetadata> {
         notes(),
         tasks(),
         activities(),
+        workspace_members(),
     ]
 }
 
@@ -388,6 +593,7 @@ pub fn standard_object_slugs() -> &'static [&'static str] {
         "notes",
         "tasks",
         "activities",
+        "workspaceMembers",
     ]
 }
 
@@ -402,10 +608,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn has_all_six() {
+    fn has_all_standard_objects() {
         let objs = standard_objects();
-        assert_eq!(objs.len(), 6);
-        assert_eq!(standard_object_slugs().len(), 6);
+        assert_eq!(objs.len(), 7);
+        assert_eq!(standard_object_slugs().len(), 7);
     }
 
     #[test]
@@ -420,5 +626,38 @@ mod tests {
     fn opportunities_board_groups_by_stage() {
         let opp = standard_object("opportunities").unwrap();
         assert_eq!(opp.board.unwrap().group_by_field, "stage");
+    }
+
+    #[test]
+    fn workspace_members_has_relation_target_fields() {
+        let wm = standard_object("workspaceMembers").unwrap();
+        for key in ["id", "name", "email", "avatarUrl", "role"] {
+            assert!(wm.fields.iter().any(|f| f.key == key), "missing {key}");
+        }
+        // `name` is the label field that relations resolve against.
+        let name = wm.fields.iter().find(|f| f.key == "name").unwrap();
+        assert_eq!(name.is_label, Some(true));
+    }
+
+    #[test]
+    fn relation_targets_resolve_to_standard_objects() {
+        for obj in standard_objects() {
+            for f in &obj.fields {
+                if let Some(rel) = &f.relation {
+                    // `attachments` is a relation target that is not itself a
+                    // seeded standard object yet; everything else must resolve.
+                    if rel.target_object == "attachments" {
+                        continue;
+                    }
+                    assert!(
+                        standard_object(&rel.target_object).is_some(),
+                        "{}.{} -> unknown object {}",
+                        obj.slug,
+                        f.key,
+                        rel.target_object
+                    );
+                }
+            }
+        }
     }
 }

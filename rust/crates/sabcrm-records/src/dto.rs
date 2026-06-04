@@ -66,6 +66,16 @@ pub struct ListQuery {
     /// `isEmpty` | `isNotEmpty`. Bad JSON / shape is rejected with a `400`.
     #[serde(default)]
     pub filters: Option<String>,
+    /// Optional relation/actor enrichment toggle. When set to `relations`
+    /// (case-insensitive; `1` / `true` are also accepted as aliases), each
+    /// returned record gains a parallel top-level [`__relations`] +
+    /// [`__actors`] map that resolves its RELATION fields and `createdBy`
+    /// ACTOR to `{ id, label, avatarUrl? }` hints — see [`EnrichMode`] and
+    /// the `record_to_wire`/enrichment docs in `handlers.rs`. Absent / any
+    /// other value → no enrichment (raw ids only), so existing callers are
+    /// completely unaffected.
+    #[serde(default)]
+    pub enrich: Option<String>,
 }
 
 /// `GET /{object}/count` query params. Carries the SAME tenant scope +
@@ -93,6 +103,11 @@ pub struct CountQuery {
 pub struct ScopeQuery {
     /// Tenant scope — required.
     pub project_id: String,
+    /// Optional relation/actor enrichment toggle, same semantics as
+    /// [`ListQuery::enrich`]. Only consulted by `GET /{object}/{id}`
+    /// (`get_record`); the delete handlers ignore it. Absent → raw ids only.
+    #[serde(default)]
+    pub enrich: Option<String>,
 }
 
 /// `GET /{object}/trash` query params — the tenant scope plus an optional page
@@ -154,7 +169,44 @@ pub struct GroupRecordsInput {
     pub group_by_field: String,
 }
 
-/// Response body for `GET /{object}` — a page of raw record documents.
+/// A resolved relation/actor hint embedded by the optional `?enrich=relations`
+/// pass. It is NOT used as a strongly-typed response field (the record bodies
+/// stay schemaless `serde_json::Value`s) — it exists to **document** the shape
+/// the TS client receives inside each enriched record's parallel
+/// `__relations` / `__actors` map:
+///
+/// ```jsonc
+/// {
+///   "id": "<hex ObjectId>",   // related/actor record id
+///   "label": "Acme Inc",       // resolved from the target's labelField
+///   "avatarUrl": "https://…"   // optional avatar / logo hint, omitted if none
+/// }
+/// ```
+///
+/// MANY_TO_ONE relations resolve to a single hint (or `null` when the stored
+/// id is empty / unresolvable); ONE_TO_MANY relations are NOT enriched in the
+/// list/get pass (they have no scalar id on the source record) and are left to
+/// the dedicated `GET /{object}/{id}/related` endpoint.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RelationHint {
+    /// Hex `ObjectId` of the resolved related (or actor) record.
+    pub id: String,
+    /// Human label resolved from the target object's `labelField` (falling
+    /// back to the generic name/title/firstName+lastName/email derivation,
+    /// then the id).
+    pub label: String,
+    /// Optional avatar / logo URL hint, sourced from the target record's
+    /// `avatar` / `logo` `data.*` field when present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+}
+
+/// Response body for `GET /{object}` — a page of raw record documents. When
+/// `?enrich=relations` is passed, each record additionally carries the
+/// parallel `__relations` (RELATION fieldKey → [`RelationHint`] | null) and
+/// `__actors` (`createdBy` → [`RelationHint`]) maps described on
+/// [`RelationHint`]; without it the records are byte-for-byte the legacy shape.
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ListResponse {

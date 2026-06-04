@@ -40,8 +40,8 @@ use crate::dto::{
     BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse, CreateRecordInput,
     DistinctQuery, DistinctResponse, DuplicateGroup, DuplicatesQuery, DuplicatesResponse,
     GroupRecordsInput, GroupResponse, ListQuery, ListResponse, MergeRecordsInput, OkResponse,
-    RecordGroup, RecordRelation, RecordResponse, RelationsResponse, ScopeQuery, SearchHit,
-    SearchQuery, SearchResponse, UpdateRecordInput,
+    RecordGroup, RecordRelation, RecordResponse, RelationHint, RelationsResponse, ScopeQuery,
+    SearchHit, SearchQuery, SearchResponse, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -69,6 +69,18 @@ const MAX_DUPLICATE_GROUPS: i64 = 100;
 const MAX_DUPLICATE_RECORDS: usize = 10;
 /// Hard cap on hits returned by the cross-object global search endpoint.
 const MAX_SEARCH_HITS: i64 = 50;
+
+/// Top-level marker fields injected into an enriched record (`?enrich=relations`).
+/// `__relations` maps each RELATION fieldKey → a [`RelationHint`](crate::dto::RelationHint)
+/// (or `null`); `__actors` maps `createdBy` → a `RelationHint`. Both are
+/// double-underscore prefixed so they never collide with a user `data.*` key
+/// and are trivially strippable client-side.
+const RELATIONS_KEY: &str = "__relations";
+const ACTORS_KEY: &str = "__actors";
+
+/// `data.*` keys probed for an avatar / logo URL hint when enriching a relation
+/// target, in priority order.
+const AVATAR_FIELDS: &[&str] = &["avatar", "logo", "avatarUrl", "logoUrl", "photo", "image"];
 
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
@@ -414,6 +426,271 @@ fn record_to_wire(doc: Document) -> Value {
 }
 
 // ===========================================================================
+// relation / ACTOR enrichment (?enrich=relations)
+// ===========================================================================
+
+/// Decode the `?enrich=` query value into "should we enrich?". Accepts
+/// `relations` (the documented form) plus `1` / `true` / `all` as aliases,
+/// case-insensitively; everything else (incl. absent) is `false` so legacy
+/// callers are untouched.
+fn wants_relation_enrichment(enrich: Option<&str>) -> bool {
+    matches!(
+        enrich.map(str::trim).map(str::to_ascii_lowercase).as_deref(),
+        Some("relations") | Some("relation") | Some("1") | Some("true") | Some("all")
+    )
+}
+
+/// The avatar/logo URL hint for a related target record's `data` sub-document,
+/// probing [`AVATAR_FIELDS`] in priority order. `None` when none is a non-empty
+/// string.
+fn derive_avatar(data: &Document) -> Option<String> {
+    for field in AVATAR_FIELDS {
+        if let Some(v) = data_str(data, field) {
+            return Some(v.to_owned());
+        }
+    }
+    None
+}
+
+/// Build a [`RelationHint`] from a fetched target record `Document`, labelling
+/// it via the relation's `labelField` (when that `data.<labelField>` is a
+/// non-empty string) and otherwise falling back to the generic [`derive_label`]
+/// derivation. `avatarUrl` is pulled from the target's avatar/logo fields.
+fn hint_from_doc(doc: &Document, label_field: Option<&str>) -> RelationHint {
+    let id = doc
+        .get_object_id("_id")
+        .map(|o| o.to_hex())
+        .unwrap_or_default();
+    let data = doc.get_document("data").ok();
+    let label = match data {
+        Some(data) => label_field
+            .and_then(|lf| data_str(data, lf).map(str::to_owned))
+            .unwrap_or_else(|| derive_label(data, &id)),
+        None => id.clone(),
+    };
+    let avatar_url = data.and_then(derive_avatar);
+    RelationHint {
+        id,
+        label,
+        avatar_url,
+    }
+}
+
+/// Resolve `createdBy` actor hints for a batch of source wire records. Actors
+/// are looked up against the `workspaceMembers` object in the SAME
+/// `sabcrm_records` collection (the CRM's actor table) by hex id; ids that
+/// don't resolve are simply omitted. Returns a map `actorId → RelationHint`.
+async fn fetch_actor_hints(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    actor_ids: &[String],
+) -> Result<std::collections::HashMap<String, RelationHint>> {
+    let mut out = std::collections::HashMap::new();
+    if actor_ids.is_empty() {
+        return Ok(out);
+    }
+
+    let oids: Vec<ObjectId> = actor_ids
+        .iter()
+        .filter_map(|s| ObjectId::parse_str(s.trim()).ok())
+        .collect();
+    if oids.is_empty() {
+        return Ok(out);
+    }
+
+    let mut filter = scope(project_id, "workspaceMembers");
+    filter.insert("_id", doc! { "$in": oids });
+
+    let mut cursor = coll.find(filter).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.enrich.actors.find"))
+    })?;
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.enrich.actors.cursor"))
+    })? {
+        let hint = hint_from_doc(&d, Some("name"));
+        if !hint.id.is_empty() {
+            out.insert(hint.id.clone(), hint);
+        }
+    }
+    Ok(out)
+}
+
+/// One MANY_TO_ONE relation field to enrich: its source-record fieldKey, the
+/// target object slug, and the target's `labelField`.
+struct ManyToOneField {
+    key: String,
+    target_object: String,
+    label_field: Option<String>,
+}
+
+/// The MANY_TO_ONE RELATION fields of `object`'s standard metadata (the only
+/// ones with a scalar id stored on the source record, hence enrichable in a
+/// batch list pass). Unknown / custom objects yield an empty list.
+fn many_to_one_fields(object: &str) -> Vec<ManyToOneField> {
+    match sabcrm_core::standard_object(object) {
+        Some(meta) => meta
+            .fields
+            .into_iter()
+            .filter_map(|f| match f.relation {
+                Some(rel) if rel.kind == "MANY_TO_ONE" => Some(ManyToOneField {
+                    key: f.key,
+                    target_object: rel.target_object,
+                    label_field: rel.label_field,
+                }),
+                _ => None,
+            })
+            .collect(),
+        None => Vec::new(),
+    }
+}
+
+/// Read the raw stored id string at `record["data"][key]` from an already-clean
+/// wire record `Value`. Returns `None` for absent / non-string / blank values.
+fn wire_data_str<'a>(record: &'a Value, key: &str) -> Option<&'a str> {
+    record
+        .get("data")
+        .and_then(|d| d.get(key))
+        .and_then(Value::as_str)
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+}
+
+/// Enrich a batch of wire records in place: for every MANY_TO_ONE RELATION
+/// field of `object`, resolve the referenced target record's label + avatar
+/// hint and inject a parallel `__relations` map; resolve each record's
+/// top-level `createdBy` ACTOR into `__actors.createdBy`.
+///
+/// Resolution is batched (one `$in` query per distinct target object + one for
+/// actors) to avoid N+1 fan-out across a list page. Targets that don't resolve
+/// yield a `null` entry under their fieldKey so the client can distinguish
+/// "no value" from "dangling id". Records are only touched when at least one
+/// hint exists, keeping unenriched records byte-identical to the legacy shape.
+async fn enrich_records(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    object: &str,
+    records: &mut [Value],
+) -> Result<()> {
+    if records.is_empty() {
+        return Ok(());
+    }
+
+    let rel_fields = many_to_one_fields(object);
+
+    // ---- Batch-resolve relation targets, grouped by target object --------
+    // targetObject → set of referenced hex ids (collected across all records).
+    use std::collections::{HashMap, HashSet};
+    let mut wanted: HashMap<String, HashSet<String>> = HashMap::new();
+    for rec in records.iter() {
+        for rf in &rel_fields {
+            if let Some(id) = wire_data_str(rec, &rf.key) {
+                wanted
+                    .entry(rf.target_object.clone())
+                    .or_default()
+                    .insert(id.to_owned());
+            }
+        }
+    }
+
+    // targetObject → (id → RelationHint).
+    let mut resolved: HashMap<String, HashMap<String, RelationHint>> = HashMap::new();
+    for (target_object, ids) in &wanted {
+        let oids: Vec<ObjectId> = ids
+            .iter()
+            .filter_map(|s| ObjectId::parse_str(s.trim()).ok())
+            .collect();
+        if oids.is_empty() {
+            continue;
+        }
+        // labelField is uniform per target object across our standard metadata;
+        // grab it from the first rel field pointing at this target.
+        let label_field = rel_fields
+            .iter()
+            .find(|rf| &rf.target_object == target_object)
+            .and_then(|rf| rf.label_field.clone());
+
+        let mut filter = scope(project_id, target_object);
+        filter.insert("_id", doc! { "$in": oids });
+        let mut cursor = coll.find(filter).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.enrich.find"))
+        })?;
+        let target_map = resolved.entry(target_object.clone()).or_default();
+        while let Some(d) = cursor.try_next().await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.enrich.cursor"))
+        })? {
+            let hint = hint_from_doc(&d, label_field.as_deref());
+            if !hint.id.is_empty() {
+                target_map.insert(hint.id.clone(), hint);
+            }
+        }
+    }
+
+    // ---- Batch-resolve `createdBy` ACTOR hints ---------------------------
+    let actor_ids: Vec<String> = records
+        .iter()
+        .filter_map(|r| {
+            r.get("createdBy")
+                .and_then(Value::as_str)
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned)
+        })
+        .collect();
+    let actor_hints = fetch_actor_hints(coll, project_id, &actor_ids).await?;
+
+    // ---- Inject the parallel maps into each record -----------------------
+    for rec in records.iter_mut() {
+        let obj = match rec.as_object_mut() {
+            Some(o) => o,
+            None => continue,
+        };
+
+        if !rel_fields.is_empty() {
+            let mut rel_map = serde_json::Map::new();
+            for rf in &rel_fields {
+                // Re-read the stored id (immutable borrow ended; read from obj).
+                let stored = obj
+                    .get("data")
+                    .and_then(|d| d.get(&rf.key))
+                    .and_then(Value::as_str)
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(str::to_owned);
+                let entry = match stored {
+                    Some(id) => resolved
+                        .get(&rf.target_object)
+                        .and_then(|m| m.get(&id))
+                        .map(|h| serde_json::to_value(h).unwrap_or(Value::Null))
+                        .unwrap_or(Value::Null),
+                    None => Value::Null,
+                };
+                rel_map.insert(rf.key.clone(), entry);
+            }
+            obj.insert(RELATIONS_KEY.to_owned(), Value::Object(rel_map));
+        }
+
+        if let Some(actor_id) = obj
+            .get("createdBy")
+            .and_then(Value::as_str)
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .map(str::to_owned)
+        {
+            if let Some(hint) = actor_hints.get(&actor_id) {
+                let mut actors = serde_json::Map::new();
+                actors.insert(
+                    "createdBy".to_owned(),
+                    serde_json::to_value(hint).unwrap_or(Value::Null),
+                );
+                obj.insert(ACTORS_KEY.to_owned(), Value::Object(actors));
+            }
+        }
+    }
+
+    Ok(())
+}
+
+// ===========================================================================
 // GET /{object} — listRecords
 // ===========================================================================
 
@@ -484,6 +761,11 @@ pub async fn list_records(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.cursor")))?
     {
         records.push(record_to_wire(d));
+    }
+
+    // ---- Optional relation/actor enrichment (?enrich=relations) ----------
+    if wants_relation_enrichment(query.enrich.as_deref()) {
+        enrich_records(&coll, project_id, &object, &mut records).await?;
     }
 
     Ok(Json(ListResponse { records, total }))
@@ -591,9 +873,17 @@ pub async fn get_record(
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.find_one")))?
         .ok_or_else(|| ApiError::NotFound("record".to_owned()))?;
 
-    Ok(Json(RecordResponse {
-        record: record_to_wire(doc),
-    }))
+    let mut record = record_to_wire(doc);
+
+    // ---- Optional relation/actor enrichment (?enrich=relations) ----------
+    if wants_relation_enrichment(query.enrich.as_deref()) {
+        let mut batch = [record];
+        enrich_records(&coll, project_id, &object, &mut batch).await?;
+        let [enriched] = batch;
+        record = enriched;
+    }
+
+    Ok(Json(RecordResponse { record }))
 }
 
 // ===========================================================================

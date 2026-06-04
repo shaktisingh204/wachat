@@ -35,6 +35,7 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
+import { sabcrmObjectsApi } from '@/lib/rust-client/sabcrm-objects';
 import { sabcrmActivitiesApi } from '@/lib/rust-client/sabcrm-activities';
 import { sabcrmFavoritesApi } from '@/lib/rust-client/sabcrm-favorites';
 import {
@@ -47,10 +48,7 @@ import type {
   SabcrmComment,
 } from '@/lib/rust-client/sabcrm-activities';
 import type { SabcrmRustFavorite } from '@/lib/rust-client/sabcrm-favorites';
-import {
-  listObjects,
-  ensureStandardObjects,
-} from '@/lib/sabcrm/objects.server';
+import { ensureStandardObjects } from '@/lib/sabcrm/objects.server';
 import type { ActionResult, ObjectMetadata } from '@/lib/sabcrm/types';
 import type {
   ListSabcrmRecordsTwParams,
@@ -148,9 +146,20 @@ function fail<T>(e: unknown, fallback: string): ActionResult<T> {
 // ---------------------------------------------------------------------------
 
 /**
- * Lists the standard + custom objects for the active project. Reuses the
- * native metadata layer (the schema source of truth) so the Twenty pages share
- * one object catalogue with the native CRM.
+ * Lists the standard + custom objects for the active project.
+ *
+ * Reads the catalogue from the Rust objects engine
+ * ({@link sabcrmObjectsApi.list}), which merges the Twenty-parity standard
+ * objects — including the `workspaceMembers` member-directory object that backs
+ * the `accountOwner` / `owner` / `assignee` RELATION targets — with the
+ * project's custom objects + extension fields. The native seed
+ * ({@link ensureStandardObjects}) still runs first so the custom-object docs
+ * exist for the merge, but `workspaceMembers` is only present in the Rust
+ * standard set, so it is surfaced here as a first-class selectable object.
+ *
+ * The Rust client's `ObjectMetadata` is a superset of the native
+ * {@link ObjectMetadata} (`@/lib/sabcrm/types`), so the result is assignable to
+ * the same envelope the Twenty pages already consume.
  */
 export async function listSabcrmObjectsTw(
   projectId?: string,
@@ -159,9 +168,9 @@ export async function listSabcrmObjectsTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
-    // Idempotent seed so the object catalogue exists from the first read.
+    // Idempotent seed so the custom-object docs exist before the Rust merge.
     await ensureStandardObjects(g.ctx.projectId);
-    const data = await listObjects(g.ctx.projectId);
+    const data = await sabcrmObjectsApi.list(g.ctx.projectId);
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to list objects.');
@@ -172,11 +181,21 @@ export async function listSabcrmObjectsTw(
 // Records — via the Rust engine
 // ---------------------------------------------------------------------------
 
-/** Lists / searches / paginates records of an object through the Rust engine. */
+/**
+ * Lists / searches / paginates records of an object through the Rust engine.
+ *
+ * When `enrich` is `true`, the engine's `?enrich=relations` pass runs and every
+ * returned record gains parallel top-level `__relations` (MANY_TO_ONE RELATION
+ * fieldKey → `{ id, label, avatarUrl? }`) + `__actors` (`createdBy` → the same
+ * hint) maps, so list cells can render resolved relation labels/avatars + the
+ * creator's name without N extra round-trips. Omitted / `false` → raw ids only
+ * (legacy shape), so existing callers are unaffected.
+ */
 export async function listSabcrmRecordsTw(
   object: string,
   params: ListSabcrmRecordsTwParams = {},
   projectId?: string,
+  enrich?: boolean,
 ): Promise<ActionResult<SabcrmRecordsTwPage>> {
   if (!object) return { ok: false, error: 'Object is required.' };
 
@@ -192,6 +211,7 @@ export async function listSabcrmRecordsTw(
       page: params.page,
       limit: params.limit,
       filters: params.filters,
+      enrich,
     });
     return { ok: true, data: { records: res.records, total: res.total } };
   } catch (e) {
@@ -255,11 +275,17 @@ export async function listRelatedSabcrmRecordsTw(
   }
 }
 
-/** Fetches a single record by id through the Rust engine. */
+/**
+ * Fetches a single record by id through the Rust engine. When `enrich` is
+ * `true`, the record carries the parallel `__relations` + `__actors` hint maps
+ * (resolved RELATION labels/avatars + the `createdBy` ACTOR name) described on
+ * {@link listSabcrmRecordsTw}; omitted / `false` → raw ids only.
+ */
 export async function getSabcrmRecordTw(
   object: string,
   id: string,
   projectId?: string,
+  enrich?: boolean,
 ): Promise<ActionResult<SabcrmRustRecord>> {
   if (!object) return { ok: false, error: 'Object is required.' };
   if (!id) return { ok: false, error: 'Record id is required.' };
@@ -268,7 +294,7 @@ export async function getSabcrmRecordTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
-    const data = await sabcrmRecordsApi.get(object, id, g.ctx.projectId);
+    const data = await sabcrmRecordsApi.get(object, id, g.ctx.projectId, enrich);
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to load record.');

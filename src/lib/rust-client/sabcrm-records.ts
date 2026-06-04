@@ -19,6 +19,21 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
+/**
+ * A resolved relation / ACTOR hint emitted by the optional `?enrich=relations`
+ * pass. Mirrors the Rust `RelationHint` DTO
+ * (`rust/crates/sabcrm-records/src/dto.rs`) — a `{ id, label, avatarUrl? }`
+ * triple resolving a stored id to a display label + optional avatar/logo URL.
+ */
+export interface SabcrmRelationHint {
+  /** Hex ObjectId of the resolved related (or actor) record. */
+  id: string;
+  /** Human label resolved from the target object's label field. */
+  label: string;
+  /** Optional avatar / logo URL hint (omitted by the engine when none). */
+  avatarUrl?: string;
+}
+
 /** A SabCRM record as returned by the Rust engine (`_id` → `id` hex string). */
 export interface SabcrmRustRecord {
   id: string;
@@ -28,6 +43,22 @@ export interface SabcrmRustRecord {
   createdBy?: string | null;
   createdAt: string;
   updatedAt: string;
+  /**
+   * Resolved RELATION-field hints, present ONLY when the record was fetched
+   * with relation enrichment ({@link SabcrmRecordListParams.enrich} /
+   * {@link sabcrmRecordsApi.get}'s `enrich` flag). Maps each MANY_TO_ONE
+   * RELATION field key → its resolved {@link SabcrmRelationHint}, or `null`
+   * when the stored id is empty / dangling. Injected by the Rust handler as a
+   * parallel top-level `__relations` map; absent on unenriched records.
+   */
+  __relations?: Record<string, SabcrmRelationHint | null>;
+  /**
+   * Resolved ACTOR hints, present ONLY under enrichment. Currently carries the
+   * `createdBy` ACTOR resolved to a {@link SabcrmRelationHint}. Injected by the
+   * Rust handler as a parallel top-level `__actors` map; absent on unenriched
+   * records (or when the actor id did not resolve).
+   */
+  __actors?: { createdBy?: SabcrmRelationHint };
 }
 
 /** A single leaf condition inside a nested AND/OR filter group. */
@@ -82,6 +113,15 @@ export interface SabcrmRecordListParams {
    * `filters` query param; omitted when empty.
    */
   filters?: SabcrmRecordFilters;
+  /**
+   * Relation / ACTOR enrichment toggle. When `true`, the `enrich=relations`
+   * query param is sent and each returned record gains parallel top-level
+   * {@link SabcrmRustRecord.__relations} + {@link SabcrmRustRecord.__actors}
+   * maps resolving its MANY_TO_ONE RELATION fields + `createdBy` ACTOR to
+   * `{ id, label, avatarUrl? }` hints. Omitted / `false` → raw ids only
+   * (legacy shape), so existing callers are unaffected.
+   */
+  enrich?: boolean;
 }
 
 export interface SabcrmRecordListResponse {
@@ -103,7 +143,10 @@ export interface SabcrmRecordCountResponse {
 }
 
 export interface SabcrmRecordGroup {
-  value: string | null;
+  // The Rust group_records handler emits `value` as arbitrary JSON (a kanban
+  // groupBy field can be numeric/boolean, not just a string), so widen to
+  // `unknown` to match the engine (cf. AggregateGroup.value / DistinctResponse).
+  value: unknown;
   records: SabcrmRustRecord[];
 }
 
@@ -285,6 +328,7 @@ export const sabcrmRecordsApi = {
         page: params.page,
         limit: params.limit,
         filters: hasFilters ? JSON.stringify(params.filters) : undefined,
+        enrich: params.enrich ? 'relations' : undefined,
       })}`,
     );
   },
@@ -310,14 +354,24 @@ export const sabcrmRecordsApi = {
     );
   },
 
-  /** `GET /v1/sabcrm/records/{object}/{id}` — one record. */
+  /**
+   * `GET /v1/sabcrm/records/{object}/{id}` — one record. When `enrich` is
+   * `true`, the `enrich=relations` query param is sent and the returned record
+   * carries the parallel {@link SabcrmRustRecord.__relations} +
+   * {@link SabcrmRustRecord.__actors} hint maps (same semantics as
+   * {@link SabcrmRecordListParams.enrich}); omitted → raw ids only.
+   */
   get(
     object: string,
     id: string,
     projectId: string,
+    enrich?: boolean,
   ): Promise<SabcrmRustRecord> {
     return rustFetch<SabcrmRustRecord>(
-      `${base(object)}/${encodeURIComponent(id)}${qs({ projectId })}`,
+      `${base(object)}/${encodeURIComponent(id)}${qs({
+        projectId,
+        enrich: enrich ? 'relations' : undefined,
+      })}`,
     );
   },
 
