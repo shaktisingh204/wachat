@@ -15,6 +15,10 @@
   align-items: center;
   gap: var(--st-space-1);
   width: 100%;
+  /* Keep the sort indicator pinned to the right and let the label clip rather
+     than overflow the fixed-layout header column. */
+  min-width: 0;
+  overflow: hidden;
   padding: 0;
   margin: 0;
   border: 0;
@@ -24,6 +28,8 @@
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   cursor: pointer;
   user-select: none;
   border-radius: var(--st-radius-sm);

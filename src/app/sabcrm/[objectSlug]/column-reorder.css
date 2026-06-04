@@ -26,7 +26,18 @@
   align-items: center;
   gap: var(--st-space-1);
   max-width: 100%;
+  /* Let the header label inside truncate instead of overflowing its (fixed)
+     column and colliding with the resize handle / next header. */
+  min-width: 0;
+  overflow: hidden;
   cursor: grab;
+}
+
+/* The label inside the grip (plain header) truncates with ellipsis. */
+.st-th-drag__grip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .st-th-drag__grip:active {

@@ -126,6 +126,90 @@
 }
 
 /* -------------------------------------------------------------------------
+   Avatars / logos / images in cells (Twenty parity)
+
+   The base `.st-avatar` sizing lives in `sabcrm-twenty.css`; here we add the
+   layered image-over-initials structure (so a broken image gracefully reveals
+   the initials), the 14px in-cell `--xs` size, the round (people) /
+   square (companies + logos, 4px radius) shape variants, and the avatar+label
+   RELATION chip used in table cells and detail rows.
+   ------------------------------------------------------------------------- */
+
+/* The layered structure: initials painted underneath, the image overlaid on
+   top. If the <img> 404s its inline `display:none` (set onError) reveals the
+   initials below — no React state needed, so the primitive stays SSR-safe. */
+.st-avatar {
+  position: relative;
+}
+
+.st-avatar__initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.st-avatar__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: inherit;
+}
+
+/* 14px in-cell avatar — Twenty's RecordChip / table-cell media size. */
+.st-avatar--xs {
+  width: 14px;
+  height: 14px;
+  font-size: 8px;
+  border-radius: var(--st-radius-sm);
+}
+
+/* People avatars are circular; companies + generic logos use Twenty's 4px
+   rounded square. */
+.st-avatar--round {
+  border-radius: 50%;
+}
+
+.st-avatar--square {
+  border-radius: var(--st-radius-sm);
+}
+
+.st-avatar--xs.st-avatar--round {
+  border-radius: 50%;
+}
+
+/* A standalone image/avatar field value gets a touch of breathing room so it
+   aligns with neighbouring text cells. */
+.st-field-avatar {
+  vertical-align: middle;
+}
+
+/* RELATION chip carrying a leading avatar/logo + label. Reuses the base
+   `.st-chip` look from sabcrm-twenty.css and tightens the left padding so the
+   avatar reads as the chip's leading glyph. */
+.st-chip--avatar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  padding-left: 3px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.st-chip--avatar .st-chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-chip__avatar {
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------------------------------
    Edit-state — inline composite editors (`.st-fe-*`)
    ------------------------------------------------------------------------- */
 

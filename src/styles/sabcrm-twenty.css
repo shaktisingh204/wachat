@@ -953,6 +953,11 @@
 .st-table {
   width: 100%;
   border-collapse: collapse;
+  /* Fixed layout so every column honors its declared width (colgroup / inline
+     th width) and so long values truncate with ellipsis instead of blowing the
+     column out and overlapping neighbours. Columns without an explicit width
+     share the remaining space equally — predictable, Twenty-faithful density. */
+  table-layout: fixed;
   font-size: var(--st-font-size);
   color: var(--st-text);
 }
@@ -961,15 +966,21 @@
    labels, hair-thin light cell borders (right + bottom), compact 13px text.
    Mirrors twenty-front RecordTableHeaderCell / RecordTableCell measurements. */
 .st-table th {
+  box-sizing: border-box;
   height: 32px;
   padding: 0 var(--st-space-2);
   text-align: left;
+  vertical-align: middle;
   font-weight: var(--st-fw-medium);
   font-size: var(--st-font-size);
   color: var(--st-text-tertiary);
   background: var(--st-bg);
   border-bottom: 1px solid var(--st-border-light);
   border-right: 1px solid var(--st-border-light);
+  /* Match the body cell so a long header label truncates inside its (fixed)
+     column instead of spilling and mis-aligning the column below it. */
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
   user-select: none;
 }
@@ -983,14 +994,20 @@
 }
 
 .st-table td {
+  box-sizing: border-box;
   height: 32px;
   padding: 0 var(--st-space-2);
   border-bottom: 1px solid var(--st-border-light);
   border-right: 1px solid var(--st-border-light);
+  /* Left-aligned text, vertically centred in the fixed 32px row. Explicit so a
+     stray `text-align: center` from a parent can never centre cell content. */
+  text-align: left;
   vertical-align: middle;
   color: var(--st-text);
   font-size: var(--st-font-size);
-  max-width: 0;
+  /* Under table-layout: fixed the column width comes from the colgroup / header,
+     so the cell truncates with ellipsis rather than overlapping its neighbour.
+     (No fragile `max-width: 0` needed once the table is fixed-layout.) */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1207,6 +1224,9 @@
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
+  /* Allow a long column title to truncate rather than push the count out of
+     the fixed-width column. */
+  min-width: 0;
   padding: var(--st-space-1) var(--st-space-1);
 }
 

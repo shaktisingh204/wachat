@@ -354,6 +354,107 @@ function relationLabel(field: FieldMetadata, value: unknown): string {
 }
 
 /* =========================================================================
+   Avatar / logo resolution (Twenty parity)
+
+   Twenty paints a 14px square-rounded avatar next to companies (a favicon
+   resolved from their domain), people (their `avatarUrl`), and on ACTOR /
+   RELATION / workspaceMember chips. We mirror that here: every helper returns
+   a `{ src?, shape }` we can hand straight to <TwentyAvatar>.
+   ========================================================================= */
+
+/** A resolved avatar: an optional image URL + the shape to draw it in. */
+interface AvatarInfo {
+  src?: string;
+  shape: 'square' | 'round';
+}
+
+/** Strip protocol / www / trailing slash so a domain reads as a bare host. */
+function sanitizeDomain(raw: string): string {
+  return raw
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/^www\./i, '')
+    .replace(/\/.*$/, '')
+    .replace(/\/$/, '');
+}
+
+/**
+ * Twenty resolves a company logo from its domain via `twenty-icons.com`
+ * (same convention as the upstream `getLogoUrlFromDomainName` util). Accepts a
+ * bare domain string, a full URL, or a LINKS composite (`primaryLinkUrl`).
+ */
+function logoUrlFromDomain(value: unknown): string | undefined {
+  let raw = '';
+  if (typeof value === 'string') {
+    raw = value;
+  } else {
+    const rec = asRecord(value);
+    if (rec) raw = firstString(rec.primaryLinkUrl, rec.url, rec.domainName, rec.href);
+  }
+  const host = sanitizeDomain(raw);
+  return host ? `https://twenty-icons.com/${host}` : undefined;
+}
+
+/**
+ * Resolve the avatar/logo for a RELATION value. Companies (relations carrying a
+ * `domainName`) get a favicon; people (carrying `avatarUrl`) get their picture
+ * with a round shape; everything else falls back to initials in a square.
+ */
+function relationAvatar(field: FieldMetadata, value: unknown): AvatarInfo {
+  const rec = asRecord(value);
+  if (!rec) return { shape: 'square' };
+
+  const avatarUrl = firstString(rec.avatarUrl, rec.avatar, rec.picture, rec.photoUrl);
+  if (avatarUrl) return { src: avatarUrl, shape: 'round' };
+
+  const domain =
+    rec.domainName ?? rec.domain ?? rec.website ?? undefined;
+  const logo = logoUrlFromDomain(domain);
+  if (logo) return { src: logo, shape: 'square' };
+
+  // workspaceMember / generic person relations are circular even w/o an image.
+  const target = field.relation?.targetObject?.toLowerCase() ?? '';
+  if (target === 'people' || target === 'workspacemembers' || target === 'workspacemember') {
+    return { shape: 'round' };
+  }
+  return { shape: 'square' };
+}
+
+/** Resolve the avatar image for an ACTOR value (workspace-member picture). */
+function actorAvatar(value: unknown): string | undefined {
+  const rec = asRecord(value);
+  if (!rec) return undefined;
+  return (
+    firstString(rec.avatarUrl, rec.avatar, rec.picture, rec.workspaceMemberAvatarUrl) ||
+    undefined
+  );
+}
+
+/**
+ * Extract `{ src, name }` from a FILE / IMAGE / AVATAR value. Tolerates a bare
+ * url string or a `{ url, name }` descriptor (Twenty's attachment shape).
+ */
+function parseFileValue(value: unknown): { url: string; name: string } {
+  const rec = asRecord(value);
+  if (rec) {
+    return {
+      url: firstString(rec.url, rec.fullPath, rec.path, rec.src, rec.href),
+      name: firstString(rec.name, rec.fileName, rec.label),
+    };
+  }
+  return { url: typeof value === 'string' ? value : String(value ?? ''), name: '' };
+}
+
+/** Heuristic: does this URL / field look like a renderable image? */
+function looksLikeImage(url: string, field: FieldMetadata): boolean {
+  const key = field.key.toLowerCase();
+  if (key.includes('avatar') || key.includes('logo') || key.includes('photo') || key.includes('image') || key.includes('picture')) {
+    return true;
+  }
+  return /\.(png|jpe?g|gif|webp|svg|avif|bmp)(\?|#|$)/i.test(url);
+}
+
+/* =========================================================================
    Rating
    ========================================================================= */
 
@@ -414,6 +515,25 @@ export function TwentyFieldValue({
     if (!hasComposite) {
       return <EmptyValue />;
     }
+  }
+
+  // IMAGE / AVATAR are runtime field-type aliases (not in the FieldMetadata
+  // union) that render a standalone avatar — an image with an initials
+  // fallback, exactly like Twenty's <Avatar>. Branched before the switch so the
+  // typed `field.type` switch below stays exhaustive + unchanged.
+  const runtimeType = field.type as string;
+  if (runtimeType === 'IMAGE' || runtimeType === 'AVATAR') {
+    const { url, name } = parseFileValue(value);
+    const display = name || field.label || 'Avatar';
+    return (
+      <TwentyAvatar
+        name={display}
+        src={url || undefined}
+        size="sm"
+        shape={runtimeType === 'AVATAR' ? 'round' : 'square'}
+        className="st-field-avatar"
+      />
+    );
   }
 
   switch (field.type) {
@@ -549,27 +669,55 @@ export function TwentyFieldValue({
 
     case 'RELATION': {
       // ONE_TO_MANY → array of related records; MANY_TO_ONE → single ref.
+      // Each chip leads with the related entity's avatar/logo (company favicon
+      // from its domain, or a person's avatarUrl) + an initials fallback, like
+      // Twenty's RecordChip.
       const arr = Array.isArray(value) ? value : [value];
       return (
         <span className="st-field-chips">
-          {arr.map((v, i) => (
-            <TwentyChip key={`${relationLabel(field, v)}-${i}`} label={relationLabel(field, v)} />
-          ))}
+          {arr.map((v, i) => {
+            const label = relationLabel(field, v);
+            const avatar = relationAvatar(field, v);
+            return (
+              <span key={`${label}-${i}`} className="st-chip st-chip--avatar">
+                <TwentyAvatar
+                  name={label}
+                  src={avatar.src}
+                  shape={avatar.shape}
+                  size="xs"
+                  className="st-chip__avatar"
+                />
+                <span className="st-chip__label">{label}</span>
+              </span>
+            );
+          })}
         </span>
       );
     }
 
     case 'FILE': {
       // A FILE value may be a url or a { url, name } descriptor.
-      const url =
-        typeof value === 'object' && value
-          ? String((value as Record<string, unknown>).url ?? '')
-          : String(value);
-      const name =
-        typeof value === 'object' && value
-          ? String((value as Record<string, unknown>).name ?? linkLabel(url))
-          : linkLabel(url);
+      const { url, name: rawName } = parseFileValue(value);
       if (!url) return <EmptyValue />;
+      // Image-like files (avatarUrl, logos, *.png …) render as a small rounded
+      // avatar with an initials fallback, mirroring Twenty's media cells.
+      if (looksLikeImage(url, field)) {
+        const display = rawName || field.label || 'Image';
+        const round =
+          field.key.toLowerCase().includes('avatar') ||
+          field.key.toLowerCase().includes('photo') ||
+          field.key.toLowerCase().includes('picture');
+        return (
+          <TwentyAvatar
+            name={display}
+            src={url}
+            size="sm"
+            shape={round ? 'round' : 'square'}
+            className="st-field-avatar"
+          />
+        );
+      }
+      const name = rawName || linkLabel(url);
       return (
         <a
           href={url}
@@ -716,9 +864,15 @@ export function TwentyFieldValue({
       const actor = parseActor(value);
       if (!actor || (!actor.name && !actor.source)) return <EmptyValue />;
       const displayName = actor.name || actor.source || 'Unknown';
+      const avatarSrc = actorAvatar(value);
       return (
         <span className="st-field-actor">
-          <TwentyAvatar name={displayName} size="sm" />
+          <TwentyAvatar
+            name={displayName}
+            src={avatarSrc}
+            shape="round"
+            size="xs"
+          />
           <span className="st-field-actor__name">{displayName}</span>
           {actor.source ? (
             <span className="st-field-actor__source">{actor.source}</span>

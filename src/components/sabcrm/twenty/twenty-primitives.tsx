@@ -55,40 +55,74 @@ export function TwentyChip({ label, color, className }: TwentyChipProps): React.
 
 /* =========================================================================
    TwentyAvatar
+
+   Mirrors twenty-ui's <Avatar>: a small square-rounded media chip that shows
+   an image (`src`) when available, with a deterministic initials fallback when
+   the image is absent OR fails to load. People avatars use `shape="round"`
+   (a circle); company logos + everything else default to Twenty's 4px-radius
+   rounded square. `size="xs"` is the 14px in-cell size used by RELATION / ACTOR
+   chips and table cells.
    ========================================================================= */
-export type TwentyAvatarSize = 'sm' | 'md' | 'lg';
+export type TwentyAvatarSize = 'xs' | 'sm' | 'md' | 'lg';
+export type TwentyAvatarShape = 'square' | 'round';
 
 export type TwentyAvatarProps = {
+  /** Display name — drives the initials fallback + accessible title. */
   name: string;
+  /** Image / logo URL. Falls back to initials when missing or it 404s. */
   src?: string;
   size?: TwentyAvatarSize;
+  /** `round` = people (circle); `square` = companies/logos (default). */
+  shape?: TwentyAvatarShape;
+  /** Override the initials (e.g. single glyph for actors). */
+  initials?: string;
   className?: string;
 };
 
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0]!.charAt(0);
-  return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`;
+  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase();
+  return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
 }
 
 export function TwentyAvatar({
   name,
   src,
   size = 'md',
+  shape = 'square',
+  initials,
   className,
 }: TwentyAvatarProps): React.JSX.Element {
-  const classes = ['st-avatar', `st-avatar--${size}`, className]
+  const classes = [
+    'st-avatar',
+    `st-avatar--${size}`,
+    `st-avatar--${shape}`,
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
+  const fallback = initials ?? initialsFromName(name);
   return (
-    <span className={classes} title={name}>
+    <span className={classes} title={name} aria-label={name}>
+      {/* Initials sit underneath; a successful image paints over them. If the
+          image fails to load, onError hides it so the initials show through —
+          this keeps the component free of React state so it stays SSR-safe. */}
+      <span className="st-avatar__initials" aria-hidden={src ? 'true' : undefined}>
+        {fallback}
+      </span>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={name} />
-      ) : (
-        initialsFromName(name)
-      )}
+        <img
+          src={src}
+          alt={name}
+          className="st-avatar__img"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      ) : null}
     </span>
   );
 }

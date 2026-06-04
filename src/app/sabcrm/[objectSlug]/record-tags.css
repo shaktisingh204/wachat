@@ -17,9 +17,13 @@
 
 .stg-cell {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
+  /* Stay on one line and let chips truncate inside the fixed Tags column so a
+     busy cell never overflows into the next row (the td clips overflow). */
+  min-width: 0;
+  overflow: hidden;
   min-height: 22px;
 }
 
