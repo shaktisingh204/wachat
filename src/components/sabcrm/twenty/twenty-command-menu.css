@@ -207,6 +207,18 @@
   color: var(--st-cmdk-accent, #4f9cf9);
 }
 
+/* ----- Action-style groups (Create / View / Settings / Preferences) -----
+   Faithful to Twenty: command rows that *do* something (rather than open a
+   record) get a slightly more prominent leading glyph than record rows, so
+   "Create Company" reads as an action and not a result. These groups reuse the
+   base `.st-cmdk-row`; only the icon tint differs. The meta tag on the right
+   keeps the group name visible while scrolling a long flattened list. */
+.st-cmdk-row__meta {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
 /* ----- States: empty / loading / error ----- */
 .st-cmdk-status {
   padding: 18px 12px;

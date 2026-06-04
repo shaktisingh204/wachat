@@ -850,3 +850,54 @@
   justify-content: flex-end;
   gap: var(--st-space-2);
 }
+
+/* =========================================================================
+   Delete object — danger button + confirmation dialog
+   ========================================================================= */
+
+/* Scoped danger button (no global `.st-btn--danger` in the Twenty kit). */
+.sabcrm-twenty .st-btn--danger {
+  background: var(--st-danger, #d64545);
+  border-color: var(--st-danger, #d64545);
+  color: #fff;
+}
+
+.sabcrm-twenty .st-btn--danger:hover:not(:disabled) {
+  background: var(--st-danger-hover, #c23a3a);
+  border-color: var(--st-danger-hover, #c23a3a);
+}
+
+/* The Delete-object trigger keeps the secondary outline but reads as danger. */
+.sabcrm-twenty .dm-detail__delete {
+  color: var(--st-danger, #d64545);
+}
+
+.sabcrm-twenty .dm-detail__delete:hover:not(:disabled) {
+  border-color: var(--st-danger, #d64545);
+  background: var(--st-danger-soft, rgba(214, 69, 69, 0.08));
+}
+
+/* Warning callout inside the delete-confirmation dialog. */
+.sabcrm-twenty .dm-delete__warn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+  margin: 0 0 var(--st-space-3);
+  padding: var(--st-space-3);
+  border: 1px solid var(--st-danger, #d64545);
+  border-radius: var(--st-radius);
+  background: var(--st-danger-soft, rgba(214, 69, 69, 0.08));
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+}
+
+.sabcrm-twenty .dm-delete__warn svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--st-danger, #d64545);
+}
+
+.sabcrm-twenty .dm-delete__warn code {
+  font-family: var(--st-font-mono, ui-monospace, monospace);
+}

@@ -157,6 +157,22 @@
   line-height: 1.45;
 }
 
+/* "Coming soon" pill for honest unavailable-feature states (Emails tab). */
+.st-rdt-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin-top: var(--st-space-1);
+  height: 22px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-muted);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+}
+
 /* =========================================================================
    Quick composer
    ========================================================================= */

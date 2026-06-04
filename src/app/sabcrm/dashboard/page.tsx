@@ -77,6 +77,14 @@ import {
   type DashboardWidgetTw,
 } from './dashboard-types';
 
+import { CrmBarChart } from '@/components/sabcrm/charts/bar-chart';
+import { DonutChart } from '@/components/sabcrm/charts/donut-chart';
+import { TimeSeriesLineChart } from '@/components/sabcrm/charts/line-chart';
+import {
+  TwentyFunnelChart,
+  type FunnelStage,
+} from '@/components/sabcrm/charts/funnel-chart';
+
 import './dashboard.css';
 
 /* -------------------------------------------------------------------------- */
@@ -91,16 +99,6 @@ function formatCurrency(n: number): string {
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
   return `$${formatNumber(n)}`;
-}
-
-function formatMonth(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat(undefined, {
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(d);
 }
 
 function formatRelative(iso: string): string {
@@ -178,64 +176,6 @@ function KpiCard({
       </span>
       <span className="st-kpi__value">{value}</span>
       {delta ? <span className={deltaClass}>{delta}</span> : null}
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Bar list (Twenty breakdown)                                                 */
-/* -------------------------------------------------------------------------- */
-
-interface BarRow {
-  key: string;
-  label: string;
-  weight: number;
-  display: string;
-}
-
-function BarListPanel({
-  title,
-  rows,
-  emptyLabel,
-}: {
-  title: string;
-  rows: BarRow[];
-  emptyLabel: string;
-}): React.JSX.Element {
-  const max = rows.reduce((m, r) => Math.max(m, r.weight), 0);
-  return (
-    <div className="st-panel">
-      <div className="st-panel__head">{title}</div>
-      {rows.length === 0 ? (
-        <div className="st-timeline-empty">{emptyLabel}</div>
-      ) : (
-        <div className="st-barlist">
-          {rows.map((row) => {
-            const pct = max > 0 ? Math.max(2, (row.weight / max) * 100) : 0;
-            return (
-              <div className="st-barlist__row" key={row.key}>
-                <div className="st-barlist__head">
-                  <span className="st-barlist__label">{row.label}</span>
-                  <span className="st-barlist__value">{row.display}</span>
-                </div>
-                <div
-                  className="st-barlist__track"
-                  role="meter"
-                  aria-valuenow={Math.round(pct)}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${row.label}: ${row.display}`}
-                >
-                  <span
-                    className="st-barlist__fill"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }
@@ -389,29 +329,17 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
     .slice()
     .sort((a, b) => b.count - a.count)[0];
 
-  const stageRows: BarRow[] = (stageCount?.buckets ?? []).map((b) => ({
-    key: b.value || '∅',
-    label: b.label,
-    weight: b.count,
-    display: formatNumber(b.count),
-  }));
-
-  const pipelineRows: BarRow[] = (pipelineByStage?.buckets ?? [])
+  // Pipeline funnel — ordered, value-weighted bands from the per-stage sum
+  // aggregation (highest value first so it reads top-of-funnel → bottom).
+  const funnelStages: FunnelStage[] = (pipelineByStage?.buckets ?? [])
     .filter((b) => b.sum > 0)
+    .slice()
+    .sort((a, b) => b.sum - a.sum)
     .map((b) => ({
       key: b.value || '∅',
       label: b.label,
-      weight: b.sum,
+      value: b.sum,
       display: formatCurrency(b.sum),
-    }));
-
-  const monthRows: BarRow[] = (oppsByMonth?.points ?? [])
-    .slice(-6)
-    .map((p) => ({
-      key: p.date,
-      label: formatMonth(p.date),
-      weight: p.count,
-      display: formatNumber(p.count),
     }));
 
   return (
@@ -458,27 +386,80 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
       </section>
 
       <section className="st-dash-grid" aria-label="Breakdowns">
+        {/* The Recharts-based charts are ZoruUI components (--zoru-* tokens),
+            which only resolve under a .zoruui scope. display:contents keeps them
+            as direct grid items so the .st-dash-grid layout is unaffected, while
+            --st-* tokens still inherit from the .sabcrm-twenty ancestor. */}
+        <div className="zoruui" style={{ display: 'contents' }}>
+        {/* Records by stage — real bar chart (countByField). */}
+        <CrmBarChart
+          series={{
+            kind: 'countByField',
+            result:
+              stageCount ??
+              ({
+                object: 'opportunities',
+                field: 'stage',
+                buckets: [],
+                total: 0,
+              } as CountByFieldResult),
+          }}
+          title="Opportunities by stage"
+          description="Record count per pipeline stage"
+          error={stageCount === null ? 'This chart could not be loaded.' : undefined}
+        />
+
+        {/* ARR / pipeline value over time — real line chart (timeSeries). */}
+        <TimeSeriesLineChart
+          data={oppsByMonth ?? undefined}
+          title="New opportunities over time"
+        />
+
+        {/* Pipeline value by stage — real bar chart (sumByField). */}
+        <CrmBarChart
+          series={{
+            kind: 'sumByField',
+            result:
+              pipelineByStage ??
+              ({
+                object: 'opportunities',
+                groupField: 'stage',
+                sumField: 'amount',
+                buckets: [],
+                total: 0,
+              } as SumByFieldResult),
+          }}
+          title="Pipeline value by stage"
+          description="Summed amount per stage"
+          formatValue={formatCurrency}
+          layout="horizontal"
+          error={
+            pipelineByStage === null ? 'This chart could not be loaded.' : undefined
+          }
+        />
+
+        {/* Records by owner — real donut (self-fetching countByField). */}
+        <DonutChart
+          object="opportunities"
+          fieldKey="owner"
+          title="Opportunities by owner"
+          description="Distribution across record owners"
+        />
+        </div>
+
+        {/* Pipeline funnel — ordered, value-weighted bands (.sabcrm-twenty). */}
+        <TwentyFunnelChart
+          title="Pipeline funnel"
+          stages={funnelStages}
+          emptyLabel="No pipeline value recorded yet."
+        />
+
         <RecentRecordsPanel
           title="Recent opportunities"
           records={recentOpportunities}
           emptyLabel="No opportunities created yet."
         />
         <PipelineSummaryPanel pipeline={pipelineByStage} />
-        <BarListPanel
-          title="Opportunities by stage"
-          rows={stageRows}
-          emptyLabel="No opportunities to break down yet."
-        />
-        <BarListPanel
-          title="Pipeline value by stage"
-          rows={pipelineRows}
-          emptyLabel="No pipeline value recorded yet."
-        />
-        <BarListPanel
-          title="New opportunities by month"
-          rows={monthRows}
-          emptyLabel="No opportunity history yet."
-        />
       </section>
     </>
   );

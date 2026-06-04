@@ -92,7 +92,7 @@ export interface RecordDetailTabsProps {
    Tab catalogue
    ========================================================================= */
 
-type TabKey = 'timeline' | 'notes' | 'tasks' | 'relations' | 'files';
+type TabKey = 'timeline' | 'notes' | 'tasks' | 'relations' | 'files' | 'emails';
 
 const TAB_DEFS: readonly { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: 'timeline', label: 'Timeline', icon: Activity },
@@ -100,6 +100,7 @@ const TAB_DEFS: readonly { key: TabKey; label: string; icon: LucideIcon }[] = [
   { key: 'tasks', label: 'Tasks', icon: CheckCircle2 },
   { key: 'relations', label: 'Relations', icon: Link2 },
   { key: 'files', label: 'Files', icon: Paperclip },
+  { key: 'emails', label: 'Emails', icon: Mail },
 ] as const;
 
 /* =========================================================================
@@ -1168,6 +1169,36 @@ function FilesTab({
 }
 
 /* =========================================================================
+   Emails tab — honest coming-soon state (SabCRM has no email backend)
+   ========================================================================= */
+
+/**
+ * The Emails tab. Twenty syncs an email account and shows the conversation
+ * thread here; SabCRM has no email backend, so this is an honest, Twenty-styled
+ * coming-soon state rather than a fake inbox. No data is fetched.
+ */
+function EmailsTab(): React.JSX.Element {
+  return (
+    <div className="st-rdt-panel">
+      <div className="st-rdt-empty">
+        <span className="st-rdt-empty__icon" aria-hidden="true">
+          <Mail size={18} />
+        </span>
+        <span className="st-rdt-empty__title">No email account connected</span>
+        <span className="st-rdt-empty__hint">
+          Connect an email account to sync conversations with this record. Email
+          sync isn&apos;t available yet.
+        </span>
+        <span className="st-rdt-soon">
+          <Mail size={12} aria-hidden="true" />
+          Coming soon
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
    RecordDetailTabs — the public component
    ========================================================================= */
 
@@ -1265,6 +1296,11 @@ export function RecordDetailTabs({
               recordId={recordId}
               projectId={projectId}
             />
+          </div>
+        ) : null}
+        {opened.has('emails') ? (
+          <div hidden={active !== 'emails'}>
+            <EmailsTab />
           </div>
         ) : null}
       </div>

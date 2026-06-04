@@ -54,8 +54,6 @@ import {
   MessageSquare,
   ChevronDown,
   CornerDownLeft,
-  Mail,
-  Inbox,
   ListChecks,
   Tag as TagIcon,
   Check,
@@ -872,34 +870,6 @@ function FilesPanel({ activities, loading }: FilesPanelProps): React.JSX.Element
 }
 
 // ---------------------------------------------------------------------------
-// Emails tab — honest read-only empty state (SabCRM has no email sync)
-// ---------------------------------------------------------------------------
-
-/**
- * The Emails tab: Twenty syncs an email account and shows the message thread
- * here. SabCRM has no email sync, so this is an honest, Twenty-styled empty
- * state rather than a fake inbox.
- */
-function EmailsPanel(): React.JSX.Element {
-  return (
-    <div className="sw-emails">
-      <span className="sw-emails__icon" aria-hidden="true">
-        <Inbox size={18} />
-      </span>
-      <span className="sw-emails__title">No email account connected</span>
-      <span className="sw-emails__hint">
-        Connect an email account to sync conversations with this record. Email
-        sync isn&apos;t available yet.
-      </span>
-      <span className="sw-emails__badge">
-        <Mail size={12} aria-hidden="true" />
-        Coming soon
-      </span>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Composer — rich-text body (RichTextEditor) + ⌘/Ctrl+Enter to submit
 // ---------------------------------------------------------------------------
 
@@ -1403,54 +1373,6 @@ function DeleteDialog({
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Tab strip
-// ---------------------------------------------------------------------------
-
-type TabKey = 'fields' | 'notes' | 'tasks' | 'activity' | 'files' | 'emails';
-
-const TAB_DEFS: readonly { key: TabKey; label: string; icon: LucideIcon }[] = [
-  { key: 'fields', label: 'Fields', icon: Database },
-  { key: 'notes', label: 'Notes', icon: StickyNote },
-  { key: 'tasks', label: 'Tasks', icon: CheckCircle2 },
-  { key: 'activity', label: 'Activity', icon: Activity },
-  { key: 'files', label: 'Files', icon: Paperclip },
-  { key: 'emails', label: 'Emails', icon: Mail },
-] as const;
-
-interface TabStripProps {
-  active: TabKey;
-  onSelect: (key: TabKey) => void;
-  counts: Partial<Record<TabKey, number>>;
-}
-
-function TabStrip({ active, onSelect, counts }: TabStripProps) {
-  return (
-    <div className="rt-tabs" role="tablist" aria-label="Record sections">
-      {TAB_DEFS.map(({ key, label, icon: Icon }) => {
-        const isActive = key === active;
-        const count = counts[key];
-        return (
-          <button
-            key={key}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            className={`rt-tab${isActive ? ' is-active' : ''}`}
-            onClick={() => onSelect(key)}
-          >
-            <Icon size={14} aria-hidden="true" />
-            {label}
-            {typeof count === 'number' && count > 0 ? (
-              <span className="rt-tab__count">{count}</span>
-            ) : null}
-          </button>
-        );
-      })}
     </div>
   );
 }
@@ -2652,9 +2574,6 @@ export function RecordDetailTw({
   const [favorite, setFavorite] = React.useState(false);
   const [favBusy, setFavBusy] = React.useState(false);
 
-  // Active right-rail tab (fixed-tab fallback path).
-  const [tab, setTab] = React.useState<TabKey>('activity');
-
   // Saved page-layout (Twenty page-layout fidelity). `undefined` = not yet
   // loaded; `null` = no layout / load failed / engine down (→ fixed-tab
   // fallback); a value = render the layout's tabs + widgets in saved order.
@@ -2670,9 +2589,10 @@ export function RecordDetailTw({
   // (Left-panel section collapse state was retired with CollapsibleFieldSection;
   // the W2 <RecordFieldPanel> owns its own field grouping + edit affordances.)
 
-  // Related-records sections (graceful: empty on failure / engine down).
+  // Related-records sections (graceful: empty on failure / engine down). Loaded
+  // for the saved page-layout path's RECORD_TABLE widgets; the fixed-tab path
+  // shows relations through the <RecordDetailTabs> Relations tab instead.
   const [relations, setRelations] = React.useState<RecordRelation[]>([]);
-  const [loadingRelations, setLoadingRelations] = React.useState(true);
 
   // Object catalogue (slug → metadata) — used to resolve the inverse field key
   // for ONE_TO_MANY attach/detach. Graceful: empty until loaded / on failure.
@@ -3014,7 +2934,6 @@ export function RecordDetailTw({
   // Initial relations load.
   React.useEffect(() => {
     let cancelled = false;
-    setLoadingRelations(true);
     (async () => {
       try {
         const res = await getRecordRelationsTw(
@@ -3026,8 +2945,6 @@ export function RecordDetailTw({
         setRelations(res.ok ? res.data : []);
       } catch {
         if (!cancelled) setRelations([]);
-      } finally {
-        if (!cancelled) setLoadingRelations(false);
       }
     })();
     return () => {
@@ -3461,33 +3378,6 @@ export function RecordDetailTw({
     const activityIds = new Set(tasks.map((t) => t.id));
     return linkedTasks.filter((l) => !activityIds.has(l.source.id));
   }, [linkedTasks, tasks]);
-
-  // Total attachments across all activities — drives the Files tab badge.
-  const filesCount = React.useMemo(
-    () => activities.reduce((sum, a) => sum + activityAttachments(a).length, 0),
-    [activities],
-  );
-
-  const tabCounts = React.useMemo<Partial<Record<TabKey, number>>>(
-    () => ({
-      fields: editableFields.length,
-      // Notes/Tasks counts reflect the MERGED set (activities ∪ linked targets),
-      // matching what the tab renders.
-      notes: notes.length + linkedNotesDeduped.length,
-      tasks: tasks.length + linkedTasksDeduped.length,
-      activity: activities.length,
-      files: filesCount,
-    }),
-    [
-      editableFields.length,
-      notes.length,
-      tasks.length,
-      linkedNotesDeduped.length,
-      linkedTasksDeduped.length,
-      activities.length,
-      filesCount,
-    ],
-  );
 
   const label = recordLabel(object, record);
 
@@ -4043,6 +3933,14 @@ export function RecordDetailTw({
                   role="tabpanel"
                   aria-label={activeLayoutTab.title}
                 >
+                  {/* Attach/detach errors from this tab's RECORD_TABLE relation
+                      widgets surface here (the bottom relations rail was removed
+                      to de-dupe with the Relations tab). */}
+                  {relationError ? (
+                    <div className="re-relerror" role="alert">
+                      {relationError}
+                    </div>
+                  ) : null}
                   {activeLayoutTab.widgets.length === 0 ? (
                     <div className="lr-empty">Nothing in this tab.</div>
                   ) : (
@@ -4067,31 +3965,6 @@ export function RecordDetailTw({
           </div>
         </aside>
       </div>
-
-      {/* Relations — Twenty's related-records sections (attach / detach) */}
-      {!loadingRelations && relations.length > 0 && (
-        <div className="rt-relations" aria-label="Related records">
-          {relationError ? (
-            <div className="re-relerror" role="alert">
-              {relationError}
-            </div>
-          ) : null}
-          {relations.map((rel) => (
-            <RelationSection
-              key={rel.field}
-              relation={rel}
-              projectId={projectId}
-              onAttach={handleAttachRelation}
-              onDetach={handleDetachRelation}
-              busyChildId={detachBusyId}
-              inverseKey={resolveInverseKey(
-                objectsBySlug[rel.targetObject],
-                object.slug,
-              )}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

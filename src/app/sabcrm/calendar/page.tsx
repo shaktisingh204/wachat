@@ -18,12 +18,15 @@ export const dynamic = 'force-dynamic';
  *   - Date-field selector — that object's date fields; the bucketing axis.
  *   - Month navigation — prev / next / "Today".
  *
- * Records are fetched once per (object, project) via
- * `listSabcrmRecordsTw(object, { limit: 200 })` and bucketed CLIENT-side by the
- * chosen field's day, so flipping months / switching the date field is instant
- * and costs no extra round-trips. Each day cell lists its records as small
- * chips linking to `/sabcrm/{object}/{id}`; overflow collapses into a
- * "+N more" toggle.
+ * Records are fetched SERVER-SIDE, scoped to the visible window: each time the
+ * object / date field / month changes we query `listSabcrmRecordsTw` with a
+ * date-range `filters` group (`<field> >= firstVisibleDay AND <field> <=
+ * lastVisibleDay`) covering the 6-week grid, paginating until every matching
+ * record in that range is loaded. Only those range-scoped records are bucketed
+ * CLIENT-side by the chosen field's day — so large datasets render correctly
+ * (no 200-record client cap) while flipping the date field stays instant. Each
+ * day cell lists its records as small chips linking to `/sabcrm/{object}/{id}`;
+ * overflow collapses into a "+N more" toggle.
  *
  * Every data call is a gated server action returning an `ActionResult`. The
  * Rust engine may be DOWN, so failures degrade to inline banners / empty
@@ -50,7 +53,10 @@ import {
   listSabcrmObjectsTw,
   listSabcrmRecordsTw,
 } from '@/app/actions/sabcrm-twenty.actions';
-import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
+import type {
+  SabcrmRustRecord,
+  SabcrmRecordFilters,
+} from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import '@/styles/sabcrm-twenty.css';
@@ -60,8 +66,15 @@ import './calendar.css';
 // Constants
 // ---------------------------------------------------------------------------
 
-/** How many records we pull (and then bucket) per object. */
-const RECORD_LIMIT = 200;
+/** Per-request page size when paging the server for the visible window. */
+const PAGE_SIZE = 200;
+
+/**
+ * Safety cap on how many records we'll page in for a single month window. A
+ * 6-week grid rarely holds this many dated records; the cap keeps a pathological
+ * dataset from looping forever and is surfaced in the footer when hit.
+ */
+const MAX_WINDOW_RECORDS = 5000;
 
 /** Max chips a day cell shows before collapsing into "+N more". */
 const MAX_PER_DAY = 3;
@@ -180,6 +193,85 @@ function buildMonthCells(year: number, month: number): DayCell[] {
   return cells;
 }
 
+/**
+ * The inclusive [start, end) ISO bounds that cover the 6-week (42-cell) grid for
+ * `month`/`year`. `startISO` is local midnight of the first visible cell;
+ * `endISO` is local midnight of the day AFTER the last visible cell — so a
+ * `>= startISO AND < endISO` predicate captures every value on every visible
+ * day regardless of whether the stored value carries a time component.
+ */
+function monthWindowBounds(year: number, month: number): {
+  startISO: string;
+  endISO: string;
+} {
+  const first = new Date(year, month, 1);
+  const start = new Date(year, month, 1 - first.getDay());
+  // 42 cells → the day after the grid is start + 42 days.
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 42);
+  return { startISO: start.toISOString(), endISO: end.toISOString() };
+}
+
+/**
+ * Build the engine `filters` payload that scopes a query to the visible month
+ * window on `fieldKey`. Uses the flat field→condition map form the engine has
+ * always accepted (`{ fieldKey: { op, value } }`); two conditions on the same
+ * field are ANDed via a nested group so both the lower and upper bound apply.
+ */
+function windowFilters(
+  fieldKey: string,
+  startISO: string,
+  endISO: string,
+): SabcrmRecordFilters {
+  return {
+    op: 'and',
+    conditions: [
+      { field: fieldKey, operator: 'gte', value: startISO },
+      { field: fieldKey, operator: 'lt', value: endISO },
+    ],
+  };
+}
+
+/**
+ * Page the server for EVERY record of `object` matching `filters` (sorted by the
+ * date field so the grid fills predictably), up to {@link MAX_WINDOW_RECORDS}.
+ * Resolves to either the full record set or the first server error encountered.
+ * Pages are 1-based to match the engine's `page` semantics.
+ */
+async function fetchAllInWindow(
+  object: string,
+  filters: SabcrmRecordFilters,
+  sortBy: string,
+  projectId: string | undefined,
+): Promise<
+  | { ok: true; records: SabcrmRustRecord[]; total: number; capped: boolean }
+  | { ok: false; error: string }
+> {
+  const acc: SabcrmRustRecord[] = [];
+  let page = 1;
+  let total = 0;
+  for (;;) {
+    const res = await listSabcrmRecordsTw(
+      object,
+      { filters, sortBy, sortDir: 'asc', page, limit: PAGE_SIZE },
+      projectId,
+    );
+    if (!res.ok) return { ok: false, error: res.error };
+    total = res.data.total;
+    acc.push(...res.data.records);
+    const more =
+      res.data.records.length === PAGE_SIZE && acc.length < total;
+    if (!more || acc.length >= MAX_WINDOW_RECORDS) {
+      return {
+        ok: true,
+        records: acc,
+        total,
+        capped: acc.length < total,
+      };
+    }
+    page += 1;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Shared states
 // ---------------------------------------------------------------------------
@@ -242,10 +334,12 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     () => ({ year: today.getFullYear(), month: today.getMonth() }),
   );
 
-  // Records for the active object.
+  // Records for the active object, SCOPED to the visible month window.
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
   const [loadingData, setLoadingData] = React.useState(false);
   const [dataError, setDataError] = React.useState<string | null>(null);
+  // True when the window held more matching records than we paged in (cap hit).
+  const [windowCapped, setWindowCapped] = React.useState(false);
 
   // Which day cells are "expanded" past the overflow cap (by day key).
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
@@ -317,34 +411,42 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     setSelectedDay(null);
   }, [objectSlug, dateFieldKey, cursor]);
 
-  // ---- Load records for the active object --------------------------------
+  // ---- Load records for the visible month window (server-side) ------------
+  // Re-queried whenever the object, date field, or visible month changes — the
+  // server applies the date-range filter so only in-window records cross the
+  // wire (no client-side cap). We page until the window is exhausted.
   React.useEffect(() => {
-    if (!objectSlug) {
+    if (!objectSlug || !dateFieldKey) {
       setRecords([]);
+      setWindowCapped(false);
       return;
     }
     let cancelled = false;
     setLoadingData(true);
     setDataError(null);
     (async () => {
-      const res = await listSabcrmRecordsTw(
+      const { startISO, endISO } = monthWindowBounds(cursor.year, cursor.month);
+      const res = await fetchAllInWindow(
         objectSlug,
-        { limit: RECORD_LIMIT },
+        windowFilters(dateFieldKey, startISO, endISO),
+        dateFieldKey,
         activeProjectId ?? undefined,
       );
       if (cancelled) return;
       if (!res.ok) {
         setDataError(res.error);
         setRecords([]);
+        setWindowCapped(false);
       } else {
-        setRecords(res.data.records);
+        setRecords(res.records);
+        setWindowCapped(res.capped);
       }
       setLoadingData(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [objectSlug, activeProjectId]);
+  }, [objectSlug, dateFieldKey, cursor, activeProjectId]);
 
   // ---- Bucket records by day key (client-side) ---------------------------
   const buckets = React.useMemo(() => {
@@ -700,7 +802,11 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                     : activeObject.labelPlural.toLowerCase()
                 } shown${
                   selectedDay ? '' : ' · select a day to see its records'
-                } · up to ${RECORD_LIMIT} most-recent records loaded.`}
+                } · loaded server-side for ${monthTitle}.${
+                  windowCapped
+                    ? ` Showing the first ${MAX_WINDOW_RECORDS.toLocaleString()} — some records this month are not displayed.`
+                    : ''
+                }`}
           </p>
         </>
       )}

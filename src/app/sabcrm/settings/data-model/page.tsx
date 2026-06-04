@@ -81,6 +81,8 @@ import {
   addFieldTw,
   removeFieldTw,
   updateObjectTw,
+  setObjectIndexesTw,
+  deleteObjectTw,
 } from '@/app/actions/sabcrm-objects.actions';
 import type {
   ObjectMetadata,
@@ -312,14 +314,15 @@ function objectIndexes(object: ObjectMetadata): ObjectIndex[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .map((ix) => {
-      const rec = (ix ?? {}) as Partial<ObjectIndex>;
+      // The engine round-trips `unique`; older/local data may carry `isUnique`.
+      const rec = (ix ?? {}) as Partial<ObjectIndex> & { unique?: boolean };
       const fields = Array.isArray(rec.fields)
         ? rec.fields.map((f) => String(f)).filter(Boolean)
         : [];
       return {
         name: typeof rec.name === 'string' ? rec.name : indexNameFor(fields),
         fields,
-        isUnique: rec.isUnique === true,
+        isUnique: rec.unique === true || rec.isUnique === true,
       };
     })
     .filter((ix) => ix.fields.length > 0);
@@ -1225,9 +1228,18 @@ function IndexesEditor({ object, projectId, onSaved }: IndexesEditorProps) {
   const persist = async (next: ObjectIndex[]) => {
     setBusy(true);
     setError(null);
-    const res = await updateObjectTw(
+    // The dedicated indexes endpoint (`PUT …/indexes`) persists the defs AND
+    // best-effort reconciles real `sabcrm_records` indexes — unlike a plain
+    // object PATCH. The engine's IndexMetadata uses `unique` (not `isUnique`),
+    // so map the local read-shape onto the engine contract here.
+    const payload = next.map((ix) => ({
+      name: ix.name,
+      fields: ix.fields,
+      unique: ix.isUnique === true,
+    }));
+    const res = await setObjectIndexesTw(
       object.slug,
-      { indexes: next },
+      payload,
       projectId ?? undefined,
     );
     setBusy(false);
@@ -1736,6 +1748,8 @@ interface ObjectDetailProps {
   onEditField: (fieldKey: string) => void;
   onRemoveField: (fieldKey: string) => void;
   onSettingsSaved: (object: ObjectMetadata) => void;
+  /** Open the delete-object confirmation (custom objects only). */
+  onDeleteObject: () => void;
 }
 
 function ObjectDetail({
@@ -1747,6 +1761,7 @@ function ObjectDetail({
   onEditField,
   onRemoveField,
   onSettingsSaved,
+  onDeleteObject,
 }: ObjectDetailProps) {
   const TitleIcon = iconComponentFor(object.icon);
   return (
@@ -1765,6 +1780,16 @@ function ObjectDetail({
           </p>
         </div>
         <div className="dm-detail__actions">
+          {object.standard !== true ? (
+            <button
+              type="button"
+              className="st-btn st-btn--secondary dm-detail__delete"
+              onClick={onDeleteObject}
+            >
+              <Trash2 size={14} aria-hidden="true" />
+              Delete object
+            </button>
+          ) : null}
           <TwentyButton variant="primary" icon={Plus} onClick={onAddField}>
             Add field
           </TwentyButton>
@@ -2028,6 +2053,120 @@ function NewObjectDialog({
             >
               {saving ? <Loader2 size={14} className="st-spin" /> : null}
               Create object
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Delete-object dialog (custom objects only)
+//
+// Twenty's destructive "Delete object" confirmation: deleting drops the object
+// AND its records, so we require the admin to re-type the slug before the
+// action is enabled. Wired to `deleteObjectTw` (gates on `delete`); the engine
+// rejects standard objects, surfaced as an inline error.
+// ---------------------------------------------------------------------------
+
+interface DeleteObjectDialogProps {
+  object: ObjectMetadata;
+  projectId: string | null;
+  onClose: () => void;
+  onDeleted: (slug: string) => void;
+}
+
+function DeleteObjectDialog({
+  object,
+  projectId,
+  onClose,
+  onDeleted,
+}: DeleteObjectDialogProps) {
+  const [confirm, setConfirm] = React.useState('');
+  const [deleting, setDeleting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const canDelete = confirm.trim() === object.slug && !deleting;
+
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!canDelete) return;
+    setDeleting(true);
+    setError(null);
+    const res = await deleteObjectTw(object.slug, projectId ?? undefined);
+    setDeleting(false);
+    if (res.ok) {
+      onDeleted(object.slug);
+    } else {
+      setError(res.error);
+    }
+  };
+
+  return (
+    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
+      <div
+        className="st-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Delete ${object.labelSingular}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <form onSubmit={handleDelete}>
+          <div className="st-dialog__header">
+            <h2 className="st-dialog__title">Delete object</h2>
+            <button
+              type="button"
+              className="st-dialog__close"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          <div className="st-dialog__body">
+            <p className="dm-delete__warn">
+              <AlertTriangle size={15} aria-hidden="true" />
+              <span>
+                Deleting <strong>{object.labelPlural}</strong> permanently
+                removes the object and every record stored under it. This cannot
+                be undone.
+              </span>
+            </p>
+
+            <div className="st-field">
+              <span className="st-field__label">
+                Type <code>{object.slug}</code> to confirm
+              </span>
+              <input
+                className="st-input"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder={object.slug}
+                autoComplete="off"
+                aria-invalid={confirm.length > 0 && !canDelete && !deleting}
+              />
+            </div>
+
+            {error && <ErrorBanner message={error} />}
+          </div>
+
+          <div className="st-dialog__footer">
+            <TwentyButton
+              variant="secondary"
+              onClick={onClose}
+              disabled={deleting}
+            >
+              Cancel
+            </TwentyButton>
+            <button
+              type="submit"
+              className="st-btn st-btn--danger"
+              disabled={!canDelete}
+            >
+              {deleting ? <Loader2 size={14} className="st-spin" /> : null}
+              Delete object
             </button>
           </div>
         </form>
@@ -2437,6 +2576,7 @@ export default function DataModelPage(): React.JSX.Element {
   const [activeSlug, setActiveSlug] = React.useState<string | null>(null);
 
   const [createOpen, setCreateOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [addFieldOpen, setAddFieldOpen] = React.useState(false);
   /** Key of the custom field being edited, or null when not editing. */
   const [editFieldKey, setEditFieldKey] = React.useState<string | null>(null);
@@ -2632,6 +2772,10 @@ export default function DataModelPage(): React.JSX.Element {
                   upsertObject(updated);
                   setMutationError(null);
                 }}
+                onDeleteObject={() => {
+                  setMutationError(null);
+                  setDeleteOpen(true);
+                }}
               />
             ) : (
               <div className="dm-detail__placeholder">
@@ -2669,6 +2813,27 @@ export default function DataModelPage(): React.JSX.Element {
             upsertObject(updated);
             setAddFieldOpen(false);
             setEditFieldKey(null);
+          }}
+        />
+      )}
+
+      {deleteOpen && activeObject && activeObject.standard !== true && (
+        <DeleteObjectDialog
+          object={activeObject}
+          projectId={activeProjectId}
+          onClose={() => setDeleteOpen(false)}
+          onDeleted={(slug) => {
+            setDeleteOpen(false);
+            setObjects((prev) => {
+              const next = prev.filter((o) => o.slug !== slug);
+              // Re-select another object (custom first, then standard).
+              setActiveSlug((cur) => {
+                if (cur && cur !== slug) return cur;
+                const fallback = next.find((o) => !o.standard) ?? next[0];
+                return fallback ? fallback.slug : null;
+              });
+              return next;
+            });
           }}
         />
       )}

@@ -643,6 +643,11 @@ interface TableViewProps {
   onToggleFavorite: (recordId: string) => void;
   selected: ReadonlySet<string>;
   onToggleSelect: (recordId: string) => void;
+  /**
+   * Toggle the row at `index`, extending a contiguous range from the last
+   * anchor when `shiftKey` is held (Twenty's Shift-click range select).
+   */
+  onToggleSelectAt: (index: number, shiftKey: boolean) => void;
   onToggleSelectAll: () => void;
   /** Active sort field key, or `null` when unsorted (shared with the view bar). */
   sortBy: string | null;
@@ -720,6 +725,7 @@ function TableView({
   onToggleFavorite,
   selected,
   onToggleSelect,
+  onToggleSelectAt,
   onToggleSelectAll,
   sortBy,
   sortDir,
@@ -1177,8 +1183,23 @@ function TableView({
                   className="st-checkbox st-checkbox--row"
                   aria-label={isSelected ? 'Deselect row' : 'Select row'}
                   checked={isSelected}
-                  onClick={(e) => e.stopPropagation()}
-                  onChange={() => onToggleSelect(record.id)}
+                  // Drive the toggle from onClick so we can read `shiftKey` for
+                  // range select (the change event doesn't carry modifiers).
+                  // preventDefault keeps the input fully controlled by state.
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onToggleSelectAt(rowIndex, e.shiftKey);
+                  }}
+                  // A change can still fire via keyboard (Space) — route it
+                  // through the same single-row toggle for accessibility.
+                  onChange={() => {}}
+                  onKeyDown={(e) => {
+                    if (e.key === ' ' || e.key === 'Enter') {
+                      e.preventDefault();
+                      onToggleSelectAt(rowIndex, e.shiftKey);
+                    }
+                  }}
                 />
               </td>
               <td style={{ width: 32 }}>
@@ -2115,6 +2136,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   // Multi-select state for bulk actions (set of recordIds).
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  // Anchor row index for Shift-click / Shift-keyboard range selection. The
+  // anchor is the last single-toggled row; a subsequent Shift action fills the
+  // contiguous range between it and the new row (Twenty's range-select model).
+  const selectionAnchor = React.useRef<number | null>(null);
   const [bulkDeleting, setBulkDeleting] = React.useState(false);
   const [bulkUpdating, setBulkUpdating] = React.useState(false);
 
@@ -3077,14 +3102,55 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   // ---- Selection ----------------------------------------------------------
 
-  const toggleSelect = React.useCallback((recordId: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(recordId)) next.delete(recordId);
-      else next.add(recordId);
-      return next;
-    });
-  }, []);
+  // Toggle one row, optionally extending a contiguous range from the anchor
+  // when `shiftKey` is held (Twenty's Shift-click range select). The anchor is
+  // the index of the last plain (non-shift) toggle; a Shift toggle fills every
+  // row between the anchor and the clicked row to the clicked row's NEXT state.
+  const toggleSelectAt = React.useCallback(
+    (index: number, shiftKey: boolean) => {
+      const rec = visibleRecords[index];
+      if (!rec) return;
+
+      if (shiftKey && selectionAnchor.current !== null) {
+        const anchor = selectionAnchor.current;
+        const lo = Math.min(anchor, index);
+        const hi = Math.max(anchor, index);
+        setSelected((prev) => {
+          // Range select adds the whole span (Twenty selects, never toggles, on
+          // a Shift-click range), so the gesture is predictable.
+          const next = new Set(prev);
+          for (let i = lo; i <= hi; i++) {
+            const r = visibleRecords[i];
+            if (r) next.add(r.id);
+          }
+          return next;
+        });
+        // Keep the anchor where it was so successive shift-clicks re-anchor from
+        // the same origin (matches native list-box range behavior).
+        return;
+      }
+
+      setSelected((prev) => {
+        const next = new Set(prev);
+        if (next.has(rec.id)) next.delete(rec.id);
+        else next.add(rec.id);
+        return next;
+      });
+      selectionAnchor.current = index;
+    },
+    [visibleRecords],
+  );
+
+  // Toggle a single row by id (keyboard `x`, per-row API). Resolves the row's
+  // current index so it can also seed the range-select anchor.
+  const toggleSelect = React.useCallback(
+    (recordId: string) => {
+      const index = visibleRecords.findIndex((r) => r.id === recordId);
+      if (index < 0) return;
+      toggleSelectAt(index, false);
+    },
+    [visibleRecords, toggleSelectAt],
+  );
 
   const toggleSelectAll = React.useCallback(() => {
     setSelected((prev) => {
@@ -3092,9 +3158,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         visibleRecords.length > 0 && visibleRecords.every((r) => prev.has(r.id));
       return allSelected ? new Set() : new Set(visibleRecords.map((r) => r.id));
     });
+    selectionAnchor.current = null;
   }, [visibleRecords]);
 
-  const clearSelection = React.useCallback(() => setSelected(new Set()), []);
+  const clearSelection = React.useCallback(() => {
+    setSelected(new Set());
+    selectionAnchor.current = null;
+  }, []);
 
   // ---- Keyboard navigation ------------------------------------------------
 
@@ -3108,9 +3178,11 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setActiveRow(index);
   }, []);
 
-  // ↑/↓ (or k/j) move the cursor, Enter opens the row, x toggles its checkbox,
-  // Esc clears. Typing in a cell input/select/textarea is never hijacked, and
-  // modifier-chorded keys fall through to the browser / inline-edit shortcuts.
+  // ↑/↓ (or k/j) move the cursor, Enter opens the row, x / Space toggles its
+  // checkbox, Shift+↑/↓ extends the selection range, Esc clears. Typing in a
+  // cell input/select/textarea is never hijacked, and Cmd/Ctrl/Alt-chorded keys
+  // fall through to the browser / inline-edit shortcuts. Shift is handled here
+  // (range select), so it is intentionally NOT in the early-return guard.
   const handleTableKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       const target = e.target as HTMLElement | null;
@@ -3128,6 +3200,14 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       const moveTo = (next: number) => {
         e.preventDefault();
         const clamped = Math.max(0, Math.min(last, next));
+        // Shift+Arrow extends the selection from the current cursor to the new
+        // row (Twenty's keyboard range select), mirroring Shift-click ranges.
+        if (e.shiftKey) {
+          const fromIdx = activeRow === null ? clamped : activeRow;
+          // Seed the anchor at the gesture's origin if there isn't one yet.
+          if (selectionAnchor.current === null) selectionAnchor.current = fromIdx;
+          toggleSelectAt(clamped, true);
+        }
         setActiveRow(clamped);
         // Keep the highlighted row in view as the cursor walks the list. With
         // row windowing the target row may not be mounted yet — fall back to a
@@ -3166,12 +3246,13 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           break;
         }
         case 'x':
-        case 'X': {
+        case 'X':
+        case ' ': {
           if (activeRow === null) return;
-          const rec = visibleRecords[activeRow];
-          if (rec) {
+          if (visibleRecords[activeRow]) {
             e.preventDefault();
-            toggleSelect(rec.id);
+            // Shift+x / Shift+Space toggles as a range fill from the anchor.
+            toggleSelectAt(activeRow, e.shiftKey);
           }
           break;
         }
@@ -3184,7 +3265,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           break;
       }
     },
-    [visibleRecords, activeRow, router, objectSlug, toggleSelect, clearSelection],
+    [visibleRecords, activeRow, router, objectSlug, toggleSelectAt, clearSelection],
   );
 
   // The first SELECT field is what we offer for bulk-edit (e.g. stage/status).
@@ -3227,50 +3308,173 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setRefreshTick((t) => t + 1);
   }, [bulkDeleting, selected, records, objectSlug, activeProjectId]);
 
-  // Bulk set a SELECT field on every selected record; optimistic, rollback on
-  // error. Clears the selection on success.
-  const handleBulkSet = React.useCallback(
-    async (value: string) => {
-      if (bulkUpdating || !bulkEditField) return;
+  // Shared engine path for every "$set one field on the selection" bulk action
+  // (Set field, Move stage). Applies the patch optimistically, persists via the
+  // gated `bulkUpdateRecordsTw`, rolls back + surfaces the error on failure, and
+  // clears the selection on success. `patchFor` lets callers derive a per-record
+  // patch (e.g. tag-merge needs each record's existing `__tags`).
+  const runBulkPatch = React.useCallback(
+    async (patchFor: (record: SabcrmRustRecord) => Record<string, unknown>) => {
+      if (bulkUpdating) return;
       const ids = Array.from(selected);
       if (ids.length === 0) return;
 
-      const key = bulkEditField.key;
       const prev = records;
       const idSet = new Set(ids);
+
+      // Build each record's patch up-front so a uniform patch can be sent in one
+      // call, while per-record patches (tags) still update the local rows right.
+      const patches = new Map<string, Record<string, unknown>>();
+      for (const r of prev) {
+        if (idSet.has(r.id)) patches.set(r.id, patchFor(r));
+      }
+
       setBulkUpdating(true);
       setDataError(null);
       setRecords((rs) =>
         rs.map((r) =>
-          idSet.has(r.id) ? { ...r, data: { ...r.data, [key]: value } } : r,
+          patches.has(r.id)
+            ? { ...r, data: { ...r.data, ...patches.get(r.id) } }
+            : r,
         ),
       );
 
-      const res = await bulkUpdateRecordsTw(
-        objectSlug,
-        ids,
-        { [key]: value },
-        activeProjectId ?? undefined,
-      );
+      // If every record gets the SAME patch (Set field / Move stage), one bulk
+      // call suffices. Tag-merge produces per-record patches, so fall back to a
+      // small fan-out of single-record updates in that case.
+      const uniform = (() => {
+        let json: string | null = null;
+        for (const p of patches.values()) {
+          const s = JSON.stringify(p);
+          if (json === null) json = s;
+          else if (json !== s) return null;
+        }
+        return json !== null ? (JSON.parse(json) as Record<string, unknown>) : null;
+      })();
+
+      let ok = true;
+      let errMsg = 'Failed to update records.';
+      if (uniform) {
+        const res = await bulkUpdateRecordsTw(
+          objectSlug,
+          ids,
+          uniform,
+          activeProjectId ?? undefined,
+        );
+        ok = res.ok;
+        if (!res.ok) errMsg = res.error;
+      } else {
+        // Per-record patches: persist each, but stop reporting OK if any fail.
+        const results = await Promise.all(
+          ids.map((id) =>
+            updateSabcrmRecordTw(
+              objectSlug,
+              id,
+              patches.get(id) ?? {},
+              activeProjectId ?? undefined,
+            ),
+          ),
+        );
+        const firstErr = results.find((r) => !r.ok);
+        if (firstErr && !firstErr.ok) {
+          ok = false;
+          errMsg = firstErr.error;
+        }
+      }
       setBulkUpdating(false);
 
-      if (!res.ok) {
+      if (!ok) {
         setRecords(prev); // rollback
-        setDataError(res.error);
+        setDataError(errMsg);
         return;
       }
       setSelected(new Set());
+      selectionAnchor.current = null;
       setRefreshTick((t) => t + 1);
     },
-    [
-      bulkUpdating,
-      bulkEditField,
-      selected,
-      records,
-      objectSlug,
-      activeProjectId,
-    ],
+    [bulkUpdating, selected, records, objectSlug, activeProjectId],
   );
+
+  // Bulk set the object's primary SELECT field on every selected record.
+  const handleBulkSet = React.useCallback(
+    (value: string) => {
+      if (!bulkEditField) return;
+      const key = bulkEditField.key;
+      void runBulkPatch(() => ({ [key]: value }));
+    },
+    [bulkEditField, runBulkPatch],
+  );
+
+  // Bulk move every selected record to a stage (the board group-by SELECT).
+  const handleMoveStage = React.useCallback(
+    (value: string) => {
+      if (!boardField) return;
+      const key = boardField.key;
+      void runBulkPatch(() => ({ [key]: value }));
+    },
+    [boardField, runBulkPatch],
+  );
+
+  // Bulk add a tag to every selected record — merge the tag id into each
+  // record's `__tags` list (skip records that already carry it).
+  const handleBulkAddTag = React.useCallback(
+    (tagId: string) => {
+      void runBulkPatch((record) => {
+        const current = recordTagIds(record);
+        if (current.includes(tagId)) return {}; // no-op patch (already tagged)
+        return { [TAGS_KEY]: [...current, tagId] };
+      });
+    },
+    [runBulkPatch],
+  );
+
+  // Export the selected records as a CSV (client-side download — Twenty's
+  // record-table export). Columns are the currently-visible table columns plus
+  // the record label; values are serialized via the same display coercion the
+  // table uses. Degrades to a no-op when nothing is selected.
+  const handleExport = React.useCallback(() => {
+    if (!object) return;
+    const idSet = selected;
+    const rows = records.filter((r) => idSet.has(r.id));
+    if (rows.length === 0) return;
+
+    const cols = columns;
+    const header = ['Name', ...cols.map((c) => c.label)];
+
+    const esc = (v: unknown): string => {
+      if (v === null || v === undefined) return '';
+      let s: string;
+      if (Array.isArray(v)) s = v.join('; ');
+      else if (typeof v === 'object') s = JSON.stringify(v);
+      else s = String(v);
+      // RFC-4180 quoting + a leading-formula guard so a value like "=cmd" is
+      // never auto-executed by a spreadsheet on open.
+      if (/^[=+\-@]/.test(s)) s = `'${s}`;
+      if (/[",\n]/.test(s)) s = `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+
+    const lines = [header.map(esc).join(',')];
+    for (const r of rows) {
+      const cells = [
+        recordLabel(object, r),
+        ...cols.map((c) => r.data?.[c.key]),
+      ];
+      lines.push(cells.map(esc).join(','));
+    }
+
+    const csv = '﻿' + lines.join('\r\n'); // BOM for Excel UTF-8
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `${object.slug}-selection-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [object, selected, records, columns]);
 
   // ---- Render -------------------------------------------------------------
 
@@ -3468,6 +3672,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             <span>open</span>
             <span className="stx-kbd">x</span>
             <span>select</span>
+            <span className="stx-kbd">shift-↑↓</span>
+            <span>range</span>
             <span className="stx-kbd">esc</span>
             <span>clear</span>
           </div>
@@ -3511,6 +3717,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             onToggleFavorite={handleToggleFavorite}
             selected={selected}
             onToggleSelect={toggleSelect}
+            onToggleSelectAt={toggleSelectAt}
             onToggleSelectAll={toggleSelectAll}
             sortBy={viewState.sortBy}
             sortDir={viewState.sortDir}
@@ -3561,11 +3768,16 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         <SabcrmBulkBar
           count={selected.size}
           editField={bulkEditField}
+          stageField={boardField}
+          tags={tags}
           deleting={bulkDeleting}
           updating={bulkUpdating}
           onClear={clearSelection}
           onDelete={handleBulkDelete}
           onBulkSet={handleBulkSet}
+          onMoveStage={boardField ? handleMoveStage : undefined}
+          onAddTag={tags.length > 0 ? handleBulkAddTag : undefined}
+          onExport={handleExport}
         />
       )}
 

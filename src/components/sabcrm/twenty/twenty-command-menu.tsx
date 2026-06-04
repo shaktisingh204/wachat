@@ -15,12 +15,27 @@ import {
   Keyboard,
   Clock,
   Star,
+  Plus,
+  Table2,
+  Columns3,
+  Moon,
+  Sun,
+  Database,
+  UserCog,
+  SlidersHorizontal,
+  Palette,
   type LucideIcon,
 } from 'lucide-react';
 
-import { searchRecordsForPickerAction } from '@/app/actions/sabcrm.actions';
-import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
-import { listSabcrmFavoritesTw } from '@/app/actions/sabcrm-twenty.actions';
+import {
+  listSabcrmFavoritesTw,
+  listSabcrmObjectsTw,
+  listSabcrmRecordsTw,
+} from '@/app/actions/sabcrm-twenty.actions';
+import type {
+  ObjectMetadata,
+  SabcrmRustRecord,
+} from '@/app/actions/sabcrm-twenty.actions.types';
 
 import './twenty-command-menu.css';
 
@@ -86,135 +101,77 @@ export const recordRecents = {
 };
 
 /* =========================================================================
-   Static "Navigate" commands
+   Theme toggle — bridges to the SabCRM prefs store (`useCrmPrefs`)
+
+   Twenty surfaces a "Toggle dark/light theme" command. SabCRM persists its
+   theme in the `sabcrm.prefs.v1` localStorage blob and reflects it by toggling
+   `st-theme-dark` on the `.sabcrm-twenty` frame root (see
+   `app/sabcrm/settings/use-crm-prefs.ts`). We write the SAME shape here and
+   apply the class immediately, so the toggle takes effect without a reload and
+   Settings → Appearance picks it up on next mount. Anything that depends on a
+   backend stays untouched — this is purely the device-local preference.
    ========================================================================= */
-interface NavCommand {
-  id: string;
-  label: string;
-  href: string;
-  icon: LucideIcon;
+const PREFS_KEY = 'sabcrm.prefs.v1';
+type StoredTheme = 'light' | 'dark' | 'system';
+
+function readStoredTheme(): StoredTheme {
+  if (typeof window === 'undefined') return 'light';
+  try {
+    const raw = window.localStorage.getItem(PREFS_KEY);
+    if (!raw) return 'light';
+    const parsed = JSON.parse(raw) as { theme?: unknown };
+    const t = parsed?.theme;
+    if (t === 'dark' || t === 'light' || t === 'system') return t;
+    return 'light';
+  } catch {
+    return 'light';
+  }
 }
 
-/** Object slugs we fan the record search out across. */
-const SEARCH_OBJECT_SLUGS: readonly string[] = [
-  'companies',
-  'people',
-  'opportunities',
-  'notes',
-  'tasks',
-] as const;
+/** True if the SabCRM frame is currently rendering its dark palette. */
+function isDarkActive(): boolean {
+  if (typeof document === 'undefined') return false;
+  const root = document.querySelector('.sabcrm-twenty');
+  if (root?.classList.contains('st-theme-dark')) return true;
+  const stored = readStoredTheme();
+  if (stored === 'dark') return true;
+  if (
+    stored === 'system' &&
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function'
+  ) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false;
+}
 
-const NAV_COMMANDS: readonly NavCommand[] = [
-  { id: 'nav-companies', label: 'Companies', href: '/sabcrm/companies', icon: Building2 },
-  { id: 'nav-people', label: 'People', href: '/sabcrm/people', icon: Users },
-  { id: 'nav-opportunities', label: 'Opportunities', href: '/sabcrm/opportunities', icon: Briefcase },
-  { id: 'nav-notes', label: 'Notes', href: '/sabcrm/notes', icon: StickyNote },
-  { id: 'nav-tasks', label: 'Tasks', href: '/sabcrm/tasks', icon: CheckCircle2 },
-  { id: 'nav-settings', label: 'Settings', href: '/sabcrm/settings', icon: Settings },
-] as const;
+/** Flip light↔dark, persisting to the shared prefs blob + applying the class. */
+function toggleTheme(): void {
+  if (typeof window === 'undefined') return;
+  const nextDark = !isDarkActive();
+  // Merge into the existing prefs blob so we don't clobber the other prefs.
+  try {
+    const raw = window.localStorage.getItem(PREFS_KEY);
+    const prev = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+    window.localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({ ...prev, theme: nextDark ? 'dark' : 'light' }),
+    );
+  } catch {
+    /* quota / private mode — class still applies for this session below */
+  }
+  const root = document.querySelector('.sabcrm-twenty');
+  root?.classList.toggle('st-theme-dark', nextDark);
+}
 
 /* =========================================================================
-   "Actions" commands
+   Object catalogue — icons + label fallbacks
 
-   Each action either navigates to a route (most), or runs an in-app handler
-   (e.g. opening the shortcuts help overlay). Routes to object-index pages use
-   `?new=1` to hint the index to surface its create flow; the index renders
-   fine without it, so this degrades gracefully.
+   Standard objects map to dedicated icons. Custom objects (loaded from
+   `listSabcrmObjectsTw`) fall back to a generic Database glyph. The static
+   STANDARD_OBJECTS list is the graceful fallback when the catalogue can't load.
    ========================================================================= */
-type ActionRun = (ctx: { navigate: (href: string) => void; openHelp: () => void }) => void;
-
-interface ActionCommand {
-  id: string;
-  label: string;
-  icon: LucideIcon;
-  /** Keywords (beyond the label) the action matches against in search. */
-  keywords?: string;
-  run: ActionRun;
-}
-
-const ACTION_COMMANDS: readonly ActionCommand[] = [
-  {
-    id: 'act-create-company',
-    label: 'Create Company',
-    icon: Building2,
-    keywords: 'new add company',
-    run: ({ navigate }) => navigate('/sabcrm/companies?new=1'),
-  },
-  {
-    id: 'act-create-person',
-    label: 'Create Person',
-    icon: Users,
-    keywords: 'new add person contact',
-    run: ({ navigate }) => navigate('/sabcrm/people?new=1'),
-  },
-  {
-    id: 'act-create-opportunity',
-    label: 'Create Opportunity',
-    icon: Briefcase,
-    keywords: 'new add opportunity deal',
-    run: ({ navigate }) => navigate('/sabcrm/opportunities?new=1'),
-  },
-  {
-    id: 'act-create-note',
-    label: 'Create Note',
-    icon: StickyNote,
-    keywords: 'new add note',
-    run: ({ navigate }) => navigate('/sabcrm/notes?new=1'),
-  },
-  {
-    id: 'act-create-task',
-    label: 'Create Task',
-    icon: CheckCircle2,
-    keywords: 'new add task todo',
-    run: ({ navigate }) => navigate('/sabcrm/tasks?new=1'),
-  },
-  {
-    id: 'act-open-dashboard',
-    label: 'Open Dashboard',
-    icon: LayoutDashboard,
-    keywords: 'home dashboard overview',
-    run: ({ navigate }) => navigate('/sabcrm/dashboard'),
-  },
-  {
-    id: 'act-my-work',
-    label: 'My Work',
-    icon: ListTodo,
-    keywords: 'my work assigned tasks mine',
-    run: ({ navigate }) => navigate('/sabcrm/my-work'),
-  },
-  {
-    id: 'act-open-settings',
-    label: 'Open Settings',
-    icon: Settings,
-    keywords: 'settings preferences configuration',
-    run: ({ navigate }) => navigate('/sabcrm/settings'),
-  },
-  {
-    id: 'act-search',
-    label: 'Search…',
-    icon: Search,
-    keywords: 'search find records',
-    run: ({ navigate }) => navigate('/sabcrm/search'),
-  },
-  {
-    id: 'act-shortcuts',
-    label: 'Keyboard shortcuts',
-    icon: Keyboard,
-    keywords: 'keyboard shortcuts help keys hotkeys bindings',
-    run: ({ openHelp }) => openHelp(),
-  },
-] as const;
-
-/** Human-readable label for an object slug (used in record-row meta). */
-const OBJECT_LABEL: Record<string, string> = {
-  companies: 'Company',
-  people: 'Person',
-  opportunities: 'Opportunity',
-  notes: 'Note',
-  tasks: 'Task',
-};
-
-const OBJECT_ICON: Record<string, LucideIcon> = {
+const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
   companies: Building2,
   people: Users,
   opportunities: Briefcase,
@@ -222,14 +179,176 @@ const OBJECT_ICON: Record<string, LucideIcon> = {
   tasks: CheckCircle2,
 };
 
+/** Human-readable singular label for a slug (used in record-row meta). */
+const STANDARD_OBJECT_LABEL: Record<string, string> = {
+  companies: 'Company',
+  people: 'Person',
+  opportunities: 'Opportunity',
+  notes: 'Note',
+  tasks: 'Task',
+};
+
+/** Fallback object catalogue when the metadata layer is unavailable. */
+const FALLBACK_OBJECTS: readonly ObjectCatalogueEntry[] = [
+  { slug: 'companies', labelSingular: 'Company', labelPlural: 'Companies', hasBoard: false },
+  { slug: 'people', labelSingular: 'Person', labelPlural: 'People', hasBoard: false },
+  { slug: 'opportunities', labelSingular: 'Opportunity', labelPlural: 'Opportunities', hasBoard: true },
+  { slug: 'notes', labelSingular: 'Note', labelPlural: 'Notes', hasBoard: false },
+  { slug: 'tasks', labelSingular: 'Task', labelPlural: 'Tasks', hasBoard: false },
+] as const;
+
+/** The slice of object metadata the menu needs. */
+interface ObjectCatalogueEntry {
+  slug: string;
+  labelSingular: string;
+  labelPlural: string;
+  /** Whether the object supports the Kanban board view. */
+  hasBoard: boolean;
+  /** Field key whose value labels a record, when known from metadata. */
+  labelFieldKey?: string;
+}
+
+function iconForSlug(slug: string): LucideIcon {
+  return STANDARD_OBJECT_ICON[slug] ?? Database;
+}
+
+function singularLabelForSlug(
+  slug: string,
+  catalogue: readonly ObjectCatalogueEntry[],
+): string {
+  const hit = catalogue.find((o) => o.slug === slug);
+  if (hit) return hit.labelSingular;
+  return STANDARD_OBJECT_LABEL[slug] ?? slug;
+}
+
+/* =========================================================================
+   Record-label derivation (client-side)
+
+   `listSabcrmRecordsTw` returns raw `{ id, object, data }` rows — `data` is a
+   free-form map. We derive a display label the way the engine does: the
+   object's designated label field first, then a cascade of common name-ish
+   keys, finally the id tail. Keeps the "jump to a record" rows readable for
+   standard AND custom objects without a server round-trip per row.
+   ========================================================================= */
+const LABEL_FIELD_FALLBACKS = [
+  'name',
+  'title',
+  'subject',
+  'displayName',
+  'fullName',
+  'companyName',
+  'email',
+  'label',
+] as const;
+
+function deriveRecordLabel(
+  record: SabcrmRustRecord,
+  labelFieldKey?: string,
+): string {
+  const data = record.data ?? {};
+  const pick = (key: string): string | undefined => {
+    const v = data[key];
+    return typeof v === 'string' && v.trim().length > 0 ? v.trim() : undefined;
+  };
+
+  if (labelFieldKey) {
+    const fromMeta = pick(labelFieldKey);
+    if (fromMeta) return fromMeta;
+  }
+
+  // firstName + lastName composite (people).
+  const first = pick('firstName');
+  const last = pick('lastName');
+  if (first || last) return [first, last].filter(Boolean).join(' ');
+
+  for (const key of LABEL_FIELD_FALLBACKS) {
+    const v = pick(key);
+    if (v) return v;
+  }
+
+  return `Untitled · ${record.id.slice(-6)}`;
+}
+
 /**
  * Best-effort label for a favorite, which carries only `{ object, recordId }`
  * (no record name). Mirrors the sidebar's favorite labelling.
  */
-function favoriteLabel(object: string, recordId: string): string {
-  const objLabel = OBJECT_LABEL[object] ?? object;
+function favoriteLabel(
+  object: string,
+  recordId: string,
+  catalogue: readonly ObjectCatalogueEntry[],
+): string {
+  const objLabel = singularLabelForSlug(object, catalogue);
   return `${objLabel} · ${recordId.slice(-6)}`;
 }
+
+/* =========================================================================
+   Static "global" navigation + actions (catalogue-independent)
+   ========================================================================= */
+interface NavCommand {
+  id: string;
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  keywords?: string;
+}
+
+/** Navigation that isn't an object index — settings, dashboard, etc. */
+const GLOBAL_NAV_COMMANDS: readonly NavCommand[] = [
+  {
+    id: 'nav-dashboard',
+    label: 'Go to Dashboard',
+    href: '/sabcrm/dashboard',
+    icon: LayoutDashboard,
+    keywords: 'home overview',
+  },
+  {
+    id: 'nav-my-work',
+    label: 'Go to My Work',
+    href: '/sabcrm/my-work',
+    icon: ListTodo,
+    keywords: 'assigned tasks mine',
+  },
+  {
+    id: 'nav-search',
+    label: 'Go to Search',
+    href: '/sabcrm/search',
+    icon: Search,
+    keywords: 'find records',
+  },
+] as const;
+
+/** Settings destinations (Twenty groups these under "Go to settings"). */
+const SETTINGS_COMMANDS: readonly NavCommand[] = [
+  {
+    id: 'set-root',
+    label: 'Go to Settings',
+    href: '/sabcrm/settings',
+    icon: Settings,
+    keywords: 'settings preferences configuration',
+  },
+  {
+    id: 'set-appearance',
+    label: 'Settings · Appearance',
+    href: '/sabcrm/settings/appearance',
+    icon: Palette,
+    keywords: 'theme dark light density appearance',
+  },
+  {
+    id: 'set-profile',
+    label: 'Settings · Profile',
+    href: '/sabcrm/settings/profile',
+    icon: UserCog,
+    keywords: 'profile account name email',
+  },
+  {
+    id: 'set-general',
+    label: 'Settings · General',
+    href: '/sabcrm/settings/general',
+    icon: SlidersHorizontal,
+    keywords: 'general workspace',
+  },
+] as const;
 
 /* =========================================================================
    Keyboard-shortcuts help reference
@@ -261,8 +380,10 @@ interface CmdItem {
   onSelect: () => void;
 }
 
-interface RecordResult extends SabcrmPickerOption {
+interface RecordResult {
   slug: string;
+  id: string;
+  label: string;
 }
 
 /** A favorite as surfaced in the menu (object slug + record id). */
@@ -273,6 +394,8 @@ interface FavoriteEntry {
 
 const SEARCH_DEBOUNCE_MS = 200;
 const PER_OBJECT_LIMIT = 5;
+/** How many objects we fan record-search across (keeps the menu snappy). */
+const MAX_SEARCH_OBJECTS = 6;
 
 export interface TwentyCommandMenuProps {
   open: boolean;
@@ -294,6 +417,11 @@ function isEditableTarget(target: EventTarget | null): boolean {
   const tag = target.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
   return target.isContentEditable;
+}
+
+function matchesTerm(term: string, ...haystacks: (string | undefined)[]): boolean {
+  if (!term) return true;
+  return haystacks.some((h) => h?.toLowerCase().includes(term));
 }
 
 export function TwentyCommandMenu({
@@ -325,9 +453,16 @@ export function TwentyCommandMenu({
   const [error, setError] = React.useState<string | null>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
 
+  // Live object catalogue (drives Create / Navigate / View / record search).
+  const [catalogue, setCatalogue] =
+    React.useState<readonly ObjectCatalogueEntry[]>(FALLBACK_OBJECTS);
+
   // Empty-query sections.
   const [recents, setRecents] = React.useState<RecordRecent[]>([]);
   const [favorites, setFavorites] = React.useState<FavoriteEntry[]>([]);
+
+  // Theme label flips so the row reads "Dark theme" / "Light theme" correctly.
+  const [darkActive, setDarkActive] = React.useState(false);
 
   // Reset transient state every time the menu opens; refresh recents/favorites.
   React.useEffect(() => {
@@ -338,12 +473,40 @@ export function TwentyCommandMenu({
       setLoading(false);
       setActiveIndex(0);
       setRecents(readRecents());
+      setDarkActive(isDarkActive());
       // Autofocus once the panel has mounted.
       const id = window.setTimeout(() => inputRef.current?.focus(), 0);
       return () => window.clearTimeout(id);
     }
     return undefined;
   }, [open]);
+
+  // Load the object catalogue whenever the menu opens. Degrades to the static
+  // FALLBACK_OBJECTS if metadata is unavailable, so Create/View never vanish.
+  React.useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false;
+    void (async () => {
+      const res = await listSabcrmObjectsTw(projectId);
+      if (cancelled) return;
+      if (res.ok && res.data.length > 0) {
+        setCatalogue(
+          res.data.map((o: ObjectMetadata) => ({
+            slug: o.slug,
+            labelSingular: o.labelSingular,
+            labelPlural: o.labelPlural,
+            hasBoard: o.views?.includes('board') ?? false,
+            labelFieldKey: o.fields?.find((f) => f.isLabel)?.key,
+          })),
+        );
+      } else {
+        setCatalogue(FALLBACK_OBJECTS);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, projectId]);
 
   // Load favorites whenever the menu opens (non-blocking, graceful on failure).
   React.useEffect(() => {
@@ -363,7 +526,9 @@ export function TwentyCommandMenu({
     };
   }, [open, projectId]);
 
-  // Debounced record search, fanned out across the known object slugs.
+  // Debounced "jump to a record" search, fanned out across the catalogue via
+  // `listSabcrmRecordsTw` (gated server action). Labels are derived client-side
+  // from each row's `data` + the object's label field.
   React.useEffect(() => {
     if (!open) return undefined;
 
@@ -375,6 +540,8 @@ export function TwentyCommandMenu({
       return undefined;
     }
 
+    const searchObjects = catalogue.slice(0, MAX_SEARCH_OBJECTS);
+
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -383,21 +550,24 @@ export function TwentyCommandMenu({
       void (async () => {
         try {
           const settled = await Promise.all(
-            SEARCH_OBJECT_SLUGS.map(async (slug) => {
-              const res = await searchRecordsForPickerAction(
-                slug,
-                term,
-                PER_OBJECT_LIMIT,
+            searchObjects.map(async (obj) => {
+              const res = await listSabcrmRecordsTw(
+                obj.slug,
+                { q: term, limit: PER_OBJECT_LIMIT },
                 projectId,
               );
-              if (!res.ok) return { slug, options: [] as SabcrmPickerOption[] };
-              return { slug, options: res.data };
+              if (!res.ok) return { obj, rows: [] as SabcrmRustRecord[] };
+              return { obj, rows: res.data.records };
             }),
           );
           if (cancelled) return;
 
-          const flat: RecordResult[] = settled.flatMap(({ slug, options }) =>
-            options.map((opt) => ({ ...opt, slug })),
+          const flat: RecordResult[] = settled.flatMap(({ obj, rows }) =>
+            rows.map((row) => ({
+              slug: obj.slug,
+              id: row.id,
+              label: deriveRecordLabel(row, obj.labelFieldKey),
+            })),
           );
           setRecords(flat);
           setActiveIndex(0);
@@ -416,7 +586,7 @@ export function TwentyCommandMenu({
       cancelled = true;
       window.clearTimeout(handle);
     };
-  }, [open, query, projectId]);
+  }, [open, query, projectId, catalogue]);
 
   const navigate = React.useCallback(
     (href: string) => {
@@ -444,6 +614,12 @@ export function TwentyCommandMenu({
     setHelpOpen(true);
   }, [onOpenChange, setHelpOpen]);
 
+  const runToggleTheme = React.useCallback(() => {
+    toggleTheme();
+    setDarkActive(isDarkActive());
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   // When the help overlay is uncontrolled, listen for the `?` shortcut here so
   // it works even if the host never wires `helpOpen`/`onHelpOpenChange`.
   React.useEffect(() => {
@@ -465,50 +641,124 @@ export function TwentyCommandMenu({
     return () => document.removeEventListener('keydown', onDocKeyDown);
   }, [isHelpControlled, onOpenChange]);
 
-  // Filtered "Navigate" commands.
+  const term = query.trim().toLowerCase();
+
+  // ----- "Navigate" group: each object index + global destinations ----------
   const navItems = React.useMemo<CmdItem[]>(() => {
-    const term = query.trim().toLowerCase();
-    const matches = term
-      ? NAV_COMMANDS.filter((c) => c.label.toLowerCase().includes(term))
-      : NAV_COMMANDS;
-    return matches.map((c) => ({
+    const objectNav: CmdItem[] = catalogue
+      .filter((o) => matchesTerm(term, o.labelPlural, o.slug))
+      .map((o) => ({
+        key: `nav-obj-${o.slug}`,
+        label: `Go to ${o.labelPlural}`,
+        meta: 'Navigate',
+        icon: iconForSlug(o.slug),
+        onSelect: () => navigate(`/sabcrm/${o.slug}`),
+      }));
+
+    const globalNav: CmdItem[] = GLOBAL_NAV_COMMANDS.filter((c) =>
+      matchesTerm(term, c.label, c.keywords),
+    ).map((c) => ({
       key: c.id,
       label: c.label,
       meta: 'Navigate',
       icon: c.icon,
       onSelect: () => navigate(c.href),
     }));
-  }, [query, navigate]);
 
-  // Filtered "Actions" commands.
-  const actionItems = React.useMemo<CmdItem[]>(() => {
-    const term = query.trim().toLowerCase();
-    const matches = term
-      ? ACTION_COMMANDS.filter(
-          (c) =>
-            c.label.toLowerCase().includes(term) ||
-            (c.keywords?.toLowerCase().includes(term) ?? false),
+    return [...objectNav, ...globalNav];
+  }, [catalogue, term, navigate]);
+
+  // ----- "Create" group: one create action per object -----------------------
+  const createItems = React.useMemo<CmdItem[]>(
+    () =>
+      catalogue
+        .filter((o) =>
+          matchesTerm(term, `create ${o.labelSingular}`, `new add ${o.labelSingular}`, o.slug),
         )
-      : ACTION_COMMANDS;
-    return matches.map((c) => ({
-      key: c.id,
-      label: c.label,
-      meta: 'Action',
-      icon: c.icon,
-      onSelect: () => c.run({ navigate, openHelp }),
-    }));
-  }, [query, navigate, openHelp]);
+        .map((o) => ({
+          key: `create-${o.slug}`,
+          label: `Create ${o.labelSingular}`,
+          meta: 'Create',
+          icon: Plus,
+          // The index page surfaces its create flow on `?new=1`; it renders
+          // fine without the hint, so this degrades gracefully.
+          onSelect: () => navigate(`/sabcrm/${o.slug}?new=1`),
+        })),
+    [catalogue, term, navigate],
+  );
 
+  // ----- "View" group: switch each object to Table / Board ------------------
+  const viewItems = React.useMemo<CmdItem[]>(() => {
+    const items: CmdItem[] = [];
+    for (const o of catalogue) {
+      if (matchesTerm(term, `${o.labelPlural} table`, `${o.slug} table view`)) {
+        items.push({
+          key: `view-table-${o.slug}`,
+          label: `${o.labelPlural} · Table view`,
+          meta: 'View',
+          icon: Table2,
+          onSelect: () => navigate(`/sabcrm/${o.slug}?view=table`),
+        });
+      }
+      if (
+        o.hasBoard &&
+        matchesTerm(term, `${o.labelPlural} board`, `${o.slug} board kanban view`)
+      ) {
+        items.push({
+          key: `view-board-${o.slug}`,
+          label: `${o.labelPlural} · Board view`,
+          meta: 'View',
+          icon: Columns3,
+          onSelect: () => navigate(`/sabcrm/${o.slug}?view=board`),
+        });
+      }
+    }
+    return items;
+  }, [catalogue, term, navigate]);
+
+  // ----- "Settings" group ---------------------------------------------------
+  const settingsItems = React.useMemo<CmdItem[]>(
+    () =>
+      SETTINGS_COMMANDS.filter((c) =>
+        matchesTerm(term, c.label, c.keywords),
+      ).map((c) => ({
+        key: c.id,
+        label: c.label,
+        meta: 'Settings',
+        icon: c.icon,
+        onSelect: () => navigate(c.href),
+      })),
+    [term, navigate],
+  );
+
+  // ----- "Preferences" group: theme toggle ----------------------------------
+  const preferenceItems = React.useMemo<CmdItem[]>(() => {
+    const label = darkActive ? 'Switch to light theme' : 'Switch to dark theme';
+    if (!matchesTerm(term, label, 'toggle theme dark light appearance mode')) {
+      return [];
+    }
+    return [
+      {
+        key: 'pref-toggle-theme',
+        label,
+        meta: 'Preference',
+        icon: darkActive ? Sun : Moon,
+        onSelect: runToggleTheme,
+      },
+    ];
+  }, [darkActive, term, runToggleTheme]);
+
+  // ----- "Records" group: jump to a record ----------------------------------
   const recordItems = React.useMemo<CmdItem[]>(
     () =>
       records.map((r) => ({
         key: `rec-${r.slug}-${r.id}`,
         label: r.label || 'Untitled',
-        meta: OBJECT_LABEL[r.slug] ?? r.object,
-        icon: OBJECT_ICON[r.slug] ?? Search,
+        meta: singularLabelForSlug(r.slug, catalogue),
+        icon: iconForSlug(r.slug),
         onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
       })),
-    [records, openRecord],
+    [records, catalogue, openRecord],
   );
 
   // Empty-query "Recent" group (from localStorage).
@@ -517,49 +767,54 @@ export function TwentyCommandMenu({
       recents.map((r) => ({
         key: `recent-${r.slug}-${r.id}`,
         label: r.label || 'Untitled',
-        meta: OBJECT_LABEL[r.slug] ?? r.slug,
-        icon: OBJECT_ICON[r.slug] ?? Clock,
+        meta: singularLabelForSlug(r.slug, catalogue),
+        icon: STANDARD_OBJECT_ICON[r.slug] ?? Clock,
         onSelect: () => openRecord(r.slug, r.id, r.label || 'Untitled'),
       })),
-    [recents, openRecord],
+    [recents, catalogue, openRecord],
   );
 
   // Empty-query "Favorites" group (from the Rust engine).
   const favoriteItems = React.useMemo<CmdItem[]>(
     () =>
       favorites.map((f) => {
-        const label = favoriteLabel(f.object, f.recordId);
+        const label = favoriteLabel(f.object, f.recordId, catalogue);
         return {
           key: `fav-${f.object}-${f.recordId}`,
           label,
-          meta: OBJECT_LABEL[f.object] ?? f.object,
-          icon: OBJECT_ICON[f.object] ?? Star,
+          meta: singularLabelForSlug(f.object, catalogue),
+          icon: STANDARD_OBJECT_ICON[f.object] ?? Star,
           onSelect: () => openRecord(f.object, f.recordId, label),
         };
       }),
-    [favorites, openRecord],
+    [favorites, catalogue, openRecord],
   );
 
   // Recent/Favorites only show when the query is empty.
-  const showSuggestions = query.trim().length === 0;
+  const showSuggestions = term.length === 0;
   const visibleRecentItems = showSuggestions ? recentItems : [];
   const visibleFavoriteItems = showSuggestions ? favoriteItems : [];
 
-  // Flattened, ordered list used for keyboard navigation. Recents + favorites
-  // sit above the static Navigate/Actions groups when the query is empty.
+  // Flattened, ordered list used for keyboard navigation. Mirrors render order.
   const flatItems = React.useMemo<CmdItem[]>(
     () => [
       ...visibleRecentItems,
       ...visibleFavoriteItems,
+      ...createItems,
       ...navItems,
-      ...actionItems,
+      ...viewItems,
+      ...settingsItems,
+      ...preferenceItems,
       ...recordItems,
     ],
     [
       visibleRecentItems,
       visibleFavoriteItems,
+      createItems,
       navItems,
-      actionItems,
+      viewItems,
+      settingsItems,
+      preferenceItems,
       recordItems,
     ],
   );
@@ -681,8 +936,7 @@ export function TwentyCommandMenu({
 
   if (!open) return helpOverlay;
 
-  const showEmpty =
-    query.trim().length > 0 && !loading && !error && flatItems.length === 0;
+  const showEmpty = term.length > 0 && !loading && !error && flatItems.length === 0;
 
   let flatCursor = 0;
   const renderRow = (item: CmdItem): React.JSX.Element => {
@@ -707,6 +961,20 @@ export function TwentyCommandMenu({
         <span className="st-cmdk-row__label">{item.label}</span>
         {item.meta ? <span className="st-cmdk-row__meta">{item.meta}</span> : null}
       </button>
+    );
+  };
+
+  const renderGroup = (
+    title: string,
+    items: CmdItem[],
+    modifier?: string,
+  ): React.JSX.Element | null => {
+    if (items.length === 0) return null;
+    return (
+      <div className={`st-cmdk-group${modifier ? ` ${modifier}` : ''}`}>
+        <div className="st-cmdk-group__title">{title}</div>
+        {items.map(renderRow)}
+      </div>
     );
   };
 
@@ -751,41 +1019,24 @@ export function TwentyCommandMenu({
             <kbd className="st-cmdk-search__esc">Esc</kbd>
           </div>
 
-          <div className="st-cmdk-body" id="st-cmdk-listbox" role="listbox" aria-label="Results">
-            {visibleRecentItems.length > 0 ? (
-              <div className="st-cmdk-group st-cmdk-group--recent">
-                <div className="st-cmdk-group__title">Recent</div>
-                {visibleRecentItems.map(renderRow)}
-              </div>
-            ) : null}
-
-            {visibleFavoriteItems.length > 0 ? (
-              <div className="st-cmdk-group st-cmdk-group--favorites">
-                <div className="st-cmdk-group__title">Favorites</div>
-                {visibleFavoriteItems.map(renderRow)}
-              </div>
-            ) : null}
-
-            {navItems.length > 0 ? (
-              <div className="st-cmdk-group">
-                <div className="st-cmdk-group__title">Navigate</div>
-                {navItems.map(renderRow)}
-              </div>
-            ) : null}
-
-            {actionItems.length > 0 ? (
-              <div className="st-cmdk-group">
-                <div className="st-cmdk-group__title">Actions</div>
-                {actionItems.map(renderRow)}
-              </div>
-            ) : null}
-
-            {recordItems.length > 0 ? (
-              <div className="st-cmdk-group">
-                <div className="st-cmdk-group__title">Records</div>
-                {recordItems.map(renderRow)}
-              </div>
-            ) : null}
+          <div
+            className="st-cmdk-body"
+            id="st-cmdk-listbox"
+            role="listbox"
+            aria-label="Results"
+          >
+            {renderGroup('Recent', visibleRecentItems, 'st-cmdk-group--recent')}
+            {renderGroup(
+              'Favorites',
+              visibleFavoriteItems,
+              'st-cmdk-group--favorites',
+            )}
+            {renderGroup('Create', createItems)}
+            {renderGroup('Navigate', navItems)}
+            {renderGroup('View', viewItems)}
+            {renderGroup('Settings', settingsItems)}
+            {renderGroup('Preferences', preferenceItems)}
+            {renderGroup('Records', recordItems)}
 
             {loading ? (
               <div className="st-cmdk-status" role="status">

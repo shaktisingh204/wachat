@@ -244,3 +244,84 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* --- Bulk-bar popovers (Add tag) ------------------------------------------
+   The "Add tag" action opens a checklist popover above the bar (it floats at
+   the bottom of the viewport). Reuses the kit's tokens for a faithful look. */
+
+.st-selbar__anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.st-selbar__pop {
+  position: absolute;
+  z-index: 50;
+  min-width: 200px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: var(--st-space-1);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  box-shadow: var(--st-shadow-pop);
+}
+
+/* Open upward from the action (the bar is anchored to the viewport bottom). */
+.st-selbar__pop--up {
+  bottom: calc(100% + var(--st-space-2));
+  left: 0;
+}
+
+.st-selbar__pop-title {
+  margin: 0;
+  padding: var(--st-space-1) var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-secondary);
+}
+
+.st-selbar__pop-empty {
+  padding: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.st-selbar__pop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.st-selbar__opt {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  border-radius: var(--st-radius-sm);
+  cursor: pointer;
+}
+
+.st-selbar__opt:hover {
+  background: var(--st-hover);
+}
+
+.st-selbar__opt-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--st-text-tertiary);
+}
+
+.st-selbar__opt-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

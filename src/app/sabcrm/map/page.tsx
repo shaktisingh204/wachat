@@ -26,10 +26,11 @@ export const dynamic = 'force-dynamic';
  *     (ADDRESS, or a TEXT field that looks like city / country) qualify.
  *   - Location-field selector — that object's location fields; the place axis.
  *
- * Records are fetched once per (object, project) via
- * `listSabcrmRecordsTw(object, { limit: 200 })` and bucketed client-side, so
- * switching the location field / selecting a place is instant and costs no
- * extra round-trips.
+ * Records are fetched SERVER-SIDE per (object, location field): we query
+ * `listSabcrmRecordsTw` with a `<field> isNotEmpty` filter so only records that
+ * actually carry a location cross the wire, paging until every match is loaded
+ * (no 200-record client cap — large datasets render). Those records are then
+ * bucketed client-side by place, so selecting a place stays instant.
  *
  * Every data call is a gated server action returning an `ActionResult`. The
  * Rust engine may be DOWN, so failures degrade to inline banners / empty
@@ -50,7 +51,10 @@ import {
   listSabcrmObjectsTw,
   listSabcrmRecordsTw,
 } from '@/app/actions/sabcrm-twenty.actions';
-import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
+import type {
+  SabcrmRustRecord,
+  SabcrmRecordFilters,
+} from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import '@/styles/sabcrm-twenty.css';
@@ -60,8 +64,15 @@ import './map.css';
 // Constants
 // ---------------------------------------------------------------------------
 
-/** How many records we pull (and then bucket) per object. */
-const RECORD_LIMIT = 200;
+/** Per-request page size when paging the server for located records. */
+const PAGE_SIZE = 200;
+
+/**
+ * Safety cap on how many located records we'll page in for one (object, field)
+ * pair, so a pathological dataset can't loop forever. Surfaced in the footer
+ * when hit.
+ */
+const MAX_RECORDS = 5000;
 
 /** Sentinel bucket key for records whose location field is empty / unparseable. */
 const UNKNOWN_KEY = '__unknown__';
@@ -157,6 +168,44 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
     if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
+}
+
+/**
+ * Page the server for EVERY record of `object` whose `fieldKey` is non-empty,
+ * up to {@link MAX_RECORDS}. The engine applies the `isNotEmpty` predicate so
+ * location-less records never cross the wire. Pages are 1-based to match the
+ * engine's `page` semantics. Resolves to the full set or the first error.
+ */
+async function fetchAllLocated(
+  object: string,
+  fieldKey: string,
+  projectId: string | undefined,
+): Promise<
+  | { ok: true; records: SabcrmRustRecord[]; capped: boolean }
+  | { ok: false; error: string }
+> {
+  const filters: SabcrmRecordFilters = {
+    op: 'and',
+    conditions: [{ field: fieldKey, operator: 'isNotEmpty' }],
+  };
+  const acc: SabcrmRustRecord[] = [];
+  let page = 1;
+  let total = 0;
+  for (;;) {
+    const res = await listSabcrmRecordsTw(
+      object,
+      { filters, page, limit: PAGE_SIZE },
+      projectId,
+    );
+    if (!res.ok) return { ok: false, error: res.error };
+    total = res.data.total;
+    acc.push(...res.data.records);
+    const more = res.data.records.length === PAGE_SIZE && acc.length < total;
+    if (!more || acc.length >= MAX_RECORDS) {
+      return { ok: true, records: acc, capped: acc.length < total };
+    }
+    page += 1;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -257,10 +306,12 @@ export default function SabcrmMapPage(): React.JSX.Element {
   // Free-text filter over the places rail (Twenty's grouped rail is searchable).
   const [placeQuery, setPlaceQuery] = React.useState('');
 
-  // Records for the active object.
+  // Located records for the active object + location field (server-filtered).
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
   const [loadingData, setLoadingData] = React.useState(false);
   const [dataError, setDataError] = React.useState<string | null>(null);
+  // True when more located records exist than we paged in (cap hit).
+  const [recordsCapped, setRecordsCapped] = React.useState(false);
 
   // ---- Load objects -------------------------------------------------------
   React.useEffect(() => {
@@ -325,34 +376,39 @@ export default function SabcrmMapPage(): React.JSX.Element {
     setPlaceQuery('');
   }, [objectSlug, locationFieldKey]);
 
-  // ---- Load records for the active object --------------------------------
+  // ---- Load located records for the active object + field (server-side) ----
+  // The engine applies an `isNotEmpty` filter on the chosen location field, so
+  // only records that carry a place cross the wire; we page until exhausted.
   React.useEffect(() => {
-    if (!objectSlug) {
+    if (!objectSlug || !locationFieldKey) {
       setRecords([]);
+      setRecordsCapped(false);
       return;
     }
     let cancelled = false;
     setLoadingData(true);
     setDataError(null);
     (async () => {
-      const res = await listSabcrmRecordsTw(
+      const res = await fetchAllLocated(
         objectSlug,
-        { limit: RECORD_LIMIT },
+        locationFieldKey,
         activeProjectId ?? undefined,
       );
       if (cancelled) return;
       if (!res.ok) {
         setDataError(res.error);
         setRecords([]);
+        setRecordsCapped(false);
       } else {
-        setRecords(res.data.records);
+        setRecords(res.records);
+        setRecordsCapped(res.capped);
       }
       setLoadingData(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, [objectSlug, activeProjectId]);
+  }, [objectSlug, locationFieldKey, activeProjectId]);
 
   // ---- Bucket records by place (client-side) -----------------------------
   // Most-populated places first; the Unknown bucket is always pinned last so it
@@ -654,9 +710,14 @@ export default function SabcrmMapPage(): React.JSX.Element {
           </div>
 
           <p className="map-note">
-            Showing up to {RECORD_LIMIT} {activeObject.labelPlural.toLowerCase()}{' '}
-            grouped by “{locationField?.label}”. This is a structured location
-            browser — no map tiles, no extra dependencies.
+            Showing {placedCount.toLocaleString()}{' '}
+            {activeObject.labelPlural.toLowerCase()} grouped by “
+            {locationField?.label}”, loaded server-side.
+            {recordsCapped
+              ? ` Capped at the first ${MAX_RECORDS.toLocaleString()} located records — some are not shown.`
+              : ''}{' '}
+            This is a structured location browser — no map tiles, no extra
+            dependencies.
           </p>
         </>
       )}
