@@ -77,3 +77,55 @@ pub struct SegmentResponse {
 pub struct OkResponse {
     pub ok: bool,
 }
+
+// ===========================================================================
+// apply-segment (Twenty parity, additive)
+// ===========================================================================
+
+/// `POST /{id}/apply` body — apply a stored segment's records-filter AST to the
+/// `sabcrm_records` collection server-side and return a page of records.
+///
+/// The segment's persisted `filters` (the records-filter AST — see
+/// [`crate::filter`]) is translated to a Mongo predicate scoped by
+/// `{ projectId, object: segment.object }`. An optional inline `filter` AST
+/// (same shape) is ANDed on top so callers can refine a saved segment without
+/// mutating it (Twenty's "view + adhoc filter" behaviour). Sort prefers the
+/// segment's `sortBy` / `sortDir`, else top-level `updatedAt` desc.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplySegmentInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// 1-indexed page number. Defaults to 1 when absent or `<= 0`.
+    #[serde(default)]
+    pub page: Option<u64>,
+    /// Page size. Clamped at 100 by the handler. Defaults to 50.
+    #[serde(default)]
+    pub limit: Option<u64>,
+    /// Optional adhoc records-filter AST ANDed on top of the segment's stored
+    /// filter (a leaf `{ field, op, value? }`, a group
+    /// `{ op: "and" | "or", conditions: [...] }`, or an array of nodes). Absent
+    /// / `null` → the segment's stored filter is used verbatim.
+    #[serde(default)]
+    #[schema(value_type = Object)]
+    pub filter: Option<Value>,
+    /// Optional sort-field override (`data.<sortBy>`, or the `createdAt` /
+    /// `updatedAt` audit column). Falls back to the segment's stored `sortBy`.
+    #[serde(default)]
+    pub sort_by: Option<String>,
+    /// Optional sort direction override — `asc` | `desc`. Falls back to the
+    /// segment's stored `sortDir`, then `desc`.
+    #[serde(default)]
+    pub sort_dir: Option<String>,
+}
+
+/// Response body for `POST /{id}/apply` — a page of records matching the
+/// segment's records-filter AST. Mirrors the records list wire shape
+/// (`{ records, total }`, `_id` → `id`).
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ApplySegmentResponse {
+    #[schema(value_type = Vec<Object>)]
+    pub records: Vec<Value>,
+    pub total: u64,
+}

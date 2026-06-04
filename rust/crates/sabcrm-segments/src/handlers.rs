@@ -31,12 +31,22 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    CreateSegmentInput, ListQuery, ListResponse, OkResponse, ScopeQuery, SegmentResponse,
-    UpdateSegmentInput,
+    ApplySegmentInput, ApplySegmentResponse, CreateSegmentInput, ListQuery, ListResponse,
+    OkResponse, ScopeQuery, SegmentResponse, UpdateSegmentInput,
 };
+use crate::filter::{merge_node_into_filter, parse_filter};
 
 /// The Mongo collection backing saved segments.
 const SEGMENTS_COLL: &str = "sabcrm_segments";
+
+/// The records collection a segment's filter is applied against by
+/// `POST /{id}/apply`.
+const RECORDS_COLL: &str = "sabcrm_records";
+
+/// Default page size for `apply_segment` when no `limit` is supplied.
+const APPLY_DEFAULT_LIMIT: u64 = 50;
+/// Hard cap on `apply_segment`'s `limit`.
+const APPLY_MAX_LIMIT: u64 = 100;
 
 // ===========================================================================
 // helpers
@@ -249,4 +259,139 @@ pub async fn delete_segment(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// POST /{id}/apply — applySegment
+// ===========================================================================
+
+/// Build the Mongo sort document for `apply_segment`. Prefers the request's
+/// `sortBy` / `sortDir` override, falling back to the segment's stored
+/// `sortBy` / `sortDir`, then to top-level `updatedAt` desc. `sortBy` is the
+/// `createdAt` / `updatedAt` audit column or a `data.<key>` field.
+fn build_apply_sort(segment: &Document, body: &ApplySegmentInput) -> Document {
+    let sort_by = body
+        .sort_by
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned)
+        .or_else(|| {
+            segment
+                .get_str("sortBy")
+                .ok()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned)
+        });
+
+    let dir_str = body
+        .sort_dir
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .map(str::to_owned)
+        .or_else(|| {
+            segment
+                .get_str("sortDir")
+                .ok()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned)
+        });
+    let dir = match dir_str.as_deref() {
+        Some("asc") => 1,
+        _ => -1,
+    };
+
+    match sort_by {
+        Some(key) if key == "createdAt" || key == "updatedAt" => doc! { key: dir },
+        Some(key) => doc! { format!("data.{key}"): dir },
+        None => doc! { "updatedAt": -1 },
+    }
+}
+
+/// `POST /v1/sabcrm/segments/{id}/apply` — load the saved segment by
+/// `{ projectId, _id }` (404 if missing), translate its stored records-filter
+/// AST (the `filters` key — see [`crate::filter`]) to a Mongo predicate scoped
+/// by `{ projectId, object: segment.object }`, AND any inline adhoc `filter`
+/// AST on top, then page the matching `sabcrm_records`. Returns
+/// `{ records, total }` in the records list wire shape (`_id` → `id`).
+#[instrument(skip_all, fields(id = %id))]
+pub async fn apply_segment(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<ApplySegmentInput>,
+) -> Result<Json<ApplySegmentResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    // ---- Load the segment ----------------------------------------------
+    let segments = mongo.collection::<Document>(SEGMENTS_COLL);
+    let segment = segments
+        .find_one(doc! { "projectId": project_id, "_id": oid })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_segments.apply.find_one"))
+        })?
+        .ok_or_else(|| ApiError::NotFound("segment".to_owned()))?;
+
+    let object = segment
+        .get_str("object")
+        .map_err(|_| ApiError::Validation("segment is missing `object`.".to_owned()))?
+        .to_owned();
+
+    // ---- Pagination ----------------------------------------------------
+    let page = body.page.filter(|p| *p > 0).unwrap_or(1);
+    let limit = body
+        .limit
+        .filter(|l| *l > 0)
+        .unwrap_or(APPLY_DEFAULT_LIMIT)
+        .min(APPLY_MAX_LIMIT);
+    let skip = (page - 1).saturating_mul(limit);
+
+    // ---- Filter: tenant scope + stored AST + optional adhoc AST --------
+    let mut filter = doc! { "projectId": project_id, "object": &object };
+
+    let stored_filter: Option<Value> = segment
+        .get("filters")
+        .map(|b| sabnode_db::bson_helpers::bson_to_clean_json(b.clone()));
+    let stored_node = parse_filter(stored_filter.as_ref())?;
+    merge_node_into_filter(&mut filter, stored_node.as_ref())?;
+
+    let adhoc_node = parse_filter(body.filter.as_ref())?;
+    merge_node_into_filter(&mut filter, adhoc_node.as_ref())?;
+
+    // ---- Sort ----------------------------------------------------------
+    let sort_doc = build_apply_sort(&segment, &body);
+
+    // ---- Query records -------------------------------------------------
+    let records_coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    let total = records_coll
+        .count_documents(filter.clone())
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_segments.apply.count"))
+        })?;
+
+    let mut cursor = records_coll
+        .find(filter)
+        .sort(sort_doc)
+        .skip(skip)
+        .limit(limit as i64)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_segments.apply.find"))
+        })?;
+
+    let mut records = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_segments.apply.cursor"))
+    })? {
+        records.push(record_to_wire(d));
+    }
+
+    Ok(Json(ApplySegmentResponse { records, total }))
 }

@@ -49,6 +49,22 @@ fn require_project(project_id: &str) -> Result<&str> {
     Ok(p)
 }
 
+/// Parse an RFC3339 date-range bound and normalize it to a canonical UTC
+/// RFC3339 string.
+///
+/// Stored `createdAt` values are `Utc::now().to_rfc3339()` (UTC, fixed
+/// width), and the list filter compares the bound lexicographically via
+/// `$gte` / `$lte`. Converting the parsed instant back through
+/// `Utc::to_rfc3339()` guarantees both sides share the exact same format, so
+/// the string comparison matches chronological order regardless of the
+/// caller's input offset (e.g. a `+05:30` bound becomes its UTC equivalent).
+fn parse_rfc3339(value: &str, field: &str) -> Result<String> {
+    let parsed = chrono::DateTime::parse_from_rfc3339(value).map_err(|_| {
+        ApiError::Validation(format!("{field} must be a valid RFC3339 timestamp."))
+    })?;
+    Ok(parsed.with_timezone(&Utc).to_rfc3339())
+}
+
 /// Clean a stored document into the wire JSON, renaming `_id` → `id` (hex).
 fn record_to_wire(doc: Document) -> Value {
     let mut json = document_to_clean_json(doc);
@@ -65,8 +81,19 @@ fn record_to_wire(doc: Document) -> Value {
 // ===========================================================================
 
 /// `GET /v1/sabcrm/audit` — list a project's audit entries, newest first
-/// (`createdAt` desc). Optionally filtered by `object` / `recordId`. `limit`
-/// defaults to 100 and is capped at 500.
+/// (`createdAt` desc).
+///
+/// Twenty-parity query depth: the append-only log can be narrowed by acting
+/// `actorId`, `action`, target `object` + `recordId`, and a `[from, to]`
+/// `createdAt` date range, then paginated. `page` is 1-based and defaults to
+/// 1; `limit` defaults to 100 and is capped at 500. The response carries the
+/// resolved `page` / `limit` and the `total` count of matching entries across
+/// all pages.
+///
+/// `createdAt` is stored as a fixed-width RFC3339 UTC string, so the range
+/// bounds (`from` / `to`) are validated as RFC3339 and applied as
+/// lexicographic `$gte` / `$lte` — which orders identically to chronological
+/// order for that format.
 #[instrument(skip_all)]
 pub async fn list_audit(
     _user: AuthUser,
@@ -75,9 +102,24 @@ pub async fn list_audit(
 ) -> Result<Json<ListResponse>> {
     let project_id = require_project(&query.project_id)?;
 
+    // ---- Pagination ----------------------------------------------------
+    let page = query.page.filter(|p| *p > 0).unwrap_or(1);
     let limit = query.limit.unwrap_or(DEFAULT_LIMIT).clamp(1, MAX_LIMIT);
+    let limit_u = limit as u64;
+    let skip = (page - 1).saturating_mul(limit_u);
 
+    // ---- Filter --------------------------------------------------------
     let mut filter = doc! { "projectId": project_id };
+    if let Some(actor_id) = query.actor_id.as_deref().map(str::trim) {
+        if !actor_id.is_empty() {
+            filter.insert("actorId", actor_id);
+        }
+    }
+    if let Some(action) = query.action.as_deref().map(str::trim) {
+        if !action.is_empty() {
+            filter.insert("action", action);
+        }
+    }
     if let Some(object) = query.object.as_deref().map(str::trim) {
         if !object.is_empty() {
             filter.insert("object", object);
@@ -89,10 +131,29 @@ pub async fn list_audit(
         }
     }
 
+    // ---- Date range over the RFC3339 `createdAt` string ----------------
+    let mut created_range = Document::new();
+    if let Some(from) = query.from.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        created_range.insert("$gte", parse_rfc3339(from, "from")?);
+    }
+    if let Some(to) = query.to.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+        created_range.insert("$lte", parse_rfc3339(to, "to")?);
+    }
+    if !created_range.is_empty() {
+        filter.insert("createdAt", created_range);
+    }
+
     let coll = mongo.collection::<Document>(AUDIT_COLL);
+
+    let total = coll
+        .count_documents(filter.clone())
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_audit.count")))?;
+
     let mut cursor = coll
         .find(filter)
         .sort(doc! { "createdAt": -1 })
+        .skip(skip)
         .limit(limit)
         .await
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_audit.find")))?;
@@ -106,7 +167,12 @@ pub async fn list_audit(
         entries.push(record_to_wire(d));
     }
 
-    Ok(Json(ListResponse { entries }))
+    Ok(Json(ListResponse {
+        entries,
+        total,
+        page,
+        limit: limit_u,
+    }))
 }
 
 // ===========================================================================

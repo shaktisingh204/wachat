@@ -17,6 +17,16 @@
 //! | `createSegment`   | `POST   /`       |
 //! | `updateSegment`   | `PATCH  /{id}`   |
 //! | `deleteSegment`   | `DELETE /{id}`   |
+//! | `applySegment`    | `POST   /{id}/apply` |
+//!
+//! ## Records-filter AST (Twenty parity)
+//!
+//! A segment stores a **records-filter AST** under its `filters` key — a tree
+//! of typed leaf conditions (`{ field, op, value? }`) combined by `AND` / `OR`
+//! groups (`{ op, conditions }`). The AST is the Rust mirror of the frontend
+//! shape in `src/lib/sabcrm/records-filter.ts` (identical operator vocabulary)
+//! so it round-trips losslessly; see [`filter`]. `applySegment` translates that
+//! AST to a Mongo predicate and pages the matching `sabcrm_records`.
 //!
 //! A saved segment is a named object + filter definition (optionally with
 //! a `sortBy` / `sortDir` and a `color`). Persisted doc shape:
@@ -34,6 +44,7 @@
 //! user id is not part of the filter.
 
 pub mod dto;
+pub mod filter;
 pub mod handlers;
 pub mod router;
 

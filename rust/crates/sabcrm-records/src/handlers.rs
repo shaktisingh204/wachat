@@ -36,12 +36,12 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    AggregateGroup, AggregateInput, AggregateResponse, BulkDeleteInput, BulkDeleteResponse,
-    BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse, CreateRecordInput,
-    DistinctQuery, DistinctResponse, DuplicateGroup, DuplicatesQuery, DuplicatesResponse,
-    GroupRecordsInput, GroupResponse, ListQuery, ListResponse, MergeRecordsInput, OkResponse,
-    RecordGroup, RecordRelation, RecordResponse, RelationHint, RelationsResponse, ScopeQuery,
-    SearchHit, SearchQuery, SearchResponse, UpdateRecordInput,
+    AggregateGroup, AggregateInput, AggregateMetricSpec, AggregateResponse, BulkDeleteInput,
+    BulkDeleteResponse, BulkUpdateInput, BulkUpdateResponse, CountQuery, CountResponse,
+    CreateRecordInput, DistinctQuery, DistinctResponse, DuplicateGroup, DuplicatesQuery,
+    DuplicatesResponse, GroupRecordsInput, GroupResponse, ListQuery, ListResponse, MergeRecordsInput,
+    OkResponse, RecordGroup, RecordRelation, RecordResponse, RelationHint, RelationsResponse,
+    ScopeQuery, SearchHit, SearchQuery, SearchResponse, UpdateRecordInput,
 };
 
 /// The single Mongo collection backing every SabCRM object.
@@ -1344,8 +1344,14 @@ pub async fn merge_records(
 // ===========================================================================
 
 /// `POST /v1/sabcrm/records/{object}/group` — group records by
-/// `data.<groupByField>` for the kanban board. Each column is capped at
-/// [`MAX_GROUP_RECORDS`] records.
+/// `data.<groupByField>` for the kanban board. Each column reports its true
+/// `count`, an optional `sum` over `data.<sumField>`, and (unless `countOnly`)
+/// up to [`MAX_GROUP_RECORDS`] records — which honour the same
+/// `?enrich=relations` relation/ACTOR enrichment as the list path.
+///
+/// Tolerates non-string group keys: the column `value` is emitted verbatim via
+/// `bson_to_clean_json` (numbers, booleans, arrays, …), never coerced to a
+/// string. The optional structured `filters` is ANDed into the live scope.
 #[instrument(skip_all, fields(object = %object))]
 pub async fn group_records(
     _user: AuthUser,
@@ -1359,17 +1365,44 @@ pub async fn group_records(
         return Err(ApiError::Validation("groupByField is required.".to_owned()));
     }
 
+    let sum_field = body
+        .sum_field
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+    let count_only = body.count_only.unwrap_or(false);
+
+    // Live scope + optional structured filters, ANDed in via the shared parser.
+    let filters_str = match body.filters.as_ref().filter(|v| !v.is_null()) {
+        Some(v) => Some(
+            serde_json::to_string(v)
+                .map_err(|e| ApiError::BadRequest(format!("invalid `filters`: {e}")))?,
+        ),
+        None => None,
+    };
+    let match_filter =
+        build_list_filter(project_id, &object, None, filters_str.as_deref())?;
+
     let group_path = format!("$data.{field}");
+
+    // Per-column accumulators: always count; push capped records unless
+    // count-only; sum `data.<sumField>` when requested.
+    let mut group_stage = doc! {
+        "_id": group_path,
+        "count": { "$sum": 1 },
+    };
+    if !count_only {
+        group_stage.insert("records", doc! { "$push": "$$ROOT" });
+    }
+    if let Some(sf) = sum_field {
+        group_stage.insert("sum", doc! { "$sum": format!("$data.{sf}") });
+    }
+
     let pipeline = vec![
         // Live records only — trashed records are excluded from the board.
-        doc! { "$match": active_scope(project_id, &object) },
+        doc! { "$match": match_filter },
         doc! { "$sort": { "updatedAt": -1 } },
-        doc! {
-            "$group": {
-                "_id": group_path,
-                "records": { "$push": "$$ROOT" },
-            }
-        },
+        doc! { "$group": group_stage },
     ];
 
     let coll = mongo.collection::<Document>(RECORDS_COLL);
@@ -1381,24 +1414,45 @@ pub async fn group_records(
     while let Some(mut bucket) = cursor.try_next().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate.cursor"))
     })? {
+        // Non-string group keys are tolerated — emitted verbatim.
         let value = bucket
             .remove("_id")
             .map(sabnode_db::bson_helpers::bson_to_clean_json)
             .unwrap_or(Value::Null);
 
-        let records = match bucket.remove("records") {
-            Some(Bson::Array(arr)) => arr
-                .into_iter()
-                .take(MAX_GROUP_RECORDS as usize)
-                .filter_map(|b| match b {
-                    Bson::Document(d) => Some(record_to_wire(d)),
-                    _ => None,
-                })
-                .collect(),
-            _ => Vec::new(),
+        let count = bucket.get("count").map(bson_to_u64).unwrap_or(0);
+        let sum = sum_field.map(|_| bucket.get("sum").map(bson_to_f64).unwrap_or(0.0));
+
+        let records = if count_only {
+            Vec::new()
+        } else {
+            match bucket.remove("records") {
+                Some(Bson::Array(arr)) => arr
+                    .into_iter()
+                    .take(MAX_GROUP_RECORDS as usize)
+                    .filter_map(|b| match b {
+                        Bson::Document(d) => Some(record_to_wire(d)),
+                        _ => None,
+                    })
+                    .collect(),
+                _ => Vec::new(),
+            }
         };
 
-        groups.push(RecordGroup { value, records });
+        groups.push(RecordGroup {
+            value,
+            count,
+            sum,
+            records,
+        });
+    }
+
+    // ---- Optional relation/actor enrichment of each column's records --------
+    // Mirrors the list path: only meaningful when records were emitted.
+    if !count_only && wants_relation_enrichment(body.enrich.as_deref()) {
+        for g in &mut groups {
+            enrich_records(&coll, project_id, &object, &mut g.records).await?;
+        }
     }
 
     Ok(Json(GroupResponse { groups }))
@@ -1416,19 +1470,101 @@ fn bson_to_f64(b: &Bson) -> f64 {
         Bson::Int32(i) => *i as f64,
         Bson::Int64(i) => *i as f64,
         Bson::Double(d) => *d,
+        Bson::Decimal128(d) => d.to_string().parse::<f64>().unwrap_or(0.0),
         _ => 0.0,
     }
 }
 
+/// Coerce a BSON `$sum: 1` count value into a non-negative `u64`. Mongo returns
+/// counts as `Int32`/`Int64`; anything else (or a negative) clamps to `0`.
+fn bson_to_u64(b: &Bson) -> u64 {
+    match b {
+        Bson::Int32(i) => (*i).max(0) as u64,
+        Bson::Int64(i) => (*i).max(0) as u64,
+        Bson::Double(d) if *d >= 0.0 => *d as u64,
+        _ => 0,
+    }
+}
+
+/// Build the BSON `$group` accumulator document for one metric op over an
+/// optional `data.<field>` path. `count` ignores the field; the rest reduce the
+/// field path. Returns `None` for an unsupported op.
+fn metric_accumulator(op: &str, metric_path: Option<&str>) -> Option<Bson> {
+    let doc = match op {
+        "count" => doc! { "$sum": 1 },
+        "sum" => doc! { "$sum": metric_path? },
+        "avg" => doc! { "$avg": metric_path? },
+        "min" => doc! { "$min": metric_path? },
+        "max" => doc! { "$max": metric_path? },
+        _ => return None,
+    };
+    Some(Bson::Document(doc))
+}
+
+/// A resolved named metric: its caller-facing output `key`, its lowercased
+/// `op`, and the internal `$group` accumulator field name it is computed under
+/// (`m0`, `m1`, … — kept distinct from `_id` and `metric`).
+struct ResolvedMetric {
+    key: String,
+    field: String,
+    accumulator: Bson,
+}
+
+/// Validate + resolve a single [`AggregateMetricSpec`] into a [`ResolvedMetric`]
+/// computed under the internal field `m<idx>`. Empty key, unknown op, or a
+/// non-count op without a `field` → `400`.
+fn resolve_metric(idx: usize, spec: &AggregateMetricSpec) -> Result<ResolvedMetric> {
+    let key = spec.key.trim();
+    if key.is_empty() {
+        return Err(ApiError::BadRequest(
+            "each metric requires a non-empty `key`.".to_owned(),
+        ));
+    }
+    let op = spec.op.trim().to_ascii_lowercase();
+    let metric_field = spec
+        .field
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty());
+
+    if op != "count" && metric_field.is_none() {
+        return Err(ApiError::BadRequest(format!(
+            "metric `{key}` op `{op}` requires a `field`."
+        )));
+    }
+    let metric_path = metric_field.map(|f| format!("$data.{f}"));
+    let accumulator = metric_accumulator(op.as_str(), metric_path.as_deref()).ok_or_else(|| {
+        ApiError::BadRequest(format!(
+            "metric `{key}` has unsupported op `{op}` (expected count|sum|avg|min|max)."
+        ))
+    })?;
+
+    Ok(ResolvedMetric {
+        key: key.to_owned(),
+        field: format!("m{idx}"),
+        accumulator,
+    })
+}
+
 /// `POST /v1/sabcrm/records/{object}/aggregate` — bucket records by
-/// `data.<groupByField>` and reduce a `metric` over `data.<metricField>`.
+/// `data.<groupByField>` and reduce one or more metrics per bucket in a single
+/// `$group` pass.
+///
+/// Two request forms are honoured together:
+/// - **single metric** (legacy) — `metric` (+ `metricField`); reported on each
+///   bucket's `metric` and the response `total`. Defaults to `count` when no
+///   metric form is supplied at all.
+/// - **multi-metric** — `metrics: [{ key, op, field? }, …]`; reported on each
+///   bucket's `metrics` map and the response `totals` map (group-by + count +
+///   sum/avg/min/max per field).
 ///
 /// Pipeline: `$match` ({@link build_list_filter} — `{ projectId, object }` +
-/// the optional structured `filters`) → `$group` by `$data.<groupByField>`
-/// with the metric accumulator. Returns `{ groups: [{ value, metric }], total }`
-/// where `total` is the same metric reduced over ALL matched records. Buckets
-/// are capped at [`MAX_AGGREGATE_GROUPS`]. Bad input (empty `groupByField`,
-/// unknown `metric`, or a non-count metric without `metricField`) → `400`.
+/// the optional structured `filters`) → `$group` by `$data.<groupByField>` with
+/// every accumulator → `$sort _id` → `$limit` [`MAX_AGGREGATE_GROUPS`]. Totals
+/// come from a second grouped pass over the same filter. Group keys are
+/// tolerated regardless of BSON type — emitted verbatim via `bson_to_clean_json`.
+/// Bad input (empty `groupByField`, unknown op, or a non-count op without its
+/// field) → `400`.
 #[instrument(skip_all, fields(object = %object))]
 pub async fn aggregate_records(
     _user: AuthUser,
@@ -1443,50 +1579,55 @@ pub async fn aggregate_records(
         return Err(ApiError::BadRequest("groupByField is required.".to_owned()));
     }
 
-    let metric = body.metric.trim().to_ascii_lowercase();
-    let metric_field = body
-        .metric_field
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty());
-
-    // Build the per-record metric expression (`$count` needs no field; the
-    // rest reduce `$data.<metricField>`, which the `$group` accumulator wraps).
-    if metric != "count" && metric_field.is_none() {
-        return Err(ApiError::BadRequest(format!(
-            "metric `{metric}` requires a `metricField`."
-        )));
-    }
-    let metric_path = metric_field.map(|f| format!("$data.{f}"));
-
-    // `(group accumulator, total accumulator)` for the chosen metric.
-    let (group_acc, total_acc): (Bson, Bson) = match metric.as_str() {
-        "count" => (
-            Bson::Document(doc! { "$sum": 1 }),
-            Bson::Document(doc! { "$sum": 1 }),
-        ),
-        "sum" => (
-            Bson::Document(doc! { "$sum": &metric_path }),
-            Bson::Document(doc! { "$sum": &metric_path }),
-        ),
-        "avg" => (
-            Bson::Document(doc! { "$avg": &metric_path }),
-            Bson::Document(doc! { "$avg": &metric_path }),
-        ),
-        "min" => (
-            Bson::Document(doc! { "$min": &metric_path }),
-            Bson::Document(doc! { "$min": &metric_path }),
-        ),
-        "max" => (
-            Bson::Document(doc! { "$max": &metric_path }),
-            Bson::Document(doc! { "$max": &metric_path }),
-        ),
-        other => {
-            return Err(ApiError::BadRequest(format!(
-                "unsupported metric `{other}` (expected count|sum|avg|min|max)."
-            )));
-        }
+    // ---- Resolve the single (legacy) `metric` form, if present -------------
+    // When neither `metric` nor `metrics` is supplied we default to `count` so
+    // the endpoint always reports a `metric`/`total` for back-compat.
+    let named = body.metrics.as_deref().unwrap_or(&[]);
+    let single_op = match body.metric.as_deref().map(str::trim) {
+        Some(m) if !m.is_empty() => Some(m.to_ascii_lowercase()),
+        _ if named.is_empty() => Some("count".to_owned()),
+        _ => None,
     };
+    let single_acc: Option<Bson> = match &single_op {
+        Some(op) => {
+            let metric_field = body
+                .metric_field
+                .as_deref()
+                .map(str::trim)
+                .filter(|s| !s.is_empty());
+            if op != "count" && metric_field.is_none() {
+                return Err(ApiError::BadRequest(format!(
+                    "metric `{op}` requires a `metricField`."
+                )));
+            }
+            let metric_path = metric_field.map(|f| format!("$data.{f}"));
+            Some(
+                metric_accumulator(op.as_str(), metric_path.as_deref()).ok_or_else(|| {
+                    ApiError::BadRequest(format!(
+                        "unsupported metric `{op}` (expected count|sum|avg|min|max)."
+                    ))
+                })?,
+            )
+        }
+        None => None,
+    };
+
+    // ---- Resolve the named multi-metric form ------------------------------
+    let resolved: Vec<ResolvedMetric> = named
+        .iter()
+        .enumerate()
+        .map(|(i, spec)| resolve_metric(i, spec))
+        .collect::<Result<Vec<_>>>()?;
+    let want_named = !resolved.is_empty();
+
+    // ---- Assemble the `$group` accumulator set (single + every named) ------
+    let mut group_doc = doc! { "_id": format!("$data.{group_field}") };
+    if let Some(acc) = single_acc.clone() {
+        group_doc.insert("metric", acc);
+    }
+    for rm in &resolved {
+        group_doc.insert(rm.field.clone(), rm.accumulator.clone());
+    }
 
     // Reuse the list filter builder for `{ projectId, object }` + `filters`.
     // The body carries `filters` as a JSON value; re-serialize so it flows
@@ -1500,15 +1641,9 @@ pub async fn aggregate_records(
     let match_filter =
         build_list_filter(project_id, &object, None, filters_str.as_deref())?;
 
-    let group_path = format!("$data.{group_field}");
     let pipeline = vec![
         doc! { "$match": match_filter },
-        doc! {
-            "$group": {
-                "_id": group_path,
-                "metric": group_acc,
-            }
-        },
+        doc! { "$group": group_doc.clone() },
         doc! { "$sort": { "_id": 1 } },
         doc! { "$limit": MAX_AGGREGATE_GROUPS },
     ];
@@ -1522,37 +1657,78 @@ pub async fn aggregate_records(
     while let Some(mut bucket) = cursor.try_next().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate.cursor"))
     })? {
+        // Non-string group keys are tolerated — emitted verbatim.
         let value = bucket
             .remove("_id")
             .map(sabnode_db::bson_helpers::bson_to_clean_json)
             .unwrap_or(Value::Null);
+
         let metric = bucket.get("metric").map(bson_to_f64).unwrap_or(0.0);
-        groups.push(AggregateGroup { value, metric });
+
+        let metrics = if want_named {
+            let mut map = std::collections::BTreeMap::new();
+            for rm in &resolved {
+                map.insert(rm.key.clone(), bucket.get(&rm.field).map(bson_to_f64).unwrap_or(0.0));
+            }
+            Some(map)
+        } else {
+            None
+        };
+
+        groups.push(AggregateGroup {
+            value,
+            metric,
+            metrics,
+        });
     }
 
-    // Overall metric across every matched record (one extra grouped pass).
+    // ---- Overall totals across every matched record (one extra pass) -------
     let total_filter =
         build_list_filter(project_id, &object, None, filters_str.as_deref())?;
+    let mut total_group = doc! { "_id": Bson::Null };
+    if let Some(acc) = single_acc {
+        total_group.insert("metric", acc);
+    }
+    for rm in &resolved {
+        total_group.insert(rm.field.clone(), rm.accumulator.clone());
+    }
     let total_pipeline = vec![
         doc! { "$match": total_filter },
-        doc! {
-            "$group": {
-                "_id": Bson::Null,
-                "metric": total_acc,
-            }
-        },
+        doc! { "$group": total_group },
     ];
     let mut total_cursor = coll.aggregate(total_pipeline).await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate(total)"))
     })?;
-    let total = match total_cursor.try_next().await.map_err(|e| {
+    let total_doc = total_cursor.try_next().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.aggregate.total.cursor"))
-    })? {
-        Some(doc) => doc.get("metric").map(bson_to_f64).unwrap_or(0.0),
-        None => 0.0,
+    })?;
+
+    let total = total_doc
+        .as_ref()
+        .and_then(|d| d.get("metric"))
+        .map(bson_to_f64)
+        .unwrap_or(0.0);
+
+    let totals = if want_named {
+        let mut map = std::collections::BTreeMap::new();
+        for rm in &resolved {
+            let v = total_doc
+                .as_ref()
+                .and_then(|d| d.get(&rm.field))
+                .map(bson_to_f64)
+                .unwrap_or(0.0);
+            map.insert(rm.key.clone(), v);
+        }
+        Some(map)
+    } else {
+        None
     };
 
-    Ok(Json(AggregateResponse { groups, total }))
+    Ok(Json(AggregateResponse {
+        groups,
+        total,
+        totals,
+    }))
 }
 
 // ===========================================================================

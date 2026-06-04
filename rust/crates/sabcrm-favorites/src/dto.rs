@@ -30,6 +30,29 @@ pub struct AddFavoriteInput {
     pub record_id: String,
 }
 
+/// One entry in a `PATCH /reorder` request — a favorite id and its new
+/// zero-based slot in the caller's ordered list.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ReorderItem {
+    /// Hex id (`_id`) of the favorite to move.
+    pub id: String,
+    /// New zero-based position in the ordered list.
+    pub position: i32,
+}
+
+/// `PATCH /reorder` body — reassign positions across the caller's favorites
+/// within a project. Only the listed favorites are touched; their `position`
+/// values are written as given, mirroring Twenty's drag-to-reorder.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ReorderInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// The favorites to reposition, in any order.
+    pub items: Vec<ReorderItem>,
+}
+
 /// `DELETE /` query params — remove a favorite for the caller.
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]

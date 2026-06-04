@@ -16,16 +16,22 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/templates`):
 //!
 //! ```text
-//! GET    /          — list_templates
-//! POST   /          — create_template
-//! GET    /{id}      — get_template
-//! PATCH  /{id}      — update_template
-//! DELETE /{id}      — delete_template
+//! GET    /             — list_templates
+//! POST   /             — create_template
+//! POST   /preview      — preview_template  (ad-hoc render)
+//! GET    /{id}         — get_template
+//! PATCH  /{id}         — update_template
+//! DELETE /{id}         — delete_template
+//! POST   /{id}/render  — render_template   (stored template render)
 //! ```
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -44,10 +50,12 @@ where
             "/",
             get(handlers::list_templates).post(handlers::create_template),
         )
+        .route("/preview", post(handlers::preview_template))
         .route(
             "/{id}",
             get(handlers::get_template)
                 .patch(handlers::update_template)
                 .delete(handlers::delete_template),
         )
+        .route("/{id}/render", post(handlers::render_template))
 }

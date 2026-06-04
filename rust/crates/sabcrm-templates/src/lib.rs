@@ -12,11 +12,18 @@
 //!
 //! | TS action           | HTTP route             |
 //! |---------------------|------------------------|
-//! | `listTemplates`     | `GET    /?projectId=&kind=` |
+//! | `listTemplates`     | `GET    /?projectId=&kind=&objectType=` |
 //! | `getTemplate`       | `GET    /{id}?projectId=`   |
 //! | `createTemplate`    | `POST   /`             |
 //! | `updateTemplate`    | `PATCH  /{id}`         |
 //! | `deleteTemplate`    | `DELETE /{id}?projectId=`   |
+//! | `renderTemplate`    | `POST   /{id}/render`  |
+//! | `previewTemplate`   | `POST   /preview`      |
+//!
+//! A template may be associated with a CRM object (`objectType`) and may
+//! embed `{{variable}}` placeholders in its `subject` / `body`. The render
+//! endpoints substitute those placeholders with a record's field values
+//! (see [`interpolate`]).
 //!
 //! A template is a reusable note / email / task body (`name`, `kind`,
 //! optional `subject`, `body`). The persisted document shape is
@@ -31,6 +38,7 @@
 
 pub mod dto;
 pub mod handlers;
+pub mod interpolate;
 pub mod router;
 
 pub use router::router;

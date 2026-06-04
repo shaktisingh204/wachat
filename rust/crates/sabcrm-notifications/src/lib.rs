@@ -19,8 +19,11 @@
 //! | `markAllNotificationsRead` | `POST /read-all` |
 //! | `deleteNotification`    | `DELETE /{id}`      |
 //!
-//! A notification is a per-user message (`title`, optional `body`, `kind`,
-//! optional `targetObject` + `targetRecordId`) within a project.
+//! A notification is a per-user message (`title`, optional `body`, a typed
+//! `kind` — `mention` | `assignment` | `comment` | `system` | `info`, an
+//! `actorId` of who triggered it, optional `targetObject` + `targetRecordId`)
+//! within a project. Lists are paginated (`limit` + `cursor`) and enriched
+//! with a resolved `actor` ref; `GET /count` returns the unread count.
 //!
 //! ## Tenancy
 //!

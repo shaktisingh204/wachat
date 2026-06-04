@@ -129,6 +129,16 @@ export interface SabcrmRecordListResponse {
   total: number;
 }
 
+/**
+ * Single-record wire envelope. Every single-record handler (`get`, `create`,
+ * `update`, `trash`, `restore`, `merge`) wraps its result in `{ record }`
+ * (Rust `RecordResponse`); the client methods unwrap it before returning so
+ * callers receive a bare {@link SabcrmRustRecord}.
+ */
+interface RecordEnvelope {
+  record: SabcrmRustRecord;
+}
+
 /** Params accepted by {@link sabcrmRecordsApi.count} — scope + filter only. */
 export interface SabcrmRecordCountParams {
   projectId: string;
@@ -147,11 +157,48 @@ export interface SabcrmRecordGroup {
   // groupBy field can be numeric/boolean, not just a string), so widen to
   // `unknown` to match the engine (cf. AggregateGroup.value / DistinctResponse).
   value: unknown;
+  /**
+   * Total number of records in this column (the true count — may exceed
+   * `records.length` since returned records are capped per column, and is the
+   * only signal when `countOnly` was requested).
+   */
+  count: number;
+  /**
+   * Sum of `data.<sumField>` across every record in this column when a
+   * `sumField` was requested; `null`/absent otherwise. Non-numeric values
+   * contribute `0`. Drives the kanban column footer.
+   */
+  sum?: number | null;
+  /** Records in this column (capped per group). Empty when `countOnly` was set. */
   records: SabcrmRustRecord[];
 }
 
 export interface SabcrmRecordGroupResponse {
   groups: SabcrmRecordGroup[];
+}
+
+/** Options for {@link sabcrmRecordsApi.group} — the new kanban depth knobs. */
+export interface SabcrmRecordGroupOpts {
+  /**
+   * Field key (`data.<sumField>`) summed per column to drive the kanban column
+   * footer (e.g. total `amount` per opportunity stage). When present every
+   * returned {@link SabcrmRecordGroup} carries a numeric `sum`.
+   */
+  sumField?: string;
+  /**
+   * When `true`, columns report their `count` (and optional `sum`) but omit the
+   * per-column `records` array — a lightweight board-header pass.
+   */
+  countOnly?: boolean;
+  /**
+   * Relation/actor enrichment toggle, same semantics as
+   * {@link SabcrmRecordListParams.enrich}. When `true` the per-column `records`
+   * gain the parallel `__relations` / `__actors` hint maps. Ignored when
+   * `countOnly` is set (no records to enrich).
+   */
+  enrich?: boolean;
+  /** Structured field filters ANDed into the scope before grouping. */
+  filters?: SabcrmRecordFilters;
 }
 
 /**
@@ -178,15 +225,45 @@ export interface SabcrmRecordRelationsResponse {
 /** Reduction applied by {@link sabcrmRecordsApi.aggregate}. */
 export type SabcrmAggregateMetric = 'count' | 'sum' | 'avg' | 'min' | 'max';
 
-/** Params accepted by {@link sabcrmRecordsApi.aggregate}. */
+/**
+ * One named metric in a multi-metric aggregation request. Mirrors Twenty's
+ * per-field aggregate operations where a single groupBy pass reports several
+ * reduced values side-by-side. Mirrors the Rust `AggregateMetricSpec`.
+ */
+export interface SabcrmAggregateMetricSpec {
+  /**
+   * Output key this metric is reported under in each bucket's `metrics` map and
+   * in `totals` (e.g. `dealCount`, `totalAmount`). Required + non-empty.
+   */
+  key: string;
+  /** Reduction op. Everything except `count` requires a `field`. */
+  op: SabcrmAggregateMetric;
+  /** Field key the op reduces over (`data.<field>`). Required except for `count`. */
+  field?: string;
+}
+
+/**
+ * Params accepted by {@link sabcrmRecordsApi.aggregate}. Two request forms are
+ * supported (both honoured in one pass): a **single metric** (`metric` +
+ * `metricField`) and a **multi-metric** list (`metrics`).
+ */
 export interface SabcrmRecordAggregateParams {
   projectId: string;
   /** Field key bucketed on `data.<groupByField>`. */
   groupByField: string;
-  /** Reduction per bucket. `sum`/`avg`/`min`/`max` require `metricField`. */
-  metric: SabcrmAggregateMetric;
-  /** Field key the metric reduces over (`data.<metricField>`). */
+  /**
+   * Single-metric reduction. `sum`/`avg`/`min`/`max` require `metricField`.
+   * Optional when `metrics` is supplied; defaults to `count` only when neither
+   * is given.
+   */
+  metric?: SabcrmAggregateMetric;
+  /** Field key the single `metric` reduces over (`data.<metricField>`). */
   metricField?: string;
+  /**
+   * Optional list of named per-field metrics computed in the same pass — the
+   * group-by + count + sum/avg/min/max-per-field surface.
+   */
+  metrics?: SabcrmAggregateMetricSpec[];
   /** Structured field filters; see {@link SabcrmRecordListParams.filters}. */
   filters?: SabcrmRecordFilters;
 }
@@ -195,14 +272,28 @@ export interface SabcrmRecordAggregateParams {
 export interface SabcrmRecordAggregateGroup {
   /** Distinct `data.<groupByField>` value for this bucket. */
   value: unknown;
-  /** Reduced metric for this bucket. */
+  /**
+   * Reduced single `metric` for this bucket. When only the multi-metric form
+   * was requested this defaults to the bucket's count.
+   */
   metric: number;
+  /**
+   * Per-named-metric reduced values for this bucket, keyed by each
+   * {@link SabcrmAggregateMetricSpec.key}. Present only when `metrics` was
+   * requested.
+   */
+  metrics?: Record<string, number>;
 }
 
 export interface SabcrmRecordAggregateResponse {
   groups: SabcrmRecordAggregateGroup[];
-  /** Same metric reduced over ALL matched records. */
+  /** Same single `metric` reduced over ALL matched records. */
   total: number;
+  /**
+   * Per-named-metric values reduced over ALL matched records. Present only when
+   * `metrics` was requested; keyed like each bucket's `metrics` map.
+   */
+  totals?: Record<string, number>;
 }
 
 export interface SabcrmRecordDistinctResponse {
@@ -367,12 +458,12 @@ export const sabcrmRecordsApi = {
     projectId: string,
     enrich?: boolean,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(
+    return rustFetch<RecordEnvelope>(
       `${base(object)}/${encodeURIComponent(id)}${qs({
         projectId,
         enrich: enrich ? 'relations' : undefined,
       })}`,
-    );
+    ).then((res) => res.record);
   },
 
   /** `POST /v1/sabcrm/records/{object}` — create. */
@@ -380,10 +471,10 @@ export const sabcrmRecordsApi = {
     object: string,
     input: SabcrmRecordCreateInput,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(base(object), {
+    return rustFetch<RecordEnvelope>(base(object), {
       method: 'POST',
       body: JSON.stringify(input),
-    });
+    }).then((res) => res.record);
   },
 
   /** `PATCH /v1/sabcrm/records/{object}/{id}` — merge-update `data`. */
@@ -392,10 +483,10 @@ export const sabcrmRecordsApi = {
     id: string,
     input: SabcrmRecordUpdateInput,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(
+    return rustFetch<RecordEnvelope>(
       `${base(object)}/${encodeURIComponent(id)}`,
       { method: 'PATCH', body: JSON.stringify(input) },
-    );
+    ).then((res) => res.record);
   },
 
   /**
@@ -423,10 +514,10 @@ export const sabcrmRecordsApi = {
     id: string,
     projectId: string,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(
+    return rustFetch<RecordEnvelope>(
       `${base(object)}/${encodeURIComponent(id)}/trash`,
       { method: 'POST', body: JSON.stringify({ projectId }) },
-    );
+    ).then((res) => res.record);
   },
 
   /**
@@ -453,10 +544,10 @@ export const sabcrmRecordsApi = {
     id: string,
     projectId: string,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(
+    return rustFetch<RecordEnvelope>(
       `${base(object)}/${encodeURIComponent(id)}/restore`,
       { method: 'POST', body: JSON.stringify({ projectId }) },
-    );
+    ).then((res) => res.record);
   },
 
   /**
@@ -532,10 +623,10 @@ export const sabcrmRecordsApi = {
     object: string,
     input: SabcrmRecordMergeInput,
   ): Promise<SabcrmRustRecord> {
-    return rustFetch<SabcrmRustRecord>(`${base(object)}/merge`, {
+    return rustFetch<RecordEnvelope>(`${base(object)}/merge`, {
       method: 'POST',
       body: JSON.stringify(input),
-    });
+    }).then((res) => res.record);
   },
 
   /**
@@ -560,6 +651,7 @@ export const sabcrmRecordsApi = {
           groupByField: params.groupByField,
           metric: params.metric,
           metricField: params.metricField,
+          metrics: params.metrics,
           filters: hasFilters ? params.filters : undefined,
         }),
       },
@@ -598,15 +690,32 @@ export const sabcrmRecordsApi = {
     );
   },
 
-  /** `POST /v1/sabcrm/records/{object}/group` — kanban grouping. */
+  /**
+   * `POST /v1/sabcrm/records/{object}/group` — kanban grouping. Each returned
+   * column carries a true `count`, an optional per-column `sum` (when `sumField`
+   * is given), and its `records` (omitted when `countOnly` is set). Optional
+   * `enrich` adds the `__relations` / `__actors` hint maps to the column records;
+   * optional `filters` are ANDed into the scope before grouping.
+   */
   group(
     object: string,
     projectId: string,
     groupByField: string,
+    opts?: SabcrmRecordGroupOpts,
   ): Promise<SabcrmRecordGroupResponse> {
+    const hasFilters =
+      opts?.filters !== undefined &&
+      Object.keys(opts.filters).length > 0;
     return rustFetch<SabcrmRecordGroupResponse>(`${base(object)}/group`, {
       method: 'POST',
-      body: JSON.stringify({ projectId, groupByField }),
+      body: JSON.stringify({
+        projectId,
+        groupByField,
+        sumField: opts?.sumField,
+        countOnly: opts?.countOnly,
+        enrich: opts?.enrich ? 'relations' : undefined,
+        filters: hasFilters ? opts!.filters : undefined,
+      }),
     });
   },
 };

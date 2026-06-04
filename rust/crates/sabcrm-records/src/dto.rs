@@ -167,6 +167,29 @@ pub struct GroupRecordsInput {
     pub project_id: String,
     /// Field key to group by (e.g. `stage`, `status`, `type`).
     pub group_by_field: String,
+    /// Optional field key (`data.<sumField>`) summed per column to drive the
+    /// kanban column footer (e.g. total `amount` per opportunity stage). When
+    /// present every returned [`RecordGroup`] carries a `sum`; absent → `sum`
+    /// is `null`. Non-numeric / missing values contribute `0`.
+    #[serde(default)]
+    pub sum_field: Option<String>,
+    /// When `true`, columns report their `count` (and optional `sum`) but omit
+    /// the per-column `records` array — a lightweight board-header pass. Absent
+    /// / `false` keeps the legacy behaviour (records included, capped per
+    /// column).
+    #[serde(default)]
+    pub count_only: Option<bool>,
+    /// Optional relation/actor enrichment toggle, same semantics as
+    /// [`ListQuery::enrich`]. When set to `relations` the per-column `records`
+    /// gain the parallel `__relations` / `__actors` hint maps. Ignored when
+    /// `countOnly` is set (no records to enrich). Absent → raw ids only.
+    #[serde(default)]
+    pub enrich: Option<String>,
+    /// Optional URL-encoded JSON string of structured field filters, of the
+    /// same shape accepted by [`ListQuery::filters`] — ANDed into the
+    /// `{ projectId, object }` scope before grouping. Bad JSON → `400`.
+    #[serde(default)]
+    pub filters: Option<Value>,
 }
 
 /// A resolved relation/actor hint embedded by the optional `?enrich=relations`
@@ -236,10 +259,22 @@ pub struct RecordResponse {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RecordGroup {
-    /// The distinct `data.<groupByField>` value for this column.
+    /// The distinct `data.<groupByField>` value for this column. Tolerates
+    /// non-string keys (numbers, booleans, arrays, …) — emitted verbatim via
+    /// `bson_to_clean_json`.
     #[schema(value_type = Object)]
     pub value: Value,
-    /// Records in this column (capped per group).
+    /// Total number of records in this column (the true count — may exceed
+    /// `records.len()` since the returned records are capped per column, and is
+    /// the only signal when `countOnly` was requested).
+    pub count: u64,
+    /// Sum of `data.<sumField>` across every record in this column when a
+    /// `sumField` was requested; `null` otherwise. Non-numeric values
+    /// contribute `0`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sum: Option<f64>,
+    /// Records in this column (capped per group). Empty when `countOnly` was
+    /// requested.
     #[schema(value_type = Vec<Object>)]
     pub records: Vec<Value>,
 }
@@ -251,10 +286,36 @@ pub struct GroupResponse {
     pub groups: Vec<RecordGroup>,
 }
 
+/// One named metric in a multi-metric aggregation request. Mirrors Twenty's
+/// per-field aggregate operations (`countField`, `sumField`, `avgField`,
+/// `minField`, `maxField`) where a single groupBy pass reports several reduced
+/// values side-by-side.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AggregateMetricSpec {
+    /// Output key this metric is reported under in each bucket's `metrics` map
+    /// and in `totals` (e.g. `dealCount`, `totalAmount`). Required + non-empty.
+    pub key: String,
+    /// Reduction op: `count` | `sum` | `avg` | `min` | `max`. Everything except
+    /// `count` requires a `field`.
+    pub op: String,
+    /// Field key the op reduces over (`data.<field>`). Required for every op
+    /// except `count`; ignored (optional) for `count`.
+    #[serde(default)]
+    pub field: Option<String>,
+}
+
 /// `POST /{object}/aggregate` body — bucket records by `data.<groupByField>`
-/// and reduce a `metric` over `data.<metricField>` (or a plain `count`). The
-/// optional `filters` (same shape as [`ListQuery::filters`]) is ANDed into the
-/// `{ projectId, object }` scope via `build_list_filter`. Caps at 200 buckets.
+/// and reduce one or more metrics per bucket. The optional `filters` (same
+/// shape as [`ListQuery::filters`]) is ANDed into the `{ projectId, object }`
+/// scope via `build_list_filter`. Caps at 200 buckets.
+///
+/// Two request forms are supported (both honoured in one pass):
+/// - **single metric** (legacy) — `metric` (+ `metricField`). Reported on each
+///   bucket's `metric` field and the response `total`.
+/// - **multi-metric** — `metrics: [{ key, op, field? }, …]`. Reported on each
+///   bucket's `metrics` map and the response `totals` map. When both forms are
+///   present they are merged into the same `$group` pass.
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AggregateInput {
@@ -262,13 +323,21 @@ pub struct AggregateInput {
     pub project_id: String,
     /// Field key to group by — bucketed on `data.<groupByField>`.
     pub group_by_field: String,
-    /// Reduction applied to each bucket: `count` | `sum` | `avg` | `min` |
-    /// `max`. `sum`/`avg`/`min`/`max` require `metricField`.
-    pub metric: String,
-    /// Field key the metric reduces over (`data.<metricField>`). Required for
-    /// every metric except `count`.
+    /// Single-metric reduction: `count` | `sum` | `avg` | `min` | `max`.
+    /// `sum`/`avg`/`min`/`max` require `metricField`. Optional when `metrics`
+    /// is supplied (the multi-metric form); defaults to `count` only when
+    /// neither is given.
+    #[serde(default)]
+    pub metric: Option<String>,
+    /// Field key the single `metric` reduces over (`data.<metricField>`).
+    /// Required for every single metric except `count`.
     #[serde(default)]
     pub metric_field: Option<String>,
+    /// Optional list of named per-field metrics computed in the same pass — the
+    /// group-by + count + sum/avg/min/max-per-field surface. See
+    /// [`AggregateMetricSpec`].
+    #[serde(default)]
+    pub metrics: Option<Vec<AggregateMetricSpec>>,
     /// Optional structured field filters, same shape as [`ListQuery::filters`].
     #[serde(default)]
     pub filters: Option<Value>,
@@ -278,11 +347,17 @@ pub struct AggregateInput {
 #[derive(Debug, Clone, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AggregateGroup {
-    /// The distinct `data.<groupByField>` value for this bucket.
+    /// The distinct `data.<groupByField>` value for this bucket. Tolerates
+    /// non-string keys — emitted verbatim via `bson_to_clean_json`.
     #[schema(value_type = Object)]
     pub value: Value,
-    /// The reduced metric for this bucket (a number).
+    /// The reduced single `metric` for this bucket (a number). When only the
+    /// multi-metric form was requested this defaults to the bucket's count.
     pub metric: f64,
+    /// Per-named-metric reduced values for this bucket, keyed by each
+    /// [`AggregateMetricSpec::key`]. Present only when `metrics` was requested.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metrics: Option<std::collections::BTreeMap<String, f64>>,
 }
 
 /// Response body for `POST /{object}/aggregate`.
@@ -290,8 +365,12 @@ pub struct AggregateGroup {
 #[serde(rename_all = "camelCase")]
 pub struct AggregateResponse {
     pub groups: Vec<AggregateGroup>,
-    /// The same metric reduced over ALL matched records (across buckets).
+    /// The single `metric` reduced over ALL matched records (across buckets).
     pub total: f64,
+    /// Per-named-metric values reduced over ALL matched records. Present only
+    /// when `metrics` was requested; keyed like each bucket's `metrics` map.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub totals: Option<std::collections::BTreeMap<String, f64>>,
 }
 
 /// `GET /{object}/distinct/{field}` query params — tenant scope only.

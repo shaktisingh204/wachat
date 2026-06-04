@@ -54,4 +54,5 @@ where
                 .patch(handlers::update_segment)
                 .delete(handlers::delete_segment),
         )
+        .route("/{id}/apply", axum::routing::post(handlers::apply_segment))
 }

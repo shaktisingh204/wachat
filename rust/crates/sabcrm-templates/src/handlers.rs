@@ -31,12 +31,17 @@ use serde_json::Value;
 use tracing::instrument;
 
 use crate::dto::{
-    CreateTemplateInput, ListQuery, ListResponse, OkResponse, ScopeQuery, TemplateResponse,
-    UpdateTemplateInput,
+    CreateTemplateInput, ListQuery, ListResponse, OkResponse, PreviewInput, RenderInput,
+    RenderResponse, ScopeQuery, TemplateResponse, UpdateTemplateInput,
 };
+use crate::interpolate;
 
 /// The Mongo collection backing templates.
 const TEMPLATES_COLL: &str = "sabcrm_templates";
+
+/// The Mongo collection backing CRM records — the render endpoints read a
+/// record's `data` field map from here to source `{{variable}}` values.
+const RECORDS_COLL: &str = "sabcrm_records";
 
 // ===========================================================================
 // helpers
@@ -99,6 +104,14 @@ pub async fn list_templates(
     let mut filter = doc! { "projectId": project_id };
     if let Some(kind) = query.kind.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         filter.insert("kind", kind);
+    }
+    if let Some(object_type) = query
+        .object_type
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        filter.insert("objectType", object_type);
     }
 
     let coll = mongo.collection::<Document>(TEMPLATES_COLL);
@@ -179,6 +192,14 @@ pub async fn create_template(
     new_doc.insert("projectId", project_id);
     new_doc.insert("name", name);
     new_doc.insert("kind", kind);
+    if let Some(object_type) = body
+        .object_type
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        new_doc.insert("objectType", object_type);
+    }
     if let Some(subject) = body.subject.as_deref() {
         new_doc.insert("subject", subject);
     }
@@ -265,4 +286,165 @@ pub async fn delete_template(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// render / preview — {{variable}} interpolation over a record
+// ===========================================================================
+
+/// Shallow-merge `overrides` (object) over `base` (object) — keys in
+/// `overrides` win. Non-object inputs are ignored. Used to let an inline
+/// `variables` map override individual fields of a fetched record.
+fn merge_vars(base: Value, overrides: Option<Value>) -> Value {
+    let mut map = match base {
+        Value::Object(m) => m,
+        _ => serde_json::Map::new(),
+    };
+    if let Some(Value::Object(over)) = overrides {
+        for (k, v) in over {
+            map.insert(k, v);
+        }
+    }
+    Value::Object(map)
+}
+
+/// Build the variable map for a render request: fetch the record's `data`
+/// field (when `record_id` + `object` are supplied) and layer any inline
+/// `variables` over it. With no `record_id`, the inline `variables` (or an
+/// empty object) are used directly.
+async fn resolve_render_vars(
+    mongo: &MongoHandle,
+    project_id: &str,
+    object: Option<&str>,
+    record_id: Option<&str>,
+    variables: Option<Value>,
+) -> Result<Value> {
+    let record_id = record_id.map(str::trim).filter(|s| !s.is_empty());
+
+    let base = if let Some(rid) = record_id {
+        let object = object
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+            .ok_or_else(|| {
+                ApiError::Validation("object is required when recordId is supplied.".to_owned())
+            })?;
+        let oid = oid_from_str(rid)?;
+
+        let coll = mongo.collection::<Document>(RECORDS_COLL);
+        let found = coll
+            .find_one(doc! { "projectId": project_id, "object": object, "_id": oid })
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.find_one"))
+            })?
+            .ok_or_else(|| ApiError::NotFound("record".to_owned()))?;
+
+        // The record's user-facing fields live under `data`; fall back to the
+        // whole cleaned document so top-level system fields are addressable too.
+        let mut wire = record_to_wire(found);
+        match wire.get_mut("data") {
+            Some(Value::Object(data)) => Value::Object(std::mem::take(data)),
+            _ => wire,
+        }
+    } else {
+        Value::Object(serde_json::Map::new())
+    };
+
+    Ok(merge_vars(base, variables))
+}
+
+/// Render a `subject` / `body` pair against `vars`, collecting the union of
+/// unresolved placeholder paths.
+fn render_pair(subject: Option<&str>, body: &str, vars: &Value) -> RenderResponse {
+    let mut missing = std::collections::BTreeSet::new();
+
+    let rendered_subject = subject.map(|s| {
+        let r = interpolate::render(s, vars);
+        missing.extend(r.missing);
+        r.text
+    });
+
+    let rendered_body = interpolate::render(body, vars);
+    missing.extend(rendered_body.missing);
+
+    RenderResponse {
+        subject: rendered_subject,
+        body: rendered_body.text,
+        missing_variables: missing.into_iter().collect(),
+    }
+}
+
+/// Pull a `subject` / `body` string out of a stored template document.
+fn template_string(doc: &Document, key: &str) -> Option<String> {
+    doc.get_str(key).ok().map(str::to_owned)
+}
+
+/// `POST /v1/sabcrm/templates/{id}/render` — render a **stored** template
+/// against a record (or an inline variable map), substituting `{{variable}}`
+/// placeholders. Returns the interpolated subject/body and the set of
+/// placeholders that did not resolve.
+#[instrument(skip_all, fields(id = %id))]
+pub async fn render_template(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(id): Path<String>,
+    Json(body): Json<RenderInput>,
+) -> Result<Json<RenderResponse>> {
+    let project_id = require_project(&body.project_id)?;
+    let oid = oid_from_str(&id)?;
+
+    let coll = mongo.collection::<Document>(TEMPLATES_COLL);
+    let tmpl = coll
+        .find_one(doc! { "projectId": project_id, "_id": oid })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_templates.find_one"))
+        })?
+        .ok_or_else(|| ApiError::NotFound("template".to_owned()))?;
+
+    let subject = template_string(&tmpl, "subject");
+    let template_body = template_string(&tmpl, "body").unwrap_or_default();
+
+    let vars = resolve_render_vars(
+        &mongo,
+        project_id,
+        body.object.as_deref(),
+        body.record_id.as_deref(),
+        body.variables,
+    )
+    .await?;
+
+    Ok(Json(render_pair(
+        subject.as_deref(),
+        &template_body,
+        &vars,
+    )))
+}
+
+/// `POST /v1/sabcrm/templates/preview` — render an **ad-hoc** (unsaved)
+/// `subject` / `body` against a record or inline variable map. Same
+/// substitution semantics as [`render_template`] without requiring a stored
+/// template.
+#[instrument(skip_all)]
+pub async fn preview_template(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(body): Json<PreviewInput>,
+) -> Result<Json<RenderResponse>> {
+    let project_id = require_project(&body.project_id)?;
+
+    let vars = resolve_render_vars(
+        &mongo,
+        project_id,
+        body.object.as_deref(),
+        body.record_id.as_deref(),
+        body.variables,
+    )
+    .await?;
+
+    Ok(Json(render_pair(
+        body.subject.as_deref(),
+        &body.body,
+        &vars,
+    )))
 }

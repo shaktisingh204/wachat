@@ -23,6 +23,11 @@ export interface SabcrmRustTemplate {
   projectId: string;
   name: string;
   kind: SabcrmTemplateKind | string;
+  /**
+   * Optional per-object association (CRM object slug, e.g. `companies`).
+   * Mirrors Twenty's object-scoped message/note templates.
+   */
+  objectType?: string;
   subject?: string;
   body: string;
   createdAt: string;
@@ -35,6 +40,11 @@ export interface SabcrmRustTemplate {
 export interface SabcrmTemplateCreateInput {
   name: string;
   kind: SabcrmTemplateKind | string;
+  /**
+   * Optional per-object association (CRM object slug, e.g. `companies`).
+   * Mirrors Twenty's object-scoped templates.
+   */
+  objectType?: string;
   subject?: string;
   body: string;
 }
@@ -43,9 +53,68 @@ export interface SabcrmTemplateCreateInput {
 export interface SabcrmTemplateUpdateInput {
   name?: string;
   kind?: SabcrmTemplateKind | string;
+  objectType?: string;
   subject?: string;
   body?: string;
   [key: string]: unknown;
+}
+
+/** Optional filters for {@link sabcrmTemplatesApi.list}. */
+export interface SabcrmTemplateListOpts {
+  /** Filter by kind (`note` | `email` | `task`). */
+  kind?: SabcrmTemplateKind | string;
+  /** Filter by per-object association (CRM object slug, e.g. `companies`). */
+  objectType?: string;
+}
+
+/**
+ * Body for {@link sabcrmTemplatesApi.render} sans `id` — render a stored
+ * template against a variable source. Variables come from `recordId` + `object`
+ * (the record's `data` map) and/or an inline `variables` map (layered on top
+ * of a fetched record, or used alone for a preview). Mirrors `RenderInput`.
+ */
+export interface SabcrmTemplateRenderInput {
+  /** CRM object slug for the record lookup (required when `recordId` set). */
+  object?: string;
+  /** Id of a record in `sabcrm_records` to source variables from. */
+  recordId?: string;
+  /** Inline variable map (used alone, or layered over a fetched record). */
+  variables?: Record<string, unknown>;
+}
+
+/**
+ * Body for {@link sabcrmTemplatesApi.preview} — render an ad-hoc, not-yet-saved
+ * `subject` / `body` against the same variable sources as
+ * {@link SabcrmTemplateRenderInput}. Mirrors the Rust `PreviewInput`.
+ */
+export interface SabcrmTemplatePreviewInput {
+  /** Optional subject template string. */
+  subject?: string;
+  /** Body template string — required. */
+  body: string;
+  /** CRM object slug for the record lookup (required when `recordId` set). */
+  object?: string;
+  /** Id of a record in `sabcrm_records` to source variables from. */
+  recordId?: string;
+  /** Inline variable map (used alone, or layered over a fetched record). */
+  variables?: Record<string, unknown>;
+}
+
+/**
+ * Response from the render / preview endpoints — the interpolated strings plus
+ * the distinct `{{placeholder}}` paths that did not resolve. Mirrors the Rust
+ * `RenderResponse`.
+ */
+export interface SabcrmTemplateRenderResult {
+  /** Rendered subject (omitted when the template had no subject). */
+  subject?: string;
+  /** Rendered body. */
+  body: string;
+  /**
+   * Distinct `{{placeholder}}` paths that resolved to no value, across both
+   * subject and body. Useful for highlighting gaps in a preview.
+   */
+  missingVariables: string[];
 }
 
 /** Raw `{ templates }` envelope from `GET /`. */
@@ -72,13 +141,20 @@ function qs(params: Record<string, string | number | undefined>): string {
 const BASE = '/v1/sabcrm/templates';
 
 export const sabcrmTemplatesApi = {
-  /** `GET /v1/sabcrm/templates` — list templates, optionally filtered by kind. */
+  /**
+   * `GET /v1/sabcrm/templates` — list templates, optionally filtered by `kind`
+   * and/or `objectType` (the CRM object slug the template is scoped to). The
+   * second arg may be a bare `kind` string (backward-compatible) or a
+   * {@link SabcrmTemplateListOpts} object.
+   */
   async list(
     projectId: string,
-    kind?: string,
+    opts?: string | SabcrmTemplateListOpts,
   ): Promise<SabcrmRustTemplate[]> {
+    const o: SabcrmTemplateListOpts =
+      typeof opts === 'string' ? { kind: opts } : opts ?? {};
     const res = await rustFetch<ListEnvelope>(
-      `${BASE}${qs({ projectId, kind })}`,
+      `${BASE}${qs({ projectId, kind: o.kind, objectType: o.objectType })}`,
     );
     return res.templates;
   },
@@ -114,6 +190,37 @@ export const sabcrmTemplatesApi = {
       { method: 'PATCH', body: JSON.stringify({ projectId, ...input }) },
     );
     return res.template;
+  },
+
+  /**
+   * `POST /v1/sabcrm/templates/{id}/render` — render a stored template against
+   * a record (`recordId` + `object`) and/or an inline `variables` map. Returns
+   * the interpolated `{ subject?, body, missingVariables }`.
+   */
+  render(
+    projectId: string,
+    id: string,
+    input?: SabcrmTemplateRenderInput,
+  ): Promise<SabcrmTemplateRenderResult> {
+    return rustFetch<SabcrmTemplateRenderResult>(
+      `${BASE}/${encodeURIComponent(id)}/render`,
+      { method: 'POST', body: JSON.stringify({ projectId, ...input }) },
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/templates/preview` — render an ad-hoc (not-yet-saved)
+   * `subject` / `body` against the same variable sources as {@link render}.
+   * Returns `{ subject?, body, missingVariables }`.
+   */
+  preview(
+    projectId: string,
+    input: SabcrmTemplatePreviewInput,
+  ): Promise<SabcrmTemplateRenderResult> {
+    return rustFetch<SabcrmTemplateRenderResult>(`${BASE}/preview`, {
+      method: 'POST',
+      body: JSON.stringify({ projectId, ...input }),
+    });
   },
 
   /** `DELETE /v1/sabcrm/templates/{id}` — scoped delete. */

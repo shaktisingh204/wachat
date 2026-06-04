@@ -46,6 +46,45 @@ export interface SabcrmSegmentUpdateInput {
   [key: string]: unknown;
 }
 
+/**
+ * Body for {@link sabcrmSegmentsApi.apply} sans `id` — apply a stored
+ * segment's records-filter AST to `sabcrm_records` server-side and return a
+ * page of records. Mirrors the Rust `ApplySegmentInput`.
+ */
+export interface SabcrmSegmentApplyInput {
+  /** 1-indexed page number. Defaults to 1 server-side. */
+  page?: number;
+  /** Page size. Clamped at 100 server-side; defaults to 50. */
+  limit?: number;
+  /**
+   * Optional adhoc records-filter AST ANDed on top of the segment's stored
+   * filter without mutating it (a leaf `{ field, op, value? }`, a group
+   * `{ op: 'and' | 'or', conditions: [...] }`, or an array of nodes). Absent /
+   * `null` → the segment's stored filter is used verbatim.
+   */
+  filter?: unknown;
+  /**
+   * Optional sort-field override (`data.<sortBy>`, or the `createdAt` /
+   * `updatedAt` audit column). Falls back to the segment's stored `sortBy`.
+   */
+  sortBy?: string;
+  /**
+   * Optional sort direction override. Falls back to the segment's stored
+   * `sortDir`, then `desc`.
+   */
+  sortDir?: 'asc' | 'desc';
+}
+
+/**
+ * Response from {@link sabcrmSegmentsApi.apply} — a page of records matching
+ * the segment's filter AST. Mirrors the records list wire shape
+ * (`{ records, total }`, `_id` → `id`). Records are raw stored documents.
+ */
+export interface SabcrmSegmentApplyResult {
+  records: Array<Record<string, unknown>>;
+  total: number;
+}
+
 /** Raw `{ segments }` envelope from `GET /`. */
 interface ListEnvelope {
   segments: SabcrmRustSegment[];
@@ -112,6 +151,23 @@ export const sabcrmSegmentsApi = {
       { method: 'PATCH', body: JSON.stringify({ projectId, ...input }) },
     );
     return res.segment;
+  },
+
+  /**
+   * `POST /v1/sabcrm/segments/{id}/apply` — apply the stored segment's
+   * records-filter AST against `sabcrm_records` (scoped to its `object`) and
+   * return a page of records. An optional adhoc `filter` is ANDed on top
+   * without mutating the saved segment. Returns `{ records, total }`.
+   */
+  apply(
+    projectId: string,
+    id: string,
+    input?: SabcrmSegmentApplyInput,
+  ): Promise<SabcrmSegmentApplyResult> {
+    return rustFetch<SabcrmSegmentApplyResult>(
+      `${BASE}/${encodeURIComponent(id)}/apply`,
+      { method: 'POST', body: JSON.stringify({ projectId, ...input }) },
+    );
   },
 
   /** `DELETE /v1/sabcrm/segments/{id}` — scoped delete. */

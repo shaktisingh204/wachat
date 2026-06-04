@@ -23,6 +23,25 @@ export interface SabcrmRustFavorite {
   object: string;
   recordId: string;
   createdAt: string;
+  /**
+   * Spaced numeric sort slot driving the caller's drag-to-reorder order
+   * (ascending; `createdAt` ascending breaks ties). Assigned at the tail on
+   * add and rewritten by {@link sabcrmFavoritesApi.reorder}. Mirrors Twenty's
+   * fractional positioning.
+   */
+  position?: number;
+}
+
+/**
+ * One entry in a {@link sabcrmFavoritesApi.reorder} request — a favorite id and
+ * its new zero-based slot in the caller's ordered list. Mirrors the Rust
+ * `ReorderItem` DTO.
+ */
+export interface SabcrmFavoriteReorderItem {
+  /** Hex id (`_id`) of the favorite to move. */
+  id: string;
+  /** New zero-based position in the ordered list (must be `>= 0`). */
+  position: number;
 }
 
 /** Raw `{ favorites }` envelope from `GET /`. */
@@ -66,6 +85,23 @@ export const sabcrmFavoritesApi = {
       body: JSON.stringify({ projectId, object, recordId }),
     });
     return res.favorite;
+  },
+
+  /**
+   * `PATCH /v1/sabcrm/favorites/reorder` — reassign `position` across the
+   * caller's favorites within a project (Twenty's drag-to-reorder). Only the
+   * listed favorites are touched; each item's zero-based `position` is mapped
+   * to a spaced numeric slot server-side. Returns `{ ok: true }`; re-fetch via
+   * {@link list} to read back the new order.
+   */
+  reorder(
+    projectId: string,
+    items: SabcrmFavoriteReorderItem[],
+  ): Promise<{ ok: boolean }> {
+    return rustFetch<{ ok: boolean }>(`${BASE}/reorder`, {
+      method: 'PATCH',
+      body: JSON.stringify({ projectId, items }),
+    });
   },
 
   /** `DELETE /v1/sabcrm/favorites` — remove a favorite (idempotent). */

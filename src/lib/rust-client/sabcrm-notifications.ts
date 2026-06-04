@@ -17,8 +17,32 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
-/** A SabCRM notification kind. */
-export type SabcrmNotificationKind = 'info' | 'mention' | 'assignment' | 'system';
+/**
+ * A SabCRM notification kind. The Rust side now accepts the full Twenty set —
+ * `mention | assignment | comment | system | info` — and rejects unknown
+ * kinds, defaulting to `system` when absent.
+ */
+export type SabcrmNotificationKind =
+  | 'info'
+  | 'mention'
+  | 'assignment'
+  | 'comment'
+  | 'system';
+
+/**
+ * A resolved reference to the actor who triggered a notification. Injected by
+ * the Rust list handler onto each item under `actor` when the stored `actorId`
+ * resolves against the project's `workspaceMembers` records (or from the
+ * snapshot stored at creation time). Mirrors the Rust `ActorRef` DTO.
+ */
+export interface SabcrmNotificationActor {
+  /** The actor's `workspaceMembers` record id (hex). */
+  id: string;
+  /** Display name for the actor. */
+  name: string;
+  /** Avatar URL, when known (omitted by the engine when none). */
+  avatarUrl?: string;
+}
 
 /** A SabCRM notification as returned by the Rust engine (`_id` → `id` hex). */
 export interface SabcrmRustNotification {
@@ -32,6 +56,20 @@ export interface SabcrmRustNotification {
   targetRecordId?: string;
   read: boolean;
   createdAt: string;
+  /**
+   * Stored id of the actor (`workspaceMembers` record) who triggered the
+   * notification, when set at creation time. Defaults Rust-side to the caller.
+   */
+  actorId?: string;
+  /** Pre-resolved actor display name snapshot stored at creation time. */
+  actorName?: string;
+  /** Pre-resolved actor avatar URL snapshot stored at creation time. */
+  actorAvatarUrl?: string;
+  /**
+   * Resolved actor reference, injected in place by the list handler when the
+   * `actorId` resolves (or from the stored snapshot). Absent when unresolved.
+   */
+  actor?: SabcrmNotificationActor;
 }
 
 /**
@@ -45,17 +83,55 @@ export interface SabcrmNotificationCreateInput {
   kind?: SabcrmNotificationKind | string;
   targetObject?: string;
   targetRecordId?: string;
+  /**
+   * Id of the actor (`workspaceMembers` record) who triggered the
+   * notification. Defaults Rust-side to the caller; stored so the list can
+   * enrich it back into an {@link SabcrmNotificationActor}.
+   */
+  actorId?: string;
+  /** Pre-resolved actor display name to snapshot at creation time. */
+  actorName?: string;
+  /** Pre-resolved actor avatar URL to snapshot at creation time. */
+  actorAvatarUrl?: string;
 }
 
 /** Options for {@link sabcrmNotificationsApi.list}. */
 export interface SabcrmNotificationListOpts {
   /** When true, only unread notifications are returned. */
   unreadOnly?: boolean;
+  /**
+   * Filter by notification kind
+   * (`mention` | `assignment` | `comment` | `system` | `info`).
+   */
+  kind?: SabcrmNotificationKind | string;
+  /** Page size (1..=200). Defaults to 50, capped at 200 server-side. */
+  limit?: number;
+  /**
+   * Zero-based offset (skip) into the result set. Defaults to 0. Pass back the
+   * {@link SabcrmNotificationListResult.nextCursor} from a prior page to page.
+   */
+  cursor?: number;
 }
 
-/** Raw `{ notifications }` envelope from `GET /`. */
+/**
+ * Paged list result from `GET /` — the caller's notifications plus pagination
+ * metadata. Mirrors the Rust `ListResponse`: `total` is the full match count,
+ * `nextCursor` is the offset to pass back as `cursor` for the next page (or
+ * `null`/absent when exhausted), and `hasMore` mirrors that as a boolean.
+ */
+export interface SabcrmNotificationListResult {
+  notifications: SabcrmRustNotification[];
+  total: number;
+  nextCursor?: number | null;
+  hasMore: boolean;
+}
+
+/** Raw `{ notifications, total, nextCursor?, hasMore }` envelope from `GET /`. */
 interface ListEnvelope {
   notifications: SabcrmRustNotification[];
+  total: number;
+  nextCursor?: number | null;
+  hasMore: boolean;
 }
 
 /** Raw `{ notification }` envelope from `POST /` and `POST /{id}/read`. */
@@ -77,15 +153,43 @@ function qs(params: Record<string, string | number | boolean | undefined>): stri
 const BASE = '/v1/sabcrm/notifications';
 
 export const sabcrmNotificationsApi = {
-  /** `GET /v1/sabcrm/notifications` — the caller's notifications, newest first. */
+  /**
+   * `GET /v1/sabcrm/notifications` — the caller's notifications, newest first.
+   * Returns just the notifications array (backward-compatible); use
+   * {@link listPaged} for the full `{ total, nextCursor, hasMore }` envelope.
+   */
   async list(
     projectId: string,
     opts?: SabcrmNotificationListOpts,
   ): Promise<SabcrmRustNotification[]> {
-    const res = await rustFetch<ListEnvelope>(
-      `${BASE}${qs({ projectId, unreadOnly: opts?.unreadOnly })}`,
-    );
+    const res = await this.listPaged(projectId, opts);
     return res.notifications;
+  },
+
+  /**
+   * `GET /v1/sabcrm/notifications` — paged variant exposing the full Rust
+   * `ListResponse` (`notifications`, `total`, `nextCursor`, `hasMore`).
+   * Supports `kind` filtering and offset (`cursor`) / `limit` pagination.
+   */
+  async listPaged(
+    projectId: string,
+    opts?: SabcrmNotificationListOpts,
+  ): Promise<SabcrmNotificationListResult> {
+    const res = await rustFetch<ListEnvelope>(
+      `${BASE}${qs({
+        projectId,
+        unreadOnly: opts?.unreadOnly,
+        kind: opts?.kind,
+        limit: opts?.limit,
+        cursor: opts?.cursor,
+      })}`,
+    );
+    return {
+      notifications: res.notifications,
+      total: res.total,
+      nextCursor: res.nextCursor ?? null,
+      hasMore: res.hasMore,
+    };
   },
 
   /** `GET /v1/sabcrm/notifications/count` — the caller's unread count. */

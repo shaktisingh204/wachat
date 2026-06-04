@@ -16,9 +16,10 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/favorites`):
 //!
 //! ```text
-//! GET    /    — list_favorites
-//! POST   /    — add_favorite
-//! DELETE /    — remove_favorite
+//! GET    /         — list_favorites
+//! POST   /         — add_favorite
+//! DELETE /         — remove_favorite
+//! PATCH  /reorder  — reorder_favorites
 //! ```
 
 use std::sync::Arc;
@@ -26,7 +27,7 @@ use std::sync::Arc;
 use axum::{
     Router,
     extract::FromRef,
-    routing::get,
+    routing::{get, patch},
 };
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
@@ -41,10 +42,12 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route(
-        "/",
-        get(handlers::list_favorites)
-            .post(handlers::add_favorite)
-            .delete(handlers::remove_favorite),
-    )
+    Router::new()
+        .route(
+            "/",
+            get(handlers::list_favorites)
+                .post(handlers::add_favorite)
+                .delete(handlers::remove_favorite),
+        )
+        .route("/reorder", patch(handlers::reorder_favorites))
 }
