@@ -24,6 +24,7 @@
 import * as React from 'react';
 
 import { TwentyAvatar, TwentyChip } from './twenty-primitives';
+import { useResolveActorName, type ResolveActorName } from './sabcrm-actors-context';
 import type { FieldMetadata, FieldOption } from '@/lib/sabcrm/types';
 
 import './twenty-field.css';
@@ -277,6 +278,32 @@ function parseActor(value: unknown): { name: string; source: string } | null {
 }
 
 /**
+ * Map an ACTOR value carrying a workspaceMember / user **id** (a bare id string,
+ * or a composite's `workspaceMemberId` / an id stuffed into `name`) to one
+ * carrying the resolved display NAME — so a "Created by" / "Updated by" cell
+ * reads "Jane Doe" instead of a raw `6a15…` id. A no-op when the id can't be
+ * resolved or the value already carries a real name, so display degrades to the
+ * id rather than breaking.
+ */
+function withResolvedActor(value: unknown, resolve: ResolveActorName): unknown {
+  // Bare id string (the common stored shape for system actor fields).
+  if (typeof value === 'string') {
+    const id = value.trim();
+    const name = id ? resolve(id) : undefined;
+    return name ? { source: 'MANUAL', name, workspaceMemberId: id } : value;
+  }
+  const rec = asRecord(value);
+  if (!rec) return value;
+  // Prefer an explicit member id; else treat a `name` that is really an id as
+  // the lookup key. A `name` that's already a real label won't resolve, so it
+  // is left untouched.
+  const candidateId = firstString(rec.workspaceMemberId, rec.name).trim();
+  if (!candidateId) return value;
+  const name = resolve(candidateId);
+  return name ? { ...rec, name } : value;
+}
+
+/**
  * Resolve a RICH_TEXT_V2 value into plain display text. Tolerates Twenty's
  * `{ blocknote, markdown }` composite (prefers `markdown`), and a plain string.
  */
@@ -494,6 +521,9 @@ export function TwentyFieldValue({
   field,
   value,
 }: TwentyFieldValueProps): React.JSX.Element {
+  // Resolve ACTOR ids → member names (no-op outside the SabCRM layout's
+  // SabcrmActorNameProvider, so this stays safe everywhere).
+  const resolveActorName = useResolveActorName();
   // Some types legitimately carry an array / object that `isEmpty` ignores
   // (e.g. empty string), but most empty values collapse to an em-dash.
   const ARRAY_OR_OBJECT_TYPES: ReadonlySet<FieldMetadata['type']> = new Set([
@@ -861,10 +891,11 @@ export function TwentyFieldValue({
     }
 
     case 'ACTOR': {
-      const actor = parseActor(value);
+      const resolved = withResolvedActor(value, resolveActorName);
+      const actor = parseActor(resolved);
       if (!actor || (!actor.name && !actor.source)) return <EmptyValue />;
       const displayName = actor.name || actor.source || 'Unknown';
-      const avatarSrc = actorAvatar(value);
+      const avatarSrc = actorAvatar(resolved);
       return (
         <span className="st-field-actor">
           <TwentyAvatar
