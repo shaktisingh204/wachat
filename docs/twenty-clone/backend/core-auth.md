@@ -567,38 +567,389 @@ file: jwt/utils/decode-jwt-payload.util.ts:4
 Signature: (rawJwtToken: string) -> T|undefined
 Safely decodes JWT payload without verification as T. Generic. Returns undefined on error.
 
-## NOT YET COVERED
+## OAuth Controllers
 
-- auth/controllers/{microsoft-auth,microsoft-apis-auth,google-apis-auth,oauth-propagator,sso-auth}.controller.ts (OAuth controller patterns similar to Google)
-- auth/strategies/* (Passport strategies for OAuth/OIDC/SAML)
-- auth/filters/* (Exception handlers for Auth/OAuth/REST APIs)
-- auth/guards/{google-oauth,microsoft-oauth,oidc-auth,saml-auth,google-apis-oauth-*,microsoft-apis-oauth-*,enterprise-features-enabled,google-provider-enabled,microsoft-provider-enabled,is-application-auth-context,is-pending-activation-user-auth-context,is-system-auth-context}.guard.ts (OAuth/SSO/Enterprise guards)
-- auth/middlewares/workspace-auth-context.middleware.ts
-- auth/services/{google-apis,microsoft-apis,create-{sso-,}connected-account,update-connected-account-on-reconnect,create-{calendar,message}-channel}.service.ts (OAuth provider integrations)
-- auth/storage/workspace-auth-context.storage.ts
-- auth/utils/{get-google-apis-oauth-scopes,get-microsoft-apis-oauth-scopes,google-apis-set-request-extra-params,is-microsoft-oauth-transient-error,validate-redirect-uri,auth-graphql-api-exception-handler,build-{application,pending-activation-user,system,api-key}-auth-context}.util.ts
-- api-key/api-key.{resolver,controller,entity}.ts (GraphQL/REST endpoints)
-- api-key/services/api-key-role.service.ts
-- api-key/services/workspace-api-key-map-cache.service.ts
-- api-key/utils/* (API key helper utils)
-- api-key/commands/generate-api-key.command.ts
-- api-key/constants/api-key-entity-non-cached-properties.constant.ts
-- api-key/dtos/* (Input/output DTOs)
-- api-key/exceptions/api-key.exception.ts
-- jwt/crons/* (Signing key rotation cron jobs)
-- jwt/services/{signing-key-entity-cache-provider,signing-key-rotation,signing-key-verify-counter}.service.ts
-- jwt/utils/{is-asymmetric-jwt-header}.util.ts
-- jwt/constants/* (JWT algorithm constants)
-- jwt/entities/signing-key.entity.ts
-- secret-encryption/branded-strings/* (Encrypted/plaintext string branded types)
-- secret-encryption/utils/* (Encryption utility functions for AES-GCM, key derivation, envelope parsing)
-- secret-encryption/exceptions/secret-encryption.exception.ts
-- two-factor-authentication/{two-factor-authentication.{resolver,exception-filter},two-factor-authentication.exception,two-factor-authentication.validation}.ts
-- two-factor-authentication/strategies/otp/* (TOTP strategy and constants)
-- two-factor-authentication/utils/{simple-secret-encryption.util,two-factor-authentication-method.presenter}.ts
-- two-factor-authentication/entities/two-factor-authentication-method.entity.ts
-- two-factor-authentication/dtos/* (2FA input/output DTOs)
-- auth/token/services/application-token.service.ts
-- auth/types/* (Auth context, token payload TypeScript types)
-- auth/dto/* (GraphQL input/output DTOs)
+### microsoftAuth
+file: auth/controllers/microsoft-auth.controller.ts:33
+Signature: () -> Promise<void>
+Initiates Microsoft OAuth 2.0 flow. Protected by MicrosoftOAuthGuard and MicrosoftProviderEnabledGuard. No-op method triggering OAuth redirect via guard.
 
+### microsoftAuthRedirect
+file: auth/controllers/microsoft-auth.controller.ts:45
+Signature: (req: MicrosoftRequest, res: Response) -> Promise<Response>
+OAuth callback handler for Microsoft. Calls authService.signInUpWithSocialSSO(). Redirects user to appropriate workspace URL after authentication.
+
+### MicrosoftAuth
+file: auth/controllers/microsoft-apis-auth.controller.ts:54
+Signature: () -> Promise<void>
+Initiates Microsoft APIs OAuth flow for calendar/messaging. Protected by guard. No-op method.
+
+### MicrosoftAuthGetAccessToken
+file: auth/controllers/microsoft-apis-auth.controller.ts:65
+Signature: (req: APIsOAuthRequest, res: Response) -> Promise<Response>
+Exchanges authorization code for access token. Verifies transient token, calls microsoftAPIsService.refreshMicrosoftRefreshToken(), creates message/calendar channels, redirects to settings.
+
+### googleAuth
+file: auth/controllers/google-apis-auth.controller.ts:54
+Signature: () -> Promise<void>
+Initiates Google APIs OAuth flow. Protected by guard. No-op method triggering OAuth redirect.
+
+### googleAuthGetAccessToken
+file: auth/controllers/google-apis-auth.controller.ts:65
+Signature: (req: APIsOAuthRequest, res: Response) -> Promise<Response>
+Exchanges authorization code for access token. Verifies transient token, calls googleAPIsService.refreshGoogleRefreshToken(), creates message/calendar channels, redirects to settings.
+
+### generateMetadata
+file: auth/controllers/sso-auth.controller.ts:66
+Signature: (req: any) -> Promise<string>
+Generates SAML metadata XML for service provider. Used for SAML IdP configuration. Returns XML string.
+
+### oidcAuth
+file: auth/controllers/sso-auth.controller.ts:87
+Signature: () -> Promise<void>
+Initiates OIDC authentication flow. Protected by OIDCAuthGuard and EnterpriseFeaturesEnabledGuard. No-op method.
+
+### samlAuth
+file: auth/controllers/sso-auth.controller.ts:99
+Signature: () -> Promise<void>
+Initiates SAML authentication flow. Protected by SAMLAuthGuard and EnterpriseFeaturesEnabledGuard. No-op method.
+
+### oidcAuthCallback
+file: auth/controllers/sso-auth.controller.ts:111
+Signature: (req: OIDCRequest, res: Response) -> Promise<Response>
+OIDC callback handler. Validates identity provider, exchanges token, creates SSO connected account if needed, redirects to workspace.
+
+### samlAuthCallback
+file: auth/controllers/sso-auth.controller.ts:122
+Signature: (req: SAMLRequest, res: Response) -> Promise<Response>
+SAML callback handler. Validates identity provider, exchanges assertion, creates SSO connected account, redirects to workspace. Catches auth errors.
+
+### propagateOAuthCallback
+file: auth/controllers/oauth-propagator.controller.ts:35
+Signature: (state: string, code: string, res: Response) -> Promise<Response>
+Propagates OAuth callback from custom domain to main domain. Validates state/code parameters, checks domain validity, redirects with code/state.
+
+## Passport Strategies
+
+### GoogleStrategy.validate
+file: auth/strategies/google.auth.strategy.ts:68
+Signature: (request: GoogleRequest, _accessToken, _refreshToken, profile: GoogleProfile, done: VerifyCallback) -> Promise<void>
+Validates Google profile. Extracts verified email, name, picture. Parses state for workspace/invitation context. Returns normalized user object.
+
+### MicrosoftStrategy.validate
+file: auth/strategies/microsoft.auth.strategy.ts:70
+Signature: (request: MicrosoftRequest, _accessToken, _refreshToken, profile: MicrosoftPassportProfile, done: VerifyCallback) -> Promise<void>
+Validates Microsoft profile. Extracts user principal name, name, picture. Parses state for context. Returns normalized user object.
+
+### JwtAuthStrategy.validate
+file: auth/strategies/jwt.auth.strategy.ts:427
+Signature: (payload: JwtPayload) -> Promise<AuthContext>
+Routes JWT validation by token type. Supports access, workspace-agnostic, API key, and application tokens. Validates token, loads user/workspace, enforces workspace membership, checks impersonation permissions.
+
+### JwtAuthStrategy.validateAccessToken (private)
+file: auth/strategies/jwt.auth.strategy.ts:102
+Signature: (payload: AccessTokenJwtPayload) -> Promise<AuthContext>
+Validates access token. Loads workspace, user, workspace member. Checks workspace activation status. Validates impersonation if present. Returns full auth context with member.
+
+### JwtAuthStrategy.validateAPIKey (private)
+file: auth/strategies/jwt.auth.strategy.ts:62
+Signature: (payload: ApiKeyTokenJwtPayload) -> Promise<AuthContext>
+Validates API key token. Checks key not revoked, not expired. Returns minimal auth context with key and workspace.
+
+### JwtAuthStrategy.validateWorkspaceAgnosticToken (private)
+file: auth/strategies/jwt.auth.strategy.ts:344
+Signature: (payload: WorkspaceAgnosticTokenJwtPayload) -> Promise<AuthContext>
+Validates workspace-agnostic token. Loads user from cache. Returns auth context with user only (no workspace).
+
+### JwtAuthStrategy.validateApplicationToken (private)
+file: auth/strategies/jwt.auth.strategy.ts:357
+Signature: (payload: ApplicationAccessTokenJwtPayload) -> Promise<AuthContext>
+Validates application token. Loads application and workspace. Optionally loads user context if provided. Returns auth context.
+
+### OIDCAuthStrategy.validate
+file: auth/strategies/oidc.auth.strategy.ts:86
+Signature: (req: Request, tokenset: TokenSet, done: any) -> Promise<void>
+Validates OIDC token. Extracts user info from token claims. Returns email, name, and saved token claims for SSO.
+
+### SamlAuthStrategy.validate
+file: auth/strategies/saml.auth.strategy.ts:132
+Signature: (request: Request, profile: any, done: any) -> void
+Validates SAML assertion. Extracts email from profile. Validates email format. Returns identity provider ID and extracted data.
+
+### GoogleAPIsOauthCommonStrategy (abstract)
+file: auth/strategies/google-apis-oauth-common.auth.strategy.ts:13
+Base Passport strategy for Google APIs OAuth. Configures Google client ID/secret, callback URL, scopes. Subclassed by request/token strategies.
+
+### GoogleAPIsOauthRequestCodeStrategy.validate
+file: auth/strategies/google-apis-oauth-request-code.auth.strategy.ts:39
+Signature: () -> void
+No-op validation for Google APIs request code flow. Used only to trigger authorization request, not validation.
+
+### GoogleAPIsOauthExchangeCodeForTokenStrategy.validate
+file: auth/strategies/google-apis-oauth-exchange-code-for-token.auth.strategy.ts:21
+Signature: (request: APIsOAuthRequest, accessToken: PlaintextString, refreshToken: PlaintextString, profile: GoogleProfile, done: VerifyCallback) -> Promise<void>
+Extracts tokens and user profile from Google. Returns structured user object with tokens, emails, visibility preferences.
+
+### MicrosoftAPIsOauthCommonStrategy (abstract)
+file: auth/strategies/microsoft-apis-oauth-common.auth.strategy.ts:14
+Base Passport strategy for Microsoft APIs OAuth. Configures Microsoft client ID/secret, callback URL, scopes. Subclassed by request/token strategies.
+
+### MicrosoftAPIsOauthRequestCodeStrategy.validate
+file: auth/strategies/microsoft-apis-oauth-request-code.auth.strategy.ts:34
+Signature: () -> void
+No-op validation for Microsoft APIs request code flow. Used only to trigger authorization request.
+
+### MicrosoftAPIsOauthExchangeCodeForTokenStrategy.validate
+file: auth/strategies/microsoft-apis-oauth-exchange-code-for-token.auth.strategy.ts:19
+Signature: (request: APIsOAuthRequest, accessToken: PlaintextString, refreshToken: PlaintextString, profile: MicrosoftPassportProfile, done: VerifyCallback) -> Promise<void>
+Extracts tokens and user profile from Microsoft. Returns structured user object with tokens, emails, visibility preferences.
+
+## OAuth Guards
+
+### GoogleOauthGuard.canActivate
+file: auth/guards/google-oauth.guard.ts:29
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Google OAuth flow initiation. Extracts workspace ID, checks for access_denied error, delegates to Passport. Dispatches errors via redirect service.
+
+### MicrosoftOAuthGuard.canActivate
+file: auth/guards/microsoft-oauth.guard.ts:33
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Microsoft OAuth flow initiation. Checks transient Microsoft errors and retries. Delegates to Passport. Dispatches errors via redirect service.
+
+### GoogleProviderEnabledGuard.canActivate
+file: auth/guards/google-provider-enabled.guard.ts:22
+Signature: (context: ExecutionContext) -> boolean
+Checks if Google OAuth is enabled via config. Initializes GoogleStrategy. Throws if disabled. Used before OAuth flow.
+
+### MicrosoftProviderEnabledGuard.canActivate
+file: auth/guards/microsoft-provider-enabled.guard.ts:22
+Signature: (context: ExecutionContext) -> boolean
+Checks if Microsoft OAuth is enabled via config. Initializes MicrosoftStrategy. Throws if disabled. Used before OAuth flow.
+
+### EnterpriseFeaturesEnabledGuard.canActivate
+file: auth/guards/enterprise-features-enabled.guard.ts:23
+Signature: (context: ExecutionContext) -> boolean
+Validates enterprise plan is valid. Used for OIDC/SAML/SSO endpoints. Dispatches errors via redirect service.
+
+### OIDCAuthGuard.canActivate
+file: auth/guards/oidc-auth.guard.ts:55
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Initializes OIDC flow. Finds identity provider by ID, discovers OIDC issuer, creates strategy dynamically. Validates identity provider exists.
+
+### SAMLAuthGuard.canActivate
+file: auth/guards/saml-auth.guard.ts:29
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Initializes SAML flow. Finds identity provider by ID, creates SAML strategy. Validates identity provider exists before delegating to Passport.
+
+### GoogleAPIsOauthRequestCodeGuard.canActivate
+file: auth/guards/google-apis-oauth-request-code.guard.ts:33
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Google APIs request code flow. Verifies transient token, sets request params, delegates to strategy. Handles errors.
+
+### GoogleAPIsOauthExchangeCodeForTokenGuard.canActivate
+file: auth/guards/google-apis-oauth-exchange-code-for-token.guard.ts:33
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Google APIs token exchange. Checks config enabled, verifies transient token, creates strategy. Handles 401 errors with specific redirect.
+
+### MicrosoftAPIsOauthRequestCodeGuard.canActivate
+file: auth/guards/microsoft-apis-oauth-request-code.guard.ts:36
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Microsoft APIs request code flow. Verifies transient token, checks config, sets params, delegates to strategy.
+
+### MicrosoftAPIsOauthExchangeCodeForTokenGuard.canActivate
+file: auth/guards/microsoft-apis-oauth-exchange-code-for-token.guard.ts:24
+Signature: (context: ExecutionContext) -> Promise<boolean>
+Validates Microsoft APIs token exchange. Checks config, creates strategy, handles 403 errors with scopes message.
+
+## Exception Filters
+
+### AuthRestApiExceptionFilter.catch
+file: auth/filters/auth-rest-api-exception.filter.ts:21
+Signature: (exception: AuthException | Error, host: ArgumentsHost) -> void
+Maps AuthException codes to HTTP status codes. Delegates to httpExceptionHandlerService. Maps 404, 400, 403, 401, 500 based on code.
+
+### AuthGraphqlApiExceptionFilter.catch
+file: auth/filters/auth-graphql-api-exception.filter.ts:8
+Signature: (exception: AuthException) -> void
+Catches AuthException in GraphQL. Delegates to authGraphqlApiExceptionHandler utility for formatting GraphQL error response.
+
+### AuthOAuthExceptionFilter.catch
+file: auth/filters/auth-oauth-exception.filter.ts:23
+Signature: (exception: AuthException, host: ArgumentsHost) -> void
+Catches AuthException in OAuth flows. Redirects to base URL for OAUTH_ACCESS_DENIED. Delegates other errors to httpExceptionHandlerService.
+
+## Middleware
+
+### WorkspaceAuthContextMiddleware.use
+file: auth/middlewares/workspace-auth-context.middleware.ts:20
+Signature: (req: Request, _res: Response, next: NextFunction) -> void
+Builds and stores workspace auth context from request components. Determines context type (user/apiKey/application/pending). Applies Sentry context. Stores context in async local storage.
+
+## Type Guards
+
+### isApplicationAuthContext
+file: auth/guards/is-application-auth-context.guard.ts:6
+Signature: (context: WorkspaceAuthContext) -> context is ApplicationWorkspaceAuthContext
+Type guard: returns true if context.type === 'application'. Narrows to ApplicationWorkspaceAuthContext.
+
+### isPendingActivationUserAuthContext
+file: auth/guards/is-pending-activation-user-auth-context.guard.ts:6
+Signature: (context: WorkspaceAuthContext) -> context is PendingActivationUserWorkspaceAuthContext
+Type guard: returns true if context.type === 'pendingActivationUser'. Narrows to PendingActivationUserWorkspaceAuthContext.
+
+### isSystemAuthContext
+file: auth/guards/is-system-auth-context.guard.ts:6
+Signature: (context: WorkspaceAuthContext) -> context is SystemWorkspaceAuthContext
+Type guard: returns true if context.type === 'system'. Narrows to SystemWorkspaceAuthContext.
+
+## OAuth Provider Integration Services
+
+### GoogleAPIsService.refreshGoogleRefreshToken
+file: auth/services/google-apis.service.ts:82
+Signature: (input: {handle, userId, workspaceMemberId, workspaceId, accessToken, refreshToken, calendarVisibility, messageVisibility, skipMessageChannelConfiguration}) -> Promise<string>
+Handles Google OAuth token refresh. Validates scopes and service availability. Creates/updates connected account and message/calendar channels. Returns connected account ID.
+
+### MicrosoftAPIsService.refreshMicrosoftRefreshToken
+file: auth/services/microsoft-apis.service.ts:78
+Signature: (input: {handle, userId, workspaceMemberId, workspaceId, accessToken, refreshToken, calendarVisibility, messageVisibility, skipMessageChannelConfiguration}) -> Promise<string>
+Handles Microsoft OAuth token refresh. Creates/updates connected account and message/calendar channels. Enqueues sync jobs. Returns connected account ID.
+
+## Two-Factor Authentication Resolver
+
+### initiateOTPProvisioning
+file: two-factor-authentication/two-factor-authentication.resolver.ts:52
+Signature: (initiateTwoFactorAuthenticationProvisioningInput: InitiateTwoFactorAuthenticationProvisioningInput, origin: string) -> Promise<InitiateTwoFactorAuthenticationProvisioningDTO>
+Initiates 2FA setup from login token. Verifies login token, gets workspace from origin, starts OTP provisioning, returns QR code URI.
+
+### initiateOTPProvisioningForAuthenticatedUser
+file: two-factor-authentication/two-factor-authentication.resolver.ts:104
+Signature: (user: AuthContextUser, workspace: WorkspaceEntity) -> Promise<InitiateTwoFactorAuthenticationProvisioningDTO>
+Initiates 2FA setup for authenticated user. Directly calls initiateStrategyConfiguration, returns QR code URI.
+
+### deleteTwoFactorAuthenticationMethod
+file: two-factor-authentication/two-factor-authentication.resolver.ts:128
+Signature: (deleteTwoFactorAuthenticationMethodInput: DeleteTwoFactorAuthenticationMethodInput, workspace: WorkspaceEntity, user: AuthContextUser) -> Promise<DeleteTwoFactorAuthenticationMethodDTO>
+Deletes 2FA method. Validates user owns the method. Removes method from database. Returns success.
+
+### verifyTwoFactorAuthenticationMethodForAuthenticatedUser
+file: two-factor-authentication/two-factor-authentication.resolver.ts:165
+Signature: (verifyTwoFactorAuthenticationMethodInput: VerifyTwoFactorAuthenticationMethodInput, workspace: WorkspaceEntity, user: AuthContextUser) -> Promise<VerifyTwoFactorAuthenticationMethodDTO>
+Verifies OTP token. Delegates to service. Returns success/failure.
+
+## API Key Resolver
+
+### apiKeys
+file: api-key/api-key.resolver.ts:36
+Signature: (workspace: WorkspaceEntity) -> Promise<ApiKeyEntity[]>
+Lists all active API keys in workspace.
+
+### apiKey
+file: api-key/api-key.resolver.ts:43
+Signature: (input: GetApiKeyInput, workspace: WorkspaceEntity) -> Promise<ApiKeyEntity | null>
+Gets single API key by ID in workspace context. Returns null if not found.
+
+### createApiKey
+file: api-key/api-key.resolver.ts:62
+Signature: (workspace: WorkspaceEntity, input: CreateApiKeyInput) -> Promise<ApiKeyEntity>
+Creates new API key with name, expiry. Associates with optional role. Returns created entity.
+
+### updateApiKey
+file: api-key/api-key.resolver.ts:76
+Signature: (workspace: WorkspaceEntity, input: UpdateApiKeyInput) -> Promise<ApiKeyEntity | null>
+Updates API key fields. Returns updated entity or null.
+
+### revokeApiKey
+file: api-key/api-key.resolver.ts:93
+Signature: (workspace: WorkspaceEntity, input: RevokeApiKeyInput) -> Promise<ApiKeyEntity | null>
+Revokes API key. Returns revoked entity or null.
+
+### assignRoleToApiKey
+file: api-key/api-key.resolver.ts:101
+Signature: (workspace: WorkspaceEntity, apiKeyId: string, roleId: string) -> Promise<boolean>
+Assigns role to API key. Returns success flag.
+
+### role (ResolveField)
+file: api-key/api-key.resolver.ts:120
+Signature: (apiKey: ApiKeyEntity, workspace: WorkspaceEntity) -> Promise<RoleDTO>
+Resolves role for API key. Returns role DTO.
+
+## API Key Controller
+
+### findAll
+file: api-key/controllers/api-key.controller.ts:42
+Signature: (workspace: WorkspaceEntity) -> Promise<ApiKeyEntity[]>
+Lists all active API keys via REST.
+
+### findOne
+file: api-key/controllers/api-key.controller.ts:50
+Signature: (id: string, workspace: WorkspaceEntity) -> Promise<ApiKeyEntity | null>
+Gets single API key via REST.
+
+### create
+file: api-key/controllers/api-key.controller.ts:58
+Signature: (createApiKeyDto: CreateApiKeyInput, workspace: WorkspaceEntity) -> Promise<ApiKeyEntity>
+Creates API key via REST.
+
+### update
+file: api-key/controllers/api-key.controller.ts:74
+Signature: (id: string, updateApiKeyDto: UpdateApiKeyInput, workspace: WorkspaceEntity) -> Promise<ApiKeyEntity | null>
+Updates API key via REST.
+
+### remove
+file: api-key/controllers/api-key.controller.ts:95
+Signature: (id: string, workspace: WorkspaceEntity) -> Promise<ApiKeyEntity | null>
+Revokes API key via REST.
+
+## API Key Role Service
+
+### assignRoleToApiKey
+file: api-key/services/api-key-role.service.ts:36
+Signature: (apiKeyId: string, roleId: string, workspaceId: string) -> Promise<void>
+Assigns role to API key via RoleTarget. Validates inputs. No-op if same role already assigned.
+
+### getRoleIdForApiKeyId
+file: api-key/services/api-key-role.service.ts:65
+Signature: (apiKeyId: string, workspaceId: string) -> Promise<string>
+Fetches role ID for API key from cache. Throws if no role assigned.
+
+### getRoleDtoByApiKeyId
+file: api-key/services/api-key-role.service.ts:86
+Signature: (apiKeyId: string, workspaceId: string) -> Promise<RoleDTO>
+Fetches role DTO for API key from cache. Throws if not found or no role.
+
+### getRolesByApiKeys
+file: api-key/services/api-key-role.service.ts:176
+Signature: (apiKeyIds: string[], workspaceId: string) -> Promise<Map<string, RoleDTO>>
+Fetches roles for multiple API keys. Returns map of API key ID -> RoleDTO.
+
+### getApiKeysAssignedToRole
+file: api-key/services/api-key-role.service.ts:208
+Signature: (roleId: string, workspaceId: string) -> Promise<ApiKeyEntity[]>
+Finds all active API keys assigned to a role.
+
+## JWT Signing Key Services
+
+### SigningKeyRotationService.rotateIfDue
+file: jwt/services/signing-key-rotation.service.ts:27
+Signature: () -> Promise<SigningKeyRotationResult>
+Checks if signing key rotation is due based on age. Rotates key if age exceeds SIGNING_KEY_ROTATION_DAYS. Returns rotation result with old/new key IDs.
+
+### SigningKeyVerifyCounterService.recordKidVerify
+file: jwt/services/signing-key-verify-counter.service.ts:60
+Signature: (kid: string) -> void
+Records verification of token with key ID. Increments in-memory counter for later flush to Redis.
+
+### SigningKeyVerifyCounterService.recordLegacyVerify
+file: jwt/services/signing-key-verify-counter.service.ts:64
+Signature: () -> void
+Records verification of legacy token (pre-asymmetric). Increments legacy counter.
+
+### SigningKeyVerifyCounterService.getUsageInWindow
+file: jwt/services/signing-key-verify-counter.service.ts:68
+Signature: (kids: string[]) -> Promise<SigningKeyUsage>
+Gets 7-day rolling verification counts for key IDs. Flushes pending counts first. Returns usage by kid and legacy count.
+
+### SigningKeyEntityCacheProviderService.computeForCache
+file: jwt/services/signing-key-entity-cache-provider.service.ts:21
+Signature: (entityId: string) -> Promise<string | null>
+Loads public key for signing key ID. Filters non-revoked keys. Returns PEM-formatted public key or null.

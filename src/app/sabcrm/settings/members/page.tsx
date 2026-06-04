@@ -22,8 +22,9 @@
  *      `createInviteTw`. The section below the roster lists pending invites
  *      (`listInvitesTw({ status: 'pending' })`) with email, role, status chip,
  *      invited-at, and Revoke / Delete actions. Because there is no email
- *      delivery yet, each invite surfaces its token as a copyable manual invite
- *      link — clearly labelled as such.
+ *      delivery yet — and no consuming acceptance route for the token — each
+ *      invite surfaces its token as a copyable invite CODE (not a URL),
+ *      clearly labelled as such; the in-app acceptance flow is still coming.
  *
  * Every action independently re-runs the session → project → RBAC → plan
  * pipeline server-side, so the page fails closed. States: skeleton while the
@@ -122,13 +123,15 @@ function formatInvitedAt(iso: string): string {
   }
 }
 
-/** Builds the absolute manual invite link from a token (client-side only). */
-function inviteLinkFromToken(token: string): string {
-  const base =
-    typeof window !== 'undefined' && window.location?.origin
-      ? window.location.origin
-      : '';
-  return `${base}/sabcrm/invite/${encodeURIComponent(token)}`;
+/**
+ * Returns the raw invite token as the shareable invite code.
+ *
+ * There is no `/sabcrm/invite/<token>` route — SabCRM invite tokens have no
+ * consuming acceptance route yet — so this deliberately surfaces the token
+ * itself as a copyable code rather than fabricating a dead URL.
+ */
+function inviteCodeFromToken(token: string): string {
+  return token;
 }
 
 // ---------------------------------------------------------------------------
@@ -149,9 +152,10 @@ function CapabilityChip({ role }: { role: CrmMemberRole }): React.JSX.Element {
 
 // ---------------------------------------------------------------------------
 // Copyable value — shared by the dialog success state and each invite row.
+// Copies the invite CODE (the token), not a URL.
 // ---------------------------------------------------------------------------
 
-function CopyLinkButton({ value }: { value: string }): React.JSX.Element {
+function CopyCodeButton({ value }: { value: string }): React.JSX.Element {
   const [copied, setCopied] = React.useState(false);
   const copy = React.useCallback(async () => {
     try {
@@ -167,7 +171,7 @@ function CopyLinkButton({ value }: { value: string }): React.JSX.Element {
       variant="secondary"
       icon={copied ? Check : Copy}
       onClick={copy}
-      title="Copy invite link"
+      title="Copy invite code"
     >
       {copied ? 'Copied' : 'Copy'}
     </TwentyButton>
@@ -264,18 +268,20 @@ function InviteDialog({
             <div className="st-dialog__body">
               <div className="st-secret">
                 <span className="st-secret__label">
-                  Invitation for {created.email}
+                  Invite code for {created.email}
                 </span>
                 <div className="st-invite-link__row">
                   <code className="st-secret__code">
-                    {inviteLinkFromToken(created.token)}
+                    {inviteCodeFromToken(created.token)}
                   </code>
-                  <CopyLinkButton value={inviteLinkFromToken(created.token)} />
+                  <CopyCodeButton value={inviteCodeFromToken(created.token)} />
                 </div>
                 <span className="st-secret__hint">
-                  There is no email delivery yet — copy this manual invite link
-                  and send it to {created.email} yourself. They can use it to
-                  join the workspace.
+                  Email delivery isn&apos;t wired up yet, and the in-app
+                  acceptance flow is still coming. For now, copy this invite code
+                  and share it with {created.email} yourself — once the
+                  acceptance flow ships, they&apos;ll be able to redeem the code
+                  to join the workspace.
                 </span>
               </div>
             </div>
@@ -335,9 +341,10 @@ function InviteDialog({
               <div className="st-invite-callout">
                 <Info className="st-invite-callout__icon" size={14} aria-hidden="true" />
                 <span>
-                  Email delivery is not wired up yet. After creating the
-                  invitation you&apos;ll get a manual invite link to share with
-                  the person yourself.
+                  Email delivery isn&apos;t wired up yet and the in-app
+                  acceptance flow is still coming. After creating the invitation
+                  you&apos;ll get an invite code to share with the person
+                  yourself.
                 </span>
               </div>
 
@@ -401,7 +408,7 @@ function DeleteInviteDialog({
           <p style={{ margin: 0, color: 'var(--st-text-secondary)' }}>
             Delete the invitation for{' '}
             <strong style={{ color: 'var(--st-text)' }}>{invite.email}</strong>?
-            The invite link will stop working and the record is removed. This
+            The invite code will stop working and the record is removed. This
             cannot be undone.
           </p>
         </div>
@@ -589,8 +596,8 @@ function PendingInvites({
       </div>
       <p className="st-invites__desc">
         People invited to this workspace who haven&apos;t joined yet. Email
-        delivery isn&apos;t wired up — share each manual invite link below
-        yourself.
+        delivery isn&apos;t wired up and the in-app acceptance flow is still
+        coming — share each invite code below yourself in the meantime.
       </p>
 
       {loading ? (
@@ -618,13 +625,13 @@ function PendingInvites({
                 <th>Invitee</th>
                 <th>Role</th>
                 <th>Status</th>
-                <th>Manual invite link</th>
+                <th>Invite code</th>
                 <th aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
               {invites.map((invite) => {
-                const link = inviteLinkFromToken(invite.token);
+                const code = inviteCodeFromToken(invite.token);
                 const roleName = invite.roleId
                   ? roleNameById.get(invite.roleId) ?? 'Unknown role'
                   : 'Default access';
@@ -649,10 +656,10 @@ function PendingInvites({
                           Share manually
                         </span>
                         <div className="st-invite-link__row">
-                          <span className="st-invite-link__value" title={link}>
-                            {link}
-                          </span>
-                          <CopyLinkButton value={link} />
+                          <code className="st-invite-link__value" title={code}>
+                            {code}
+                          </code>
+                          <CopyCodeButton value={code} />
                         </div>
                       </div>
                     </td>
@@ -916,8 +923,8 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
         <p className="st-settings__intro">
           Workspace members and their SabCRM access level. Roles are managed
           centrally in the SabNode workspace settings (Settings → Team). Invite
-          new people below — invitations surface a manual link to share until
-          email delivery is available.
+          new people below — invitations surface a code to share until email
+          delivery and the in-app acceptance flow are available.
         </p>
 
         {isLoadingProject || loading ? (
