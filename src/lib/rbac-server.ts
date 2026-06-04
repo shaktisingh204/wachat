@@ -140,11 +140,29 @@ export async function getEffectivePermissionsForProject(
     const mixed = (session.user as any)?.plan?.permissions;
     const { ceiling, roles: ownRoles } = splitMixedPermissions(mixed);
 
-    const scopedProjectId = projectId || (session.user as any)?.activeProjectId;
+    let scopedProjectId = projectId || (session.user as any)?.activeProjectId;
 
-    // No project scope → behave as owner within plan ceiling.
+    // No explicit/active project. Only a genuine account owner (or a brand-new
+    // user who isn't in any project yet) gets full owner access here — a team
+    // member who simply hasn't selected a project must NOT be silently granted
+    // everything (that showed all menus to invited members). Decide by ownership.
     if (!scopedProjectId || !ObjectId.isValid(String(scopedProjectId))) {
-        return { role: 'owner', isOwner: true, permissions: ceiling, planCeiling: ceiling };
+        const ownsAny = await db
+            .collection('projects')
+            .findOne({ userId: sessionUserId }, { projection: { _id: 1 } });
+        if (ownsAny) {
+            return { role: 'owner', isOwner: true, permissions: ceiling, planCeiling: ceiling };
+        }
+        const agentProject = await db
+            .collection('projects')
+            .findOne({ 'agents.userId': sessionUserId }, { projection: { _id: 1 } });
+        if (!agentProject) {
+            // In no project at all (e.g. fresh signup) → treat as owner.
+            return { role: 'owner', isOwner: true, permissions: ceiling, planCeiling: ceiling };
+        }
+        // Team member with no active project selected → resolve their role
+        // against the project they actually belong to.
+        scopedProjectId = String(agentProject._id);
     }
 
     const project = await db
