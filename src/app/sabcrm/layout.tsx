@@ -20,7 +20,6 @@ import { redirect } from 'next/navigation';
 
 import { TwentyAppFrame } from '@/components/sabcrm/twenty';
 import { SabcrmOuterShell } from '@/components/sabcrm/twenty/sabcrm-outer-shell';
-import { TwentyEmbed } from '@/components/sabcrm/twenty/twenty-embed';
 import { getCachedSession, getCachedProjects } from '@/lib/server-cache';
 import { RBACGuard } from '@/components/zoruui-domain/rbac-guard';
 import { ProjectProvider } from '@/context/project-context';
@@ -60,12 +59,10 @@ export default async function SabcrmLayout({
 
   const locale = await getCurrentLocale();
 
-  // Production switch: when SABCRM_USE_TWENTY_FRONT=true the route hosts the
-  // real built `twenty-front` SPA (blueprint verdict); otherwise it serves the
-  // native `.sabcrm-twenty` pages. EITHER way the content is wrapped in
-  // `SabcrmOuterShell` so the SabNode app rail + header are always present.
-  const useTwentyFront = process.env.SABCRM_USE_TWENTY_FRONT === 'true';
-
+  // /sabcrm renders the native `.sabcrm-twenty` Next.js pages, wrapped in
+  // `SabcrmOuterShell` (the SabNode app rail + header). The iframe-embed path
+  // was removed — Twenty's UI is being ported into these native Next.js pages
+  // (backed by twenty-server), not embedded.
   return (
     <RBACGuard>
       <LocaleProvider initialLocale={locale}>
@@ -78,11 +75,7 @@ export default async function SabcrmLayout({
               role: user?.role,
             }}
           >
-            {useTwentyFront ? (
-              <TwentyEmbed />
-            ) : (
-              <TwentyAppFrame>{children}</TwentyAppFrame>
-            )}
+            <TwentyAppFrame>{children}</TwentyAppFrame>
           </SabcrmOuterShell>
         </ProjectProvider>
       </LocaleProvider>
