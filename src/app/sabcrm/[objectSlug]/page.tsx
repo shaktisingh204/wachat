@@ -82,6 +82,7 @@ import type { SabcrmRustTag } from '@/app/actions/sabcrm-tags.actions.types';
 import type {
   SabcrmRustRecord,
   SabcrmRecordTwGroup,
+  SabcrmRecordTwAggregate,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
@@ -180,6 +181,47 @@ interface SabcrmAggregateResult {
 
 /** Aggregation metric the page can request. */
 type AggregateMetric = 'count' | 'sum' | 'avg';
+
+/**
+ * Map the engine's aggregate envelope ({@link SabcrmRecordTwAggregate}) onto the
+ * page-local {@link SabcrmAggregateResult} the table footer/group bands consume.
+ *
+ * The two shapes are genuinely different — the engine returns one reduced
+ * `metric` per bucket (and a scalar `total`), while the UI reasons in terms of
+ * `count` + optional `sum`/`avg` pills — so we translate rather than cast. The
+ * `metric` argument is the reduction that was REQUESTED, which tells us which
+ * pill each bucket's single value feeds:
+ *   - 'count' → the value is the bucket's record count.
+ *   - 'sum'   → the value is the bucket's summed metric (count is unknown here).
+ *   - 'avg'   → the value is the bucket's averaged metric.
+ * Bucket values are normalised to `string | null` so {@link bucketFor} can match
+ * them against the page's `String(groupValue)` keys.
+ */
+function mapAggregate(
+  res: SabcrmRecordTwAggregate,
+  metric: AggregateMetric,
+): SabcrmAggregateResult {
+  const toValue = (raw: unknown): string | null =>
+    raw === null || raw === undefined || raw === '' ? null : String(raw);
+  const buckets: SabcrmAggregateBucket[] = (res.groups ?? []).map((g) => {
+    const m = typeof g.metric === 'number' ? g.metric : 0;
+    return {
+      value: toValue(g.value),
+      count: metric === 'count' ? m : 0,
+      sum: metric === 'sum' ? m : undefined,
+      avg: metric === 'avg' ? m : undefined,
+    };
+  });
+  const grand = typeof res.total === 'number' ? res.total : 0;
+  return {
+    buckets,
+    total: {
+      count: metric === 'count' ? grand : buckets.reduce((s, b) => s + b.count, 0),
+      sum: metric === 'sum' ? grand : undefined,
+      avg: metric === 'avg' ? grand : undefined,
+    },
+  };
+}
 
 /** Format a numeric stat value compactly (tabular, no trailing noise). */
 function fmtStat(n: number | null | undefined): string {
@@ -1430,6 +1472,13 @@ interface BoardViewProps {
   creatingKey?: string | null;
   /** Singular object label for the per-column button copy ("New Deal"). */
   objectLabelSingular: string;
+  /**
+   * Whether quick-create is possible — false when the object has no usable
+   * label field to seed a new record's name into. When false the per-column
+   * "+ New" button renders visibly disabled (with an explanatory title) rather
+   * than silently no-op'ing on click.
+   */
+  canCreate: boolean;
 }
 
 /** Stable key for a board column (the SELECT value, or a sentinel for null). */
@@ -1460,6 +1509,7 @@ function BoardView({
   onCreateCard,
   creatingKey,
   objectLabelSingular,
+  canCreate,
 }: BoardViewProps) {
   // The card being dragged (drives the source "ghost" style + drop routing)
   // and the column currently hovered (drives the drop-target highlight).
@@ -1872,8 +1922,21 @@ function BoardView({
                 <button
                   type="button"
                   className="st-card st-board__add"
-                  disabled={creatingKey === key}
-                  aria-label={`New ${objectLabelSingular} in ${label}`}
+                  // Disabled while this column is persisting OR when the object
+                  // has no usable label field (quick-create can't name a record)
+                  // — the latter gives a visible disabled state instead of a
+                  // silent no-op click.
+                  disabled={creatingKey === key || !canCreate}
+                  aria-label={
+                    canCreate
+                      ? `New ${objectLabelSingular} in ${label}`
+                      : `Cannot create ${objectLabelSingular}: this object has no name field`
+                  }
+                  title={
+                    canCreate
+                      ? undefined
+                      : `Add a text or label field to ${objectLabelSingular} before creating records here`
+                  }
                   // Self-styled (no dedicated CSS class for the board add button
                   // in this file's stylesheets): inherit the `.st-card` chrome
                   // but lay the icon + label out inline, dashed + muted so it
@@ -1887,13 +1950,15 @@ function BoardView({
                     color: 'var(--st-text-tertiary)',
                     fontSize: 'var(--st-font-size-sm)',
                     fontWeight: 'var(--st-fw-medium)',
-                    opacity: creatingKey === key ? 0.6 : 1,
+                    cursor: !canCreate ? 'not-allowed' : undefined,
+                    opacity: creatingKey === key || !canCreate ? 0.6 : 1,
                   }}
                   // Never let the add-button press start a marquee / clear the
                   // card selection on the board surface.
                   onPointerDown={(e) => e.stopPropagation()}
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (!canCreate) return;
                     onCreateCard(key, column.value);
                   }}
                 >
@@ -2422,7 +2487,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         );
         if (cancelled) return;
         if (res && res.ok) {
-          setAggregate(res.data as SabcrmAggregateResult);
+          setAggregate(mapAggregate(res.data, metric));
         } else {
           setAggregate(null);
         }
@@ -2580,6 +2645,20 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
 
   const labelField = React.useMemo(
     () => object?.fields.find((f) => f.isLabel),
+    [object],
+  );
+  /**
+   * The field key new records seed their name into — mirrors the resolution in
+   * {@link handleBoardCreate} / {@link handleInlineCreate}. When this is absent
+   * the object has NO usable label field, so quick-create can't name a record;
+   * the board exposes this so its "+ New" button renders visibly disabled
+   * instead of silently no-op'ing.
+   */
+  const createLabelKey = React.useMemo(
+    () =>
+      object?.fields.find((f) => f.isLabel)?.key ??
+      object?.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL')?.key ??
+      null,
     [object],
   );
   const previewFields = React.useMemo(
@@ -3896,6 +3975,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           onCreateCard={handleBoardCreate}
           creatingKey={boardCreating}
           objectLabelSingular={object.labelSingular}
+          canCreate={createLabelKey !== null}
         />
       ) : (
         <>

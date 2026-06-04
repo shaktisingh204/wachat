@@ -357,3 +357,170 @@
 .st-ai__input::placeholder {
   color: var(--st-text-tertiary);
 }
+
+/* ---- Markdown (assistant replies) ------------------------------------- */
+/* Rendered by `@/components/sabcrm/twenty/markdown` under a `.st-md` wrapper.
+   The assistant bubble normally uses `pre-wrap`; Markdown blocks manage their
+   own whitespace, so reset it on the renderer wrapper. */
+
+.st-ai__bubble .st-md {
+  white-space: normal;
+}
+
+.st-md {
+  font-size: var(--st-font-size);
+  line-height: 1.6;
+  color: var(--st-text);
+}
+
+/* Vertical rhythm between blocks; first/last collapse to the bubble edge. */
+.st-md > * {
+  margin: 0 0 var(--st-space-3);
+}
+
+.st-md > *:last-child {
+  margin-bottom: 0;
+}
+
+.st-md__p {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Headings */
+.st-md__h {
+  font-weight: var(--st-fw-semibold);
+  line-height: 1.3;
+  color: var(--st-text);
+  margin-top: var(--st-space-4);
+}
+
+.st-md > .st-md__h:first-child {
+  margin-top: 0;
+}
+
+.st-md__h1 {
+  font-size: var(--st-font-size-xl);
+}
+
+.st-md__h2 {
+  font-size: var(--st-font-size-lg);
+}
+
+.st-md__h3 {
+  font-size: var(--st-font-size);
+}
+
+.st-md__h4,
+.st-md__h5,
+.st-md__h6 {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  text-transform: none;
+}
+
+/* Inline marks */
+.st-md__strong {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.st-md__em {
+  font-style: italic;
+}
+
+.st-md__code {
+  font-family: var(--st-font-mono);
+  font-size: 0.85em;
+  padding: 1px 5px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-hover);
+  border: 1px solid var(--st-border-light);
+  word-break: break-word;
+}
+
+.st-md__link {
+  color: var(--st-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  word-break: break-word;
+}
+
+.st-md__link:hover {
+  color: var(--st-accent-strong, var(--st-accent));
+}
+
+/* Lists */
+.st-md__ul,
+.st-md__ol {
+  padding-left: var(--st-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+}
+
+.st-md__ul {
+  list-style: disc;
+}
+
+.st-md__ol {
+  list-style: decimal;
+}
+
+.st-md__li {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.st-md__li::marker {
+  color: var(--st-text-secondary);
+}
+
+/* Blockquote */
+.st-md__quote {
+  border-left: 3px solid var(--st-border-strong);
+  padding: var(--st-space-1) 0 var(--st-space-1) var(--st-space-3);
+  color: var(--st-text-secondary);
+}
+
+.st-md__quote > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Horizontal rule */
+.st-md__hr {
+  border: none;
+  border-top: 1px solid var(--st-border);
+  margin: var(--st-space-4) 0;
+}
+
+/* Fenced code block */
+.st-md__pre {
+  position: relative;
+  margin: 0 0 var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.st-md__pre-lang {
+  display: block;
+  margin-bottom: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+  text-transform: lowercase;
+  user-select: none;
+}
+
+.st-md__pre-code {
+  font-family: var(--st-font-mono);
+  font-size: 0.85em;
+  line-height: 1.5;
+  color: var(--st-text);
+  white-space: pre;
+}

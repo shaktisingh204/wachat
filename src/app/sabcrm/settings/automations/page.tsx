@@ -43,10 +43,7 @@ import * as React from 'react';
 import {
   Zap,
   Plus,
-  Trash2,
   X,
-  ChevronUp,
-  ChevronDown,
   AlertTriangle,
   ClipboardList,
   Bell,
@@ -58,7 +55,6 @@ import {
   Loader2,
   Check,
   History,
-  Braces,
   Filter as FilterIcon,
   GitBranch,
   Search,
@@ -71,7 +67,11 @@ import {
   Share2,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { TwentyPageHeader, TwentyButton, AutomationBuilder } from '@/components/sabcrm/twenty';
+import type {
+  AutomationDraft,
+  AutomationStep,
+} from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
   listWorkflowsTw,
@@ -195,17 +195,6 @@ const STEP_META: Record<
   upsert_record: { label: 'Upsert Record', icon: RefreshCw, blurb: 'Update or create a record' },
 };
 
-const STEP_ORDER: StepType[] = [
-  'create_task',
-  'send_notification',
-  'update_field',
-  'webhook',
-  'filter',
-  'if_else',
-  'find_records',
-  'upsert_record',
-];
-
 /** Comparison operators shared by Filter and If/Else condition rows. */
 const OPERATOR_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: 'eq', label: 'equals' },
@@ -220,27 +209,13 @@ const OPERATOR_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: 'is_not_empty', label: 'is not empty' },
 ];
 
-/** Operators that don't take a right-hand value. */
-const VALUELESS_OPERATORS = new Set(['is_empty', 'is_not_empty']);
-
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function newId(prefix: string): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return `${prefix}_${crypto.randomUUID()}`;
-  }
-  return `${prefix}_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
-}
-
 function str(config: Record<string, unknown>, key: string): string {
   const v = config[key];
   return typeof v === 'string' ? v : '';
-}
-
-function emptyStep(type: StepType): WorkflowStep {
-  return { id: newId('step'), type, config: {} };
 }
 
 function triggerSummary(t: WorkflowTrigger): string {
@@ -295,721 +270,6 @@ const STATUS_LABEL: Record<'ok' | 'fail' | 'run' | 'wait', string> = {
   run: 'Running',
   wait: 'Pending',
 };
-
-// ---------------------------------------------------------------------------
-// Variable references (the `{{…}}` token picker)
-// ---------------------------------------------------------------------------
-
-interface VarLeaf {
-  /** The token inserted into the input, e.g. `{{trigger.record.id}}`. */
-  token: string;
-  /** Human label shown in the dropdown. */
-  label: string;
-}
-
-interface VarGroup {
-  source: string;
-  leaves: VarLeaf[];
-}
-
-/**
- * Builds the available `{{…}}` reference tree for a step at `stepIndex`:
- *   - trigger.record.<field> (+ id / createdAt)
- *   - record.<field>          (alias of the trigger record)
- *   - steps.<id>.<…>          (output of every PRIOR step)
- * Field names come from the trigger object's metadata when known.
- */
-function buildVariableGroups(
-  draft: Workflow,
-  stepIndex: number,
-  objects: ObjectMetadata[],
-): VarGroup[] {
-  const obj = objects.find((o) => o.slug === draft.trigger.object);
-  const fields = obj?.fields.filter((f) => !f.system) ?? [];
-  const recordLeaves: VarLeaf[] = [
-    { token: '{{trigger.record.id}}', label: 'record.id' },
-    ...fields.map((f) => ({
-      token: `{{trigger.record.${f.key}}}`,
-      label: `record.${f.label}`,
-    })),
-  ];
-
-  const groups: VarGroup[] = [
-    {
-      source: 'Trigger',
-      leaves: [
-        { token: '{{trigger.event}}', label: 'event name' },
-        { token: '{{trigger.object}}', label: 'object slug' },
-        ...recordLeaves,
-      ],
-    },
-    {
-      source: 'Record (shortcut)',
-      leaves: [
-        { token: '{{record.id}}', label: 'record.id' },
-        ...fields.map((f) => ({ token: `{{record.${f.key}}}`, label: `record.${f.label}` })),
-      ],
-    },
-  ];
-
-  // Every prior step exposes a generic output reference.
-  const priorSteps = draft.steps.slice(0, stepIndex);
-  if (priorSteps.length > 0) {
-    groups.push({
-      source: 'Previous steps',
-      leaves: priorSteps.map((s, i) => ({
-        token: `{{steps.${s.id}.output}}`,
-        label: `${i + 1}. ${STEP_META[s.type]?.label ?? s.type} → output`,
-      })),
-    });
-  }
-  return groups;
-}
-
-// ---------------------------------------------------------------------------
-// Step config form (per type)
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// Variable-aware text input ({{}} button + reference dropdown)
-// ---------------------------------------------------------------------------
-
-interface VarInputProps {
-  id: string;
-  value: string;
-  placeholder?: string;
-  type?: string;
-  groups: VarGroup[];
-  onChange: (value: string) => void;
-}
-
-/**
- * A `.st-input` wrapped with a small "{{}}" trigger. Clicking a reference from
- * the dropdown inserts the token at the caret (or appends it), preserving any
- * text the user has already typed. Read-only chrome — no engine call here.
- */
-function VarInput({
-  id,
-  value,
-  placeholder,
-  type = 'text',
-  groups,
-  onChange,
-}: VarInputProps): React.JSX.Element {
-  const [open, setOpen] = React.useState(false);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-  const wrapRef = React.useRef<HTMLDivElement>(null);
-
-  // Close on outside click / Escape.
-  React.useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  const insert = (token: string) => {
-    const el = inputRef.current;
-    if (el && typeof el.selectionStart === 'number') {
-      const start = el.selectionStart;
-      const end = el.selectionEnd ?? start;
-      const next = value.slice(0, start) + token + value.slice(end);
-      onChange(next);
-      // Restore caret just after the inserted token on the next frame.
-      const caret = start + token.length;
-      requestAnimationFrame(() => {
-        el.focus();
-        el.setSelectionRange(caret, caret);
-      });
-    } else {
-      onChange(value ? `${value}${token}` : token);
-    }
-    setOpen(false);
-  };
-
-  return (
-    <div className="wf-varinput" ref={wrapRef}>
-      <input
-        id={id}
-        ref={inputRef}
-        className="st-input wf-varinput__field"
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        autoComplete="off"
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <button
-        type="button"
-        className="wf-varinput__btn"
-        aria-label="Insert a variable reference"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title="Insert variable"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <Braces size={13} aria-hidden="true" />
-      </button>
-      {open ? (
-        <div className="wf-varmenu" role="menu" aria-label="Available variables">
-          {groups.every((g) => g.leaves.length === 0) ? (
-            <div className="wf-varmenu__empty">No references available yet.</div>
-          ) : (
-            groups.map((g) =>
-              g.leaves.length === 0 ? null : (
-                <div key={g.source} className="wf-varmenu__group">
-                  <div className="wf-varmenu__group-head">{g.source}</div>
-                  {g.leaves.map((leaf) => (
-                    <button
-                      key={leaf.token}
-                      type="button"
-                      role="menuitem"
-                      className="wf-varmenu__opt"
-                      onClick={() => insert(leaf.token)}
-                      title={leaf.token}
-                    >
-                      <span className="wf-varmenu__opt-label">{leaf.label}</span>
-                      <code className="wf-varmenu__opt-token">{leaf.token}</code>
-                    </button>
-                  ))}
-                </div>
-              ),
-            )
-          )}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-interface StepConfigProps {
-  step: WorkflowStep;
-  index: number;
-  draft: Workflow;
-  objects: ObjectMetadata[];
-  triggerObject: string;
-  onPatch: (config: Record<string, unknown>) => void;
-}
-
-function StepConfig({
-  step,
-  index,
-  draft,
-  objects,
-  triggerObject,
-  onPatch,
-}: StepConfigProps): React.JSX.Element {
-  const set = (key: string, value: string) => onPatch({ ...step.config, [key]: value });
-  // References available to THIS step (trigger + all prior steps).
-  const groups = React.useMemo(
-    () => buildVariableGroups(draft, index, objects),
-    [draft, index, objects],
-  );
-
-  if (step.type === 'create_task') {
-    return (
-      <div className="st-field">
-        <label className="st-field__label" htmlFor={`${step.id}-title`}>
-          Task title
-        </label>
-        <VarInput
-          id={`${step.id}-title`}
-          value={str(step.config, 'title')}
-          placeholder="e.g. Follow up with new lead"
-          groups={groups}
-          onChange={(v) => set('title', v)}
-        />
-      </div>
-    );
-  }
-
-  if (step.type === 'send_notification') {
-    return (
-      <>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-ntitle`}>
-            Title
-          </label>
-          <VarInput
-            id={`${step.id}-ntitle`}
-            value={str(step.config, 'title')}
-            placeholder="Notification title"
-            groups={groups}
-            onChange={(v) => set('title', v)}
-          />
-        </div>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-nbody`}>
-            Body
-          </label>
-          <textarea
-            id={`${step.id}-nbody`}
-            className="st-textarea"
-            value={str(step.config, 'body')}
-            placeholder="Optional notification body — use {{record.…}} references"
-            onChange={(e) => set('body', e.target.value)}
-          />
-        </div>
-      </>
-    );
-  }
-
-  if (step.type === 'update_field') {
-    // Field options come from the trigger's object when known.
-    const obj = objects.find((o) => o.slug === triggerObject);
-    const fields = obj?.fields.filter((f) => !f.system) ?? [];
-    return (
-      <div className="wf-grid-2">
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-field`}>
-            Field
-          </label>
-          {fields.length > 0 ? (
-            <select
-              id={`${step.id}-field`}
-              className="st-select"
-              value={str(step.config, 'field')}
-              onChange={(e) => set('field', e.target.value)}
-            >
-              <option value="">Select a field…</option>
-              {fields.map((f) => (
-                <option key={f.key} value={f.key}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id={`${step.id}-field`}
-              className="st-input"
-              value={str(step.config, 'field')}
-              placeholder="field key"
-              autoComplete="off"
-              onChange={(e) => set('field', e.target.value)}
-            />
-          )}
-        </div>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-value`}>
-            Value
-          </label>
-          <VarInput
-            id={`${step.id}-value`}
-            value={str(step.config, 'value')}
-            placeholder="New value"
-            groups={groups}
-            onChange={(v) => set('value', v)}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (step.type === 'filter' || step.type === 'if_else') {
-    // Both share a {field, operator, value} condition row.
-    const obj = objects.find((o) => o.slug === triggerObject);
-    const fields = obj?.fields.filter((f) => !f.system) ?? [];
-    const operator = str(step.config, 'operator') || 'eq';
-    const valueless = VALUELESS_OPERATORS.has(operator);
-    return (
-      <>
-        {step.type === 'filter' ? (
-          <p className="wf-cfg-hint">
-            The workflow continues only when this condition is true.
-          </p>
-        ) : (
-          <p className="wf-cfg-hint">
-            Splits the flow into a <strong>True</strong> and an <strong>Else</strong> branch.
-          </p>
-        )}
-        <div className="wf-cond">
-          <div className="st-field">
-            <label className="st-field__label" htmlFor={`${step.id}-cfield`}>
-              Field
-            </label>
-            {fields.length > 0 ? (
-              <select
-                id={`${step.id}-cfield`}
-                className="st-select"
-                value={str(step.config, 'field')}
-                onChange={(e) => set('field', e.target.value)}
-              >
-                <option value="">Select a field…</option>
-                {fields.map((f) => (
-                  <option key={f.key} value={f.key}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <input
-                id={`${step.id}-cfield`}
-                className="st-input"
-                value={str(step.config, 'field')}
-                placeholder="field key"
-                autoComplete="off"
-                onChange={(e) => set('field', e.target.value)}
-              />
-            )}
-          </div>
-          <div className="st-field">
-            <label className="st-field__label" htmlFor={`${step.id}-coperator`}>
-              Operator
-            </label>
-            <select
-              id={`${step.id}-coperator`}
-              className="st-select"
-              value={operator}
-              onChange={(e) => set('operator', e.target.value)}
-            >
-              {OPERATOR_OPTIONS.map((op) => (
-                <option key={op.value} value={op.value}>
-                  {op.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="st-field">
-            <label className="st-field__label" htmlFor={`${step.id}-cvalue`}>
-              Value
-            </label>
-            <VarInput
-              id={`${step.id}-cvalue`}
-              value={str(step.config, 'value')}
-              placeholder={valueless ? '—' : 'Comparison value'}
-              groups={groups}
-              onChange={(v) => set('value', v)}
-            />
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  if (step.type === 'find_records') {
-    return (
-      <>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-fobject`}>
-            Object
-          </label>
-          {objects.length > 0 ? (
-            <select
-              id={`${step.id}-fobject`}
-              className="st-select"
-              value={str(step.config, 'object')}
-              onChange={(e) => set('object', e.target.value)}
-            >
-              <option value="">Select an object…</option>
-              {objects.map((o) => (
-                <option key={o.slug} value={o.slug}>
-                  {o.labelPlural}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id={`${step.id}-fobject`}
-              className="st-input"
-              value={str(step.config, 'object')}
-              placeholder="e.g. opportunities"
-              autoComplete="off"
-              onChange={(e) => set('object', e.target.value.toLowerCase())}
-            />
-          )}
-        </div>
-        <div className="wf-grid-2">
-          <div className="st-field">
-            <label className="st-field__label" htmlFor={`${step.id}-ffield`}>
-              Filter field
-            </label>
-            <input
-              id={`${step.id}-ffield`}
-              className="st-input"
-              value={str(step.config, 'filterField')}
-              placeholder="field key (optional)"
-              autoComplete="off"
-              onChange={(e) => set('filterField', e.target.value)}
-            />
-          </div>
-          <div className="st-field">
-            <label className="st-field__label" htmlFor={`${step.id}-fvalue`}>
-              Filter value
-            </label>
-            <VarInput
-              id={`${step.id}-fvalue`}
-              value={str(step.config, 'filterValue')}
-              placeholder="Match value"
-              groups={groups}
-              onChange={(v) => set('filterValue', v)}
-            />
-          </div>
-        </div>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-flimit`}>
-            Limit
-          </label>
-          <input
-            id={`${step.id}-flimit`}
-            className="st-input"
-            type="number"
-            min={1}
-            value={str(step.config, 'limit')}
-            placeholder="e.g. 50"
-            autoComplete="off"
-            onChange={(e) => set('limit', e.target.value)}
-          />
-        </div>
-      </>
-    );
-  }
-
-  // upsert_record
-  const obj = objects.find((o) => o.slug === (str(step.config, 'object') || triggerObject));
-  const upsertFields = obj?.fields.filter((f) => !f.system) ?? [];
-  return (
-    <>
-      <div className="wf-grid-2">
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-uobject`}>
-            Object
-          </label>
-          {objects.length > 0 ? (
-            <select
-              id={`${step.id}-uobject`}
-              className="st-select"
-              value={str(step.config, 'object')}
-              onChange={(e) => set('object', e.target.value)}
-            >
-              <option value="">Select an object…</option>
-              {objects.map((o) => (
-                <option key={o.slug} value={o.slug}>
-                  {o.labelPlural}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id={`${step.id}-uobject`}
-              className="st-input"
-              value={str(step.config, 'object')}
-              placeholder="e.g. contacts"
-              autoComplete="off"
-              onChange={(e) => set('object', e.target.value.toLowerCase())}
-            />
-          )}
-        </div>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-umatch`}>
-            Match field
-          </label>
-          {upsertFields.length > 0 ? (
-            <select
-              id={`${step.id}-umatch`}
-              className="st-select"
-              value={str(step.config, 'matchField')}
-              onChange={(e) => set('matchField', e.target.value)}
-            >
-              <option value="">Select a field…</option>
-              {upsertFields.map((f) => (
-                <option key={f.key} value={f.key}>
-                  {f.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              id={`${step.id}-umatch`}
-              className="st-input"
-              value={str(step.config, 'matchField')}
-              placeholder="e.g. email"
-              autoComplete="off"
-              onChange={(e) => set('matchField', e.target.value)}
-            />
-          )}
-        </div>
-      </div>
-      <div className="wf-grid-2">
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-umatchval`}>
-            Match value
-          </label>
-          <VarInput
-            id={`${step.id}-umatchval`}
-            value={str(step.config, 'matchValue')}
-            placeholder="Value to match on"
-            groups={groups}
-            onChange={(v) => set('matchValue', v)}
-          />
-        </div>
-        <div className="st-field">
-          <label className="st-field__label" htmlFor={`${step.id}-udatafield`}>
-            Data field
-          </label>
-          <input
-            id={`${step.id}-udatafield`}
-            className="st-input"
-            value={str(step.config, 'dataField')}
-            placeholder="field key to set"
-            autoComplete="off"
-            onChange={(e) => set('dataField', e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="st-field">
-        <label className="st-field__label" htmlFor={`${step.id}-udataval`}>
-          Data value
-        </label>
-        <VarInput
-          id={`${step.id}-udataval`}
-          value={str(step.config, 'dataValue')}
-          placeholder="Value to write"
-          groups={groups}
-          onChange={(v) => set('dataValue', v)}
-        />
-      </div>
-    </>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Step card
-// ---------------------------------------------------------------------------
-
-interface StepCardProps {
-  step: WorkflowStep;
-  index: number;
-  count: number;
-  draft: Workflow;
-  objects: ObjectMetadata[];
-  triggerObject: string;
-  onPatchConfig: (config: Record<string, unknown>) => void;
-  onMove: (dir: -1 | 1) => void;
-  onRemove: () => void;
-}
-
-function StepCard({
-  step,
-  index,
-  count,
-  draft,
-  objects,
-  triggerObject,
-  onPatchConfig,
-  onMove,
-  onRemove,
-}: StepCardProps): React.JSX.Element {
-  const meta = STEP_META[step.type];
-  const Icon = meta.icon;
-  return (
-    <div className="wf-step">
-      <div className="wf-step__head">
-        <span className="wf-step__index">{index + 1}</span>
-        <span className="wf-step__icon">
-          <Icon size={14} />
-        </span>
-        <span className="wf-step__title">{meta.label}</span>
-        <span className="wf-step__tools">
-          <button
-            type="button"
-            className="wf-icon-btn"
-            aria-label="Move step up"
-            title="Move up"
-            disabled={index === 0}
-            onClick={() => onMove(-1)}
-          >
-            <ChevronUp size={15} />
-          </button>
-          <button
-            type="button"
-            className="wf-icon-btn"
-            aria-label="Move step down"
-            title="Move down"
-            disabled={index === count - 1}
-            onClick={() => onMove(1)}
-          >
-            <ChevronDown size={15} />
-          </button>
-          <button
-            type="button"
-            className="wf-icon-btn wf-icon-btn--danger"
-            aria-label="Remove step"
-            title="Remove step"
-            onClick={onRemove}
-          >
-            <Trash2 size={14} />
-          </button>
-        </span>
-      </div>
-      <div className="wf-step__body">
-        <StepConfig
-          step={step}
-          index={index}
-          draft={draft}
-          objects={objects}
-          triggerObject={triggerObject}
-          onPatch={onPatchConfig}
-        />
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Add-step row (type picker)
-// ---------------------------------------------------------------------------
-
-function AddStep({ onAdd }: { onAdd: (type: StepType) => void }): React.JSX.Element {
-  const [open, setOpen] = React.useState(false);
-  if (!open) {
-    return (
-      <div className="wf-add">
-        <button type="button" className="wf-add__btn" onClick={() => setOpen(true)}>
-          <Plus size={14} aria-hidden="true" />
-          Add step
-        </button>
-      </div>
-    );
-  }
-  return (
-    <div className="wf-add">
-      <div className="wf-typepicker" role="menu" aria-label="Choose a step type">
-        {STEP_ORDER.map((type) => {
-          const meta = STEP_META[type];
-          const Icon = meta.icon;
-          return (
-            <button
-              key={type}
-              type="button"
-              role="menuitem"
-              className="wf-typepicker__opt"
-              onClick={() => {
-                onAdd(type);
-                setOpen(false);
-              }}
-            >
-              <Icon size={16} aria-hidden="true" />
-              <span>{meta.label}</span>
-            </button>
-          );
-        })}
-      </div>
-      <button type="button" className="wf-add__btn" onClick={() => setOpen(false)}>
-        <X size={14} aria-hidden="true" />
-        Cancel
-      </button>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Builder (right pane)
@@ -1273,42 +533,27 @@ function Builder({
   /** Builder (editable) vs Diagram (read-only flowchart). */
   const [view, setView] = React.useState<'builder' | 'diagram'>('builder');
 
-  const setTrigger = (patch: Partial<WorkflowTrigger>) =>
-    onChange({ ...draft, trigger: { ...draft.trigger, ...patch } });
-
-  const addStep = (type: StepType) =>
-    onChange({ ...draft, steps: [...draft.steps, emptyStep(type)] });
-
-  const removeStep = (id: string) =>
-    onChange({ ...draft, steps: draft.steps.filter((s) => s.id !== id) });
-
-  const patchStepConfig = (id: string, config: Record<string, unknown>) =>
+  /**
+   * Bridge the page's richer `Workflow` draft to the shared `AutomationBuilder`'s
+   * `AutomationDraft`. Every edit the shared builder emits is merged back onto the
+   * full `Workflow` (preserving `id`, `lastRunAt`, and any engine-only fields the
+   * page tracks). The shared builder's step-type union is a subset of the page's,
+   * so step changes round-trip through a structural cast.
+   */
+  const handleBuilderChange = (next: AutomationDraft) =>
     onChange({
       ...draft,
-      steps: draft.steps.map((s) => (s.id === id ? { ...s, config } : s)),
+      name: next.name,
+      description: next.description,
+      enabled: next.enabled,
+      trigger: next.trigger,
+      steps: next.steps as unknown as WorkflowStep[],
     });
-
-  const moveStep = (index: number, dir: -1 | 1) => {
-    const target = index + dir;
-    if (target < 0 || target >= draft.steps.length) return;
-    const steps = [...draft.steps];
-    const [moved] = steps.splice(index, 1);
-    steps.splice(target, 0, moved);
-    onChange({ ...draft, steps });
-  };
 
   return (
     <div className="wf-builder">
+      {/* Run controls + view toggle (page-level extras around the shared editor). */}
       <div className="wf-builder__bar">
-        <input
-          className="st-input wf-builder__title"
-          value={draft.name}
-          maxLength={120}
-          placeholder="Workflow name"
-          aria-label="Workflow name"
-          autoComplete="off"
-          onChange={(e) => onChange({ ...draft, name: e.target.value })}
-        />
         <div className="wf-viewtoggle" role="tablist" aria-label="View mode">
           <button
             type="button"
@@ -1332,15 +577,6 @@ function Builder({
           </button>
         </div>
         <span className="wf-builder__spacer" />
-        <button
-          type="button"
-          className={`st-switch${draft.enabled ? ' is-on' : ''}`}
-          role="switch"
-          aria-checked={draft.enabled}
-          aria-label={draft.enabled ? 'Disable workflow' : 'Enable workflow'}
-          title={draft.enabled ? 'Enabled' : 'Disabled'}
-          onClick={onToggleEnabled}
-        />
         {dirty ? (
           <span className="wf-dirty">Unsaved changes</span>
         ) : (
@@ -1394,146 +630,28 @@ function Builder({
             </span>
           ) : null}
         </span>
-        <TwentyButton
-          variant="primary"
-          icon={Save}
-          disabled={saving || !dirty || !draft.name.trim()}
-          onClick={onSave}
-        >
-          {saving ? 'Saving…' : 'Save'}
-        </TwentyButton>
-        <TwentyButton
-          variant="ghost"
-          icon={Trash2}
-          className="st-btn--danger"
-          disabled={deleting}
-          onClick={onDelete}
-          title="Delete workflow"
-        >
-          Delete
-        </TwentyButton>
       </div>
-
-      {view === 'builder' ? (
-        <div className="st-field">
-          <textarea
-            className="st-textarea"
-            value={draft.description ?? ''}
-            placeholder="Description (optional)"
-            aria-label="Workflow description"
-            onChange={(e) => onChange({ ...draft, description: e.target.value })}
-          />
-        </div>
-      ) : null}
 
       {view === 'diagram' ? (
         <DiagramView draft={draft} />
       ) : (
-      <div className="wf-flow">
-        {/* Trigger card */}
-        <div className="wf-flow__node">
-          <div className="wf-card">
-            <div className="wf-card__head">
-              <span className="wf-card__head-icon">
-                <Zap size={13} />
-              </span>
-              Trigger
-            </div>
-            <div className="wf-card__body">
-              <span className="wf-trigger-pill">
-                <span className="wf-trigger-pill__icon">
-                  <Zap size={12} />
-                </span>
-                When&nbsp;<strong>{triggerSummary(draft.trigger)}</strong>
-              </span>
-              <div className="wf-grid-2">
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="wf-event">
-                    Event
-                  </label>
-                  <select
-                    id="wf-event"
-                    className="st-select"
-                    value={draft.trigger.event}
-                    onChange={(e) => setTrigger({ event: e.target.value as TriggerEvent })}
-                  >
-                    {EVENT_OPTIONS.map((ev) => (
-                      <option key={ev.value} value={ev.value}>
-                        {ev.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="wf-object">
-                    Object
-                  </label>
-                  {objects.length > 0 ? (
-                    <select
-                      id="wf-object"
-                      className="st-select"
-                      value={draft.trigger.object}
-                      onChange={(e) => setTrigger({ object: e.target.value })}
-                    >
-                      <option value="">All objects</option>
-                      {objects.map((o) => (
-                        <option key={o.slug} value={o.slug}>
-                          {o.labelPlural}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      id="wf-object"
-                      className="st-input"
-                      value={draft.trigger.object}
-                      placeholder="e.g. opportunities"
-                      autoComplete="off"
-                      onChange={(e) => setTrigger({ object: e.target.value.toLowerCase() })}
-                    />
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Steps */}
-        {draft.steps.length === 0 ? (
-          <>
-            <div className="wf-flow__connector" aria-hidden="true" />
-            <div className="wf-flow__node">
-              <div className="wf-steps-empty">
-                No steps yet. Add a step below to run an action when this trigger fires.
-              </div>
-            </div>
-          </>
-        ) : (
-          draft.steps.map((step, index) => (
-            <React.Fragment key={step.id}>
-              <div className="wf-flow__connector" aria-hidden="true" />
-              <div className="wf-flow__node">
-                <StepCard
-                  step={step}
-                  index={index}
-                  count={draft.steps.length}
-                  draft={draft}
-                  objects={objects}
-                  triggerObject={draft.trigger.object}
-                  onPatchConfig={(config) => patchStepConfig(step.id, config)}
-                  onMove={(dir) => moveStep(index, dir)}
-                  onRemove={() => removeStep(step.id)}
-                />
-              </div>
-            </React.Fragment>
-          ))
-        )}
-
-        <div className="wf-flow__connector" aria-hidden="true" />
-        <div className="wf-flow__node">
-          <AddStep onAdd={addStep} />
-        </div>
-      </div>
+        <AutomationBuilder
+          value={{
+            id: draft.id,
+            name: draft.name,
+            description: draft.description,
+            enabled: draft.enabled,
+            trigger: draft.trigger,
+            steps: draft.steps as unknown as AutomationStep[],
+          }}
+          objects={objects}
+          busy={saving || deleting}
+          dirty={dirty}
+          onChange={handleBuilderChange}
+          onSave={onSave}
+          onToggleEnabled={onToggleEnabled}
+          onDelete={onDelete}
+        />
       )}
 
       <RunHistory

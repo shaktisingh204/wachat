@@ -2750,15 +2750,16 @@ export function RecordDetailTw({
   // link / unlink / composed-and-linked note or task.
   const refreshTargets = React.useCallback(async () => {
     try {
-      const res = await listTargetsForRecordTw({
-        targetObject: object.slug,
-        targetId: record.id,
-      });
+      const res = await listTargetsForRecordTw(
+        object.slug,
+        record.id,
+        projectId ?? undefined,
+      );
       setTargetLinks(res.ok ? normalizeTargetLinks(res.data) : []);
     } catch {
       setTargetLinks([]);
     }
-  }, [object.slug, record.id]);
+  }, [object.slug, record.id, projectId]);
 
   // Initial targets load (degrades silently — the tabs still show the
   // activity-based notes/tasks if this fails).
@@ -2768,10 +2769,11 @@ export function RecordDetailTw({
     setTargetError(null);
     (async () => {
       try {
-        const res = await listTargetsForRecordTw({
-          targetObject: object.slug,
-          targetId: record.id,
-        });
+        const res = await listTargetsForRecordTw(
+          object.slug,
+          record.id,
+          projectId ?? undefined,
+        );
         if (cancelled) return;
         setTargetLinks(res.ok ? normalizeTargetLinks(res.data) : []);
       } catch {
@@ -3176,18 +3178,19 @@ export function RecordDetailTw({
   const linkComposed = React.useCallback(
     async (sourceObject: string, sourceId: string) => {
       try {
-        const res = await linkTargetTw({
+        const res = await linkTargetTw(
           sourceObject,
           sourceId,
-          targetObject: object.slug,
-          targetId: record.id,
-        });
+          object.slug,
+          record.id,
+          projectId ?? undefined,
+        );
         if (res.ok) await refreshTargets();
       } catch {
         /* graceful: the activity is already created */
       }
     },
-    [object.slug, record.id, refreshTargets],
+    [object.slug, record.id, projectId, refreshTargets],
   );
 
   // Add a NOTE-kind activity (Notes tab composer), then link it to this record
@@ -3290,12 +3293,13 @@ export function RecordDetailTw({
         },
       ]);
       try {
-        const res = await linkTargetTw({
+        const res = await linkTargetTw(
           sourceObject,
-          sourceId: option.id,
-          targetObject: object.slug,
-          targetId: record.id,
-        });
+          option.id,
+          object.slug,
+          record.id,
+          projectId ?? undefined,
+        );
         if (!res.ok) {
           setTargetLinks(prev);
           setTargetError(res.error);
@@ -3307,7 +3311,7 @@ export function RecordDetailTw({
         setTargetError('Could not attach.');
       }
     },
-    [targetLinks, object.slug, record.id, refreshTargets],
+    [targetLinks, object.slug, record.id, projectId, refreshTargets],
   );
 
   // Detach a linked note/task from this record (optimistic drop + rollback).
@@ -3323,12 +3327,13 @@ export function RecordDetailTw({
         ),
       );
       try {
-        const res = await unlinkTargetTw({
+        const res = await unlinkTargetTw(
           sourceObject,
           sourceId,
-          targetObject: object.slug,
-          targetId: record.id,
-        });
+          object.slug,
+          record.id,
+          projectId ?? undefined,
+        );
         if (!res.ok) {
           setTargetLinks(prev);
           setTargetError(res.error);
@@ -3341,7 +3346,7 @@ export function RecordDetailTw({
       }
       setUnlinkBusyId(null);
     },
-    [unlinkBusyId, targetLinks, object.slug, record.id, refreshTargets],
+    [unlinkBusyId, targetLinks, object.slug, record.id, projectId, refreshTargets],
   );
 
   const notes = React.useMemo(

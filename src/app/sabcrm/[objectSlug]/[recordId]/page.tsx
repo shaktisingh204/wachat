@@ -20,7 +20,8 @@ import { useParams } from 'next/navigation';
 import { AlertTriangle, Database } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
-import { useProject } from '@/context/project-context';
+import { useProject, useCan } from '@/context/project-context';
+import { SABCRM_RBAC_KEYS } from '@/lib/sabcrm/rbac-keys';
 import {
   listSabcrmObjectsTw,
   getSabcrmRecordTw,
@@ -34,6 +35,13 @@ export default function SabcrmTwentyDetailPage(): React.JSX.Element {
   const objectSlug = params?.objectSlug ?? '';
   const recordId = params?.recordId ?? '';
   const { activeProjectId } = useProject();
+
+  // Page-level edit capability. RBAC read access is already enforced by the
+  // `/sabcrm` layout; this mirrors how record edits are gated elsewhere
+  // (`sabcrm:manage` → edit). Read-only users (view-only) get read-only fields
+  // across the whole record — the gated write actions also re-check on the
+  // server, so this is the UI affordance, not the security boundary.
+  const canEdit = useCan(SABCRM_RBAC_KEYS.MANAGE, 'edit');
 
   const [object, setObject] = React.useState<ObjectMetadata | null>(null);
   const [record, setRecord] = React.useState<SabcrmRustRecord | null>(null);
@@ -130,6 +138,11 @@ export default function SabcrmTwentyDetailPage(): React.JSX.Element {
   }
 
   return (
-    <RecordDetailTw object={object} record={record} projectId={activeProjectId} />
+    <RecordDetailTw
+      object={object}
+      record={record}
+      projectId={activeProjectId}
+      canEdit={canEdit}
+    />
   );
 }

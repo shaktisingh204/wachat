@@ -36,3 +36,16 @@ export {
   default as RecordDetailTabsDefault,
 } from './record-detail-tabs';
 export type { RecordDetailTabsProps } from './record-detail-tabs';
+export {
+  AutomationBuilder,
+  default as AutomationBuilderDefault,
+} from './automation-builder';
+export type {
+  AutomationBuilderProps,
+  AutomationDraft,
+  AutomationTrigger,
+  AutomationTriggerEvent,
+  AutomationStep,
+  AutomationStepType,
+  AutomationObjectOption,
+} from './automation-builder';

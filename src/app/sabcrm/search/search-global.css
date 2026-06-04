@@ -72,17 +72,27 @@
   font-weight: var(--st-fw-medium);
 }
 
-/* Per-group footer affordance linking to the object's filtered index view. */
+/*
+ * Per-group footer affordance — "See all N in <Object>". A button (not a link):
+ * it switches the page into the expanded full-paginated-list mode rather than
+ * navigating away. Button chrome reset so it reads as the original link row.
+ */
 .stsg-group__more {
   display: flex;
   align-items: center;
   gap: var(--st-space-1);
+  width: 100%;
   padding: var(--st-space-2) var(--st-space-3);
+  border: 0;
   border-top: 1px solid var(--st-border-light);
+  background: none;
   color: var(--st-text-secondary);
+  font: inherit;
   font-size: var(--st-font-size-sm);
   font-weight: var(--st-fw-medium);
+  text-align: left;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .stsg-group__more:hover {
@@ -235,4 +245,124 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+/* =========================================================================
+   Command-style verbs (Create … / Go to settings) + the expanded full-result
+   list (pagination, breadcrumb back). Additive, Twenty look only.
+   ========================================================================= */
+
+/* The "Actions" verb group sits above the record groups; subtle de-emphasis. */
+.stsg-verbs {
+  margin-bottom: var(--st-space-2);
+}
+
+/* A verb row reuses the hit row layout but leads with a boxed icon, not an
+   avatar, to read as an action (Twenty command-menu actions section). */
+.stw-hit.stsg-verb {
+  align-items: center;
+}
+
+.stsg-verb__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary, var(--st-hover));
+  color: var(--st-text-secondary);
+}
+
+.stw-hit.stsg-verb[data-active='true'] .stsg-verb__icon {
+  color: var(--st-accent);
+}
+
+/* Breadcrumb "All results" back button inside the summary line (expanded mode). */
+.stsg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-text-secondary);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+}
+
+.stsg-back:hover {
+  color: var(--st-accent);
+}
+
+.stsg-summary__sep {
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+}
+
+/* Footer pager for the expanded full-result list. */
+.stsg-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-top: 1px solid var(--st-border-light);
+}
+
+.stsg-pager__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-text-secondary);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  cursor: pointer;
+}
+
+.stsg-pager__back:hover {
+  color: var(--st-accent);
+}
+
+.stsg-pager__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.stsg-pager__range,
+.stsg-pager__page {
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+.stsg-pager__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg, transparent);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+}
+
+.stsg-pager__btn:not(:disabled):hover {
+  border-color: var(--st-border);
+  color: var(--st-accent);
+  background: var(--st-hover);
+}
+
+.stsg-pager__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

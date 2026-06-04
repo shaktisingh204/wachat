@@ -66,14 +66,23 @@ import {
   CircleDot,
   ArrowRight,
   Clock,
-  X,
   CornerDownLeft,
+  Plus,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Command,
   type LucideIcon,
 } from 'lucide-react';
 
 import { globalSearchTw } from '@/app/actions/sabcrm-search.actions';
 import type { GlobalSearchHit } from '@/app/actions/sabcrm-search.actions.types';
-import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-twenty.actions';
+import {
+  listSabcrmObjectsTw,
+  listSabcrmRecordsTw,
+} from '@/app/actions/sabcrm-twenty.actions';
+import type { ObjectMetadata } from '@/lib/sabcrm/types';
+import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
 import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
 import type { TwentyAvatarShape } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
@@ -97,6 +106,10 @@ const PREVIEW_PER_GROUP = 6;
 const RECENT_KEY = 'sabcrm.search.recent';
 /** How many recent searches to keep / show. */
 const RECENT_MAX = 6;
+/** Page size for the expanded ("See all") full paginated result list. */
+const EXPANDED_PAGE_SIZE = 25;
+/** Max command-style verbs (Create … / Go to settings) shown above results. */
+const MAX_VERBS = 6;
 
 /**
  * Object slugs that render a CIRCULAR avatar (people / actors). Everything else
@@ -161,6 +174,25 @@ interface FlatHit {
   href: string;
 }
 
+/**
+ * A command-style verb (Twenty command-menu "actions" section): a labelled,
+ * keyboard-navigable row at the TOP of the results that NAVIGATES somewhere
+ * rather than opening a record — "Create <Object>" (→ the object index) and a
+ * static "Go to settings". Folded into the same roving keyboard index as the
+ * hit rows so ↑/↓/Enter cross verbs and hits seamlessly.
+ */
+interface CommandVerb {
+  /** Stable key for React + the keyboard cursor id. */
+  key: string;
+  icon: LucideIcon;
+  /** Primary label, e.g. "Create Company". */
+  label: string;
+  /** Short kind chip on the right, e.g. "Create" / "Navigate". */
+  kind: string;
+  /** Destination route. */
+  href: string;
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -185,6 +217,33 @@ function descriptorFor(
     labelPlural: meta?.labelPlural ?? fallback?.plural ?? human,
     icon: OBJECT_ICON[slug] ?? CircleDot,
   };
+}
+
+/**
+ * Derives a record's display label from its `data` bag using the object's
+ * metadata — preferring the explicit label field, then the first text/email
+ * field, falling back to `<Singular> <last-6-of-id>`. Mirrors the list page's
+ * `recordLabel` so the expanded full-result rows read identically.
+ */
+function recordLabel(object: ObjectMetadata | undefined, record: SabcrmRustRecord): string {
+  if (object) {
+    const field =
+      object.fields.find((f) => f.isLabel) ??
+      object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
+      object.fields[0];
+    if (field) {
+      const raw = record.data[field.key];
+      if (typeof raw === 'string' && raw.trim()) return raw;
+      if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
+    }
+    return `${object.labelSingular} ${record.id.slice(-6)}`;
+  }
+  // No metadata: best-effort scan of common title-ish keys.
+  for (const key of ['name', 'title', 'label', 'subject', 'email']) {
+    const raw = record.data[key];
+    if (typeof raw === 'string' && raw.trim()) return raw;
+  }
+  return `Record ${record.id.slice(-6)}`;
 }
 
 /**
@@ -265,6 +324,15 @@ export default function SabcrmSearchPage(): React.JSX.Element {
   const catalogueRef = React.useRef(catalogue);
   catalogueRef.current = catalogue;
 
+  // Full object metadata keyed by slug — powers the command verbs ("Create
+  // <Object>") and the expanded full-result rows' label resolution. Loaded
+  // alongside the label catalogue (same round-trip), best-effort.
+  const [objectsBySlug, setObjectsBySlug] = React.useState<
+    Map<string, ObjectMetadata>
+  >(new Map());
+  const objectsBySlugRef = React.useRef(objectsBySlug);
+  objectsBySlugRef.current = objectsBySlug;
+
   // Results.
   const [groups, setGroups] = React.useState<ResultGroup[]>([]);
   const [total, setTotal] = React.useState(0);
@@ -273,6 +341,16 @@ export default function SabcrmSearchPage(): React.JSX.Element {
 
   // Monotonic request id so out-of-order async responses are ignored.
   const reqIdRef = React.useRef(0);
+
+  // Expanded ("See all N") full paginated result list for ONE object slug.
+  // `null` = the default grouped-preview mode; a slug = the full-list mode.
+  const [expandedObject, setExpandedObject] = React.useState<string | null>(null);
+  const [expandedPage, setExpandedPage] = React.useState(1);
+  const [expandedRecords, setExpandedRecords] = React.useState<SabcrmRustRecord[]>([]);
+  const [expandedTotal, setExpandedTotal] = React.useState(0);
+  const [expandedLoading, setExpandedLoading] = React.useState(false);
+  const [expandedError, setExpandedError] = React.useState<string | null>(null);
+  const expandedReqRef = React.useRef(0);
 
   // Load the object catalogue once per project (labels for group headers).
   React.useEffect(() => {
@@ -283,13 +361,16 @@ export default function SabcrmSearchPage(): React.JSX.Element {
         string,
         { labelSingular: string; labelPlural: string }
       >();
+      const full = new Map<string, ObjectMetadata>();
       for (const o of res.data) {
         next.set(o.slug, {
           labelSingular: o.labelSingular,
           labelPlural: o.labelPlural,
         });
+        full.set(o.slug, o);
       }
       setCatalogue(next);
+      setObjectsBySlug(full);
     });
     return () => {
       cancelled = true;
@@ -373,6 +454,72 @@ export default function SabcrmSearchPage(): React.JSX.Element {
     );
   }, [catalogue]);
 
+  // A new committed query collapses any expanded full-list back to the grouped
+  // preview (the prior object may not even match the new term) and clears stale
+  // expanded records.
+  React.useEffect(() => {
+    setExpandedObject(null);
+    setExpandedPage(1);
+    setExpandedRecords([]);
+    setExpandedTotal(0);
+    setExpandedError(null);
+  }, [query]);
+
+  // Load the full paginated record list for the expanded object via the records
+  // engine. This is the "See all N" experience — real records, real pages, not
+  // the capped preview the global-search endpoint returns. Degrades to a calm
+  // error banner if the action is unavailable / the engine is down.
+  React.useEffect(() => {
+    if (!expandedObject || query.length < MIN_QUERY_LEN) return;
+
+    let cancelled = false;
+    const myReq = ++expandedReqRef.current;
+    setExpandedLoading(true);
+    setExpandedError(null);
+
+    void listSabcrmRecordsTw(
+      expandedObject,
+      { q: query, page: expandedPage, limit: EXPANDED_PAGE_SIZE },
+      activeProjectId ?? undefined,
+    )
+      .then((res) => {
+        if (cancelled || myReq !== expandedReqRef.current) return;
+        if (!res.ok) {
+          setExpandedRecords([]);
+          setExpandedTotal(0);
+          setExpandedError(res.error);
+          setExpandedLoading(false);
+          return;
+        }
+        setExpandedRecords(res.data.records);
+        setExpandedTotal(res.data.total);
+        setExpandedError(null);
+        setExpandedLoading(false);
+      })
+      .catch(() => {
+        if (cancelled || myReq !== expandedReqRef.current) return;
+        // The action may not exist in older builds — degrade gracefully.
+        setExpandedRecords([]);
+        setExpandedTotal(0);
+        setExpandedError('Could not load the full result list.');
+        setExpandedLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [expandedObject, expandedPage, query, activeProjectId]);
+
+  // Open / close the expanded full-result list for a group.
+  const openExpanded = React.useCallback((slug: string) => {
+    setExpandedObject(slug);
+    setExpandedPage(1);
+  }, []);
+  const closeExpanded = React.useCallback(() => {
+    setExpandedObject(null);
+    setExpandedPage(1);
+  }, []);
+
   const hasQuery = query.length >= MIN_QUERY_LEN;
 
   // Flatten the previewed hits across all groups into a single keyboard-
@@ -393,16 +540,81 @@ export default function SabcrmSearchPage(): React.JSX.Element {
     return out;
   }, [groups]);
 
-  // Reset the keyboard cursor whenever the result set changes.
+  // Command-style verbs (Twenty's command-menu "actions"): "Create <Object>"
+  // for the objects whose label matches the query, plus a static "Go to
+  // settings". They sit ABOVE the results and navigate (no record opened).
+  const verbs = React.useMemo<CommandVerb[]>(() => {
+    if (!hasQuery) return [];
+    const q = query.toLowerCase();
+    const out: CommandVerb[] = [];
+
+    // Rank objects whose singular/plural label contains the query term; if
+    // nothing matches (e.g. searching a person's name) still offer creates for
+    // the objects that actually returned hits, so a "Create" is always handy.
+    const objects = Array.from(objectsBySlug.values());
+    const matching = objects.filter(
+      (o) =>
+        o.labelSingular.toLowerCase().includes(q) ||
+        o.labelPlural.toLowerCase().includes(q) ||
+        o.slug.toLowerCase().includes(q),
+    );
+    const source =
+      matching.length > 0
+        ? matching
+        : groups
+            .map((g) => objectsBySlug.get(g.descriptor.slug))
+            .filter((o): o is ObjectMetadata => Boolean(o));
+
+    for (const o of source) {
+      if (out.length >= MAX_VERBS - 1) break;
+      out.push({
+        key: `create:${o.slug}`,
+        icon: OBJECT_ICON[o.slug] ?? Plus,
+        label: `Create ${o.labelSingular}`,
+        kind: 'Create',
+        // The object index page is where new records are authored (its create
+        // drawer); navigating there is the gated, build-safe create entry.
+        href: `${CRM_BASE_PATH}/${o.slug}`,
+      });
+    }
+
+    // Always offer a jump to settings (Twenty's "Go to Settings" verb).
+    out.push({
+      key: 'goto:settings',
+      icon: Settings,
+      label: 'Go to settings',
+      kind: 'Navigate',
+      href: `${CRM_BASE_PATH}/settings`,
+    });
+
+    return out;
+  }, [hasQuery, query, objectsBySlug, groups]);
+
+  // Unified roving keyboard target list: verbs first, then preview hits. In the
+  // expanded full-list mode we suppress this combined cursor (the page renders a
+  // dedicated list with its own affordances).
+  const navHrefs = React.useMemo<string[]>(() => {
+    if (expandedObject) return [];
+    return [...verbs.map((v) => v.href), ...flatHits.map((h) => h.href)];
+  }, [verbs, flatHits, expandedObject]);
+
+  /** Keyboard index → verb (0..verbs.length-1) or undefined when it's a hit. */
+  const verbAtIndex = React.useCallback(
+    (i: number): CommandVerb | undefined =>
+      i >= 0 && i < verbs.length ? verbs[i] : undefined,
+    [verbs],
+  );
+
+  // Reset the keyboard cursor whenever the navigable set changes.
   React.useEffect(() => {
     setActiveIndex(-1);
-  }, [flatHits]);
+  }, [navHrefs]);
 
   // Scroll the active row into view as the cursor moves.
   React.useEffect(() => {
     if (activeIndex < 0 || !listRef.current) return;
     const el = listRef.current.querySelector<HTMLElement>(
-      `[data-hit-index="${activeIndex}"]`,
+      `[data-nav-index="${activeIndex}"]`,
     );
     el?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
@@ -431,34 +643,50 @@ export default function SabcrmSearchPage(): React.JSX.Element {
     writeRecent([]);
   }, []);
 
-  // Keyboard navigation on the search box: ↑/↓ move the cursor, Enter opens the
-  // active hit (or the first hit), Escape clears the box.
+  // Keyboard navigation on the search box: ↑/↓ rove the unified verb+hit list,
+  // Enter activates the cursor (or the first target), Escape clears the box or
+  // backs out of the expanded full-list view.
   const onKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'ArrowDown') {
-        if (flatHits.length === 0) return;
+        if (navHrefs.length === 0) return;
         e.preventDefault();
-        setActiveIndex((i) => (i + 1) % flatHits.length);
+        setActiveIndex((i) => (i + 1) % navHrefs.length);
       } else if (e.key === 'ArrowUp') {
-        if (flatHits.length === 0) return;
+        if (navHrefs.length === 0) return;
         e.preventDefault();
-        setActiveIndex((i) => (i <= 0 ? flatHits.length - 1 : i - 1));
+        setActiveIndex((i) => (i <= 0 ? navHrefs.length - 1 : i - 1));
       } else if (e.key === 'Enter') {
-        const target =
-          flatHits[activeIndex] ?? (flatHits.length > 0 ? flatHits[0] : undefined);
-        if (target) {
+        const idx = activeIndex >= 0 ? activeIndex : navHrefs.length > 0 ? 0 : -1;
+        const href = idx >= 0 ? navHrefs[idx] : undefined;
+        if (href) {
           e.preventDefault();
-          rememberSearch(query);
-          router.push(target.href);
+          // Only commit a "search" to recents when opening a record hit, not a
+          // verb (creating / navigating isn't a search worth remembering).
+          if (!verbAtIndex(idx)) rememberSearch(query);
+          router.push(href);
         }
       } else if (e.key === 'Escape') {
-        if (input) {
+        if (expandedObject) {
+          e.preventDefault();
+          closeExpanded();
+        } else if (input) {
           e.preventDefault();
           setInput('');
         }
       }
     },
-    [flatHits, activeIndex, query, input, rememberSearch, router],
+    [
+      navHrefs,
+      activeIndex,
+      verbAtIndex,
+      query,
+      input,
+      expandedObject,
+      closeExpanded,
+      rememberSearch,
+      router,
+    ],
   );
 
   // ---- Render --------------------------------------------------------------
@@ -482,10 +710,12 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           autoComplete="off"
           spellCheck={false}
           role="combobox"
-          aria-expanded={flatHits.length > 0}
+          aria-expanded={navHrefs.length > 0}
           aria-controls="stsg-results"
           aria-activedescendant={
-            activeIndex >= 0 ? `stsg-hit-${activeIndex}` : undefined
+            activeIndex >= 0 && !expandedObject
+              ? `stsg-nav-${activeIndex}`
+              : undefined
           }
           aria-label="Search all records"
         />
@@ -497,7 +727,28 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       </div>
 
       {/* Results summary line (only once we have hits). */}
-      {hasQuery && !searchError && total > 0 ? (
+      {hasQuery && expandedObject ? (
+        <p className="stsg-summary">
+          <button
+            type="button"
+            className="stsg-back"
+            onClick={closeExpanded}
+          >
+            <ChevronLeft size={14} aria-hidden="true" />
+            All results
+          </button>
+          <span aria-hidden="true" className="stsg-summary__sep">
+            /
+          </span>
+          <strong>{expandedTotal}</strong>
+          {expandedTotal === 1 ? ' record' : ' records'} in{' '}
+          <span className="stsg-summary__term">
+            {descriptorFor(expandedObject, catalogue).labelPlural}
+          </span>{' '}
+          for{' '}
+          <span className="stsg-summary__term">&ldquo;{query}&rdquo;</span>
+        </p>
+      ) : hasQuery && !searchError && total > 0 ? (
         <p className="stsg-summary">
           <strong>{total}</strong>
           {total === 1 ? ' result' : ' results'} for{' '}
@@ -572,6 +823,20 @@ export default function SabcrmSearchPage(): React.JSX.Element {
             </p>
           </div>
         )
+      ) : expandedObject ? (
+        <ExpandedResults
+          slug={expandedObject}
+          object={objectsBySlug.get(expandedObject)}
+          descriptor={descriptorFor(expandedObject, catalogue)}
+          records={expandedRecords}
+          total={expandedTotal}
+          page={expandedPage}
+          loading={expandedLoading}
+          error={expandedError}
+          query={query}
+          onPage={setExpandedPage}
+          onBack={closeExpanded}
+        />
       ) : searching && groups.length === 0 ? (
         <ResultsSkeleton />
       ) : groups.length === 0 ? (
@@ -586,6 +851,43 @@ export default function SabcrmSearchPage(): React.JSX.Element {
         </div>
       ) : (
         <div className="stw-groups" id="stsg-results" role="listbox" ref={listRef}>
+          {/* Command-style verbs (Create … / Go to settings) above results. */}
+          {verbs.length > 0 ? (
+            <section className="stw-group stsg-verbs" aria-label="Actions">
+              <header className="stw-group__head">
+                <Command size={15} aria-hidden="true" />
+                Actions
+              </header>
+              <ul className="stw-hits">
+                {verbs.map((verb, i) => {
+                  const VerbIcon = verb.icon;
+                  const active = i === activeIndex;
+                  return (
+                    <li key={verb.key}>
+                      <Link
+                        id={`stsg-nav-${i}`}
+                        data-nav-index={i}
+                        data-active={active}
+                        role="option"
+                        aria-selected={active}
+                        href={verb.href}
+                        className="stw-hit stsg-hit stsg-verb"
+                        onMouseEnter={() => setActiveIndex(i)}
+                      >
+                        <span className="stsg-verb__icon" aria-hidden="true">
+                          <VerbIcon size={16} />
+                        </span>
+                        <span className="stsg-hit__body">
+                          <span className="stw-hit__label">{verb.label}</span>
+                        </span>
+                        <span className="stw-hit__kind">{verb.kind}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ) : null}
           {groups.map((group) => {
             const { descriptor } = group;
             const Icon = descriptor.icon;
@@ -605,23 +907,25 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                 </header>
                 <ul className="stw-hits">
                   {preview.map((hit) => {
-                    // Resolve this hit's slot in the flattened keyboard list.
+                    // Resolve this hit's slot in the flattened keyboard list,
+                    // then offset by the verb rows that precede the hits.
                     const flat = flatHits.find(
                       (f) => f.hit.object === hit.object && f.hit.id === hit.id,
                     );
-                    const flatIndex = flat?.index ?? -1;
-                    const active = flatIndex === activeIndex;
+                    const navIndex =
+                      flat ? verbs.length + flat.index : -1;
+                    const active = navIndex >= 0 && navIndex === activeIndex;
                     return (
                       <li key={`${hit.object}:${hit.id}`}>
                         <Link
-                          id={`stsg-hit-${flatIndex}`}
-                          data-hit-index={flatIndex}
+                          id={`stsg-nav-${navIndex}`}
+                          data-nav-index={navIndex}
                           data-active={active}
                           role="option"
                           aria-selected={active}
                           href={`${CRM_BASE_PATH}/${hit.object}/${hit.id}`}
                           className="stw-hit stsg-hit"
-                          onMouseEnter={() => setActiveIndex(flatIndex)}
+                          onMouseEnter={() => setActiveIndex(navIndex)}
                           onClick={() => rememberSearch(query)}
                         >
                           <TwentyAvatar
@@ -650,15 +954,17 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                     );
                   })}
                 </ul>
-                {overflow > 0 ? (
-                  <Link
-                    href={`${CRM_BASE_PATH}/${descriptor.slug}`}
-                    className="stsg-group__more"
-                  >
-                    View all {group.hits.length} in {descriptor.labelPlural}
-                    <ArrowRight size={13} aria-hidden="true" />
-                  </Link>
-                ) : null}
+                <button
+                  type="button"
+                  className="stsg-group__more"
+                  onClick={() => openExpanded(descriptor.slug)}
+                  aria-label={`See all results in ${descriptor.labelPlural}`}
+                >
+                  {overflow > 0
+                    ? `See all in ${descriptor.labelPlural}`
+                    : `See all ${group.hits.length} in ${descriptor.labelPlural}`}
+                  <ArrowRight size={13} aria-hidden="true" />
+                </button>
               </section>
             );
           })}
@@ -693,6 +999,153 @@ function ResultsSkeleton(): React.JSX.Element {
           />
         </div>
       ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Expanded ("See all N") full paginated result list for one object
+// ---------------------------------------------------------------------------
+
+interface ExpandedResultsProps {
+  slug: string;
+  object: ObjectMetadata | undefined;
+  descriptor: ObjectDescriptor;
+  records: SabcrmRustRecord[];
+  total: number;
+  page: number;
+  loading: boolean;
+  error: string | null;
+  query: string;
+  onPage: (page: number) => void;
+  onBack: () => void;
+}
+
+/**
+ * The "See all N" experience: a full, paginated record list for a single object
+ * filtered by the active query — fetched through `listSabcrmRecordsTw` (the real
+ * records engine, not the capped global-search preview). Each row links to the
+ * record's detail page. Twenty look only (`.st-*` / `.stw-*` + `.stsg-*`).
+ */
+function ExpandedResults({
+  slug,
+  object,
+  descriptor,
+  records,
+  total,
+  page,
+  loading,
+  error,
+  query,
+  onPage,
+  onBack,
+}: ExpandedResultsProps): React.JSX.Element {
+  const Icon = descriptor.icon;
+  const shape: TwentyAvatarShape = ROUND_AVATAR_OBJECTS.has(slug)
+    ? 'round'
+    : 'square';
+  const totalPages = Math.max(1, Math.ceil(total / EXPANDED_PAGE_SIZE));
+  const from = total === 0 ? 0 : (page - 1) * EXPANDED_PAGE_SIZE + 1;
+  const to = Math.min(page * EXPANDED_PAGE_SIZE, total);
+
+  if (error) {
+    return (
+      <div className="st-banner stsg-degraded" role="alert">
+        <AlertTriangle size={16} className="st-banner__icon" aria-hidden="true" />
+        <span>{error}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="stw-groups" id="stsg-results">
+      <section className="stw-group">
+        <header className="stw-group__head">
+          <Icon size={15} aria-hidden="true" />
+          {descriptor.labelPlural}
+          <span className="stw-group__count">{total}</span>
+        </header>
+
+        {loading && records.length === 0 ? (
+          <ResultsSkeleton />
+        ) : records.length === 0 ? (
+          <div className="st-empty">
+            <span className="st-empty__icon" aria-hidden="true">
+              <Database size={20} />
+            </span>
+            <p className="st-empty__title">No matching {descriptor.labelPlural}</p>
+            <p className="st-empty__desc">
+              Nothing in {descriptor.labelPlural} matches &ldquo;{query}&rdquo;.
+            </p>
+          </div>
+        ) : (
+          <ul className="stw-hits" role="listbox">
+            {records.map((record) => {
+              const label = recordLabel(object, record);
+              return (
+                <li key={record.id}>
+                  <Link
+                    role="option"
+                    href={`${CRM_BASE_PATH}/${slug}/${record.id}`}
+                    className="stw-hit stsg-hit"
+                  >
+                    <TwentyAvatar
+                      name={label}
+                      size="sm"
+                      shape={shape}
+                      className="stsg-hit__avatar"
+                    />
+                    <span className="stsg-hit__body">
+                      <span className="stw-hit__label">
+                        {highlight(label, query)}
+                      </span>
+                    </span>
+                    <span className="stw-hit__kind">
+                      {descriptor.labelSingular}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Pager + back affordance. */}
+        <div className="stsg-pager">
+          <button type="button" className="stsg-pager__back" onClick={onBack}>
+            <ChevronLeft size={13} aria-hidden="true" />
+            Back to all results
+          </button>
+          {total > 0 ? (
+            <div className="stsg-pager__nav">
+              <span className="stsg-pager__range">
+                {from}&ndash;{to} of {total}
+              </span>
+              <button
+                type="button"
+                className="stsg-pager__btn"
+                disabled={page <= 1 || loading}
+                onClick={() => onPage(Math.max(1, page - 1))}
+                aria-label="Previous page"
+              >
+                <ChevronLeft size={14} aria-hidden="true" />
+              </button>
+              <span className="stsg-pager__page">
+                {page} / {totalPages}
+              </span>
+              <button
+                type="button"
+                className="stsg-pager__btn"
+                disabled={page >= totalPages || loading}
+                onClick={() => onPage(Math.min(totalPages, page + 1))}
+                aria-label="Next page"
+              >
+                <ChevronRight size={14} aria-hidden="true" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 }
