@@ -376,13 +376,17 @@
   flex-direction: column;
   flex: 0 0 var(--st-sidebar-width);
   width: var(--st-sidebar-width);
-  height: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 0;
   position: sticky;
   top: 0;
   background: var(--st-sidebar-bg);
   border-right: 1px solid var(--st-border);
   padding: var(--st-space-2);
-  overflow-y: auto;
+  /* The inner __scroll handles overflow; keeping it off the sidebar itself
+     stops the margin-top:auto footer from overlapping the list when long. */
+  overflow: hidden;
 }
 
 .st-sidebar__scroll {
@@ -391,11 +395,15 @@
   gap: 2px;
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .st-sidebar__footer {
-  margin-top: auto;
+  flex: 0 0 auto;
   padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border);
+  margin-top: var(--st-space-1);
 }
 
 /* ----- Workspace switcher ----- */

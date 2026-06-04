@@ -242,7 +242,10 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     const objectRows: NavItem[] =
       objects && objects.length > 0
         ? objects
-            .filter((o) => !o.isSystem)
+            // Hide system objects, and the renamed-away `opportunities` slug
+            // (it's now `leads`) so a stale persisted copy never double-lists
+            // alongside Leads until the data migration runs.
+            .filter((o) => !o.isSystem && o.slug !== 'opportunities')
             .map((o) => ({
               slug: o.slug,
               label: o.labelPlural || o.slug,
