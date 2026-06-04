@@ -72,6 +72,14 @@ import {
 import { TwentyChip } from '@/components/sabcrm/twenty/twenty-primitives';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
+// Twenty record-show building blocks (the LEFT field panel + the MAIN tabbed
+// area). These are the Twenty-faithful primitives the record page is wired to:
+// `RecordFieldPanel` renders the left-column label→value field list with inline
+// edit + system-field grouping; `RecordDetailTabs` renders the tabbed activity
+// area (Timeline / Notes / Tasks / Relations / Files), self-loading through the
+// same gated actions.
+import { RecordFieldPanel } from '@/components/sabcrm/twenty/record-field-panel';
+import { RecordDetailTabs } from '@/components/sabcrm/twenty/record-detail-tabs';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import {
   updateSabcrmRecordTw,
@@ -4160,27 +4168,28 @@ export function RecordDetailTw({
         </div>
       )}
 
-      <div className="st-detail-grid">
-        {/* Main column — field list, grouped into labelled sections */}
-        <section className="st-panel" aria-label="Record fields">
+      <div className="st-detail-grid st-detail-grid--show">
+        {/* LEFT field panel — Twenty's record-show left column: every field as a
+            label→value row with inline edit + system-field grouping. Wires the
+            existing optimistic `handleCommit` (→ gated `updateSabcrmRecordTw`)
+            through; `canEdit` is on (the page is the editable record view). */}
+        <section className="st-panel st-show-fields" aria-label="Record fields">
           <div className="st-panel__head">Details</div>
-          <div className="st-panel__body">
-            {fieldSections.map((section) => (
-              <CollapsibleFieldSection
-                key={section.label}
-                label={section.label}
-                fields={section.fields}
-                collapsed={!!collapsedSections[section.label]}
-                onToggle={() => toggleSection(section.label)}
-                record={record}
-                onCommit={handleCommit}
-              />
-            ))}
+          <div className="st-panel__body st-show-fields__body">
+            <RecordFieldPanel
+              object={object}
+              record={record}
+              onUpdate={handleCommit}
+              canEdit
+            />
           </div>
         </section>
 
-        {/* Right rail — saved page-layout when present, else the fixed tabs */}
-        <aside className="st-panel" aria-label="Record sections">
+        {/* MAIN tabbed area — saved page-layout when present, else the
+            Twenty-faithful `<RecordDetailTabs>` (Timeline / Notes / Tasks /
+            Relations / Files). The page-layout path is the richer authored
+            experience and is preserved verbatim. */}
+        <aside className="st-panel st-show-main" aria-label="Record sections">
           <div className="st-panel__body">
             <DetailsSummary fields={editableFields} record={record} />
 
@@ -4229,54 +4238,16 @@ export function RecordDetailTw({
                 </div>
               </>
             ) : (
-              // --- Fixed-tab fallback (today's behavior, zero change) ---
-              <>
-                <TabStrip active={tab} onSelect={setTab} counts={tabCounts} />
-
-                {tab === 'fields' && (
-                  <div
-                    className="rt-panel"
-                    role="tabpanel"
-                    aria-label="Fields summary"
-                  >
-                    {renderFieldsPanel()}
-                  </div>
-                )}
-
-                {tab === 'notes' && (
-                  <div className="rt-panel" role="tabpanel" aria-label="Notes">
-                    {renderNotesPanel()}
-                  </div>
-                )}
-
-                {tab === 'tasks' && (
-                  <div className="rt-panel" role="tabpanel" aria-label="Tasks">
-                    {renderTasksPanel()}
-                  </div>
-                )}
-
-                {tab === 'activity' && (
-                  <div
-                    className="rt-panel"
-                    role="tabpanel"
-                    aria-label="Activity timeline"
-                  >
-                    {renderTimelinePanel()}
-                  </div>
-                )}
-
-                {tab === 'files' && (
-                  <div className="rt-panel" role="tabpanel" aria-label="Files">
-                    {renderFilesPanel()}
-                  </div>
-                )}
-
-                {tab === 'emails' && (
-                  <div className="rt-panel" role="tabpanel" aria-label="Emails">
-                    <EmailsPanel />
-                  </div>
-                )}
-              </>
+              // --- Twenty-faithful tabbed main area (no saved layout) ---
+              // `<RecordDetailTabs>` is the Twenty record-show main panel:
+              // Timeline / Notes / Tasks / Relations / Files, each tab loading
+              // lazily through the same gated actions. It is self-contained and
+              // never throws (engine-down degrades to muted states).
+              <RecordDetailTabs
+                object={object}
+                recordId={record.id}
+                projectId={projectId ?? undefined}
+              />
             )}
           </div>
         </aside>

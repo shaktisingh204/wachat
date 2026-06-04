@@ -1,0 +1,81 @@
+/* =========================================================================
+   SabCRM — Twenty record FIELD PANEL styles.
+
+   Scoped to the `.st-rfp*` prefix used by `record-field-panel.tsx`. Plain CSS,
+   Twenty look only — no ZoruUI / Tailwind / clay. Reuses the shared
+   `.st-field-row*` / `.st-cell-*` classes from `sabcrm-twenty.css` and the
+   `--st-*` design tokens (do NOT redeclare those here).
+   ========================================================================= */
+
+.st-rfp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  min-width: 0;
+}
+
+/* A labelled group of field rows. */
+.st-rfp__group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Small uppercase section heading (matches Twenty's group labels). */
+.st-rfp__group-head {
+  padding: var(--st-space-2) 0;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* The system group sits below the main list, set off by a divider + a slightly
+   muted treatment so it reads as metadata rather than primary fields. */
+.st-rfp__group--system {
+  border-top: 1px solid var(--st-border-light);
+  padding-top: var(--st-space-1);
+}
+
+.st-rfp__group--system .st-field-row__val {
+  color: var(--st-text-secondary);
+}
+
+/* Honest empty state when an object has no (non-system) fields. */
+.st-rfp__empty {
+  padding: var(--st-space-4) 0;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+/* -------------------------------------------------------------------------
+   Field row — icon + label on the left, value on the right. Builds on the
+   shared `.st-field-row` grid; we only adjust the label cell to seat the icon.
+   ------------------------------------------------------------------------- */
+
+.st-rfp-row__key {
+  /* `.st-field-row__key` already lays out as an inline-flex with a 6px gap; we
+     keep the icon from shrinking and clamp the label so long labels ellipsize
+     rather than push the value column. */
+  overflow: hidden;
+}
+
+.st-rfp-row__icon {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+.st-rfp-row__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-rfp-row__val {
+  /* Inherit the shared value-cell rules; this hook lets the panel tune the
+     value column independently of the detail page if ever needed. */
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}

@@ -25,3 +25,8 @@ export {
 export type { TwentyCommandMenuProps } from './twenty-command-menu';
 export { useCommandMenu, default as useCommandMenuDefault } from './use-command-menu';
 export type { UseCommandMenuResult } from './use-command-menu';
+export {
+  RecordFieldPanel,
+  default as RecordFieldPanelDefault,
+} from './record-field-panel';
+export type { RecordFieldPanelProps } from './record-field-panel';
