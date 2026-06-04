@@ -202,6 +202,54 @@ export async function getEffectivePermissionsForProject(
 }
 
 /**
+ * Resolve the effective PLAN FEATURE flags (e.g. `crmDashboard`) for the active
+ * tenant. Plan features gate premium modules; for a team member the relevant
+ * plan is the OWNER's (the account they were invited into), NOT their own
+ * personal plan — otherwise members get "Premium Feature" upsells for a plan
+ * they can't even buy. Mirrors the owner-resolution in
+ * `getEffectivePermissionsForProject`.
+ */
+export async function getEffectivePlanFeaturesForProject(
+    projectId?: string | null,
+): Promise<Record<string, any>> {
+    const session = await getSession();
+    if (!session?.user) return {};
+    const ownFeatures = (((session.user as any)?.plan?.features) ?? {}) as Record<string, any>;
+
+    const { db } = await connectToDatabase();
+    const sessionUserId = new ObjectId(session.user._id);
+    const scopedProjectId = projectId || (session.user as any)?.activeProjectId;
+
+    // No project scope → acting in own account; own plan applies.
+    if (!scopedProjectId || !ObjectId.isValid(String(scopedProjectId))) {
+        return ownFeatures;
+    }
+
+    const project = await db.collection('projects').findOne(
+        { _id: new ObjectId(String(scopedProjectId)) },
+        { projection: { userId: 1 } },
+    );
+    if (!project) return ownFeatures;
+    // Owner of this project → own plan.
+    if (project.userId.equals(sessionUserId)) return ownFeatures;
+
+    // Team member → inherit the OWNER's plan features (the account they joined).
+    const owner = await db.collection('users').findOne(
+        { _id: project.userId },
+        { projection: { planId: 1 } },
+    );
+    const ownerPlanId = (owner as any)?.planId;
+    if (!ownerPlanId) return {};
+    const plan = await db.collection('plans').findOne(
+        ObjectId.isValid(String(ownerPlanId))
+            ? { _id: new ObjectId(String(ownerPlanId)) }
+            : ({ _id: ownerPlanId } as any),
+        { projection: { features: 1 } },
+    );
+    return (((plan as any)?.features) ?? {}) as Record<string, any>;
+}
+
+/**
  * Server-side enforcement wrapper. Returns a discriminated result so callers
  * can convert to whatever error shape they already use (server actions return
  * {error}, route handlers return 403, etc.).
