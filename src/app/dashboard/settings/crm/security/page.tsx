@@ -80,6 +80,7 @@ import {
   signOutEverywhere,
 } from '@/app/actions/account.actions';
 import { handleChangePassword } from '@/app/actions/user.actions';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
@@ -117,6 +118,15 @@ function coercePrefs(raw: unknown): SecurityPrefs {
   };
 }
 
+/**
+ * Coerce a server-stored `security` slice into prefs, or `null` when there is
+ * no usable object (so the sync layer doesn't adopt over the local defaults).
+ */
+function coercePrefsOrNull(raw: unknown): SecurityPrefs | null {
+  if (!raw || typeof raw !== 'object') return null;
+  return coercePrefs(raw);
+}
+
 function readStored(): SecurityPrefs {
   if (typeof window === 'undefined') return DEFAULT_PREFS;
   try {
@@ -146,19 +156,35 @@ interface UseSecurityPrefsResult {
 function useSecurityPrefs(): UseSecurityPrefsResult {
   const [prefs, setPrefsState] = React.useState<SecurityPrefs>(DEFAULT_PREFS);
   const [hydrated, setHydrated] = React.useState(false);
+  // Server persistence via the typed `security` section (ipAllowlist +
+  // emailDomains). localStorage stays the instant cache; the server copy
+  // follows the workspace across devices. Fails closed (engine down → cache).
+  const sync = useSettingsSync<SecurityPrefs>('security', coercePrefsOrNull);
 
   React.useEffect(() => {
     setPrefsState(readStored());
     setHydrated(true);
   }, []);
 
-  const setPrefs = React.useCallback((patch: Partial<SecurityPrefs>) => {
-    setPrefsState((prev) => {
-      const next = { ...prev, ...patch };
-      writeStored(next);
-      return next;
-    });
-  }, []);
+  // Adopt the server-stored prefs as the source of truth once resolved.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setPrefsState(sync.remote);
+    writeStored(sync.remote);
+  }, [sync.phase, sync.remote]);
+
+  const setPrefs = React.useCallback(
+    (patch: Partial<SecurityPrefs>) => {
+      setPrefsState((prev) => {
+        const next = { ...prev, ...patch };
+        writeStored(next);
+        // Persist server-side (fire-and-forget; validated by the engine).
+        void sync.save(next);
+        return next;
+      });
+    },
+    [sync],
+  );
 
   return { prefs, setPrefs, hydrated };
 }

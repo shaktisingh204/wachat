@@ -54,6 +54,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
@@ -249,6 +250,19 @@ function writeInstalled(apps: InstalledApp[]): void {
   } catch {
     /* storage unavailable (private mode / quota) — non-fatal */
   }
+}
+
+/** Coerce a raw server slice into a clean InstalledApp array (or null). */
+function coerceInstalledApps(raw: unknown): InstalledApp[] | null {
+  if (!Array.isArray(raw)) return null;
+  return raw.filter(
+    (x): x is InstalledApp =>
+      !!x &&
+      typeof x === 'object' &&
+      typeof (x as InstalledApp).id === 'string' &&
+      typeof (x as InstalledApp).name === 'string' &&
+      typeof (x as InstalledApp).installedAt === 'string',
+  );
 }
 
 /** Formats an ISO timestamp into a short, locale-aware label; falls back to raw. */
@@ -717,11 +731,19 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
   // Hydrate from localStorage after mount to keep SSR output deterministic.
   const [installed, setInstalled] = React.useState<InstalledApp[]>([]);
   const [hydrated, setHydrated] = React.useState(false);
+  const sync = useSettingsSync<InstalledApp[]>('installedApps', coerceInstalledApps);
 
   React.useEffect(() => {
     setInstalled(readInstalled());
     setHydrated(true);
   }, []);
+
+  // When the server resolves a stored list, adopt it as the source of truth.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setInstalled(sync.remote);
+    writeInstalled(sync.remote);
+  }, [sync.phase, sync.remote]);
 
   const handleAdd = React.useCallback((name: string) => {
     setInstalled((prev) => {
@@ -737,17 +759,19 @@ export default function SabcrmApplicationsSettingsPage(): React.JSX.Element {
         ...prev,
       ];
       writeInstalled(next);
+      void sync.save(next);
       return next;
     });
-  }, []);
+  }, [sync]);
 
   const handleRemove = React.useCallback((id: string) => {
     setInstalled((prev) => {
       const next = prev.filter((a) => a.id !== id);
       writeInstalled(next);
+      void sync.save(next);
       return next;
     });
-  }, []);
+  }, [sync]);
 
   // Active tab (Twenty: Marketplace / Installed / Developer) + detail drawer.
   const [activeTab, setActiveTab] = React.useState<AppsTabId>('marketplace');

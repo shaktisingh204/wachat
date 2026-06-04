@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
@@ -49,9 +50,10 @@ import './admin.css';
 // ---------------------------------------------------------------------------
 // Local admin-panel store
 //
-// Self-contained localStorage shim — these settings have no backend, so they
-// live on the device. Fails closed: SSR / private-mode / quota errors fall back
-// to defaults and never throw.
+// localStorage is used as an instant device cache; the canonical copy lives in
+// the per-project CRM settings document on the server (section key 'admin'),
+// synced via useSettingsSync. Fails closed: SSR / private-mode / quota errors
+// fall back to defaults and never throw.
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY = 'sabcrm.admin.v1';
@@ -61,7 +63,7 @@ interface AdminLocalState {
   config: Record<string, string>;
   /** AI provider id (e.g. 'openai'). */
   aiProvider: string;
-  /** AI provider API key — stored locally only. */
+  /** AI provider API key — stored server-side, tenant-scoped (no encryption). */
   aiApiKey: string;
 }
 
@@ -70,6 +72,24 @@ const DEFAULT_STATE: AdminLocalState = {
   aiProvider: 'openai',
   aiApiKey: '',
 };
+
+/** Coerce the raw server slice into a typed AdminLocalState (or null). */
+function coerceAdmin(raw: unknown): AdminLocalState | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  return {
+    config:
+      o.config && typeof o.config === 'object' && !Array.isArray(o.config)
+        ? (o.config as Record<string, string>)
+        : DEFAULT_STATE.config,
+    aiProvider:
+      typeof o.aiProvider === 'string' && o.aiProvider
+        ? o.aiProvider
+        : DEFAULT_STATE.aiProvider,
+    aiApiKey:
+      typeof o.aiApiKey === 'string' ? o.aiApiKey : DEFAULT_STATE.aiApiKey,
+  };
+}
 
 function readStored(): Partial<AdminLocalState> {
   if (typeof window === 'undefined') return {};
@@ -582,8 +602,9 @@ export default function SabcrmAdminPanelPage(): React.JSX.Element {
   const [tab, setTab] = React.useState<TabId>('health');
   const [state, setState] = React.useState<AdminLocalState>(DEFAULT_STATE);
   const [hydrated, setHydrated] = React.useState(false);
+  const sync = useSettingsSync<AdminLocalState>('admin', coerceAdmin);
 
-  // Hydrate local state after mount so SSR and first client render agree.
+  // Hydrate local state from localStorage after mount (instant, SSR-safe).
   React.useEffect(() => {
     const stored = readStored();
     setState({
@@ -594,10 +615,19 @@ export default function SabcrmAdminPanelPage(): React.JSX.Element {
     setHydrated(true);
   }, []);
 
+  // When the server resolves a stored slice, adopt it as the source of truth.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setState(sync.remote);
+    writeStored(sync.remote);
+  }, [sync.phase, sync.remote]);
+
   const persist = React.useCallback((next: AdminLocalState) => {
     writeStored(next);
     setState(next);
-  }, []);
+    // Persist to the per-project settings document (tenant-scoped, server-side).
+    void sync.save(next);
+  }, [sync]);
 
   const handleConfigChange = React.useCallback(
     (key: string, value: string) => {
@@ -607,10 +637,12 @@ export default function SabcrmAdminPanelPage(): React.JSX.Element {
           config: { ...prev.config, [key]: value },
         };
         writeStored(next);
+        // Persist config overrides to the server (fire-and-forget).
+        void sync.save(next);
         return next;
       });
     },
-    [],
+    [sync],
   );
 
   const handleAiSave = React.useCallback(

@@ -278,6 +278,9 @@ pub struct SecuritySettings {
     /// Optional IP allow-list (CIDR / plain IPs, validated by the auth layer).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_allowlist: Option<Vec<String>>,
+    /// Optional approved sign-up email domains (e.g. `acme.com`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email_domains: Option<Vec<String>>,
 }
 
 impl SecuritySettings {
@@ -295,6 +298,17 @@ impl SecuritySettings {
             }
             if list.iter().any(|e| e.trim().is_empty()) {
                 return Err("ipAllowlist entries cannot be empty.".to_owned());
+            }
+        }
+        if let Some(domains) = &self.email_domains {
+            if domains.len() > 256 {
+                return Err("emailDomains cannot exceed 256 entries.".to_owned());
+            }
+            if domains.iter().any(|d| d.trim().is_empty() || d.contains('@')) {
+                return Err(
+                    "emailDomains entries must be bare domains (no '@'), non-empty."
+                        .to_owned(),
+                );
             }
         }
         Ok(())
