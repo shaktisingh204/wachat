@@ -532,38 +532,115 @@ Gets a thread and all its messages with parts sorted by order index; validates w
 `file:admin-panel-chat.service.ts:28`, `async (workspaceId: string) → Promise<void>`, line 28-43
 Checks workspace exists and has allowImpersonation flag; throws UserInputError if not.
 
+## admin-panel/indicators/redis.health.ts
+
+### isHealthy (RedisHealthIndicator)
+`file:redis.health.ts:23`, `async () → Promise<HealthIndicatorResult>`, line 23-118
+Runs four Redis `INFO` calls (server, memory, clients, stats) in parallel under a timeout; parses the `key:value\r\n` blocks into a details object (version, uptime in hours, memory used/peak/fragmentation, current/total/rejected connections, ops-per-second, keyspace hit-rate %, evicted/expired keys, replication role + slaves). On success records state and returns `up`; on timeout/connection failure returns `down` with the last known state and its age.
+
+## admin-panel/indicators/connected-account.health.ts
+
+### isHealthy (ConnectedAccountHealth)
+`file:connected-account.health.ts:120`, `async () → Promise<HealthIndicatorResult>`, line 120-157
+Runs message-sync and calendar-sync sub-checks in parallel; returns `down` (with a combined error if both fail) when either is down, else `up`, embedding both sub-results in details.
+
+### checkMessageSyncHealth (private)
+`file:connected-account.health.ts:22`, `async () → Promise<HealthIndicatorResult>`, line 22-69
+Groups message-sync metrics by status under a timeout, computes total/failed job counts and a rounded failure rate; returns `up` when no jobs or below the failure-rate threshold, else `down` (HIGH_FAILURE_RATE); maps timeouts vs. generic failures on error.
+
+### checkCalendarSyncHealth (private)
+`file:connected-account.health.ts:71`, `async () → Promise<HealthIndicatorResult>`, line 71-118
+Identical logic to checkMessageSyncHealth but for calendar-sync metrics.
+
+## admin-panel/indicators/app.health.ts
+
+### isHealthy (AppHealthIndicator)
+`file:app.health.ts:24`, `async () → Promise<HealthIndicatorResult>`, line 24-59
+Counts total workspaces (placeholder for per-workspace app-versioning health), reports node version + timestamp and a workspace overview; records state and returns `up`, or `down` with the last state + age on error.
+
+## admin-panel/utils/health-check-timeout.util.ts
+
+### withHealthCheckTimeout
+`file:health-check-timeout.util.ts:3`, `<T>(promise: Promise<T>, errorMessage: string) → Promise<T>`, line 3-16
+Races the given promise against a `HEALTH_INDICATORS_TIMEOUT` timer that rejects with the supplied error message — used by every health indicator to bound external calls.
+
+## audit/utils/analytics.utils.ts
+
+### makePageview
+`file:analytics.utils.ts:22`, `(name: string, properties?: Partial<PageviewProperties>) → parsed pageview event`, line 22-32
+Builds and zod-parses a `type:'page'` event with the name, properties, and common fields (timestamp formatted `yyyy-MM-dd HH:mm:ss`, version `'1'`).
+
+### makeTrackEvent
+`file:analytics.utils.ts:34`, `<T extends TrackEventName>(event: T, properties: TrackEventProperties<T>) → GenericTrackEvent<T>`, line 34-50
+Looks up the event's registered schema (throws if not implemented) and zod-parses a `type:'track'` event with the event name, properties, and common fields.
+
+### common (private)
+`file:analytics.utils.ts:17`, `() → {timestamp, version}`, line 17-20
+Returns the shared timestamp + version fields stamped on every audit event.
+
+## audit/utils/events/workspace-event/track.ts
+
+### registerEvent
+`file:track.ts:26`, `<E, S extends z.ZodObject>(event: E, schema: S) → void`, line 26-31
+Merges the per-event schema with `genericTrackSchema` and stores it in the module-level `eventsRegistry` Map. Each event file (object-record-created/updated/deleted/upserted, pageview, user-signup, workspace-created, payment-received, custom-domain activated/deactivated, logic-function-executed, monitoring, webhook-response, workspace-entity-created) calls this at import time, registering its zod schema keyed by event name. `genericTrackSchema` extends `baseEventSchema` with `type:'track'`, `event`, and free-form `properties`; `GenericTrackEvent<E>` is the inferred shape.
+
+## audit/utils/events/common/base-schemas.ts
+
+### baseEventSchema
+`file:base-schemas.ts:3`, `z.strictObject({timestamp, userId?, workspaceId?, version})`, line 3-8
+The common zod base every audit/pageview event schema extends.
+
+## audit/utils/events/pageview/pageview.ts
+
+### pageviewSchema
+`file:pageview.ts:5`, `baseEventSchema.extend({type:'page', name, properties})`, line 5-17
+Pageview schema; `properties` carries optional href/locale/pathname/referrer/sessionId/timeZone/userAgent (all defaulting to `''`). `PageviewProperties` is the inferred properties type.
+
+## audit/utils/events/object-event/*.ts
+
+### object-record event schemas (registered)
+`file:object-record-created.ts:6` (and object-record-updated/delete/upserted)
+Each defines a zod schema (`event` literal + loose `properties`) and calls `registerEvent(...)` at import to register it in `eventsRegistry`. Constants: `OBJECT_RECORD_CREATED_EVENT` = `'Object Record Created'`, plus the Updated/Deleted/Upserted equivalents. These names are the events emitted by `create-audit-log-from-internal-event.ts`.
+
+## event-logs/cleanup/jobs/event-log-cleanup.job.ts
+
+### handle (EventLogCleanupJob)
+`file:event-log-cleanup.job.ts:25`, `async (data: EventLogCleanupJobData) → Promise<void>`, line 25-40
+Enterprise-licensed BullMQ workspaceQueue processor; delegates to `EventLogCleanupService.cleanupWorkspaceEventLogs` with the workspace's `eventLogRetentionDays`; logs + rethrows on failure. `EventLogCleanupJobData = {workspaceId, eventLogRetentionDays}`.
+
+## event-logs/cleanup/commands/event-log-cleanup.cron.command.ts
+
+### run (EventLogCleanupCronCommand)
+`file:event-log-cleanup.cron.command.ts:24`, `async () → Promise<void>`, line 24-34
+`nest-commander` command `cron:event-log-cleanup`; registers the repeating `EventLogCleanupCronJob` on the cronQueue with `EVENT_LOG_CLEANUP_CRON_PATTERN`.
+
+## event-logs/filters/forbidden-exception-graphql.filter.ts
+
+### catch (ForbiddenExceptionGraphqlFilter)
+`file:forbidden-exception-graphql.filter.ts:13`, `catch(exception: ForbiddenException) → throws AuthenticationError`, line 13-17
+Converts a Nest `ForbiddenException` into a GraphQL `AuthenticationError` with a Lingui "Authentication required." user-friendly message.
+
+## exception-handler/exception-handler.module-factory.ts
+
+### exceptionHandlerModuleFactory
+`file:exception-handler.module-factory.ts:15`, `async (twentyConfigService, adapterHost) → Promise<OPTIONS_TYPE>`, line 15-45
+Reads `EXCEPTION_HANDLER_DRIVER`; returns CONSOLE options, or SENTRY options (environment, release=APP_VERSION, dsn, the HTTP server instance, debug in dev); throws for an invalid driver type.
+
+## exception-handler/hooks/use-sentry-tracing.ts
+
+### useSentryTracing
+`file:use-sentry-tracing.ts:11`, `<PluginContext extends GraphQLContext>() → Plugin<PluginContext>`, line 11-58
+Envelop GraphQL plugin: on each execute, sets Sentry transaction name (operationName), operation-type tags, the user/workspace scope, and attaches the printed GraphQL document as a Sentry extra.
+
+## exception-handler/mocks/exception-handler-mock.service.ts
+
+### captureExceptions (ExceptionHandlerMockService)
+`file:exception-handler-mock.service.ts:9`, `(exceptions, options?) → string[]`, line 9-15
+Test/mock driver implementing ExceptionHandlerDriverInterface; returns one `'mocked-exception-id'` per exception.
+
 ---
 
 ## NOT YET COVERED
 
-The following files exist but were not comprehensively documented due to token/context limitations. They contain primarily type definitions, constants, enums, DTOs, and filters that do not require detailed function documentation:
-
-- admin-panel/types/ (*.type.ts) - Type definitions
-- admin-panel/enums/ (*.enum.ts) - Enum definitions
-- admin-panel/constants/ (*.const.ts) - Constant definitions
-- admin-panel/dtos/ (*.dto.ts, *.input.ts) - Data transfer objects
-- admin-panel/admin-panel.module.ts - Module definition
-- admin-panel/admin-panel.exception.ts - Exception definitions
-- audit/types/ - Type definitions
-- audit/utils/events/ - Event helper builders
-- audit/dtos/ - DTO definitions
-- audit/audit.module.ts - Module definition
-- audit/audit-job.module.ts - Module definition
-- event-logs/dtos/ - DTO definitions
-- event-logs/event-logs.module.ts - Module definition
-- event-logs/filters/forbidden-exception-graphql.filter.ts - Exception filter
-- event-logs/cleanup/jobs/ - Job definition
-- event-logs/cleanup/commands/ - Cron command
-- event-logs/cleanup/module.ts - Module definition
-- exception-handler/interfaces/ - Interface definitions
-- exception-handler/mocks/ - Mock implementations
-- exception-handler/hooks/ - Sentry hook helper
-- exception-handler/module-definition.ts - Module definition
-- exception-handler/module-factory.ts - Module factory
-- exception-handler/module.ts - Module definition
-- exception-handler/constants.ts - Constants
-- admin-panel/indicators/redis.health.ts - Redis health indicator
-- admin-panel/indicators/connected-account.health.ts - Connected account health
-- admin-panel/indicators/app.health.ts - App health indicator
-- admin-panel/utils/health-check-timeout.util.ts - Utility helper
+Only trivial non-logic files remain: type aliases under `admin-panel/types/`, `audit/types/`, `connected-account.health` metric-status constants, enums under `admin-panel/enums/` and `event-logs/dtos/event-log-table.enum.ts`, constants (`*.const.ts`, cron patterns, health error-message/timeout/threshold consts), DTOs/inputs under `*/dtos/`, `*.module.ts` wiring (`admin-panel.module.ts`, `audit.module.ts`, `audit-job.module.ts`, `event-logs.module.ts`, `cleanup/event-log-cleanup.module.ts`, `exception-handler.module.ts`/`module-definition.ts`), exception classes already summarized above, the `exception-handler/interfaces/` interface declarations, and `exception-handler/mocks/mock-unhandled-exception.filter.ts` (a passthrough test filter).
 

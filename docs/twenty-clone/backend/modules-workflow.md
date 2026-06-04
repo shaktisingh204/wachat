@@ -560,20 +560,272 @@ Each tool factory function creates an AI tool definition:
 
 ---
 
+## workflow-version-step (Step Operations, Helpers, Deletion — full coverage)
+
+### workflow-version-step-operations.workspace-service.ts (WorkflowVersionStepOperationsWorkspaceService)
+
+### runWorkflowVersionStepDeletionSideEffects
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:85
+- Signature: `({ step: WorkflowAction, workspaceId: string }) => Promise<void>`
+- Cleans external resources when a step is deleted: for CODE steps deletes the logic function with source; for AI_AGENT steps deletes the agent and, if it had an agent-only role target, deletes that role if now unused.
+
+### runStepCreationSideEffectsAndBuildStep
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:131
+- Signature: `({ type, workspaceId, workflowVersionId, position?, id?, defaultSettings? }) => Promise<{ builtStep: WorkflowAction; additionalCreatedSteps?: WorkflowAction[] }>`
+- Big switch over WorkflowActionType that builds the default step skeleton (BASE_STEP_DEFINITION + per-type default input). CODE creates a new logic function; LOGIC_FUNCTION resolves output schema from a flat logic function; AI_AGENT creates a default agent; ITERATOR and IF_ELSE create extra empty child nodes (returned as `additionalCreatedSteps`). Record steps default `objectName` to first active non-system object. Throws INVALID_REQUEST for unknown types.
+
+### enrichFormStepResponse
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:610
+- Signature: `({ workspaceId, step: WorkflowFormAction, response: object }) => Promise<object>`
+- Runs in system workspace context; for each form RECORD field whose response value has a valid UUID id, fetches the full record (with relations) so the workflow gets the hydrated record instead of just an id. Other values pass through unchanged.
+
+### cloneStep
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:690
+- Signature: `({ step: WorkflowAction, workspaceId }) => Promise<WorkflowAction>`
+- Deep-clones a step with a fresh id, cleared nextStepIds, same position. CODE clones the logic function source; AI_AGENT clones the underlying agent; ITERATOR clears initialLoopStepIds; default just copies.
+
+### markStepAsDuplicate
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:795
+- Signature: `({ step }) => WorkflowAction`
+- Appends " (Duplicate)" to the name and offsets position by DUPLICATED_STEP_POSITION_OFFSET (50,50).
+
+### createEmptyNodeForIteratorStep
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:806
+- Signature: `({ iteratorStepId, workflowVersionId, workspaceId, iteratorPosition? }) => Promise<WorkflowAction>`
+- Creates an EMPTY "Add an Action" node positioned relative to the iterator, sets its nextStepIds back to the iterator (loop-back), and appends it to the version's steps in workspace context.
+
+### createEmptyNodesForIfElseStep
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:873
+- Signature: `({ workflowVersionId, workspaceId, ifElsePosition? }) => Promise<{ ifEmptyNode, elseEmptyNode, ifFilterGroupId, branches }>`
+- Creates two EMPTY nodes (IF and ELSE positions from IF_ELSE_BRANCH_POSITION_OFFSETS), appends them to the version, and returns the two branches (IF branch tied to a new filterGroupId, ELSE branch without filter).
+
+### createDraftStep
+- `file:path:line` workflow-version-step-operations.workspace-service.ts:974
+- Signature: `({ step, workspaceId }) => Promise<WorkflowAction>`
+- Used when duplicating a version: for CODE steps duplicates the logic function source and rewrites logicFunctionId; otherwise returns the step unchanged.
+
+### workflow-version-step-helpers.workspace-service.ts (WorkflowVersionStepHelpersWorkspaceService)
+
+### getValidatedDraftWorkflowVersion
+- `file:path:line` workflow-version-step-helpers.workspace-service.ts:18
+- Signature: `({ workflowVersionId, workspaceId }) => Promise<WorkflowVersionWorkspaceEntity>`
+- Fetches the version (or throws) and asserts it is DRAFT before any structural mutation.
+
+### updateWorkflowVersionStepsAndTrigger
+- `file:path:line` workflow-version-step-helpers.workspace-service.ts:36
+- Signature: `({ workspaceId, workflowVersionId, steps?, trigger? }) => Promise<void>`
+- Persists steps and/or trigger to the workflowVersion row inside workspace context (only fields that are not `undefined` are written).
+
+### workflow-version-step-creation.workspace-service.ts (WorkflowVersionStepCreationWorkspaceService)
+
+### createWorkflowVersionStep
+- `file:path:line` workflow-version-step-creation.workspace-service.ts:26
+- Signature: `({ workspaceId, input: CreateWorkflowVersionStepInput }) => Promise<WorkflowVersionStepChangesDTO>`
+- Validates draft, builds the step (creation side effects), enriches output schema, inserts it via `insertStep` (wiring parent/next edges + any additional created steps), persists, and returns the trigger/steps diff.
+
+### duplicateWorkflowVersionStep
+- `file:path:line` workflow-version-step-creation.workspace-service.ts:104
+- Signature: `({ workspaceId, workflowVersionId, stepId }) => Promise<WorkflowVersionStepChangesDTO>`
+- Finds the step, clones it, marks it as duplicate, inserts it (no parent wiring), persists, returns diff.
+
+### createDraftStep
+- `file:path:line` workflow-version-step-creation.workspace-service.ts:166
+- Signature: `({ step, workspaceId }) => Promise<WorkflowAction>`
+- Thin delegate to operations service's createDraftStep.
+
+### workflow-version-step-update.workspace-service.ts (WorkflowVersionStepUpdateWorkspaceService)
+
+### updateWorkflowVersionStep
+- `file:path:line` workflow-version-step-update.workspace-service.ts:23
+- Signature: `({ workspaceId, workflowVersionId, step }) => Promise<WorkflowActionDTO>`
+- Validates draft and that the step exists. If the step's TYPE changed, runs deletion side effects on the old type and creation side effects on the new (preserving id/position/nextStepIds); otherwise just re-enriches the output schema. Persists merged steps and returns the updated step.
+
+### updateWorkflowVersionStepType (private)
+- `file:path:line` workflow-version-step-update.workspace-service.ts:99
+- Runs deletion side effects for the old step, builds a new step of the new type, then enriches its output schema while keeping the existing id/nextStepIds/position.
+
+### updateWorkflowVersionStepSettings (private)
+- `file:path:line` workflow-version-step-update.workspace-service.ts:146
+- Re-enriches output schema for a settings-only change.
+
+### workflow-version-step-deletion.workspace-service.ts (WorkflowVersionStepDeletionWorkspaceService)
+
+### deleteWorkflowVersionStep
+- `file:path:line` workflow-version-step-deletion.workspace-service.ts:23
+- Signature: `({ workspaceId, workflowVersionId, stepIdToDelete }) => Promise<WorkflowVersionStepChangesDTO>`
+- Validates draft; supports deleting the trigger (TRIGGER_STEP_ID) or a step. Re-wires parent→child edges via `removeStep`, persists, runs deletion side effects for every removed step, returns diff.
+
+### code-step/services/code-step-build.service.ts (CodeStepBuildService)
+
+### createCodeStepLogicFunction
+- `file:path:line` code-step-build.service.ts:21
+- Signature: `({ logicFunctionId, workspaceId }) => Promise<LogicFunction>`
+- Creates a "A Code Step" logic function from source seeded with SEED_WORKFLOW_ACTION_TRIGGER_SETTINGS.
+
+### duplicateCodeStepLogicFunction
+- `file:path:line` code-step-build.service.ts:39
+- Signature: `({ existingLogicFunctionId, workspaceId }) => Promise<{ id: string }>`
+- Duplicates an existing logic function (with its source).
+
+### buildCodeStepsFromSourceForSteps
+- `file:path:line` code-step-build.service.ts:52
+- Signature: `({ workspaceId, steps }) => Promise<void>`
+- Called before execution/activation. Filters CODE steps, looks each logic function up in flat maps, and rebuilds from source any that are not deleted, not already up to date, and belong to a known application. Skips others.
+
+---
+
+## workflow-builder utils (full coverage)
+
+### insertStep (util)
+- `file:path:line` workflow-version-step/utils/insert-step.ts:16
+- Signature: `({ existingSteps, existingTrigger, insertedStep, nextStepId?, parentStepId?, parentStepConnectionOptions? }) => { updatedSteps, updatedInsertedStep, updatedTrigger }`
+- Wires a new step into the graph. If parentStepId is given, updates the parent (trigger or step) nextStepIds (or, with iterator connection options, the iterator's initialLoopStepIds) to point at the new step, removing the old nextStepId edge. The inserted step's nextStepIds become `[nextStepId]` when reconnecting in the middle.
+
+### updateParentStep / updateParentStepNextStepIds / updateStepsWithOptions (private)
+- `file:path:line` workflow-version-step/utils/insert-step.ts:61,99,160
+- Helpers for insertStep: route to connection-option handling vs plain nextStepId update; TRIGGER_STEP_ID updates trigger.nextStepIds; iterator option path mutates initialLoopStepIds.
+
+### removeStep (util)
+- `file:path:line` workflow-version-step/utils/remove-step.ts:229
+- Signature: `({ existingTrigger, existingSteps, stepIdToDelete, stepToDeleteChildrenIds? }) => { updatedSteps, updatedTrigger, removedStepIds }`
+- Removes a step and reconnects its parents to its children. Deleting TRIGGER_STEP_ID nulls the trigger. For IF_ELSE deletions, also removes orphan EMPTY branch nodes and inserts replacement EMPTY nodes so IF/ELSE branches never become empty; prunes empty else-if branches. Iterator initialLoopStepIds and trigger.nextStepIds are likewise rewired.
+
+### getEmptyChildStepIdsForIfElse (util)
+- `file:path:line` workflow-version-step/utils/remove-step.ts:40
+- Returns the IDs of branch child steps that are EMPTY nodes (to be cleaned up when their if-else is deleted).
+
+### computeWorkflowVersionStepChanges (util)
+- `file:path:line` workflow-builder/utils/compute-workflow-version-step-updates.util.ts:7
+- Signature: `({ existingTrigger, existingSteps, updatedTrigger?, updatedSteps? }) => { triggerDiff: Difference[]; stepsDiff: Difference[] }`
+- Uses `microdiff` to compute a minimal diff of trigger and steps so the frontend can patch its local cache instead of refetching.
+
+---
+
+## workflow-executor utils (full coverage)
+
+### formatWorkflowRecordRelationFields (util)
+- `file:path:line` workflow-executor/utils/format-workflow-record-relation-fields.util.ts:24
+- Signature: `(record, objectMetadataInfo) => Record<string, unknown>`
+- For MANY_TO_ONE relation/morph-relation fields whose value is a legacy `{ id }` object, rewrites it to the proper join column (e.g. `companyId`) so record CRUD actions persist correctly.
+
+### resolveRichTextFieldsInRecord (util)
+- `file:path:line` workflow-executor/utils/resolve-rich-text-fields-in-record.util.ts:8
+- Signature: `(objectRecord, objectMetadataInfo, context) => Record<string, unknown>`
+- For each RICH_TEXT field with a `blocknote` string, resolves `{{variable}}` references against the execution context before saving.
+
+### stepHasBeenStarted (util)
+- `file:path:line` workflow-executor/utils/step-has-been-started.util.ts:4
+- Signature: `(stepId, stepInfos) => boolean`
+- True when the step's status exists and is not NOT_STARTED. Used by should-execute/should-fail decisions.
+
+### evaluateFilterConditions (util)
+- `file:path:line` workflow-executor/workflow-actions/filter/utils/evaluate-filter-conditions.util.ts:476
+- Signature: `({ filterGroups?, filters? }) => boolean`
+- Recursively evaluates a tree of StepFilterGroups (AND/OR) and individual filters. Empty config → true. Validates every filter references a known group. Internally dispatches per field type (number, date, text/array, select, boolean, uuid, rating, relation, currency, actor, default) with type-specific operand handling (CONTAINS, IS, IS_EMPTY, IS_RELATIVE date, rating-rank comparison, relation id-only comparison, etc.).
+
+### findMatchingBranch (util)
+- `file:path:line` workflow-executor/workflow-actions/if-else/utils/find-matching-branch.util.ts:40
+- Signature: `({ branches, stepFilterGroups, resolvedFilters }) => StepIfElseBranch`
+- Returns the first branch whose filter group (and all descendant groups) evaluate true; a branch without a filterGroupId is the catch-all ELSE. Throws INTERNAL_ERROR if none match.
+
+### getAllStepIdsInLoop (util)
+- `file:path:line` workflow-executor/workflow-actions/iterator/utils/get-all-step-ids-in-loop.util.ts:84
+- Signature: `({ iteratorStepId, initialLoopStepIds, steps }) => string[]`
+- DFS from the iterator's loop-start nodes, collecting every step inside the loop body. Recurses into nested iterators and if-else branches, stops at edges that connect back to the iterator (loop boundary). Used to scope per-iteration step resets and failure handling.
+
+---
+
+## workflow-trigger utils & cron (full coverage)
+
+### computeCronPatternFromSchedule (util)
+- `file:path:line` workflow-trigger/utils/compute-cron-pattern-from-schedule.ts:24
+- Signature: `(trigger: WorkflowCronTrigger) => string`
+- Converts a structured cron schedule (CUSTOM/DAYS/HOURS/MINUTES) into a 5-field cron string and validates it with cron-parser, throwing WorkflowTriggerException on invalid patterns.
+
+### assertFormStepIsValid (util)
+- `file:path:line` workflow-trigger/utils/assert-form-step-is-valid.util.ts:10
+- Signature: `(settings: WorkflowFormActionSettings) => void`
+- Ensures a form step has at least one field, unique field names, and that every field has a label and type.
+
+### assertVersionCanBeActivated (util)
+- `file:path:line` workflow-trigger/utils/assert-version-can-be-activated.util.ts:19
+- Signature: `(workflowVersion, workflow) => void`
+- Validates the version (has trigger with type, has steps, trigger settings valid per type, each step valid) and that only a DRAFT or the last-published-but-deactivated version may be activated.
+
+### WorkflowCronTriggerCronJob.handle (@Process, every minute)
+- `file:path:line` workflow-trigger/automated-trigger/crons/jobs/workflow-cron-trigger-cron.job.ts:54
+- Runs every minute. Reads cached cron triggers from Redis; on cache hit enqueues WorkflowTriggerJob for any whose pattern matches `now` (via `shouldRunNow`). On cache miss scans all ACTIVE workspaces' `workflowAutomatedTrigger` rows of type CRON, enqueues matching ones, and rebuilds the cache with a TTL.
+
+---
+
+## workflow-runner jobs & crons (full coverage)
+
+### WorkflowTriggerJob.handle (@Process)
+- `file:path:line` workflow-trigger/jobs/workflow-trigger.job.ts:36
+- Signature: `(data: { workspaceId, workflowId, payload }) => Promise<void>`
+- Loads the workflow, verifies it has a lastPublishedVersionId and that version is ACTIVE, then calls workflow-runner `run()` with the payload and a WORKFLOW actor source named after the workflow.
+
+### ResumeDelayedWorkflowJob.handle (@Process, delayedJobsQueue)
+- `file:path:line` workflow-executor/workflow-actions/delay/jobs/resume-delayed-workflow.job.ts:37
+- Signature: `(data: ResumeDelayedWorkflowJobData) => Promise<void>`
+- Fired after a delay elapses. Verifies the run is RUNNING and the delay step is PENDING, marks the delay step SUCCESS, then enqueues RunWorkflowJob with lastExecutedStepId to resume. On error ends the run as FAILED (system error).
+
+### WorkflowRunEnqueueJob.handle / WorkflowHandleStaledRunsJob.handle / WorkflowCleanWorkflowRunsJob.handle (@Process)
+- `file:path:line` workflow-run-queue/jobs/workflow-run-enqueue.job.ts:20, workflow-handle-staled-runs.job.ts:19, workflow-clean-workflow-runs.job.ts:31
+- Thin delegators to their respective workspace services (`enqueueRunsForWorkspace`, `handleStaledRunsForWorkspace`) except clean, which inlines deletion.
+
+### WorkflowCleanWorkflowRunsJob.deleteOldRuns / deleteExcessRunsPerWorkflow (private)
+- `file:path:line` workflow-run-queue/jobs/workflow-clean-workflow-runs.job.ts:65,103
+- Batch (200/loop) raw-SQL deletes: removes COMPLETED/FAILED runs older than RUNS_TO_CLEAN_THRESHOLD_DAYS, and trims each workflow's COMPLETED/FAILED runs beyond NUMBER_OF_WORKFLOW_RUNS_TO_KEEP using a ROW_NUMBER window partitioned by workflowId.
+
+### WorkflowRunEnqueueCronJob.handle (@Process, every minute)
+- `file:path:line` workflow-run-queue/cron/jobs/workflow-run-enqueue.cron.job.ts:51
+- Partitions ACTIVE workspaces into 10 buckets (round-robin via a cached partition counter), and for the current bucket checks (raw SQL) whether each workspace has NOT_STARTED runs; if so enqueues WorkflowRunEnqueueJob. Processes in batches of 10 with Promise.allSettled and Sentry capture on failures.
+
+### WorkflowHandleStaledRunsCronJob.handle (@Process, every 10 min)
+- `file:path:line` workflow-run-queue/cron/jobs/workflow-handle-staled-runs.cron.job.ts:52
+- Same partition/batch pattern; checks for ENQUEUED runs older than STALED_RUNS_THRESHOLD_MS (or null enqueuedAt) and enqueues WorkflowHandleStaledRunsJob per affected workspace.
+
+### WorkflowCleanWorkflowRunsCronJob.handle (@Process, every 3 hours)
+- `file:path:line` workflow-run-queue/cron/jobs/workflow-clean-workflow-runs.cron.job.ts:57
+- Same partition/batch pattern; uses ORM (`getRunsToCleanFindOptions`) to detect old runs or workspaces over the keep-count, then enqueues WorkflowCleanWorkflowRunsJob.
+
+---
+
+## workflow-status jobs & listeners (full coverage)
+
+### WorkflowStatusesUpdateJob.handle (@Process)
+- `file:path:line` workflow-status/jobs/workflow-statuses-update.job.ts:67
+- Signature: `(event: WorkflowVersionBatchEvent) => Promise<void>`
+- For CREATE/DELETE/STATUS_UPDATE batch events, recomputes the parent workflow's `statuses` array from its versions and writes it only if changed.
+
+### handleWorkflowVersionCreatedOrDeleted / handleWorkflowVersionStatusUpdated / getWorkflowStatuses (private)
+- `file:path:line` workflow-status/jobs/workflow-statuses-update.job.ts:99,146,192
+- `getWorkflowStatuses` derives [DRAFT?, ACTIVE?, DEACTIVATED?] from the workflow's versions (DEACTIVATED only added when there's no ACTIVE version). The two handlers fetch the workflow, recompute, and update if different.
+
+### WorkflowVersionStatusListener
+- `file:path:line` workflow-status/listeners/workflow-version-status.listener.ts:29
+- `handleWorkflowVersionCreated` (@OnDatabaseBatchEvent workflowVersion CREATED:35), `handleWorkflowVersionUpdated` (@OnCustomBatchEvent WORKFLOW_VERSION_STATUS_UPDATED:67), `handleWorkflowVersionDeleted` (@OnDatabaseBatchEvent workflowVersion DELETED:85) — each filters relevant DRAFT/status events and enqueues a WorkflowStatusesUpdateJob with the appropriate event type and workflowIds/statusUpdates.
+
+---
+
+## workflow-trigger database-event listener (full coverage)
+
+### WorkflowDatabaseEventTriggerListener
+- `file:path:line` workflow-trigger/automated-trigger/listeners/workflow-database-event-trigger.listener.ts:44
+- Subscribes via `@OnDatabaseBatchEvent('*', …)` to CREATED/UPDATED/DELETED/DESTROYED/UPSERTED (handlers at lines 56,73,91,108,125). Each clones the payload, enriches records with related (join) records, then `handleEvent` looks up `workflowAutomatedTrigger` rows of type DATABASE_EVENT whose `settings.eventName` matches, and for each matching listener+event enqueues a WorkflowTriggerJob (retryLimit 3).
+- `enrich{Created,Updated,Deleted,Destroyed}Event` (141-234): hydrate before/after records with relations.
+- `enrichRecordsWithRelations` (236): for each join column, batch-loads related records and attaches them under the relation field name.
+- `shouldTriggerJob` (385): for UPDATED/UPSERTED, only triggers if the listener's `settings.fields` is empty or intersects the event's `updatedFields`; otherwise always triggers.
+
+---
+
 ## NOT YET COVERED
 
-The following files were not fully documented due to scope:
-- All guard files (is-workflow-*-action.guard.ts) - simple type guards
-- All types files (.type.ts) - data structures
-- All constants files - configuration values
-- Query hook files (workflow-*-query.hook.ts) - database hooks
-- Workflow entity definitions (workspace-entity.ts)
-- All utility functions in workflow-builder/utils/ and workflow-executor/workflow-actions/*/utils/
-- All detailed implementations in workflow-builder/workflow-version-step/*-operations, -*-helpers, -*-deletion services (100+ methods)
-- Cron job implementations and listeners
-- Email sending action (mail-sender)
-- HTTP request action
-- Logic function build service (code-step-build.service.ts)
-
-These are referenced but not exhaustively documented. Focus was on main workflows and critical paths for execution.
+Only genuinely trivial leftovers remain:
+- Single-line type guards (`is-workflow-*-action.guard.ts`) — each is `step.type === WorkflowActionType.X`.
+- `.type.ts` / `.constants.ts` files (data shapes and config values such as cache keys, TTLs, thresholds, partition counts).
+- Per-type fake-value generators under `workflow-schema/utils/` (generate-fake-*), used only to produce sample output schemas for the builder UI.
+- Query hooks under `common/query-hooks/*` (thin pre/post hooks delegating to the common/validation services already documented above).
+- `*.spec.ts` test files and `create-mock-workflow-steps.util.ts` (test mock).
 

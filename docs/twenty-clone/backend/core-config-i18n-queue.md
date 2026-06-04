@@ -522,13 +522,164 @@ Each transformer has:
 
 ---
 
-## NOT YET COVERED
+## Remaining Decorators & Validators
 
-The following files were referenced but not fully documented due to size/complexity constraints:
+### IsTwentySemVer / IsTwentySemVerValidator
+**file:** `decorators/is-twenty-semver.decorator.ts:11`
 
-- Remaining decorator files: `is-twenty-semver.decorator.ts`, `cast-to-typeorm-log-level-array.decorator.ts`
-- Config variables class (full property list): `config-variables.ts` (extensive enum definitions and metadata decorators)
-- Database config module implementation: `drivers/database-config.module.ts`
-- Enums and interfaces for types, groups, driver interfaces: Complete enums in `enums/`, `interfaces/`, `types/` directories
-- Additional utility functions and type definitions
+`IsTwentySemVer(validationOptions?)` — Property decorator registering `IsTwentySemVerValidator`. The validator's `validate(version)` calls `semver.parse(version)` and returns true only when parse is non-null; `defaultMessage()` says the property must be a valid semantic version (e.g., 1.0.0).
+
+### CastToTypeORMLogLevelArray
+**file:** `decorators/cast-to-typeorm-log-level-array.decorator.ts:4`
+
+`CastToTypeORMLogLevelArray()` — class-transformer `Transform` wrapper around `toTypeORMLogLevelArray`. Splits a comma-separated string, trims each level, validates every level against `['query','schema','error','warn','info','log','migration']`; returns the array only if all are valid, otherwise `undefined`.
+
+---
+
+## Drivers — Database Config Module
+
+### DatabaseConfigModule
+**file:** `drivers/database-config.module.ts:14`
+
+`static forRoot(): DynamicModule` — Builds the DB-backed config DynamicModule. Imports `TypeOrmModule.forFeature([KeyValuePairEntity])`, `ScheduleModule.forRoot()` (enables the refresh cron), and `SecretEncryptionModule`. Providers: `DatabaseConfigDriver`, `ConfigCacheService`, `ConfigStorageService`, `ConfigValueConverterService`, and a `CONFIG_VARIABLES_INSTANCE_TOKEN` bound to `new ConfigVariables()`. Exports only `DatabaseConfigDriver`.
+
+---
+
+## Module Definition & Tokens (twenty-config)
+
+### TwentyConfig ConfigurableModuleClass
+**file:** `twenty-config.module-definition.ts:3`
+
+Built via NestJS `ConfigurableModuleBuilder` with moduleName `'TwentyConfig'` and `setClassMethodName('forRoot')`. Exports `ConfigurableModuleClass` and `MODULE_OPTIONS_TOKEN` consumed by `TwentyConfigModule`.
+
+### CONFIG_VARIABLES_INSTANCE_TOKEN
+**file:** `constants/config-variables-instance-tokens.constants.ts:1`
+
+`Symbol('CONFIG_VARIABLES_INSTANCE_TOKEN')` — DI token for the shared singleton `ConfigVariables` instance.
+
+### CONFIG_VARIABLES_METADATA_DECORATOR_KEY / NAMES_KEY
+**file:** `constants/config-variables-metadata-decorator-key.ts:1`, `constants/config-variables-metadata-decorator-names-key.ts:1`
+
+String literal reflection-metadata keys: `'config-variables-metadata'` (per-property metadata) and `'config-variable-names'` (registry of decorated property names).
+
+### CONFIG_VARIABLES_REFRESH_CRON_INTERVAL
+**file:** `constants/config-variables-refresh-cron-interval.constants.ts:1`
+
+`'*/15 * * * * *'` — every 15 seconds; drives `DatabaseConfigDriver.refreshAllCache()`'s `@Cron`.
+
+### CONFIG_VARIABLES_GROUP_METADATA
+**file:** `constants/config-variables-group-metadata.ts:14`
+
+`Record<ConfigVariablesGroup, {position, description, isHiddenOnLoad, isHiddenInAdminPanel}>` — Drives ordering and visibility of config groups in the admin panel. Notable: BILLING/CLOUDFLARE/SUPPORT_CHAT/ANALYTICS/AWS_SES are `isHiddenInAdminPanel: true`; most non-server groups are `isHiddenOnLoad: true`. Positions step by ~100 (SERVER_CONFIG=100 … AWS_SES_SETTINGS=2100).
+
+### CONFIG_VARIABLES_MASKING_CONFIG
+**file:** `constants/config-variables-masking-config.ts:18`
+
+Maps the three sensitive keys to masking strategies: `APP_SECRET` → LAST_N_CHARS (5 chars), `PG_DATABASE_URL` and `REDIS_URL` → HIDE_PASSWORD. Consumed by `configVariableMaskSensitiveData`.
+
+---
+
+## Enums, Interfaces & Types (twenty-config)
+
+### ConfigSource
+**file:** `enums/config-source.enum.ts:1` — `ENVIRONMENT | DATABASE | DEFAULT`; identifies where a resolved value came from (surfaced by `getAll`/`getVariableWithMetadata`).
+
+### ConfigVariableType
+**file:** `enums/config-variable-type.enum.ts:1` — `boolean | number | array | string | enum | json`; selects the `typeTransformers` entry.
+
+### ConfigVariablesGroup
+**file:** `enums/config-variables-group.enum.ts:1` — 19 groups (SERVER_CONFIG, RATE_LIMITING, STORAGE_CONFIG, GOOGLE_AUTH, MICROSOFT_AUTH, EMAIL_SETTINGS, LOGGING, ADVANCED_SETTINGS, BILLING_CONFIG, CAPTCHA_CONFIG, CLOUDFLARE_CONFIG, LLM, LOGIC_FUNCTION_CONFIG, CODE_INTERPRETER_CONFIG, SSL, SUPPORT_CHAT_CONFIG, ANALYTICS_CONFIG, TOKENS_DURATION, AWS_SES_SETTINGS).
+
+### ConfigVariablesMaskingStrategies
+**file:** `enums/config-variables-masking-strategies.enum.ts:1` — `LAST_N_CHARS | HIDE_PASSWORD`.
+
+### AwsRegion
+**file:** `interfaces/aws-region.interface.ts:1` — template-literal type `` `${string}-${string}-${number}` ``.
+
+### NodeEnvironment
+**file:** `interfaces/node-environment.interface.ts:1` — `TEST='test' | DEVELOPMENT='development' | PRODUCTION='production'`.
+
+### SupportDriver
+**file:** `interfaces/support.interface.ts:3` — GraphQL-registered enum `NONE | FRONT` (support-chat provider selection).
+
+### ConfigVariableOptions
+**file:** `types/config-variable-options.type.ts:1` — `readonly (string|number|boolean)[] | Record<string,string>`; allowed-values list for ENUM/ARRAY transformers.
+
+### ConfigKey / ConfigValue / ConfigCacheEntry
+**file:** `cache/interfaces/config-cache-entry.interface.ts:3` — `ConfigKey = keyof ConfigVariables`, `ConfigValue<T> = ConfigVariables[T]`, and `ConfigCacheEntry<T> = { value: ConfigValue<T> }` (cache record shape).
+
+### DatabaseConfigDriverInterface
+**file:** `drivers/interfaces/database-config-driver.interface.ts:7` — Contract for DB-backed drivers: `get` (cache-only, may return undefined), `update`, `refreshAllCache`, and `getCacheInfo` returning `{foundConfigValues, knownMissingKeys, cacheKeys}`.
+
+### ConfigStorageInterface
+**file:** `storage/interfaces/config-storage.interface.ts:3` — Contract for persistence layer: `get`, `set`, `delete`, and `loadAll(): Promise<Map<key,value>>`.
+
+---
+
+## Message Queue — Module Definition, Interfaces & Constants
+
+### MessageQueue ConfigurableModuleClass
+**file:** `message-queue.module-definition.ts:5`
+
+`ConfigurableModuleBuilder<MessageQueueModuleOptions>` with `setExtras({isGlobal:true}, …)` that maps the extra onto `definition.global`. Exports `ConfigurableModuleClass`, `OPTIONS_TYPE`, `ASYNC_OPTIONS_TYPE`, `MODULE_OPTIONS_TOKEN` — making the queue module global by default.
+
+### MessageQueueDriver (interface)
+**file:** `drivers/interfaces/message-queue-driver.interface.ts:11`
+
+Driver contract: `add(queueName, jobName, data, options?)`, `work(queueName, handler, options?)`, `addCron({queueName, jobName, data, options, jobId?})`, `removeCron({queueName, jobName, jobId?})`, and optional `register(queueName)`. Implemented by `BullMQDriver` and `SyncDriver`.
+
+### QueueJobOptions / QueueCronJobOptions
+**file:** `drivers/interfaces/job-options.interface.ts:1`
+
+`QueueJobOptions` = `{id?, priority?, retryLimit?, delay?}`. `QueueCronJobOptions` extends it with `repeat: {every?, pattern?, limit?}` for recurring schedules.
+
+### MessageQueueJob / MessageQueueJobData / MessageQueueCronJobData
+**file:** `interfaces/message-queue-job.interface.ts:2`
+
+`MessageQueueJob<T>` = `{id, name, data}`; `MessageQueueJobData` = open `[key:string]: any` base; `MessageQueueCronJobData<T>` declares the `handle(data): Promise<void>|void` shape job processors implement.
+
+### MessageQueueDriverType & MessageQueueModuleOptions
+**file:** `interfaces/message-queue-module-options.interface.ts:4`
+
+Enum `MessageQueueDriverType` = `BullMQ='bull-mq' | Sync='sync'`. `BullMQDriverFactoryOptions` carries `{type, options: BullMQDriverOptions, metricsService}`; `SyncDriverFactoryOptions` carries `{type, options}`. `MessageQueueModuleOptions` is the union of both — consumed by `MessageQueueCoreModule.createDriver`.
+
+### MessageQueueWorkerOptions
+**file:** `interfaces/message-queue-worker-options.interface.ts:1` — `{concurrency?: number}`.
+
+### interfaces/index barrel
+**file:** `interfaces/index.ts:1` — Re-exports `message-queue-module-options.interface`.
+
+### Metadata Symbols & MessageQueue enum
+**file:** `message-queue.constants.ts:1`
+
+Reflection symbols `PROCESSOR_METADATA`, `PROCESS_METADATA`, `QUEUE_DRIVER`, plus the `MessageQueue` enum of 17 queue names (taskAssignedQueue, messagingQueue, webhookQueue, cronQueue, emailQueue, calendarQueue, contactCreationQueue, billingQueue, workspaceQueue, entityEventsToDbQueue, workflowQueue, delayedJobsQueue, deleteCascadeQueue, logicFunctionQueue, triggerQueue, aiQueue, aiStreamQueue).
+
+### QUEUE_RETENTION
+**file:** `constants/queue-retention.constants.ts:1`
+
+`{completedMaxAge: 14400 (4h), completedMaxCount: 1000, failedMaxAge: 604800 (7d), failedMaxCount: 1000}` — BullMQ job retention applied by `BullMQDriver.add`.
+
+### MESSAGE_QUEUE_PRIORITY
+**file:** `message-queue-priority.constant.ts:3`
+
+Per-queue numeric priority (lower = higher priority): billing/entityEvents/email=1, workflow/webhook/messaging/aiStream=2, delayedJobs=3, calendar/contactCreation/taskAssigned/logicFunction=4, workspace/trigger/ai=5, deleteCascade=6, cron=7.
+
+### QUEUE_WORKER_OPTIONS
+**file:** `message-queue-worker-options.constant.ts:3`
+
+Partial per-queue worker overrides; currently only `aiStreamQueue: {concurrency: 20}`.
+
+### BullMQDriverOptions
+**file:** `drivers/bullmq.driver.ts:34` — Type alias `= QueueOptions` (BullMQ's connection/queue config passed through the factory).
+
+---
+
+## I18n — Types
+
+### I18nContext
+**file:** `i18n/types/i18n-context.type.ts:2`
+
+`{ req: { locale: keyof typeof APP_LOCALES } }` — request-scoped context shape carrying the resolved locale into resolvers/services for translation.
+
+
 

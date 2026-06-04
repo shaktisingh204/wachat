@@ -661,23 +661,227 @@ file:upgrade-aware/install-upgrade-aware-repository-proxy.ts:11
 `function installUpgradeAwareRepositoryProxy(manager: WorkspaceEntityManager, state: UpgradeAwareRepositoryState): WorkspaceEntityManager`
 Patches entity manager with upgrade-aware proxy during instance command execution.
 
+## Write Query Builders (mutation lifecycle)
+
+These four builders all extend TypeORM's native query builders, wrap them with the workspace permission context (`objectRecordsPermissions`, `shouldBypassPermissionChecks`, `internalContext`, `authContext`, `featureFlagMap`), and share the same shape: a `clone()` that re-wraps, a private `getMainAliasTarget()` that throws `MISSING_MAIN_ALIAS_TARGET` if absent, and morph-blockers (`select`/`update`/`delete`/`softDelete`/`restore`/`insert`) that throw `METHOD_NOT_ALLOWED` so a builder cannot change query type. All wrap `execute()` in try/catch routing errors through `computeTwentyORMException`.
+
+### WorkspaceInsertQueryBuilder
+`file:repository/workspace-insert-query-builder.ts:37`
+`class WorkspaceInsertQueryBuilder<T> extends InsertQueryBuilder<T>`
+INSERT builder with relation-connect, files-field sync, RLS and event emission. Lazily builds `RelationNestedQueries`/`FilesFieldSync` from `internalContext`.
+
+### WorkspaceInsertQueryBuilder.values
+`file:repository/workspace-insert-query-builder.ts:91`
+`override values(values: QueryDeepPartialEntityWithNestedRelationFields<T> | [...]): this`
+Extracts nested relation connect/disconnect config via `prepareNestedRelationQueries`, then runs `formatData` to explode composite fields into columns before delegating to `super.values`.
+
+### WorkspaceInsertQueryBuilder.execute
+`file:repository/workspace-insert-query-builder.ts:118`
+`override async execute(): Promise<InsertResult>`
+Validates query permissions; patches `onUpdate.overwrite` to include composite columns missing after `formatData`; computes/enriches files-field diff (creates File rows, rewrites valuesSet with file ids); processes relation connect queries; runs `validateRLSPredicatesForInsert`; executes; re-selects inserted rows by id (bypassing perms) to emit `CREATED` + `UPSERTED` database batch events; filters TypeORM's extra returned columns down to `returning`, returns formatted result.
+
+### WorkspaceInsertQueryBuilder.validateRLSPredicatesForInsert (private)
+`file:repository/workspace-insert-query-builder.ts:321`
+Formats the to-insert values and runs `validateRLSPredicatesForRecords` so a user cannot insert rows that fall outside their role's row-level predicates.
+
+### WorkspaceUpdateQueryBuilder
+`file:repository/workspace-update-query-builder.ts:44`
+`class WorkspaceUpdateQueryBuilder<T> extends UpdateQueryBuilder<T>`
+UPDATE builder supporting both single-criteria and batch (`manyInputs`) updates with relation/file sync, RLS and events.
+
+### WorkspaceUpdateQueryBuilder.set
+`file:repository/workspace-update-query-builder.ts:518`
+`override set(values: ...): this`
+Prepares nested relation queries from the update payload then `formatData`-formats the set values (composite explosion) before `super.set`.
+
+### WorkspaceUpdateQueryBuilder.execute
+`file:repository/workspace-update-query-builder.ts:104`
+`override async execute(): Promise<UpdateResult>`
+If `manyInputs` is set, delegates to `executeMany`. Otherwise: validates perms; selects "before" records (capped at `QUERY_MAX_RECORDS`, else throws `TOO_MANY_RECORDS_TO_UPDATE`); applies table-alias on wheres; computes file-field diff for single update; processes relation connects; applies RLS predicates to the WHERE; validates merged (before+set) records against RLS; executes; re-selects "after" records and emits `UPDATED` + `UPSERTED` events; returns formatted result.
+
+### WorkspaceUpdateQueryBuilder.executeMany
+`file:repository/workspace-update-query-builder.ts:303`
+`public async executeMany(): Promise<UpdateResult>`
+Batch path: validates each criteria/partialEntity pair with a synthetic expressionMap; selects before-records by ids; computes file diff and relation connects across all inputs; loops each input setting valuesSet + `where({id})`, applying RLS predicate + per-record RLS validation, executing one UPDATE each; collects results, emits `UPDATED`/`UPSERTED`, returns combined formatted result with `affected = inputs.length`.
+
+### WorkspaceUpdateQueryBuilder.setManyInputs
+`file:repository/workspace-update-query-builder.ts:600`
+`public setManyInputs(inputs: {criteria; partialEntity}[]): this`
+Stores batch inputs, formatting each `partialEntity` via `formatData`. Marks the builder to take the `executeMany` path.
+
+### WorkspaceDeleteQueryBuilder
+`file:repository/workspace-delete-query-builder.ts:35`
+`class WorkspaceDeleteQueryBuilder<T> extends DeleteQueryBuilder<T>`
+Hard-DELETE builder with RLS and `DESTROYED` event emission.
+
+### WorkspaceDeleteQueryBuilder.execute
+`file:repository/workspace-delete-query-builder.ts:74`
+`override async execute(): Promise<DeleteResult & { generatedMaps: T[] }>`
+Applies RLS predicates to the WHERE (unless bypassing); validates perms; builds an event-select query and fetches the single "before" record; rewrites wheres with the real table alias; executes the delete; emits a `DESTROYED` batch event with `recordsBefore`; returns formatted raw + generatedMaps.
+
+### WorkspaceDeleteQueryBuilder.applyRowLevelPermissionPredicates (private)
+`file:repository/workspace-delete-query-builder.ts:173`
+Short-circuits when bypassing; otherwise calls the shared `applyRowLevelPermissionPredicates` util scoped to the main object metadata.
+
+### WorkspaceSoftDeleteQueryBuilder
+`file:repository/workspace-soft-delete-query-builder.ts:33`
+`class WorkspaceSoftDeleteQueryBuilder<T> extends SoftDeleteQueryBuilder<T>`
+Soft-delete/restore builder. Used for both `softDelete` and `restore` (distinguished by `expressionMap.queryType`).
+
+### WorkspaceSoftDeleteQueryBuilder.execute
+`file:repository/workspace-soft-delete-query-builder.ts:73`
+`override async execute(): Promise<UpdateResult>`
+Applies RLS predicates + perm validation; fetches before-records; rewrites wheres with table alias; executes; re-fetches after-records (with all fields, since native soft-remove only returns id); emits `RESTORED` when `queryType === 'restore'` else `DELETED`; returns formatted after-records.
+
+## Schema Manager — Enum & Foreign Key DDL
+
+### WorkspaceSchemaEnumManagerService.createEnum
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:16`
+`async createEnum({queryRunner, schemaName, enumName, values}): Promise<void>`
+`CREATE TYPE … AS ENUM (...)`; throws `ENUM_OPERATION_FAILED` if no values. Identifiers/literals escaped against injection.
+
+### WorkspaceSchemaEnumManagerService.dropEnum
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:43`
+`async dropEnum({queryRunner, schemaName, enumName}): Promise<void>`
+`DROP TYPE IF EXISTS …`.
+
+### WorkspaceSchemaEnumManagerService.renameEnum
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:57`
+`async renameEnum({queryRunner, schemaName, oldEnumName, newEnumName}): Promise<void>`
+`ALTER TYPE … RENAME TO …`.
+
+### WorkspaceSchemaEnumManagerService.addEnumValue
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:73`
+`async addEnumValue({queryRunner, schemaName, enumName, value, beforeValue?, afterValue?}): Promise<void>`
+`ALTER TYPE … ADD VALUE …` optionally positioned `BEFORE`/`AFTER` an existing value.
+
+### WorkspaceSchemaEnumManagerService.renameEnumValue
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:99`
+`async renameEnumValue({queryRunner, schemaName, enumName, oldValue, newValue}): Promise<void>`
+`ALTER TYPE … RENAME VALUE … TO …`.
+
+### WorkspaceSchemaEnumManagerService.alterEnumValues
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:117`
+`async alterEnumValues({queryRunner, schemaName, tableName, columnDefinition, enumValues, oldToNewEnumOptionMap}): Promise<void>`
+Full enum rebuild in a (possibly nested) transaction: renames the old enum to `_old`, creates the new enum, renames the column to `_old`, adds a new column of the new enum type, migrates data via `migrateEnumData`, drops the old column/enum, commits (rolls back on error). This is how select-option edits propagate to live data.
+
+### WorkspaceSchemaEnumManagerService.migrateEnumData (private)
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:284`
+Builds a `CASE … WHEN old THEN new::newType` mapping from `oldToNewEnumOptionMap` and dispatches to `updateArrayEnum` (array columns, uses `unnest`/`array_agg`) or `updateAtomicEnum` (scalar columns) to copy mapped values from the old column to the new one.
+
+### WorkspaceSchemaEnumManagerService.updateArrayEnum / updateAtomicEnum (private)
+`file:workspace-schema-manager/services/workspace-schema-enum-manager.service.ts:346` / `:379`
+Return the SQL strings for the array vs atomic enum-column data migration described above.
+
+### WorkspaceSchemaForeignKeyManagerService.createForeignKey
+`file:workspace-schema-manager/services/workspace-schema-foreign-key-manager.service.ts:15`
+`async createForeignKey({queryRunner, schemaName, foreignKey}): Promise<void>`
+Computes the FK constraint name via TypeORM `namingStrategy.foreignKeyName`, builds `ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY (...) REFERENCES …`, appending validated `ON DELETE`/`ON UPDATE` actions (only `CASCADE`, `SET NULL`, `RESTRICT`, `NO ACTION`, `SET DEFAULT` allowed, else throws).
+
+### WorkspaceSchemaForeignKeyManagerService.dropForeignKey
+`file:workspace-schema-manager/services/workspace-schema-foreign-key-manager.service.ts:50`
+`async dropForeignKey({queryRunner, schemaName, tableName, foreignKeyName}): Promise<void>`
+`ALTER TABLE … DROP CONSTRAINT IF EXISTS …`.
+
+### WorkspaceSchemaForeignKeyManagerService.setForeignKeyDeferrable / setForeignKeyNotDeferrable
+`file:workspace-schema-manager/services/workspace-schema-foreign-key-manager.service.ts:82` / `:66`
+`ALTER TABLE … ALTER CONSTRAINT … DEFERRABLE` / `NOT DEFERRABLE`. Used to defer FK checks during bulk operations.
+
+### WorkspaceSchemaForeignKeyManagerService.getForeignKeyName
+`file:workspace-schema-manager/services/workspace-schema-foreign-key-manager.service.ts:98`
+`async getForeignKeyName({queryRunner, schemaName, tableName, columnName}): Promise<string | undefined>`
+Parameterized query against `information_schema` joining `table_constraints` + `key_column_usage` to resolve the existing FK constraint name for a column.
+
+## Upgrade-Aware Layer
+
+The upgrade-aware layer lets the running app keep TypeORM entity metadata consistent with a partially-applied upgrade sequence (so a deploy mid-migration reads/writes the schema that actually exists on disk).
+
+### UpgradeAwareEntityMetadataAdapter
+`file:upgrade-aware/upgrade-aware-entity-metadata.adapter.ts:34`
+`class UpgradeAwareEntityMetadataAdapter implements OnModuleInit`
+NestJS service that, on init, reads the upgrade sequence, validates `@upgradeAware` decorators against it, captures canonical metadata snapshots, computes the current "cursor" (how far the sequence has been applied) and mutates `coreDataSource.entityMetadatas` to match. Registers itself on the `UpgradeAwareRepositoryState` singleton.
+
+### UpgradeAwareEntityMetadataAdapter.refresh
+`file:upgrade-aware/upgrade-aware-entity-metadata.adapter.ts:84`
+`async refresh(): Promise<void>`
+Reads the last attempted instance command, maps it to a sequence index, derives `nextCursor` (index+1 if completed, else index, 0 if unknown), and re-applies metadata if the cursor moved.
+
+### UpgradeAwareEntityMetadataAdapter.isEntityAvailable / getHiddenColumnPropertyNames
+`file:upgrade-aware/upgrade-aware-entity-metadata.adapter.ts:110` / `:114`
+Return per-entity availability and the set of column property names hidden at the current cursor (used by the proxy to short-circuit reads/writes and strip columns).
+
+### UpgradeAwareEntityMetadataAdapter (private helpers)
+`file:upgrade-aware/upgrade-aware-entity-metadata.adapter.ts:118`
+`captureCanonicalSnapshots` stores each entity's table name/path and per-column select/insert/update flags in a WeakMap; `applyCursorToMetadata`/`applyCursorToEntity` resolve the effective shape at the cursor via `resolveEntityShapeAtUpgradeCursor` and rewrite table name, column database names, select/insert/update flags, and filter out hidden columns; `validateDecoratorsAgainstSequence` throws if decorator step names don't line up with the sequence.
+
+### wrapRepositoryWithUpgradeAwareProxy
+`file:upgrade-aware/upgrade-aware-repository.proxy.ts:192`
+`({repository, entityClass, state}) => Repository<Entity>`
+Returns a `Proxy` over a repository: read methods (`find*`/`count*`/`exists*`) short-circuit to empty results (or `EntityNotFoundError` for `*OrFail`) when the entity is unavailable at the cursor; write methods throw `UpgradeUnavailableEntityWriteException`; find-option methods get unavailable relations stripped from their `relations` option via `stripUnavailableRelations`. `REPOSITORY_METHOD_BEHAVIORS` maps each method to its behavior.
+
+### installUpgradeAwareRepositoryProxy
+`file:upgrade-aware/install-upgrade-aware-repository-proxy.ts:18`
+`(dataSource: DataSource) => void`
+Monkey-patches `DataSource.getRepository` and `EntityManager.prototype.getRepository` so every repository fetched from the core data source is wrapped with the upgrade-aware proxy (cached per repository instance in a WeakMap).
+
+### UpgradeAwareRepositoryState
+`file:upgrade-aware/upgrade-aware-repository-state.ts:5`
+`class UpgradeAwareRepositoryState`
+Process-wide singleton holding the (optional) `UpgradeAwareEntityMetadataAdapter`. `isEntityAvailable`/`getHiddenColumnPropertyNames` defer to it, defaulting to "available / nothing hidden" before the adapter is registered.
+
+## Row-Level Security Utilities
+
+### applyRowLevelPermissionPredicates
+`file:utils/apply-row-level-permission-predicates.util.ts:28`
+`<T>({queryBuilder, objectMetadata, internalContext, authContext, featureFlagMap}): void`
+Resolves the caller's roleId from `userWorkspaceRoleMap`, builds the RLS record filter, and if non-empty injects it into the query builder's WHERE as TypeORM `Brackets`/`NotBrackets`. The internal `parseKeyFilter` recursively translates `and`/`or`/`not` filter groups and delegates leaf fields to `GraphqlQueryFilterFieldParser`. Uses direct table reference for update/delete/soft-delete query types.
+
+### validateRLSPredicatesForRecords
+`file:utils/validate-rls-predicates-for-records.util.ts:27`
+`<T>({records, objectMetadata, internalContext, authContext, shouldBypassPermissionChecks, errorMessage?}): void`
+For write paths: resolves roleId, builds the RLS record filter, then checks each record with `isRecordMatchingRLSRowLevelPermissionPredicate`; throws `RLS_VALIDATION_FAILED` if any record would violate the role's predicates. Skips when bypassing or when no role/filter.
+
+### buildRowLevelPermissionRecordFilter
+`file:utils/build-row-level-permission-record-filter.util.ts:43`
+`(args) => RecordGqlOperationFilter | null`
+Collects the role's non-deleted predicates for the object, resolving each predicate's value (literal, or a workspace-member field value when `workspaceMemberFieldMetadataId` is set, including composite subfields and SELECT/MULTI_SELECT array wrapping, validated via `validateEnumValueCompatibility`). Walks predicate-group parent chains to gather relevant groups, maps logical operators, and returns a `computeRecordGqlOperationFilter` filter usable by the query parser. Returns null when no role or no predicates.
+
+### isRecordMatchingRLSRowLevelPermissionPredicate
+`file:utils/is-record-matching-rls-row-level-permission-predicate.util.ts:77`
+`({record, filter, flatObjectMetadata, flatFieldMetadataMaps}): boolean`
+In-memory evaluation of a record against an RLS filter — mirrors the SQL `applyRowLevelPermissionPredicates` logic so writes can be validated without a round-trip. Recursively evaluates and/or/not groups and per-field operands across all field types.
+
+### validateEnumValueCompatibility
+`file:utils/validate-enum-value-compatibility.util.ts:12`
+`({workspaceMemberFieldMetadata, targetFieldMetadata, predicateValue}): boolean`
+When both fields are SELECT/MULTI_SELECT, returns whether every predicate value is among the target field's defined option values (otherwise true — non-enum or empty-options cases are always compatible). Prevents building a filter from an incompatible workspace-member enum value.
+
+### resolveRolePermissionConfig
+`file:utils/resolve-role-permission-config.util.ts:11`
+`({authContext, userWorkspaceRoleMap, apiKeyRoleMap}): RolePermissionConfig | null`
+Maps an auth context to a permission config: system → `{shouldBypassPermissionChecks:true}`; api-key/application/user → `{intersectionOf:[roleId]}` resolved from the relevant role map; null when no role can be resolved.
+
+### computeEventSelectQueryBuilder
+`file:utils/compute-event-select-query-builder.util.ts:28`
+`<T>({queryBuilder, authContext, internalContext, featureFlagMap, expressionMap, objectRecordsPermissions}): WorkspaceSelectQueryBuilder<T>`
+Builds a permission-bypassing SELECT builder that mirrors a write builder's wheres/aliases/parameters, defaulting selects to the main alias. Used by the update/delete builders to capture before/after snapshots for event emission.
+
+### buildSystemAuthContext
+`file:utils/build-system-auth-context.util.ts:7`
+`(workspaceId: string) => SystemWorkspaceAuthContext`
+Builds a minimal system auth context (jobs/commands/crons) carrying only the workspace id, with permission checks bypassed downstream.
+
+## Relation-Connect Configuration
+
+### computeRelationConnectQueryConfigs
+`file:utils/compute-relation-connect-query-configs.util.ts:37`
+`(entities, flatObjectMetadata, flatObjectMetadataMaps, flatFieldMetadataMaps, flatIndexMaps, relationConnectQueryFieldsByEntityIndex) => RelationConnectQueryConfig[]`
+For each entity's `connect:{where}` fields, validates the field is a MANY_TO_ONE relation/morph-relation (else throws `CONNECT_NOT_ALLOWED`), resolves the target object, ensures at least one unique constraint is fully populated (`checkUniqueConstraintFullyPopulated`, else `CONNECT_UNIQUE_CONSTRAINT_ERROR`), and aggregates per-field connect conditions into `RelationConnectQueryConfig`s. Helper `checkNoRelationFieldConflictOrThrow` forbids passing both `field` and `fieldId`; `computeUniqueConstraintCondition` explodes composite unique fields; `checkUniqueConstraintsAreSameOrThrow` enforces the same constraint fields across all entities in a batch.
+
 ## NOT YET COVERED
 
-The following files contain significant code that was not fully documented due to length constraints:
-
-- repository/workspace-insert-query-builder.ts (403 lines) - INSERT query builder with relation/file handling
-- repository/workspace-delete-query-builder.ts (236 lines) - DELETE query builder with RLS
-- repository/workspace-soft-delete-query-builder.ts (222 lines) - SOFT DELETE query builder
-- workspace-schema-manager/services/workspace-schema-enum-manager.service.ts (403 lines) - ENUM type management
-- workspace-schema-manager/services/workspace-schema-foreign-key-manager.service.ts (131 lines) - Foreign key DDL
-- utils/is-record-matching-rls-row-level-permission-predicate.util.ts (444 lines) - Complex RLS evaluation
-- factories/entity-schema-column.factory.ts (157 lines) - Detailed column metadata construction
-- utils/compute-relation-connect-query-configs.util.ts (347 lines) - Relation config computation
-- upgrade-aware/upgrade-aware-entity-metadata.adapter.ts (369 lines) - Metadata adaptation during upgrade
-- field-operations/files-field-sync/files-field-sync.ts (641 lines) - Detailed files sync logic
-- utils/format-twenty-orm-event-to-database-batch-event.util.ts (268 lines) - Event formatting
-- utils/format-result.util.ts (395 lines) - Detailed result formatting with composite fields
-- utils/apply-row-level-permission-predicates.util.ts (250 lines) - RLS predicate application
-- utils/validate-rls-predicates-for-records.util.ts (82 lines) - Record RLS validation
-- utils/build-row-level-permission-record-filter.util.ts (228 lines) - RLS filter SQL generation
+Remaining items are small leaf utilities and type/exception declarations whose behavior is fully implied by the functions above:
+- Column-name mapping helpers (`utils/get-column-name-*.util.ts`, `utils/format-column-name*.util.ts`, `utils/process-field-metadata-for-column-name-mapping.util.ts`)
+- Misc small utils (`convert-relation-type-to-typeorm-relation-type`, `create-sql-where-tuple-in-clause`, `determine-schema-relation-details`, `get-default-columns-for-index`, `get-composite-field-metadata-collection`, `get-subfields-for-aggregate-operation`, `get-record-to-connect-fields`)
+- Type/definition files under `workspace-schema-manager/types/*` and `*.exception.ts` declarations
 

@@ -458,32 +458,304 @@ Calendar events are filtered by blocklist (contact emails on user's blocklist) a
 
 ---
 
+## modules/calendar/common/query-hooks (visibility restrictions — full coverage)
+
+### CalendarEventFindManyPostQueryHook
+`file: src/modules/calendar/common/query-hooks/calendar-event/calendar-event-find-many.post-query.hook.ts:17`
+
+**Method: `execute(authContext, _objectName, payload: CalendarEventWorkspaceEntity[]) → Promise<void>`**
+
+POST_HOOK on `calendarEvent.findMany`. Rejects non-user/apiKey/application auth contexts and missing workspace, then delegates to `ApplyCalendarEventsVisibilityRestrictionsService` with the user id (when user context).
+
+### CalendarEventFindOnePostQueryHook
+`file: src/modules/calendar/common/query-hooks/calendar-event/calendar-event-find-one.post-query.hook.ts:17`
+
+**Method: `execute(authContext, _objectName, payload) → Promise<void>`**
+
+Identical to the find-many hook but registered on `calendarEvent.findOne`.
+
+### ApplyCalendarEventsVisibilityRestrictionsService
+`file: src/modules/calendar/common/query-hooks/calendar-event/services/apply-calendar-events-visibility-restrictions.service.ts:19`
+
+**Method: `applyCalendarEventsVisibilityRestrictions(calendarEvents, workspaceId, userId?) → Promise<CalendarEventWorkspaceEntity[]>`**
+
+Mutates the result list in place (iterates backwards so splices are safe). Loads the channel-event associations and core CalendarChannel rows, groups channels by visibility. SHARE_EVERYTHING events pass through; events on a channel owned by the requesting user (matched via userWorkspace → connectedAccount) pass through; METADATA-only events have title/description replaced with the restricted-permissions placeholder; everything else is removed from the payload. Runs in lite system workspace context.
+
+---
+
+## modules/calendar/calendar-event-participant-manager (jobs & listeners — full coverage)
+
+### CalendarEventParticipantMatchParticipantJob
+`file: src/modules/calendar/calendar-event-participant-manager/jobs/calendar-event-participant-match-participant.job.ts:26`
+
+**Process: `handle(data: CalendarEventParticipantMatchParticipantJobData) → Promise<void>`**
+
+Skips inactive workspaces. If the matching payload has personIds/personEmails, calls `matchParticipantsForPeople`; if it has workspaceMemberIds, calls `matchParticipantsForWorkspaceMembers` — both on object `calendarEventParticipant`.
+
+### CalendarEventParticipantListener
+`file: src/modules/calendar/calendar-event-participant-manager/listeners/calendar-event-participant.listener.ts:17`
+
+**Method: `handleCalendarEventParticipantMatchedEvent(batchEvent)` (@OnCustomBatchEvent `calendarEventParticipant_matched`)**
+
+When participants are matched to persons, builds `message.linked` timeline-activity payloads linking each person record to its calendarEvent and upserts them via the timeline activity repository.
+
+### CalendarEventParticipantPersonListener
+`file: src/modules/calendar/calendar-event-participant-manager/listeners/calendar-event-participant-person.listener.ts`
+
+Listens on person CREATED/UPDATED/DELETED batch events; when a person's emails change (or is created/deleted) enqueues a match-participant job so calendar event participants are (re)linked by email.
+
+### CalendarEventParticipantWorkspaceMemberListener
+`file: src/modules/calendar/calendar-event-participant-manager/listeners/calendar-event-participant-workspace-member.listener.ts`
+
+Same pattern for workspaceMember events: enqueues a match-participant job keyed on workspaceMemberIds so participants get linked to members.
+
+---
+
+## modules/calendar/blocklist-manager (full coverage)
+
+### CalendarBlocklistListener
+`file: src/modules/calendar/blocklist-manager/listeners/calendar-blocklist.listener.ts:26`
+
+Database-event listener on `blocklist`. CREATED → enqueues `BlocklistItemDeleteCalendarEventsJob`; DELETED → enqueues `BlocklistReimportCalendarEventsJob`; UPDATED → enqueues both (delete newly-blocked events, re-import unblocked ones).
+
+### BlocklistItemDeleteCalendarEventsJob
+`file: src/modules/calendar/blocklist-manager/jobs/blocklist-item-delete-calendar-events.job.ts:28`
+
+**Process: `handle(data) → Promise<void>`**
+
+Loads the created/updated blocklist items, groups handles by workspaceMember, and for each member's calendar channels computes handle match conditions (exact handle, or domain match `%@domain` excluding the user's own handles/aliases when the blocklist entry is a domain like `@acme.com`). Deletes the matching channel-event associations, then runs `cleanWorkspaceCalendarEvents` to remove now-orphaned events.
+
+### BlocklistReimportCalendarEventsJob
+`file: src/modules/calendar/blocklist-manager/jobs/blocklist-reimport-calendar-events.job.ts:28`
+
+**Process: `handle(data) → Promise<void>`**
+
+For each deleted blocklist item, resolves the owning workspace member → userWorkspace → its calendar channels (excluding those already pending a list-fetch), and calls `resetAndMarkAsCalendarEventListFetchPending` to force a full re-import that may re-add previously blocked events.
+
+---
+
+## modules/calendar/calendar-event-import-manager/utils (full coverage)
+
+### filterOutBlocklistedEvents
+`file: src/modules/calendar/calendar-event-import-manager/utils/filter-out-blocklisted-events.util.ts:4`
+
+**Function: `(calendarChannelHandles, events, blocklist) → FetchedCalendarEvent[]`**
+
+Keeps an event only if none of its participants' handles are blocklisted (via `isEmailBlocklisted`, which respects the user's own handles/aliases). Events with no participants pass through.
+
+### isSyncStale
+`file: src/modules/calendar/calendar-event-import-manager/utils/is-sync-stale.util.ts:5`
+
+**Function: `(syncStageStartedAt?: string | null) → boolean`**
+
+True when no start timestamp exists, or when the elapsed time since the start exceeds `CALENDAR_IMPORT_ONGOING_SYNC_TIMEOUT`. Throws on an unparseable date. Used to detect stuck ONGOING syncs.
+
+### mapCalendarEventsByICalUID
+`file: src/modules/calendar/calendar-event-import-manager/utils/calendar-event-mapper.util.ts:3`
+
+**Function: `(existingCalendarEvents) → Map<string, string>`**
+
+Builds an iCalUID → calendarEventId lookup so importers can dedupe events that share the same iCal UID across calendars.
+
+### valuesStringForBatchRawQuery
+`file: src/modules/calendar/calendar-event-import-manager/utils/get-flattened-values-and-values-string-for-batch-raw-query.util.ts:1`
+
+**Function: `(values: object[], typesArray: string[] = []) → string`**
+
+Generates a parameterized multi-row VALUES clause (e.g. `($1::uuid, $2::text), ($3::uuid, $4::text)`) with per-column type casts, for batched raw-SQL inserts of calendar events.
+
+---
+
+## modules/calendar/calendar-event-import-manager/drivers/caldav/utils (full coverage — iCal helpers)
+
+These pure helpers back the CalDAV driver:
+
+### parseICalEvent
+`file: .../drivers/caldav/utils/parse-ical-event.util.ts`
+Parses a raw iCal VEVENT into a `FetchedCalendarEvent` (title, times, attendees, organizer, recurrence, status).
+
+### extractICalData
+`file: .../drivers/caldav/utils/extract-ical-data.util.ts`
+Extracts the VEVENT block / component data from a CalDAV calendar-data payload.
+
+### extractAttendeesFromEvent / extractOrganizerFromEvent
+`file: .../drivers/caldav/utils/extract-attendees-from-event.util.ts`, `extract-organizer-from-event.util.ts`
+Map iCal ATTENDEE/ORGANIZER properties to participant objects (handle, display name, response status).
+
+### mapPartstatToResponseStatus
+`file: .../drivers/caldav/utils/map-partstat-to-response-status.util.ts`
+Maps iCal PARTSTAT (ACCEPTED/DECLINED/TENTATIVE/NEEDS-ACTION) to the internal response-status enum.
+
+### buildCancelledEvent
+`file: .../drivers/caldav/utils/build-cancelled-event.util.ts`
+Produces a minimal cancelled-event shape (id + isCanceled) for events removed since the last sync.
+
+### isValidCalDavHref
+`file: .../drivers/caldav/utils/is-valid-caldav-href.util.ts`
+Validates a CalDAV resource href before fetching.
+
+### isEventInTimeRange
+`file: .../drivers/caldav/utils/is-event-in-time-range.util.ts`
+True when an event's start/end overlaps the configured import window (5 years past, 1 year future).
+
+### parseCalDavError / isInvalidSyncTokenResponse
+`file: .../drivers/caldav/utils/parse-caldav-error.util.ts`, `is-invalid-sync-token-response.util.ts`
+Classify CalDAV server errors and detect invalid/expired sync-token responses so the importer can reset its cursor.
+
+---
+
+## modules/dashboard/chart-data/utils (full coverage — query building, processing, formatting, sorting, gap filling)
+
+### Query building
+
+#### buildGroupByFieldObject
+`file: src/modules/dashboard/chart-data/utils/build-group-by-field-object.util.ts:84`
+Builds the nested `groupBy` object passed to the group-by query runner. For date-kind fields it injects granularity + timezone + first-day-of-week; for composite/relation fields it nests the subfield; otherwise emits `{ fieldName: true }`.
+
+#### buildAggregateFieldKey
+`file: src/modules/dashboard/chart-data/utils/build-aggregate-field-key.util.ts:11`
+Computes the result-key string for an aggregate (e.g. `amountSum`) combining field name and operation.
+
+#### convertChartFilterToGqlOperationFilter
+`file: src/modules/dashboard/chart-data/utils/convert-chart-filter-to-gql-operation-filter.util.ts:28`
+Converts a dashboard `ChartFilter` (filters + groups + logical operators) into a GraphQL `ObjectRecordFilter` via `computeRecordGqlOperationFilter`, resolving field ids against flat field maps and applying the user timezone / current member.
+
+#### getGroupByOrderBy / getFieldOrderBy / getRelationFieldOrderBy / mapOrderByToDirection
+`file: .../get-group-by-order-by.util.ts:18`, `get-field-order-by.util.ts:17`, `get-relation-field-order-by.util.ts:12`, `map-order-by-to-direction.util.ts:6`
+Build the ORDER BY clause for group-by queries — choosing field vs aggregate ordering, composite/relation/date variants, and mapping the GraphOrderBy enum to ASC/DESC.
+
+#### getFieldMetadata / getSelectOptions / isRelationNestedFieldDateKind / isCyclicalDateGranularity
+`file: .../get-field-metadata.util.ts:12`, `get-select-options.util.ts:6`, `is-relation-nested-field-date-kind.util.ts:9`, `is-cyclical-date-granularity.util.ts:4`
+Lookups/predicates: resolve a field's metadata, get a SELECT field's option list, detect a date-kind nested relation field, and detect cyclical granularities (e.g. day-of-week, month-of-year) that wrap.
+
+### Result processing
+
+#### processOneDimensionalResults
+`file: src/modules/dashboard/chart-data/utils/process-one-dimensional-results.util.ts:32`
+Maps raw group-by rows to `{ formattedValue, rawValue, aggregateValue }` points and a formatted→raw lookup, applying dimension formatting (date granularity, timezone, first-day-of-week).
+
+#### processTwoDimensionalResults
+`file: src/modules/dashboard/chart-data/utils/process-two-dimensional-results.util.ts:38`
+Same for 2D: produces points with x/y formatted+raw values plus primary and secondary formatted→raw lookups.
+
+#### formatDimensionValue / formatDateByGranularity / compareDimensionValues
+`file: .../format-dimension-value.util.ts:49`, `format-date-by-granularity.ts:8`, `compare-dimension-values.util.ts:38`
+Format a dimension value for display (dates by granularity, selects by label, relations by subfield) and compare two dimension values for sorting/gap detection.
+
+#### transformAggregateValue
+`file: src/modules/dashboard/chart-data/utils/transform-aggregate-value.util.ts:24`
+Coerces a raw aggregate to a number: null → 0, percentage operations scaled appropriately, count operations as integers, otherwise numeric parse.
+
+#### getAggregateOperationLabel
+`file: .../get-aggregate-operation-label.util.ts:3`
+Human-readable label for an aggregate operation (Sum, Count, etc.).
+
+### Gap filling & date ranges
+
+#### generateDateGroupsInRange
+`file: src/modules/dashboard/chart-data/utils/generate-date-groups-in-range.util.ts:22`
+Enumerates the expected date buckets across the data's min/max range at a given granularity (so missing buckets can be filled).
+
+#### fillDateGaps / fillDateGapsTwoDimensional
+`file: src/modules/dashboard/chart-data/utils/fill-date-gaps.util.ts:21,97`
+Insert zero-value points for missing date buckets in 1D and 2D series.
+
+#### fillSelectGaps / fillSelectGapsTwoDimensional
+`file: src/modules/dashboard/chart-data/utils/fill-select-gaps.util.ts:11,54`
+Insert zero-value points for SELECT options that have no data.
+
+#### applyGapFilling
+`file: src/modules/dashboard/chart-data/utils/apply-gap-filling.util.ts:35`
+Dispatcher that picks date vs select gap-filling (1D/2D) based on the primary axis field kind.
+
+### Sorting & misc
+
+#### sortChartDataIfNeeded
+`file: src/modules/dashboard/chart-data/utils/sort-chart-data-if-needed.util.ts:31`
+Generic sorter that respects the configured order (manual order, select-option position, or value/label) when ordering is required.
+
+#### sortByManualOrder / sortBySelectOptionPosition / sortSecondaryAxisData
+`file: .../sort-by-manual-order.util.ts:9`, `sort-by-select-option-position.util.ts:18`, `sort-secondary-axis-data.util.ts:27`
+Specific generic sorters used by `sortChartDataIfNeeded` and 2D processing.
+
+#### buildLineChartSeriesIdPrefix
+`file: src/modules/dashboard/chart-data/utils/build-line-chart-series-id-prefix.util.ts:5`
+Builds a stable series-id prefix for multi-series line charts.
+
+#### chartDataGraphqlApiExceptionHandler
+`file: src/modules/dashboard/chart-data/utils/chart-data-graphql-api-exception-handler.util.ts:13`
+Maps chart-data service errors to GraphQL API exceptions for the chart resolvers.
+
+---
+
+## modules/dashboard/query-hooks (full coverage)
+
+### DashboardCreateOnePreQueryHook
+`file: src/modules/dashboard/query-hooks/dashboard-create-one.pre-query.hook.ts:16`
+PRE_HOOK on dashboard create-one: if no `pageLayoutId` supplied, creates a new dashboard page layout (+ default tab) via `DashboardToPageLayoutSyncService` and injects its id into the payload.
+
+### DashboardCreateManyPreQueryHook
+`file: src/modules/dashboard/query-hooks/dashboard-create-many.pre-query.hook.ts:16`
+Same logic applied per item for create-many.
+
+### DashboardDestroyOnePreQueryHook
+`file: src/modules/dashboard/query-hooks/dashboard-destroy-one.pre-query.hook.ts:15`
+PRE_HOOK on destroy-one: destroys the page layouts linked to the dashboard being destroyed.
+
+### DashboardDestroyManyPreQueryHook
+`file: src/modules/dashboard/query-hooks/dashboard-destroy-many.pre-query.hook.ts:15`
+Same for destroy-many across all targeted dashboard ids.
+
+---
+
+## modules/dashboard/tools (AI agent tool factories — full coverage)
+
+Each factory takes `(deps: DashboardToolDependencies, context: DashboardToolContext)` and returns a tool definition `{ name, description, parameters, execute }` used by `DashboardToolWorkspaceService.generateDashboardTools`.
+
+### createCreateCompleteDashboardTool
+`file: src/modules/dashboard/tools/create-complete-dashboard.tool.ts:47`
+`create_complete_dashboard` — creates a dashboard with layout, a tab, and widgets in one call. Its description encodes the full widget contract (12-col grid; GRAPH AGGREGATE_CHART/BAR/LINE/PIE with required configuration fields and relation/composite subfield rules; IFRAME; STANDALONE_RICH_TEXT; RECORD_TABLE requiring a dedicated view).
+
+### createAddDashboardTabTool
+`file: src/modules/dashboard/tools/add-dashboard-tab.tool.ts:26`
+`add_dashboard_tab` — adds a new tab to an existing dashboard's page layout.
+
+### createAddDashboardWidgetTool
+`file: src/modules/dashboard/tools/add-dashboard-widget.tool.ts:31`
+`add_dashboard_widget` — adds a single widget (with grid position + configuration) to a tab.
+
+### createUpdateDashboardWidgetTool
+`file: src/modules/dashboard/tools/update-dashboard-widget.tool.ts:31`
+`update_dashboard_widget` — updates an existing widget's configuration/position.
+
+### createDeleteDashboardWidgetTool
+`file: src/modules/dashboard/tools/delete-dashboard-widget.tool.ts:12`
+`delete_dashboard_widget` — removes a widget by id.
+
+### createListDashboardsTool / createGetDashboardTool
+`file: src/modules/dashboard/tools/list-dashboards.tool.ts:19`, `get-dashboard.tool.ts:20`
+`list_dashboards` returns the workspace's dashboards; `get_dashboard` returns a single dashboard with its layout/tabs/widgets.
+
+---
+
+## modules/timeline/utils (full coverage)
+
+### extractObjectSingularNameFromTargetColumnName
+`file: src/modules/timeline/utils/extract-object-singular-name-from-target-column-name.util.ts:4`
+**Function: `(targetColumnName: string) → string`**
+Strips a trailing `Id` and a leading `target` prefix (lower-casing the next char) to turn e.g. `targetCompanyId` → `company`. Inverse of the morph-field name builder below.
+
+### buildTimelineActivityRelatedMorphFieldMetadataName
+`file: src/modules/timeline/utils/timeline-activity-related-morph-field-metadata-name-builder.util.ts:3`
+**Function: `(name: string) → string`**
+Returns `target${Capitalize(name)}` (e.g. `company` → `targetCompany`) — the morph relation field name on the timelineActivity object.
+
+---
+
 ## NOT YET COVERED
 
-The following files in the assigned area were not fully documented due to scope (mostly constants, DTOs, types, listeners, and utility helper functions):
-
-### Calendar Module (partial coverage):
-- `/modules/calendar/common/query-hooks/*` (post-query hooks for visibility restrictions)
-- `/modules/calendar/calendar-event-participant-manager/listeners/*` (event listeners for person/workspace member updates)
-- `/modules/calendar/blocklist-manager/*` (blocklist-based event filtering jobs/listeners)
-- `/modules/calendar/calendar-event-import-manager/drivers/caldav/utils/*` (iCal parsing, validation, attribute extraction)
-- `/modules/calendar/calendar-event-import-manager/drivers/{google,microsoft}/utils/*` (event formatting, error parsing)
-- `/modules/calendar/calendar-event-import-manager/utils/{calendar-event-mapper,filter-out-blocklisted-events,is-sync-stale,get-flattened-values-and-values-string-for-batch-raw-query}` (data transformation utilities)
-- All `*.constants.ts`, `*.type.ts`, `*.entity.ts` files (declarations only)
-
-### Dashboard Module (partial coverage):
-- `/modules/dashboard/chart-data/utils/*` (50+ utility functions: gap filling, sorting, formatting, aggregation transformation, field lookups)
-- `/modules/dashboard/chart-data/filters/*` (GraphQL exception filters)
-- `/modules/dashboard/query-hooks/*` (pre/post-query hooks for dashboard CRUD)
-- `/modules/dashboard/tools/{create-complete-dashboard,add-dashboard-tab,add-dashboard-widget,update-dashboard-widget,delete-dashboard-widget}.tool.ts` (AI agent tool definitions)
-- All `*.constants.ts`, `*.dto.ts`, `*.entity.ts` files (declarations only)
-
-### Dashboard-Sync Module:
-- Module file only (2 methods documented)
-
-### Timeline Module (partial coverage):
-- `/modules/timeline/utils/{extract-object-singular-name-from-target-column-name,timeline-activity-related-morph-field-metadata-name-builder}` (helper functions)
-- `/modules/timeline/standard-objects/*`, `*.type.ts`, `*.constant.ts` (type/entity definitions)
-
-**Total Functions Documented: ~75 service methods, query resolvers, job handlers, CLI commands, and critical utility functions**
+Only trivial leftovers remain:
+- `*.constants.ts`, `*.type.ts`, `*.dto.ts`, `*.entity.ts` and module wiring files (`*.module.ts`) — declarations/config only.
+- Microsoft/Google driver `utils/*` formatting helpers (small per-provider event/error mappers analogous to the documented CalDAV helpers).
+- `*.spec.ts` test files and test fixtures.
 

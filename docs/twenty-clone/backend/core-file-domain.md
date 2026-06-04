@@ -284,7 +284,112 @@ Comprehensive function documentation for file storage, domain management, search
 
 ---
 
+## emailing-domain — AWS SES Driver Layer
+
+### aws-ses-driver.service.ts
+- **AwsSesDriver.verifyDomain()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:48`, queries SES email-identity DKIM/verification state for a domain, maps AWS attributes to the driver's verification-record + status shape, runs error through AwsSesHandleErrorService.
+- **AwsSesDriver.getDomainStatus()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:75`, fetches current SES identity status and DKIM tokens, returns EmailingDomainStatus with verification records.
+- **AwsSesDriver.provisionWorkspace()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:114`, ensures a SES tenant exists for the workspace via `ensureTenantExists`.
+- **AwsSesDriver.registerDomain()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:129`, delegates to AwsSesRegisterDomainService to create the email identity + MAIL FROM domain.
+- **AwsSesDriver.sendEmail()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:133`, delegates to AwsSesSendEmailService.
+- **AwsSesDriver.cleanupDomain()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:143`, deletes the SES email identity and associated resources for a workspace's domain.
+- **AwsSesDriver.deprovisionWorkspace()** — `emailing-domain:drivers/aws-ses/services/aws-ses-driver.service.ts:166`, tears down the SES tenant after all domains for the workspace are removed.
+- **AwsSesDriver.ensureTenantExists()** (private) — `:219`, creates a SES tenant named per workspace if missing, idempotent on already-exists.
+- **AwsSesDriver.createOrUpdateEmailIdentity()** (private) — `:235`, upserts the SES email identity, calling createNewEmailIdentity when absent.
+- **AwsSesDriver.createNewEmailIdentity()** (private) — `:267`, sends CreateEmailIdentity then enables DKIM.
+- **AwsSesDriver.associateResourceWithTenant()** (private) — `:297`, associates the email identity resource ARN with the workspace tenant.
+- **AwsSesDriver.enableDkimSigning()** (private) — `:323`, enables Easy DKIM signing on the identity.
+
+### aws-ses-register-domain.service.ts
+- **AwsSesRegisterDomainService.provisionWorkspaceResources()** — `emailing-domain:drivers/aws-ses/services/aws-ses-register-domain.service.ts:30`, runs the full SES setup sequence (configuration set, event destinations / SNS topic, MAIL FROM) for a workspace using the shared SES client from AwsSesClientProvider; logs each step.
+- **AwsSesRegisterDomainService.registerDomain()** — `:120`, configures the MAIL FROM domain (bounce subdomain) for the given domain and logs completion.
+
+### aws-ses-send-email.service.ts
+- **AwsSesSendEmailService.sendEmail()** — `emailing-domain:drivers/aws-ses/services/aws-ses-send-email.service.ts:34`, throws CONFIGURATION_ERROR if `to` is empty, builds a SES v2 `SendEmailCommand` (Simple content: subject + text/optional-html, attachments mapped to {FileName, RawContent, ContentType}, To/Cc/Bcc/ReplyTo), sends via the SES client and returns the result.
+
+### aws-ses-handle-error.service.ts
+- **AwsSesHandleErrorService.handleAwsSesError()** — `emailing-domain:drivers/aws-ses/services/aws-ses-handle-error.service.ts:11`, `(error, context?): never`, maps AWS SDK error names/types to EmailingDomainDriverException with the appropriate EmailingDomainDriverExceptionCode and always throws (return type `never`).
+
+### aws-ses-client.provider.ts
+- **AwsSesClientProvider.getSESClient()** — `emailing-domain:drivers/aws-ses/providers/aws-ses-client.provider.ts:16`, lazily constructs/returns a configured AWS `SESClient` (v2) from TwentyConfigService region/credentials.
+
+### emailing-domain-driver.factory.ts
+- **EmailingDomainDriverFactory.buildConfigKey()** — `emailing-domain:drivers/emailing-domain-driver.factory.ts:30`, extends DriverFactoryBase; returns a cache key combining the configured driver and a config-group hash (AWS_SES settings) so the driver is rebuilt when SES config changes; throws on unsupported driver.
+- **EmailingDomainDriverFactory.createDriver()** — `:44`, reads AWS_SES_REGION / ACCOUNT_ID / credentials from config and instantiates AwsSesDriver; throws on invalid driver.
+
+### emailing-domain-workspace-cleanup.job.ts
+- **EmailingDomainWorkspaceCleanupJob.handle()** — `emailing-domain:jobs/emailing-domain-workspace-cleanup.job.ts:16`, `@Processor(deleteCascadeQueue)` + `@Process`, calls EmailingDomainService cleanup for the workspace when a workspace is destroyed.
+
+### AWS SES constants
+- `emailing-domain:drivers/aws-ses/constants/*` — `AWS_SES_EVENT_BUS_NAME='default'`, `AWS_SES_MAIL_FROM_SUBDOMAIN='bounce'`, `AWS_SES_MARKETING_TOPIC_NAME='marketing'`, `AWS_SES_RESOURCE_NAME_PREFIX='twenty-workspace'` (the prefix used by `parseWorkspaceIdFromAwsSesResourceArn`).
+
+### driver-config.interface.ts
+- **AwsSesDriverConfig / BaseDriverConfig** — `emailing-domain:drivers/interfaces/driver-config.interface.ts:3`, config shapes: base `{driver}`; AWS variant adds `{region, accountId, accessKeyId?, secretAccessKey?, sessionToken?}`.
+
+---
+
+## file-storage — Additional Utils & Validators
+
+### has-allowed-extension.util.ts
+- **hasAllowedExtension()** — `file-storage:utils/has-allowed-extension.util.ts:3`, lowercases `extname(filePath)` and returns true only if `allowedExtensions[ext] === true` (a `Record<string,true>` lookup map).
+
+### is-safe-relative-path.util.ts
+- **isSafeRelativePath()** — `file-storage:utils/is-safe-relative-path.util.ts:3`, boolean predicate: false on empty, null-byte, absolute, backslash-containing, or `..`-segment paths (after `normalize`); otherwise true.
+
+### validate-safe-relative-path.util.ts
+- **validateSafeRelativePath()** — `file-storage:utils/validate-safe-relative-path.util.ts:7`, same checks as `isSafeRelativePath` but returns a `ResourcePathValidationResult` with a localized `t\`…\`` error message per failure (empty / null bytes / absolute / backslashes / path traversal).
+
+### read-file-content.ts
+- **readFileContent()** — `file-storage:utils/read-file-content.ts:3`, async-iterates a `Readable` stream, collects chunks into Buffers, returns the concatenated content as a UTF-8 string.
+
+### is-safe-relative-path.validator.ts
+- **IsSafeRelativePath()** — `file-storage:validators/is-safe-relative-path.validator.ts:9`, class-validator decorator whose constraint `validate(value)` delegates to `isSafeRelativePath`; used on DTO path fields.
+
+### resource-path-validation-result.type.ts
+- **ResourcePathValidationResult** — `file-storage:types/resource-path-validation-result.type.ts`, discriminated result `{isValid: true} | {isValid: false, error: string}` returned by all path validators.
+
+### allowed-extensions-by-application-file-folder.constant.ts
+- **ALLOWED_EXTENSIONS_BY_APPLICATION_FILE_FOLDER** — `file-storage:constants/allowed-extensions-by-application-file-folder.constant.ts`, per-FileFolder maps of allowed file extensions consumed by `validateFileExtension` / `hasAllowedExtension`.
+
+---
+
+## search — Additional Utils
+
+### escape-for-ilike.ts
+- **escapeForIlike()** — `search:utils/escape-for-ilike.ts:1`, escapes the SQL LIKE special chars `\ % _` with a leading backslash (`value.replace(/[\\%_]/g, '\\$&')`) before building the ILIKE fallback query.
+
+### format-search-terms.ts
+- **formatSearchTerms()** — `search:utils/format-search-terms.ts:1`, `(searchTerm, operator='and')`, returns '' for blank input; otherwise splits on whitespace, escapes tsquery-special chars `\ : ' & | ! ( ) @ < >`, appends `:*` (prefix match) to each word, and joins with ` & ` (and) or ` | ` (or) for a Postgres `to_tsquery` expression.
+
+---
+
+## domain — Subdomain & URL Utils
+
+### subdomain-manager/utils
+
+- **generateRandomSubdomain()** — `domain:subdomain-manager/utils/generate-random-subdomain.util.ts:1`, picks a random prefix, color, and animal suffix from fixed word lists and joins them as `prefix-color-suffix` (e.g. `brave-azure-otter`).
+- **getSubdomainFromEmail()** — `domain:subdomain-manager/utils/get-subdomain-from-email.util.ts:6`, returns undefined for missing or non-work emails; otherwise takes the domain name's first label, lowercased.
+- **getSubdomainNameFromDisplayName()** — `domain:subdomain-manager/utils/get-subdomain-name-from-display-name.util.ts:2`, returns undefined if no display name; otherwise matches word/digit runs, joins with `-`, strips spaces, lowercases.
+- **isSubdomainValid()** — `domain:subdomain-manager/utils/is-subdomain-valid.util.ts:4`, true only if `isValidTwentySubdomain(subdomain)` and the lowercased value is not in `RESERVED_SUBDOMAINS`.
+
+### domain-server-config/utils
+
+- **appendSearchParamsToUrl()** — `domain:domain-server-config/utils/append-search-params-to-url.util.ts:1`, mutates a `URL` by setting each entry of a `Record<string, string|number|boolean>` as a stringified search param.
+- **buildUrlWithPathnameAndSearchParams()** — `domain:domain-server-config/utils/build-url-with-pathname-and-search-params.util.ts:9`, sets `url.pathname` when a pathname is given and appends searchParams via `appendSearchParamsToUrl`, returning the URL.
+
+---
+
+## file — Additional Listener & Util
+
+### files-field-deletion.listener.ts
+- **FilesFieldDeletionListener.handleDestroyedEvent()** — `file:files-field/listeners/files-field-deletion.listener.ts:37`, `@OnDatabaseBatchEvent('*', DatabaseEventAction.DESTROYED)`, reacts to any record destruction and enqueues files-field file deletions for the affected FilesField values.
+
+### extract-file-id-from-url.util.ts
+- **extractFileIdFromUrl()** — `file:files-field/utils/extract-file-id-from-url.util.ts:4`, parses a URL (returns null on parse failure or if the pathname is external to `/file/{fileFolder}/`), extracts the id segment after the folder, and returns it only if it is a valid UUID, else null.
+
+---
+
 ## NOT YET COVERED
 
-None — all files in assigned modules have been documented.
+Only genuinely-trivial leftovers remain (locale catalog files, GraphQL DTO/input/entity field-only classes, exception-code enums, plain provider/module wiring files, and AWS SES type aliases like `aws-ses-error.type.ts`, `send-email.ts`, `verifications-record.ts`).
 

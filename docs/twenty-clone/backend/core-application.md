@@ -516,21 +516,376 @@ Relations: packageJsonFile, yarnLockFile, applicationRegistration, agents, logic
 - **fromFlatApplicationToApplicationDto(flatApplication) → ApplicationDTO** (line 4)
   Maps flat application to DTO, normalizing nulls to undefined, ensuring availablePackages defaults to {}, objects defaults to [].
 
----
+## Application OAuth — Grant Handlers (oauth.service.ts continued)
+
+`file:src/engine/core-modules/application/application-oauth/oauth.service.ts`
+
+Additional OAuth 2.0 grant/management methods on **OAuthService** beyond `exchangeAuthorizationCode` documented above.
+
+- **clientCredentialsGrant({clientId, clientSecret}) → Promise<OAuthTokenResponse | OAuthErrorResponse>** (line 240)
+  RFC 6749 §4.4 machine-to-machine grant. Validates client + secret, requires exactly one workspace installation for the registration (errors on zero or multiple), issues an application access token (no refresh token). Returns Bearer token + expires_in + scope.
+
+- **refreshTokenGrant({refreshToken, clientId, clientSecret?}) → Promise<OAuthTokenResponse | OAuthErrorResponse>** (line 301)
+  Validates client; requires secret for confidential clients (those with `oAuthClientSecretHash`). Validates refresh token, confirms its application belongs to this registration, renews the token pair via `renewApplicationTokens`. Returns invalid_grant on any failure.
+
+- **revokeToken({token, clientId?, clientSecret?}) → Promise<{success: boolean}>** (line 382)
+  RFC 7009. Optionally validates client/secret. Tokens are stateless JWTs so revocation can't truly happen — it validates and logs the request, always returning success:true (per §2.2, 200 for valid and invalid tokens).
+
+- **introspectToken({token, clientId, clientSecret?}) → Promise<Record<string, unknown>>** (line 428)
+  RFC 7662. Validates client; tries the token as a refresh token then as an access token; verifies the decoded token's application belongs to the client. Returns `{active:true, sub, client_id, token_type, scope, aud, iss, exp, iat}` or `{active:false}`.
+
+### oauth-token.controller.ts
+`file:src/engine/core-modules/application/application-oauth/controllers/oauth-token.controller.ts`
+
+**Controller: OAuthTokenController** (`@Controller('oauth')`, public + rate-limited at 60 req/min/IP via token bucket).
+
+- **token(body, req, res) → Promise<OAuthTokenResponse | OAuthErrorResponse>** (line 43)
+  `POST /oauth/token`. Rate-limits, then switches on `grant_type` to call exchangeAuthorizationCode / clientCredentialsGrant / refreshTokenGrant; returns unsupported_grant_type otherwise. Sets no-store cache headers; maps error responses to 401 (invalid_client) or 400.
+
+- **revoke(body, req, res) → Promise<{}>** (line 102)
+  `POST /oauth/revoke`. Rate-limits, calls revokeToken, always returns `{}` with 200 (RFC 7009 §2.2).
+
+- **introspect(body, req, res) → Promise<Record<string, unknown>>** (line 124)
+  `POST /oauth/introspect`. Rate-limits; rejects missing client_id with 401 invalid_client; delegates to introspectToken.
+
+- **applyRateLimit(req, res) → Promise<boolean>** (line 148, private)
+  Token-bucket throttle keyed by `oauth:<ip>`; on ThrottlerException responds 429 and returns true (caller short-circuits).
+
+- **setSecurityHeaders(res) → void** (line 174, private)
+  Sets `Cache-Control: no-store` and `Pragma: no-cache`.
+
+### oauth-discovery.controller.ts
+`file:src/engine/core-modules/application/application-oauth/controllers/oauth-discovery.controller.ts`
+
+**Controller: OAuthDiscoveryController** (`@Controller('.well-known')`, public).
+
+- **getAuthorizationServerMetadata(request) → Promise<object>** (line 24)
+  `GET /.well-known/oauth-authorization-server` (RFC 8414). Returns issuer + authorize/token/register/revoke/introspect endpoints, supported scopes/grants/PKCE methods, `authorization_response_iss_parameter_supported:true` (RFC 9207 mix-up defense). Routes `/authorize` to the frontend base URL when the request host is the API-only host. Adds `cli_client_id` if the Twenty CLI registration exists.
+
+- **getProtectedResourceMetadataRoot(request) → object** (line 75)
+  `GET /.well-known/oauth-protected-resource` (RFC 9728). Resource = origin.
+
+- **getProtectedResourceMetadataMcp(request) → object** (line 83)
+  `GET /.well-known/oauth-protected-resource/mcp`. Resource = `<origin>/mcp` (path-aware variant; strict clients require the resource to match the probed path).
+
+- **buildProtectedResourceMetadata / getRequestBaseUrl / isApiHost** (lines 89, 98, 102, private)
+  Helpers building the resource metadata object, the `protocol://host` base, and detecting whether the request host equals SERVER_URL's host.
+
+### oauth-registration.controller.ts
+`file:src/engine/core-modules/application/application-oauth/controllers/oauth-registration.controller.ts`
+
+**Controller: OAuthRegistrationController** (`@Controller('oauth')`, public, RFC 7591 Dynamic Client Registration).
+
+- **register(body, req, res) → Promise<object>** (line 57)
+  `POST /oauth/register`. Rate-limited (10/hour/IP prod, 100 dev). Validates redirect URIs (≥1, each via validateRedirectUri), grant_types (only authorization_code/refresh_token), response_types (only code), token_endpoint_auth_method. Dynamic clients are always public — secret is never issued, auth method silently downgraded to `none`. Caps scopes to ALL_OAUTH_SCOPES, generates UUID clientId + universalIdentifier, persists an OAUTH_ONLY registration with null secret/owner, returns the RFC 7591 client metadata document.
+
+- **readRegistration(clientId, req, res) → Promise<object>** (line 184)
+  `GET /oauth/register/:clientId` (RFC 7592 read-back). Looks up the OAUTH_ONLY registration; 404 if missing. No registration_access_token is issued (client_id is an unguessable UUID and all returned fields are public).
+
+- **applyRateLimit(req) → Promise<error|null>** (line 222, private)
+  Token-bucket throttle keyed by `oauth-register:<ip>`.
+
+## Application OAuth — Stale Registration Cleanup
+
+### stale-registration-cleanup.service.ts
+`file:src/engine/core-modules/application/application-oauth/stale-registration-cleanup/services/stale-registration-cleanup.service.ts`
+
+**Service: StaleRegistrationCleanupService** — Garbage-collects abandoned DCR (OAUTH_ONLY) registrations.
+
+- **cleanupStaleRegistrations() → Promise<number>** (line 23)
+  Computes cutoff (now − grace period days), then keyset-paginates OAUTH_ONLY registrations older than cutoff in batches; for each batch, excludes any registration that still has a non-deleted installed application, soft-deletes the rest. Returns total deleted.
+
+- **findStaleRegistrationBatch(cutoffDate, batchSize, afterCreatedAt?) → Promise<{id, createdAt}[]>** (line 88, private)
+  Keyset query (`createdAt > afterCreatedAt`, ordered ASC, take batchSize) for OAUTH_ONLY rows older than cutoff.
+
+- **calculateCutoffDate() → Date** (line 121, private)
+  Midnight UTC minus STALE_REGISTRATION_GRACE_PERIOD_DAYS.
+
+### stale-registration-cleanup.cron.job.ts
+`file:src/engine/core-modules/application/application-oauth/stale-registration-cleanup/crons/stale-registration-cleanup.cron.job.ts`
+
+- **StaleRegistrationCleanupCronJob.handle() → Promise<void>** (line 26)
+  BullMQ cronQueue processor (`@SentryCronMonitor`). Runs cleanupStaleRegistrations, logs deleted count; on error captures via ExceptionHandlerService and rethrows.
+
+## Application Package Utilities
+
+### application-version-validation.service.ts
+`file:src/engine/core-modules/application/application-package/application-version-validation.service.ts`
+
+**Service: ApplicationVersionValidationService**
+
+- **validateServerCompatibility(requiredServerVersion?) → Promise<VersionValidationResult>** (line 26)
+  No-op (compatible) if undefined. Validates the manifest's `engines.twenty` is a valid semver range, fetches the server's inferred version via UpgradeMigrationService, and checks `semver.satisfies`. Returns `{compatible:false, reason, message}` for INVALID_REQUIRED_VERSION / INVALID_SERVER_VERSION / INCOMPATIBLE.
+
+### Package utils
+`file:src/engine/core-modules/application/application-package/utils/`
+
+- **assertValidNpmPackageName(name) → void** (`assert-valid-npm-package-name.util.ts:11`)
+  Throws INVALID_INPUT unless name matches the npm package-name regex (optional @scope/) and contains no `..` (path-traversal guard).
+
+- **extractTarballSecurely(tarballPath, targetDir) → Promise<void>** (`extract-tarball-securely.util.ts:12`)
+  `tar.extract` with a per-entry filter that rejects path-escape entries (resolved path must stay under target), rejects symlinks/hardlinks, and aborts if cumulative size exceeds MAX_EXTRACTED_SIZE_BYTES (500 MB).
+
+- **parseAvailablePackagesFromPackageJsonAndYarnLock(packageJsonContent, yarnLockContent) → Record<string,string>** (`parse-available-packages-from-package-json-and-yarn-lock.util.ts:8`)
+  Regex-scans yarn.lock (capped at 1000 matches) for `name@…: version:` blocks and records the resolved version for each package that appears in package.json dependencies.
+
+- **copyYarnEngineAndBuildDependencies(buildDirectory) → Promise<void>** (`copy-yarn-engine-and-build-dependencies.ts:10`)
+  Copies the vendored yarn engine into the build dir, runs `yarn workspaces focus --all --production` (with NODE_OPTIONS stripped so tsx doesn't interfere), then deletes everything except `node_modules` — leaving only installed production deps.
+
+- **getDefaultApplicationPackageFields() → Promise<DefaultApplicationPackageFields>** (`get-default-application-package-fields.util.ts:21`)
+  Reads the seed package.json/yarn.lock, parses available packages, and returns them plus the hard-coded default checksums (SHA512 first-32-char digests).
+
+- **readJsonFile<T>(dir, filename) → Promise<T | null>** / **readJsonFileOrThrow<T>(dir, filename) → Promise<T>** (`read-json-file.util.ts:9, 24`)
+  Reads + JSON-parses a file; the OrThrow variant throws PACKAGE_RESOLUTION_FAILED on null.
+
+- **resolvePackageContentDir(extractDir) → Promise<string>** (`tarball-utils.ts:5`)
+  Returns `<extractDir>/package` if it exists (npm pack wraps contents in `package/`), else the extract dir itself.
+
+## Marketplace — Catalog Sync & Query
+
+### marketplace-catalog-sync.service.ts
+`file:src/engine/core-modules/application/application-marketplace/marketplace-catalog-sync.service.ts`
+
+**Service: MarketplaceCatalogSyncService**
+
+- **syncCatalog() → Promise<void>** (line 20)
+  Entry point; calls syncRegistryApps and logs completion.
+
+- **syncRegistryApps() → Promise<void>** (line 26, private)
+  Fetches npm registry packages, then per package: fetches manifest from CDN (skips if none), backfills aboutDescription from README, rewrites relative asset URLs to absolute CDN URLs (resolveManifestAssetUrls + buildRegistryCdnUrl), and upserts a NPM registration via `applicationRegistrationService.upsertFromCatalog`. Per-package errors are logged, not fatal.
+
+### marketplace-query.service.ts
+`file:src/engine/core-modules/application/application-marketplace/marketplace-query.service.ts`
+
+**Service: MarketplaceQueryService**
+
+- **findManyMarketplaceApps() → Promise<MarketplaceAppDTO[]>** (line 31)
+  Returns listed registrations as marketplace DTOs. If none exist, enqueues a one-time catalog-sync job (guarded by `hasSyncBeenEnqueued`) and returns []. Filters out apps whose required variables are unconfigured (batch check).
+
+- **findMarketplaceAppDetail(universalIdentifier) → Promise<MarketplaceAppDetailDTO>** (line 61)
+  Resolves the registration and maps to detail DTO.
+
+- **findRegistrationByUniversalIdentifier(universalIdentifier) → Promise<ApplicationRegistrationEntity>** (line 70)
+  Throws APPLICATION_REGISTRATION_NOT_FOUND if missing.
+
+- **toMarketplaceAppDTO / toMarketplaceAppDetailDTO** (lines 88, 105, private)
+  Map registration + manifest.application into list/detail DTOs (name, description, author, category, logo, isFeatured, etc.).
+
+### marketplace.resolver.ts
+`file:src/engine/core-modules/application/application-marketplace/marketplace.resolver.ts`
+
+**Resolver: MarketplaceResolver** (workspace-auth guarded).
+
+- **findManyMarketplaceApps() → Query<MarketplaceAppDTO[]>** (line 38) — delegates to query service.
+- **findMarketplaceAppDetail(universalIdentifier) → Query<MarketplaceAppDetailDTO>** (line 43) — delegates to query service.
+- **installMarketplaceApp(universalIdentifier, version?) → Mutation<Boolean>** (line 55, deprecated)
+  Resolves registration, installs via ApplicationInstallService, returns true. Requires MARKETPLACE_APPS permission.
+- **installApplication(universalIdentifier, version?) → Mutation<ApplicationDTO>** (line 77)
+  Installs and returns the resulting ApplicationDTO. Requires MARKETPLACE_APPS permission.
+- **syncMarketplaceCatalog() → Mutation<Boolean>** (line 102)
+  Enqueues the catalog-sync cron job (idempotent job id). Requires MARKETPLACE_APPS permission.
+
+### marketplace-catalog-sync.cron.job.ts / command
+`file:src/engine/core-modules/application/application-marketplace/crons/marketplace-catalog-sync.cron.job.ts`
+
+- **MarketplaceCatalogSyncCronJob.handle() → Promise<void>** (line 24)
+  BullMQ cronQueue processor (`@SentryCronMonitor`); runs syncCatalog, logs, rethrows on error.
+
+- **MarketplaceCatalogSyncCommand.run() → Promise<void>** (`crons/commands/marketplace-catalog-sync.command.ts:16`)
+  `nest-commander` command `marketplace:catalog-sync` that runs syncCatalog manually.
+
+### Marketplace utils
+`file:src/engine/core-modules/application/application-marketplace/utils/`
+
+- **buildRegistryCdnUrl({cdnBaseUrl, packageName, version, filePath}) → string** (`build-registry-cdn-url.util.ts:1`)
+  Builds `<cdnBaseUrl>/<packageName>@<version>/<filePath>`.
+
+- **resolveManifestAssetUrls(manifest, urlBuilder) → Manifest** (`resolve-manifest-asset-urls.util.ts:6`)
+  Returns a manifest clone with `application.logoUrl` and `screenshots` rewritten through urlBuilder (absolute http(s) URLs are left untouched).
+
+## Application Manifest — Migration & Universal Flat Maps
+
+### application-manifest-migration.service.ts
+`file:src/engine/core-modules/application/application-manifest/application-manifest-migration.service.ts`
+
+**Service: ApplicationManifestMigrationService** — Diffs a manifest against current workspace metadata and runs the migration.
+
+- **syncPreInstallLogicFunctionFromManifest({manifest, workspaceId, ownerFlatApplication}) → Promise<void>** (line 37)
+  No-op if no pre-install logic function declared; otherwise finds it in manifest.logicFunctions (throws ENTITY_NOT_FOUND if absent), builds a single-function "preInstallOnly" manifest, and runs a purely **additive** migration (inferDeletionFromMissingEntities omitted) so existing metadata is untouched on upgrades.
+
+- **syncMetadataFromManifest({manifest, workspaceId, ownerFlatApplication}) → Promise<{workspaceMigration, hasSchemaMetadataChanged}>** (line 160)
+  Loads current flat-entity maps + featureFlagsMap from cache, computes the app's existing sub-maps (from) and the manifest's universal flat maps (to), builds dependency maps (always includes the Twenty-standard app unless the owner *is* it), then runs `validateBuildAndRunWorkspaceMigrationFromTo` with `inferDeletionFromMissingEntities:true`. Throws WorkspaceMigrationBuilderException on validation failure. Finally calls syncDefaultRoleAndSettingsCustomTab.
+
+- **syncDefaultRoleAndSettingsCustomTab({manifest, workspaceId, ownerFlatApplication}) → Promise<void>** (line 253, private)
+  Re-reads role + front-component maps, resolves the manifest's default role and settings-custom-tab front component to their persisted ids (throws ENTITY_NOT_FOUND if unresolvable), and updates the application's `defaultRoleId` / `settingsCustomTabFrontComponentId`.
+
+### compute-application-manifest-all-universal-flat-entity-maps.service.ts
+`file:src/engine/core-modules/application/application-manifest/services/compute-application-manifest-all-universal-flat-entity-maps.service.ts`
+
+**Service: ComputeApplicationManifestAllUniversalFlatEntityMapsService**
+
+- **compute({manifest, ownerFlatApplication, now, workspaceId}) → AllFlatEntityMaps** (line 65)
+  The big manifest→universal-flat converter. Iterates every manifest section (objects + their fields/unique-indexes, top-level fields, declared indexes with per-object MAX_CUSTOM_INDEXES_PER_OBJECT guard, logic functions, front components, connection providers, permission flags, roles + their object/field permissions and permission-flag links, skills, agents, views + field-groups/fields/filter-groups/filters/groups/sorts, navigation menu items, page layouts + tabs + widgets, top-level page-layout tabs, application variables, command menu items), converting each through its dedicated `from*ManifestToUniversalFlat*` util and adding it into the empty AllFlatEntityMaps via `addUniversalFlatEntityToUniversalFlatEntityMapsThroughMutationOrThrow`. Auto-generates a TS_VECTOR field's universalSettings from the object's label identifier when missing, and an index for every unique field.
+
+- **encryptApplicationVariableValue(plaintext, workspaceId) → EncryptedString | ''** (line 51, private)
+  Returns '' for empty input; otherwise versioned-encrypts the value (secret variables are stored empty in the manifest sync, filled later by the admin).
+
+### Manifest utils
+`file:src/engine/core-modules/application/application-manifest/utils/`
+
+- **buildFromToAllUniversalFlatEntityMaps({fromAllFlatEntityMaps, toAllUniversalFlatEntityMaps}) → FromToAllUniversalFlatEntityMaps** (`build-from-to-all-universal-flat-entity-maps.util.ts:7`)
+  For each metadata name, pairs the from/to flat-entity maps into a `{from, to}` record keyed by the flat-entity-maps key.
+
+- **computeSearchVectorUniversalSettingsFromObjectManifest({objectManifest}) → FieldMetadataUniversalSettings<TS_VECTOR>** (`compute-search-vector-universal-settings-from-object-manifest.util.ts:10`)
+  Finds the label-identifier field; returns null if missing/non-searchable; else builds a STORED generated `asExpression` ts_vector column from that field.
+
+- **getApplicationSubAllFlatEntityMaps({applicationIds, fromAllFlatEntityMaps}) → AllFlatEntityMaps** (`get-application-sub-all-flat-entity-maps.util.ts:9`)
+  Extracts the subset of every metadata map that belongs to the given application ids (via getSubFlatEntityMapsByApplicationIdsOrThrow), producing a scoped AllFlatEntityMaps.
+
+### Manifest converters
+`file:src/engine/core-modules/application/application-manifest/converters/`
+
+~25 pure `from<Entity>ManifestToUniversalFlat<Entity>(...) → UniversalFlat<Entity>` mappers, one per manifest entity type (object metadata, field metadata, field/object permission, front component, index, logic function, navigation menu item, page layout / tab / widget, permission flag, role-permission-flag, role, skill, view + view field/field-group/filter/filter-group/group/sort, command menu item, connection provider, application variable). Each takes the manifest fragment + `applicationUniversalIdentifier` + `now` (and parent universal identifiers where nested) and returns the corresponding universal-flat entity with timestamps and `isCustom:false`. The connection-provider converter encrypts no values; the application-variable converter is fed an already-encrypted value by the compute service.
+
+### from-agent-manifest-to-universal-flat-agent.util.ts
+`file:src/engine/core-modules/application/utils/from-agent-manifest-to-universal-flat-agent.util.ts`
+
+- **fromAgentManifestToUniversalFlatAgent({agentManifest, applicationUniversalIdentifier, now}) → UniversalFlatAgent** (line 7)
+  Maps an agent manifest to a flat agent: copies name/label/icon/description/prompt, defaults modelId to AUTO_SELECT_SMART_MODEL_ID, sets responseFormat `{type:'text'}`, empty evaluationInputs, isCustom false, timestamps.
+
+## Connection Provider (OAuth-backed app connections)
+
+### connection-provider.service.ts
+`file:src/engine/core-modules/application/connection-provider/connection-provider.service.ts`
+
+**Service: ConnectionProviderService** — Resolves OAuth client credentials for app-declared connection providers and queries providers.
+
+- **getClientCredentials(provider) → Promise<{clientId, clientSecret}>** (line 27)
+  Asserts the provider is OAuth-typed, finds the owning application + its registration (throws CLIENT_CREDENTIALS_NOT_CONFIGURED if no registration), loads + decrypts the clientId/clientSecret registration variables; throws if either is empty.
+
+- **areClientCredentialsConfigured(provider) → Promise<boolean>** (line 74) — single-provider wrapper over the batch method.
+
+- **areClientCredentialsConfiguredBatch(providers) → Promise<Map<string,boolean>>** (line 82)
+  Filters to OAuth providers, resolves their applications→registrations, loads the relevant registration variables once, and marks a provider configured only if both its clientId and clientSecret variables have non-empty encrypted values.
+
+- **findOneByApplicationAndName({applicationId, name}) → Promise<ConnectionProviderEntity | null>** (line 170)
+- **findOneByIdOrThrow(id) → Promise<ConnectionProviderEntity>** (line 182) — throws PROVIDER_NOT_FOUND.
+- **findManyByApplication({applicationId, workspaceId}) → Promise<ConnectionProviderEntity[]>** (line 197)
+
+### connection-provider-oauth-flow.service.ts
+`file:src/engine/core-modules/application/connection-provider/connection-provider-oauth-flow.service.ts`
+
+**Service: ConnectionProviderOAuthFlowService** — Runs the authorization-code flow that produces a ConnectedAccount for an app provider.
+
+- **startAuthorizationFlow(args) → Promise<{authorizationUrl}>** (line 70)
+  Asserts OAuth provider; for reconnect requests, verifies the target ConnectedAccount belongs to the requesting workspace + same provider (FORBIDDEN otherwise). Resolves client credentials, generates a PKCE verifier when usePkce, signs a 10-minute `APP_OAUTH_STATE` JWT carrying workspace/user/visibility/reconnect/redirect/codeVerifier, and assembles the provider authorization URL (client_id, redirect_uri = `/apps/oauth/callback`, scope, state, PKCE challenge, extra authorizationParams).
+
+- **completeAuthorizationFlow(args) → Promise<CallbackResult>** (line 143)
+  Verifies the state JWT, re-loads the provider, resolves credentials, exchanges the code via SSRF-safe fetch (errors → TOKEN_EXCHANGE_FAILED), then persists/updates the ConnectedAccount. Returns connectedAccountId, workspaceId, applicationId, redirectLocation.
+
+- **signState / verifyState** (lines 199, 205, private) — sign/verify the APP_OAUTH_STATE JWT (type-checked; INVALID_STATE on failure).
+- **getServerUrl()** (line 228, private) — reads SERVER_URL.
+- **persistConnectedAccount({...}) → Promise<ConnectedAccountEntity>** (line 232, private)
+  Encrypts the access/refresh token pair; on reconnect, workspace-scoped update + findOneByOrFail; otherwise creates a new APP-provider ConnectedAccount named `<displayName> #<n+1>` with visibility, scopes, applicationId, connectionProviderId, userWorkspaceId.
+
+### application-connection-provider.resolver.ts
+`file:src/engine/core-modules/application/connection-provider/application-connection-provider.resolver.ts`
+
+- **applicationConnectionProviders(applicationId, workspace) → Query<ApplicationConnectionProviderDTO[]>** (line 22)
+  Returns the workspace's providers for an application, batch-checks credential configuration, and maps to DTOs (oauth field carries scopes + isClientCredentialsConfigured).
+
+### connection-provider-oauth.controller.ts
+`file:src/engine/core-modules/application/connection-provider/connection-provider-oauth.controller.ts`
+
+**Controller: ConnectionProviderOAuthController** (`@Controller('apps/oauth')`, public; transient token carries identity).
+
+- **authorize(applicationId, providerName, transientToken, visibility?, reconnectingConnectedAccountId?, redirectLocation?, res) → redirect** (line 47)
+  Validates params + visibility, verifies the transient token → workspace/user, loads workspace + provider (provider must belong to the workspace), resolves the userWorkspace, then redirects to the provider's authorization URL. On any error logs + redirects to a workspace-scoped error URL (captured early so the redirect lands on the user's own subdomain).
+
+- **callback(code, state, error?, error_description?, res) → redirect** (line 159)
+  Handles provider error params / missing code+state; otherwise completes the flow, builds a workspace URL to the application detail page (or redirectLocation), sets `#settings` hash, and redirects.
+
+- **redirectToError(res, error, workspace) → redirect** (line 226, private)
+  Builds an error redirect via GuardRedirectService (captures exceptions), falling back to DEFAULT_SUBDOMAIN.
+
+### connections/application-connections.controller.ts
+`file:src/engine/core-modules/application/connection-provider/connections/application-connections.controller.ts`
+
+**Controller: ApplicationConnectionsController** (`@Controller('apps/connections')`, requires an APPLICATION_ACCESS token — used by app logic functions at runtime).
+
+- **list(request, filter) → Promise<AppConnectionDto[]>** (line 38) — `POST /apps/connections/list`.
+- **get(request, body) → Promise<AppConnectionDto>** (line 55) — `POST /apps/connections/get`.
+- **requireAppContext(request) → {applicationId, workspaceId, requestUserWorkspaceId}** (line 70, private)
+  Throws ForbiddenException unless the request was authenticated with an application access token.
+
+### connections/services/application-connections-list.service.ts
+`file:src/engine/core-modules/application/connection-provider/connections/services/application-connections-list.service.ts`
+
+**Service: ApplicationConnectionsListService** — Lists/fetches an app's connected accounts with fresh decrypted access tokens.
+
+- **list({applicationId, workspaceId, requestUserWorkspaceId, filter}) → Promise<AppConnectionDto[]>** (line 49)
+  Loads the app's providers, applies optional providerName/userWorkspaceId filters plus a privacy WHERE, then refreshes + maps each account (dropping any that can't be resolved/refreshed).
+
+- **getOne({applicationId, workspaceId, requestUserWorkspaceId, id}) → Promise<AppConnectionDto>** (line 101)
+  Fetches one APP-provider connected account scoped to the app; enforces the same privacy rule (a request-user only sees their own user-visibility connections; workspace-shared ones are visible to all; cron sees all); refreshes + maps it. NotFoundException for missing/foreign/unresolvable.
+
+- **buildPrivacyWhere(baseWhere, requestUserWorkspaceId, visibilityFilter) → FindOptionsWhere | FindOptionsWhere[]** (line 155, private)
+  Encodes the visibility privacy rule into TypeORM where clauses (cron with no request user sees everything matching the visibility filter).
+
+- **refreshAndMap(account, workspaceId, providerById) → Promise<AppConnectionDto | null>** (line 190, private)
+  Resolves the provider (drops ghost rows referencing a missing provider), refreshes tokens via ConnectedAccountRefreshTokensService, decrypts the access token, and returns the DTO (name, handle, visibility, userWorkspaceId, accessToken, scopes, authFailedAt). Returns null on refresh failure.
+
+### refresh/services/app-oauth-refresh-tokens.service.ts
+`file:src/engine/core-modules/application/connection-provider/refresh/services/app-oauth-refresh-tokens.service.ts`
+
+**Service: AppOAuthRefreshAccessTokenService** — Refresh-token driver for APP-provider connected accounts (plugged into the generic refresh-tokens manager).
+
+- **refreshTokens(connectedAccount, refreshToken) → Promise<ConnectedAccountPlaintextTokens>** (line 28)
+  Resolves the provider + client credentials, calls the token endpoint with grant_type=refresh_token (SSRF-safe fetch); falls back to the existing refresh token if the provider doesn't rotate it. Maps 4xx (esp. invalid_grant) to INVALID_REFRESH_TOKEN (reconnect needed) and 5xx/transport errors to TEMPORARY_NETWORK_ERROR.
+
+- **resolveProvider(connectionProviderId) → Promise<{provider, clientId, clientSecret}>** (line 80, private)
+  Loads + asserts the OAuth provider and its credentials; maps ConnectionProviderException to PROVIDER_NOT_SUPPORTED.
+
+### refresh/services/app-oauth-revoke.service.ts
+`file:src/engine/core-modules/application/connection-provider/refresh/services/app-oauth-revoke.service.ts`
+
+**Service: AppOAuthRevokeService**
+
+- **revokeIfApp(connectedAccount) → Promise<void>** (line 21)
+  Best-effort revocation: no-ops if not an OAuth APP account with a token + provider revokeEndpoint; otherwise decrypts the access token and POSTs `token` + `token_type_hint=access_token` (form-encoded) to the revoke endpoint. All failures are logged, never thrown (so disconnect never blocks).
+
+### Connection-provider utils
+`file:src/engine/core-modules/application/connection-provider/utils/`
+
+- **assertOAuthProvider(provider) → asserts OAuthConnectionProvider** (`assert-oauth-provider.util.ts:13`)
+  Type-narrowing guard; throws INVALID_REQUEST unless `type==='oauth'` with an oauthConfig.
+
+- **buildAppOAuthCallbackUrl(serverUrl) → string** (`build-callback-url.util.ts:4`)
+  Returns `<serverUrl>/apps/oauth/callback` — workspace-agnostic (identity travels in signed state).
+
+- **computePkceChallenge(verifier) → string** (`compute-pkce-challenge.util.ts:5`)
+  base64url(SHA-256(verifier)) — PKCE S256.
+
+- **generatePkceVerifier() → string** (`generate-pkce-verifier.util.ts:5`)
+  base64url of 32 random bytes.
+
+- **encodeOAuthBody(contentType, params) → {body, contentTypeHeader}** (`encode-oauth-body.util.ts:3`)
+  JSON or `application/x-www-form-urlencoded` body depending on the provider's configured content type.
+
+- **exchangeCodeForToken(args) → Promise<TokenExchangeResponse>** (`exchange-code-for-token.util.ts:8`)
+  Builds the authorization_code params (with optional code_verifier) and delegates to postOAuthTokenRequest.
+
+- **exchangeRefreshTokenForToken(args) → Promise<TokenExchangeResponse>** (`exchange-refresh-token-for-token.util.ts:8`)
+  Builds refresh_token params and delegates to postOAuthTokenRequest.
+
+- **parseTokenResponse(json) → TokenExchangeResponse** (`parse-token-response.util.ts:4`)
+  Extracts access_token (throws if absent), optional refresh_token, and splits `scope` on whitespace/commas.
+
+- **postOAuthTokenRequest(args) → Promise<TokenExchangeResponse>** + **OAuthTokenEndpointError** (`post-oauth-token-request.util.ts:11, 21`)
+  POSTs the encoded body with `Accept: application/json`; throws OAuthTokenEndpointError (carrying HTTP status, so callers distinguish transient 5xx from permanent 4xx) on non-OK; otherwise parses the JSON.
 
 ## NOT YET COVERED
 
-The following files were not fully documented due to token/time constraints:
+Only trivial non-logic files remain (DTOs/inputs under `*/dtos/`, type aliases under `types/`, enums, constants such as cron patterns / curated-app lists / oauth-scopes lists, entity classes, exception/exception-filter classes already summarized at the top, and `*.module.ts` wiring). The ~25 manifest converters under `application-manifest/converters/` are documented collectively above (uniform pure mappers).
 
-- `/src/engine/core-modules/application/application-package/` — Most utility functions (extract, read, validate)
-- `/src/engine/core-modules/application/application-marketplace/` — Catalog sync, query service, resolvers
-- `/src/engine/core-modules/application/application-registration-variable/` — Variable entity definitions
-- `/src/engine/core-modules/application/application-variable/` — Variable entity, exceptions, DTOs
-- `/src/engine/core-modules/application/connection-provider/` — Exception handling, resolvers, entities
-- `/src/engine/core-modules/application/application-manifest/` — Migration service, migration-related utilities
-- `/src/engine/core-modules/application/types/` — Type definitions (FlatApplication, etc.)
-- `/src/engine/core-modules/application/dtos/` — DTO definitions
-- `/src/engine/core-modules/application/constants/` — Constant definitions
-- `/src/engine/core-modules/application/application.module.ts` — Module configuration
-
-**Approximate function count documented: 85+ exported functions/methods across services, resolvers, and utilities.**
+**Approximate function count documented: 160+ exported functions/methods/handlers across services, resolvers, controllers, cron jobs, commands, and utilities.**

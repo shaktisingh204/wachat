@@ -797,16 +797,417 @@ Rate limits invitation sends per email and per workspace using ThrottlerService 
 
 ---
 
+## email (additional)
+
+### EmailSenderService
+file: email/email-sender.service.ts:10
+Implements `EmailDriverInterface`. **send(sendMailOptions)** → Promise<void> resolves the current driver via `EmailDriverFactory.getCurrentDriver()` and delegates the actual send. This is the worker-side counterpart of `EmailService.send` (which only enqueues).
+
+### EmailSenderJob
+file: email/email-sender.job.ts:9
+`@Processor(MessageQueue.emailQueue)` BullMQ processor. **handle(data: SendMailOptions)** → Promise<void> is the `@Process(EmailSenderJob.name)` consumer that pops a queued email payload and forwards it to `EmailSenderService.send`. This is how `EmailService.send`'s enqueued jobs are actually dispatched.
+
+### EmailDriverFactory
+file: email/email-driver.factory.ts:14
+Extends `DriverFactoryBase<EmailDriverInterface>` — caches a driver instance keyed by a config hash.
+**buildConfigKey()** (protected) → string returns `'logger'` for `EmailDriver.LOGGER`, or `smtp|<EMAIL_SETTINGS hash>` for SMTP (so SMTP credential changes bust the cache); throws on unsupported driver.
+**createDriver()** (protected) → EmailDriverInterface instantiates `LoggerDriver` or builds an `SmtpDriver` from `EMAIL_SMTP_HOST/PORT/USER/PASSWORD/NO_TLS` (requires host+port; adds auth only when user+pass present; sets `secure:false, ignoreTLS:true` when NO_TLS).
+
+### SmtpDriver
+file: email/drivers/smtp.driver.ts:13
+Constructs a Nodemailer transport from `SMTPConnection.Options`. **send()** fire-and-forgets `transport.sendMail` — logs success/error rather than awaiting, so a failing SMTP send never rejects the caller.
+
+### LoggerDriver
+file: email/drivers/logger.driver.ts:7
+Dev/test driver. **send()** logs the full message (to/from/subject/text/html) via NestJS `Logger` instead of sending anything.
+
+---
+
+## imap-smtp-caldav-connection (additional)
+
+### ImapSmtpCaldavService
+file: imap-smtp-caldav-connection/services/imap-smtp-caldav-connection.service.ts:23
+
+**testImapConnection(handle, params)** → Promise<boolean>
+Resolves+validates the host through `SecureHttpClientService.getValidatedHost` (SSRF guard), opens an `ImapFlow` client (TLS, `rejectUnauthorized:false`), attaches an `error` listener (ImapFlow crashes the process otherwise), connects and lists mailboxes. Maps `authenticationFailed` / `ECONNREFUSED` / generic errors to localized `UserInputError`s; always logs out in `finally`.
+
+**testSmtpConnection(handle, params)** → Promise<boolean>
+Validates host, creates a Nodemailer transport and calls `transport.verify()`; throws a localized `UserInputError` on failure.
+
+**testCaldavConnection(handle, params)** → Promise<boolean>
+Builds a CalDAV client via `CalDavClientService.getClient`, lists event-capable calendars via `CalDavFetchEventsService.listEventCalendars`; throws if zero calendars or on socket/credential errors (re-throws existing `UserInputError`).
+
+**testImapSmtpCaldav({handle, params, accountType})** → Promise<boolean>
+Short-circuits to `true` when `IS_IMAP_SMTP_CALDAV_CONNECTION_TEST_ENABLED` is off; otherwise switches to the protocol-specific test (`assertUnreachable` for exhaustiveness).
+
+**validateAndTestConnectionParameters({connectionParameters, handle, existingConnectionParameters})** → Promise<PlaintextImapSmtpCaldavParams>
+Iterates `ACCOUNT_TYPES` (IMAP/SMTP/CALDAV); for each present protocol validates via `ImapSmtpCaldavValidatorService.validateProtocolConnectionParams` (carrying over the previously-decrypted password), live-tests it, and accumulates validated plaintext params for persistence.
+
+### ImapSmtpCaldavValidatorService
+file: imap-smtp-caldav-connection/services/imap-smtp-caldav-connection-validator.service.ts:14
+**validateProtocolConnectionParams({params, existingProtocolParams})** → Promise<PlaintextConnectionParameters>
+Picks `connectionParametersUpdateSchema` (when editing) vs `connectionParametersSchema` (when new) and zod-`safeParse`s the input; rolls all issues into one `UserInputError`. Runs the host through `SecureHttpClientService.getValidatedHost` to block private/internal addresses. Falls back to the existing decrypted password when the user didn't supply a new one; throws if no password resolves.
+
+### ImapSmtpCaldavResolver
+file: imap-smtp-caldav-connection/imap-smtp-caldav-connection.resolver.ts:31
+Guarded by `WorkspaceAuthGuard` + `SettingsPermissionGuard(CONNECTED_ACCOUNTS)`.
+**getConnectedImapSmtpCaldavAccount(id)** → Query<ConnectedImapSmtpCaldavAccountDTO>: loads the connected account scoped to the user-workspace, asserts it is an `IMAP_SMTP_CALDAV` provider, and returns it with passwords stripped via `buildPublicConnectionParameters`.
+**saveImapSmtpCaldavAccount(handle, connectionParameters, id?)** → Mutation<ImapSmtpCaldavConnectionSuccessDTO>: for edits, loads+decrypts the existing account's params; validates+live-tests the new params; upserts the connected account via `ImapSmtpCalDavAPIService.upsertConnectedAccount`; returns `{success, connectedAccountId}`.
+
+### buildPublicConnectionParameters
+file: imap-smtp-caldav-connection/utils/build-public-connection-parameters.util.ts:19
+**buildPublicConnectionParameters(connectionParameters)** → PublicConnectionParameters | null
+Reduces over `ACCOUNT_TYPES`, copying each protocol's params while destructuring out (dropping) the `password` field — produces the API-safe view of IMAP/SMTP/CALDAV settings.
+
+---
+
+## code-interpreter (additional)
+
+### CodeInterpreterDriverFactory
+file: code-interpreter/code-interpreter-driver.factory.ts:16
+Extends `DriverFactoryBase<CodeInterpreterDriver>`.
+**buildConfigKey()** (protected): `e2b|<CODE_INTERPRETER_CONFIG hash>` for E2B, else the raw driver-type string.
+**createDriver()** (protected): returns `DisabledDriver` (with a guidance message) when DISABLED, or when LOCAL is selected in `NODE_ENV=PRODUCTION` (LOCAL is unsafe in prod); returns `LocalDriver({timeoutMs})` for LOCAL in dev; returns `E2BDriver({apiKey, timeoutMs})` for E2B (throws if `E2B_API_KEY` missing).
+
+### LocalDriver
+file: code-interpreter/drivers/local.driver.ts:43
+UNSAFE dev-only Python sandbox (no isolation). **execute(code, files?, context?, callbacks?)** → Promise<CodeExecutionResult>: makes a tmp workdir + `output/` + `scripts/` (recursively copies bundled `sandbox-scripts`), writes input files (basename-sanitized), rewrites E2B-style `/home/user/...` paths to local paths, writes `script.py`, then `runPythonScript` spawns `python3` with `OUTPUT_DIR` env, streams stdout/stderr line-by-line through callbacks, SIGKILLs on timeout, and reads back any files in `output/` (mime-typed via `getMimeType`); always `rm -rf`s the workdir in `finally`.
+**copyDirectoryRecursive(src, dest)** (module-level): recursive directory copy helper used to seed the sandbox scripts.
+
+### E2BDriver
+file: code-interpreter/drivers/e2b.driver.ts:47
+Cloud sandbox driver. **execute(...)** creates an `@e2b/code-interpreter` `Sandbox`, uploads bundled scripts + input files, prepends a generated `os.environ[...]` setup block (values shell-escaped) from `context.env`, runs the code streaming stdout/stderr and collecting inline `result.png` charts plus any files in `/home/user/output`; returns joined logs, `exitCode` (1 if `execution.error`), output files, and error value; always `sbx.kill()` in `finally`.
+**uploadDirectoryToSandbox(sbx, localPath, remotePath)** (module-level): recursively uploads a local dir into the sandbox filesystem.
+
+### DisabledDriver
+file: code-interpreter/drivers/disabled.driver.ts:9
+**execute(...)** unconditionally throws the configured `reason` string — used when code execution is turned off or LOCAL is blocked in prod.
+
+### getMimeType
+file: code-interpreter/utils/get-mime-type.util.ts:13
+**getMimeType(filename)** → string: maps the lowercased extension to a MIME type from a small table (png/jpg/csv/xlsx/pptx/pdf/json/txt), defaulting to `application/octet-stream`.
+
+---
+
+## email-verification (additional)
+
+### EmailVerificationService
+file: email-verification/services/email-verification.service.ts:33
+
+**sendVerificationEmail({userId, email, workspace, locale, verifyEmailRedirectPath?, verificationTrigger?})** → Promise<{success}>
+No-ops (returns `{success:false}`) unless `IS_EMAIL_VERIFICATION_REQUIRED`. Generates a verification token via `EmailVerificationTokenService.generateToken`, builds the `VerifyEmail` link against the workspace URL (or base URL when no workspace), renders the `SendEmailVerificationLinkEmail` React Email to html+text, localizes the subject (different copy for EMAIL_UPDATE vs SIGN_UP) via `I18nService`, and sends through `EmailService`.
+
+**resendEmailVerificationToken(email, workspace, locale)** → Promise<{success}>
+Throws `EMAIL_VERIFICATION_NOT_REQUIRED` when the feature is off. Loads the user, throws `EMAIL_ALREADY_VERIFIED` if verified. Enforces a 1-minute cooldown against any existing token (throws `RATE_LIMIT_EXCEEDED` with a human-readable wait), deletes the old token, then re-sends a SIGN_UP verification email.
+
+### EmailVerificationResolver
+file: email-verification/email-verification.resolver.ts:22
+`@PublicEndpointGuard` + `NoPermissionGuard` (currently unauthenticated, flagged as a TODO).
+**resendEmailVerificationToken(input, origin, context)** → Mutation<ResendEmailVerificationTokenDTO>: resolves the workspace from `origin` via `WorkspaceDomainsService.getWorkspaceByOriginOrDefaultWorkspace`, then delegates to the service using the request locale.
+
+---
+
+## client-config (additional)
+
+### ClientConfigService
+file: client-config/services/client-config.service.ts:27
+**getClientConfig()** → Promise<ClientConfig>
+Assembles the entire runtime config the frontend bootstraps from: app version; billing flags + the two trial-period variants (with/without credit card); the full AI model catalog (`AiModelRegistryService.getAdminFilteredModels` enriched with per-model cost/context/capability metadata, then unshifting the two synthetic "auto-select smart/fast" entries from the default performance/speed models); auth providers (google/microsoft/password, magicLink hardcoded false); multiworkspace/email-verification flags; front domain; support driver; Sentry DSN/release/env; captcha provider+siteKey; API mutation cap; many feature toggles (Microsoft/Google messaging+calendar, IMAP/SMTP/CalDAV, config-in-DB, attachment preview, analytics, ClickHouse, DDL lock); `canManageFeatureFlags` (dev OR billing enabled); `isEmailGroupEnabled` (S3 storage + inbound email domain); `isCloudflareIntegrationEnabled` (private helper checks API key + zone id). Finally merges maintenance-window data from `MaintenanceModeService.getMaintenanceMode` when present.
+**isCloudflareIntegrationEnabled()** (private) → boolean: true only when both `CLOUDFLARE_API_KEY` and `CLOUDFLARE_ZONE_ID` are set.
+
+### ClientConfigController
+file: client-config/client-config.controller.ts:9
+`@Controller('/client-config')`, `@PublicEndpointGuard`. **getClientConfig()** → `GET /client-config` REST passthrough to `ClientConfigService.getClientConfig` (unauthenticated bootstrap endpoint).
+
+### ClientConfigResolver
+file: client-config/client-config.resolver.ts:20
+`@CoreResolver`, guarded by Workspace+User auth. **isMaintenanceModeBannerDismissed(user, workspace)** → Query<boolean> and **dismissMaintenanceModeBanner(user, workspace)** → Mutation<boolean> proxy `MaintenanceModeService` per-user-per-workspace banner state.
+
+---
+
+## cloudflare (additional)
+
+### DnsCloudflareService
+file: cloudflare/services/dns-cloudflare.service.ts:10
+**checkHostname(hostname)** → Promise<void>
+Cloudflare custom-hostname webhook handler. Resolves the hostname to a workspace custom domain (`WorkspaceDomainsService.findByCustomDomain` → `CustomDomainManagerService.checkCustomDomainValidRecords`) and/or a public domain (`PublicDomainService.findByDomain` → `checkPublicDomainValidRecords`), refreshing validation state when the hostname's DNS becomes active.
+
+---
+
+## dns-manager (additional — full method coverage)
+
+### DnsManagerService
+file: dns-manager/services/dns-manager.service.ts:26
+Enterprise-licensed. Lazily constructs a `Cloudflare` client when `CLOUDFLARE_API_KEY` is set; all mutating methods first assert it via `dnsManagerValidator.isCloudflareInstanceDefined`.
+
+**registerHostname(customDomain, options?)** → creates a Cloudflare custom hostname (with TXT-based DV SSL params); throws `HOSTNAME_ALREADY_REGISTERED` if it exists.
+**getHostnameWithRecords(domain, options?)** → DomainValidRecords | undefined: returns the redirection (CNAME → base/public domain) and SSL (ACME challenge CNAME, using DCV delegation records when available) records with computed statuses; throws `MISSING_PUBLIC_DOMAIN_URL` if a public-domain lookup lacks a configured public domain URL.
+**updateHostname(fromHostname, toHostname, options?)** → deletes the old hostname (if present) then registers the new one.
+**refreshHostname(hostname, options?)** → re-issues SSL by calling `customHostnames.edit` with fresh SSL params; returns the records.
+**deleteHostnameSilently(hostname, options?)** → best-effort delete that swallows errors.
+**isHostnameWorking(hostname, options?)** → boolean: true only when both redirection and SSL statuses are `success`.
+**getHostnameId(hostname, options?)** → the Cloudflare custom-hostname id, or undefined.
+**deleteHostname(customHostnameId, options?)** → deletes by Cloudflare id in the correct zone.
+**sslParams** (private getter) → the standardized DV/TXT SSL config (http2/early-hints on, min TLS 1.2, TLS 1.3, cipher list).
+**getZoneId(options?)** (private) → picks `CLOUDFLARE_PUBLIC_DOMAIN_ZONE_ID` vs `CLOUDFLARE_ZONE_ID` based on `isPublicDomain`.
+**getHostnameDetails(hostname, options?)** (private) → single Cloudflare hostname record; returns undefined for none, throws `MULTIPLE_HOSTNAMES_FOUND` for >1.
+**getHostnameStatuses(customHostname)** (private) → `{redirection, ssl}` status strings, treating the first 10s after creation as `pending` and mapping Cloudflare verification errors/SSL states.
+
+---
+
+## geo-map (additional)
+
+### GeoMapService
+file: geo-map/services/geo-map.service.ts:14
+Caches `GOOGLE_MAP_API_KEY` in the constructor only when `IS_MAPS_AND_ADDRESS_AUTOCOMPLETE_ENABLED` and the key are set (otherwise the service is effectively inert).
+**getAutoCompleteAddress(address, token, country?, isFieldCity?)** → builds a Google Places autocomplete URL (optional `components=country:` and `types=(cities)` filters), fetches via the SSRF-safe HTTP client, and returns `sanitizeAutocompleteResults` on `status==='OK'` (else `[]`).
+**getAddressDetails(placeId, token)** → fetches Google Place Details (address_components + geometry) and returns `sanitizePlaceDetailsResults` on OK (else `{}`).
+
+### GeoMapResolver
+file: geo-map/resolver/geo-map.resolver.ts:13
+`WorkspaceAuthGuard` + `NoPermissionGuard`. **getAutoCompleteAddress(...)** and **getAddressDetails(...)** are thin GraphQL queries over the matching service methods.
+
+### sanitizeAutocompleteResults
+file: geo-map/utils/sanitize-autocomplete-results.util.ts:6
+Maps Google predictions to `{text: description, placeId: place_id}`; `[]` for empty input.
+
+### sanitizePlaceDetailsResults
+file: geo-map/utils/sanitize-place-details-results.util.ts:12
+Folds Google `address_components` into Twenty address fields (street from street_number+route, postcode + suffix, city from locality/postal_town/admin_level_3, state from admin_level_1/2, country short_name) and attaches the lat/lng `location`.
+
+---
+
+## guard-redirect (additional)
+
+### GuardRedirectService
+file: guard-redirect/services/guard-redirect.service.ts:17
+**dispatchErrorFromGuard(context, error, workspace, pathname=Verify)** → rethrows for GraphQL contexts; for HTTP, redirects the response to a workspace error URL.
+**getSubdomainAndCustomDomainFromContext(context)** → derives subdomain/customDomain from the request `referer` (via `DomainServerConfigService`), falling back to `DEFAULT_SUBDOMAIN`.
+**getRedirectErrorUrlAndCaptureExceptions({error, workspace, pathname})** → captures the exception then builds the redirect URL through `WorkspaceDomainsService.computeWorkspaceRedirectErrorUrl`.
+**captureException(err, workspaceId?)** (private) → forwards to `ExceptionHandlerService` but skips non-internal `AuthException`s (expected auth failures aren't reported to Sentry).
+
+---
+
+## messaging (additional — full coverage)
+
+### TimelineMessagingService
+file: messaging/services/timeline-messaging.service.ts:21
+**getAndCountMessageThreads(personIds, workspaceId, offset, pageSize)** → paginated message threads (without participant/visibility fields) + total count, executed inside a system workspace-ORM context.
+**getThreadParticipantsByThreadId(...)** → groups message participants by thread id (with person/workspaceMember relations) for display.
+**getThreadVisibilityByThreadId(...)** → resolves each thread's `MessageChannelVisibility` based on whether the requesting member owns the connected message channel.
+
+### GetMessagesService
+file: messaging/services/get-messages.service.ts:13
+**getMessagesFromPersonIds(workspaceMemberId, personIds, workspaceId, page=1, pageSize)** → `TimelineThreadsWithTotalDTO`: pages threads via `TimelineMessagingService.getAndCountMessageThreads`, then enriches with participant summaries and visibility-gated subject/body via `formatThreads`.
+**getMessagesFromCompanyId(...)** → resolves a company to its person ids, then delegates to the person-ids path.
+**getMessagesFromOpportunityId(...)** → resolves opportunity → company → persons, then fetches messages.
+
+### TimelineMessagingResolver
+file: messaging/timeline-messaging.resolver.ts:65
+**getTimelineThreadsFromPersonId / FromCompanyId / FromOpportunityId** → paginated `TimelineThreadsWithTotalDTO` queries over `GetMessagesService`.
+**dismissReconnectAccountBanner(input)** → Mutation<boolean> that persists per-member dismissal of the "reconnect your account" banner.
+
+### formatThreads
+file: messaging/utils/format-threads.util.ts:9
+Drops threads with no participants, then attaches participant summary fields and applies visibility gating: subject shown for SHARE_EVERYTHING|SUBJECT, body only for SHARE_EVERYTHING — otherwise replaced with `FIELD_RESTRICTED_ADDITIONAL_PERMISSIONS_REQUIRED`.
+
+### extractParticipantSummary
+file: messaging/utils/extract-participant-summary.util.ts:6
+From a thread's participants returns `{firstParticipant, lastTwoParticipants, participantCount}` (de-duplicating first/last by handle) for compact timeline display.
+
+### filterActiveParticipants
+file: messaging/utils/filter-active-participants.util.ts:5
+Keeps only participants with `MessageParticipantRole.FROM` (the senders).
+
+### formatThreadParticipant
+file: messaging/utils/format-thread-participant.util.ts:6
+Maps a `MessageParticipantWorkspaceEntity` to a `TimelineThreadParticipantDTO`, resolving name/avatar from the linked person, then workspace member, then raw handle; throws if the handle is empty.
+
+---
+
+## metrics (additional)
+
+### MetricsCacheService
+file: metrics/metrics-cache.service.ts:12
+Time-bucketed set-based event counter on the `EngineMetrics` cache namespace; buckets are 15s wide and TTL is twice the configured health window.
+**updateCounter(key, items)** → adds event ids to the current 15s bucket's Redis set.
+**computeCount({key, timeWindowInSeconds, date})** → sums set cardinality across all 15s buckets in the window (requires the window be divisible by 15s) for sliding-window metrics.
+**computeTimeStampedCacheKeys(key, cacheBucketsCount, date)** → the list of bucket cache keys for a window. Private helpers `getCacheBucketStartTimestamp`, `getCacheKeyWithTimestamp`, `getLastCacheBucketStartTimestampsFromDate` implement the bucketing math.
+
+---
+
+## public-domain (additional — full method coverage)
+
+### PublicDomainService
+file: public-domain/public-domain.service.ts:22
+**createPublicDomain({domain, workspace, applicationId})** → registers a Cloudflare hostname (public-domain zone) then inserts a `PublicDomainEntity`; throws if the domain is already a custom domain, already a public domain, or the application doesn't exist.
+**updatePublicDomainApplication({domain, workspace, applicationId})** → reassigns which application a public domain points at; validates both domain and application exist.
+**deletePublicDomain({domain, workspace})** → silently deletes the Cloudflare hostname then removes the row.
+**checkPublicDomainValidRecords(publicDomain, domainValidRecords?)** → fetches/uses DNS records, flips `isValidated` to match `DnsManagerService.isHostnameWorking`, persists if changed, returns the records.
+**findByDomain(domain)** → unscoped lookup (used during request routing before workspace context exists).
+
+### PublicDomainResolver
+file: public-domain/public-domain.resolver.ts:40
+Guarded by `WorkspaceAuthGuard` + `SettingsPermissionGuard(WORKSPACE_MEMBERS)`.
+**findManyPublicDomains** → Query lists workspace public domains.
+**createPublicDomain / updatePublicDomain / deletePublicDomain** → Mutations over the matching service methods.
+**checkPublicDomainValidRecords(input)** → Mutation that asserts the domain exists, calls `DnsManagerService.refreshHostname`, then `PublicDomainService.checkPublicDomainValidRecords`.
+
+---
+
+## record-position (additional — full method coverage)
+
+### RecordPositionService
+file: record-position/services/record-position.service.ts:19
+Computes fractional list ordering positions, always running inside a system workspace-ORM context with permission checks bypassed.
+**buildRecordPosition({objectMetadata, value, workspaceId, index})** → number: returns numeric `value` as-is; for `'first'` returns `minPosition - index - 1` (or 1 if empty); for `'last'` returns `maxPosition + index + 1`.
+**overridePositionOnRecords({partialRecordInputs, workspaceId, objectMetadata, shouldBackfillPositionIfUndefined})** → buckets inputs into first/last/existing-number/no-update sets (undefined positions go "first" when backfill is on), computes batch min/max against existing records, assigns sequential positions, and returns the recombined list. No-ops if the object has no `position` field.
+**findByPosition(positionValue, objectMetadata, workspaceId)** → `{id, position}` of the record at an exact position, or null.
+**updatePosition(recordId, positionValue, objectMetadata, workspaceId)** → writes a new position.
+Private **findMinPosition / findMaxPosition** use repository `minimum/maximum('position')` (sanitized via `sanitizeNumber`).
+
+---
+
+## record-transformer (additional — full coverage)
+
+### RecordInputTransformerService
+file: record-transformer/services/record-input-transformer.service.ts:21
+**process({recordInput, flatObjectMetadata, flatFieldMetadataMaps})** → Partial<ObjectRecord>: for each input field, resolves its field metadata, then `stringifySubFields` → `transformFieldValue` → `parseSubFields`, copying unknown fields through unchanged. RAW_JSON composite sub-fields are stringified before transform and re-parsed after.
+**transformFieldValue(fieldType, value)** (private) → dispatches by `FieldMetadataType`: UUID `''→null`, NUMBER coerced via `Number`, RICH_TEXT/LINKS/EMAILS/PHONES via their util transforms, else passthrough.
+
+### transformRichTextValue
+file: record-transformer/utils/transform-rich-text.util.ts
+Async. Lazily creates and caches a single `ServerBlockNoteEditor` (via a `new Function('import()')` native import to dodge SWC's CJS rewrite), then computes the missing direction of the markdown↔blocknote pair (markdown→blocks, blocks→lossy-markdown), tolerating conversion failures by falling back to the raw value.
+
+### transformEmailsValue
+file: record-transformer/utils/transform-emails-value.util.ts:4
+Lowercases `primaryEmail` and every entry of `additionalEmails` (parsing the JSON array), returning nulls when empty.
+
+### transformLinksValue
+file: record-transformer/utils/transform-links-value.util.ts
+Parses `secondaryLinks` JSON, runs `removeEmptyLinks` (validates URLs, promotes the first link to primary), normalizes URL origins via `normalizeUrlOrigin`, and re-serializes secondary links (null when empty).
+
+### removeEmptyLinks
+file: record-transformer/utils/remove-empty-links.ts
+Filters out blank links, validates every remaining URL (`isValidUrl`, else throws `INVALID_URL`), and splits the list into `{primaryLinkUrl, primaryLinkLabel, secondaryLinks}` (first link becomes primary).
+
+### transformPhonesValue
+file: record-transformer/utils/transform-phones-value.util.ts
+Validates+infers primary and additional phones with `libphonenumber-js`: cross-checks supplied vs inferred country/calling codes (throwing the various `CONFLICTING_*`/`INVALID_*` `RecordTransformerException`s), derives missing country/calling codes from the parsed number, and re-serializes `additionalPhones` (null when empty). Module helpers: `validatePrimaryPhoneCountryCodeAndCallingCode`, `parsePhoneNumberExceptionWrapper`, `validateAndInferMetadataFromPrimaryPhoneNumber`, `validateAndInferPhoneInput`.
+
+### recordTransformerGraphqlApiExceptionHandler
+file: record-transformer/utils/record-transformer-graphql-api-exception-handler.util.ts
+Re-throws every `RecordTransformerExceptionCode` (phone/url validation codes) as a GraphQL `UserInputError`; `assertUnreachable` enforces exhaustiveness.
+
+---
+
+## secret-encryption
+
+### SecretEncryptionService
+file: secret-encryption/secret-encryption.service.ts:24
+Two-tier secret encryption: legacy unversioned AES-CTR and the modern versioned `enc:v2` AES-256-GCM envelope.
+**encrypt(value)** / **decrypt(value)** → legacy AES-CTR using the primary resolved key (no integrity tag; intentionally unbranded for pre-envelope callers).
+**encryptVersioned(value, {workspaceId?})** → EncryptedString: GCM-encrypts with an HKDF-derived per-workspace (or instance) key and wraps as `enc:v2:<keyId>:<payload>`.
+**decryptVersioned(value, {workspaceId?})** → PlaintextString: parses the envelope; for v2 picks the key by `keyId` (supports rotation via fallback key) and GCM-decrypts; for legacy values logs a one-time warning and falls back to CTR decrypt.
+**decryptAndMask({value, mask})** / **decryptAndMaskVersioned({value, mask, workspaceId?})** → decrypts then masks via `maskDecryptedValue`.
+**maskDecryptedValue(decryptedValue, mask)** (private) → reveals at most `min(5, len/10)` leading chars then appends the mask.
+**warnLegacyCtrDecryptionOnce()** (private) → emits the legacy-decryption migration warning exactly once.
+
+### Crypto utils
+**encryptAesGcmV2 / decryptAesGcmV2OrThrow** (utils/encrypt-aes-gcm-v2.util.ts, decrypt-aes-gcm-v2-or-throw.util.ts) → AES-256-GCM with a random 12-byte IV; payload layout is `IV || ciphertext || authTag` base64. Decrypt validates length and throws `CIPHERTEXT_TOO_SHORT` / GCM auth failures.
+**encryptAesCtr / decryptAesCtrOrThrow** (utils/encrypt-aes-ctr.util.ts, decrypt-aes-ctr-or-throw.util.ts) → legacy AES-256-CTR; key is `sha512(rawKey).hex[:32]`, IV is 16 random bytes prepended; `OrThrow` only covers malformed-input errors (CTR has no integrity check).
+**deriveGcmKey({rawKey, workspaceId?})** (utils/derive-gcm-key.util.ts) → HKDF-SHA256 32-byte key with info `<HKDF_INFO_PREFIX><workspaceId | INSTANCE_CONTEXT>`, zero salt — gives per-workspace key separation.
+**deriveInstanceHmacKey({rawKey, purpose})** (utils/derive-instance-hmac-key.util.ts) → HKDF-SHA256 key scoped by a purpose string (used for session-cookie signing).
+**computeEncryptionKeyId({rawKey})** (utils/compute-encryption-key-id.util.ts) → first 8 hex chars of `sha256(rawKey)`; identifies which key encrypted a row.
+**resolveEncryptionKeysOrThrow({environmentConfigDriver})** (utils/resolve-encryption-keys-or-throw.util.ts) → `{primary, fallback}` from `ENCRYPTION_KEY` (or legacy `APP_SECRET`) + optional `FALLBACK_ENCRYPTION_KEY`; throws `NO_ENCRYPTION_KEY_CONFIGURED` if none.
+**pickEncryptionKeyByKeyIdOrThrow({keyId, keys})** (utils/pick-encryption-key-by-key-id-or-throw.util.ts) → returns the primary or fallback key whose id matches; throws `UNKNOWN_KEY_ID` otherwise (rotation guidance).
+**formatSecretEncryptionEnvelopeV2 / parseSecretEncryptionEnvelopeOrThrow** (utils) → build/parse the `enc:v2:<keyId>:<payload>` string; parse returns `{version:null}` for non-enveloped values and throws `MALFORMED_ENVELOPE` / `INVALID_KEY_ID_FORMAT` / `UNKNOWN_ENVELOPE_VERSION` for malformed ones.
+**resolveSessionCookieSecretsOrThrow({twentyConfigService})** (utils/resolve-session-cookie-secrets.util.ts) → ordered list of express-session signing secrets: HKDF-derived from primary key, then fallback key, then the legacy `sha256(APP_SECRET + 'SESSION_STORE_SECRET')` — supports rotation while still verifying old cookies.
+**isEncryptedString(value)** (branded-strings/is-encrypted-string.util.ts) → type guard: true when the value starts with the envelope prefix.
+
+---
+
+## secure-http-client
+
+### SecureHttpClientService
+file: secure-http-client/secure-http-client.service.ts:24
+SSRF-hardened outbound HTTP. **getHttpClient(config?, context?)** → AxiosInstance: when `OUTBOUND_HTTP_SAFE_MODE_ENABLED`, attaches SSRF-safe http/https agents, caps redirects at 5, and adds an interceptor rejecting non-http(s) protocols; optionally wires `axios-retry`; logs each request with workspace/user/source when a context is supplied.
+**getInternalHttpClient(config?)** → plain (unprotected) axios client for trusted internal URLs.
+**createSsrfSafeFetch()** → a `fetch`-compatible function backed by the safe axios client (or the global fetch when safe mode is off).
+**getValidatedHost(hostnameOrUrl)** → resolves+validates a host (returns it unchanged when safe mode off), used by IMAP/SMTP/CalDAV and geo-map before connecting.
+
+### createSsrfSafeAgent
+file: secure-http-client/utils/create-ssrf-safe-agent.util.ts:83
+Returns an `http.Agent`/`https.Agent` subclass that validates the connect host and attaches a socket `lookup` handler destroying the socket if the resolved IP is private — checks run on every connection including redirect-followed ones, failing closed on unparseable IPs.
+
+### resolveAndValidateHostname
+file: secure-http-client/utils/resolve-and-validate-hostname.util.ts:5
+DNS-resolves a hostname/URL and throws if the resolved IP is private; returns the resolved IP.
+
+### isPrivateIp
+file: secure-http-client/utils/is-private-ip.util.ts:100
+Checks an address against a `BlockList` of private/reserved IPv4+IPv6 ranges. Normalizes IPv4 in any encoding (dotted/octal/hex/bare-integer via `normalizeToLong`) and unwraps IPv4-mapped IPv6 in both hex (`::ffff:a9fe:a9fe`) and dotted (`::ffff:127.0.0.1`) forms before checking; throws on invalid IPv4.
+
+---
+
+## sentry
+
+### applyWorkspaceSentryContext
+file: sentry/utils/apply-workspace-sentry-context.util.ts
+Reads workspace id (and, for user/pendingActivationUser auth, the userWorkspaceId) from a `WorkspaceAuthContext` and forwards to `applyWorkspaceSentryFields`; no-ops without a workspace.
+
+### applyWorkspaceSentryContextFromJobData
+file: sentry/utils/apply-workspace-sentry-context-from-job-data.util.ts
+Defensively extracts `workspaceId`/`userWorkspaceId` from arbitrary BullMQ job data and forwards to `applyWorkspaceSentryFields`.
+
+### applyWorkspaceSentryfields
+file: sentry/utils/apply-workspace-sentry-fields.util.ts
+Sets the Sentry user id, `twenty.workspace.id` / `twenty.user_workspace.id` tags, and a `twenty` context block for error correlation.
+
+---
+
+## session-storage
+
+### getSessionStorageOptions
+file: session-storage/session-storage.module-factory.ts
+Builds the express-session options: 30-minute httpOnly `sameSite:lax` cookie (secure when SERVER_URL is https), secrets from `resolveSessionCookieSecretsOrThrow`, and a Redis-backed `connect-redis` store (prefix `engine:session:`, 60s ping) created from `REDIS_URL` (throws if missing).
+
+---
+
+## sql-sanitization
+
+### validateAllowedValue
+file: sql-sanitization/utils/validate-allowed-value.util.ts:4
+**validateAllowedValue(value, allowedValues, label)** → void: throws `Invalid <label>: <value>` unless `value` is in the allow-list — a runtime guard for strings interpolated into SQL (enum values, action keywords).
+
+---
+
+## sdk-client (additional — full coverage)
+
+### SdkClientGenerationService
+file: sdk-client/sdk-client-generation.service.ts:38
+**enqueueSdkClientGenerationForWorkspace(...)** → enqueues a `GenerateSdkClientJob` on the workspace queue.
+**generateSdkClientForApplication({...})** → generates the TypeScript SDK package for an application's schema and stores it (delegates to private `generateAndStore`).
+**generateAndStore(...)** (private) → renders the SDK package structure/types and persists the archive to file storage.
+
+### SdkClientArchiveService
+file: sdk-client/sdk-client-archive.service.ts:27
+**downloadAndExtractToPackage({...})** / **downloadArchiveBuffer({...})** → fetch a stored SDK archive (buffer) for distribution.
+**getClientModuleFromArchive({...})** → extracts a single allowed module file from the archive (used by the controller to serve SDK modules).
+**markSdkLayerFresh({...})** → marks the cached SDK layer as up to date.
+**downloadArchiveBufferOrGenerate(...)** (private) → returns the existing archive or triggers generation when stale/missing.
+
+### SdkClientController
+file: sdk-client/controllers/sdk-client.controller.ts:26
+**getSdkModule(applicationId, moduleName)** → `GET /:applicationId/:moduleName` serves a generated SDK module file (validated against the allowed-modules list) from the archive.
+
+### GenerateSdkClientJob
+file: sdk-client/jobs/generate-sdk-client.job.ts:11
+`@Processor(MessageQueue.workspaceQueue)`. **handle(data)** → `@Process` consumer that runs `SdkClientGenerationService.generateSdkClientForApplication` for the queued application.
+
+---
+
 ## NOT YET COVERED
 
-Due to the large volume of files (561 total .ts files across 47 modules), the following sub-directories and files have not been fully documented in this pass. These should be covered in follow-up documentation waves:
-
-- Complete services in: email-sender, imap-smtp-caldav-connection (additional services), code-interpreter (additional drivers)
-- All GraphQL resolvers not yet covered
-- Additional utility functions and private service methods in existing modules
-- Configuration and factory classes across all modules
-- All exception and validation classes
-- Integration tests and mock utilities
-
-To complete documentation: scan remaining .ts files in each module, focusing on exported functions, public service methods, and command/query handlers.
+Effectively complete for this lane. Genuinely-trivial leftovers (not individually documented): module classes (`*.module.ts`) that only wire providers, DTO/input/entity/type/enum/constant declaration files, exception classes (enumerated indirectly via the services that throw them), `__mocks__` and `*.spec.ts` test fixtures, and the modules explicitly owned by other documentation lanes (auth, billing/billing-webhook, api-key, application/application-logs deep internals, file/file-storage, jwt, search, tool/tool-provider, twenty-config, two-factor-authentication, upgrade, usage, user, workflow, audit, event-logs, admin-panel, i18n, logic-function, message-queue internals, exception-handler internals).
 

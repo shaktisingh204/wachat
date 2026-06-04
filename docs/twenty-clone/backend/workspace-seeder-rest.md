@@ -420,17 +420,133 @@ Generates type-specific SQL expression: EMAILS get domain split, PHONES get coal
 
 Returns true if subfield is searchable: only TEXT type fields, with special rules for RICH_TEXT (only 'markdown') and PHONES (only primary phone/calling code).
 
+## dev-seeder/data/services/timeline-activity-seeder.service.ts (class)
+
+### TimelineActivitySeederService
+`file: dev-seeder/data/services/timeline-activity-seeder.service.ts:88`
+
+Injectable service wrapping `ensureSeeded` (above). Holds the per-entity timeline-activity definitions and the queryRunner-based insert logic.
+
+## dev-seeder/core/utils/generate-seed-id.util.ts
+
+### generateSeedId
+`file: dev-seeder/core/utils/generate-seed-id.util.ts:3`
+`(workspaceId: string, seedName: string) => string`
+
+Deterministic UUID generator: SHA-256 hashes `${workspaceId}-${seedName}`, then formats the hex digest into a valid v4-shaped UUID (forces the version nibble to `4` and the variant bits to `8-b`). Gives stable, collision-free IDs so re-seeding is idempotent and cross-references between seed records resolve.
+
+## dev-seeder/core/utils/seed-page-layouts.util.ts
+
+### seedPageLayouts
+`file: dev-seeder/core/utils/seed-page-layouts.util.ts:10`
+`(args: { workspaceId, flatApplication, objectMetadataItems, workspaceMigrationValidateBuildAndRunService }) => Promise<void>`
+
+Computes flat-entity seeds for page layouts, page-layout tabs, page-layout widgets, and navigation menu items (via the four `get*FlatEntitySeeds` utils), then submits them all as a single `validateBuildAndRunWorkspaceMigration` call (create-only operations keyed by metadata name: pageLayout, pageLayoutTab, pageLayoutWidget, navigationMenuItem). Drives the standard migration pipeline rather than raw inserts.
+
+## dev-seeder/core/utils/get-page-layout-data-seeds.util.ts
+
+### getPageLayoutFlatEntitySeeds
+`file: dev-seeder/core/utils/get-page-layout-data-seeds.util.ts:7`
+`(args: { workspaceId, flatApplication }) => UniversalFlatPageLayout[]`
+
+Returns the universal flat page-layout seed records (stable IDs via `generateSeedId`, scoped to the application).
+
+## dev-seeder/core/utils/get-page-layout-tab-data-seeds.util.ts
+
+### getPageLayoutTabFlatEntitySeeds
+`file: dev-seeder/core/utils/get-page-layout-tab-data-seeds.util.ts:9`
+`(args: { workspaceId, flatApplication }) => UniversalFlatPageLayoutTab[]`
+
+Returns the page-layout tab seeds, each referencing its parent page layout by universal identifier.
+
+## dev-seeder/core/utils/get-page-layout-widget-data-seeds.util.ts
+
+### getPageLayoutWidgetFlatEntitySeeds
+`file: dev-seeder/core/utils/get-page-layout-widget-data-seeds.util.ts:29`
+`(args: { workspaceId, flatApplication, objectMetadataItems }) => UniversalFlatPageLayoutWidget[]`
+
+Builds widget seeds per object (uses objectMetadataItems to wire widget configuration to real object/field metadata), nested under their tabs.
+
+### getPageLayoutWidgetDataSeeds
+`file: dev-seeder/core/utils/get-page-layout-widget-data-seeds.util.ts:103`
+Lower-level data table returning the raw widget seed definitions consumed by the flat-entity seed builder.
+
+## dev-seeder/core/utils/get-page-layout-widget-data-seeds-v2.util.ts
+
+### getPageLayoutWidgetDataSeedsV2
+`file: dev-seeder/core/utils/get-page-layout-widget-data-seeds-v2.util.ts:26`
+V2 widget seed definitions (newer page-layout widget schema/config shape).
+
+## dev-seeder/core/utils/get-navigation-menu-item-data-seeds.util.ts
+
+### getNavigationMenuItemFlatEntitySeeds
+`file: dev-seeder/core/utils/get-navigation-menu-item-data-seeds.util.ts:8`
+`(args: { workspaceId, flatApplication }) => UniversalFlatNavigationMenuItem[]`
+
+Returns the navigation (sidebar) menu item seeds for the workspace, scoped to the application.
+
+## dev-seeder/core/billing/utils/seed-billing-customers.util.ts
+
+### seedBillingCustomers
+`file: dev-seeder/core/billing/utils/seed-billing-customers.util.ts:11`
+`(args: SeedBillingCustomersArgs) => Promise<void>`
+
+Inserts one billing customer row (`workspaceId`, `stripeCustomerId: 'cus_default0'`) into the schema-qualified billing customer table via a query builder with `.orIgnore()` (idempotent).
+
+## dev-seeder/core/billing/utils/seed-billing-subscriptions.util.ts
+
+### seedBillingSubscriptions
+`file: dev-seeder/core/billing/utils/seed-billing-subscriptions.util.ts:11`
+`(args: SeedBillingSubscriptionsArgs) => Promise<void>`
+
+Inserts one active billing subscription row (`stripeCustomerId: 'cus_default0'`, `stripeSubscriptionId: 'sub_default0'`, `status: 'active'`, `metadata: { workspaceId }`) with `.orIgnore()` for idempotency.
+
+## workspace-cleaner/crons/clean-onboarding-workspaces.job.ts
+
+### CleanOnboardingWorkspacesJob.handle
+`file: workspace-cleaner/crons/clean-onboarding-workspaces.job.ts:27`
+`() => Promise<void>`
+
+`@Processor(MessageQueue.cronQueue)` job (decorated `@SentryCronMonitor`). Finds onboarding workspaces (`PENDING_CREATION`/`ONGOING_CREATION`) created more than 7 days ago (`withDeleted: true`), then calls `cleanerWorkspaceService.batchCleanOnboardingWorkspaces` with their IDs.
+
+## workspace-cleaner/crons/clean-suspended-workspaces.job.ts
+
+### CleanSuspendedWorkspacesJob.handle
+`file: workspace-cleaner/crons/clean-suspended-workspaces.job.ts:27`
+`() => Promise<void>`
+
+`@Processor(MessageQueue.cronQueue)` job. Finds all `SUSPENDED` workspaces (`withDeleted: true`) and calls `cleanerWorkspaceService.batchWarnOrCleanSuspendedWorkspaces({ workspaceIds })`.
+
+## workspace-cleaner/crons/*.cron.pattern.ts
+
+### cleanOnboardingWorkspacesCronPattern / cleanSuspendedWorkspaceCronPattern
+`file: workspace-cleaner/crons/clean-onboarding-workspaces.cron.pattern.ts:1`, `workspace-cleaner/crons/clean-suspended-workspaces.cron.pattern.ts:1`
+`const = '0 * * * *'`
+
+Both cron jobs run hourly at minute 0; the patterns are also passed to `@SentryCronMonitor` for monitoring.
+
+## workspace-cleaner/jobs/clean-workspace-deletion-warning-user-vars.job.ts (detail)
+
+### CleanWorkspaceDeletionWarningUserVarsJob.handle
+`file: workspace-cleaner/jobs/clean-workspace-deletion-warning-user-vars.job.ts:36`
+`(data: CleanWorkspaceDeletionWarningUserVarsJobData) => Promise<void>`
+
+Request-scoped `@Processor(MessageQueue.workspaceQueue)` job. For the given workspaceId, loads the workspace and its members, then in chunks of 5 deletes each member's `USER_WORKSPACE_DELETION_WARNING_SENT_KEY` user var (so a re-suspended workspace can be warned again). Errors are caught and logged per workspace.
+
+## workspace-cleaner/exceptions/workspace-cleaner.exception.ts
+
+### WorkspaceCleanerException
+`file: workspace-cleaner/exceptions/workspace-cleaner.exception.ts:22`
+
+Extends `CustomException<WorkspaceCleanerExceptionCode>`. Single code `BILLING_SUBSCRIPTION_NOT_FOUND` with a lingui user-friendly message; thrown when cancelling subscriptions during cleanup finds none.
+
 ---
 
 ## NOT YET COVERED
 
-Large volumes of seed data constant files (150+ files in dev-seeder/data/constants) defining record seeds for companies, persons, opportunities, tasks, notes, messages, attachments, calendar events, etc. — these are data-only exports without function logic, documented in patterns above.
-
-Page layout, navigation menu, and other UI seeding utility files in dev-seeder/core/utils (20+ files) — seed UI configuration via similar queryRunner patterns.
-
-Billing seed utilities and associated constants in dev-seeder/core/billing.
-
-Cron pattern, job scheduling, and exception handling files (4-5 files) in workspace-cleaner for scheduler integration.
-
-All test/spec files excluded per scope.
+Genuinely-trivial / data-only leftovers:
+- Seed-data constant files (150+ files in `dev-seeder/data/constants` and the per-entity constants under `dev-seeder/core/constants`, `dev-seeder/metadata/custom-fields|custom-objects/constants`) — static record/field/object definitions with no function logic; the orchestrating `seed*` functions that consume them are documented above.
+- `dev-seeder/data/sample-files/*` — binary/asset fixtures for attachment seeding.
+- Type-only files (`*/types/*.type.ts`) — arg/shape aliases for the documented functions.
+- All `*.spec.ts` test files (excluded per scope).
 

@@ -1,53 +1,50 @@
 # Twenty backend (`twenty-server`) — function reference
 
-A systematic catalog of every function/service/resolver/command in the vendored
-`services/sabcrm/packages/twenty-server` backend, so the SabCRM clone can be
-completed feature-by-feature against it. One file per backend area; each entry is
-`### name` + `file:line` + signature + how it works.
+A systematic, near-complete catalog of every function/service/resolver/command in the
+vendored `services/sabcrm/packages/twenty-server` backend (5,352 `.ts` files), so the
+SabCRM clone can be completed feature-by-feature against it. One file per backend area;
+each entry is `### name` + `file:line` + signature + how it works.
 
-- **Source:** `services/sabcrm/packages/twenty-server/src` (5,352 `.ts` files)
-- **Documented so far:** **2,371 functions** across 25 area files
-- **Pass 1 status:** the biggest areas (graphql query-runner, schema-builder,
-  metadata sub-modules, twenty-orm) were too large for one pass — those carry a
-  `## NOT YET COVERED` section and need a Wave-2 deep pass (see table).
+- **Documented:** **2,965 functions** across 25 area files (pass 1 = 2,371; completion pass = +594).
+- **Coverage:** every exported **function / service method / resolver / command / notable util**
+  is documented. Files still carrying a `## NOT YET COVERED` (or "Residual") note now list only
+  **non-function leftovers** — TypeScript types, enums, DTOs, constants, NestJS module wiring, and
+  Jest mock fixtures — not missing business logic.
 
 ## Area files
 
-| Area | File | Functions | Coverage |
-|------|------|----------:|----------|
-| GraphQL API | [api-graphql.md](./api-graphql.md) | 57 | ⚠ gaps |
-| REST / common / MCP | [api-rest-common-mcp.md](./api-rest-common-mcp.md) | 261 | ✅ full |
-| Admin panel / audit | [core-admin-audit.md](./core-admin-audit.md) | 117 | ⚠ gaps |
-| Application (custom apps) | [core-application.md](./core-application.md) | 27 | ⚠ gaps |
-| Auth / JWT / 2FA / API keys | [core-auth.md](./core-auth.md) | 105 | ⚠ gaps |
-| Billing / usage | [core-billing.md](./core-billing.md) | 109 | ✅ full |
-| Config / i18n / queue | [core-config-i18n-queue.md](./core-config-i18n-queue.md) | 17 | ⚠ gaps |
-| File / storage / domain / search | [core-file-domain.md](./core-file-domain.md) | 59 | ⚠ gaps |
-| Core-modules (remaining ~47) | [core-modules-remaining.md](./core-modules-remaining.md) | 63 | ⚠ gaps |
-| Record-CRUD / tools / workflow | [core-records-tools-workflow.md](./core-records-tools-workflow.md) | 24 | ✅ full |
-| Metadata: AI + fields + objects | [metadata-ai-fields.md](./metadata-ai-fields.md) | 512 | ✅ full |
-| Metadata: views + layouts | [metadata-views-layouts.md](./metadata-views-layouts.md) | 53 | ✅ full |
-| Metadata: perms + channels | [metadata-perms-channels.md](./metadata-perms-channels.md) | 23 | ⚠ gaps |
-| Workspace migration engine | [workspace-migration.md](./workspace-migration.md) | 27 | ⚠ gaps |
-| Standard application + prefill | [workspace-standard-app.md](./workspace-standard-app.md) | 133 | ✅ full |
-| Dev-seeder / cleaner | [workspace-seeder-rest.md](./workspace-seeder-rest.md) | 60 | ⚠ gaps |
-| TwentyORM | [twenty-orm.md](./twenty-orm.md) | 126 | ⚠ gaps |
-| Engine misc (caches/guards/…) | [engine-misc.md](./engine-misc.md) | 154 | ✅ full |
-| Modules: messaging | [modules-messaging.md](./modules-messaging.md) | 66 | ✅ full |
-| Modules: workflow | [modules-workflow.md](./modules-workflow.md) | 32 | ⚠ gaps |
-| Modules: calendar / dashboard | [modules-calendar-dashboard.md](./modules-calendar-dashboard.md) | 44 | ⚠ gaps |
-| Modules: business objects | [modules-objects.md](./modules-objects.md) | 194 | ✅ full |
-| Database: TypeORM entities | [database-typeorm.md](./database-typeorm.md) | 19 | ⚠ gaps |
-| Database: commands | [database-commands.md](./database-commands.md) | 47 | ✅ full |
-| Top-level (command/queue/utils) | [toplevel-misc.md](./toplevel-misc.md) | 42 | ✅ full |
+| Area | File | Functions |
+|------|------|----------:|
+| GraphQL API | [api-graphql.md](./api-graphql.md) | 177 |
+| REST / common / MCP | [api-rest-common-mcp.md](./api-rest-common-mcp.md) | 261 |
+| Admin panel / audit | [core-admin-audit.md](./core-admin-audit.md) | 136 |
+| Application (custom apps / OAuth / marketplace) | [core-application.md](./core-application.md) | 53 |
+| Auth / JWT / 2FA / API keys / SSO | [core-auth.md](./core-auth.md) | 178 |
+| Billing / usage | [core-billing.md](./core-billing.md) | 109 |
+| Config / i18n / queue | [core-config-i18n-queue.md](./core-config-i18n-queue.md) | 50 |
+| File / storage / domain / search | [core-file-domain.md](./core-file-domain.md) | 81 |
+| Core-modules (remaining ~47) | [core-modules-remaining.md](./core-modules-remaining.md) | 122 |
+| Record-CRUD / tools / workflow | [core-records-tools-workflow.md](./core-records-tools-workflow.md) | 24 |
+| Metadata: AI + fields + objects | [metadata-ai-fields.md](./metadata-ai-fields.md) | 512 |
+| Metadata: views + layouts | [metadata-views-layouts.md](./metadata-views-layouts.md) | 53 |
+| Metadata: perms + channels | [metadata-perms-channels.md](./metadata-perms-channels.md) | 65 |
+| Workspace migration engine | [workspace-migration.md](./workspace-migration.md) | 72 |
+| Standard application + prefill | [workspace-standard-app.md](./workspace-standard-app.md) | 133 |
+| Dev-seeder / cleaner | [workspace-seeder-rest.md](./workspace-seeder-rest.md) | 76 |
+| TwentyORM | [twenty-orm.md](./twenty-orm.md) | 168 |
+| Engine misc (caches/guards/dataloaders/…) | [engine-misc.md](./engine-misc.md) | 154 |
+| Modules: messaging | [modules-messaging.md](./modules-messaging.md) | 66 |
+| Modules: workflow | [modules-workflow.md](./modules-workflow.md) | 84 |
+| Modules: calendar / dashboard / timeline | [modules-calendar-dashboard.md](./modules-calendar-dashboard.md) | 78 |
+| Modules: business objects | [modules-objects.md](./modules-objects.md) | 194 |
+| Database: TypeORM entities | [database-typeorm.md](./database-typeorm.md) | 30 |
+| Database: commands | [database-commands.md](./database-commands.md) | 47 |
+| Top-level (command/queue/utils) | [toplevel-misc.md](./toplevel-misc.md) | 42 |
 
-## Wave 2 — deep-pass needed (the `NOT YET COVERED` areas)
+## How to use this for the clone
 
-These 14 areas were partially covered in pass 1; a second wave should finish them:
-
-- **api-graphql** — `graphql-query-runner/` (100+ files), `workspace-schema-builder/` generators (40+), utils (50+)
-- **core-auth** — OAuth controllers, Passport strategies, SSO filters, provider integrations, DTOs
-- **core-application**, **core-admin-audit**, **core-config-i18n-queue**, **core-file-domain**, **core-modules-remaining** — remaining service methods / resolvers / DTOs / config classes
-- **metadata-perms-channels**, **twenty-orm**, **workspace-migration**, **workspace-seeder-rest**, **modules-workflow**, **modules-calendar-dashboard**, **database-typeorm** — see each file's `## NOT YET COVERED`
-
-Run a follow-up wave per gapped file to reach true 100% function coverage.
+Each entry maps a backend capability to a frontend feature to build. The SabCRM frontend
+(`src/app/sabcrm/**`, `.sabcrm-twenty`) is wired feature-by-feature against these — and the
+live data path is the gated `CRM_DATA_LAYER=twenty` route (`src/lib/data-layer/*`) once
+`twenty-server` is booted. Items with no backend yet (email/calendar sync, invite-accept,
+server-side export) are tracked as honest "coming soon" states in the UI.

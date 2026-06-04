@@ -339,27 +339,256 @@ Types representing the actions generated during build:
 - **Advanced**: Command Menu Items, Navigation Menu Items, Application Variables, Connection Providers
 
 
+## Runner Action Handler Infrastructure
+
+### BaseWorkspaceMigrationRunnerActionHandlerService.execute
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/interfaces/workspace-migration-runner-action-handler-service.interface.ts:242`
+`(context: WorkspaceMigrationActionRunnerArgs<TUniversalAction>) => Promise<ActionHandlerExecuteResult<TMetadataName>>`
+
+Core abstract base every action handler extends. `execute` transpiles the universal action to a flat action (`transpileUniversalActionToFlatActionOrThrow`, wrapping errors as `WorkspaceMigrationRunnerException` with code `EXECUTION_FAILED`), then runs `executeForMetadata` (writes metadata tables) and `executeForWorkspaceSchema` (DDL against the workspace schema) **concurrently** via `Promise.allSettled` — each wrapped in a perf-timer. If either rejects it throws an aggregate `WorkspaceMigrationRunnerException` carrying `{ metadata, workspaceSchema }` reasons. On success it derives metadata events and returns `{ partialOptimisticCache, metadataEvents }`.
+
+### BaseWorkspaceMigrationRunnerActionHandlerService.rollback
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/interfaces/workspace-migration-runner-action-handler-service.interface.ts:290`
+`(context: Omit<WorkspaceMigrationActionRunnerArgs<TUniversalAction>, 'queryRunner'>) => Promise<void>`
+
+Calls `rollbackForMetadata`; any error is caught and logged (never re-thrown) so a failing rollback cannot mask the original failure.
+
+### BaseWorkspaceMigrationRunnerActionHandlerService (protected hooks)
+- `executeForMetadata(context)` / `executeForWorkspaceSchema(context)` — default no-op `Promise.resolve()`; concrete handlers override the relevant one(s).
+- `rollbackForMetadata(context)` — default no-op; overridden by handlers needing metadata rollback.
+- `transpileUniversalActionToFlatAction(context)` — abstract; resolves universal identifiers/relations to concrete IDs.
+- `sanitizeUniversalAction(action)` — for `update` actions, runs `sanitizeUniversalFlatEntityUpdate` on the update payload; otherwise passthrough.
+- `optimisticallyApplyActionOnAllFlatEntityMaps` / `deriveMetadataEventsFromFlatAction` — switch on `flatAction.type` (create/delete/update) and delegate to the corresponding util.
+- `asyncMethodPerformanceMetricWrapper({ label, method })` — wraps a method in `logger.time/timeEnd` keyed by `${actionType}_${metadataName} ${label}`.
+
+### WorkspaceMigrationRunnerActionHandler (decorator factory)
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/interfaces/workspace-migration-runner-action-handler-service.interface.ts:325`
+`(actionType, metadataName) => abstract class extends BaseWorkspaceMigrationRunnerActionHandlerService`
+
+Mixin factory: returns an abstract subclass with `actionType`/`metadataName` fixed and attaches `WORKSPACE_MIGRATION_ACTION_HANDLER_METADATA_KEY` metadata = `buildActionHandlerKey(actionType, metadataName)` so the registry can discover it. Every concrete handler (e.g. `CreateObjectActionHandler`) extends `WorkspaceMigrationRunnerActionHandler('create', 'objectMetadata')`.
+
+### WorkspaceMigrationRunnerActionHandlerRegistryService
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/registry/workspace-migration-runner-action-handler-registry.service.ts:20`
+
+`OnModuleInit` service. On init, `discoverAndRegisterActionHandlers()` uses NestJS `DiscoveryService` to enumerate providers in `WorkspaceSchemaMigrationRunnerActionHandlersModule`, reads each provider's `WORKSPACE_MIGRATION_ACTION_HANDLER_METADATA_KEY` via `Reflect.getMetadata`, and stores instances in a `Map<key, handler>`. `getActionHandler(action)` looks up by `buildActionHandlerKey(action.type, action.metadataName)`, throwing `WorkspaceMigrationActionExecutionException` (code `ACTION_HANDLER_NOT_FOUND`) if missing. The runner uses this to dispatch each action.
+
+## Runner Action Handlers (per entity, create/update/delete)
+
+All ~100 handlers under `workspace-migration-runner/action-handlers/<entity>/services/` follow one shape. Each `@Injectable()` extends the decorator-produced base for its `(actionType, metadataName)` pair and implements `transpileUniversalActionToFlatAction` plus the relevant `executeForMetadata` / `executeForWorkspaceSchema` / `rollbackForMetadata` overrides. Examples of the meaningful (non-pure-CRUD) ones:
+
+### CreateObjectActionHandler / DeleteObjectActionHandler / UpdateObjectActionHandler
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/action-handlers/object/services/`
+Create writes objectMetadata rows AND issues `CREATE TABLE` in the workspace schema (via `WorkspaceSchemaManagerService`), creating columns for nested field creations and any enum types. Delete drops the table. Update handles renames/`ALTER TABLE`. They use `from-universal-flat-object-metadata-to-flat-object-metadata.util.ts` to convert universal → flat object metadata.
+
+### CreateFieldActionHandler / UpdateFieldActionHandler / DeleteFieldActionHandler
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/action-handlers/field/services/`
+Create adds the column(s) (composite types expand to multiple columns), creating/altering enums; update alters column type/default/nullable and renames enums; delete drops columns. Helpers: `from-universal-flat-field-metadata-to-flat-field-metadata.util.ts`, `from-universal-settings-to-flat-field-metadata-settings.util.ts`, `find-field-metadata-id-in-create-field-context.util.ts` (resolves a sibling field's just-generated ID from the in-flight create-object context).
+
+### CreateIndexActionHandler / DeleteIndexActionHandler / UpdateIndexActionHandler
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/action-handlers/index/services/`
+Emit `CREATE INDEX` / `DROP INDEX` SQL (incl. partial-index WHERE and unique flags). Helpers `from-universal-flat-index-to-flat-index.util.ts` and `index-action-handler.utils.ts` build the index name and column list.
+
+### Other entity handlers (metadata-only)
+View, ViewField, ViewFilter, ViewFilterGroup, ViewGroup, ViewSort, ViewFieldGroup, PageLayout, PageLayoutTab, PageLayoutWidget, Role, RoleTarget, ObjectPermission, FieldPermission, PermissionFlag, RolePermissionFlag, RowLevelPermissionPredicate(+Group), Agent, Skill, Webhook, LogicFunction, CommandMenuItem, NavigationMenuItem, FrontComponent, ApplicationVariable, ConnectionProvider — each only overrides `executeForMetadata`/`rollbackForMetadata` to insert/update/soft-delete the corresponding metadata row; no schema DDL. Several have small `from-universal-...-to-...` converter utils (e.g. page-layout-widget `from-universal-configuration-...`, `from-universal-overrides-...`; view-field `from-universal-overrides-to-view-field-overrides`; page-layout `find-page-layout-tab-id-in-create-page-layout-context`).
+
+### WorkspaceSchemaMigrationRunnerActionHandlersModule
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/action-handlers/workspace-schema-migration-runner-action-handlers.module.ts`
+Declares every action-handler service as a provider so the registry's `DiscoveryService` scan can find them.
+
+## Runner Metadata-Event & Optimistic-Cache Utilities
+
+### deriveMetadataEventsFromCreateAction
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/derive-metadata-events-from-create-action.util.ts:11`
+`(flatAction: AllFlatWorkspaceMigrationAction<'create'>) => MetadataEvent[]`
+
+Switches on `metadataName` to build `CreateMetadataEvent`s (type `'created'`, `properties.after` = `flatEntityToScalarFlatEntity(...)`). For `fieldMetadata` it emits an event for both the field and its `relatedFlatFieldMetadata` (relation pair). Filters the result through `METADATA_EVENTS_TO_EMIT` so only event-eligible metadata names propagate.
+
+### deriveMetadataEventsFromUpdateAction / deriveMetadataEventsFromDeleteAction
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/derive-metadata-events-from-update-action.util.ts`, `.../derive-metadata-events-from-delete-action.util.ts`
+Update builds `{ type: 'updated', properties: { before, after } }` (before = current scalar from `allFlatEntityMaps`, after = applied update); delete builds `{ type: 'deleted', properties: { before } }`. Both filter via `METADATA_EVENTS_TO_EMIT`.
+
+### optimisticallyApplyCreateActionOnAllFlatEntityMaps
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/optimistically-apply-create-action-on-all-flat-entity-maps.util.ts`
+`({ flatAction, allFlatEntityMaps }) => AllFlatEntityMaps`
+
+Switch on metadataName; mutates the in-flight cache by calling `addFlatEntityToFlatEntityAndRelatedEntityMapsThroughMutationOrThrow` for the created entity (and the related field metadata for relation pairs). Keeps the optimistic cache consistent so later actions in the same migration validate against post-create state.
+
+### optimisticallyApplyUpdateActionOnAllFlatEntityMaps / optimisticallyApplyDeleteActionOnAllFlatEntityMaps
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/optimistically-apply-update-action-on-all-flat-entity-maps.util.ts`, `.../optimistically-apply-delete-action-on-all-flat-entity-maps.util.ts`
+Replace / remove the entity (and related entries) in the cache maps through mutation helpers.
+
+### flatEntityToScalarFlatEntity
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/flat-entity-to-scalar-flat-entity.util.ts:8`
+`<T>({ metadataName, flatEntity }) => ScalarFlatEntity<MetadataEntity<T>>`
+
+Projects a flat entity down to its scalar (DB-column) shape using `ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME[metadataName]`, then force-adds `id`, `workspaceId`, `applicationId`, `universalIdentifier`. Used to build event payloads.
+
+## Runner SQL / Schema Utilities
+
+### getWorkspaceSchemaContextForMigration
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/get-workspace-schema-context-for-migration.util.ts:11`
+`({ workspaceId, objectMetadata }) => { schemaName, tableName }`
+
+Returns `{ schemaName: getWorkspaceSchemaName(workspaceId), tableName: computeObjectTargetTable(objectMetadata) }` — the per-workspace Postgres schema and the table name for an object (handles custom vs standard naming).
+
+### fieldMetadataTypeToColumnType
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/field-metadata-type-to-column-type.util.ts:9`
+`<Type extends FieldMetadataType>(fieldMetadataType: Type) => string`
+
+Maps a (scalar) field metadata type to a Postgres column type: TEXT/ARRAY/RICH_TEXT(_V2) → `text`; UUID→`uuid`; NUMERIC→`numeric`; NUMBER/POSITION→`float`; BOOLEAN→`boolean`; DATE_TIME→`timestamptz`; DATE→`date`; RATING/SELECT/MULTI_SELECT→`enum`; FILES/RAW_JSON→`jsonb`; TS_VECTOR→`tsvector`. Throws `WorkspaceMigrationActionExecutionException` (`UNSUPPORTED_FIELD_METADATA_TYPE`) otherwise. Composite types never reach here (they are flattened).
+
+### isTextColumnType
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/is-text-column-type.util.ts:5`
+`(type: FieldMetadataType) => boolean`
+
+True for TEXT, ARRAY, and the legacy raw strings `'RICH_TEXT'` / `'RICH_TEXT_V2'` (kept for pre-1.20 workspaces not yet migrated to TEXT).
+
+### generateColumnDefinitions / generateCompositeColumnDefinition
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/generate-column-definitions.util.ts:176`, `:32`
+`generateColumnDefinitions({...}) => ColumnDefinition[]`
+
+Builds the array of column definitions for a field. Composite fields are expanded via `generateCompositeColumnDefinition` into one column per composite property (using `computeCompositeColumnName`); scalar fields produce a single column with type from `fieldMetadataTypeToColumnType`, default value, and nullability.
+
+### collectEnumOperationsForField / collectEnumOperationsForObject / executeBatchEnumOperations
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/utils/workspace-schema-enum-operations.util.ts:152`, `:183`, `:204`
+
+`collectEnumOperationsForField` returns `EnumOperationSpec[]` (CREATE/DROP/RENAME) for an enum or composite-enum field; non-enum fields return `[]`. `collectEnumOperationsForObject` flat-maps the per-field collector over all of an object's fields. `executeBatchEnumOperations` runs the specs against the workspace schema via `workspaceSchemaManagerService.enumManager` (`createEnum`/`dropEnum`/`renameEnum`), short-circuiting on an empty list and wrapping failures.
+
+## Runner Commands, Constants, Exceptions, Types
+
+### FlatCacheInvalidateCommand
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/commands/flat-cache-invalidate.command.ts:23`
+
+`@Command`-decorated CLI extending `ActiveOrSuspendedWorkspaceCommandRunner`. Invalidates the flat-entity-maps cache for chosen metadata names across active/suspended workspaces. `parseMetadataName(val, previous)` accumulates `--metadata-name` options; `parseAllMetadata()` toggles all-metadata mode.
+
+### METADATA_EVENTS_TO_EMIT
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/constants/metadata-event-to-emit.constant.ts`
+Boolean map by metadata name gating which entity types emit metadata events from the runner.
+
+### WORKSPACE_MIGRATION_ACTION_HANDLER_METADATA_KEY
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/constants/workspace-migration-action-handler-metadata-key.constant.ts`
+Reflect-metadata key under which the decorator stamps each handler's action key.
+
+### WorkspaceMigrationRunnerException / WorkspaceMigrationActionExecutionException
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/exceptions/workspace-migration-runner.exception.ts`, `.../workspace-migration-action-execution.exception.ts`
+Custom exceptions with enum codes. Runner exception carries `{ action, errors, code }` (codes incl. `EXECUTION_FAILED`); action-execution exception carries `{ message, code }` (codes incl. `ACTION_HANDLER_NOT_FOUND`, `UNSUPPORTED_FIELD_METADATA_TYPE`).
+
+### MetadataEvent / WorkspaceMigrationActionRunnerArgs (types)
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-runner/types/metadata-event.ts`, `.../workspace-migration-action-runner-args.type.ts`
+`MetadataEvent` is the discriminated union (`CreateMetadataEvent`/`UpdateMetadataEvent`/`DeleteMetadataEvent`). `WorkspaceMigrationActionRunnerArgs` is the per-action context (`action`, `workspaceId`, `queryRunner`, `allFlatEntityMaps`, …); `WorkspaceMigrationActionRunnerContext` adds the transpiled `flatAction`.
+
+## Entity Migration Builder (base)
+
+### WorkspaceEntityMigrationBuilderService.validateAndBuild
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/services/workspace-entity-migration-builder.service.ts:63`
+`({ from, to, ... }) => Promise<{ failed; created; updated; deleted }>`
+
+Generic base for all entity builders. Computes the deleted/created/updated matrix between from/to, then for each bucket calls the per-action validation path: deletions → `validateFlatEntityDeletion`; updates → `validateFlatEntityUpdate`; creations → `innerValidateFlatEntityCreation` (which first runs `validateUniversalIdentifier` + `validateUniversalIdentifierNotAlreadyInCurrentMetadataMaps`, then the abstract `validateFlatEntityCreation`). Aggregates failures vs. successful actions, wrapped in a perf timer. The three `validateFlatEntity{Creation,Deletion,Update}` methods are `abstract` and implemented by each concrete builder (e.g. `WorkspaceMigrationObjectActionsBuilderService` delegates to `FlatObjectMetadataValidatorService`). `validateUniversalIdentifier` enforces UUID validity; the not-already-in-maps check prevents duplicate creates within one migration.
+
+### Concrete builders (object example)
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/object/workspace-migration-object-actions-builder.service.ts:13`
+`WorkspaceMigrationObjectActionsBuilderService` overrides `validateFlatEntityCreation` (→ `flatObjectValidatorService.validateFlatObjectMetadataCreation`), `validateFlatEntityDeletion`, `validateFlatEntityUpdate`, each returning either a fail descriptor or a built create/update/delete action. Every other entity (field, view, role, permission, view-field/filter/group/sort, page-layout(+tab/widget), agent, skill, webhook, logic-function, command/navigation-menu-item, front-component, application-variable, connection-provider, role-target, permission-flag, role-permission-flag, row-level-permission-predicate(+group)) has an analogous `*ActionsBuilderService` under `builders/<entity>/` delegating to its validator service.
+
+## Validators (real logic)
+
+### FlatObjectMetadataValidatorService
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/flat-object-metadata-validator.service.ts:18`
+`validateFlatObjectMetadataCreation` (`:172`), `validateFlatObjectMetadataUpdate` (`:19`), `validateFlatObjectMetadatadeletion` (`:106`) — check name singular/plural uniqueness and validity, reserved-name collisions, label identifier presence, editability (standard objects can't be deleted/renamed), and relation-integrity before allowing the action.
+
+### FlatFieldMetadataValidatorService
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/flat-field-metadata-validator.service.ts:24`
+`validateFlatFieldMetadataCreation` (`:305`), `validateFlatFieldMetadataUpdate` (`:29`), `validateFlatFieldMetadataDeletion` (`:227`) — validate field name/type, default-value compatibility, relation settings, and that standard fields aren't illegally mutated/deleted.
+
+### Other validator services
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/services/`
+One `Flat<Entity>ValidatorService` per entity (view, view-field, view-filter(+group), view-group, view-sort, view-field-group, index, role, role-target, object-permission, field-permission, permission-flag, role-permission-flag, row-level-permission-predicate(+group), agent, skill, webhook, logic-function, command/navigation-menu-item, front-component, application-variable, connection-provider). Each exposes creation/update/deletion validators returning a `FailedFlatEntityValidation` or success.
+
+### Validator utility functions
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/validators/utils/`
+Small pure validators reused by the services:
+- `validateAgentNameUniqueness`, `validateAgentRequiredProperties`, `validateAgentResponseFormat` — agent field checks.
+- `validateSkillNameUniqueness`, `validateSkillLabelIsDefined`, `validateSkillContentIsDefined`, `validateSkillRequiredProperties` — skill checks.
+- `validateRoleLabelUniqueness`, `validateRoleIsEditable`, `validateRoleBelongsToCallerApplication`, `validateRoleReadWritePermissionsConsistency`, `validateRoleRequiredPropertiesAreDefined` — role checks (consistency = a role can't grant write without read).
+- `validateFlatRoleTargetAssignationAvailability`, `validateFlatRoleTargetTargetsOnlyOneEntity` — a role target may point at exactly one of user/agent/apiKey and that target must be assignable.
+- `validateLabelIdentifierFieldMetadataIdFlatViewField` — view field's label-identifier reference must resolve.
+
+### getEmptyFlatEntityValidationError
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/builders/utils/get-flat-entity-validation-error.util.ts`
+`({ metadataName, flatEntityMinimalInformation, type }) => FailedFlatEntityValidation`
+Seeds an empty failure descriptor (`errors: []`) that validators push errors onto.
+
+## Builder Utilities (real logic)
+
+### serializeDefaultValue
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/utils/serialize-default-value.util.ts:28`
+`({ columnType, defaultValue, schemaName, tableName, columnName }) => string`
+
+Produces the SQL default-value fragment. `null/undefined` → `'NULL'`; function defaults (e.g. `now`/`uuid`) → `serializeFunctionDefaultValue`; literals are stripped of pre-quoting (`stripSurroundingQuotes`) then re-escaped with `escapeLiteral`; enum columns get a schema-qualified cast whose enum name is built from `removeSqlDDLInjection`-sanitized table+column (matching `computePostgresEnumName`). Uses `escapeIdentifier` for identifiers.
+
+### buildUniversalFlatObjectFieldByNameAndJoinColumnMaps
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/utils/build-universal-flat-object-field-by-name-and-join-column-maps.util.ts:9`
+Builds lookup maps (field-by-name, field-by-join-column) for an object's universal flat fields, used when resolving relations during build.
+
+### isCompositeFieldDefaultValueCompatibleWithUniqueIndex
+file: `/engine/workspace-manager/workspace-migration/workspace-migration-builder/utils/is-composite-field-default-value-compatible-with-unique-index.util.ts:9`
+Returns whether a composite field's default value is safe to put under a unique index (rejects defaults that would collide).
+
+## Universal Flat Entity Utilities (from/to computation core)
+
+### flatEntityDeletedCreatedUpdatedMatrixDispatcher
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/universal-flat-entity-deleted-created-updated-matrix-dispatcher.util.ts:37`
+`<T>({ from, to, metadataName, buildOptions }) => DeletedCreatedUpdatedMatrix<T>`
+
+The diff engine. Builds `Map`s keyed by `universalIdentifier` for from and to. If `shouldInferDeletionFromMissingEntities` is true, entities present in `from` but absent in `to` go to `deletedFlatEntityMaps`. Entities in `to` but not `from` go to `createdFlatEntityMaps`. For entities in both, it runs `compareTwoFlatEntity` and, if a diff exists, records it in `updatedFlatEntityMaps`.
+
+### compareTwoFlatEntity
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/compare-two-universal-flat-entity.util.ts:17`
+`<T>({ fromUniversalFlatEntity, toUniversalFlatEntity, metadataName }) => UniversalFlatEntityUpdate<T> | undefined`
+
+Reads `ALL_UNIVERSAL_FLAT_ENTITY_PROPERTIES_TO_COMPARE_AND_STRINGIFY[metadataName]` to know which props to compare directly vs. JSON-stringify, transforms both entities via `transformUniversalFlatEntityForComparison`, runs a structural `diff`, and reduces CHANGE/ADD/REMOVE differences into an update payload. Returns `undefined` when there is no difference.
+
+### transformUniversalFlatEntityForComparison
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/transform-universal-flat-entity-for-comparison.util.ts:8`
+Normalizes an entity for diffing: keeps `propertiesToCompare` as-is and JSON-stringifies `propertiesToStringify` (jsonb columns) so deep equality is decidable.
+
+### resolveUniversalRelationIdentifiersToIds / resolveUniversalUpdateRelationIdentifiersToIds
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/resolve-universal-relation-identifiers-to-ids.util.ts:67`, `.../resolve-universal-update-relation-identifiers-to-ids.util.ts:16`
+Convert universal foreign-key references (universalIdentifier of the target) into concrete DB IDs by looking up `flatEntityMaps`, honoring each relation's `isNullable`. The `Update` variant only resolves keys present in the update payload. Used by handlers when transpiling universal → flat actions.
+
+### sanitizeUniversalFlatEntityUpdate
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/sanitize-universal-flat-entity-update.util.ts:6`
+Strips/normalizes an update payload (e.g. removes non-updatable props) per metadata name before it is applied.
+
+### Flat-entity-maps mutation helpers
+file: `/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/`
+- `addUniversalFlatEntityToUniversalFlatEntityMapsThroughMutationOrThrow` / `...MapsOrThrow` (immutable variant) — add to byId/byUniversalIdentifier/allIds, throw on duplicate.
+- `addUniversalFlatEntityToUniversalFlatEntityAndRelatedEntityMapsThroughMutationOrThrow` — also updates related-entity maps.
+- `deleteUniversalFlatEntityFromUniversalFlatEntityMapsThroughMutationOrThrow` / `...AndRelatedEntityMaps...` — remove (and clean related maps), throw if missing.
+- `replaceUniversalFlatEntityInUniversalFlatEntityMapsThroughMutationOrThrow` — update in place, throw if missing.
+- `getUniversalFlatEntityEmptyForeignKeyAggregators` / `resetUniversalFlatEntityForeignKeyAggregators` / `deleteUniversalFlatEntityForeignKeyAggregators` — manage the FK aggregator structures used to keep reverse-relation lookups consistent during map mutation.
+
+## Builder/Runner GraphQL & REST Exception Interceptors
+
+### WorkspaceMigrationGraphqlApiExceptionInterceptor
+file: `/engine/workspace-manager/workspace-migration/interceptors/workspace-migration-graphql-api-exception.interceptor.ts:21`
+NestJS `NestInterceptor` that catches builder/runner exceptions thrown from GraphQL resolvers and routes them through the GraphQL exception handler util.
+
+### workspaceMigrationBuilderGraphqlApiExceptionHandler / workspaceMigrationBuilderRestApiExceptionHandler
+file: `/engine/workspace-manager/workspace-migration/interceptors/utils/workspace-migration-builder-graphql-api-exception-handler.util.ts:13`, `.../workspace-migration-builder-rest-api-exception-handler.util.ts:8`
+Translate a `WorkspaceMigrationBuilderException`'s failure report into client-facing GraphQL/REST errors (validation details, messages).
+
+### buildMetadataValidationErrorPayload
+file: `/engine/workspace-manager/workspace-migration/interceptors/utils/build-metadata-validation-error-payload.util.ts:43`
+Shapes a structured validation-error payload (per `MetadataValidationErrorResponseDescriptor`) from the builder failure report.
+
+### workspaceMigrationRunnerExceptionFormatter
+file: `/engine/workspace-manager/workspace-migration/interceptors/workspace-migration-runner-exception-formatter.ts:10`
+Formats a `WorkspaceMigrationRunnerException` into a user-presentable message string.
+
 ## NOT YET COVERED
 
-Due to the extensive scope of this module (358 TypeScript files), the following categories are documented at a module level but individual function signatures require further detailed reading:
-
-**Files not yet fully detailed (by count)**:
-- workspace-migration-runner/action-handlers/*: ~100 handler files (create/update/delete/rollback handlers for each entity type) - documented as patterns
-- workspace-migration-builder/builders/*: ~30 builder service files - documented with shared interface
-- workspace-migration-runner/commands/*: Instance commands for migrations - documented as module
-- workspace-migration-builder/validators/*: ~15 validator services - documented by pattern
-- workspace-migration-builder/utils/*: ~20 utility files - many documented, some remaining
-- workspace-migration-runner/utils/*: ~15 utility files - similar to builder utils
-- Type definition files (*.type.ts): ~40 files - documented as type groupings
-- Constant and configuration files: ~10 files
-
-**Major documented components** (~50-60 exported functions/classes):
-- 3 core services with ~15 methods
-- 30+ builder services (documented by pattern)
-- 25+ action handlers (documented by pattern)
-- 15+ utility functions
-- 10+ validators (documented by pattern)
-- Exception handlers and filters
-
-The documentation covers the critical entry points, orchestration patterns, and utility logic. Individual action handler implementations follow consistent patterns documented in the ActionHandler and Rollback sections.
+Genuinely-trivial leftovers only:
+- `*.spec.ts` test files and the `utils/__tests__` directory (excluded per scope).
+- Pure type-alias files under `builders/<entity>/types/*.type.ts` and `types/` (per-action discriminated-union shapes already summarized under "Migration Action Types").
+- Data-only constant files (`constant/standard-object-icons.ts`, `constant/default-feature-flags.ts`, etc.) — values, no logic.
 

@@ -431,20 +431,280 @@ file: database/typeorm/core/migrations/billing/1757056320000-removeTiersModeFrom
 
 Removes tierMode column from billingPrice table, simplifying pricing structure.
 
+## Remaining Common Migrations (exhaustive, chronological)
+
+All paths below are under `database/typeorm/core/migrations/common/`. Each migration class implements `MigrationInterface` with `up`/`down`. Effects below are derived from the migration class names + SQL; the class name equals the filename's PascalCase + timestamp.
+
+### Application & SDK / Front-Component / Registration
+
+#### AddApplicationVariableCoreEntity1760640844181
+file: 1760640844181-addApplicationVariableCoreEntity.ts — Creates the `applicationVariable` core table for per-application config variables.
+
+#### RenameApplicationColumn1759433496458
+file: 1759433496458-renameApplicationColumn.ts — Renames an application column (type/source) for clarity.
+
+#### AddCanBeUninstalledColumnToApplication1763731277403
+file: 1763731277403-addCanBeUninstalledColumnToApplication.ts — Adds `canBeUninstalled` boolean to application.
+
+#### RemoveCanBeAssignedToApplications1766077618558
+file: 1766077618558-removeCanBeAssignedToApplications.ts — Drops the `canBeAssigned` column from applications.
+
+#### AddApplicationRoleColumns1764923552610
+file: 1764923552610-addApplicationRoleColumns.ts — Adds role-related columns to application.
+
+#### AddWorkspaceCustomApplicationIdColumn1762343994716 / ...ForeignKey1762437814771 / ...NonNullable1763977334519
+file: 1762343994716-…, 1762437814771-…, 1763977334519-… — Adds workspace.customApplicationId column, its FK, then makes it NOT NULL.
+
+#### MakeApplicationWorkspaceFkDeferrable1762339932345
+file: 1762339932345-makeApplicationWorkspaceFkDeferrable.ts — Makes the application→workspace FK DEFERRABLE.
+
+#### AddApplicationPackageFields1770050100000
+file: 1770050100000-addApplicationPackageFields.ts — Adds package metadata fields to application.
+
+#### MakeWorkspaceAndApplicationFileFksDeferrable1770050200000
+file: 1770050200000-makeWorkspaceAndApplicationFileFksDeferrable.ts — Makes file's workspace/application FKs DEFERRABLE.
+
+#### AddIsSdkLayerStaleToApplication1773000000000
+file: 1773000000000-add-is-sdk-layer-stale-to-application.ts — Adds `isSdkLayerStale` boolean to application.
+
+#### AddSettingsCustomTabFrontComponentIdToApplication1771840510113
+file: 1771840510113-add-settings-custom-tab-front-component-id-to-application.ts — Adds `settingsCustomTabFrontComponentId` FK to application.
+
+#### AddFrontComponent1768495429374
+file: 1768495429374-addFrontComponent.ts — Creates the `frontComponent` table.
+
+#### AddFrontComponentType1768917890810
+file: 1768917890810-AddFrontComponentType.ts — Adds a `type` column/enum to frontComponent.
+
+#### AddIsHeadlessToFrontComponent1771509478665
+file: 1771509478665-add-is-headless-to-front-component.ts — Adds `isHeadless` boolean to frontComponent.
+
+#### AddFrontComponentColumns1770309316193
+file: 1770309316193-add-front-component-columns.ts — Adds additional columns to frontComponent.
+
+#### AddUsesSdkClientToFrontComponent1773100000000
+file: 1773100000000-add-uses-sdk-client-to-front-component.ts — Adds `usesSdkClient` boolean to frontComponent.
+
+#### CreateApplicationRegistration1772267875868 / AddWorkspaceIdToApplicationRegistration1772267875869
+file: 1772267875868-…, 1772267875869-… — Creates `applicationRegistration` table, then adds its workspaceId FK.
+
+#### AddAppRegistrationSourceFields1772267875870
+file: 1772267875870-addAppRegistrationSourceFields.ts — Adds source fields (sourceType/sourcePath) to applicationRegistration.
+
+#### AddIsListedToAppRegistration1772732588833
+file: 1772732588833-add-is-listed-to-app-registration.ts — Adds `isListed` boolean to applicationRegistration.
+
+#### RenameMarketplaceDisplayDataToManifest1774472400000
+file: 1774472400000-rename-marketplace-display-data-to-manifest.ts — Renames `marketplaceDisplayData` column to `manifest`.
+
+### Agent / AI Chat
+
+#### AddModelCapabilitiesToAgent1759200603485
+file: 1759200603485-addModelCapabilitesToAgent.ts — Adds `modelCapabilities` to agent.
+
+#### RemoveDefaultAgentAndThreadAgentId1760994964826
+file: 1760994964826-RemoveDefaultAgentAndThreadAgentId.ts — Drops default-agent and thread.agentId references.
+
+#### UpdateAgentResponseFormat1763622159656
+file: 1763622159656-update-agent-response-format.ts — Changes the agent responseFormat column shape.
+
+#### ChangeAgentDescriptionToText1764672601466
+file: 1764672601466-change-agent-description-to-text.ts — Changes agent.description to `text`.
+
+#### CoreMigrationCheck1764066845539
+file: 1764066845539-coreMigrationCheck.ts — Sets `agent.modelId` DEFAULT to `'default-smart-model'` (down reverts to `'auto'`); used as a baseline core-migration sentinel.
+
+#### AddAgentIdToAgentChatMessage1764081474225
+file: 1764081474225-add-agent-id-to-agent-chat-message.ts — Adds `agentId` to agentChatMessage.
+
+#### RefactorAgentChatEntities1764100000000
+file: 1764100000000-refactor-agent-chat-entities.ts — Restructures agentChat tables.
+
+#### AddAgentTurnEvaluation1764200000000 / AddEvaluationInputsToAgent1764220000000
+file: 1764200000000-…, 1764220000000-… — Creates `agentTurnEvaluation` table; adds `evaluationInputs` JSONB to agent.
+
+#### AddSystemRoleToAgentMessage1764210000000 / AddStatusToAgentMessage1775001600000
+file: 1764210000000-…, 1775001600000-… — Adds a SYSTEM role and a `status` column to agent messages.
+
+#### AddUsageColumnsToAgentChatThread1764700000000 / AddConversationSizeToAgentChatThread1770400000000 / AddActiveStreamIdToAgentChatThread1774003611071
+file: 1764700000000-…, 1770400000000-…, 1774003611071-… — Adds usage metrics, conversationSize, and activeStreamId columns to agentChatThread.
+
+#### AddAiAdditionalInstructions1770311652940
+file: 1770311652940-add-ai-additional-instructions.ts — Adds `additionalInstructions` for AI config.
+
+#### RemoveAgentHandoffTable1763805513241
+file: 1763805513241-1763805200000-RemoveAgentHandoffTable.ts — Drops the agent handoff table.
+
+#### ReplaceFileUrlWithFileRelationInAgentMessagePart1772555830171
+file: 1772555830171-replace-file-url-with-file-relation-in-agent-message-part.ts — Replaces agentChatMessagePart's file URL string with a file relation/FK.
+
+#### AddFastAndSmartModelsToWorkspace1763997530458 / AddRouterModelToWorkspace1760985484643
+file: 1763997530458-…, 1760985484643-… — Adds fastModel/smartModel and router columns to workspace.
+
+#### MigrateModelIdsToCompositeFormat1773900000000
+file: 1773900000000-migrate-model-ids-to-composite-format.ts — Data migration resetting workspace fastModel/smartModel to `'default-fast-model'`/composite placeholders resolved at runtime from admin prefs.
+
+#### AddAiModelAvailabilityColumns1771768847449 / AddUseRecommendedModels1771840510112
+file: 1771768847449-…, 1771840510112-1771768847450-… — Adds AI model availability columns and a useRecommendedModels flag.
+
+#### SplitAiProvidersConfig1774000000000 / DropWorkspaceAiColumns1774100000000
+file: 1774000000000-…, 1774100000000-… — Splits AI provider config into dedicated storage; drops legacy workspace AI columns.
+
+#### FixAiEntityTimestampsToTimestamptz1771600000000
+file: 1771600000000-fix-ai-entity-timestamps-to-timestamptz.ts — Converts AI entity timestamps to `timestamptz`.
+
+### Serverless / Logic Functions / Triggers
+
+#### AddUniversalIdentifierToServerlessFunction1758793689363 / AddChecksumToServerlessFunction1758802648930 / AddHandlerToServerlessFunction1761210191095 / AddBuiltHandlerPathToServerlessFunctions1769016869438 / AddToolSchemaToServerlessFunction1767364430164
+file: 1758793689363-…, 1758802648930-…, 1761210191095-…, 1769016869438-…, 1767364430164-… — Add universalIdentifier, checksum, handler, builtHandlerPath, and toolSchema columns to serverlessFunction.
+
+#### UpdateServerlessFunctionLayerEntity1759236947406 / SetServerlessFunctionLayerNotNullable1759931071049 / SetServerlessFunctionLayerIdNotNullable1761153071116 / NullableApplicationServerlessFunctionLayer1762333916255
+file: 1759236947406-…, 1759931071049-…, 1761153071116-…, 1762333916255-… — Evolve serverlessFunctionLayer structure and nullability.
+
+#### SetServerlessFunctionIdInTriggersNonNullable1759417994272
+file: 1759417994272-setServerlessFunctionIdInTriggersNonNullable.ts — Makes serverlessFunctionId NOT NULL on trigger tables.
+
+#### RenameRouteToRouteTrigger1759418198310 / AddForwardedRequestHeadersInRouteTriggers1768399525609
+file: 1759418198310-…, 1768399525609-… — Renames route→routeTrigger; adds forwardedRequestHeaders to routeTrigger.
+
+#### MigrateServerlessTriggersToServerless1769532887284 / RenameServerless1769556947746
+file: 1769532887284-…, 1769556947746-… — Migrates/renames serverless trigger entities.
+
+#### RenameHandlerPathToSourceHandlerPath1769091641000 / UpdateColumnName1769685701443
+file: 1769091641000-…, 1769685701443-… — Renames handlerPath→sourceHandlerPath and another column rename.
+
+#### UpdateLogicFunctionConstraints1769557200000 / UpdateLogicFunctionDefault1769710304101 / RemoveLogicFunctionVersion1769681396664 / AddLogicFunctionIsBuildUpToDateColumn1770725043111
+file: 1769557200000-…, 1769710304101-…, 1769681396664-…, 1770725043111-… — Adjust logicFunction constraints/defaults, drop its version column, add `isBuildUpToDate`.
+
+#### AddDependencyChecksumsToLogicFunctionLayer1770038963629 / DropLogicFunctionLayerIdFromLogicFunction1770050300000 / DropLogicFunctionLayerIdFromLogicFunction1770193825210
+file: 1770038963629-…, 1770050300000-…, 1770193825210-… — Add dependency checksums to layer; drop logicFunctionLayerId from logicFunction (two passes).
+
+#### AddSkillEntity1767003000000
+file: 1767003000000-add-skill-entity.ts — Creates the `skill` table.
+
+### View / Page Layout / Widget / Navigation / Command Menu
+
+#### CalendarFieldMetadataRelation1761052489394
+file: 1761052489394-calendarFieldMetadataRelation.ts — Establishes the calendar field metadata relation on view.
+
+#### ViewVisibility1762351626807 / AddViewShouldHideEmptyGroups1765153412696
+file: 1762351626807-…, 1765153412696-… — Adds view visibility config and `shouldHideEmptyGroups`.
+
+#### AddMainGroupByFieldMetadataId1764680275312 / KanbanFieldMetadataIdentifierView1760965667836
+file: 1764680275312-…, 1760965667836-… — Adds mainGroupByFieldMetadataId and kanban identifier view config.
+
+#### RemoveFieldMetadataIdInViewGroup1765808791153
+file: 1765808791153-remove-field-metadata-id-in-view-group.ts — Drops fieldMetadataId from viewGroup.
+
+#### AddNewWidgetTypes1760628085765 / AddRichTextWidgetType1761215000000 / AddWorkflowWidgetTypes1761574442000 / AddFieldWidgetType1765970658815 / AddFieldsWidgetViewType1770906704231 / AddRecordTableWidgetType1774072000000
+file: 1760628085765-…, 1761215000000-…, 1761574442000-…, 1765970658815-…, 1770906704231-…, 1774072000000-… — Successively extend the pageLayoutWidget type enum with new widget kinds.
+
+#### SetPageLayoutWidgetConfigurationNotNullable1766069735219 / AddPageLayoutWidgetPositionColumn1770046227329
+file: 1766069735219-…, 1770046227329-… — Makes widget configuration NOT NULL; adds a position column.
+
+#### UpdatePageLayoutForRecordPageLayout1769679579382 / SetPageLayoutDefaultTabDeferred1769679579383
+file: 1769679579382-…, 1769679579383-… — Adds record-page-layout support; makes the default-tab FK deferred.
+
+#### AddViewFieldGroup1770818941843 / AddOverridesToViewFieldAndViewFieldGroup1773246310000
+file: 1770818941843-…, 1773246310000-… — Creates viewFieldGroup; adds override columns to viewField/viewFieldGroup.
+
+#### AddOverridesToPageLayoutTabAndWidget1772267875870
+file: 1772267875870-add-overrides-to-page-layout-tab-and-widget.ts — Adds override columns to pageLayoutTab and pageLayoutWidget.
+
+#### AddIsActiveToOverridableEntities1774966727625
+file: 1774966727625-addIsActiveToOverridableEntities.ts — Adds `isActive` to overridable entities.
+
+#### RenameRichTextToFieldRichTextAndAddStandaloneRichText1764846384501
+file: 1764846384501-… — Renames RICH_TEXT widget config and adds a STANDALONE_RICH_TEXT variant.
+
+#### AddCommandMenuItemEntity1768503887441
+file: 1768503887441-addCommandMenuItemEntity.ts — Creates `commandMenuItem` table.
+
+#### AddFrontComponentIdToCommandMenuItem1769654418252 / AddConditionalAvailabilityExpressionToCommandMenuItem1772267875870 / AddShortLabelPositionToCommandMenuItem1772643950000 / AddFallbackToCommandMenuItemAvailabilityType1772832588833 / AddEngineComponentKeyToCommandMenuItem1773311456455 / UpdateEngineComponentKeyEnum1773320963832 / AddHotkeysToCommandMenuItems1773677851495 / RemoveSaveCancelRecordPageLayoutEngineKeys1773668124779
+file: 1769654418252-…, 1772267875870-add-conditional-…, 1772643950000-…, 1772832588833-…, 1773311456455-…, 1773320963832-…, 1773677851495-…, 1773668124779-… — Progressively extend commandMenuItem: frontComponentId, conditional availability expression, short-label position, FALLBACK availability type, engineComponentKey + enum updates/varchar conversion, hotkeys, and removal of save/cancel engine keys.
+
+#### AddNavigationMenuItemEntity1768807499350 / AddNavigationMenuItemViewForeignKey1769196250679 / AddLinkAndIconToNavigationMenuItem1770699268900 / AddColorToNavigationMenuItem1771146443209 / AddIconToNavigationMenuItem1771247783542 / ChangeNavigationMenuItemPositionToDoublePrecision1771499112046 / AddTypeToNavigationMenuItem1773681736596 / MakeNavigationMenuItemTypeNotNull1773822077682
+file: 1768807499350-…, 1769196250679-…, 1770699268900-…, 1771146443209-…, 1771247783542-…, 1771499112046-…, 1773681736596-…, 1773822077682-… — Create navigationMenuItem and progressively add viewId FK, link/icon/color, double-precision position, and the type column (then NOT NULL with the check constraint documented in utils above).
+
+### File / Storage
+
+#### RemoveMessageIdFromFileTable1759378531410 / UpdateFileTable1768572831179 / AddFileSettingsColumnOnFileTable1769434782880 / AddFileEntityUniqueConstraint1770032815802 / AddMimeTypeToFileTable1770814914548
+file: 1759378531410-…, 1768572831179-…, 1769434782880-…, 1770032815802-…, 1770814914548-… — Evolve the file table: drop messageId, refactor columns (see util), add settings JSON, unique constraint, and mimeType.
+
+### Permissions / RLS / Roles
+
+#### AddRLS1765499361805
+file: 1765499361805-addRLS.ts — Adds row-level-permission infrastructure: creates the `rowLevelPermissionPredicate_operand_enum` (IS/IS_NOT/CONTAINS/IS_RELATIVE/VECTOR_SEARCH/…) and related predicate/predicate-group tables and policies.
+
+#### SyncableRoleTarget1763896975223 / UpdateRoleTargetsUniqueConstraint1764329720503 / RenameRoleTargets1764671363647 / UpdateRoleColumns1765206100942
+file: 1763896975223-…, 1764329720503-…, 1764671363647-…, 1765206100942-… — Make roleTarget syncable, adjust its unique constraint, rename it, and update role columns.
+
+#### AddObjectMetadataIdToRowLevelPermissionPredicateGroup1767998263185
+file: 1767998263185-… — Adds objectMetadataId to rowLevelPermissionPredicateGroup.
+
+#### Permission universalIdentifier/applicationId pairs
+file: 1773232418467-add-universal-identifier-and-application-id-to-permission-flag.ts, 1773232418468-make-permission-flag-…-not-null.ts, 1773317160558-add-…-to-object-permission.ts, 1773317160559-make-object-permission-…-not-null.ts, 1773400000000-add-…-to-field-permission.ts, 1773400000001-make-field-permission-…-not-null.ts — Add then enforce NOT NULL universalIdentifier/applicationId on permissionFlag, objectPermission, fieldPermission (NOT NULL halves delegate to the documented utils).
+
+### Object/Field Metadata & Standard IDs
+
+#### RemoveObjectMetadataStandardId1770040351718 / DropStandardIdFromCoreEntities1770047816358
+file: 1770040351718-…, 1770047816358-… — Drop the legacy `standardId` from objectMetadata and remaining core entities (superseded by universalIdentifier).
+
+#### AddColorToObjectMetadata1773655278357
+file: 1773655278357-add-color-to-object-metadata.ts — Adds `color` to objectMetadata.
+
+#### AddApplicationIdToSyncableEntities1760700501795 / AddApplicationIdAndUniversalIdentifierToPageLayouts1764949394792 / ...1765200057592
+file: 1760700501795-…, 1764949394792-…, 1765200057592-… — Add applicationId/universalIdentifier scoping to syncable entities and pageLayout (two pageLayout passes).
+
+### Webhook
+
+#### AddUniversalToWebhook1769517102605 / MakeWebhookUniversalIdentifierAndApplicationIdNotNull1769525557511
+file: 1769517102605-…, 1769525557511-… — Add then enforce universalIdentifier/applicationId on webhook (NOT NULL half delegates to util).
+
+### Workspace / Config / Infra
+
+#### AddSuspendedAtColumnOnWorkspaceTable1770198374736 / AddLogoFileIdColumnOnWorkspaceTable1771323022170 / DropWorkspaceDatabaseUrlColumn1774688563000
+file: 1770198374736-…, 1771323022170-…, 1774688563000-… — Add suspendedAt and logoFileId, drop legacy databaseUrl on workspace.
+
+#### WorkspaceIdUuidNotNullable1761749599736 / FixDataSourceAndWorkspaceMigrationWorkspaceIdType1767200000000
+file: 1761749599736-…, 1767200000000-… — Enforce uuid + NOT NULL on workspaceId and fix dataSource/workspaceMigration workspaceId types.
+
+#### AddWorkspaceTrashRetention1760356369619 / AddWorkspaceEventLogRetention1770051000000
+file: 1760356369619-…, 1770051000000-… — Add trash-retention and event-log-retention configuration.
+
+#### AddSsoBypassFlag1761651107128 / EditableProfileFields1762884796640
+file: 1761651107128-…, 1762884796640-… — Add SSO bypass flag and editable-profile-fields config.
+
+#### MakeViewFilterGroupParentFkDeferrable1767100000000 / ForeignKeyIndexStandardization1768750308557
+file: 1767100000000-…, 1768750308557-… — Make viewFilterGroup parent FK deferrable; standardize FK indexes across core tables.
+
+#### RemoveRemoteTables1767812158000 / RemoveWorkspaceMigration1767876112877
+file: 1767812158000-remoteRemoteTables.ts, 1767876112877-removeWorkspaceMigration.ts — Drop the remoteTable feature tables and the workspaceMigration table.
+
+#### AddMessagingInfrastructureMetadataEntities1773945207801
+file: 1773945207801-… — Creates messaging infrastructure metadata entities.
+
+#### AddGlobalKeyValuePairUniqueIndex1774700000000
+file: 1774700000000-add-global-key-value-pair-unique-index.ts — Adds the global keyValuePair unique index (delegates to util).
+
+### Upgrade Migration tracking
+
+#### AddUpgradeMigrationsTable1775487231605 / AddWorkspaceIdToUpgradeMigration1775553825848 / AddErrorMessageToUpgradeMigration1775649426693 / AddIsInitialToUpgradeMigration1775909335324
+file: 1775487231605-…, 1775553825848-…, 1775649426693-…, 1775909335324-… — Create the `upgradeMigration` table and add workspaceId, errorMessage, and isInitial columns for tracking instance/workspace upgrade-command runs.
+
+#### ConvertEngineComponentKeyToVarchar1774363913813 / AddPayloadToCommandMenuItem1775129635528
+file: 1774363913813-…, 1775129635528-… — Convert engineComponentKey enum→varchar; add payload column + check constraint to commandMenuItem (delegates to util).
+
+### Billing (remaining)
+
+#### AddPhasesToBillingSubscription1756912860000 / RemoveTiersModeFromBillingPrice1757056320000
+file: core/migrations/billing/1756912860000-…, 1757056320000-… — Add subscription phases; remove tierMode from billingPrice (both already summarized above; listed here for completeness).
+
+---
+
 ## NOT YET COVERED
 
-The following 182 additional migration files in common/ directory were not individually documented due to volume constraints. They follow similar patterns to those above:
-- 1700140427984-setupMetadataTables.ts (already covered)
-- 1756976545860-unique-field-metadata-name-for-workspace-object-metadata.ts (already covered)
-- [180 additional migration files in chronological timestamp order from 1757013851879 through latest]
-
-These files primarily consist of:
-- Schema evolution migrations (adding/removing columns and constraints)
-- Entity relationship refinements
-- Index optimizations
-- Data type conversions
-- Application entity scoping (adding applicationId/universalIdentifier)
-- Feature-specific schema additions
-
-To document remaining files, refer to filename patterns and consult CLAUDE.md for migration documentation standards.
+Only genuinely trivial leftovers remain:
+- `*.spec.ts` test files and TypeORM test fixtures (none materially document runtime behavior).
+- `down()` revert bodies are not individually transcribed — each migration's `down` reverses its `up` (drops the added column/table/constraint or restores the prior default), per the project's "include both up and down" rule.
 
