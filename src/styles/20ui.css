@@ -1,0 +1,284 @@
+/* =========================================================================
+   20ui — the SabCRM design system
+   =========================================================================
+
+   "20ui" is SabCRM's Twenty-faithful design system: ONE cohesive layer for the
+   whole CRM surface, in place of polish scattered across per-route CSS files.
+
+   It is a *behavioural + cohesion* layer on top of the Twenty design tokens in
+   `sabcrm-twenty.css` (so it stays on-brand and dark-aware) and owns:
+     · the elevation / motion / focus systems,
+     · consistent control / overlay / navigation / data states,
+     · accessibility (visible focus, reduced motion, pointer gating).
+
+   Authoring rules (Emil Kowalski's design-engineering framework):
+     · animate only transform + opacity (GPU; never layout/paint);
+     · punchy custom ease-out curves; UI motion stays under ~250ms;
+     · the FREQUENCY rule — surfaces seen constantly (the records table, rows)
+       do NOT animate; only occasional surfaces (overlays) + press feedback do;
+     · keyboard-driven actions are never animated;
+     · popovers scale from their anchored edge, modals from centre;
+     · respect `prefers-reduced-motion`; gate hover to fine pointers;
+     · cohesion over novelty — every value matches the calm, dense Twenty mood.
+
+   Everything is scoped under `.sabcrm-twenty`. Loaded right after
+   `sabcrm-twenty.css`, so its rules win on equal specificity.
+   ========================================================================= */
+
+/* =========================================================================
+   1 · FOUNDATION — motion, elevation, focus tokens
+   ========================================================================= */
+.sabcrm-twenty {
+  /* Motion curves */
+  --u-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --u-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --u-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Motion durations */
+  --u-dur-fast: 120ms;
+  --u-dur: 180ms;
+  --u-dur-slow: 240ms;
+
+  /* Elevation scale — soft, modern, low-contrast (matches the Twenty calm) */
+  --u-elev-1: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --u-elev-2: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --u-elev-3: 0 12px 32px rgba(16, 24, 40, 0.14);
+  --u-elev-pop: 0 10px 28px rgba(16, 24, 40, 0.14);
+
+  /* One keyboard focus ring used everywhere (2px gap + 2px accent) */
+  --u-focus-ring:
+    0 0 0 2px var(--st-bg),
+    0 0 0 4px var(--st-accent);
+}
+
+/* =========================================================================
+   2 · BASE — selection, scrollbars, reduced-motion baseline
+   ========================================================================= */
+.sabcrm-twenty ::selection {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+}
+
+/* Thin, unobtrusive scrollbars that match the surface (WebKit + Firefox). */
+.sabcrm-twenty * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--st-border-strong) transparent;
+}
+.sabcrm-twenty *::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.sabcrm-twenty *::-webkit-scrollbar-thumb {
+  background: var(--st-border-strong);
+  border: 3px solid var(--st-bg);
+  border-radius: var(--st-radius-pill);
+}
+.sabcrm-twenty *::-webkit-scrollbar-thumb:hover {
+  background: var(--st-text-tertiary);
+}
+.sabcrm-twenty *::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* =========================================================================
+   3 · CONTROLS — buttons, inputs, selects (press feedback + visible focus)
+   ========================================================================= */
+.sabcrm-twenty .st-btn {
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+
+/* Buttons feel responsive to a press. */
+.sabcrm-twenty .st-btn:active {
+  transform: scale(0.97);
+}
+
+/* Small icon pressables get a slightly deeper press. */
+.sabcrm-twenty .st-notif__btn:active,
+.sabcrm-twenty .st-lead-quick:active,
+.sabcrm-twenty .stg-mgr__save:active,
+.sabcrm-twenty .stg-mgr__del:active,
+.sabcrm-twenty .st-select2__clear:active,
+.sabcrm-twenty .st-dialog__close:active {
+  transform: scale(0.92);
+}
+
+/* Primary buttons carry the brand gradient + a soft accent shadow lift. */
+.sabcrm-twenty .st-btn--primary {
+  background: var(--st-accent-grad, var(--st-accent));
+  border-color: transparent;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.12),
+    0 0 0 1px rgba(37, 99, 235, 0.4) inset;
+}
+.sabcrm-twenty .st-btn--primary:hover {
+  filter: brightness(1.04);
+  box-shadow:
+    0 3px 10px var(--st-accent-ring, rgba(43, 110, 242, 0.25)),
+    0 0 0 1px rgba(37, 99, 235, 0.5) inset;
+}
+
+/* One consistent, keyboard-only focus ring across every interactive control. */
+.sabcrm-twenty .st-btn:focus-visible,
+.sabcrm-twenty .st-nav-item:focus-visible,
+.sabcrm-twenty .st-notif__btn:focus-visible,
+.sabcrm-twenty .st-workspace-switcher:focus-visible,
+.sabcrm-twenty .st-search-btn:focus-visible,
+.sabcrm-twenty .st-select2__trigger:focus-visible,
+.sabcrm-twenty .st-lead-quick:focus-visible,
+.sabcrm-twenty .st-dialog__close:focus-visible,
+.sabcrm-twenty button.st-chip:focus-visible,
+.sabcrm-twenty .stg-chip:focus-visible,
+.sabcrm-twenty .stg-filter__btn:focus-visible,
+.sabcrm-twenty .st-cell-link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+  border-radius: var(--st-radius-sm);
+  position: relative;
+  z-index: 1;
+}
+
+/* Text fields: a clear accent ring on keyboard focus, calm on mouse. */
+.sabcrm-twenty .st-input:focus-visible,
+.sabcrm-twenty .st-select:focus-visible,
+.sabcrm-twenty .st-textarea:focus-visible,
+.sabcrm-twenty .st-search__input:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-soft);
+}
+
+/* =========================================================================
+   4 · OVERLAYS — popovers, menus, dialogs (motion + elevation)
+   ========================================================================= */
+
+/* Portal popovers (StSelect, notifications, any StPortalPopover) scale in from
+   their anchored edge — `data-placement` is set by StPortalPopover. */
+.sabcrm-twenty.st-popover {
+  box-shadow: var(--u-elev-3);
+  animation: u-pop-in var(--u-dur) var(--u-ease-out);
+  transform-origin: top center;
+}
+.sabcrm-twenty.st-popover[data-placement='top'] {
+  transform-origin: bottom center;
+}
+
+/* Inline (non-portal) menus anchored under a trigger share the entrance. */
+.sabcrm-twenty .st-ws-menu,
+.sabcrm-twenty .stg-pop,
+.sabcrm-twenty .stg-filter__pop,
+.sabcrm-twenty .st-notif__panel {
+  animation: u-pop-in var(--u-dur) var(--u-ease-out);
+  transform-origin: top center;
+}
+
+@keyframes u-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modals: a fading backdrop + a centred scale-in (not anchored to a trigger). */
+.sabcrm-twenty .st-dialog-overlay {
+  animation: u-overlay-in var(--u-dur) var(--u-ease-out);
+}
+.sabcrm-twenty .st-dialog {
+  box-shadow: var(--u-elev-3);
+  animation: u-dialog-in var(--u-dur-slow) var(--u-ease-out);
+  transform-origin: center;
+}
+
+@keyframes u-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes u-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =========================================================================
+   5 · NAVIGATION — sidebar items + the records toolbar
+   ========================================================================= */
+.sabcrm-twenty .st-nav-item {
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* =========================================================================
+   6 · DATA — table polish (NO row entrance animation: seen constantly)
+   ========================================================================= */
+.sabcrm-twenty .st-table td {
+  transition: background 90ms var(--u-ease-out);
+}
+
+/* The quick "create lead" affordance fades in on row hover (fine pointers). */
+@media (hover: hover) and (pointer: fine) {
+  .sabcrm-twenty .st-row:hover .st-lead-quick {
+    opacity: 1;
+  }
+}
+
+/* =========================================================================
+   7 · MEDIA — avatars + chips
+   ========================================================================= */
+.sabcrm-twenty .st-chip {
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* =========================================================================
+   8 · ACCESSIBILITY — reduced motion (keep meaning-carrying fades only)
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty.st-popover,
+  .sabcrm-twenty .st-ws-menu,
+  .sabcrm-twenty .stg-pop,
+  .sabcrm-twenty .stg-filter__pop,
+  .sabcrm-twenty .st-notif__panel,
+  .sabcrm-twenty .st-dialog,
+  .sabcrm-twenty .st-dialog-overlay {
+    animation: u-fade-only var(--u-dur-fast) ease;
+    transform: none;
+  }
+
+  .sabcrm-twenty .st-btn:active,
+  .sabcrm-twenty .st-notif__btn:active,
+  .sabcrm-twenty .st-lead-quick:active,
+  .sabcrm-twenty .stg-mgr__save:active,
+  .sabcrm-twenty .stg-mgr__del:active,
+  .sabcrm-twenty .st-select2__clear:active,
+  .sabcrm-twenty .st-dialog__close:active {
+    transform: none;
+  }
+
+  @keyframes u-fade-only {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

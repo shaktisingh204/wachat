@@ -2,7 +2,8 @@ import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 import '@/styles/sabcrm-twenty.css';
-import '@/styles/sabcrm-system.css';
+// 20ui — SabCRM's design system (motion · interaction · accessibility layer).
+import '@/styles/20ui.css';
 
 /* =========================================================================
    TwentyButton
