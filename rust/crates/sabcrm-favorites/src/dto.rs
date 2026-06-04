@@ -53,6 +53,28 @@ pub struct ReorderInput {
     pub items: Vec<ReorderItem>,
 }
 
+/// `PATCH /move` body — move a single favorite between two neighbours using
+/// **true fractional indexing**. The moved favorite's new `position` becomes the
+/// midpoint of its target neighbours, so a reorder/insert touches exactly one
+/// row (O(1)) instead of renumbering the whole list. `afterId` is the favorite
+/// the moved item should land **after** (its left neighbour), `beforeId` the one
+/// it should land **before** (its right neighbour); either may be omitted to
+/// drop at the head (`afterId` absent) or tail (`beforeId` absent).
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct MoveFavoriteInput {
+    /// Tenant scope — required.
+    pub project_id: String,
+    /// Hex id (`_id`) of the favorite to move.
+    pub id: String,
+    /// Hex id of the left neighbour to land **after**. Absent → move to head.
+    #[serde(default)]
+    pub after_id: Option<String>,
+    /// Hex id of the right neighbour to land **before**. Absent → move to tail.
+    #[serde(default)]
+    pub before_id: Option<String>,
+}
+
 /// `DELETE /` query params — remove a favorite for the caller.
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]

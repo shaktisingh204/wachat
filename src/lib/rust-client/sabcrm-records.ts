@@ -104,6 +104,54 @@ export interface SabcrmFilterGroup {
  */
 export type SabcrmRecordFilters = Record<string, unknown> | SabcrmFilterGroup;
 
+/**
+ * A single **relation-join** filter — targets a *related* record's field rather
+ * than this record's own `data.*`. The dotted `field` references a RELATION
+ * field of the current object (`"<relationField>.<targetField>"`): the first
+ * segment is the source RELATION fieldKey and the remainder is the target
+ * object's `data.*` field. Satisfied server-side via an aggregation `$lookup`
+ * on the relation's stored id into the target object's records, then a `$match`
+ * on the joined `<targetField>`. Mirrors the **list** shape of the Rust
+ * `ListQuery::relation_filters`.
+ */
+export interface SabcrmRelationFilterItem {
+  /** Dotted `"<relationField>.<targetField>"` path. */
+  field: string;
+  /** Same operator dialect as {@link SabcrmFilterCondition.operator}. */
+  op: SabcrmFilterCondition['operator'];
+  value?: unknown;
+}
+
+/**
+ * The `relationFilters` payload accepted by the engine. Two shapes are
+ * supported (both ANDed into the base `{ projectId, object }` scope):
+ *
+ * - **flat map** — `{ "owner.name": <condition>, "company.industry": … }`,
+ *   where the dotted key's first segment is the source RELATION fieldKey and the
+ *   remainder is the target's `data.*` field. A condition is a bare scalar
+ *   (equality) or `{ op, value }`.
+ * - **list** — an array of {@link SabcrmRelationFilterItem}.
+ *
+ * When ANY relation filter is present the engine switches from the fast
+ * `find()` path to an aggregation pipeline. Relations that can't be resolved
+ * (unknown object/field, non-MANY_TO_ONE, custom object) are skipped gracefully
+ * rather than erroring. Omitted / empty → the normal `find()` path, so existing
+ * callers are unaffected. Mirrors the Rust `ListQuery::relation_filters`.
+ */
+export type SabcrmRecordRelationFilters =
+  | Record<string, unknown>
+  | SabcrmRelationFilterItem[];
+
+/**
+ * Cross-object global-search mode. `regex` (the default) runs the legacy
+ * case-insensitive regex `$or` scan; `relevance` asks the engine to use a Mongo
+ * `$text` search ranked by `{ score: textScore }` over the full-text index,
+ * falling back to the regex scan when no text index is available. Mirrors the
+ * Rust `SearchQuery::mode` (`text` / `score` are also accepted aliases of
+ * `relevance` server-side). Omitted → `regex`.
+ */
+export type SabcrmSearchMode = 'regex' | 'relevance';
+
 export interface SabcrmRecordListParams {
   projectId: string;
   /** Free-text query (regex over common data.* fields server-side). */
@@ -128,6 +176,14 @@ export interface SabcrmRecordListParams {
    * (legacy shape), so existing callers are unaffected.
    */
   enrich?: boolean;
+  /**
+   * Relation-join filters — predicates over a *related* record's field (e.g.
+   * `owner.name`, `company.industry`) rather than this record's own `data.*`.
+   * JSON-stringified into the `relationFilters` query param; omitted when empty.
+   * Presence flips the engine onto the aggregation (`$lookup` + `$match`) path.
+   * See {@link SabcrmRecordRelationFilters}.
+   */
+  relationFilters?: SabcrmRecordRelationFilters;
 }
 
 export interface SabcrmRecordListResponse {
@@ -397,14 +453,21 @@ export const sabcrmRecordsApi = {
    * EVERY object in `projectId` (trashed records excluded) and returns ranked
    * record hits (`{ object, id, label, snippet? }`), capped at 50 server-side.
    * An empty `q` yields no hits.
+   *
+   * `mode` selects the match strategy (see {@link SabcrmSearchMode}): the
+   * default `regex` runs the legacy case-insensitive scan; `relevance` uses a
+   * Mongo `$text` search ranked by text score (falling back to regex when no
+   * full-text index is available). Omitted → `regex`, so existing callers are
+   * unaffected.
    */
   searchAll(
     projectId: string,
     q: string,
     limit?: number,
+    mode?: SabcrmSearchMode,
   ): Promise<SabcrmSearchResponse> {
     return rustFetch<SabcrmSearchResponse>(
-      `/v1/sabcrm/records/search${qs({ projectId, q, limit })}`,
+      `/v1/sabcrm/records/search${qs({ projectId, q, limit, mode })}`,
     );
   },
 
@@ -416,6 +479,10 @@ export const sabcrmRecordsApi = {
     const hasFilters =
       params.filters !== undefined &&
       Object.keys(params.filters).length > 0;
+    const rf = params.relationFilters;
+    const hasRelationFilters =
+      rf !== undefined &&
+      (Array.isArray(rf) ? rf.length > 0 : Object.keys(rf).length > 0);
     return rustFetch<SabcrmRecordListResponse>(
       `${base(object)}${qs({
         projectId: params.projectId,
@@ -425,6 +492,7 @@ export const sabcrmRecordsApi = {
         page: params.page,
         limit: params.limit,
         filters: hasFilters ? JSON.stringify(params.filters) : undefined,
+        relationFilters: hasRelationFilters ? JSON.stringify(rf) : undefined,
         enrich: params.enrich ? 'relations' : undefined,
       })}`,
     );

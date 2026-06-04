@@ -82,6 +82,12 @@ const ACTORS_KEY: &str = "__actors";
 /// target, in priority order.
 const AVATAR_FIELDS: &[&str] = &["avatar", "logo", "avatarUrl", "logoUrl", "photo", "image"];
 
+/// Name of the idempotent Mongo `$text` index over the common `data.*` search
+/// fields, created on first relevance-mode search. A fixed name makes the
+/// `create_index` call idempotent (Mongo no-ops when an identical index with
+/// the same name already exists).
+const TEXT_INDEX_NAME: &str = "sabcrm_records_fulltext";
+
 /// Common `data.*` keys probed by the free-text `q` filter. Covers the
 /// label fields of the six standard objects.
 const SEARCH_FIELDS: &[&str] = &[
@@ -410,6 +416,218 @@ fn apply_filters(filter: &mut Document, filters: Option<&str>) -> Result<()> {
     }
 
     Ok(())
+}
+
+// ===========================================================================
+// relation-join filters (?relationFilters=) — opt-in $lookup path
+// ===========================================================================
+
+/// One resolved relation-join filter clause: the source RELATION fieldKey
+/// (whose stored id is the join column), the resolved target object slug, the
+/// target's `data.*` field being matched, and the Mongo predicate to apply.
+struct RelationFilterClause {
+    /// Source RELATION fieldKey on the current object (join column in `data.*`).
+    source_field: String,
+    /// Resolved target object slug the relation points at.
+    target_object: String,
+    /// Target `data.*` field the predicate matches.
+    target_field: String,
+    /// The Mongo predicate applied to the joined `data.<target_field>`.
+    predicate: Bson,
+}
+
+/// Split a dotted relation-filter key `"<relationField>.<targetField>"` into its
+/// `(relationField, targetField)` halves. `targetField` itself may be dotted
+/// (nested target `data.*` path) — only the FIRST `.` separates the relation
+/// from the target field. Returns `None` for a key without a `.`.
+fn split_relation_key(key: &str) -> Option<(&str, &str)> {
+    let key = key.trim();
+    key.split_once('.').and_then(|(rel, tgt)| {
+        let rel = rel.trim();
+        let tgt = tgt.trim();
+        if rel.is_empty() || tgt.is_empty() {
+            None
+        } else {
+            Some((rel, tgt))
+        }
+    })
+}
+
+/// Resolve a source RELATION fieldKey of `object` to its target object slug,
+/// **only** for MANY_TO_ONE relations (the only kind storing a scalar joinable
+/// id on the source record). Returns `None` for unknown objects/fields,
+/// non-relation fields, or non-MANY_TO_ONE cardinalities — the caller skips
+/// those clauses gracefully.
+fn resolve_relation_target(object: &str, source_field: &str) -> Option<String> {
+    let meta = sabcrm_core::standard_object(object)?;
+    meta.fields.into_iter().find_map(|f| {
+        if f.key != source_field {
+            return None;
+        }
+        match f.relation {
+            Some(rel) if rel.kind == "MANY_TO_ONE" => Some(rel.target_object),
+            _ => None,
+        }
+    })
+}
+
+/// Parse one relation-filter clause from a `(dotted-key, condition)` pair into a
+/// [`RelationFilterClause`], resolving the relation against `object`'s metadata.
+/// Returns `Ok(None)` (skip-gracefully) when the key isn't dotted or the
+/// relation can't be resolved to a MANY_TO_ONE target; a bad condition op still
+/// surfaces as a `400` via [`condition_to_bson`].
+fn parse_relation_clause(
+    object: &str,
+    key: &str,
+    cond: &Value,
+) -> Result<Option<RelationFilterClause>> {
+    let (source_field, target_field) = match split_relation_key(key) {
+        Some(parts) => parts,
+        None => return Ok(None),
+    };
+    let target_object = match resolve_relation_target(object, source_field) {
+        Some(t) => t,
+        None => return Ok(None),
+    };
+    let predicate = condition_to_bson(cond)?;
+    Ok(Some(RelationFilterClause {
+        source_field: source_field.to_owned(),
+        target_object,
+        target_field: target_field.to_owned(),
+        predicate,
+    }))
+}
+
+/// Parse the optional URL-encoded JSON `relationFilters` param into resolved
+/// [`RelationFilterClause`]s. Accepts a flat map `{ "owner.name": <cond>, … }`
+/// or a list `[{ "field": "owner.name", "op", "value" }, …]`. Clauses whose
+/// relation can't be resolved are skipped gracefully; a bad JSON root → `400`.
+/// Absent / empty → an empty vec (caller stays on the fast `find()` path).
+fn parse_relation_filters(object: &str, raw: Option<&str>) -> Result<Vec<RelationFilterClause>> {
+    let raw = match raw.map(str::trim).filter(|s| !s.is_empty()) {
+        Some(raw) => raw,
+        None => return Ok(Vec::new()),
+    };
+
+    let parsed: Value = serde_json::from_str(raw)
+        .map_err(|e| ApiError::BadRequest(format!("invalid `relationFilters` JSON: {e}")))?;
+
+    let mut clauses = Vec::new();
+    match parsed {
+        Value::Object(map) => {
+            for (key, cond) in &map {
+                if let Some(c) = parse_relation_clause(object, key, cond)? {
+                    clauses.push(c);
+                }
+            }
+        }
+        Value::Array(items) => {
+            for el in &items {
+                let obj = match el {
+                    Value::Object(o) => o,
+                    _ => {
+                        return Err(ApiError::BadRequest(
+                            "each `relationFilters` entry must be a JSON object.".to_owned(),
+                        ));
+                    }
+                };
+                let field = obj.get("field").and_then(Value::as_str).ok_or_else(|| {
+                    ApiError::BadRequest(
+                        "each `relationFilters` entry requires a `field`.".to_owned(),
+                    )
+                })?;
+                // Re-shape `{ field, op, value }` into the `{ op, value }` form
+                // `condition_to_bson` consumes (an absent `op` → bare equality).
+                let cond = match obj.get("op").and_then(Value::as_str) {
+                    Some(op) => serde_json::json!({
+                        "op": op,
+                        "value": obj.get("value").cloned().unwrap_or(Value::Null),
+                    }),
+                    None => obj.get("value").cloned().unwrap_or(Value::Null),
+                };
+                if let Some(c) = parse_relation_clause(object, field, &cond)? {
+                    clauses.push(c);
+                }
+            }
+        }
+        _ => {
+            return Err(ApiError::BadRequest(
+                "`relationFilters` must be a JSON object or array.".to_owned(),
+            ));
+        }
+    }
+
+    Ok(clauses)
+}
+
+/// Build the aggregation pipeline stages that implement the relation-join
+/// filters: for each clause, `$lookup` the source record's stored relation id
+/// (`data.<sourceField>`) into the target object's records in the SAME
+/// `sabcrm_records` collection, then `$match` the joined `data.<targetField>`
+/// against the clause predicate.
+///
+/// The lookup uses a sub-pipeline so it can scope the joined records by
+/// `{ projectId, object: <targetObject> }` and coerce the stored id (a hex
+/// string in `data.*`) to an `ObjectId` for the `_id` join. A clause matches
+/// only when at least one joined record satisfies the predicate (`$ne: []` on
+/// the filtered join array). Lookup output fields are namespaced `__rel_join_N`
+/// and stripped by a trailing `$project` so the emitted records stay the legacy
+/// shape.
+fn relation_join_stages(project_id: &str, clauses: &[RelationFilterClause]) -> Vec<Document> {
+    let mut stages = Vec::new();
+    let mut strip = Document::new();
+
+    for (i, c) in clauses.iter().enumerate() {
+        let as_field = format!("__rel_join_{i}");
+        let target_data_path = format!("data.{}", c.target_field);
+
+        // Sub-pipeline lookup: scope to the target object + tenant, coerce the
+        // source's stored hex id to an ObjectId for the `_id` join, and apply
+        // the clause predicate on the joined target's `data.<targetField>`.
+        let lookup = doc! {
+            "$lookup": {
+                "from": RECORDS_COLL,
+                "let": { "joinId": format!("$data.{}", c.source_field) },
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {
+                                "$and": [
+                                    { "$eq": ["$projectId", project_id] },
+                                    { "$eq": ["$object", &c.target_object] },
+                                    {
+                                        "$eq": [
+                                            "$_id",
+                                            {
+                                                "$convert": {
+                                                    "input": "$$joinId",
+                                                    "to": "objectId",
+                                                    "onError": Bson::Null,
+                                                    "onNull": Bson::Null,
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    { "$match": { target_data_path: c.predicate.clone() } },
+                    { "$limit": 1 },
+                ],
+                "as": &as_field,
+            }
+        };
+        stages.push(lookup);
+        // Keep only source records with a satisfying joined target.
+        stages.push(doc! { "$match": { &as_field: { "$ne": [] } } });
+        strip.insert(as_field, 0_i32);
+    }
+
+    if !strip.is_empty() {
+        stages.push(doc! { "$project": strip });
+    }
+    stages
 }
 
 /// Build the Mongo filter shared by `list_records` and `count_records`:
@@ -773,27 +991,85 @@ pub async fn list_records(
 
     let coll = mongo.collection::<Document>(RECORDS_COLL);
 
-    let total = coll
-        .count_documents(filter.clone())
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.count")))?;
+    // ---- Opt-in relation-join filters (?relationFilters=) ----------------
+    // When any relation-join clause resolves, switch from the fast find()
+    // path to an aggregation $lookup pipeline. Unresolvable clauses are
+    // skipped (graceful fallback); an empty resolved set keeps the find() path.
+    let rel_clauses =
+        parse_relation_filters(&object, query.relation_filters.as_deref())?;
 
-    let mut cursor = coll
-        .find(filter)
-        .sort(doc! { sort_key: sort_dir })
-        .skip(skip)
-        .limit(limit as i64)
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.find")))?;
+    let (records, total) = if rel_clauses.is_empty() {
+        let total = coll.count_documents(filter.clone()).await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.count"))
+        })?;
 
-    let mut records = Vec::new();
-    while let Some(d) = cursor
-        .try_next()
-        .await
-        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.cursor")))?
-    {
-        records.push(record_to_wire(d));
-    }
+        let mut cursor = coll
+            .find(filter)
+            .sort(doc! { sort_key: sort_dir })
+            .skip(skip)
+            .limit(limit as i64)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.find"))
+            })?;
+
+        let mut records = Vec::new();
+        while let Some(d) = cursor.try_next().await.map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.cursor"))
+        })? {
+            records.push(record_to_wire(d));
+        }
+        (records, total)
+    } else {
+        // Aggregation path: base $match, then the relation-join $lookup/$match
+        // stages, then sort/skip/limit. Total comes from the same filtered
+        // join via a parallel $count pass so pagination stays accurate.
+        let join_stages = relation_join_stages(project_id, &rel_clauses);
+
+        let mut total_pipeline: Vec<Document> = vec![doc! { "$match": filter.clone() }];
+        total_pipeline.extend(join_stages.iter().cloned());
+        total_pipeline.push(doc! { "$count": "total" });
+        let mut total_cursor = coll.aggregate(total_pipeline).await.map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_records.relation_filter.count"),
+            )
+        })?;
+        let total = total_cursor
+            .try_next()
+            .await
+            .map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("sabcrm_records.relation_filter.count.cursor"),
+                )
+            })?
+            .and_then(|d| d.get("total").map(bson_to_u64))
+            .unwrap_or(0);
+
+        let mut pipeline: Vec<Document> = vec![doc! { "$match": filter }];
+        pipeline.extend(join_stages);
+        pipeline.push(doc! { "$sort": { sort_key: sort_dir } });
+        if skip > 0 {
+            pipeline.push(doc! { "$skip": skip as i64 });
+        }
+        pipeline.push(doc! { "$limit": limit as i64 });
+
+        let mut cursor = coll.aggregate(pipeline).await.map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_records.relation_filter.aggregate"),
+            )
+        })?;
+        let mut records = Vec::new();
+        while let Some(d) = cursor.try_next().await.map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_records.relation_filter.cursor"),
+            )
+        })? {
+            records.push(record_to_wire(d));
+        }
+        (records, total)
+    };
+
+    let mut records = records;
 
     // ---- Optional relation/actor enrichment (?enrich=relations) ----------
     if wants_relation_enrichment(query.enrich.as_deref()) {
@@ -2025,6 +2301,101 @@ pub async fn record_relations(
 // GET /search — searchAll (cross-object global search)
 // ===========================================================================
 
+/// Decode the `?mode=` query value into "should we attempt relevance ranking?".
+/// Accepts `relevance` (the documented form) plus `text` / `score` as aliases,
+/// case-insensitively; everything else (incl. absent) is `false` so the legacy
+/// regex scan stays the default.
+fn wants_relevance_mode(mode: Option<&str>) -> bool {
+    matches!(
+        mode.map(str::trim).map(str::to_ascii_lowercase).as_deref(),
+        Some("relevance") | Some("text") | Some("score")
+    )
+}
+
+/// Idempotently create the `$text` index over the common [`SEARCH_FIELDS`]
+/// (`data.<field>` each) on the `sabcrm_records` collection. The fixed
+/// [`TEXT_INDEX_NAME`] makes repeated calls a no-op once the index exists.
+/// Errors are returned to the caller, which treats them as "no text index
+/// available" and falls back to the regex scan — so a missing/failed index is
+/// never fatal to a search.
+async fn ensure_text_index(coll: &mongodb::Collection<Document>) -> Result<()> {
+    use mongodb::IndexModel;
+    use mongodb::options::IndexOptions;
+
+    let mut keys = Document::new();
+    for field in SEARCH_FIELDS {
+        keys.insert(format!("data.{field}"), "text");
+    }
+
+    let opts = IndexOptions::builder()
+        .name(Some(TEXT_INDEX_NAME.to_owned()))
+        .build();
+    let model = IndexModel::builder().keys(keys).options(opts).build();
+
+    coll.create_index(model).await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.ensure_text_index"))
+    })?;
+    Ok(())
+}
+
+/// Run the relevance-ranked `$text` search and collect [`SearchHit`]s, sorted by
+/// `{ score: { $meta: "textScore" } }`. Returns the hits on success; the caller
+/// supplies the not-trashed `base_filter`, the raw `needle` (for snippet
+/// derivation), and the `limit`. Any Mongo error (e.g. no usable text index)
+/// propagates so the caller can fall back to the regex scan.
+async fn text_search_hits(
+    coll: &mongodb::Collection<Document>,
+    base_filter: Document,
+    needle: &str,
+    needle_lower: &str,
+    limit: i64,
+) -> Result<Vec<SearchHit>> {
+    let mut filter = base_filter;
+    filter.insert("$text", doc! { "$search": needle });
+
+    let mut cursor = coll
+        .find(filter)
+        .sort(doc! { "score": { "$meta": "textScore" } })
+        .projection(doc! { "score": { "$meta": "textScore" } })
+        .limit(limit)
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.search.text.find"))
+        })?;
+
+    let mut hits = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.search.text.cursor"))
+    })? {
+        hits.push(hit_from_doc(&d, needle_lower));
+    }
+    Ok(hits)
+}
+
+/// Build a [`SearchHit`] from a matched record `Document` — used by both the
+/// relevance (`$text`) and the legacy regex search paths so the wire shape is
+/// identical regardless of mode.
+fn hit_from_doc(d: &Document, needle_lower: &str) -> SearchHit {
+    let id = d
+        .get_object_id("_id")
+        .map(|o| o.to_hex())
+        .unwrap_or_default();
+    let object = d.get_str("object").unwrap_or_default().to_owned();
+    let data = d.get_document("data").ok();
+
+    let (label, snippet) = match data {
+        Some(data) => (derive_label(data, &id), derive_snippet(data, needle_lower)),
+        None => (id.clone(), None),
+    };
+
+    SearchHit {
+        object,
+        id,
+        label,
+        snippet,
+    }
+}
+
 /// Read a trimmed, non-empty string at `data.<key>` from a record's `data`
 /// sub-document. Returns `None` when absent, non-string, or blank.
 fn data_str<'a>(data: &'a Document, key: &str) -> Option<&'a str> {
@@ -2104,12 +2475,38 @@ pub async fn search_all(
         .unwrap_or(MAX_SEARCH_HITS)
         .min(MAX_SEARCH_HITS);
 
-    // Cross-object scope: `{ projectId }` + not-trashed, with the free-text
-    // `$or` regex over the common search fields (NOT scoped to one object).
-    let mut filter = doc! { "projectId": project_id };
+    // Cross-object base scope: `{ projectId }` + not-trashed (NOT scoped to one
+    // object). Both the relevance ($text) and regex paths layer onto this.
+    let mut base_filter = doc! { "projectId": project_id };
     let (k, v) = not_trashed();
-    filter.insert(k, v);
+    base_filter.insert(k, v);
 
+    let coll = mongo.collection::<Document>(RECORDS_COLL);
+
+    // ---- Optional relevance mode (?mode=relevance) -----------------------
+    // Ensure the idempotent `$text` index exists, then run a textScore-ranked
+    // search. ANY failure (no usable text index, index-create error, query
+    // error) falls back to the legacy regex scan below — relevance is a
+    // best-effort upgrade, never a hard dependency.
+    if wants_relevance_mode(query.mode.as_deref()) {
+        let attempt = async {
+            ensure_text_index(&coll).await?;
+            text_search_hits(&coll, base_filter.clone(), needle, &needle_lower, limit).await
+        }
+        .await;
+        match attempt {
+            Ok(hits) => return Ok(Json(SearchResponse { hits })),
+            Err(e) => {
+                tracing::warn!(
+                    error = %e,
+                    "sabcrm_records.search: relevance mode failed; falling back to regex scan"
+                );
+            }
+        }
+    }
+
+    // ---- Legacy regex `$or` scan (default + relevance fallback) ----------
+    let mut filter = base_filter;
     let ors: Vec<Bson> = SEARCH_FIELDS
         .iter()
         .map(|field| {
@@ -2120,7 +2517,6 @@ pub async fn search_all(
         .collect();
     filter.insert("$or", Bson::Array(ors));
 
-    let coll = mongo.collection::<Document>(RECORDS_COLL);
     let mut cursor = coll
         .find(filter)
         .sort(doc! { "updatedAt": -1 })
@@ -2134,24 +2530,7 @@ pub async fn search_all(
     while let Some(d) = cursor.try_next().await.map_err(|e| {
         ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.search.cursor"))
     })? {
-        let id = d
-            .get_object_id("_id")
-            .map(|o| o.to_hex())
-            .unwrap_or_default();
-        let object = d.get_str("object").unwrap_or_default().to_owned();
-        let data = d.get_document("data").ok();
-
-        let (label, snippet) = match data {
-            Some(data) => (derive_label(data, &id), derive_snippet(data, &needle_lower)),
-            None => (id.clone(), None),
-        };
-
-        hits.push(SearchHit {
-            object,
-            id,
-            label,
-            snippet,
-        });
+        hits.push(hit_from_doc(&d, &needle_lower));
     }
 
     Ok(Json(SearchResponse { hits }))

@@ -31,8 +31,8 @@ use tracing::instrument;
 use std::collections::HashMap;
 
 use crate::dto::{
-    AddFavoriteInput, FavoriteResponse, ListQuery, ListResponse, OkResponse, RemoveFavoriteQuery,
-    ReorderInput,
+    AddFavoriteInput, FavoriteResponse, ListQuery, ListResponse, MoveFavoriteInput, OkResponse,
+    RemoveFavoriteQuery, ReorderInput,
 };
 
 /// The Mongo collection backing per-user favorites.
@@ -46,6 +46,13 @@ const RECORDS_COLL: &str = "sabcrm_records";
 /// enough to leave head-room, mirroring Twenty's fractional positioning so a
 /// single insert rarely needs to renumber the whole list.
 const POSITION_STEP: f64 = 1000.0;
+
+/// Smallest gap between two neighbour positions that still admits a usable
+/// fractional midpoint. Below this the f64 mantissa no longer yields a value
+/// strictly between the neighbours, so a fractional move would collide; we
+/// trigger a [`rebalance_positions`] pass instead. Conservatively above raw
+/// `f64::EPSILON` so repeated midpoint insertions can't silently converge.
+const MIN_POSITION_GAP: f64 = 1e-6;
 
 // ===========================================================================
 // helpers
@@ -434,4 +441,215 @@ pub async fn reorder_favorites(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// PATCH /move — moveFavorite (true fractional indexing, O(1))
+// ===========================================================================
+
+/// `PATCH /v1/sabcrm/favorites/move` — move a single favorite between two
+/// neighbours using **true fractional indexing**. The moved favorite's new
+/// `position` is the midpoint of its target neighbours' positions, so a reorder
+/// or insert rewrites exactly one row — O(1) — rather than renumbering the whole
+/// list (which [`reorder_favorites`] still does for bulk submissions).
+///
+/// `afterId` is the left neighbour (move to land *after* it); `beforeId` is the
+/// right neighbour (land *before* it). Omitting `afterId` drops at the head;
+/// omitting `beforeId` appends at the tail. Both omitted leaves the row at the
+/// list tail.
+///
+/// When the two neighbours sit closer than [`MIN_POSITION_GAP`] (fractional
+/// gaps exhausted at f64 precision after many midpoint inserts), the caller's
+/// list is first re-spaced via [`rebalance_positions`] and the neighbour bounds
+/// re-read, so the move still succeeds. Only favorites the caller owns in
+/// `projectId` are touched; the `{ projectId, userId }` scope guards
+/// cross-tenant writes. Idempotent; returns `{ ok: true }`.
+#[instrument(skip_all)]
+pub async fn move_favorite(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Json(body): Json<MoveFavoriteInput>,
+) -> Result<Json<OkResponse>> {
+    let project_id = require_project(&body.project_id)?;
+
+    let Ok(oid) = ObjectId::parse_str(body.id.trim()) else {
+        return Err(ApiError::Validation(format!(
+            "favorite id `{}` is not a valid id.",
+            body.id
+        )));
+    };
+
+    let coll = mongo.collection::<Document>(FAVORITES_COLL);
+
+    // Resolve the neighbour bounds, rebalancing once if the gap is exhausted.
+    let (lower, upper) =
+        neighbour_bounds(&coll, project_id, &user.user_id, &body.after_id, &body.before_id).await?;
+
+    let new_position = match midpoint(lower, upper) {
+        Some(p) => p,
+        None => {
+            // Fractional gap exhausted at f64 precision — re-space the whole
+            // list once, then recompute the bounds and midpoint. After a
+            // rebalance the gaps are POSITION_STEP-wide so a midpoint exists.
+            rebalance_positions(&coll, project_id, &user.user_id).await?;
+            let (lo, hi) = neighbour_bounds(
+                &coll,
+                project_id,
+                &user.user_id,
+                &body.after_id,
+                &body.before_id,
+            )
+            .await?;
+            midpoint(lo, hi).ok_or_else(|| {
+                ApiError::Internal(anyhow::anyhow!(
+                    "sabcrm_favorites.move: no fractional slot even after rebalance"
+                ))
+            })?
+        }
+    };
+
+    coll.update_one(
+        doc! {
+            "_id": oid,
+            "projectId": project_id,
+            "userId": &user.user_id,
+        },
+        doc! { "$set": { "position": new_position } },
+    )
+    .await
+    .map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_favorites.move.update_one"))
+    })?;
+
+    Ok(Json(OkResponse { ok: true }))
+}
+
+/// Read the `position` of one of the caller's favorites by hex id, or `None`
+/// when the id is malformed, the row is missing, or it carries no numeric
+/// `position`. Scoped by `{ projectId, userId }` so a neighbour belonging to
+/// another tenant is never read.
+async fn position_of(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    user_id: &str,
+    id: &str,
+) -> Result<Option<f64>> {
+    let Ok(oid) = ObjectId::parse_str(id.trim()) else {
+        return Ok(None);
+    };
+    let found = coll
+        .find_one(doc! { "_id": oid, "projectId": project_id, "userId": user_id })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_favorites.move.position_of"))
+        })?;
+    Ok(found.and_then(|d| position_value(&d)))
+}
+
+/// Extract a row's `position` as `f64`, accepting either a stored double or a
+/// legacy integer. `None` when absent or non-numeric.
+fn position_value(d: &Document) -> Option<f64> {
+    d.get_f64("position")
+        .ok()
+        .or_else(|| d.get_i64("position").ok().map(|v| v as f64))
+        .or_else(|| d.get_i32("position").ok().map(|v| v as f64))
+}
+
+/// Resolve the `(lower, upper)` position bounds the moved favorite must land
+/// between, from the optional neighbour ids. A missing/unknown `afterId` leaves
+/// the lower bound open (`None` → head); a missing/unknown `beforeId` leaves the
+/// upper bound open (`None` → tail). When only one bound is open it is anchored
+/// to the caller's current list extreme so the midpoint stays inside the list.
+async fn neighbour_bounds(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    user_id: &str,
+    after_id: &Option<String>,
+    before_id: &Option<String>,
+) -> Result<(Option<f64>, Option<f64>)> {
+    let lower = match after_id {
+        Some(id) => position_of(coll, project_id, user_id, id).await?,
+        None => None,
+    };
+    let upper = match before_id {
+        Some(id) => position_of(coll, project_id, user_id, id).await?,
+        None => None,
+    };
+    Ok((lower, upper))
+}
+
+/// Compute a `position` strictly between an optional lower and upper bound.
+///
+/// - both bounds present → arithmetic midpoint, but only if a usable gap
+///   ([`MIN_POSITION_GAP`]) exists; otherwise `None` (caller rebalances);
+/// - only an upper bound (head insert) → one step below it;
+/// - only a lower bound (tail insert) → one step above it;
+/// - neither bound (empty list) → [`POSITION_STEP`].
+fn midpoint(lower: Option<f64>, upper: Option<f64>) -> Option<f64> {
+    match (lower, upper) {
+        (Some(lo), Some(hi)) => {
+            // Guard against neighbours supplied out of order: normalise so the
+            // midpoint is always taken across the real interval.
+            let (lo, hi) = if lo <= hi { (lo, hi) } else { (hi, lo) };
+            if hi - lo < MIN_POSITION_GAP {
+                return None;
+            }
+            let mid = lo + (hi - lo) / 2.0;
+            // Defensive: f64 rounding must not collapse mid onto a boundary.
+            if mid > lo && mid < hi {
+                Some(mid)
+            } else {
+                None
+            }
+        }
+        (None, Some(hi)) => Some(hi - POSITION_STEP),
+        (Some(lo), None) => Some(lo + POSITION_STEP),
+        (None, None) => Some(POSITION_STEP),
+    }
+}
+
+/// Re-space every favorite the caller owns in `project_id` onto a fresh,
+/// evenly gapped sequence (`POSITION_STEP`, `2*POSITION_STEP`, …), preserving
+/// the current display order (`position` asc, then `createdAt` asc as the
+/// tie-break — identical to [`list_favorites`]). This is the rebalance fallback
+/// invoked only when fractional gaps are exhausted; it touches the whole list
+/// but runs at most once per move and restores wide head-room for subsequent
+/// O(1) midpoint inserts.
+async fn rebalance_positions(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+    user_id: &str,
+) -> Result<()> {
+    let mut cursor = coll
+        .find(doc! { "projectId": project_id, "userId": user_id })
+        .sort(doc! { "position": 1, "createdAt": 1 })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_favorites.rebalance.find"))
+        })?;
+
+    let mut ids: Vec<ObjectId> = Vec::new();
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_favorites.rebalance.cursor"))
+    })? {
+        if let Ok(oid) = d.get_object_id("_id") {
+            ids.push(oid);
+        }
+    }
+
+    for (idx, oid) in ids.into_iter().enumerate() {
+        let slot = (idx as f64 + 1.0) * POSITION_STEP;
+        coll.update_one(
+            doc! { "_id": oid, "projectId": project_id, "userId": user_id },
+            doc! { "$set": { "position": slot } },
+        )
+        .await
+        .map_err(|e| {
+            ApiError::Internal(
+                anyhow::Error::new(e).context("sabcrm_favorites.rebalance.update_one"),
+            )
+        })?;
+    }
+
+    Ok(())
 }

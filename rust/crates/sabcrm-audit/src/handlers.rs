@@ -26,7 +26,11 @@ use sabnode_db::{document_to_clean_json, mongo::MongoHandle};
 use serde_json::Value;
 use tracing::instrument;
 
-use crate::dto::{AppendAuditInput, EntryResponse, ListQuery, ListResponse};
+use crate::chain::{self, GENESIS_PREV_HASH};
+use crate::dto::{
+    AppendAuditInput, ChainBreak, EntryResponse, ListQuery, ListResponse, VerifyQuery,
+    VerifyResponse,
+};
 
 /// The Mongo collection backing the change/audit log.
 const AUDIT_COLL: &str = "sabcrm_audit";
@@ -226,6 +230,18 @@ pub async fn append_audit(
     }
 
     let coll = mongo.collection::<Document>(AUDIT_COLL);
+
+    // ---- Hash-chain tamper-evidence ------------------------------------
+    // Link this event onto the project's chain: `prevHash` is the hash of the
+    // current chain tip (the most-recently inserted entry for this project),
+    // or the genesis sentinel for the first ever entry. `hash` folds the
+    // canonical content together with `prevHash`, so editing/deleting any
+    // historical entry later breaks this link on verification.
+    let prev_hash = chain_tip_hash(&coll, project_id).await?;
+    entry.insert("prevHash", &prev_hash);
+    let hash = chain::chain_hash(&entry, &prev_hash);
+    entry.insert("hash", &hash);
+
     coll.insert_one(&entry)
         .await
         .map_err(|e| {
@@ -234,5 +250,137 @@ pub async fn append_audit(
 
     Ok(Json(EntryResponse {
         entry: record_to_wire(entry),
+    }))
+}
+
+/// Read the `hash` of a project's chain tip — the most-recently inserted
+/// entry for `project_id` — or [`GENESIS_PREV_HASH`] when the chain is empty.
+///
+/// "Most recent" is by `_id` descending: ObjectIds are monotonic in creation
+/// order, so this is the true insertion order even when two events share a
+/// (second-granularity) `createdAt` string.
+async fn chain_tip_hash(
+    coll: &mongodb::Collection<Document>,
+    project_id: &str,
+) -> Result<String> {
+    let tip = coll
+        .find_one(doc! { "projectId": project_id })
+        .sort(doc! { "_id": -1 })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_audit.chain_tip"))
+        })?;
+
+    Ok(tip
+        .and_then(|d| d.get_str("hash").ok().map(str::to_owned))
+        .unwrap_or_else(|| GENESIS_PREV_HASH.to_owned()))
+}
+
+// ===========================================================================
+// GET /verify — verify the audit hash-chain
+// ===========================================================================
+
+/// `GET /v1/sabcrm/audit/verify` — walk a project's audit hash-chain and
+/// report the first broken link.
+///
+/// Mongo is append-only by convention only; the hash-chain makes any edit,
+/// deletion, or reorder of a historical entry *detectable*. The chain is
+/// walked in insertion order (`_id` ascending). For each entry the handler:
+///
+/// 1. checks `prevHash` equals the previous entry's stored `hash` (the
+///    genesis sentinel for the first entry); and
+/// 2. recomputes `sha256(canonical(entry) || prevHash)` and checks it equals
+///    the entry's stored `hash`.
+///
+/// The first entry that fails either check is reported as the
+/// [`break_at`](crate::dto::VerifyResponse::break_at) — the earliest point
+/// where the log no longer self-verifies. A chain with no entries is
+/// trivially intact.
+#[instrument(skip_all)]
+pub async fn verify_chain(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(query): Query<VerifyQuery>,
+) -> Result<Json<VerifyResponse>> {
+    let project_id = require_project(&query.project_id)?;
+
+    let coll = mongo.collection::<Document>(AUDIT_COLL);
+    let mut cursor = coll
+        .find(doc! { "projectId": project_id })
+        .sort(doc! { "_id": 1 })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_audit.verify.find"))
+        })?;
+
+    let mut expected_prev = GENESIS_PREV_HASH.to_owned();
+    let mut checked: u64 = 0;
+
+    while let Some(d) = cursor.try_next().await.map_err(|e| {
+        ApiError::Internal(anyhow::Error::new(e).context("sabcrm_audit.verify.cursor"))
+    })? {
+        let index = checked;
+        checked += 1;
+
+        let entry_id = d
+            .get_object_id("_id")
+            .map(|o| o.to_hex())
+            .unwrap_or_default();
+        let created_at = d.get_str("createdAt").ok().map(str::to_owned);
+        let stored_hash = d.get_str("hash").unwrap_or("").to_owned();
+        let stored_prev = d.get_str("prevHash").unwrap_or("").to_owned();
+
+        // (1) Link continuity: this entry's prevHash must equal the running
+        //     expected predecessor hash.
+        if stored_prev != expected_prev {
+            return Ok(Json(VerifyResponse {
+                project_id: project_id.to_owned(),
+                intact: false,
+                checked,
+                break_at: Some(ChainBreak {
+                    entry_id,
+                    index,
+                    created_at,
+                    reason: format!(
+                        "prevHash mismatch: expected predecessor hash {expected_prev}, \
+                         entry stores {stored_prev} (a prior entry was altered, \
+                         removed, or reordered)"
+                    ),
+                    stored_hash,
+                    computed_hash: expected_prev,
+                }),
+            }));
+        }
+
+        // (2) Content integrity: recompute the hash over the entry's content
+        //     plus its stored prevHash; it must equal the stored hash.
+        let computed = chain::chain_hash(&d, &stored_prev);
+        if computed != stored_hash {
+            return Ok(Json(VerifyResponse {
+                project_id: project_id.to_owned(),
+                intact: false,
+                checked,
+                break_at: Some(ChainBreak {
+                    entry_id,
+                    index,
+                    created_at,
+                    reason:
+                        "hash mismatch: recomputed content hash does not match the stored \
+                         hash (this entry's content was altered)"
+                            .to_owned(),
+                    stored_hash,
+                    computed_hash: computed,
+                }),
+            }));
+        }
+
+        expected_prev = stored_hash;
+    }
+
+    Ok(Json(VerifyResponse {
+        project_id: project_id.to_owned(),
+        intact: true,
+        checked,
+        break_at: None,
     }))
 }

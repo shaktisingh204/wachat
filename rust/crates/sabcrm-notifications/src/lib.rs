@@ -14,6 +14,7 @@
 //! |-------------------------|---------------------|
 //! | `listNotifications`     | `GET    /`          |
 //! | `notificationsCount`    | `GET    /count`     |
+//! | `streamNotifications`   | `GET    /stream`    |
 //! | `createNotification`    | `POST   /`          |
 //! | `markNotificationRead`  | `POST   /{id}/read` |
 //! | `markAllNotificationsRead` | `POST /read-all` |

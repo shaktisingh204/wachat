@@ -10,10 +10,19 @@
 //!
 //! ## Scope
 //!
-//! | Operation     | HTTP route   |
-//! |---------------|--------------|
-//! | list entries  | `GET    /`   |
-//! | append entry  | `POST   /`   |
+//! | Operation     | HTTP route       |
+//! |---------------|------------------|
+//! | list entries  | `GET    /`       |
+//! | append entry  | `POST   /`       |
+//! | verify chain  | `GET    /verify` |
+//!
+//! ## Tamper-evidence
+//!
+//! Every appended entry is linked into a per-`projectId` SHA-256 hash-chain
+//! (`prevHash` + `hash = sha256(canonical(event) || prevHash)`; see the
+//! [`chain`] module). Mongo is append-only by convention only, so the chain
+//! makes any historical edit, deletion, or reorder *detectable*: the
+//! `GET /verify` endpoint walks the chain and reports the first broken link.
 //!
 //! An audit entry records an `action` (`create` / `update` / `delete` / …)
 //! performed against an optional `object` + `recordId` within a project,
@@ -27,6 +36,7 @@
 //! request body. The extractor is required on every endpoint so the surface
 //! is never anonymously open.
 
+pub mod chain;
 pub mod dto;
 pub mod handlers;
 pub mod router;

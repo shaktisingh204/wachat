@@ -18,6 +18,7 @@
 //! ```text
 //! GET    /            — list_notifications
 //! GET    /count       — count_notifications
+//! GET    /stream      — stream_notifications (SSE, text/event-stream)
 //! POST   /            — create_notification
 //! POST   /read-all    — mark_all_read
 //! POST   /{id}/read   — mark_read
@@ -50,6 +51,7 @@ where
             get(handlers::list_notifications).post(handlers::create_notification),
         )
         .route("/count", get(handlers::count_notifications))
+        .route("/stream", get(handlers::stream_notifications))
         .route("/read-all", post(handlers::mark_all_read))
         .route("/{id}/read", post(handlers::mark_read))
         .route("/{id}", delete(handlers::delete_notification))

@@ -21,7 +21,7 @@ path = "src/lib.rs"
 
 [dependencies]
 axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -32,6 +32,8 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "serd
 
 mongodb = "3"
 futures = "0.3"
+futures-util = "0.3"
+async-stream = "0.3"
 
 tracing = "0.1"
 

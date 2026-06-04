@@ -29,7 +29,12 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmTemplatesApi } from '@/lib/rust-client/sabcrm-templates';
-import type { SabcrmRustTemplate } from '@/lib/rust-client/sabcrm-templates';
+import type {
+  SabcrmRustTemplate,
+  SabcrmTemplateRenderInput,
+  SabcrmTemplatePreviewInput,
+  SabcrmTemplateRenderResult,
+} from '@/lib/rust-client/sabcrm-templates';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
   CreateTemplateTwInput,
@@ -189,6 +194,57 @@ export async function updateTemplateTw(
     return { ok: true, data };
   } catch (e) {
     return fail(e, 'Failed to update template.');
+  }
+}
+
+/**
+ * Renders a stored template against a variable source — a record (`recordId` +
+ * `object`, whose `data` map plus resolved RELATION hints supply the
+ * `{{dotted.path}}` values) and/or an inline `variables` map layered on top.
+ * Returns `{ subject?, body, missingVariables }`; `missingVariables` lists the
+ * `{{placeholder}}` paths that resolved to nothing (for preview gap-highlighting).
+ * Gated `view`.
+ */
+export async function renderTemplateTw(
+  id: string,
+  input?: SabcrmTemplateRenderInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmTemplateRenderResult>> {
+  if (!id) return { ok: false, error: 'Template id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmTemplatesApi.render(g.ctx.projectId, id, input);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to render template.');
+  }
+}
+
+/**
+ * Renders an ad-hoc (not-yet-saved) `subject` / `body` against the same
+ * variable sources as {@link renderTemplateTw} — supports the same dotted-path
+ * + relation-hint interpolation. Returns `{ subject?, body, missingVariables }`.
+ * Gated `view`.
+ */
+export async function previewTemplateTw(
+  input: SabcrmTemplatePreviewInput,
+  projectId?: string,
+): Promise<ActionResult<SabcrmTemplateRenderResult>> {
+  if (input?.body === undefined || input?.body === null) {
+    return { ok: false, error: 'A body is required.' };
+  }
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmTemplatesApi.preview(g.ctx.projectId, input);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to preview template.');
   }
 }
 

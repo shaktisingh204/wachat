@@ -128,3 +128,54 @@ pub struct EntryResponse {
     #[schema(value_type = Object)]
     pub entry: Value,
 }
+
+/// `GET /verify` query params — verify a project's audit hash-chain.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifyQuery {
+    /// Tenant scope — the chain to walk. Required.
+    pub project_id: String,
+}
+
+/// Describes the first detected break in a project's audit hash-chain.
+///
+/// Returned inside [`VerifyResponse`] when `intact` is `false`.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ChainBreak {
+    /// Hex id of the offending entry (the relabelled `_id`).
+    pub entry_id: String,
+    /// 0-based position of the entry within the chain (insertion order).
+    pub index: u64,
+    /// Server-set `createdAt` of the offending entry, if present.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
+    /// Human-readable explanation of why the link is broken.
+    pub reason: String,
+    /// The `hash` the entry actually stores.
+    pub stored_hash: String,
+    /// The `hash` recomputed from the entry's content + its predecessor.
+    pub computed_hash: String,
+}
+
+/// Response body for `GET /verify` — the tamper-evidence audit result.
+///
+/// `intact` is `true` only when every link in the project's chain recomputes
+/// to its stored `hash` (and each `prevHash` matches its predecessor's
+/// `hash`). When `false`, [`break_at`](Self::break_at) pinpoints the **first**
+/// broken link — the earliest entry whose stored hash no longer matches its
+/// content, which is where tampering (an edit, deletion, or reorder) is
+/// detectable.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct VerifyResponse {
+    /// Tenant scope that was verified.
+    pub project_id: String,
+    /// `true` when the whole chain verifies; `false` when a break was found.
+    pub intact: bool,
+    /// Number of entries walked.
+    pub checked: u64,
+    /// The first broken link, when `intact` is `false`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub break_at: Option<ChainBreak>,
+}

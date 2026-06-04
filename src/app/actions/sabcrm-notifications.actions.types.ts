@@ -15,4 +15,7 @@ export type {
   SabcrmNotificationKind,
   SabcrmNotificationCreateInput,
   SabcrmNotificationListOpts,
+  SabcrmNotificationActor,
+  SabcrmNotificationListResult,
+  SabcrmNotificationStreamEvent,
 } from '@/lib/rust-client/sabcrm-notifications';

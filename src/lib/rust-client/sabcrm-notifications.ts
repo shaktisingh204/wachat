@@ -14,6 +14,9 @@ import 'server-only';
  * `{ notification: {...} }` (single), `{ unread }` (count) and
  * `{ ok, updated }` (read-all); this client unwraps the list/single ones.
  * Wire shapes mirror `rust/crates/sabcrm-notifications/src/{dto,handlers}.rs`.
+ *
+ * Server-only. (Except for {@link sabcrmNotificationsApi.streamPath}, which only
+ * returns a relative URL string the browser can hand to `EventSource`.)
  */
 import { rustFetch } from './fetcher';
 
@@ -139,6 +142,22 @@ interface SingleEnvelope {
   notification: SabcrmRustNotification;
 }
 
+/**
+ * The named SSE events the Rust `GET /stream` handler emits, in the order a
+ * consumer should expect them:
+ *
+ * - `ready`        — sent once on open; `data` is the literal `"ok"`.
+ * - `notification` — one per newly-created row; `data` is the JSON of a
+ *                    {@link SabcrmRustNotification} (already actor-enriched).
+ * - `count`        — the caller's current unread total; `data` is that number
+ *                    as a decimal string. Emitted after each poll batch so
+ *                    badge UIs stay live.
+ *
+ * `EventSource` clients should `addEventListener(<name>, …)` for each. A
+ * periodic `keep-alive` comment frame is also sent and is ignored by consumers.
+ */
+export type SabcrmNotificationStreamEvent = 'ready' | 'notification' | 'count';
+
 /** Encode query params, dropping undefined/empty values. */
 function qs(params: Record<string, string | number | boolean | undefined>): string {
   const sp = new URLSearchParams();
@@ -236,5 +255,20 @@ export const sabcrmNotificationsApi = {
       `${BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
       { method: 'DELETE' },
     );
+  },
+
+  /**
+   * Returns the relative SSE path for `GET /v1/sabcrm/notifications/stream`
+   * (a `text/event-stream` of live notification + unread-count events for the
+   * caller within `projectId`; see {@link SabcrmNotificationStreamEvent}).
+   *
+   * `EventSource` cannot send the `Authorization` bearer that {@link rustFetch}
+   * mints, so the browser must consume this through a server-side proxy route
+   * that forwards the token (mirroring the Telegram chats `streamPath` pattern).
+   * This helper only builds the string, so it is safe to import in a
+   * `'use client'` boundary even though the rest of the module is server-only.
+   */
+  streamPath(projectId: string): string {
+    return `${BASE}/stream${qs({ projectId })}`;
   },
 };

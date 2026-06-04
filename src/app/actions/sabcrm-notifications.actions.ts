@@ -191,3 +191,24 @@ export async function deleteNotificationTw(
     return fail(e, 'Failed to delete notification.');
   }
 }
+
+/**
+ * Returns the relative SSE path the notification bell can hand to an
+ * `EventSource` (via a token-forwarding proxy route) to receive live
+ * `notification` / `count` events for the caller. Gated `view` and resolved
+ * against the authorized project, so the path is only ever issued to a member.
+ * Does NOT call the Rust engine — it only builds the URL string.
+ */
+export async function notificationsStreamPathTw(
+  projectId?: string,
+): Promise<ActionResult<{ path: string }>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const path = sabcrmNotificationsApi.streamPath(g.ctx.projectId);
+    return { ok: true, data: { path } };
+  } catch (e) {
+    return fail(e, 'Failed to resolve notification stream path.');
+  }
+}

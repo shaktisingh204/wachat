@@ -29,7 +29,10 @@ import type { PermissionAction } from '@/lib/rbac';
 import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmAuditApi } from '@/lib/rust-client/sabcrm-audit';
-import type { SabcrmRustAuditEntry } from '@/lib/rust-client/sabcrm-audit';
+import type {
+  SabcrmRustAuditEntry,
+  SabcrmAuditVerifyResult,
+} from '@/lib/rust-client/sabcrm-audit';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
   ListAuditTwOpts,
@@ -145,5 +148,24 @@ export async function logAuditTw(
     return { ok: true, data: entry };
   } catch (e) {
     return fail(e, 'Failed to log audit entry.');
+  }
+}
+
+/**
+ * Verifies the project's append-only audit hash-chain end to end. Returns
+ * `{ projectId, intact, checked, breakAt? }`: when `intact` is `false`,
+ * `breakAt` pinpoints the first tampered/broken link. Gated `view`.
+ */
+export async function verifyAuditTw(
+  projectId?: string,
+): Promise<ActionResult<SabcrmAuditVerifyResult>> {
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const data = await sabcrmAuditApi.verify(g.ctx.projectId);
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to verify audit chain.');
   }
 }

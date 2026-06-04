@@ -19,14 +19,18 @@
 //! the body) to fan a notification out to another user.
 
 use std::collections::HashMap;
+use std::convert::Infallible;
+use std::time::Duration;
 
 use axum::{
     Json,
     extract::{Path, Query, State},
+    response::sse::{Event, KeepAlive, Sse},
 };
 use bson::{Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
+use futures_util::Stream;
 use sabnode_auth::AuthUser;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::{bson_helpers::oid_from_str, document_to_clean_json, mongo::MongoHandle};
@@ -36,6 +40,7 @@ use tracing::instrument;
 use crate::dto::{
     ActorRef, CountQuery, CountResponse, CreateNotificationInput, ListQuery, ListResponse,
     MarkAllReadInput, MarkReadInput, NotificationResponse, OkResponse, ReadAllResponse, ScopeQuery,
+    StreamQuery,
 };
 
 /// The Mongo collection backing per-user notifications.
@@ -52,6 +57,20 @@ const MAX_LIMIT: u64 = 200;
 /// Notification kinds SabCRM recognises, mirroring Twenty's notification
 /// categories. Stored lowercase verbatim. `info` is a generic fallback.
 const ALLOWED_KINDS: &[&str] = &["mention", "assignment", "comment", "system", "info"];
+
+/// How often `GET /stream` polls the collection for fresh rows. Kept modest
+/// so a fan of open streams stays resource-safe.
+const STREAM_POLL_INTERVAL: Duration = Duration::from_millis(2000);
+/// Server-side idle ceiling for `GET /stream`: when no new rows arrive for
+/// this long the stream is closed so abandoned/zombie connections can't pin a
+/// poller forever. Clients are expected to reconnect (EventSource does so
+/// automatically).
+const STREAM_IDLE_TIMEOUT: Duration = Duration::from_secs(300);
+/// SSE keep-alive comment cadence — keeps proxies from culling an idle stream
+/// and lets the runtime observe client disconnects promptly for cleanup.
+const STREAM_KEEPALIVE_INTERVAL: Duration = Duration::from_secs(15);
+/// Max rows drained per poll, bounding memory per tick.
+const STREAM_BATCH_LIMIT: i64 = 50;
 
 /// `data` sub-fields probed (in order) for an actor display name.
 const NAME_FIELDS: &[&str] = &["name", "displayName", "fullName", "label", "userEmail", "email"];
@@ -542,4 +561,118 @@ pub async fn delete_notification(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// GET /stream — real-time push (SSE)
+// ===========================================================================
+
+/// `GET /v1/sabcrm/notifications/stream` — a `text/event-stream` of the
+/// caller's new notifications for a project.
+///
+/// On open the stream emits a `ready` event, then polls the collection every
+/// [`STREAM_POLL_INTERVAL`] for rows scoped to `{ projectId, userId }` that
+/// were inserted after the connection opened (by `_id`, which embeds its
+/// creation time). Each new row is sent as a `notification` event whose data is
+/// the enriched wire JSON (same shape as the list endpoint), plus a `count`
+/// event carrying the caller's current unread total so badges stay live.
+///
+/// ## Resource safety
+///
+/// - Only rows created **after** the stream opened are emitted — no historical
+///   replay; clients fetch backlog via `GET /`.
+/// - A keep-alive comment is sent every [`STREAM_KEEPALIVE_INTERVAL`]; when the
+///   client disconnects the underlying TCP write fails, axum drops the response
+///   future, and the polling task is cancelled — no manual cleanup required.
+/// - After [`STREAM_IDLE_TIMEOUT`] with no new rows the server closes the
+///   stream so abandoned connections release their poller; `EventSource`
+///   clients reconnect automatically.
+#[instrument(skip_all)]
+pub async fn stream_notifications(
+    user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Query(query): Query<StreamQuery>,
+) -> Result<Sse<impl Stream<Item = std::result::Result<Event, Infallible>>>> {
+    let project_id = require_project(&query.project_id)?.to_owned();
+    let user_id = user.user_id.clone();
+
+    // Seed the cursor at "now" so only rows inserted after the stream opens are
+    // pushed. `ObjectId::new()` embeds the current timestamp.
+    let mut last_id: ObjectId = ObjectId::new();
+
+    let stream = async_stream::stream! {
+        // Handshake so clients can confirm the stream is live.
+        yield Ok::<_, Infallible>(Event::default().event("ready").data("ok"));
+
+        let coll = mongo.collection::<Document>(NOTIFICATIONS_COLL);
+        let mut idle_since = std::time::Instant::now();
+
+        loop {
+            tokio::time::sleep(STREAM_POLL_INTERVAL).await;
+
+            let filter = doc! {
+                "projectId": &project_id,
+                "userId": &user_id,
+                "_id": { "$gt": last_id },
+            };
+            let cursor = match coll
+                .find(filter)
+                .sort(doc! { "_id": 1 })
+                .limit(STREAM_BATCH_LIMIT)
+                .await
+            {
+                Ok(c) => c,
+                // Transient lookup error — keep the stream alive and retry.
+                Err(_) => continue,
+            };
+            let docs: Vec<Document> = match cursor.try_collect().await {
+                Ok(v) => v,
+                Err(_) => continue,
+            };
+
+            if docs.is_empty() {
+                if idle_since.elapsed() >= STREAM_IDLE_TIMEOUT {
+                    break;
+                }
+                continue;
+            }
+            idle_since = std::time::Instant::now();
+
+            // Advance the cursor and project the rows to enriched wire JSON.
+            let mut rows: Vec<Value> = Vec::with_capacity(docs.len());
+            for d in &docs {
+                if let Ok(oid) = d.get_object_id("_id") {
+                    if oid > last_id {
+                        last_id = oid;
+                    }
+                }
+                rows.push(record_to_wire(d.clone()));
+            }
+            enrich_actors(&mongo, &project_id, &mut rows).await;
+
+            for row in &rows {
+                if let Ok(payload) = serde_json::to_string(row) {
+                    yield Ok(Event::default().event("notification").data(payload));
+                }
+            }
+
+            // Push the live unread count so badge UIs stay in sync.
+            if let Ok(unread) = coll
+                .count_documents(doc! {
+                    "projectId": &project_id,
+                    "userId": &user_id,
+                    "read": false,
+                })
+                .await
+            {
+                yield Ok(Event::default().event("count").data(unread.to_string()));
+            }
+        }
+    };
+
+    Ok(Sse::new(stream).keep_alive(
+        KeepAlive::new()
+            .interval(STREAM_KEEPALIVE_INTERVAL)
+            .text("keep-alive"),
+    ))
 }

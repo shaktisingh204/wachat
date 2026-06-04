@@ -16,8 +16,9 @@
 //! Routes (mounted relative — caller nests under `/v1/sabcrm/audit`):
 //!
 //! ```text
-//! GET    /    — list_audit
-//! POST   /    — append_audit
+//! GET    /        — list_audit
+//! POST   /        — append_audit
+//! GET    /verify  — verify_chain
 //! ```
 
 use std::sync::Arc;
@@ -40,8 +41,10 @@ where
     MongoHandle: FromRef<S>,
     Arc<AuthConfig>: FromRef<S>,
 {
-    Router::new().route(
-        "/",
-        get(handlers::list_audit).post(handlers::append_audit),
-    )
+    Router::new()
+        .route(
+            "/",
+            get(handlers::list_audit).post(handlers::append_audit),
+        )
+        .route("/verify", get(handlers::verify_chain))
 }

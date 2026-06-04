@@ -24,10 +24,12 @@ export interface SabcrmRustFavorite {
   recordId: string;
   createdAt: string;
   /**
-   * Spaced numeric sort slot driving the caller's drag-to-reorder order
+   * Fractional sort slot driving the caller's drag-to-reorder order
    * (ascending; `createdAt` ascending breaks ties). Assigned at the tail on
-   * add and rewritten by {@link sabcrmFavoritesApi.reorder}. Mirrors Twenty's
-   * fractional positioning.
+   * add, rewritten en-masse by {@link sabcrmFavoritesApi.reorder}, or updated a
+   * single row at a time by {@link sabcrmFavoritesApi.move} (the value becomes
+   * the midpoint of its target neighbours). Mirrors Twenty's true fractional
+   * positioning — an insert/move touches exactly one row.
    */
   position?: number;
 }
@@ -42,6 +44,28 @@ export interface SabcrmFavoriteReorderItem {
   id: string;
   /** New zero-based position in the ordered list (must be `>= 0`). */
   position: number;
+}
+
+/**
+ * Body for {@link sabcrmFavoritesApi.move} sans `projectId` — move a single
+ * favorite between two neighbours using **true fractional indexing**. The moved
+ * favorite's new `position` becomes the midpoint of its target neighbours, so a
+ * reorder/insert touches exactly ONE row (O(1)) rather than renumbering the
+ * whole list. Mirrors the Rust `MoveFavoriteInput` DTO.
+ */
+export interface SabcrmFavoriteMoveInput {
+  /** Hex id (`_id`) of the favorite to move. */
+  id: string;
+  /**
+   * Hex id of the left neighbour to land **after**. Omit to move to the head
+   * of the list.
+   */
+  afterId?: string;
+  /**
+   * Hex id of the right neighbour to land **before**. Omit to move to the tail
+   * of the list.
+   */
+  beforeId?: string;
 }
 
 /** Raw `{ favorites }` envelope from `GET /`. */
@@ -101,6 +125,25 @@ export const sabcrmFavoritesApi = {
     return rustFetch<{ ok: boolean }>(`${BASE}/reorder`, {
       method: 'PATCH',
       body: JSON.stringify({ projectId, items }),
+    });
+  },
+
+  /**
+   * `PATCH /v1/sabcrm/favorites/move` — move a single favorite between two
+   * neighbours via **true fractional indexing**. The moved favorite's new
+   * `position` becomes the midpoint of `afterId` / `beforeId` (either may be
+   * omitted to drop at the head / tail), so the move touches exactly one row
+   * (O(1)) instead of renumbering the list. Returns `{ ok: true }`; re-fetch via
+   * {@link list} to read back the recomputed order. Prefer this over
+   * {@link reorder} for drag-to-reorder.
+   */
+  move(
+    projectId: string,
+    input: SabcrmFavoriteMoveInput,
+  ): Promise<{ ok: boolean }> {
+    return rustFetch<{ ok: boolean }>(`${BASE}/move`, {
+      method: 'PATCH',
+      body: JSON.stringify({ projectId, ...input }),
     });
   },
 

@@ -19,7 +19,8 @@
 //! GET    /         — list_favorites
 //! POST   /         — add_favorite
 //! DELETE /         — remove_favorite
-//! PATCH  /reorder  — reorder_favorites
+//! PATCH  /reorder  — reorder_favorites (bulk renumber)
+//! PATCH  /move     — move_favorite    (O(1) fractional midpoint)
 //! ```
 
 use std::sync::Arc;
@@ -50,4 +51,5 @@ where
                 .delete(handlers::remove_favorite),
         )
         .route("/reorder", patch(handlers::reorder_favorites))
+        .route("/move", patch(handlers::move_favorite))
 }

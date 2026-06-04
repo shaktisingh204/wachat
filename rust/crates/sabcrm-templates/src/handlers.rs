@@ -43,6 +43,17 @@ const TEMPLATES_COLL: &str = "sabcrm_templates";
 /// record's `data` field map from here to source `{{variable}}` values.
 const RECORDS_COLL: &str = "sabcrm_records";
 
+/// Top-level key carrying resolved relation hints on an enriched record:
+/// `fieldKey → { id, label, avatarUrl }`. Mirrors the records surface's
+/// `?enrich=relations` output. Used to resolve dotted relation paths such as
+/// `{{company.name}}` when `data.company` only holds a bare relation id.
+const RELATIONS_KEY: &str = "__relations";
+
+/// Top-level key carrying resolved ACTOR hints (e.g. `createdBy`) on an
+/// enriched record, same hint shape as [`RELATIONS_KEY`]. Folded into the
+/// relation-hint map so `{{createdBy.name}}` resolves.
+const ACTORS_KEY: &str = "__actors";
+
 // ===========================================================================
 // helpers
 // ===========================================================================
@@ -308,20 +319,46 @@ fn merge_vars(base: Value, overrides: Option<Value>) -> Value {
     Value::Object(map)
 }
 
-/// Build the variable map for a render request: fetch the record's `data`
-/// field (when `record_id` + `object` are supplied) and layer any inline
-/// `variables` over it. With no `record_id`, the inline `variables` (or an
-/// empty object) are used directly.
+/// Variable sources for one render: the flat / nested field map and an
+/// (optionally empty) `fieldKey → hint` relation-hint map. Relation hints are
+/// consulted only when a dotted path does not resolve against `vars`.
+struct RenderVars {
+    /// Flat / nested field map (the record's `data`, plus inline overrides).
+    vars: Value,
+    /// `fieldKey → { id, label, avatarUrl }` relation hints (may be empty).
+    relations: Value,
+}
+
+/// Pull resolved relation hints out of an enriched record wire JSON, folding
+/// the `__relations` and `__actors` maps into a single `fieldKey → hint`
+/// object. Returns an empty object when neither is present.
+fn extract_relation_hints(wire: &Value) -> Value {
+    let mut hints = serde_json::Map::new();
+    for key in [RELATIONS_KEY, ACTORS_KEY] {
+        if let Some(Value::Object(map)) = wire.get(key) {
+            for (k, v) in map {
+                hints.insert(k.clone(), v.clone());
+            }
+        }
+    }
+    Value::Object(hints)
+}
+
+/// Build the variable sources for a render request: fetch the record's `data`
+/// field (when `record_id` + `object` are supplied), capture any resolved
+/// relation hints (`__relations` / `__actors`), and layer any inline
+/// `variables` over the field map. With no `record_id`, the inline
+/// `variables` (or an empty object) are used directly.
 async fn resolve_render_vars(
     mongo: &MongoHandle,
     project_id: &str,
     object: Option<&str>,
     record_id: Option<&str>,
     variables: Option<Value>,
-) -> Result<Value> {
+) -> Result<RenderVars> {
     let record_id = record_id.map(str::trim).filter(|s| !s.is_empty());
 
-    let base = if let Some(rid) = record_id {
+    let (base, relations) = if let Some(rid) = record_id {
         let object = object
             .map(str::trim)
             .filter(|s| !s.is_empty())
@@ -342,29 +379,36 @@ async fn resolve_render_vars(
         // The record's user-facing fields live under `data`; fall back to the
         // whole cleaned document so top-level system fields are addressable too.
         let mut wire = record_to_wire(found);
-        match wire.get_mut("data") {
+        // Capture resolved relation hints (present when the record was stored
+        // already enriched) before we narrow the wire JSON down to `data`.
+        let relations = extract_relation_hints(&wire);
+        let base = match wire.get_mut("data") {
             Some(Value::Object(data)) => Value::Object(std::mem::take(data)),
             _ => wire,
-        }
+        };
+        (base, relations)
     } else {
-        Value::Object(serde_json::Map::new())
+        (Value::Object(serde_json::Map::new()), Value::Object(serde_json::Map::new()))
     };
 
-    Ok(merge_vars(base, variables))
+    Ok(RenderVars {
+        vars: merge_vars(base, variables),
+        relations,
+    })
 }
 
-/// Render a `subject` / `body` pair against `vars`, collecting the union of
-/// unresolved placeholder paths.
-fn render_pair(subject: Option<&str>, body: &str, vars: &Value) -> RenderResponse {
+/// Render a `subject` / `body` pair against `vars` (with relation-hint
+/// fallback), collecting the union of unresolved placeholder paths.
+fn render_pair(subject: Option<&str>, body: &str, vars: &RenderVars) -> RenderResponse {
     let mut missing = std::collections::BTreeSet::new();
 
     let rendered_subject = subject.map(|s| {
-        let r = interpolate::render(s, vars);
+        let r = interpolate::render_with_relations(s, &vars.vars, &vars.relations);
         missing.extend(r.missing);
         r.text
     });
 
-    let rendered_body = interpolate::render(body, vars);
+    let rendered_body = interpolate::render_with_relations(body, &vars.vars, &vars.relations);
     missing.extend(rendered_body.missing);
 
     RenderResponse {

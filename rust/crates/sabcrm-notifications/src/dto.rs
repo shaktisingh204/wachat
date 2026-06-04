@@ -91,6 +91,16 @@ pub struct ScopeQuery {
     pub project_id: String,
 }
 
+/// `GET /stream` query params — scope the live notification stream to a
+/// project. Rows are additionally scoped to the caller's `userId` from the
+/// [`AuthUser`](sabnode_auth::AuthUser) extractor.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct StreamQuery {
+    /// Tenant scope — required.
+    pub project_id: String,
+}
+
 /// A resolved reference to the actor who triggered a notification. Injected
 /// onto each list item under `actor` when the `actorId` resolves against the
 /// project's `workspaceMembers` records (or from the stored snapshot).

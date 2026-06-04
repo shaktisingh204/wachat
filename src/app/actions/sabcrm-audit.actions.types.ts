@@ -18,6 +18,8 @@ export type {
   SabcrmRustAuditEntry,
   SabcrmAuditListOpts,
   SabcrmAuditLogInput,
+  SabcrmAuditChainBreak,
+  SabcrmAuditVerifyResult,
 } from '@/lib/rust-client/sabcrm-audit';
 
 /** Filters accepted by {@link listAuditTw}. */

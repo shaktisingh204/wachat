@@ -99,6 +99,44 @@ interface SingleEnvelope {
   entry: SabcrmRustAuditEntry;
 }
 
+/**
+ * Describes the first detected break in a project's audit hash-chain. Returned
+ * inside {@link SabcrmAuditVerifyResult} when `intact` is `false`. Mirrors the
+ * Rust `ChainBreak` DTO.
+ */
+export interface SabcrmAuditChainBreak {
+  /** Hex id of the offending entry (the relabelled `_id`). */
+  entryId: string;
+  /** 0-based position of the entry within the chain (insertion order). */
+  index: number;
+  /** Server-set `createdAt` of the offending entry, when present. */
+  createdAt?: string;
+  /** Human-readable explanation of why the link is broken. */
+  reason: string;
+  /** The `hash` the entry actually stores. */
+  storedHash: string;
+  /** The `hash` recomputed from the entry's content + its predecessor. */
+  computedHash: string;
+}
+
+/**
+ * Tamper-evidence result of walking a project's append-only audit hash-chain.
+ * `intact` is `true` only when every link recomputes to its stored `hash` (and
+ * each `prevHash` matches its predecessor's `hash`); when `false`,
+ * {@link breakAt} pinpoints the **first** broken link — where an edit, deletion
+ * or reorder is detectable. Mirrors the Rust `VerifyResponse` DTO.
+ */
+export interface SabcrmAuditVerifyResult {
+  /** Tenant scope that was verified. */
+  projectId: string;
+  /** `true` when the whole chain verifies; `false` when a break was found. */
+  intact: boolean;
+  /** Number of entries walked. */
+  checked: number;
+  /** The first broken link, present only when `intact` is `false`. */
+  breakAt?: SabcrmAuditChainBreak;
+}
+
 /** Encode query params, dropping undefined/empty values. */
 function qs(params: Record<string, string | number | undefined>): string {
   const sp = new URLSearchParams();
@@ -167,5 +205,18 @@ export const sabcrmAuditApi = {
       body: JSON.stringify({ projectId, ...input }),
     });
     return res.entry;
+  },
+
+  /**
+   * `GET /v1/sabcrm/audit/verify` — verify the project's append-only audit
+   * hash-chain end to end. Returns `{ projectId, intact, checked, breakAt? }`:
+   * when `intact` is `false`, `breakAt` pinpoints the first link whose stored
+   * hash no longer matches its recomputed content — the earliest point where
+   * tampering (an edit, deletion or reorder) is detectable.
+   */
+  verify(projectId: string): Promise<SabcrmAuditVerifyResult> {
+    return rustFetch<SabcrmAuditVerifyResult>(
+      `${BASE}/verify${qs({ projectId })}`,
+    );
   },
 };

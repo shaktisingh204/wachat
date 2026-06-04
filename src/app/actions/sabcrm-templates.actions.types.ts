@@ -21,6 +21,9 @@ export type {
   SabcrmTemplateKind,
   SabcrmTemplateCreateInput,
   SabcrmTemplateUpdateInput,
+  SabcrmTemplateRenderInput,
+  SabcrmTemplatePreviewInput,
+  SabcrmTemplateRenderResult,
 } from '@/lib/rust-client/sabcrm-templates';
 
 /** Input accepted by {@link createTemplateTw}. */

@@ -76,6 +76,28 @@ pub struct ListQuery {
     /// completely unaffected.
     #[serde(default)]
     pub enrich: Option<String>,
+    /// Optional URL-encoded JSON string of **relation-join** filters — an
+    /// opt-in, additive filter shape that targets a *related* record's field
+    /// rather than this record's own `data.*`. Each entry references a
+    /// RELATION field of the current object by its dotted path
+    /// `"<relationField>.<targetField>"` and is satisfied via an aggregation
+    /// `$lookup` on the relation's stored id into the target object's records,
+    /// then a `$match` on the joined `<targetField>`.
+    ///
+    /// Two shapes are accepted (both ANDed into the base scope):
+    /// - **flat map** — `{ "owner.name": <condition>, "company.industry": ... }`
+    ///   where the dotted key's first segment is the source RELATION fieldKey
+    ///   and the remainder is the target's `data.*` field. The condition is the
+    ///   same `{ "op", "value" }` (or bare scalar) shape as [`ListQuery::filters`].
+    /// - **list** — `[{ "field": "owner.name", "op": "...", "value": ... }, …]`.
+    ///
+    /// When ANY relation filter is present the handler switches from the fast
+    /// `find()` path to an aggregation pipeline. Relations that can't be
+    /// resolved (unknown object/field, non-MANY_TO_ONE, custom object) are
+    /// **skipped gracefully** rather than erroring. Absent / empty → the normal
+    /// `find()` path is used and existing callers are unaffected.
+    #[serde(default)]
+    pub relation_filters: Option<String>,
 }
 
 /// `GET /{object}/count` query params. Carries the SAME tenant scope +
@@ -473,6 +495,15 @@ pub struct SearchQuery {
     /// Hard cap on hits returned. Clamped at 50 by the handler; defaults to 50.
     #[serde(default)]
     pub limit: Option<u64>,
+    /// Optional search mode toggle. When set to `relevance` (case-insensitive;
+    /// `text` / `score` accepted as aliases), the handler attempts a Mongo
+    /// `$text` search ranked by `{ score: textScore }` using the idempotent
+    /// full-text index over the common search fields, falling back to the
+    /// existing case-insensitive regex `$or` scan when no text index is
+    /// available or the text query yields an error. Absent / any other value →
+    /// the legacy regex scan (the default), so existing callers are unaffected.
+    #[serde(default)]
+    pub mode: Option<String>,
 }
 
 /// One cross-object search hit in the [`SearchResponse`] — a single matched
