@@ -31,14 +31,19 @@ ZoruDialogOverlay.displayName = "ZoruDialogOverlay";
 export interface ZoruDialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   hideClose?: boolean;
+  /**
+   * Extra classes for the dim backdrop. Used to raise a dialog's stacking
+   * order (e.g. a file picker opened from inside another, higher-z modal).
+   */
+  overlayClassName?: string;
 }
 
 export const ZoruDialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   ZoruDialogContentProps
->(({ className, children, hideClose, ...props }, ref) => (
+>(({ className, overlayClassName, children, hideClose, ...props }, ref) => (
   <ZoruDialogPortal>
-    <ZoruDialogOverlay />
+    <ZoruDialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(

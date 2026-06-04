@@ -24,7 +24,12 @@
 import * as React from 'react';
 
 import { TwentyAvatar, TwentyChip } from './twenty-primitives';
-import { useResolveActorName, type ResolveActorName } from './sabcrm-actors-context';
+import {
+  useResolveActorName,
+  useResolveRecordRef,
+  type ResolveActorName,
+  type ResolveRecordRef,
+} from './sabcrm-actors-context';
 import { useSabcrmSettings } from './sabcrm-settings-context';
 import type { FieldMetadata, FieldOption } from '@/lib/sabcrm/types';
 
@@ -381,6 +386,42 @@ function relationLabel(field: FieldMetadata, value: unknown): string {
   return String(value);
 }
 
+/** True when a string is (or looks like) a bare Mongo ObjectId. */
+function looksLikeId(s: string, id: string): boolean {
+  return !s || s === id || /^[a-f0-9]{24}$/i.test(s);
+}
+
+/** Extract the record id from a relation value (bare id string or hint object). */
+function relationId(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  const rec = asRecord(value);
+  if (rec) return firstString(rec.id, rec._id, rec.recordId);
+  return '';
+}
+
+/**
+ * Resolve a relation value to a display `{ label, avatar }`, preferring the
+ * client record resolver (which gives people their FULL name + an avatar) over
+ * the raw/enriched value — and never showing a bare Mongo id when a name is
+ * known.
+ */
+function resolveRelationDisplay(
+  field: FieldMetadata,
+  value: unknown,
+  resolveRecordRef: ResolveRecordRef,
+): { label: string; src?: string; shape: 'square' | 'round' } {
+  const id = relationId(value);
+  const ref = id ? resolveRecordRef(id) : undefined;
+  const base = relationLabel(field, value);
+  const label = ref?.label ?? (looksLikeId(base, id) ? (id || base) : base);
+
+  // Prefer an avatar carried on the (enriched) value; else the resolver's.
+  const fieldAvatar = relationAvatar(field, value);
+  const shape = fieldAvatar.src ? fieldAvatar.shape : ref?.shape ?? fieldAvatar.shape;
+  const src = fieldAvatar.src ?? ref?.avatarUrl;
+  return { label, src, shape };
+}
+
 /* =========================================================================
    Avatar / logo resolution (Twenty parity)
 
@@ -525,6 +566,9 @@ export function TwentyFieldValue({
   // Resolve ACTOR ids → member names (no-op outside the SabCRM layout's
   // SabcrmActorNameProvider, so this stays safe everywhere).
   const resolveActorName = useResolveActorName();
+  // Resolve RELATION record ids → { label, avatar } so relation cells show real
+  // names (people as full name) instead of raw Mongo ids.
+  const resolveRecordRef = useResolveRecordRef();
   // Locale-aware formatters from the workspace Localization settings (date /
   // number / currency). Defaults to en-US outside the settings provider.
   const { fmt } = useSabcrmSettings();
@@ -710,14 +754,13 @@ export function TwentyFieldValue({
       return (
         <span className="st-field-chips">
           {arr.map((v, i) => {
-            const label = relationLabel(field, v);
-            const avatar = relationAvatar(field, v);
+            const { label, src, shape } = resolveRelationDisplay(field, v, resolveRecordRef);
             return (
               <span key={`${label}-${i}`} className="st-chip st-chip--avatar">
                 <TwentyAvatar
                   name={label}
-                  src={avatar.src}
-                  shape={avatar.shape}
+                  src={src}
+                  shape={shape}
                   size="xs"
                   className="st-chip__avatar"
                 />

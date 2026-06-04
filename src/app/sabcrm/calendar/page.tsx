@@ -58,6 +58,7 @@ import type {
   SabcrmRecordFilters,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 
 import '@/styles/sabcrm-twenty.css';
 import './calendar.css';
@@ -131,16 +132,7 @@ function parseDateValue(raw: unknown): Date | null {
 
 /** The label-field value (best-effort) for a record, used as the chip text. */
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
-  const field =
-    object.fields.find((f) => f.isLabel) ??
-    object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
-    object.fields[0];
-  if (field) {
-    const raw = record.data[field.key];
-    if (typeof raw === 'string' && raw.trim()) return raw;
-    if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
-  }
-  return `${object.labelSingular} ${record.id.slice(-6)}`;
+  return sabcrmRecordLabel(object, record);
 }
 
 /**

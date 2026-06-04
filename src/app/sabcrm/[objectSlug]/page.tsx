@@ -44,6 +44,7 @@ import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import { StSelect, type StSelectOption } from '@/components/sabcrm/twenty/st-select';
 import { resolveTwentyColor } from '@/components/sabcrm/twenty/twenty-palette';
 import { SabFileUrlInput } from '@/components/sabfiles';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import { InlineCreateRow } from '@/components/sabcrm/twenty/inline-create-row';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
@@ -244,16 +245,9 @@ function fmtStat(n: number | null | undefined): string {
 
 /** Resolve a record's display label from the object's `isLabel` field. */
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
-  const field =
-    object.fields.find((f) => f.isLabel) ??
-    object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
-    object.fields[0];
-  if (field) {
-    const raw = record.data[field.key];
-    if (typeof raw === 'string' && raw.trim()) return raw;
-    if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
-  }
-  return `${object.labelSingular} ${record.id.slice(-6)}`;
+  // Delegates to the canonical helper so people render as their FULL name
+  // (First Last), consistently with every other surface.
+  return sabcrmRecordLabel(object, record);
 }
 
 /**
@@ -2403,14 +2397,31 @@ function CreateDialog({ object, allObjects, projectId, initialValues, onClose, o
     );
   };
 
+  // a11y: focus the first field on open, and close on Escape (the overlay only
+  // handles outside-click).
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const first = dialogRef.current?.querySelector<HTMLElement>(
+      'input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    first?.focus();
+  }, []);
+
   return (
     <div className="st-dialog-overlay" onClick={onClose} role="presentation">
       <div
+        ref={dialogRef}
         className="st-dialog"
         role="dialog"
         aria-modal="true"
         aria-label={`New ${object.labelSingular}`}
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            onClose();
+          }
+        }}
         style={{ maxWidth: 640, width: '100%' }}
       >
         <form onSubmit={handleSubmit}>

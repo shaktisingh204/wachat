@@ -68,6 +68,7 @@ import {
   type SabFilePick,
 } from '@/components/sabfiles';
 import { TwentyChip, TwentyAvatar } from '@/components/sabcrm/twenty/twenty-primitives';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
 // Twenty record-show building blocks (the LEFT field panel + the MAIN tabbed
@@ -162,16 +163,7 @@ const SLUG_ICON: Record<string, LucideIcon> = {
 };
 
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
-  const field =
-    object.fields.find((f) => f.isLabel) ??
-    object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
-    object.fields[0];
-  if (field) {
-    const raw = record.data[field.key];
-    if (typeof raw === 'string' && raw.trim()) return raw;
-    if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
-  }
-  return `${object.labelSingular} ${record.id.slice(-6)}`;
+  return sabcrmRecordLabel(object, record);
 }
 
 /** Avatar image + shape for the record-detail header (mirrors the list cell). */

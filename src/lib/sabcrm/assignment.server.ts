@@ -12,6 +12,7 @@ import {
 import { sabcrmRecords } from "./db";
 import { getObject } from "./objects.server";
 import type { CrmRecord, ObjectMetadata } from "./types";
+import { sabcrmRecordLabel } from "./record-label";
 
 /**
  * SabCRM — record/task assignment runtime (server-only).
@@ -151,17 +152,10 @@ function toCrmRecord(doc: Record<string, unknown>): CrmRecord {
  */
 function recordLabel(record: CrmRecord, object: ObjectMetadata | null): string {
   if (object) {
-    const labelField =
-      object.fields.find((f) => f.isLabel) ??
-      object.fields.find((f) => f.type === "TEXT" || f.type === "EMAIL");
-    if (labelField) {
-      const raw = record.data[labelField.key];
-      if (raw !== undefined && raw !== null && String(raw).trim() !== "") {
-        return String(raw);
-      }
-    }
+    // People display as their FULL name in notification bodies / audit reasons.
+    return sabcrmRecordLabel(object, { id: record._id, data: record.data });
   }
-  return `${object?.labelSingular ?? "Record"} ${record._id.slice(-6)}`;
+  return `Record ${record._id.slice(-6)}`;
 }
 
 /* -------------------------------------------------------------------------- */

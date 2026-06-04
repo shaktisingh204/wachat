@@ -67,6 +67,7 @@ import type {
   SabcrmRustActivity,
   SabcrmActivityKind,
 } from '@/app/actions/sabcrm-twenty.actions.types';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 
 import '@/styles/sabcrm-twenty.css';
 import './activity.css';
@@ -150,25 +151,18 @@ function recordLabel(
   record: SabcrmRustRecord,
   object: ObjectMetadata | undefined,
 ): string {
+  // With metadata, the canonical helper handles people (full name) + isLabel.
+  if (object) return sabcrmRecordLabel(object, record);
+  // No metadata: best-effort scan of common title-ish keys, then a composed name.
   const data = record.data ?? {};
-  const labelKey = object?.fields.find((f) => f.isLabel)?.key;
-  const order = [
-    labelKey,
-    'name',
-    'title',
-    'label',
-    'fullName',
-    'subject',
-    'email',
-    'firstName',
-  ].filter(Boolean) as string[];
-  for (const key of order) {
+  for (const key of ['name', 'title', 'label', 'fullName', 'subject', 'email']) {
     const v = asText(data[key]).trim();
     if (v) return v;
   }
-  const first = asText(data.firstName).trim();
-  const last = asText(data.lastName).trim();
-  const composed = [first, last].filter(Boolean).join(' ').trim();
+  const composed = [asText(data.firstName).trim(), asText(data.lastName).trim()]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
   if (composed) return composed;
   return `#${record.id.slice(-6)}`;
 }

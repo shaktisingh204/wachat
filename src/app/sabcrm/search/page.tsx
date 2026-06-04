@@ -82,6 +82,7 @@ import {
   listSabcrmRecordsTw,
 } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
+import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
 import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
 import type { TwentyAvatarShape } from '@/components/sabcrm/twenty';
@@ -226,18 +227,8 @@ function descriptorFor(
  * `recordLabel` so the expanded full-result rows read identically.
  */
 function recordLabel(object: ObjectMetadata | undefined, record: SabcrmRustRecord): string {
-  if (object) {
-    const field =
-      object.fields.find((f) => f.isLabel) ??
-      object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??
-      object.fields[0];
-    if (field) {
-      const raw = record.data[field.key];
-      if (typeof raw === 'string' && raw.trim()) return raw;
-      if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
-    }
-    return `${object.labelSingular} ${record.id.slice(-6)}`;
-  }
+  // With metadata, the canonical helper handles people (full name) + isLabel.
+  if (object) return sabcrmRecordLabel(object, record);
   // No metadata: best-effort scan of common title-ish keys.
   for (const key of ['name', 'title', 'label', 'subject', 'email']) {
     const raw = record.data[key];

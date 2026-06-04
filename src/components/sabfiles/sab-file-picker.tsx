@@ -418,7 +418,14 @@ export function SabFilePicker({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0">
+            {/* The picker is frequently opened from INSIDE another modal (e.g. the
+                SabCRM create dialog at z-index 1000). A file picker must always
+                sit on top of whatever invoked it, so we raise its content +
+                backdrop above app-level modal overlays. */}
+            <ZoruDialogContent
+                className="z-[1300] flex max-h-[85vh] max-w-4xl flex-col gap-0 overflow-hidden p-0"
+                overlayClassName="z-[1290]"
+            >
                 <div className="flex flex-col gap-3 border-b border-zoru-line p-5">
                     <ZoruDialogHeader>
                         <ZoruDialogTitle>{title}</ZoruDialogTitle>

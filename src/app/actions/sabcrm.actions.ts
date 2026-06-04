@@ -172,6 +172,7 @@ import type {
   RecordQuery,
   RecordPage,
 } from '@/lib/sabcrm/types';
+import { isPersonLikeObject, personFullName } from '@/lib/sabcrm/record-label';
 // The action-layer types live in a plain (non-"use server") sibling module so
 // this file may export ONLY async functions (an RSC 'use server' constraint).
 // These are imported here for the function signatures/bodies that reference
@@ -755,6 +756,12 @@ function labelFor(
   object: ObjectMetadata,
   data: Record<string, unknown>,
 ): string {
+  // People display as their FULL name (First Last), never last-name-only — so
+  // relation-picker options for people read correctly.
+  if (isPersonLikeObject(object)) {
+    const full = personFullName(data);
+    if (full) return full;
+  }
   const labelField =
     object.fields.find((f) => f.isLabel) ??
     object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL') ??

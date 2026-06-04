@@ -59,6 +59,7 @@ import { searchRecordsForPickerAction } from "@/app/actions/sabcrm.actions";
 import type { SabcrmRustRecord } from "@/app/actions/sabcrm-twenty.actions.types";
 import type { SabcrmPickerOption } from "@/app/actions/sabcrm.actions.types";
 import type { ObjectMetadata, FieldMetadata } from "@/lib/sabcrm/types";
+import { sabcrmRecordLabel } from "@/lib/sabcrm/record-label";
 
 import "./merge.css";
 import "./merge-preview.css";
@@ -87,16 +88,7 @@ function valuesEqual(a: unknown, b: unknown): boolean {
 
 /** Resolve a record's display label from the object's `isLabel` field. */
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
-  const field =
-    object.fields.find((f) => f.isLabel) ??
-    object.fields.find((f) => f.type === "TEXT" || f.type === "EMAIL") ??
-    object.fields[0];
-  if (field) {
-    const raw = record.data[field.key];
-    if (typeof raw === "string" && raw.trim()) return raw;
-    if (typeof raw === "number" || typeof raw === "boolean") return String(raw);
-  }
-  return `${object.labelSingular} ${record.id.slice(-6)}`;
+  return sabcrmRecordLabel(object, record);
 }
 
 /**

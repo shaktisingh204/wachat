@@ -123,6 +123,12 @@ export function TagManagerDialog({
         aria-modal="true"
         aria-label="Manage tags"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            e.stopPropagation();
+            onClose();
+          }
+        }}
       >
         <div className="st-dialog__header">
           <h2 className="st-dialog__title">Manage tags</h2>
