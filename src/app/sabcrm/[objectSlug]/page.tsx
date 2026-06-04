@@ -35,10 +35,15 @@ import {
   Check,
   Tag as TagIcon,
   GitBranch,
+  Settings2,
+  Target as TargetIcon,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
+import { TwentyPageHeader, TwentyButton, TwentyChip, TwentyAvatar } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import { StSelect, type StSelectOption } from '@/components/sabcrm/twenty/st-select';
+import { resolveTwentyColor } from '@/components/sabcrm/twenty/twenty-palette';
+import { SabFileUrlInput } from '@/components/sabfiles';
 import { InlineCreateRow } from '@/components/sabcrm/twenty/inline-create-row';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import './bulk-bar.css';
@@ -54,6 +59,7 @@ import {
   type ViewState,
 } from './view-bar';
 import { SabcrmBulkBar } from './bulk-bar';
+import { TagManagerDialog } from './tag-manager';
 import { SabcrmPagination } from './pagination';
 import './pagination.css';
 import './column-reorder.css';
@@ -85,12 +91,8 @@ import type {
   SabcrmRecordTwAggregate,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
-import {
-  listMembersAction,
-  searchRecordsForPickerAction,
-} from '@/app/actions/sabcrm.actions';
+import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { CrmMember } from '@/lib/sabcrm/members.server';
-import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -252,6 +254,27 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
     if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
+}
+
+/**
+ * Avatar image + shape for a record's identifier cell / detail header.
+ * Companies show a square logo tile; people (and everything else) a round
+ * avatar. The image is sourced from whichever of the conventional media keys is
+ * present; when none is set the caller's {@link TwentyAvatar} falls back to the
+ * record's initials, so an avatar is *always* visible.
+ */
+function recordAvatar(
+  object: ObjectMetadata,
+  record: SabcrmRustRecord,
+): { src?: string; shape: 'square' | 'round' } {
+  const data = (record.data ?? {}) as Record<string, unknown>;
+  const shape: 'square' | 'round' = /compan/i.test(object.slug) ? 'square' : 'round';
+  const pick = (k: string): string | undefined => {
+    const v = data[k];
+    return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+  };
+  const src = pick('logoUrl') ?? pick('avatarUrl') ?? pick('imageUrl') ?? pick('photoUrl');
+  return { src, shape };
 }
 
 /** A SELECT option color token → an inline CSS color (best-effort). */
@@ -446,10 +469,12 @@ interface TagFilterControlProps {
   /** Currently-selected filter tag id, or `null` for "all rows". */
   value: string | null;
   onChange: (tagId: string | null) => void;
+  /** Open the create/edit/delete tag manager. */
+  onManage: () => void;
 }
 
 /** Toolbar "Tag" filter — pick one tag to narrow the table to rows carrying it. */
-function TagFilterControl({ tags, value, onChange }: TagFilterControlProps) {
+function TagFilterControl({ tags, value, onChange, onManage }: TagFilterControlProps) {
   const [open, setOpen] = React.useState(false);
   const ref = React.useRef<HTMLDivElement | null>(null);
 
@@ -539,6 +564,15 @@ function TagFilterControl({ tags, value, onChange }: TagFilterControlProps) {
               </TwentyButton>
             </div>
           )}
+          <div className="stg-pop__row stg-filter__manage">
+            <TwentyButton
+              variant="ghost"
+              icon={Settings2}
+              onClick={() => { setOpen(false); onManage(); }}
+            >
+              Manage tags
+            </TwentyButton>
+          </div>
         </div>
       )}
     </div>
@@ -766,6 +800,13 @@ interface TableViewProps {
   onCreateInline?: (name: string) => Promise<boolean>;
   /** Focus target for the `c` create shortcut (the inline row's input). */
   createInputRef?: React.RefObject<HTMLInputElement | null>;
+
+  // ---- Quick "create lead from person" (owned by the page) ----------------
+  /**
+   * When set (People list only), renders a leading per-row button that opens a
+   * pre-filled New Lead dialog for that person. Omitted for other objects.
+   */
+  onCreateLead?: (record: SabcrmRustRecord) => void;
 }
 
 /** Where a drag currently wants to drop, relative to a hovered header. */
@@ -793,6 +834,7 @@ function TableView({
   onReorderColumn,
   columnWidths,
   onResizeColumn,
+  onCreateLead,
   activeRow,
   tableRef,
   onTableKeyDown,
@@ -980,11 +1022,27 @@ function TableView({
       e.preventDefault();
       e.stopPropagation();
       const th = (e.currentTarget as HTMLElement).closest('th');
+      // On the very first resize, snapshot every data column's current rendered
+      // width so switching to fixed-layout doesn't snap the untouched columns to
+      // a default. Combined with `.st-table--fixed { width: max-content }`,
+      // widening one column then grows the table (horizontal scroll) rather than
+      // shrinking its neighbours.
+      if (Object.keys(columnWidths).length === 0) {
+        const table = th?.closest('table');
+        table
+          ?.querySelectorAll<HTMLElement>('th[data-col-key]')
+          .forEach((cell) => {
+            const key = cell.dataset.colKey;
+            if (key) {
+              onResizeColumn(key, Math.round(cell.getBoundingClientRect().width));
+            }
+          });
+      }
       const startWidth =
         columnWidths[col.key] ?? th?.getBoundingClientRect().width ?? COL_MIN_WIDTH;
       setResizing({ key: col.key, startX: e.clientX, startWidth: Math.round(startWidth) });
     },
-    [columnWidths],
+    [columnWidths, onResizeColumn],
   );
 
   const hasWidths = Object.keys(columnWidths).length > 0;
@@ -1126,6 +1184,7 @@ function TableView({
                 <th
                   key={col.key}
                   scope="col"
+                  data-col-key={col.key}
                   className={thClass}
                   aria-sort={
                     sortable
@@ -1295,14 +1354,39 @@ function TableView({
                   : col === columns[0];
                 const value = record.data[col.key];
                 if (isFirst) {
+                  const label = recordLabel(object, record);
+                  const avatar = recordAvatar(object, record);
                   return (
                     <td key={col.key}>
-                      <Link
-                        href={`/sabcrm/${object.slug}/${record.id}`}
-                        className="st-cell-link"
-                      >
-                        {recordLabel(object, record)}
-                      </Link>
+                      <div className="st-identifier-cell">
+                        {onCreateLead ? (
+                          <button
+                            type="button"
+                            className="st-lead-quick"
+                            title={`Create a lead for ${label}`}
+                            aria-label={`Create a lead for ${label}`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              onCreateLead(record);
+                            }}
+                          >
+                            <TargetIcon size={13} aria-hidden="true" />
+                          </button>
+                        ) : null}
+                        <Link
+                          href={`/sabcrm/${object.slug}/${record.id}`}
+                          className="st-cell-link st-cell-link--identifier"
+                        >
+                          <TwentyAvatar
+                            name={label}
+                            src={avatar.src}
+                            shape={avatar.shape}
+                            size="xs"
+                          />
+                          <span className="st-cell-link__label">{label}</span>
+                        </Link>
+                      </div>
                     </td>
                   );
                 }
@@ -2016,7 +2100,11 @@ function BoardView({
 
 interface CreateDialogProps {
   object: ObjectMetadata;
+  /** Full object catalogue — used to resolve relation-picker option labels. */
+  allObjects: ObjectMetadata[];
   projectId: string | null;
+  /** Pre-seed form values (e.g. "create lead from person"). */
+  initialValues?: Record<string, unknown>;
   onClose: () => void;
   onCreated: () => void;
 }
@@ -2047,9 +2135,9 @@ function creatableFields(object: ObjectMetadata): FieldMetadata[] {
 /** A generic picker option used inside CreateDialog for relation fields. */
 interface _PickerOpt { id: string; label: string; }
 
-function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogProps) {
+function CreateDialog({ object, allObjects, projectId, initialValues, onClose, onCreated }: CreateDialogProps) {
   const fields = React.useMemo(() => creatableFields(object), [object]);
-  const [values, setValues] = React.useState<Record<string, unknown>>({});
+  const [values, setValues] = React.useState<Record<string, unknown>>(initialValues ?? {});
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -2087,23 +2175,38 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
       }).catch(() => { /* fail closed */ });
     }
 
-    // Load initial option list (empty search term) for non-member relation fields.
+    // Load the option list for non-member relation fields from the SAME Rust
+    // engine the record lists render from (`listSabcrmRecordsTw`). The native
+    // `searchRecordsForPickerAction` reads a separate Mongo collection filtered
+    // by the current user, so records created through the Rust engine never
+    // appeared there — which is why e.g. the People→Company dropdown came up
+    // empty. Sourcing options from the engine keeps the picker in lock-step
+    // with what the user actually sees in the table.
     const nonMemberTargets = distinctTargets.filter((t) => !isMemberTarget(t));
     if (nonMemberTargets.length === 0) return;
+
+    // We need each target object's metadata to resolve its label field.
+    const objectBySlug = new Map<string, ObjectMetadata>();
+    for (const o of allObjects) objectBySlug.set(o.slug, o);
 
     const fetchOpts = async () => {
       const updates: Record<string, _PickerOpt[]> = {};
       await Promise.all(
         nonMemberTargets.map(async (target) => {
           try {
-            const res = await searchRecordsForPickerAction(
+            const res = await listSabcrmRecordsTw(
               target,
-              '',
-              20,
+              { limit: 50, sortBy: 'updatedAt', sortDir: 'desc' },
               projectId ?? undefined,
             );
+            const targetObject = objectBySlug.get(target);
             updates[target] = res.ok
-              ? res.data.map((o: SabcrmPickerOption) => ({ id: o.id, label: o.label }))
+              ? res.data.records.map((r) => ({
+                  id: r.id,
+                  label: targetObject
+                    ? recordLabel(targetObject, r)
+                    : (r.id.slice(-6)),
+                }))
               : [];
           } catch {
             updates[target] = [];
@@ -2115,7 +2218,7 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
 
     fetchOpts().catch(() => { /* fail closed */ });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [object.slug, projectId]);
+  }, [object.slug, projectId, allObjects]);
 
   const setValue = (key: string, value: unknown) =>
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -2166,19 +2269,21 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
 
     // ---- SELECT ----
     if (field.type === 'SELECT') {
+      const selectOpts: StSelectOption[] = (field.options ?? []).map((opt) => ({
+        value: opt.value,
+        label: opt.label,
+        color: resolveTwentyColor(opt.color),
+      }));
       return (
-        <select
-          className="st-select"
+        <StSelect
           value={raw !== undefined ? String(raw) : ''}
-          onChange={(e) => setValue(field.key, e.target.value)}
-        >
-          <option value="">{`Select ${field.label.toLowerCase()}`}</option>
-          {(field.options ?? []).map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setValue(field.key, v || undefined)}
+          options={selectOpts}
+          allowClear={!field.required}
+          placeholder={`Select ${field.label.toLowerCase()}`}
+          ariaLabel={field.label}
+          emptyText="No options defined"
+        />
       );
     }
 
@@ -2220,26 +2325,45 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
       const target = field.relation.targetObject;
       const isMemberTarget = /member/i.test(target) || /workspace/i.test(target);
       const opts: _PickerOpt[] = isMemberTarget ? memberOpts : (relOpts[target] ?? []);
+      // Companies render a square logo tile; people/members a round avatar.
+      const avatarShape: 'square' | 'round' = /compan/i.test(target) ? 'square' : 'round';
+      const relSelectOpts: StSelectOption[] = opts.map((opt) => ({
+        value: opt.id,
+        label: opt.label,
+        avatar: { name: opt.label, shape: avatarShape },
+      }));
       return (
-        <select
-          className="st-select"
+        <StSelect
           value={raw !== undefined ? String(raw) : ''}
-          onChange={(e) => setValue(field.key, e.target.value || undefined)}
-          aria-label={field.label}
-        >
-          <option value="">{`Select ${field.label.toLowerCase()}`}</option>
-          {opts.map((opt) => (
-            <option key={opt.id} value={opt.id}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          onChange={(v) => setValue(field.key, v || undefined)}
+          options={relSelectOpts}
+          allowClear={!field.required}
+          placeholder={`Select ${field.label.toLowerCase()}`}
+          ariaLabel={field.label}
+          emptyText={`No ${target} found`}
+        />
+      );
+    }
+
+    // ---- FILE — SabFiles picker (logos / avatars / attachments).
+    //      Every file input sources from SabFiles (library or upload); a
+    //      free-text URL paste is never offered (project policy). ----
+    if (field.type === 'FILE') {
+      const isImage = /logo|avatar|photo|image/i.test(field.key);
+      return (
+        <SabFileUrlInput
+          value={typeof raw === 'string' ? raw : ''}
+          onChange={(v) => setValue(field.key, v || undefined)}
+          accept={isImage ? 'image' : 'all'}
+          pickerTitle={`Choose ${field.label}`}
+          placeholder={`No ${field.label.toLowerCase()} chosen`}
+        />
       );
     }
 
     // ---- Scalar fallback (TEXT, NUMBER, DATE, EMAIL, PHONE, LINK, LINKS,
     //      EMAILS, PHONES, ADDRESS, FULL_NAME, ARRAY, RAW_JSON, RICH_TEXT_V2,
-    //      ACTOR, FILE, NUMERIC, CURRENCY, RATING, DATE_TIME) ----
+    //      ACTOR, NUMERIC, CURRENCY, RATING, DATE_TIME) ----
     const inputType =
       field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING' || field.type === 'NUMERIC'
         ? 'number'
@@ -2390,6 +2514,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
 
   const [object, setObject] = React.useState<ObjectMetadata | null>(null);
+  const [allObjects, setAllObjects] = React.useState<ObjectMetadata[]>([]);
   const [loadingObject, setLoadingObject] = React.useState(true);
   const [objectError, setObjectError] = React.useState<string | null>(null);
 
@@ -2453,6 +2578,10 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
   const [tagsLoading, setTagsLoading] = React.useState(true);
   // Toolbar "Tag" filter: the selected tag id to narrow rows to, or null.
   const [tagFilter, setTagFilter] = React.useState<string | null>(null);
+  // Whether the create/edit/delete tag-manager dialog is open.
+  const [tagManagerOpen, setTagManagerOpen] = React.useState(false);
+  // Pre-filled "New Lead" draft seeded from a person (People list only).
+  const [leadDraft, setLeadDraft] = React.useState<Record<string, unknown> | null>(null);
 
   // Multi-select state for bulk actions (set of recordIds).
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -2562,6 +2691,24 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     );
   }, []);
 
+  // "Create lead from person": seed a New Lead draft from the person record
+  // (name + company + point-of-contact), then open the leads create dialog.
+  const handleCreateLeadFromPerson = React.useCallback(
+    (person: SabcrmRustRecord) => {
+      if (!object) return;
+      const personName = recordLabel(object, person);
+      const draft: Record<string, unknown> = {
+        name: personName,
+        pointOfContact: person.id,
+        stage: 'NEW',
+      };
+      const company = person.data?.company;
+      if (typeof company === 'string' && company) draft.company = company;
+      setLeadDraft(draft);
+    },
+    [object],
+  );
+
   // Debounce search input.
   React.useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput.trim()), SEARCH_DEBOUNCE_MS);
@@ -2579,7 +2726,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       if (!res.ok) {
         setObjectError(res.error);
         setObject(null);
+        setAllObjects([]);
       } else {
+        setAllObjects(res.data);
         setObject(res.data.find((o) => o.slug === objectSlug) ?? null);
       }
       setLoadingObject(false);
@@ -3269,20 +3418,18 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     };
   }, [objectSlug, activeProjectId]);
 
-  // Load the workspace tag definitions once per project (graceful on failure).
-  React.useEffect(() => {
-    let cancelled = false;
+  // Load the workspace tag definitions for the active project (graceful on
+  // failure). Exposed as a callback so the tag manager can refresh after CRUD.
+  const reloadTags = React.useCallback(async () => {
     setTagsLoading(true);
-    (async () => {
-      const res = await listTagsTw(activeProjectId ?? undefined);
-      if (cancelled) return;
-      setTags(res.ok ? res.data : []);
-      setTagsLoading(false);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    const res = await listTagsTw(activeProjectId ?? undefined);
+    setTags(res.ok ? res.data : []);
+    setTagsLoading(false);
   }, [activeProjectId]);
+
+  React.useEffect(() => {
+    void reloadTags();
+  }, [reloadTags]);
 
   // Load the project's sales pipelines once per project (graceful on failure).
   // We keep them all and filter to this object's slug at render time.
@@ -4039,6 +4186,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             tags={tags}
             value={tagFilter}
             onChange={setTagFilter}
+            onManage={() => setTagManagerOpen(true)}
           />
         )}
         <div className="st-toolbar__spacer" />
@@ -4245,6 +4393,9 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             windowingEnabled={!aggGroupField}
             onCreateInline={handleInlineCreate}
             createInputRef={createInputRef}
+            onCreateLead={
+              object.slug === 'people' ? handleCreateLeadFromPerson : undefined
+            }
           />
           {scrollMode === 'paged' ? (
             <SabcrmPagination
@@ -4288,11 +4439,42 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       {createOpen && (
         <CreateDialog
           object={object}
+          allObjects={allObjects}
           projectId={activeProjectId}
           onClose={() => setCreateOpen(false)}
           onCreated={handleCreated}
         />
       )}
+
+      {tagManagerOpen && (
+        <TagManagerDialog
+          tags={tags}
+          projectId={activeProjectId}
+          onClose={() => setTagManagerOpen(false)}
+          onChanged={() => void reloadTags()}
+        />
+      )}
+
+      {leadDraft &&
+        (() => {
+          const leadsObject = allObjects.find((o) => o.slug === 'leads');
+          if (!leadsObject) return null;
+          return (
+            <CreateDialog
+              object={leadsObject}
+              allObjects={allObjects}
+              projectId={activeProjectId}
+              initialValues={leadDraft}
+              onClose={() => setLeadDraft(null)}
+              onCreated={() => {
+                setLeadDraft(null);
+                // If we're viewing the leads list, refresh it; otherwise the
+                // new lead simply exists and links back to the person.
+                if (object?.slug === 'leads') handleCreated();
+              }}
+            />
+          );
+        })()}
     </div>
   );
 }

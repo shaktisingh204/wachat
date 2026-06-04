@@ -237,31 +237,74 @@ export async function getObject(
 export async function ensureStandardObjects(projectId: string): Promise<void> {
   const col = await sabcrmObjects();
   const ts = nowIso();
+  const docs = await loadDocs(projectId);
 
   await Promise.all(
-    STANDARD_OBJECTS.map((base) =>
-      col.updateOne(
+    STANDARD_OBJECTS.map((base) => {
+      const doc = docs.get(base.slug);
+
+      // First seed for this project — materialise the full standard doc.
+      if (!doc) {
+        return col.updateOne(
+          { projectId, slug: base.slug },
+          {
+            $setOnInsert: {
+              projectId,
+              slug: base.slug,
+              labelSingular: base.labelSingular,
+              labelPlural: base.labelPlural,
+              icon: base.icon,
+              description: base.description,
+              views: base.views,
+              board: base.board,
+              standard: base.standard,
+              extendsStandard: true,
+              fields: [...base.fields],
+              createdAt: ts,
+            },
+            $set: { updatedAt: ts },
+          },
+          { upsert: true },
+        );
+      }
+
+      // Reconcile an EXISTING standard doc onto the canonical schema so newly
+      // added standard fields (and label/icon changes) surface for projects
+      // that were seeded before those fields existed. Standard fields are taken
+      // authoritatively from code; the project's custom additions (keys not in
+      // the canonical schema) are preserved + re-appended. This matters because
+      // the UI reads objects through the Rust engine, which serves the persisted
+      // `fields` array — so the new fields must live on the doc, not just in code.
+      const baseKeys = new Set(base.fields.map((f) => f.key));
+      const customFields = (Array.isArray(doc.fields) ? doc.fields : []).filter(
+        (f) => !baseKeys.has(f.key),
+      );
+      const nextFields = buildStandardDocFields(base, customFields);
+
+      // Skip the write when nothing changed (steady state on every page load).
+      const unchanged =
+        JSON.stringify(doc.fields ?? []) === JSON.stringify(nextFields) &&
+        doc.labelSingular === base.labelSingular &&
+        doc.labelPlural === base.labelPlural &&
+        doc.icon === base.icon;
+      if (unchanged) return Promise.resolve();
+
+      return col.updateOne(
         { projectId, slug: base.slug },
         {
-          $setOnInsert: {
-            projectId,
-            slug: base.slug,
+          $set: {
             labelSingular: base.labelSingular,
             labelPlural: base.labelPlural,
             icon: base.icon,
             description: base.description,
             views: base.views,
             board: base.board,
-            standard: base.standard,
-            extendsStandard: true,
-            fields: [...base.fields],
-            createdAt: ts,
+            fields: nextFields,
+            updatedAt: ts,
           },
-          $set: { updatedAt: ts },
         },
-        { upsert: true },
-      ),
-    ),
+      );
+    }),
   );
 }
 

@@ -92,6 +92,21 @@
   overflow: hidden;
 }
 
+/* Portal variant: the body-mounted StPortalPopover wrapper (`.st-popover`)
+   already provides the surface chrome (border, radius, shadow) and fixed
+   positioning, so the panel only needs to size itself + lay out its column. */
+.sabcrm-twenty.st-popover.st-notif__panel--portal {
+  width: 320px;
+  max-height: 440px;
+}
+
+.sabcrm-twenty .st-notif__panel-inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 440px;
+}
+
 .sabcrm-twenty .st-notif__header {
   display: flex;
   align-items: center;

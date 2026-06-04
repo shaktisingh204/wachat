@@ -271,3 +271,81 @@
   padding-top: var(--st-space-2);
   border-top: 1px solid var(--st-border-light, var(--st-border));
 }
+
+/* =========================================================================
+   Tag manager dialog (create / rename / recolour / delete)
+   ========================================================================= */
+.sabcrm-twenty .stg-mgr__create {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-3);
+}
+
+.sabcrm-twenty .stg-mgr__create > .st-input {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .stg-mgr__color {
+  flex: 0 0 150px;
+  width: 150px;
+}
+
+.sabcrm-twenty .stg-mgr__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  max-height: 360px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sabcrm-twenty .stg-mgr__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+.sabcrm-twenty .stg-mgr__row > .st-input {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .stg-mgr__save,
+.sabcrm-twenty .stg-mgr__del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.sabcrm-twenty .stg-mgr__save:hover {
+  border-color: var(--st-accent);
+  color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .stg-mgr__del:hover {
+  border-color: var(--st-danger);
+  color: var(--st-danger);
+  background: var(--st-danger-soft);
+}
+
+.sabcrm-twenty .stg-mgr__save:disabled,
+.sabcrm-twenty .stg-mgr__del:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .stg-filter__manage {
+  border-top: 1px solid var(--st-border-light);
+  margin-top: var(--st-space-1);
+  padding-top: var(--st-space-1);
+}

@@ -1930,6 +1930,19 @@ export type Project = {
         keySecret?: string;
     };
     kind?: string;
+    /**
+     * SabCRM standalone-project profile. Only populated on `kind: 'crm'`
+     * projects (the CRM has its own project list + create/edit flow). Lets a
+     * CRM workspace carry a logo + descriptive metadata independent of the
+     * WhatsApp/Facebook fields above.
+     */
+    sabcrm?: {
+        /** Square logo image URL (sourced from SabFiles). */
+        logoUrl?: string;
+        description?: string;
+        industry?: string;
+        website?: string;
+    };
 };
 
 export type Template = {

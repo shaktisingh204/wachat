@@ -67,7 +67,7 @@ import {
   SabFilePicker,
   type SabFilePick,
 } from '@/components/sabfiles';
-import { TwentyChip } from '@/components/sabcrm/twenty/twenty-primitives';
+import { TwentyChip, TwentyAvatar } from '@/components/sabcrm/twenty/twenty-primitives';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
 import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
 // Twenty record-show building blocks (the LEFT field panel + the MAIN tabbed
@@ -84,6 +84,7 @@ import '@/components/sabcrm/twenty/twenty-activity.css';
 import {
   updateSabcrmRecordTw,
   deleteSabcrmRecordTw,
+  createSabcrmRecordTw,
   listSabcrmActivitiesTw,
   createSabcrmActivityTw,
   updateSabcrmActivityTw,
@@ -171,6 +172,26 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
     if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
+}
+
+/** Avatar image + shape for the record-detail header (mirrors the list cell). */
+function recordAvatar(
+  object: ObjectMetadata,
+  record: SabcrmRustRecord,
+): { src?: string; shape: 'square' | 'round' } {
+  const data = (record.data ?? {}) as Record<string, unknown>;
+  const shape: 'square' | 'round' = /compan/i.test(object.slug) ? 'square' : 'round';
+  const pick = (k: string): string | undefined => {
+    const v = data[k];
+    return typeof v === 'string' && v.trim() ? v.trim() : undefined;
+  };
+  const src = pick('logoUrl') ?? pick('avatarUrl') ?? pick('imageUrl') ?? pick('photoUrl');
+  return { src, shape };
+}
+
+/** Objects whose header leads with a record avatar instead of the object icon. */
+function headerUsesAvatar(slug: string): boolean {
+  return /compan/i.test(slug) || /people|person|contact/i.test(slug);
 }
 
 // ---------------------------------------------------------------------------
@@ -1783,6 +1804,20 @@ const TARGET_NOTE_OBJECT = 'notes';
 const TARGET_TASK_OBJECT = 'tasks';
 
 /**
+ * Maps the object a note/task is composed on to the `notes`/`tasks` RELATION
+ * field that points back at it. Setting this field on a freshly-created
+ * `notes`/`tasks` object record makes that record appear on the standalone
+ * `/sabcrm/notes` + `/sabcrm/tasks` pages AND in this record's relations rail,
+ * with its `createdBy` actor resolved to the author's real name.
+ */
+function noteTaskRelationKey(slug: string): string | null {
+  if (/compan/i.test(slug)) return 'targetCompanies';
+  if (/people|person|contact/i.test(slug)) return 'targetPeople';
+  if (/lead|opportunit/i.test(slug)) return 'targetOpportunities';
+  return null;
+}
+
+/**
  * One note/task that is *linked to this record via a polymorphic target* (vs.
  * an activity scoped to the record). Carries the source object slug + the
  * source record so it can be merged into the activity-based list and detached.
@@ -2884,6 +2919,17 @@ export function RecordDetailTw({
     }, 50);
   }, []);
 
+  // Forward ref to `mirrorToObjectRecord` (declared later in this component) so
+  // the timeline composer can mirror NOTE/TASK kinds without referencing it
+  // before initialization (temporal dead zone).
+  const mirrorRef = React.useRef<
+    (
+      kind: typeof TARGET_NOTE_OBJECT | typeof TARGET_TASK_OBJECT,
+      title: string,
+      body?: string,
+    ) => void
+  >(() => {});
+
   const handleAddActivity = React.useCallback(
     async (
       type: SabcrmActivityKind,
@@ -2905,6 +2951,12 @@ export function RecordDetailTw({
       if (!res.ok) return false;
       // Prepend (timeline is newest-first).
       setActivities((prev) => [res.data, ...prev]);
+      // Mirror NOTE/TASK kinds to a real object record so they also land on the
+      // standalone Notes/Tasks pages + the relations rail. `mirrorRef` is used
+      // (rather than the callback directly) because this handler is declared
+      // before `mirrorToObjectRecord` — the ref sidesteps the temporal-dead-zone.
+      if (type === 'NOTE') mirrorRef.current(TARGET_NOTE_OBJECT, title, body || undefined);
+      else if (type === 'TASK') mirrorRef.current(TARGET_TASK_OBJECT, title, body || undefined);
       return true;
     },
     [object.slug, record.id, projectId],
@@ -3193,6 +3245,41 @@ export function RecordDetailTw({
     [object.slug, record.id, projectId, refreshTargets],
   );
 
+  // Best-effort: ALSO persist a real `notes`/`tasks` OBJECT record for a
+  // composed note/task, with its relation pointing back at this record. This is
+  // what makes the item show up on the standalone `/sabcrm/notes` +
+  // `/sabcrm/tasks` pages (which list object records, not timeline activities)
+  // and in this record's relations rail — authored by the creator's real name
+  // (the server stamps `createdBy`). Failures are swallowed; the timeline
+  // activity has already persisted.
+  const mirrorToObjectRecord = React.useCallback(
+    (
+      kind: typeof TARGET_NOTE_OBJECT | typeof TARGET_TASK_OBJECT,
+      title: string,
+      body?: string,
+    ) => {
+      const relKey = noteTaskRelationKey(object.slug);
+      if (!relKey) return;
+      const data: Record<string, unknown> = { title, [relKey]: record.id };
+      if (body) data.body = body;
+      if (kind === TARGET_TASK_OBJECT) data.status = 'TODO';
+      void createSabcrmRecordTw(kind, data, projectId ?? undefined)
+        .then((r) => {
+          if (r.ok) void refreshRelations();
+        })
+        .catch(() => {
+          /* graceful: the timeline activity already exists */
+        });
+    },
+    [object.slug, record.id, projectId, refreshRelations],
+  );
+
+  // Keep the forward ref pointed at the latest `mirrorToObjectRecord` so the
+  // earlier-declared timeline composer always calls the current closure.
+  React.useEffect(() => {
+    mirrorRef.current = mirrorToObjectRecord;
+  }, [mirrorToObjectRecord]);
+
   // Add a NOTE-kind activity (Notes tab composer), then link it to this record
   // via a target. Creates directly (not via `handleAddActivity`) so we can
   // capture the new activity id to link.
@@ -3212,9 +3299,10 @@ export function RecordDetailTw({
       if (!res.ok) return false;
       setActivities((prev) => [res.data, ...prev]);
       void linkComposed(TARGET_NOTE_OBJECT, res.data.id);
+      mirrorToObjectRecord(TARGET_NOTE_OBJECT, title, body || undefined);
       return true;
     },
-    [object.slug, record.id, projectId, linkComposed],
+    [object.slug, record.id, projectId, linkComposed, mirrorToObjectRecord],
   );
 
   // Add a TASK-kind activity, defaulting status to TODO (Tasks tab composer),
@@ -3234,9 +3322,10 @@ export function RecordDetailTw({
       if (!res.ok) return false;
       setActivities((prev) => [res.data, ...prev]);
       void linkComposed(TARGET_TASK_OBJECT, res.data.id);
+      mirrorToObjectRecord(TARGET_TASK_OBJECT, title);
       return true;
     },
-    [object.slug, record.id, projectId, linkComposed],
+    [object.slug, record.id, projectId, linkComposed, mirrorToObjectRecord],
   );
 
   // Toggle a task between TODO and DONE (optimistic; rolls back on failure).
@@ -3840,9 +3929,23 @@ export function RecordDetailTw({
       </nav>
 
       <div className="st-detail-header">
-        <span className="st-page-header__icon" aria-hidden="true">
-          <ObjectIcon size={16} />
-        </span>
+        {headerUsesAvatar(object.slug) ? (
+          (() => {
+            const avatar = recordAvatar(object, record);
+            return (
+              <TwentyAvatar
+                name={label}
+                src={avatar.src}
+                shape={avatar.shape}
+                size="md"
+              />
+            );
+          })()
+        ) : (
+          <span className="st-page-header__icon" aria-hidden="true">
+            <ObjectIcon size={16} />
+          </span>
+        )}
         <h1 className="st-page-header__title">{label}</h1>
         <div className="stp-header-actions">
           <StarToggle

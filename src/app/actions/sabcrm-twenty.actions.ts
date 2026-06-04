@@ -1047,8 +1047,88 @@ export async function removeSabcrmFavoriteTw(
  * CRM objects (Companies, People, …) are seeded immediately so the freshly
  * selected workspace is usable without an extra round-trip.
  */
+/** A CRM project (with its profile) as listed for the standalone switcher. */
+export interface SabcrmProjectListItem {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  description?: string;
+  industry?: string;
+  website?: string;
+}
+
+/**
+ * Lists the caller's standalone CRM projects (`kind: 'crm'`) directly from
+ * Mongo, including each project's `sabcrm` profile (logo + details). Read from
+ * Mongo rather than the Rust projects list so the CRM-only `sabcrm` sub-document
+ * is always surfaced regardless of the Rust DTO's field set.
+ */
+export async function listSabcrmProjectsTw(): Promise<
+  ActionResult<SabcrmProjectListItem[]>
+> {
+  const session = await getCachedSession();
+  const userIdStr = (session?.user as SessionUser | undefined)?._id;
+  if (!userIdStr) return { ok: false, error: 'Not authenticated.' };
+
+  if (!sabcrmPlanFeature.defaultEnabled) {
+    return { ok: false, error: 'Your plan does not include SabCRM.' };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(userIdStr);
+    const docs = await db
+      .collection('projects')
+      .find({ userId, kind: 'crm' })
+      .project({ name: 1, sabcrm: 1, createdAt: 1 })
+      .sort({ createdAt: 1 })
+      .toArray();
+
+    const data: SabcrmProjectListItem[] = docs.map((d) => {
+      const p = (d.sabcrm ?? {}) as Partial<SabcrmProjectProfileInput>;
+      return {
+        id: d._id.toString(),
+        name: typeof d.name === 'string' ? d.name : 'Untitled',
+        logoUrl: p.logoUrl || undefined,
+        description: p.description || undefined,
+        industry: p.industry || undefined,
+        website: p.website || undefined,
+      };
+    });
+    return { ok: true, data };
+  } catch (e) {
+    return fail(e, 'Failed to list CRM projects.');
+  }
+}
+
+/** The editable CRM-project profile (logo + descriptive metadata). */
+export interface SabcrmProjectProfileInput {
+  logoUrl?: string;
+  description?: string;
+  industry?: string;
+  website?: string;
+}
+
+/** Trim + drop empty profile fields; returns `undefined` when nothing is set. */
+function sanitizeProjectProfile(
+  profile?: SabcrmProjectProfileInput,
+): SabcrmProjectProfileInput | undefined {
+  if (!profile) return undefined;
+  const out: SabcrmProjectProfileInput = {};
+  const put = (k: keyof SabcrmProjectProfileInput, max = 2000) => {
+    const v = profile[k];
+    if (typeof v === 'string' && v.trim()) out[k] = v.trim().slice(0, max);
+  };
+  put('logoUrl');
+  put('description');
+  put('industry', 120);
+  put('website', 300);
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 export async function createSabcrmProjectTw(
   name: string,
+  profile?: SabcrmProjectProfileInput,
 ): Promise<ActionResult<{ projectId: string; name: string }>> {
   const trimmed = name?.trim();
   if (!trimmed) return { ok: false, error: 'Project name is required.' };
@@ -1079,12 +1159,14 @@ export async function createSabcrmProjectTw(
       };
     }
 
+    const sabcrm = sanitizeProjectProfile(profile);
     const ins = await db.collection('projects').insertOne({
       userId,
       name: trimmed,
       accessToken: '',
       phoneNumbers: [],
       kind: 'crm',
+      ...(sabcrm ? { sabcrm } : null),
       createdAt: new Date(),
     });
 
@@ -1102,5 +1184,74 @@ export async function createSabcrmProjectTw(
     return { ok: true, data: { projectId, name: trimmed } };
   } catch (e) {
     return fail(e, 'Failed to create project.');
+  }
+}
+
+/**
+ * Edit an existing CRM project: rename and/or update its profile (logo,
+ * description, industry, website). Gated like every other write — the caller
+ * must be a member with `edit` permission on the project. Profile fields are
+ * merged (only the provided keys change); an empty string clears that key.
+ */
+export async function updateSabcrmProjectTw(
+  projectId: string,
+  patch: { name?: string; profile?: SabcrmProjectProfileInput },
+): Promise<ActionResult<{ projectId: string }>> {
+  if (!projectId) return { ok: false, error: 'Project id is required.' };
+
+  const g = await gate('edit', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  const session = await getCachedSession();
+  const userIdStr = (session?.user as SessionUser | undefined)?._id;
+  if (!userIdStr) return { ok: false, error: 'Not authenticated.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(userIdStr);
+
+    const set: Record<string, unknown> = {};
+
+    if (patch.name !== undefined) {
+      const trimmed = patch.name.trim();
+      if (!trimmed) return { ok: false, error: 'Project name is required.' };
+      if (trimmed.length > 120) {
+        return { ok: false, error: 'Project name is too long (max 120 chars).' };
+      }
+      // Reject a rename that collides with another of the user's projects.
+      const clash = await db.collection('projects').findOne(
+        { userId, name: trimmed, _id: { $ne: new ObjectId(projectId) } },
+        { projection: { _id: 1 } },
+      );
+      if (clash) {
+        return { ok: false, error: 'You already have a project with that name.' };
+      }
+      set.name = trimmed;
+    }
+
+    if (patch.profile) {
+      // Per-key merge: a provided empty string clears the field.
+      for (const key of ['logoUrl', 'description', 'industry', 'website'] as const) {
+        const v = patch.profile[key];
+        if (v === undefined) continue;
+        const trimmed = v.trim();
+        if (trimmed) set[`sabcrm.${key}`] = trimmed;
+        else set[`sabcrm.${key}`] = '';
+      }
+    }
+
+    if (Object.keys(set).length === 0) {
+      return { ok: true, data: { projectId } };
+    }
+
+    await db
+      .collection('projects')
+      .updateOne({ _id: new ObjectId(projectId), userId }, { $set: set });
+
+    invalidateProjectsCache(userIdStr);
+    revalidatePath(TW_BASE_PATH);
+    return { ok: true, data: { projectId } };
+  } catch (e) {
+    return fail(e, 'Failed to update project.');
   }
 }

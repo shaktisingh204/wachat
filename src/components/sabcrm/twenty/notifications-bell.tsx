@@ -12,6 +12,7 @@ import {
   deleteNotificationTw,
 } from '@/app/actions/sabcrm-notifications.actions';
 import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
+import { StPortalPopover } from '@/components/sabcrm/twenty/st-portal-popover';
 
 /** Shape returned by {@link listNotificationsTw}. */
 type SabcrmNotification = {
@@ -61,7 +62,7 @@ export function NotificationsBell(): React.JSX.Element {
   const [items, setItems] = React.useState<SabcrmNotification[]>([]);
   const [loading, setLoading] = React.useState(false);
 
-  const rootRef = React.useRef<HTMLDivElement>(null);
+  const btnRef = React.useRef<HTMLButtonElement>(null);
 
   const refreshCount = React.useCallback(async () => {
     try {
@@ -107,24 +108,8 @@ export function NotificationsBell(): React.JSX.Element {
     void refreshCount();
   }, [open, refreshList, refreshCount]);
 
-  // Close on outside click + Escape while open.
-  React.useEffect(() => {
-    if (!open) return;
-    const onPointer = (e: MouseEvent): void => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onPointer);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onPointer);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
+  // Outside-click + Escape close is handled by StPortalPopover (the panel is
+  // body-portalled so the sidebar's `overflow:hidden` can't clip it).
 
   const handleOpenItem = React.useCallback(
     async (n: SabcrmNotification) => {
@@ -188,8 +173,9 @@ export function NotificationsBell(): React.JSX.Element {
   );
 
   return (
-    <div className="st-notif" ref={rootRef}>
+    <div className="st-notif">
       <button
+        ref={btnRef}
         type="button"
         className={`st-notif__btn${open ? ' active' : ''}${muteAll ? ' st-notif__btn--muted' : ''}`}
         aria-label={
@@ -215,8 +201,16 @@ export function NotificationsBell(): React.JSX.Element {
         ) : null}
       </button>
 
-      {open ? (
-        <div className="st-notif__panel" role="dialog" aria-label="Notifications">
+      <StPortalPopover
+        anchorRef={btnRef}
+        open={open}
+        onClose={() => setOpen(false)}
+        align="end"
+        role="dialog"
+        ariaLabel="Notifications"
+        className="st-notif__panel--portal"
+      >
+        <div className="st-notif__panel-inner">
           <div className="st-notif__header">
             <span className="st-notif__title">
               Notifications
@@ -283,7 +277,7 @@ export function NotificationsBell(): React.JSX.Element {
             )}
           </div>
         </div>
-      ) : null}
+      </StPortalPopover>
     </div>
   );
 }

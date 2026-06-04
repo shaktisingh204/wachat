@@ -86,6 +86,35 @@ function initialsFromName(name: string): string {
   return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
 }
 
+/**
+ * A soft, readable colour palette for initials-fallback avatars. Picking a
+ * deterministic colour per name (rather than a single flat accent tint) gives
+ * lists a lively, modern feel — every company/person/actor gets its own hue,
+ * echoing the colourful brand logos in a polished CRM. Each entry pairs a tinted
+ * background with an accessible, saturated foreground.
+ */
+const AVATAR_COLORS: ReadonlyArray<{ bg: string; fg: string }> = [
+  { bg: '#fdeaea', fg: '#d23f3f' }, // red
+  { bg: '#fdeede', fg: '#d97a1e' }, // orange
+  { bg: '#fcf5da', fg: '#b08a06' }, // amber
+  { bg: '#e7f6ec', fg: '#1f9d55' }, // green
+  { bg: '#e0f4f1', fg: '#0f9488' }, // teal
+  { bg: '#e6f0fd', fg: '#1d6fd6' }, // blue
+  { bg: '#e9eafc', fg: '#4f46e5' }, // indigo
+  { bg: '#efe7fb', fg: '#7c3aed' }, // violet
+  { bg: '#fce8f3', fg: '#c2369b' }, // pink
+  { bg: '#e8eef6', fg: '#3f5d8a' }, // slate
+];
+
+/** Deterministically map a name to one of the {@link AVATAR_COLORS}. */
+function avatarColor(name: string): { bg: string; fg: string } {
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  }
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length]!;
+}
+
 export function TwentyAvatar({
   name,
   src,
@@ -103,8 +132,16 @@ export function TwentyAvatar({
     .filter(Boolean)
     .join(' ');
   const fallback = initials ?? initialsFromName(name);
+  // Colourful, deterministic tint for the initials fallback (skipped when an
+  // image is present so logos/photos keep their own colours).
+  const tint = src ? undefined : avatarColor(name);
   return (
-    <span className={classes} title={name} aria-label={name}>
+    <span
+      className={classes}
+      title={name}
+      aria-label={name}
+      style={tint ? { background: tint.bg, color: tint.fg } : undefined}
+    >
       {/* Initials sit underneath; a successful image paints over them. If the
           image fails to load, onError hides it so the initials show through —
           this keeps the component free of React state so it stays SSR-safe. */}

@@ -25,10 +25,13 @@
   --st-text-tertiary: #b3b3b3;
   --st-text-inverted: #ffffff;
 
-  /* ----- Accent (Twenty blue) ----- */
-  --st-accent: #1961ed;
-  --st-accent-hover: #1652c9;
-  --st-accent-soft: #eef3fe;
+  /* ----- Accent (Twenty blue, lightly refreshed) ----- */
+  --st-accent: #2b6ef2;
+  --st-accent-hover: #1f5ad6;
+  --st-accent-soft: #eaf1fe;
+  /* Subtle gradient for primary buttons + brand flourishes (modern depth). */
+  --st-accent-grad: linear-gradient(180deg, #3b7af5 0%, #2563eb 100%);
+  --st-accent-ring: rgba(43, 110, 242, 0.18);
 
   /* ----- Danger / destructive (red, legible on light surfaces) ----- */
   --st-danger: #c13c2c;
@@ -43,9 +46,9 @@
   --st-status-ok: #2e7d32;
   --st-status-err: #b3261e;
 
-  /* ----- Interaction ----- */
-  --st-hover: #f5f5f5;
-  --st-active: #ececec;
+  /* ----- Interaction (subtle accent-tinted, warmer than flat grey) ----- */
+  --st-hover: #f3f6fd;
+  --st-active: #e7eefc;
   /* A quiet filled surface for chips / value pills / inset blocks — sits one
      step below --st-bg-secondary. Referenced by record/show widgets. */
   --st-bg-muted: #f4f4f4;
@@ -63,18 +66,19 @@
   --st-border-strong: #d9d9d9;
   --st-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --st-radius-pill: 999px;
-  --st-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --st-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.14);
+  --st-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --st-shadow-md: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --st-shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.16);
 
   /* ----- Semantic color aliases ----- */
   --st-red: var(--st-danger);
   --st-green: var(--st-status-ok);
   --st-success: var(--st-status-ok);
 
-  /* ----- Shape / type ----- */
-  --st-radius: 4px;
-  --st-radius-sm: 3px;
-  --st-radius-lg: 8px;
+  /* ----- Shape / type (softer, more modern corners) ----- */
+  --st-radius: 6px;
+  --st-radius-sm: 4px;
+  --st-radius-lg: 10px;
   --st-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
   /* ----- Font sizes ----- */
@@ -102,8 +106,8 @@
   --st-topbar-height: 40px;
 
   /* ----- Shadow ----- */
-  --st-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 0 0 1px var(--st-border);
-  --st-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --st-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 10px 28px rgba(16, 24, 40, 0.14);
 
   font-family: var(--st-font);
   font-size: var(--st-font-size);
@@ -595,6 +599,48 @@
   margin: var(--st-space-2) 0 0;
   color: var(--st-danger);
   font-size: var(--st-font-size-sm);
+}
+
+/* Project logo image inside the square avatar tiles (trigger + menu rows). */
+.st-ws-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+/* Inline "edit project" pencil in the menu header. */
+.st-ws-menu__edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.st-ws-menu__edit:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+/* Create/edit project form: stacked fields with comfortable spacing. */
+.st-ws-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+
+.st-ws-field {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ----- Search button ----- */
@@ -1150,7 +1196,11 @@ button.st-chip:hover {
   position: relative;
   display: inline-flex;
   align-items: center;
-  flex: 0 1 280px;
+  /* Grow to fill the toolbar with a comfortable minimum so the placeholder
+     (e.g. "Search companies…") is never truncated. */
+  flex: 1 1 320px;
+  min-width: 240px;
+  max-width: 560px;
 }
 
 .st-search__icon {
@@ -1249,6 +1299,71 @@ button.st-chip:hover {
 
 .st-cell-link:hover {
   color: var(--st-accent);
+  text-decoration: underline;
+}
+
+/* Identifier cell wrapper: optional quick-action button + the name link. */
+.st-identifier-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  min-width: 0;
+}
+
+/* People list: one-click "create lead for this person" button. Hidden until
+   the row is hovered to keep the table calm, but always focus-visible. */
+.st-lead-quick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 100ms ease, color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.st-row:hover .st-lead-quick,
+.st-lead-quick:focus-visible {
+  opacity: 1;
+}
+
+.st-lead-quick:hover {
+  color: var(--st-accent);
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+/* Identifier cell: always-visible avatar (logo / initials) + truncating name. */
+.st-cell-link--identifier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  max-width: 100%;
+  min-width: 0;
+}
+
+.st-cell-link--identifier .st-avatar {
+  flex: 0 0 auto;
+}
+
+.st-cell-link__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Keep only the name underlined on hover, not the avatar tile. */
+.st-cell-link--identifier:hover {
+  text-decoration: none;
+}
+
+.st-cell-link--identifier:hover .st-cell-link__label {
   text-decoration: underline;
 }
 
@@ -1714,4 +1829,333 @@ button.st-chip:hover {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* =========================================================================
+   StPortalPopover — portal-rendered popover surface (body-mounted)
+   Used by StSelect, the notifications bell, and the tag pickers so dropdowns
+   never clip against `.st-sidebar { overflow: hidden }` (or any other
+   overflow/transform ancestor). Positioned with position:fixed by JS.
+   ========================================================================= */
+.st-popover {
+  z-index: 1200;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+  overflow: hidden;
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+/* =========================================================================
+   StSelect — Twenty-style single-select dropdown
+   ========================================================================= */
+.st-select2 {
+  position: relative;
+  width: 100%;
+}
+
+.st-select2__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  height: 28px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.st-select2__trigger:hover {
+  border-color: var(--st-border-strong);
+}
+
+.st-select2__trigger:focus-visible,
+.st-select2__trigger--open {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+.st-select2__trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.st-select2__value {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.st-select2__value-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-select2__placeholder {
+  color: var(--st-text-tertiary);
+}
+
+.st-select2__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+}
+
+.st-select2__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+}
+
+.st-select2__clear:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.st-select2__dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--st-radius-pill);
+}
+
+/* Popover body */
+.st-select2__popover {
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+.st-select2__search {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  color: var(--st-text-tertiary);
+}
+
+.st-select2__search input {
+  flex: 1 1 auto;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  color: var(--st-text);
+}
+
+.st-select2__list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--st-space-1);
+  scrollbar-width: thin;
+}
+
+.st-select2__empty {
+  padding: var(--st-space-3);
+  text-align: center;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.st-select2__option {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: 6px var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  text-align: left;
+  cursor: pointer;
+}
+
+.st-select2__option--active {
+  background: var(--st-hover);
+}
+
+.st-select2__option--selected {
+  font-weight: var(--st-fw-medium);
+}
+
+.st-select2__option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.st-select2__option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.st-select2__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-select2__option-desc {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-select2__check {
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   Modern refresh (2026-06) — a colourful, softer pass over the core SabCRM
+   surfaces. Scoped under `.sabcrm-twenty` so it wins over the base rules via
+   specificity; appended last so it's easy to tweak or revert as one block.
+   ========================================================================= */
+
+/* ----- Records table: floating rounded card with a soft shadow ----- */
+.sabcrm-twenty .st-table-wrap {
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-md);
+  background: var(--st-bg);
+}
+
+/* Sticky, frosted header so column labels stay put while scrolling. */
+.sabcrm-twenty .st-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, #fcfdff 0%, #f7f9fc 100%);
+  border-bottom: 1px solid var(--st-border);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.01em;
+}
+
+/* Calmer cell separators + a smooth, accent-tinted row hover. */
+.sabcrm-twenty .st-table td {
+  border-right-color: transparent;
+  border-bottom-color: var(--st-border-light);
+  transition: background 90ms ease;
+}
+.sabcrm-twenty .st-row:hover td {
+  background: var(--st-hover);
+}
+
+/* ----- Sidebar: accent pill for the active item + accent icon ----- */
+.sabcrm-twenty .st-nav-item {
+  position: relative;
+  border-radius: var(--st-radius-lg);
+}
+.sabcrm-twenty .st-nav-item.active {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+  font-weight: var(--st-fw-semibold);
+}
+.sabcrm-twenty .st-nav-item.active .st-nav-item__icon {
+  color: var(--st-accent);
+}
+/* A slim accent bar marking the active row. */
+.sabcrm-twenty .st-nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-accent);
+}
+
+/* ----- Primary buttons: gradient + soft accent shadow + hover lift ----- */
+.sabcrm-twenty .st-btn--primary {
+  background: var(--st-accent-grad);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12), 0 0 0 1px rgba(37, 99, 235, 0.4) inset;
+  transition: filter 120ms ease, box-shadow 120ms ease, transform 60ms ease;
+}
+.sabcrm-twenty .st-btn--primary:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 3px 10px var(--st-accent-ring), 0 0 0 1px rgba(37, 99, 235, 0.5) inset;
+}
+.sabcrm-twenty .st-btn--primary:active {
+  transform: translateY(0.5px);
+  filter: brightness(0.98);
+}
+
+/* ----- Inputs / selects: a touch rounder with a clearer focus ring ----- */
+.sabcrm-twenty .st-input,
+.sabcrm-twenty .st-select,
+.sabcrm-twenty .st-textarea,
+.sabcrm-twenty .st-select2__trigger {
+  border-radius: var(--st-radius);
+}
+.sabcrm-twenty .st-input:focus,
+.sabcrm-twenty .st-select:focus,
+.sabcrm-twenty .st-textarea:focus,
+.sabcrm-twenty .st-select2__trigger--open {
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+
+/* ----- Avatars: rounded-square logos + a hairline ring for definition ----- */
+.sabcrm-twenty .st-avatar {
+  border-radius: var(--st-radius);
+  box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.06);
+}
+.sabcrm-twenty .st-avatar--round {
+  border-radius: var(--st-radius-pill);
+}
+.sabcrm-twenty .st-avatar--lg {
+  box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.08), var(--st-shadow-sm);
+}
+
+/* ----- Chips / tag pills: fully rounded, lighter ----- */
+.sabcrm-twenty .st-chip {
+  border-radius: var(--st-radius-pill);
+}
+
+/* ----- Dialogs / popovers: deeper radius to match the new card language ----- */
+.sabcrm-twenty .st-dialog,
+.sabcrm-twenty .st-popover {
+  border-radius: var(--st-radius-lg);
+}
+
+/* ----- Page header icon: subtle accent tint instead of flat grey ----- */
+.sabcrm-twenty .st-page-header__icon {
+  background: var(--st-accent-soft);
+  border-color: transparent;
+  color: var(--st-accent);
+}
+
+/* ----- Quick search input: pairs with the rounder language ----- */
+.sabcrm-twenty .st-search__input {
+  border-radius: var(--st-radius);
 }

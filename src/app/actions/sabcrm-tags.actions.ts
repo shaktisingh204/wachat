@@ -29,6 +29,7 @@ import { sabcrmPlanFeature } from '@/lib/plans';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { sabcrmTagsApi } from '@/lib/rust-client/sabcrm-tags';
 import type { SabcrmRustTag } from '@/lib/rust-client/sabcrm-tags';
+import { sabcrmRecordsApi } from '@/lib/rust-client/sabcrm-records';
 import type { ActionResult } from '@/lib/sabcrm/types';
 import type {
   CreateTagTwInput,
@@ -163,7 +164,48 @@ export async function updateTagTw(
   }
 }
 
-/** Deletes a tag by id. */
+/**
+ * The standard objects a tag can be applied to. The list-page tag picker stores
+ * applied tag ids on each record's `data.__tags` array (NOT the Rust
+ * `sabcrm_tag_assignments` join table), so the delete guard counts membership
+ * over `data.__tags` through the same engine the records live in. An equality
+ * filter on an array field matches records whose array *contains* the value.
+ */
+const TAGGABLE_OBJECTS = ['companies', 'people', 'leads', 'notes', 'tasks'] as const;
+
+/**
+ * Counts how many records currently carry a given tag id (across the standard
+ * taggable objects). Used to guard {@link deleteTagTw}.
+ */
+export async function tagUsageCountTw(
+  id: string,
+  projectId?: string,
+): Promise<ActionResult<{ count: number }>> {
+  if (!id) return { ok: false, error: 'Tag id is required.' };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  try {
+    const counts = await Promise.all(
+      TAGGABLE_OBJECTS.map((object) =>
+        sabcrmRecordsApi
+          .count(object, { projectId: g.ctx.projectId, filters: { __tags: id } })
+          .then((r) => r.count)
+          .catch(() => 0),
+      ),
+    );
+    const total = counts.reduce((a, b) => a + b, 0);
+    return { ok: true, data: { count: total } };
+  } catch (e) {
+    return fail(e, 'Failed to count tag usage.');
+  }
+}
+
+/**
+ * Deletes a tag by id — but only when it is not assigned to any record.
+ * Mirrors the user requirement: a tag can't be deleted while it is still in use.
+ */
 export async function deleteTagTw(
   id: string,
   projectId?: string,
@@ -174,6 +216,24 @@ export async function deleteTagTw(
   if (!g.ok) return { ok: false, error: g.error };
 
   try {
+    // Guard: refuse to delete a tag that is still applied to records. Counting
+    // happens through the engine so it reflects the canonical record store.
+    const counts = await Promise.all(
+      TAGGABLE_OBJECTS.map((object) =>
+        sabcrmRecordsApi
+          .count(object, { projectId: g.ctx.projectId, filters: { __tags: id } })
+          .then((r) => r.count)
+          .catch(() => 0),
+      ),
+    );
+    const inUse = counts.reduce((a, b) => a + b, 0);
+    if (inUse > 0) {
+      return {
+        ok: false,
+        error: `This tag is assigned to ${inUse} record${inUse === 1 ? '' : 's'}. Remove it from them before deleting.`,
+      };
+    }
+
     const res = await sabcrmTagsApi.remove(g.ctx.projectId, id);
     return { ok: true, data: { ok: res.ok } };
   } catch (e) {

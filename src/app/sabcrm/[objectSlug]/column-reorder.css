@@ -145,7 +145,13 @@
 }
 
 /* Fixed layout is required for explicit per-column widths (<col> elements) to
-   take effect; only enabled once the user has resized at least one column. */
+   take effect; only enabled once the user has resized at least one column.
+   `width: max-content` lets the table grow to the SUM of its column widths so
+   widening one column scrolls `.st-table-wrap` horizontally instead of
+   stealing space from its neighbours; `min-width: 100%` keeps it filling the
+   container when the columns are collectively narrower than the viewport. */
 .st-table--fixed {
   table-layout: fixed;
+  width: max-content;
+  min-width: 100%;
 }
