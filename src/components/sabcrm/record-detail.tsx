@@ -71,6 +71,7 @@ import {
   type RelationOption,
 } from './field-renderer';
 import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
+import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
 
 export interface RecordDetailProps {
   object: ObjectMetadata;
@@ -185,6 +186,8 @@ export function RecordDetail({
   React.useEffect(() => {
     toastRef.current = toast;
   }, [toast]);
+
+  const { confirm, dialog: confirmDialog } = useStConfirm();
 
   // Reset the live-region text ~4 s after each announcement so the same
   // message can be re-announced on a subsequent save of the same field.
@@ -323,11 +326,13 @@ export function RecordDetail({
   const onDelete = React.useCallback(async () => {
     if (!record) return;
     const title = resolveRecordTitle(record, object.fields);
-    const confirmed =
-      typeof window === 'undefined'
-        ? true
-        : window.confirm(`Delete "${title}"? This cannot be undone.`);
-    if (!confirmed) return;
+    const ok = await confirm({
+      title: 'Delete record?',
+      message: `Delete "${title}"? This cannot be undone.`,
+      destructive: true,
+      confirmLabel: 'Delete',
+    });
+    if (!ok) return;
 
     setDeleting(true);
     const res = await deleteRecordAction(record._id, projectId);
@@ -596,6 +601,7 @@ export function RecordDetail({
           </span>
         </div>
       </CardContent>
+      {confirmDialog}
     </Card>
   );
 }

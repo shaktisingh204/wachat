@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyButton } from '@/components/sabcrm/twenty';
+import { useStPrompt } from '@/components/sabcrm/twenty/st-modals';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import {
   listViewsTw,
@@ -1326,6 +1327,7 @@ function QuickFilters({
   const slug = object.slug;
   const [items, setItems] = React.useState<QuickFilter[]>([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
+  const { prompt, dialog: promptDialog } = useStPrompt();
 
   // Hydrate from localStorage on mount / object change.
   React.useEffect(() => {
@@ -1364,9 +1366,8 @@ function QuickFilters({
   const hasLiveQuery =
     countConditions(state.filters) > 0 || state.sortBy !== null;
 
-  const saveCurrent = React.useCallback(() => {
-    if (typeof window === 'undefined') return;
-    const name = window.prompt('Name this quick filter')?.trim();
+  const saveCurrent = React.useCallback(async () => {
+    const name = await prompt({ title: 'Name this quick filter', label: 'Filter name', required: true });
     if (!name) return;
     const qf: QuickFilter = {
       id:
@@ -1384,7 +1385,7 @@ function QuickFilters({
       return next;
     });
     setActiveId(qf.id);
-  }, [slug, state]);
+  }, [slug, state, prompt]);
 
   const removeItem = React.useCallback(
     (id: string) => {
@@ -1484,7 +1485,7 @@ function QuickFilters({
       <button
         type="button"
         className="stqf-save"
-        onClick={saveCurrent}
+        onClick={() => void saveCurrent()}
         disabled={!hasLiveQuery}
         title={
           hasLiveQuery
@@ -1495,6 +1496,7 @@ function QuickFilters({
         <Plus size={13} />
         Save current
       </button>
+      {promptDialog}
     </div>
   );
 }
@@ -1543,6 +1545,8 @@ export function SabcrmViewBar({
   canBoard = false,
   calendarHref,
 }: SabcrmViewBarProps): React.JSX.Element {
+  const { prompt: promptView, dialog: promptViewDialog } = useStPrompt();
+
   const fieldByKey = React.useMemo(() => {
     const m = new Map<string, FieldMetadata>();
     for (const f of object.fields) m.set(f.key, f);
@@ -1604,10 +1608,7 @@ export function SabcrmViewBar({
   );
 
   const saveCurrentAsView = React.useCallback(async () => {
-    const name =
-      typeof window !== 'undefined'
-        ? window.prompt('Name this view')?.trim()
-        : '';
+    const name = await promptView({ title: 'Name this view', label: 'View name', required: true });
     if (!name) return;
     try {
       const res = await createViewTw({
@@ -1627,7 +1628,7 @@ export function SabcrmViewBar({
     } catch {
       /* engine down — degrade silently, the tab strip just won't gain a tab */
     }
-  }, [object.slug, state, visibleColumns, projectId]);
+  }, [object.slug, state, visibleColumns, projectId, promptView]);
 
   const makeDefault = React.useCallback(async () => {
     if (!activeViewId) return;
@@ -2074,6 +2075,7 @@ export function SabcrmViewBar({
           Saved views are unavailable right now.
         </span>
       )}
+      {promptViewDialog}
     </div>
   );
 }

@@ -69,6 +69,7 @@ import type {
   RecordQuery,
 } from '@/lib/sabcrm/types';
 import { FieldValue, resolveRecordTitle } from './field-renderer';
+import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
 
 const DEFAULT_PAGE_SIZE = 25;
 
@@ -228,6 +229,7 @@ export function RecordTable({
   className,
 }: RecordTableProps): React.ReactElement {
   const { toast } = useZoruToast();
+  const { confirm, dialog: confirmDialog } = useStConfirm();
 
   const columns = React.useMemo<FieldMetadata[]>(
     () => object.fields.filter((f) => f.inTable),
@@ -356,11 +358,13 @@ export function RecordTable({
     async (record: CrmRecordWithLabel, e: React.MouseEvent | React.KeyboardEvent) => {
       e.stopPropagation();
       const title = resolveRecordTitle(record, object.fields);
-      const confirmed =
-        typeof window === 'undefined'
-          ? true
-          : window.confirm(`Delete "${title}"? This cannot be undone.`);
-      if (!confirmed) return;
+      const ok = await confirm({
+        title: 'Delete record?',
+        message: `Delete "${title}"? This cannot be undone.`,
+        destructive: true,
+        confirmLabel: 'Delete',
+      });
+      if (!ok) return;
 
       // --- Optimistic removal ---
       // Read current values through refs so this callback stays stable across
@@ -396,7 +400,8 @@ export function RecordTable({
       toastRef.current({ title: `Deleted ${object.labelSingular.toLowerCase()}.` });
     },
     // totalRef / recordsRef / toastRef are stable refs — excluded from deps intentionally.
-    [object.fields, object.labelSingular, projectId],
+    // confirm is stable (useStConfirm memoises it with useCallback + []).
+    [object.fields, object.labelSingular, projectId, confirm],
   );
 
   // ---------------------------------------------------------------------------
@@ -695,6 +700,7 @@ export function RecordTable({
         </div>
       )}
 
+      {confirmDialog}
     </div>
   );
 }

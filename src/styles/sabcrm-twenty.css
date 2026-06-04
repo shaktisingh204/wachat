@@ -859,6 +859,16 @@
   border-color: var(--st-accent-hover);
 }
 
+/* Destructive primary action (delete confirmations, etc.). */
+.st-btn--danger {
+  background: var(--st-danger, #d92d20);
+  border-color: var(--st-danger, #d92d20);
+  color: #fff;
+}
+.st-btn--danger:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
 .st-btn--secondary {
   background: var(--st-bg);
   border-color: var(--st-border);
@@ -912,6 +922,31 @@
 .st-chip__label {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* MULTI_SELECT chip group used in the record create/edit dialog. */
+.st-multiselect-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-1);
+}
+button.st-chip {
+  cursor: pointer;
+  height: 24px;
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+button.st-chip:hover {
+  background: var(--st-hover);
+}
+.st-chip--active {
+  background: var(--st-accent-soft, var(--st-active)) !important;
+  border-color: var(--st-accent) !important;
+  color: var(--st-text) !important;
 }
 
 /* =========================================================================
@@ -1443,6 +1478,19 @@
   border-radius: var(--st-radius-lg);
   background: var(--st-bg);
   box-shadow: var(--st-shadow-pop);
+}
+
+/* Compact variant for confirm / prompt modals. */
+.st-dialog--sm {
+  max-width: 400px;
+}
+
+/* Plain body paragraph inside a dialog (non-destructive confirm message). */
+.st-dialog__text {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
 }
 
 .st-dialog__header {

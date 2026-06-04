@@ -85,6 +85,12 @@ import type {
   SabcrmRecordTwAggregate,
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
+import {
+  listMembersAction,
+  searchRecordsForPickerAction,
+} from '@/app/actions/sabcrm.actions';
+import type { CrmMember } from '@/lib/sabcrm/members.server';
+import type { SabcrmPickerOption } from '@/app/actions/sabcrm.actions.types';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -2015,18 +2021,101 @@ interface CreateDialogProps {
   onCreated: () => void;
 }
 
-/** Fields the user may fill on create — system + relation fields are skipped. */
+/**
+ * Fields the user may fill on create.
+ *
+ * Includes ALL non-system fields EXCEPT ONE_TO_MANY relations (the many-side
+ * cannot be set during creation). MANY_TO_ONE relations, SELECT, MULTI_SELECT,
+ * ACTOR (when non-system), and all scalar types are included.
+ * Required fields appear first, then the rest sorted by label.
+ */
 function creatableFields(object: ObjectMetadata): FieldMetadata[] {
-  return object.fields.filter(
-    (f) => !f.system && f.type !== 'RELATION' && (f.required || f.inTable),
-  );
+  const eligible = object.fields.filter((f) => {
+    if (f.system) return false;
+    if (f.type === 'RELATION') {
+      // Only keep MANY_TO_ONE — cannot set the many-side on create.
+      return f.relation?.kind === 'MANY_TO_ONE';
+    }
+    return true;
+  });
+  // Required fields first, then optional — both groups sorted by label.
+  const required = eligible.filter((f) => f.required).sort((a, b) => a.label.localeCompare(b.label));
+  const optional = eligible.filter((f) => !f.required).sort((a, b) => a.label.localeCompare(b.label));
+  return [...required, ...optional];
 }
+
+/** A generic picker option used inside CreateDialog for relation fields. */
+interface _PickerOpt { id: string; label: string; }
 
 function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogProps) {
   const fields = React.useMemo(() => creatableFields(object), [object]);
   const [values, setValues] = React.useState<Record<string, unknown>>({});
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  // ---- Relation / member option cache (keyed by targetObject slug) ----
+  // Loaded once on dialog mount; failures leave the cache empty (fail-closed).
+  const [relOpts, setRelOpts] = React.useState<Record<string, _PickerOpt[]>>({});
+  const [memberOpts, setMemberOpts] = React.useState<_PickerOpt[]>([]);
+
+  React.useEffect(() => {
+    // Collect the distinct target objects among MANY_TO_ONE relation fields.
+    const relFields = fields.filter(
+      (f) => f.type === 'RELATION' && f.relation?.kind === 'MANY_TO_ONE',
+    );
+
+    // Determine which targets look like the workspace-members object.
+    const isMemberTarget = (slug: string) =>
+      /member/i.test(slug) || /workspace/i.test(slug);
+
+    const distinctTargets = [
+      ...new Set(relFields.map((f) => f.relation!.targetObject)),
+    ];
+
+    // Load members once if any relation points at a member-like target.
+    const hasMemberTarget = distinctTargets.some(isMemberTarget);
+    if (hasMemberTarget && projectId) {
+      listMembersAction(projectId).then((res) => {
+        if (res.ok) {
+          setMemberOpts(
+            res.data.map((m: CrmMember) => ({
+              id: m.userId,
+              label: m.name.trim() || m.email,
+            })),
+          );
+        }
+      }).catch(() => { /* fail closed */ });
+    }
+
+    // Load initial option list (empty search term) for non-member relation fields.
+    const nonMemberTargets = distinctTargets.filter((t) => !isMemberTarget(t));
+    if (nonMemberTargets.length === 0) return;
+
+    const fetchOpts = async () => {
+      const updates: Record<string, _PickerOpt[]> = {};
+      await Promise.all(
+        nonMemberTargets.map(async (target) => {
+          try {
+            const res = await searchRecordsForPickerAction(
+              target,
+              '',
+              20,
+              projectId ?? undefined,
+            );
+            updates[target] = res.ok
+              ? res.data.map((o: SabcrmPickerOption) => ({ id: o.id, label: o.label }))
+              : [];
+          } catch {
+            updates[target] = [];
+          }
+        }),
+      );
+      setRelOpts((prev) => ({ ...prev, ...updates }));
+    };
+
+    fetchOpts().catch(() => { /* fail closed */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [object.slug, projectId]);
 
   const setValue = (key: string, value: unknown) =>
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -2039,7 +2128,9 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
 
     const payload: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(values)) {
-      if (v !== undefined && v !== '') payload[k] = v;
+      if (v !== undefined && v !== '' && !(Array.isArray(v) && v.length === 0)) {
+        payload[k] = v;
+      }
     }
 
     const res = await createSabcrmRecordTw(
@@ -2058,6 +2149,8 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
 
   const renderInput = (field: FieldMetadata) => {
     const raw = values[field.key];
+
+    // ---- BOOLEAN ----
     if (field.type === 'BOOLEAN') {
       return (
         <label className="st-checkbox-row">
@@ -2070,6 +2163,8 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
         </label>
       );
     }
+
+    // ---- SELECT ----
     if (field.type === 'SELECT') {
       return (
         <select
@@ -2086,18 +2181,77 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
         </select>
       );
     }
+
+    // ---- MULTI_SELECT — toggleable chips ----
+    if (field.type === 'MULTI_SELECT') {
+      const selected: string[] = Array.isArray(raw) ? (raw as string[]) : [];
+      const toggle = (val: string) => {
+        const next = selected.includes(val)
+          ? selected.filter((v) => v !== val)
+          : [...selected, val];
+        setValue(field.key, next);
+      };
+      return (
+        <div className="st-multiselect-chips" role="group" aria-label={field.label}>
+          {(field.options ?? []).map((opt) => {
+            const active = selected.includes(opt.value);
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                aria-pressed={active}
+                className={`st-chip${active ? ' st-chip--active' : ''}`}
+                onClick={() => toggle(opt.value)}
+              >
+                {active && <Check size={11} aria-hidden="true" />}
+                {opt.label}
+              </button>
+            );
+          })}
+          {(field.options ?? []).length === 0 && (
+            <span className="st-field__hint">No options defined</span>
+          )}
+        </div>
+      );
+    }
+
+    // ---- RELATION (MANY_TO_ONE) — select from cached options ----
+    if (field.type === 'RELATION' && field.relation?.kind === 'MANY_TO_ONE') {
+      const target = field.relation.targetObject;
+      const isMemberTarget = /member/i.test(target) || /workspace/i.test(target);
+      const opts: _PickerOpt[] = isMemberTarget ? memberOpts : (relOpts[target] ?? []);
+      return (
+        <select
+          className="st-select"
+          value={raw !== undefined ? String(raw) : ''}
+          onChange={(e) => setValue(field.key, e.target.value || undefined)}
+          aria-label={field.label}
+        >
+          <option value="">{`Select ${field.label.toLowerCase()}`}</option>
+          {opts.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
+    // ---- Scalar fallback (TEXT, NUMBER, DATE, EMAIL, PHONE, LINK, LINKS,
+    //      EMAILS, PHONES, ADDRESS, FULL_NAME, ARRAY, RAW_JSON, RICH_TEXT_V2,
+    //      ACTOR, FILE, NUMERIC, CURRENCY, RATING, DATE_TIME) ----
     const inputType =
-      field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING'
+      field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING' || field.type === 'NUMERIC'
         ? 'number'
         : field.type === 'DATE'
           ? 'date'
           : field.type === 'DATE_TIME'
             ? 'datetime-local'
-            : field.type === 'EMAIL'
+            : field.type === 'EMAIL' || field.type === 'EMAILS'
               ? 'email'
-              : field.type === 'PHONE'
+              : field.type === 'PHONE' || field.type === 'PHONES'
                 ? 'tel'
-                : field.type === 'LINK'
+                : field.type === 'LINK' || field.type === 'LINKS'
                   ? 'url'
                   : 'text';
     return (
@@ -2106,7 +2260,11 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
         type={inputType}
         required={field.required}
         value={raw !== undefined ? String(raw) : ''}
-        placeholder={field.type === 'LINK' ? 'https://' : field.description}
+        placeholder={
+          field.type === 'LINK' || field.type === 'LINKS'
+            ? 'https://'
+            : field.description
+        }
         onChange={(e) =>
           setValue(
             field.key,
@@ -2129,6 +2287,7 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
         aria-modal="true"
         aria-label={`New ${object.labelSingular}`}
         onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: 640, width: '100%' }}
       >
         <form onSubmit={handleSubmit}>
           <div className="st-dialog__header">
@@ -2144,19 +2303,32 @@ function CreateDialog({ object, projectId, onClose, onCreated }: CreateDialogPro
           </div>
 
           <div className="st-dialog__body">
-            {fields.map((field) => (
-              <div className="st-field" key={field.key}>
-                {field.type !== 'BOOLEAN' && (
-                  <span className="st-field__label">
-                    {field.label}
-                    {field.required && <span className="st-field__req">*</span>}
-                  </span>
-                )}
-                {renderInput(field)}
-              </div>
-            ))}
+            {/* 2-column responsive grid; BOOLEAN spans full width */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                gap: 'var(--st-space-3, 12px)',
+              }}
+            >
+              {fields.map((field) => (
+                <div
+                  className="st-field"
+                  key={field.key}
+                  style={field.type === 'BOOLEAN' ? { gridColumn: '1 / -1' } : undefined}
+                >
+                  {field.type !== 'BOOLEAN' && (
+                    <span className="st-field__label">
+                      {field.label}
+                      {field.required && <span className="st-field__req">*</span>}
+                    </span>
+                  )}
+                  {renderInput(field)}
+                </div>
+              ))}
+            </div>
             {error && (
-              <div className="st-banner">
+              <div className="st-banner" style={{ marginTop: 'var(--st-space-3, 12px)' }}>
                 <AlertTriangle className="st-banner__icon" size={15} />
                 <span>{error}</span>
               </div>

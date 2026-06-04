@@ -49,6 +49,8 @@ import type {
 
 import { ReportChart } from './report-chart';
 
+import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
+
 import './reports-twenty.css';
 
 // ---------------------------------------------------------------------------
@@ -117,6 +119,8 @@ export default function SabcrmReportsPage(): React.JSX.Element {
   const [runStates, setRunStates] = React.useState<Record<string, RunState>>({});
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
+  const { confirm, dialog: confirmDialog } = useStConfirm();
+
   const load = React.useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -169,12 +173,13 @@ export default function SabcrmReportsPage(): React.JSX.Element {
 
   const handleDelete = React.useCallback(
     async (report: SavedReport) => {
-      if (
-        typeof window !== 'undefined' &&
-        !window.confirm(`Delete report "${report.name}"? This cannot be undone.`)
-      ) {
-        return;
-      }
+      const ok = await confirm({
+        title: 'Delete report?',
+        message: `Delete "${report.name}"? This cannot be undone.`,
+        destructive: true,
+        confirmLabel: 'Delete',
+      });
+      if (!ok) return;
       setDeletingId(report._id);
       const res = await deleteReportAction(report._id, activeProjectId ?? undefined);
       setDeletingId(null);
@@ -189,7 +194,7 @@ export default function SabcrmReportsPage(): React.JSX.Element {
         setError(res.error);
       }
     },
-    [activeProjectId],
+    [activeProjectId, confirm],
   );
 
   return (
@@ -335,6 +340,7 @@ export default function SabcrmReportsPage(): React.JSX.Element {
           })}
         </div>
       )}
+      {confirmDialog}
     </div>
   );
 }

@@ -69,6 +69,7 @@ import {
   deleteDashboardTw,
 } from '@/app/actions/sabcrm-dashboards.actions';
 
+import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
 import { WidgetTile } from './dashboard-widgets';
 import { AddWidgetDialog } from './dashboard-add-widget';
 import {
@@ -671,6 +672,8 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
   const [dialog, setDialog] = React.useState<'new' | 'rename' | null>(null);
   const [notice, setNotice] = React.useState<string | null>(null);
 
+  const { confirm, dialog: confirmDialog } = useStConfirm();
+
   /* ----- Load Overview analytics ----- */
   const loadOverview = React.useCallback(async (projectId: string) => {
     setOverview({ status: 'loading' });
@@ -861,12 +864,13 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
 
   const handleDelete = React.useCallback(async () => {
     if (!selected || !activeProjectId) return;
-    if (
-      typeof window !== 'undefined' &&
-      !window.confirm(`Delete dashboard "${selected.name}"? This cannot be undone.`)
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Delete dashboard?',
+      message: `Delete "${selected.name}"? This cannot be undone.`,
+      destructive: true,
+      confirmLabel: 'Delete',
+    });
+    if (!ok) return;
     const id = selected.id;
     setSaving(true);
     setSelectedId(OVERVIEW_ID);
@@ -879,7 +883,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
     } finally {
       setSaving(false);
     }
-  }, [selected, activeProjectId]);
+  }, [selected, activeProjectId, confirm]);
 
   /* ----- Render ----- */
 
@@ -1015,6 +1019,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
           onConfirm={handleRename}
         />
       ) : null}
+      {confirmDialog}
     </div>
   );
 }
