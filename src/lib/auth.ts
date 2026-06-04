@@ -6,6 +6,10 @@ import type { SessionPayload, AdminSessionPayload } from './definitions';
 import * as admin from 'firebase-admin';
 import { readFileSync } from 'node:fs';
 import { cookies } from 'next/headers';
+// C4 flags + C2 revocation store for the staged Mongo→Postgres auth read path.
+// All PG access is gated on these flags; defaults (off/mongo) preserve today's behaviour.
+import { shouldReadPg, pgReadAllowsFallback, authPgRead } from './identity/auth-flags';
+import { pgRevocationStore } from './identity/pg-stores';
 
 // Resolve the Firebase Admin service account from either env var:
 //   FIREBASE_SERVICE_ACCOUNT       — inline JSON blob
@@ -127,6 +131,27 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 async function isTokenRevoked(jti: string): Promise<boolean> {
+    // C4-gated Postgres read path. Default (AUTH_PG_READ unset → 'mongo') skips
+    // this block entirely, so behaviour is byte-identical to today.
+    if (shouldReadPg()) {
+        try {
+            const revoked = await pgRevocationStore.isJtiRevoked(jti);
+            // 'pg' mode is authoritative — return the PG answer (incl. a `false`
+            // miss) without ever consulting Mongo.
+            if (authPgRead() === 'pg') return revoked;
+            // 'pg-fallback': a positive PG hit is conclusive (token is revoked).
+            // A PG miss (`false`) is NOT conclusive — fall through to Mongo so a
+            // token revoked only in Mongo (mid-migration) is still rejected.
+            if (revoked) return true;
+        } catch (error) {
+            console.error("Error checking PG for revoked token:", error);
+            // In 'pg' (no-fallback) mode we cannot reach Mongo; mirror the
+            // existing fail-open posture (signature already verified) and
+            // treat the token as not-revoked rather than locking everyone out.
+            if (!pgReadAllowsFallback()) return false;
+            // 'pg-fallback': fall through to the Mongo logic below.
+        }
+    }
     try {
         const { db } = await connectToDatabase();
         const revokedToken = await db.collection('revoked_tokens').findOne({ jti });
@@ -150,6 +175,30 @@ async function isTokenRevokedForUser(
     issuedAtSeconds: number | undefined,
 ): Promise<boolean> {
     if (!issuedAtSeconds || !userId) return false;
+    // C4-gated Postgres read path. Default ('mongo') skips this block, so
+    // behaviour is byte-identical to today.
+    if (shouldReadPg()) {
+        try {
+            // Same sentinel rule as Mongo: revoked iff the token was issued
+            // before the user's sentinel. C2's isRevokedForUser implements
+            // `revoked_before > issuedAt` === `issuedAt < revoked_before`,
+            // matching the `tokenIssuedMs < revokedBefore` comparison below.
+            const issuedAt = new Date(issuedAtSeconds * 1000);
+            const revoked = await pgRevocationStore.isRevokedForUser(userId, issuedAt);
+            // 'pg' mode is authoritative — return PG's answer without Mongo.
+            // 'pg-fallback': a positive hit is conclusive; a `false` (no/older
+            // sentinel) is NOT, so fall through to Mongo in case the sentinel
+            // only exists in Mongo mid-migration.
+            if (authPgRead() === 'pg') return revoked;
+            if (revoked) return true;
+        } catch (error) {
+            console.error('Error checking PG user-wide token revocation:', error);
+            // No Mongo reachable in 'pg' mode — mirror the existing fail-open
+            // (return false) rather than locking the user out.
+            if (!pgReadAllowsFallback()) return false;
+            // 'pg-fallback': fall through to Mongo below.
+        }
+    }
     try {
         const { db } = await connectToDatabase();
         const sentinel = await db

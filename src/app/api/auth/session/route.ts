@@ -5,6 +5,10 @@ import { sessionCookieOptions } from '@/lib/cookies';
 import { checkRequires2fa } from '@/app/actions/two-fa.actions';
 import type { User, WithId, SessionPayload } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
+// C4 flags + C2 PG user store for the staged Mongo→Postgres auth migration.
+// Defaults (off/mongo) keep this byte-identical to today.
+import { shouldWritePg, shouldWriteMongo } from '@/lib/identity/auth-flags';
+import { pgUserStore } from '@/lib/identity/pg-stores';
 
 const SESSION_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
@@ -64,22 +68,56 @@ export async function POST(request: NextRequest) {
             setData.location = location;
         }
 
-        const updateResult = await db.collection('users').findOneAndUpdate(
-            { email: decodedToken.email },
-            { 
-                $setOnInsert: setOnInsertData,
-                $set: setData,
-            },
-            { upsert: true, returnDocument: 'after' }
-        );
-        
-        if (!updateResult) {
-             throw new Error('Could not find or create user profile after login.');
+        // Mongo upsert remains the source of truth for the resolved user
+        // document the rest of this flow depends on (id, 2FA, session token).
+        // Only skipped when pg-only is configured (!shouldWriteMongo()); since
+        // pg-only requires the read path to source the user from Postgres
+        // (Lane A), we still need a user doc here, so we re-read it from Mongo
+        // even under pg-only to avoid breaking the live login flow.
+        let user: WithId<User>;
+        if (shouldWriteMongo()) {
+            const updateResult = await db.collection('users').findOneAndUpdate(
+                { email: decodedToken.email },
+                {
+                    $setOnInsert: setOnInsertData,
+                    $set: setData,
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+
+            if (!updateResult) {
+                 throw new Error('Could not find or create user profile after login.');
+            }
+
+            user = updateResult as WithId<User>;
+        } else {
+            // pg-only: skip the Mongo write, but resolve the existing user doc
+            // so the rest of the (Mongo-built) login flow can proceed safely.
+            const existing = await db.collection('users').findOne({ email: decodedToken.email });
+            if (!existing) {
+                throw new Error('Could not find user profile after login (pg-only).');
+            }
+            user = existing as WithId<User>;
         }
-        
-        const user = updateResult as WithId<User>;
 
         console.log('[API_SESSION] User upserted successfully.');
+
+        // Dual-write the user into Postgres (best-effort, never fatal).
+        // Gated on shouldWritePg(); legacy mongo _id is the stable upsert key.
+        if (shouldWritePg()) {
+            try {
+                await pgUserStore.upsertByMongoId({
+                    legacyMongoId: user._id.toString(),
+                    email: user.email,
+                    name: (user as any).name ?? null,
+                    picture: (user as any).image ?? (user as any).picture ?? null,
+                    planId: (user as any).planId != null ? String((user as any).planId) : null,
+                    firebaseUid: decodedToken.uid ?? null,
+                });
+            } catch (pgErr) {
+                console.error('[API_SESSION] Postgres user upsert failed (non-fatal):', pgErr);
+            }
+        }
 
         // If the user has 2FA enabled, return `requires2fa` instead of
         // issuing the session cookie. The client-side login form then

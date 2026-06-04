@@ -6,6 +6,9 @@
 import 'server-only';
 import { randomUUID } from 'crypto';
 import type { Session } from './types';
+// C4 flags + C2 Postgres store, gated so default (off/mongo) behaviour is unchanged.
+import { authPgRead, authPgWrite } from './auth-flags';
+import { createPostgresSessionStore } from './pg-stores';
 
 const COLLECTION = 'user_sessions';
 
@@ -64,6 +67,22 @@ export function createMongoSessionStore(): SessionStore {
     };
 }
 
+/**
+ * Selects the active SessionStore from the C4 flags AT CALL TIME (not import
+ * time). Postgres is used only when reads are fully PG (`authPgRead()==='pg'`)
+ * or writes are PG-only (`authPgWrite()==='pg-only'`); every other combination
+ * — including the defaults `mongo`/`off` — keeps the existing Mongo store, so
+ * behaviour is byte-identical until an operator opts in. Note: sessions live in
+ * a single store, so `pg-fallback`/`dual` deliberately stay on Mongo here to
+ * avoid split reads/writes across two session backends.
+ */
+export function createSessionStore(): SessionStore {
+    if (authPgRead() === 'pg' || authPgWrite() === 'pg-only') {
+        return createPostgresSessionStore();
+    }
+    return createMongoSessionStore();
+}
+
 export type CreateSessionInput = {
     userId: string;
     orgId?: string;
@@ -91,19 +110,23 @@ export function buildSession(input: CreateSessionInput, now: Date = new Date()):
     };
 }
 
-/** Convenience helpers wrapping the Mongo store. */
-export async function listSessions(userId: string, store: SessionStore = createMongoSessionStore()) {
+/**
+ * Convenience helpers wrapping the active store. The default arg calls
+ * createSessionStore() so the C4 flags are evaluated per call (a default param
+ * runs on every invocation that omits it), not frozen at module import time.
+ */
+export async function listSessions(userId: string, store: SessionStore = createSessionStore()) {
     return store.listForUser(userId);
 }
 
-export async function revokeSession(id: string, store: SessionStore = createMongoSessionStore()) {
+export async function revokeSession(id: string, store: SessionStore = createSessionStore()) {
     return store.revoke(id);
 }
 
 export async function revokeAllSessions(
     userId: string,
     opts: { exceptId?: string } = {},
-    store: SessionStore = createMongoSessionStore(),
+    store: SessionStore = createSessionStore(),
 ) {
     return store.revokeAllForUser(userId, opts);
 }

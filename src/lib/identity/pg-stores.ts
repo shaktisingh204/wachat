@@ -201,8 +201,10 @@ export const pgRevocationStore: PgRevocationStore = {
     );
   },
   async isRevokedForUser(userId, issuedAt) {
+    // Callers pass the SabNode user id (the Mongo _id string, carried in the
+    // JWT), so match on legacy_mongo_id — NOT the generated uuid PK.
     const { rows } = await pgQuery<{ revoked_before: Date | string | null }>(
-      `SELECT revoked_before FROM ${U} WHERE id = $1`,
+      `SELECT revoked_before FROM ${U} WHERE legacy_mongo_id = $1`,
       [userId],
     );
     const rb = rows[0]?.revoked_before;
@@ -210,9 +212,9 @@ export const pgRevocationStore: PgRevocationStore = {
     return new Date(toIso(rb)).getTime() > issuedAt.getTime();
   },
   async revokeAllForUser(userId, now = new Date()) {
-    await pgQuery(`UPDATE ${U} SET revoked_before = $2, updated_at = now() WHERE id = $1`, [
-      userId,
-      now.toISOString(),
-    ]);
+    await pgQuery(
+      `UPDATE ${U} SET revoked_before = $2, updated_at = now() WHERE legacy_mongo_id = $1`,
+      [userId, now.toISOString()],
+    );
   },
 };

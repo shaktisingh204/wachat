@@ -1,6 +1,10 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 import { connectToDatabase } from '@/lib/mongodb';
+// C4 flags + C2 revocation store for the staged Mongo→Postgres auth migration.
+// Defaults (off) keep this byte-identical to today.
+import { shouldWritePg, shouldWriteMongo } from '@/lib/identity/auth-flags';
+import { pgRevocationStore } from '@/lib/identity/pg-stores';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -18,11 +22,32 @@ export async function GET(request: NextRequest) {
             const { payload } = await jwtVerify(sessionToken, getJwtSecretKey());
             // If the token has a "jti" (JWT ID), add it to a denylist.
             if (payload.jti && payload.exp) {
-                const { db } = await connectToDatabase();
-                await db.collection('revoked_tokens').insertOne({
-                    jti: payload.jti,
-                    expiresAt: new Date(payload.exp * 1000), // exp is in seconds
-                });
+                const expiresAt = new Date(payload.exp * 1000); // exp is in seconds
+                // Mongo revocation remains the default; skipped only under pg-only.
+                if (shouldWriteMongo()) {
+                    const { db } = await connectToDatabase();
+                    await db.collection('revoked_tokens').insertOne({
+                        jti: payload.jti,
+                        expiresAt,
+                    });
+                }
+                // Dual-write the jti revocation into Postgres (best-effort, never fatal).
+                if (shouldWritePg()) {
+                    try {
+                        await pgRevocationStore.revokeJti(String(payload.jti), {
+                            // Our session tokens carry userId as a custom claim
+                            // (see createSessionToken / verifyJwt in src/lib/auth.ts),
+                            // not as JWT `sub`. Pass it through when present.
+                            userId:
+                                typeof (payload as any).userId === 'string'
+                                    ? (payload as any).userId
+                                    : undefined,
+                            expiresAt,
+                        });
+                    } catch (pgErr) {
+                        console.error('[LOGOUT] Postgres jti revocation failed (non-fatal):', pgErr);
+                    }
+                }
                 console.log(`[LOGOUT] Revoked user token JTI: ${payload.jti}`);
             }
         } catch (error) {

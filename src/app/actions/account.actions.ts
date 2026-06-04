@@ -7,6 +7,10 @@ import { ObjectId } from 'mongodb';
 
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+// C4 flags + C2 revocation store for the staged Mongo→Postgres auth migration.
+// Defaults (off) keep this byte-identical to today.
+import { shouldWritePg, shouldWriteMongo } from '@/lib/identity/auth-flags';
+import { pgRevocationStore } from '@/lib/identity/pg-stores';
 
 async function requireUserId(): Promise<string> {
   const session = await getSession();
@@ -23,13 +27,24 @@ async function requireUserId(): Promise<string> {
  */
 export async function signOutEverywhere(): Promise<{ ok: true }> {
   const userId = await requireUserId();
-  const { db } = await connectToDatabase();
   const now = new Date();
-  await db.collection('revoked_tokens').updateOne(
-    { userId, kind: 'user-wide' },
-    { $set: { userId, kind: 'user-wide', revokedBefore: now, updatedAt: now } },
-    { upsert: true },
-  );
+  // Mongo user-wide revocation sentinel remains the default; skipped only under pg-only.
+  if (shouldWriteMongo()) {
+    const { db } = await connectToDatabase();
+    await db.collection('revoked_tokens').updateOne(
+      { userId, kind: 'user-wide' },
+      { $set: { userId, kind: 'user-wide', revokedBefore: now, updatedAt: now } },
+      { upsert: true },
+    );
+  }
+  // Dual-write the per-user revocation sentinel into Postgres (best-effort, never fatal).
+  if (shouldWritePg()) {
+    try {
+      await pgRevocationStore.revokeAllForUser(userId, now);
+    } catch (pgErr) {
+      console.error('[ACCOUNT] Postgres revokeAllForUser failed (non-fatal):', pgErr);
+    }
+  }
   const cookieStore = await cookies();
   cookieStore.delete('session');
   revalidatePath('/dashboard/settings/security');

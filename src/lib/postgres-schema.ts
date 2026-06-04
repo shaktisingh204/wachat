@@ -102,7 +102,7 @@ CREATE INDEX IF NOT EXISTS users_firebase_uid_idx
 
 CREATE TABLE IF NOT EXISTS ${IDENTITY_SCHEMA}.user_sessions (
   id           uuid PRIMARY KEY,
-  user_id      uuid NOT NULL,
+  user_id      text NOT NULL,
   org_id       text,
   kind         text,
   user_agent   text,
@@ -118,7 +118,7 @@ CREATE INDEX IF NOT EXISTS user_sessions_user_idx
 
 CREATE TABLE IF NOT EXISTS ${IDENTITY_SCHEMA}.revoked_jti (
   jti        text PRIMARY KEY,
-  user_id    uuid,
+  user_id    text,
   revoked_at timestamptz NOT NULL DEFAULT now(),
   expires_at timestamptz
 );
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS ${IDENTITY_SCHEMA}.plans (
 CREATE TABLE IF NOT EXISTS ${IDENTITY_SCHEMA}.login_attempts (
   id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email      text,
-  user_id    uuid,
+  user_id    text,
   ip         text,
   outcome    text NOT NULL,
   reason     text,
