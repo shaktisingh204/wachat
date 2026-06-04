@@ -41,7 +41,7 @@ type ObjectNavItem = {
 const OBJECTS: readonly ObjectNavItem[] = [
   { slug: 'companies', label: 'Companies', icon: Building2 },
   { slug: 'people', label: 'People', icon: Users },
-  { slug: 'opportunities', label: 'Opportunities', icon: Briefcase },
+  { slug: 'leads', label: 'Leads', icon: Briefcase },
   { slug: 'notes', label: 'Notes', icon: StickyNote },
   { slug: 'tasks', label: 'Tasks', icon: CheckCircle2 },
 ] as const;

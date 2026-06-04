@@ -40,39 +40,3 @@ export const GET = withApiV1(async (req, { ctx, params }) => {
   );
   return NextResponse.json(data);
 }, { scope: 'meta:read' });
-
-// Update tokens  (scope: meta:write, tier: FREE)
-export const PATCH = withApiV1(async (req, { ctx, params }) => {
-  let body: unknown = undefined;
-  try { body = await req.json(); } catch { body = undefined; }
-  const url = new URL(req.url);
-  const qs = url.searchParams.toString();
-  const path = `/v1/meta/token/${encodeURIComponent(String((params as Record<string, string>).tokenId ?? ''))}${qs ? `?${qs}` : ''}`;
-  const data = await rustFetchAsUser<unknown>(
-    ctx.tenantId,
-    path,
-    {
-      method: 'PATCH',
-      body: body === undefined ? undefined : JSON.stringify(body),
-    },
-  );
-  return NextResponse.json(data);
-}, { scope: 'meta:write' });
-
-// Replace tokens  (scope: meta:write, tier: FREE)
-export const PUT = withApiV1(async (req, { ctx, params }) => {
-  let body: unknown = undefined;
-  try { body = await req.json(); } catch { body = undefined; }
-  const url = new URL(req.url);
-  const qs = url.searchParams.toString();
-  const path = `/v1/meta/token/${encodeURIComponent(String((params as Record<string, string>).tokenId ?? ''))}${qs ? `?${qs}` : ''}`;
-  const data = await rustFetchAsUser<unknown>(
-    ctx.tenantId,
-    path,
-    {
-      method: 'PUT',
-      body: body === undefined ? undefined : JSON.stringify(body),
-    },
-  );
-  return NextResponse.json(data);
-}, { scope: 'meta:write' });

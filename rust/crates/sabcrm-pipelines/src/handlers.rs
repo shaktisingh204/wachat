@@ -44,7 +44,7 @@ const PIPELINES_COLL: &str = "sabcrm_pipelines";
 const RECORDS_COLL: &str = "sabcrm_records";
 
 /// Default target object for a pipeline when none is supplied.
-const DEFAULT_OBJECT: &str = "opportunities";
+const DEFAULT_OBJECT: &str = "leads";
 
 /// Default `data.<field>` carrying a record's pipeline stage.
 const DEFAULT_STAGE_FIELD: &str = "stage";

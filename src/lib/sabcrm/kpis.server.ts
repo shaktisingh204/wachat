@@ -179,7 +179,7 @@ async function computeOpportunityKpi(
       $match: {
         projectId,
         userId,
-        object: "opportunities",
+        object: "leads",
         "data.stage": { $ne: CLOSED_WON_STAGE },
       },
     },

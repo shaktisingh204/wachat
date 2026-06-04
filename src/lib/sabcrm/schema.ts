@@ -161,13 +161,13 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
       },
       {
         key: 'opportunities',
-        label: 'Opportunities',
+        label: 'Leads',
         type: 'RELATION',
         icon: 'target-arrow',
         inTable: false,
         description: 'Opportunities linked to the company.',
         relation: {
-          targetObject: 'opportunities',
+          targetObject: 'leads',
           kind: 'ONE_TO_MANY',
           labelField: 'name',
         },
@@ -326,14 +326,14 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
       },
       {
         key: 'pointOfContactForOpportunities',
-        label: 'Opportunities',
+        label: 'Leads',
         type: 'RELATION',
         icon: 'target-arrow',
         inTable: false,
         description:
           'List of opportunities for which that person is the point of contact',
         relation: {
-          targetObject: 'opportunities',
+          targetObject: 'leads',
           kind: 'ONE_TO_MANY',
           labelField: 'name',
         },
@@ -355,9 +355,9 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
     ],
   },
   {
-    slug: 'opportunities',
-    labelSingular: 'Opportunity',
-    labelPlural: 'Opportunities',
+    slug: 'leads',
+    labelSingular: 'Lead',
+    labelPlural: 'Leads',
     icon: 'target-arrow',
     standard: true,
     views: ['table', 'board'],
@@ -577,14 +577,14 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
       },
       {
         key: 'targetOpportunities',
-        label: 'Opportunities',
+        label: 'Leads',
         type: 'RELATION',
         icon: 'target-arrow',
         description: 'Opportunities this note is related to',
         required: false,
         inTable: false,
         relation: {
-          targetObject: 'opportunities',
+          targetObject: 'leads',
           kind: 'MANY_TO_ONE',
           labelField: 'name',
         },
@@ -739,13 +739,13 @@ export const STANDARD_OBJECTS: ObjectMetadata[] = [
       },
       {
         key: 'targetOpportunities',
-        label: 'Opportunities',
+        label: 'Leads',
         type: 'RELATION',
         icon: 'target-arrow',
         description: 'Opportunities this task is related to',
         inTable: false,
         relation: {
-          targetObject: 'opportunities',
+          targetObject: 'leads',
           kind: 'MANY_TO_ONE',
           labelField: 'name',
         },

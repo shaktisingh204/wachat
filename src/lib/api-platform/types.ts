@@ -13,20 +13,16 @@
  * The complete catalogue of OAuth / API-key scopes recognised by the
  * platform.  Scopes are namespaced `<resource>:<action>` and are always
  * stored as a flat string array on a key/app.
+ *
+ * The authoritative list is generated from the API manifest into
+ * `./_generated/scopes.ts` (run `pnpm api:gen`); this module re-exports
+ * it so every consumer stays in lock-step with the manifest. See the
+ * "Phase 0.4 wiring" note in `tools/api-codegen/generate-scopes.ts`.
  */
-export type OAuthScope =
-  | 'contacts:read'
-  | 'contacts:write'
-  | 'messages:read'
-  | 'messages:write'
-  | 'broadcasts:read'
-  | 'broadcasts:write'
-  | 'flows:read'
-  | 'flows:write'
-  | 'webhooks:read'
-  | 'webhooks:write'
-  | 'me:read'
-  | '*';
+import type { OAuthScope } from './_generated/scopes';
+
+export type { OAuthScope };
+export { ALL_SCOPES } from './_generated/scopes';
 
 /* ── Rate-limit tiers ────────────────────────────────────────────────────── */
 

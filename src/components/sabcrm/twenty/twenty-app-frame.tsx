@@ -75,7 +75,7 @@ function navHref(item: NavItem): string {
 const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
   companies: Building2,
   people: Users,
-  opportunities: Target,
+  leads: Target,
   tasks: CheckSquare,
   notes: StickyNote,
 };
@@ -103,7 +103,7 @@ function objectNavIcon(object: ObjectMetadata): LucideIcon {
 const FALLBACK_OBJECT_NAV: readonly NavItem[] = [
   { slug: 'companies', label: 'Companies', icon: Building2 },
   { slug: 'people', label: 'People', icon: Users },
-  { slug: 'opportunities', label: 'Opportunities', icon: Target },
+  { slug: 'leads', label: 'Leads', icon: Target },
   { slug: 'tasks', label: 'Tasks', icon: CheckSquare },
   { slug: 'notes', label: 'Notes', icon: StickyNote },
 ] as const;

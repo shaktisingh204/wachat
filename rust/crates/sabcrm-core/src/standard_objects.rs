@@ -166,10 +166,10 @@ fn companies() -> ObjectMetadata {
                 .in_table(false)
                 .description("People linked to the company.")
                 .relation("people", "ONE_TO_MANY", "name"),
-            field("opportunities", "Opportunities", "RELATION", "target-arrow")
+            field("opportunities", "Leads", "RELATION", "target-arrow")
                 .in_table(false)
                 .description("Opportunities linked to the company.")
-                .relation("opportunities", "ONE_TO_MANY", "name"),
+                .relation("leads", "ONE_TO_MANY", "name"),
             field("attachments", "Attachments", "RELATION", "paperclip")
                 .in_table(false)
                 .system(true)
@@ -243,15 +243,15 @@ fn people() -> ObjectMetadata {
                 .description("The workspace member who last updated the record"),
             field(
                 "pointOfContactForOpportunities",
-                "Opportunities",
+                "Leads",
                 "RELATION",
                 "target-arrow",
             )
             .in_table(false)
             .description(
-                "List of opportunities for which that person is the point of contact",
+                "List of leads for which that person is the point of contact",
             )
-            .relation("opportunities", "ONE_TO_MANY", "name"),
+            .relation("leads", "ONE_TO_MANY", "name"),
             field("attachments", "Attachments", "RELATION", "paperclip")
                 .in_table(false)
                 .system(true)
@@ -263,9 +263,9 @@ fn people() -> ObjectMetadata {
 
 fn opportunities() -> ObjectMetadata {
     ObjectMetadata {
-        slug: "opportunities".to_owned(),
-        label_singular: "Opportunity".to_owned(),
-        label_plural: "Opportunities".to_owned(),
+        slug: "leads".to_owned(),
+        label_singular: "Lead".to_owned(),
+        label_plural: "Leads".to_owned(),
         icon: "target-arrow".to_owned(),
         standard: Some(true),
         views: vec!["table".to_owned(), "board".to_owned()],
@@ -372,10 +372,10 @@ fn notes() -> ObjectMetadata {
                 .description("Companies this note is related to")
                 .in_table(false)
                 .relation("companies", "MANY_TO_ONE", "name"),
-            field("targetOpportunities", "Opportunities", "RELATION", "target-arrow")
+            field("targetOpportunities", "Leads", "RELATION", "target-arrow")
                 .description("Opportunities this note is related to")
                 .in_table(false)
-                .relation("opportunities", "MANY_TO_ONE", "name"),
+                .relation("leads", "MANY_TO_ONE", "name"),
             field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
                 .description("Last time the record was changed")
                 .in_table(false)
@@ -446,10 +446,10 @@ fn tasks() -> ObjectMetadata {
                 .description("Companies this task is related to")
                 .in_table(false)
                 .relation("companies", "MANY_TO_ONE", "name"),
-            field("targetOpportunities", "Opportunities", "RELATION", "target-arrow")
+            field("targetOpportunities", "Leads", "RELATION", "target-arrow")
                 .description("Opportunities this task is related to")
                 .in_table(false)
-                .relation("opportunities", "MANY_TO_ONE", "name"),
+                .relation("leads", "MANY_TO_ONE", "name"),
             field("updatedAt", "Last update", "DATE_TIME", "calendar-clock")
                 .description("Last time the record was changed")
                 .in_table(false)
@@ -589,7 +589,7 @@ pub fn standard_object_slugs() -> &'static [&'static str] {
     &[
         "companies",
         "people",
-        "opportunities",
+        "leads",
         "notes",
         "tasks",
         "activities",
@@ -624,7 +624,7 @@ mod tests {
 
     #[test]
     fn opportunities_board_groups_by_stage() {
-        let opp = standard_object("opportunities").unwrap();
+        let opp = standard_object("leads").unwrap();
         assert_eq!(opp.board.unwrap().group_by_field, "stage");
     }
 

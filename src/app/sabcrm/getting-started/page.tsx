@@ -64,7 +64,7 @@ const STEPS: readonly ChecklistStep[] = [
     title: 'Create an opportunity',
     description:
       'Track a deal through your pipeline, from first conversation to closed-won.',
-    href: '/sabcrm/opportunities',
+    href: '/sabcrm/leads',
     icon: Briefcase,
   },
   {

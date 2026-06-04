@@ -152,7 +152,7 @@ async function resolveWidget(
   projectId: string,
 ): Promise<WidgetPayload> {
   const cfg = widget.config ?? {};
-  const object = str(cfg, 'object') ?? 'opportunities';
+  const object = str(cfg, 'object') ?? 'leads';
 
   switch (widget.type) {
     case 'kpi': {

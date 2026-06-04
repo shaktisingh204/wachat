@@ -296,7 +296,7 @@ function slugToEntityKind(slug: string): AutomationEntityKind {
       return "account";
     case "people":
       return "contact";
-    case "opportunities":
+    case "leads":
       return "deal";
     case "tasks":
     case "activities":
@@ -362,7 +362,7 @@ function notificationMetaFor(
     switch (slug) {
       case "tasks":
         return { type: "task_assigned", resourceType: "task" };
-      case "opportunities":
+      case "leads":
         return { type: "deal_assigned", resourceType: "deal" };
       default:
         return { type: "system" };

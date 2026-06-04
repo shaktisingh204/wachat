@@ -353,7 +353,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
           value={formatCurrency(opportunities.pipelineValue)}
           icon={<TrendingUp size={14} />}
           delta={`${formatNumber(opportunities.openCount)} open ${
-            opportunities.openCount === 1 ? 'opportunity' : 'opportunities'
+            opportunities.openCount === 1 ? 'lead' : 'leads'
           }`}
         />
         <KpiCard
@@ -399,7 +399,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
             result:
               stageCount ??
               ({
-                object: 'opportunities',
+                object: 'leads',
                 field: 'stage',
                 buckets: [],
                 total: 0,
@@ -423,7 +423,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
             result:
               pipelineByStage ??
               ({
-                object: 'opportunities',
+                object: 'leads',
                 groupField: 'stage',
                 sumField: 'amount',
                 buckets: [],
@@ -441,7 +441,7 @@ function OverviewView({ data }: { data: OverviewData }): React.JSX.Element {
 
         {/* Records by owner — native donut (self-fetching countByField). */}
         <TwentyDonutChart
-          object="opportunities"
+          object="leads"
           fieldKey="owner"
           title="Opportunities by owner"
           description="Distribution across record owners"
@@ -682,13 +682,13 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
         await Promise.all([
           getKpisAction(projectId),
           runAnalyticsAction(
-            { kind: 'countByField', object: 'opportunities', fieldKey: 'stage' },
+            { kind: 'countByField', object: 'leads', fieldKey: 'stage' },
             projectId,
           ),
           runAnalyticsAction(
             {
               kind: 'sumByField',
-              object: 'opportunities',
+              object: 'leads',
               groupFieldKey: 'stage',
               sumFieldKey: 'amount',
             },
@@ -696,7 +696,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
           ),
           listRecordsAction(
             {
-              object: 'opportunities',
+              object: 'leads',
               page: 1,
               pageSize: 5,
               sortBy: 'createdAt',
@@ -707,7 +707,7 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
           runAnalyticsAction(
             {
               kind: 'timeSeries',
-              object: 'opportunities',
+              object: 'leads',
               dateField: 'createdAt',
               interval: 'month',
             },

@@ -260,6 +260,19 @@ const nextConfig = {
         permanent: true,
       },
 
+      // The SabCRM "Opportunities" object was renamed to "Leads"
+      // (slug opportunities → leads). Keep old record links alive.
+      {
+        source: '/sabcrm/opportunities',
+        destination: '/sabcrm/leads',
+        permanent: true,
+      },
+      {
+        source: '/sabcrm/opportunities/:path*',
+        destination: '/sabcrm/leads/:path*',
+        permanent: true,
+      },
+
       // Each wachat subroute and its descendants. Each wachat directory
       // moved out of /dashboard into /wachat — old bookmarks like
       // `/dashboard/broadcasts/abc` redirect to `/wachat/broadcasts/abc`.

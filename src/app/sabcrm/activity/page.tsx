@@ -236,7 +236,7 @@ async function buildFeed(
 
   // Prefer "activity-bearing" standard objects first, then cap breadth.
   const PRIORITY = [
-    'opportunities',
+    'leads',
     'people',
     'companies',
     'tasks',

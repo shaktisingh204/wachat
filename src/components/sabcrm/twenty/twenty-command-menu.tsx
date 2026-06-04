@@ -189,7 +189,7 @@ function toggleTheme(): void {
 const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
   companies: Building2,
   people: Users,
-  opportunities: Briefcase,
+  leads: Briefcase,
   notes: StickyNote,
   tasks: CheckCircle2,
 };
@@ -202,7 +202,7 @@ const STANDARD_OBJECT_ICON: Record<string, LucideIcon> = {
 const STANDARD_OBJECT_AVATAR_SHAPE: Record<string, TwentyAvatarShape> = {
   people: 'round',
   companies: 'square',
-  opportunities: 'square',
+  leads: 'square',
   notes: 'square',
   tasks: 'square',
 };
@@ -215,7 +215,7 @@ function avatarShapeForSlug(slug: string): TwentyAvatarShape {
 const STANDARD_OBJECT_LABEL: Record<string, string> = {
   companies: 'Company',
   people: 'Person',
-  opportunities: 'Opportunity',
+  leads: 'Lead',
   notes: 'Note',
   tasks: 'Task',
 };
@@ -224,7 +224,7 @@ const STANDARD_OBJECT_LABEL: Record<string, string> = {
 const FALLBACK_OBJECTS: readonly ObjectCatalogueEntry[] = [
   { slug: 'companies', labelSingular: 'Company', labelPlural: 'Companies', hasBoard: false },
   { slug: 'people', labelSingular: 'Person', labelPlural: 'People', hasBoard: false },
-  { slug: 'opportunities', labelSingular: 'Opportunity', labelPlural: 'Opportunities', hasBoard: true },
+  { slug: 'leads', labelSingular: 'Lead', labelPlural: 'Leads', hasBoard: true },
   { slug: 'notes', labelSingular: 'Note', labelPlural: 'Notes', hasBoard: false },
   { slug: 'tasks', labelSingular: 'Task', labelPlural: 'Tasks', hasBoard: false },
 ] as const;

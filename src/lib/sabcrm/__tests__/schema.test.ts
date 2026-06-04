@@ -232,13 +232,15 @@ test('STANDARD_OBJECTS — people object is present and valid', () => {
   assert.equal(people.standard, true);
 });
 
-test('STANDARD_OBJECTS — opportunities object is present and valid', () => {
-  const opportunities = getStandardObject('opportunities');
-  assert.ok(opportunities, 'Standard object "opportunities" must exist');
-  assert.equal(opportunities.slug, 'opportunities');
-  assert.equal(opportunities.labelSingular, 'Opportunity');
-  assert.equal(opportunities.labelPlural, 'Opportunities');
-  assert.equal(opportunities.standard, true);
+test('STANDARD_OBJECTS — leads object is present and valid', () => {
+  // The former "opportunities" object was renamed to "leads"
+  // (leads = deals = opportunities are the same concept).
+  const leads = getStandardObject('leads');
+  assert.ok(leads, 'Standard object "leads" must exist');
+  assert.equal(leads.slug, 'leads');
+  assert.equal(leads.labelSingular, 'Lead');
+  assert.equal(leads.labelPlural, 'Leads');
+  assert.equal(leads.standard, true);
 });
 
 test('STANDARD_OBJECTS — notes object is present and valid', () => {
@@ -272,7 +274,7 @@ test('STANDARD_OBJECTS — exactly 6 standard objects exist', () => {
   assert.equal(
     STANDARD_OBJECTS.length,
     6,
-    'Expected exactly 6 standard objects (companies, people, opportunities, notes, tasks, activities)',
+    'Expected exactly 6 standard objects (companies, people, leads, notes, tasks, activities)',
   );
 });
 

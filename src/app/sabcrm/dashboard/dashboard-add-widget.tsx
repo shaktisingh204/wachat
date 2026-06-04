@@ -85,7 +85,7 @@ export function AddWidgetDialog({
   onAdd,
 }: AddWidgetDialogProps): React.JSX.Element {
   const [type, setType] = React.useState<WidgetTypeTw>('kpi');
-  const firstObject = objects[0]?.slug ?? 'opportunities';
+  const firstObject = objects[0]?.slug ?? 'leads';
   const [objectSlug, setObjectSlug] = React.useState<string>(firstObject);
   const metrics = METRICS_BY_TYPE[type];
   const [metric, setMetric] = React.useState<string>(metrics[0]!.value);

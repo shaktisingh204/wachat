@@ -65,7 +65,7 @@ function notificationKindFor(objectSlug: string): {
   switch (objectSlug) {
     case "tasks":
       return { type: "task_assigned", resourceType: "task" };
-    case "opportunities":
+    case "leads":
       return { type: "deal_assigned", resourceType: "deal" };
     default:
       return { type: "system" };
