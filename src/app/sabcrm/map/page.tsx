@@ -38,9 +38,13 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Database, MapPin, Globe2 } from 'lucide-react';
+import { AlertTriangle, Database, MapPin, Globe2, Search } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
+import {
+  TwentyPageHeader,
+  TwentyChip,
+  TwentyAvatar,
+} from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -250,6 +254,8 @@ export default function SabcrmMapPage(): React.JSX.Element {
   const [objectSlug, setObjectSlug] = React.useState<string>('');
   const [locationFieldKey, setLocationFieldKey] = React.useState<string>('');
   const [activePlace, setActivePlace] = React.useState<string | null>(null);
+  // Free-text filter over the places rail (Twenty's grouped rail is searchable).
+  const [placeQuery, setPlaceQuery] = React.useState('');
 
   // Records for the active object.
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
@@ -312,9 +318,11 @@ export default function SabcrmMapPage(): React.JSX.Element {
     }
   }, [locationFields, locationFieldKey]);
 
-  // Active place selection must not leak across object / field changes.
+  // Active place selection + rail search must not leak across object / field
+  // changes.
   React.useEffect(() => {
     setActivePlace(null);
+    setPlaceQuery('');
   }, [objectSlug, locationFieldKey]);
 
   // ---- Load records for the active object --------------------------------
@@ -370,6 +378,13 @@ export default function SabcrmMapPage(): React.JSX.Element {
       return a.label.localeCompare(b.label);
     });
   }, [records, locationFieldKey]);
+
+  // The rail-visible subset (search-filtered by place label).
+  const visibleBuckets = React.useMemo<PlaceBucket[]>(() => {
+    const q = placeQuery.trim().toLowerCase();
+    if (!q) return buckets;
+    return buckets.filter((b) => b.label.toLowerCase().includes(q));
+  }, [buckets, placeQuery]);
 
   // Default the selected place to the most-populated one once buckets exist.
   React.useEffect(() => {
@@ -545,8 +560,26 @@ export default function SabcrmMapPage(): React.JSX.Element {
             {/* Left rail — places. */}
             <div className="map-places">
               <div className="map-places__head">Places</div>
+              {buckets.length > 6 && (
+                <div className="map-places__search">
+                  <Search size={14} aria-hidden="true" />
+                  <input
+                    type="text"
+                    className="map-places__search-input"
+                    placeholder="Filter places…"
+                    value={placeQuery}
+                    onChange={(e) => setPlaceQuery(e.target.value)}
+                    aria-label="Filter places"
+                  />
+                </div>
+              )}
               <div className="map-places__list">
-                {buckets.map((bucket) => {
+                {visibleBuckets.length === 0 && (
+                  <div className="map-places__empty">
+                    No places match “{placeQuery}”.
+                  </div>
+                )}
+                {visibleBuckets.map((bucket) => {
                   const isActive = bucket.key === activePlace;
                   return (
                     <button
@@ -590,6 +623,7 @@ export default function SabcrmMapPage(): React.JSX.Element {
                   <div className="map-detail__body">
                     {selectedBucket.records.map((rec) => {
                       const lines = addressLines(rec.data[locationFieldKey]);
+                      const label = recordLabel(activeObject, rec);
                       return (
                         <div className="map-record" key={rec.id}>
                           <div className="map-record__chips">
@@ -597,7 +631,8 @@ export default function SabcrmMapPage(): React.JSX.Element {
                               href={`/sabcrm/${activeObject.slug}/${rec.id}`}
                               className="map-record__link"
                             >
-                              <TwentyChip label={recordLabel(activeObject, rec)} />
+                              <TwentyAvatar name={label} size="xs" />
+                              <TwentyChip label={label} />
                             </Link>
                           </div>
                           {lines.length > 0 && (

@@ -30,3 +30,8 @@ export {
   default as RecordFieldPanelDefault,
 } from './record-field-panel';
 export type { RecordFieldPanelProps } from './record-field-panel';
+export {
+  RecordDetailTabs,
+  default as RecordDetailTabsDefault,
+} from './record-detail-tabs';
+export type { RecordDetailTabsProps } from './record-detail-tabs';

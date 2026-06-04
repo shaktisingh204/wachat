@@ -78,8 +78,10 @@ import { TwentyTimeline } from '@/components/sabcrm/twenty/twenty-timeline';
 // edit + system-field grouping; `RecordDetailTabs` renders the tabbed activity
 // area (Timeline / Notes / Tasks / Relations / Files), self-loading through the
 // same gated actions.
-import { RecordFieldPanel } from '@/components/sabcrm/twenty/record-field-panel';
-import { RecordDetailTabs } from '@/components/sabcrm/twenty/record-detail-tabs';
+import {
+  RecordFieldPanel,
+  RecordDetailTabs,
+} from '@/components/sabcrm/twenty';
 import '@/components/sabcrm/twenty/twenty-activity.css';
 import {
   updateSabcrmRecordTw,
@@ -160,10 +162,6 @@ const SLUG_ICON: Record<string, LucideIcon> = {
   tasks: CheckCircle2,
 };
 
-const INLINE_EDITABLE: ReadonlySet<FieldMetadata['type']> = new Set<
-  FieldMetadata['type']
->(['TEXT', 'EMAIL', 'PHONE', 'LINK', 'NUMBER', 'CURRENCY', 'RATING', 'SELECT']);
-
 function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
   const field =
     object.fields.find((f) => f.isLabel) ??
@@ -175,15 +173,6 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
     if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
-}
-
-function coerceInput(field: FieldMetadata, raw: string): unknown {
-  if (raw === '') return '';
-  if (field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING') {
-    const n = Number(raw);
-    return Number.isNaN(n) ? raw : n;
-  }
-  return raw;
 }
 
 // ---------------------------------------------------------------------------
@@ -760,83 +749,10 @@ function resolveInverseKey(
 }
 
 // ---------------------------------------------------------------------------
-// Left field panel — labelled sections (Twenty fidelity)
+// (Left field panel is now the Twenty-faithful <RecordFieldPanel> — the legacy
+// CollapsibleFieldSection / groupFieldSections helpers were retired when the
+// record-show left column was wired to the W2 RecordFieldPanel component.)
 // ---------------------------------------------------------------------------
-
-/**
- * Split the editable field list into Twenty-style labelled groups. "Links"
- * collects URL/email/phone fields; everything else stays under "Details".
- * Sections with no fields are dropped, so a plain object renders one group.
- */
-function groupFieldSections(
-  fields: FieldMetadata[],
-): Array<{ label: string; fields: FieldMetadata[] }> {
-  const linkTypes: ReadonlySet<FieldMetadata['type']> = new Set<
-    FieldMetadata['type']
-  >(['LINK', 'EMAIL', 'PHONE']);
-  const links = fields.filter((f) => linkTypes.has(f.type));
-  const details = fields.filter((f) => !linkTypes.has(f.type));
-  return [
-    { label: 'Details', fields: details },
-    { label: 'Links', fields: links },
-  ].filter((s) => s.fields.length > 0);
-}
-
-/**
- * One collapsible labelled section in the left field panel (Twenty page-layout
- * fidelity). The header is a button that toggles `collapsed`; collapse state is
- * owned by the parent so it persists across re-renders / edits within the
- * component's lifetime. Renders the field rows as before when expanded.
- */
-interface CollapsibleFieldSectionProps {
-  label: string;
-  fields: FieldMetadata[];
-  collapsed: boolean;
-  onToggle: () => void;
-  record: SabcrmRustRecord;
-  onCommit: (key: string, value: unknown) => void;
-}
-
-function CollapsibleFieldSection({
-  label,
-  fields,
-  collapsed,
-  onToggle,
-  record,
-  onCommit,
-}: CollapsibleFieldSectionProps): React.JSX.Element {
-  return (
-    <div
-      className={`re-fieldsection sw-section${collapsed ? ' is-collapsed' : ''}`}
-      aria-label={label}
-    >
-      <button
-        type="button"
-        className="sw-section__head"
-        aria-expanded={!collapsed}
-        onClick={onToggle}
-      >
-        <ChevronDown size={13} className="sw-section__caret" aria-hidden="true" />
-        <span className="sw-section__label">{label}</span>
-        <span className="sw-section__count">{fields.length}</span>
-      </button>
-      <div className="sw-section__body" hidden={collapsed}>
-        {fields.map((field) => (
-          <div className="st-field-row" key={field.key}>
-            <span className="st-field-row__key">{field.label}</span>
-            <span className="st-field-row__val">
-              <EditableValue
-                field={field}
-                value={record.data[field.key]}
-                onCommit={(v) => onCommit(field.key, v)}
-              />
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Details-summary card — key fields at a glance (top of the right column)
@@ -2472,97 +2388,9 @@ function RelationSection({
 }
 
 // ---------------------------------------------------------------------------
-// Inline-editable field value
+// (Inline-editable field value now lives inside the W2 <RecordFieldPanel>; the
+// legacy EditableValue cell was retired with the left CollapsibleFieldSection.)
 // ---------------------------------------------------------------------------
-
-interface EditableValueProps {
-  field: FieldMetadata;
-  value: unknown;
-  onCommit: (value: unknown) => void;
-}
-
-function EditableValue({ field, value, onCommit }: EditableValueProps) {
-  const [editing, setEditing] = React.useState(false);
-  const [draft, setDraft] = React.useState('');
-
-  if (!INLINE_EDITABLE.has(field.type)) {
-    return <TwentyFieldValue field={field} value={value} />;
-  }
-
-  const begin = () => {
-    setDraft(value === null || value === undefined ? '' : String(value));
-    setEditing(true);
-  };
-  const commit = (next: string) => {
-    setEditing(false);
-    const coerced = coerceInput(field, next);
-    if (coerced !== value) onCommit(coerced);
-  };
-
-  if (!editing) {
-    return (
-      <span
-        className="st-cell-editable"
-        role="button"
-        tabIndex={0}
-        aria-label={`Edit ${field.label}`}
-        onClick={begin}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            begin();
-          }
-        }}
-      >
-        <TwentyFieldValue field={field} value={value} />
-      </span>
-    );
-  }
-
-  if (field.type === 'SELECT') {
-    return (
-      <select
-        className="st-cell-select"
-        autoFocus
-        aria-label={field.label}
-        value={draft}
-        onChange={(e) => commit(e.target.value)}
-        onBlur={(e) => commit(e.target.value)}
-      >
-        <option value="">—</option>
-        {(field.options ?? []).map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-    );
-  }
-
-  return (
-    <input
-      className="st-cell-input"
-      autoFocus
-      aria-label={field.label}
-      type={
-        field.type === 'NUMBER' || field.type === 'CURRENCY' || field.type === 'RATING'
-          ? 'number'
-          : 'text'
-      }
-      value={draft}
-      onChange={(e) => setDraft(e.target.value)}
-      onBlur={(e) => commit(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          commit((e.target as HTMLInputElement).value);
-        } else if (e.key === 'Escape') {
-          setEditing(false);
-        }
-      }}
-    />
-  );
-}
 
 // ---------------------------------------------------------------------------
 // Tags — applied-tag chips + an "Add tag" checklist picker
@@ -2839,15 +2667,8 @@ export function RecordDetailTw({
     null,
   );
 
-  // Collapsed-state for the left field panel's labelled sections, keyed by the
-  // section label. Persisted in component state so collapses survive edits /
-  // optimistic re-renders. Sections start expanded.
-  const [collapsedSections, setCollapsedSections] = React.useState<
-    Record<string, boolean>
-  >({});
-  const toggleSection = React.useCallback((label: string) => {
-    setCollapsedSections((prev) => ({ ...prev, [label]: !prev[label] }));
-  }, []);
+  // (Left-panel section collapse state was retired with CollapsibleFieldSection;
+  // the W2 <RecordFieldPanel> owns its own field grouping + edit affordances.)
 
   // Related-records sections (graceful: empty on failure / engine down).
   const [relations, setRelations] = React.useState<RecordRelation[]>([]);
@@ -3666,12 +3487,6 @@ export function RecordDetailTw({
       activities.length,
       filesCount,
     ],
-  );
-
-  // Group the left details panel into Twenty-style labelled sections.
-  const fieldSections = React.useMemo(
-    () => groupFieldSections(editableFields),
-    [editableFields],
   );
 
   const label = recordLabel(object, record);

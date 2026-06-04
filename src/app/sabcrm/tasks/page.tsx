@@ -34,6 +34,8 @@ import {
   Columns3,
   CalendarClock,
   User as UserIcon,
+  Check,
+  Search,
   X,
 } from 'lucide-react';
 
@@ -63,6 +65,7 @@ import '../tasks-notes.css';
 const TASKS_OBJECT = 'tasks';
 
 const PAGE_LIMIT = 100;
+const SEARCH_DEBOUNCE_MS = 250;
 
 type ViewKind = 'board' | 'table';
 
@@ -137,6 +140,47 @@ function assigneeLabel(value: unknown): string | null {
   return String(value);
 }
 
+/** True when a task's due date is in the past and the task isn't DONE. */
+function isOverdue(record: SabcrmRustRecord): boolean {
+  const raw = record.data.dueAt;
+  if (raw === null || raw === undefined || raw === '') return false;
+  if (statusOf(record) === 'DONE') return false;
+  const due = new Date(asText(raw)).getTime();
+  if (Number.isNaN(due)) return false;
+  return due < Date.now();
+}
+
+// ---------------------------------------------------------------------------
+// Completion checkbox (Twenty TaskRow parity — rounded checkbox → DONE/TODO)
+// ---------------------------------------------------------------------------
+
+interface CompleteCheckboxProps {
+  done: boolean;
+  busy: boolean;
+  onToggle: () => void;
+}
+
+function CompleteCheckbox({ done, busy, onToggle }: CompleteCheckboxProps) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={done}
+      aria-label={done ? 'Mark task as to do' : 'Mark task as done'}
+      disabled={busy}
+      className={`stn-check${done ? ' is-done' : ''}`}
+      onClick={(e) => {
+        // Inside a card <Link> / row, don't navigate when toggling completion.
+        e.stopPropagation();
+        e.preventDefault();
+        if (!busy) onToggle();
+      }}
+    >
+      {done ? <Check size={11} strokeWidth={3} aria-hidden="true" /> : null}
+    </button>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Inline status select (shared by board card + table row)
 // ---------------------------------------------------------------------------
@@ -181,6 +225,7 @@ interface BoardViewProps {
   groups: SabcrmRecordTwGroup[];
   busyIds: ReadonlySet<string>;
   onStatusChange: (record: SabcrmRustRecord, next: TaskStatus) => void;
+  onToggleComplete: (record: SabcrmRustRecord) => void;
 }
 
 /** Order groups as TODO → IN_PROGRESS → DONE, with any extras appended. */
@@ -200,27 +245,38 @@ function TaskCard({
   record,
   busy,
   onStatusChange,
+  onToggleComplete,
 }: {
   record: SabcrmRustRecord;
   busy: boolean;
   onStatusChange: (next: TaskStatus) => void;
+  onToggleComplete: () => void;
 }) {
   const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
   const due = record.data.dueAt;
   const hasDue = due !== null && due !== undefined && due !== '';
+  const done = statusOf(record) === 'DONE';
+  const overdue = isOverdue(record);
 
   return (
     <div className="st-card stn-board-card">
-      <Link href={`/sabcrm/tasks/${record.id}`} className="stn-card-title">
-        {taskTitle(record)}
-      </Link>
+      <div className="stn-card-head">
+        <CompleteCheckbox done={done} busy={busy} onToggle={onToggleComplete} />
+        <Link
+          href={`/sabcrm/tasks/${record.id}`}
+          className={`stn-card-title${done ? ' is-done' : ''}`}
+        >
+          {taskTitle(record)}
+        </Link>
+      </div>
 
       {hasDue ? (
-        <div className="stn-card-meta">
+        <div className={`stn-card-meta${overdue ? ' is-overdue' : ''}`}>
           <span className="stn-card-meta__label">
             <CalendarClock size={13} aria-hidden="true" />
           </span>
           <TwentyFieldValue field={DUE_FIELD} value={due} />
+          {overdue ? <span className="stn-overdue-tag">Overdue</span> : null}
         </div>
       ) : null}
 
@@ -246,7 +302,7 @@ function TaskCard({
   );
 }
 
-function BoardView({ groups, busyIds, onStatusChange }: BoardViewProps) {
+function BoardView({ groups, busyIds, onStatusChange, onToggleComplete }: BoardViewProps) {
   return (
     <div className="st-board">
       {orderedGroups(groups).map((group) => (
@@ -265,6 +321,7 @@ function BoardView({ groups, busyIds, onStatusChange }: BoardViewProps) {
                   record={record}
                   busy={busyIds.has(record.id)}
                   onStatusChange={(next) => onStatusChange(record, next)}
+                  onToggleComplete={() => onToggleComplete(record)}
                 />
               ))
             )}
@@ -283,14 +340,16 @@ interface TableViewProps {
   records: SabcrmRustRecord[];
   busyIds: ReadonlySet<string>;
   onStatusChange: (record: SabcrmRustRecord, next: TaskStatus) => void;
+  onToggleComplete: (record: SabcrmRustRecord) => void;
 }
 
-function TableView({ records, busyIds, onStatusChange }: TableViewProps) {
+function TableView({ records, busyIds, onStatusChange, onToggleComplete }: TableViewProps) {
   return (
     <div className="st-table-wrap">
       <table className="st-table">
         <thead>
           <tr>
+            <th aria-label="Done" />
             <th>Task</th>
             <th>Status</th>
             <th>Due</th>
@@ -302,10 +361,22 @@ function TableView({ records, busyIds, onStatusChange }: TableViewProps) {
             const assignee = assigneeLabel(record.data.assignee ?? record.data.assigneeId);
             const due = record.data.dueAt;
             const busy = busyIds.has(record.id);
+            const done = statusOf(record) === 'DONE';
+            const overdue = isOverdue(record);
             return (
               <tr key={record.id} className="st-row">
+                <td className="stn-check-cell">
+                  <CompleteCheckbox
+                    done={done}
+                    busy={busy}
+                    onToggle={() => onToggleComplete(record)}
+                  />
+                </td>
                 <td>
-                  <Link href={`/sabcrm/tasks/${record.id}`} className="st-cell-link">
+                  <Link
+                    href={`/sabcrm/tasks/${record.id}`}
+                    className={`st-cell-link${done ? ' stn-cell-done' : ''}`}
+                  >
                     {taskTitle(record)}
                   </Link>
                 </td>
@@ -324,7 +395,9 @@ function TableView({ records, busyIds, onStatusChange }: TableViewProps) {
                   </span>
                 </td>
                 <td>
-                  <TwentyFieldValue field={DUE_FIELD} value={due} />
+                  <span className={overdue ? 'stn-due-overdue' : undefined}>
+                    <TwentyFieldValue field={DUE_FIELD} value={due} />
+                  </span>
                 </td>
                 <td>
                   {assignee ? (
@@ -545,7 +618,20 @@ export default function SabcrmTasksPage(): React.JSX.Element {
   const [refreshTick, setRefreshTick] = React.useState(0);
   const [busyIds, setBusyIds] = React.useState<Set<string>>(new Set());
 
+  const [search, setSearch] = React.useState('');
+  const [debouncedSearch, setDebouncedSearch] = React.useState('');
+
+  // Debounce the search box so we don't hammer the engine per keystroke.
+  React.useEffect(() => {
+    const id = setTimeout(() => setDebouncedSearch(search.trim()), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(id);
+  }, [search]);
+
   // Load board groups + flat list (the table reuses the flat list).
+  //
+  // `groupSabcrmRecordsTw` has no server-side `q`, so the board fetches every
+  // status bucket and filters client-side by the debounced search term; the
+  // table view threads `q` straight to the engine via `listSabcrmRecordsTw`.
   React.useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -568,7 +654,12 @@ export default function SabcrmTasksPage(): React.JSX.Element {
       } else {
         const res = await listSabcrmRecordsTw(
           TASKS_OBJECT,
-          { limit: PAGE_LIMIT, sortBy: 'updatedAt', sortDir: 'desc' },
+          {
+            limit: PAGE_LIMIT,
+            sortBy: 'updatedAt',
+            sortDir: 'desc',
+            q: debouncedSearch || undefined,
+          },
           activeProjectId ?? undefined,
         );
         if (cancelled) return;
@@ -585,9 +676,20 @@ export default function SabcrmTasksPage(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [view, activeProjectId, refreshTick]);
+  }, [view, activeProjectId, refreshTick, debouncedSearch]);
 
   const refresh = React.useCallback(() => setRefreshTick((t) => t + 1), []);
+
+  // Board search runs client-side over the grouped buckets (the engine's
+  // group endpoint has no `q`). Matches on the task title, case-insensitively.
+  const visibleGroups = React.useMemo(() => {
+    const term = debouncedSearch.toLowerCase();
+    if (!term) return groups;
+    return groups.map((g) => ({
+      ...g,
+      records: g.records.filter((r) => taskTitle(r).toLowerCase().includes(term)),
+    }));
+  }, [groups, debouncedSearch]);
 
   // Inline status change → optimistic update + persist via the Rust engine.
   const handleStatusChange = React.useCallback(
@@ -636,14 +738,24 @@ export default function SabcrmTasksPage(): React.JSX.Element {
     [busyIds, activeProjectId, refresh],
   );
 
+  // Completion checkbox → toggle DONE ⇄ TODO, reusing the status pipeline.
+  const handleToggleComplete = React.useCallback(
+    (record: SabcrmRustRecord) => {
+      const next: TaskStatus = statusOf(record) === 'DONE' ? 'TODO' : 'DONE';
+      void handleStatusChange(record, next);
+    },
+    [handleStatusChange],
+  );
+
   const handleCreated = React.useCallback(() => refresh(), [refresh]);
 
   const totalCount =
     view === 'board'
-      ? groups.reduce((sum, g) => sum + g.records.length, 0)
+      ? visibleGroups.reduce((sum, g) => sum + g.records.length, 0)
       : records.length;
 
   const isEmpty = !loading && totalCount === 0;
+  const isSearching = debouncedSearch.length > 0;
 
   return (
     <div className="st-page">
@@ -658,6 +770,17 @@ export default function SabcrmTasksPage(): React.JSX.Element {
       />
 
       <div className="st-toolbar">
+        <div className="st-search">
+          <Search className="st-search__icon" size={14} />
+          <input
+            className="st-search__input"
+            type="search"
+            value={search}
+            placeholder="Search tasks…"
+            aria-label="Search tasks"
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <div className="st-toolbar__spacer" />
         {!loading ? (
           <span className="st-count">
@@ -697,26 +820,33 @@ export default function SabcrmTasksPage(): React.JSX.Element {
           <span className="st-empty__icon">
             <CheckCircle2 size={20} />
           </span>
-          <h2 className="st-empty__title">No tasks yet</h2>
+          <h2 className="st-empty__title">
+            {isSearching ? 'No matching tasks' : 'No tasks yet'}
+          </h2>
           <p className="st-empty__desc">
-            Create your first task to start tracking work across To do, In
-            progress and Done.
+            {isSearching
+              ? 'Try a different search term, or clear the search to see every task.'
+              : 'Create your first task to start tracking work across To do, In progress and Done.'}
           </p>
-          <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
-            New task
-          </TwentyButton>
+          {!isSearching ? (
+            <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+              New task
+            </TwentyButton>
+          ) : null}
         </div>
       ) : view === 'board' ? (
         <BoardView
-          groups={groups}
+          groups={visibleGroups}
           busyIds={busyIds}
           onStatusChange={handleStatusChange}
+          onToggleComplete={handleToggleComplete}
         />
       ) : (
         <TableView
           records={records}
           busyIds={busyIds}
           onStatusChange={handleStatusChange}
+          onToggleComplete={handleToggleComplete}
         />
       )}
 

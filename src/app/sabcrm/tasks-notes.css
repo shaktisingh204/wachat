@@ -34,9 +34,17 @@
   padding: var(--st-space-3, 12px);
 }
 
+/* Head row: completion checkbox + title link, aligned to the top. */
+.stn-card-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2, 8px);
+}
+
 /* Title row: a record link that fills the card head. */
 .stn-card-title {
   display: block;
+  flex: 1 1 auto;
   font-size: var(--st-font-size-sm);
   font-weight: 600;
   line-height: 1.35;
@@ -45,6 +53,74 @@
 }
 .stn-card-title:hover {
   text-decoration: underline;
+}
+/* Completed task title — Twenty strikes it through and mutes it. */
+.stn-card-title.is-done {
+  color: var(--st-text-tertiary);
+  text-decoration: line-through;
+}
+
+/* =========================================================================
+   Completion checkbox (Twenty TaskRow rounded checkbox)
+   ========================================================================= */
+.stn-check {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  padding: 0;
+  border: 1.5px solid var(--st-border-strong, var(--st-border));
+  border-radius: 5px;
+  background: var(--st-bg);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.stn-check:hover:not(:disabled) {
+  border-color: var(--st-accent);
+}
+.stn-check.is-done {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+.stn-check:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+.stn-check:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+/* Table completion cell — keep it narrow + centred. */
+.stn-check-cell {
+  width: 32px;
+  text-align: center;
+}
+
+/* Completed task in the table — strike + mute, matching the board. */
+.stn-cell-done {
+  color: var(--st-text-tertiary) !important;
+  text-decoration: line-through;
+}
+
+/* =========================================================================
+   Overdue due-date styling (Twenty colours a past due date in danger red)
+   ========================================================================= */
+.stn-card-meta.is-overdue,
+.stn-card-meta.is-overdue .stn-card-meta__label,
+.stn-due-overdue {
+  color: var(--stn-danger, #c0392b);
+}
+.stn-overdue-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--stn-danger, #c0392b);
 }
 
 /* A single key→value meta line on a task card (due date, assignee…). */
@@ -109,8 +185,88 @@
   color: var(--st-text-tertiary);
 }
 
+/* A plain text column title (the "My Tasks" board uses this instead of a chip). */
+.stn-board__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: 600;
+  color: var(--st-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* =========================================================================
-   Notes feed — card list + composer
+   Notes grid — Twenty NoteList / NoteTile parity (fixed-height card tiles)
+   ========================================================================= */
+
+/* Responsive grid of equal-height note tiles, matching Twenty's NoteList. */
+.stn-notes-grid {
+  display: grid;
+  gap: var(--st-space-4, 16px);
+  grid-auto-rows: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* One note tile — a clickable card with a title and a clamped body preview. */
+.stn-note-tile {
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  text-decoration: none;
+  overflow: hidden;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.stn-note-tile:hover {
+  border-color: var(--st-accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.stn-note-tile__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2, 8px);
+  padding: var(--st-space-4, 16px);
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.stn-note-tile__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  font-weight: 600;
+  color: var(--st-text);
+}
+.stn-note-tile__title svg {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+}
+.stn-note-tile__title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stn-note-tile__content {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.55;
+  color: var(--st-text-secondary);
+  white-space: pre-line;
+  word-break: break-word;
+  overflow: hidden;
+  /* Clamp the preview to a handful of lines, Twenty-style. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+}
+
+/* =========================================================================
+   Notes feed — legacy composer + flat list (kept for back-compat)
    ========================================================================= */
 
 /* Wrapper that pads + frames the global notes timeline like a Twenty panel. */

@@ -203,6 +203,108 @@ function coerceFilterValue(raw: string): string | number {
   return Number.isNaN(n) ? raw : n;
 }
 
+// ---------------------------------------------------------------------------
+// Client-side filter matcher (used for the grouped / board path)
+// ---------------------------------------------------------------------------
+//
+// The flat-table list goes through the engine's structured `filters`, but the
+// `group` endpoint does not accept a filter/search predicate. To keep the
+// Board (and grouped table) honest with the active Filter / search, the page
+// fetches the groups and then narrows them with this matcher — the exact same
+// operator semantics the engine applies, evaluated against `record.data`.
+
+/** Whether a raw cell value is "empty" for the `isEmpty` / `isNotEmpty` ops. */
+function isEmptyValue(v: unknown): boolean {
+  if (v === null || v === undefined) return true;
+  if (typeof v === 'string') return v.trim() === '';
+  if (Array.isArray(v)) return v.length === 0;
+  return false;
+}
+
+/** Evaluate one leaf condition against a record's raw cell value. */
+function matchLeaf(cell: unknown, c: FilterCondition): boolean {
+  switch (c.op) {
+    case 'isEmpty':
+      return isEmptyValue(cell);
+    case 'isNotEmpty':
+      return !isEmptyValue(cell);
+    default:
+      break;
+  }
+
+  const want = coerceFilterValue(c.value ?? '');
+
+  // Multi-value cells (e.g. MULTI_SELECT) match when any member matches.
+  if (Array.isArray(cell)) {
+    return cell.some((m) => matchLeaf(m, c));
+  }
+
+  if (c.op === 'contains') {
+    return String(cell ?? '')
+      .toLowerCase()
+      .includes(String(want).toLowerCase());
+  }
+
+  // Numeric comparison when both sides parse as numbers, else lexical.
+  const cellNum = typeof cell === 'number' ? cell : Number(cell);
+  const wantNum = typeof want === 'number' ? want : Number(want);
+  const numeric =
+    !Number.isNaN(cellNum) &&
+    !Number.isNaN(wantNum) &&
+    cell !== null &&
+    cell !== undefined &&
+    String(cell).trim() !== '';
+
+  switch (c.op) {
+    case 'eq':
+      return numeric
+        ? cellNum === wantNum
+        : String(cell ?? '') === String(want);
+    case 'ne':
+      return numeric
+        ? cellNum !== wantNum
+        : String(cell ?? '') !== String(want);
+    case 'gt':
+      return numeric
+        ? cellNum > wantNum
+        : String(cell ?? '') > String(want);
+    case 'lt':
+      return numeric
+        ? cellNum < wantNum
+        : String(cell ?? '') < String(want);
+    case 'gte':
+      return numeric
+        ? cellNum >= wantNum
+        : String(cell ?? '') >= String(want);
+    case 'lte':
+      return numeric
+        ? cellNum <= wantNum
+        : String(cell ?? '') <= String(want);
+    default:
+      return true;
+  }
+}
+
+/**
+ * Evaluate a whole {@link FilterGroup} (with AND/OR + nested sub-groups)
+ * against a record's `data` map. An empty group matches everything.
+ */
+export function recordMatchesFilters(
+  data: Record<string, unknown> | undefined,
+  group: FilterGroup,
+): boolean {
+  if (group.conditions.length === 0) return true;
+  const d = data ?? {};
+  const results = group.conditions.map((node) =>
+    isFilterGroup(node)
+      ? recordMatchesFilters(d, node)
+      : matchLeaf(d[node.fieldKey], node),
+  );
+  return group.op === 'or'
+    ? results.some(Boolean)
+    : results.every(Boolean);
+}
+
 const FILTER_OPS: ReadonlySet<string> = new Set<string>([
   'eq',
   'ne',

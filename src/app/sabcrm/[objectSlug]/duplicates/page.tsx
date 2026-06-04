@@ -289,7 +289,9 @@ export default function SabcrmDuplicatesPage(): React.JSX.Element {
       setScannedField(null);
       return;
     }
-    setResult(res.data as DuplicateScanResult);
+    // `findDuplicateRecordsTw` resolves to a bare `SabcrmRecordDuplicateGroup[]`
+    // — wrap it in the local `{ groups }` envelope the render reads from.
+    setResult({ groups: res.data as DuplicateGroup[] });
     setScannedField(fieldAtScan);
   }, [object, selectedField, scanning, objectSlug, activeProjectId]);
 

@@ -294,6 +294,21 @@
   background: var(--st-text-tertiary);
 }
 
+/* ---- Settings-engine offline notice (in the page intro) ---------------- */
+/* The base `--st-*` set has no semantic danger colour, so it's mapped locally
+   and re-mapped for dark mode to stay legible on the settings surface. */
+.sabcrm-twenty .st-accounts-offline {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+  color: #b3261e;
+}
+
+.sabcrm-twenty.st-theme-dark .st-accounts-offline {
+  color: #f3777a;
+}
+
 /* ---- Narrow viewports -------------------------------------------------- */
 /* Stack the connect-form input + buttons and the account head row so nothing
    overflows on a ~380px column. */

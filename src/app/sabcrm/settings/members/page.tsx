@@ -628,7 +628,7 @@ export default function SabcrmMembersSettingsPage(): React.JSX.Element {
     setInvitesLoading(true);
     setInvitesError(null);
     try {
-      const res = await listInvitesTw({ status: 'pending' }, projectId);
+      const res = await listInvitesTw({ status: 'pending', projectId });
       if (res.ok) {
         setInvites(res.data as CrmInvite[]);
       } else {

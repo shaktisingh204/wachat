@@ -1,32 +1,38 @@
 'use client';
 
 /**
- * SabCRM — "My Tasks" interactive board (client).
+ * SabCRM — "My Tasks" interactive board (client), Twenty-faithful.
  *
- * Renders the signed-in member's assigned tasks in three status columns
- * (To do / In progress / Done) and owns the two interactions the page needs:
+ * Renders a member's assigned tasks in three status columns
+ * (To do / In progress / Done) and owns the interactions the surface needs:
  *
- *   1. Inline status change — a black-&-white ZoruUI segmented control that
- *      patches `record.data.status` through the gated {@link updateRecordAction}
- *      (a `sabcrm:manage` record write). Optimistic via `useTransition`; on
- *      success we `router.refresh()` so the server re-buckets the task, on
- *      failure we surface the action's `{ ok: false, error }` inline and revert.
- *   2. Open source record — a link to the record detail route
- *      `/sabcrm/<object>/<id>`.
+ *   1. Completion checkbox — Twenty's rounded checkbox toggles a task between
+ *      DONE and TODO, persisting through the gated {@link updateSabcrmRecordTw}
+ *      record write. Optimistic via `useTransition`; on failure we revert and
+ *      surface the action's `{ ok: false, error }` inline.
+ *   2. Inline status change — a `<select>` matching the top-level Tasks board.
+ *   3. Open source record — a link to `/sabcrm/<object>/<id>`.
  *
- * No bespoke design: everything is composed from `@/components/zoruui`
- * primitives and namespaced `--zoru-*` tokens (matching the sibling
- * `../page.tsx`). There are no file inputs on this surface, so no SabFiles
- * picker is needed.
+ * Design system: ONLY the `.sabcrm-twenty` kit (`.st-*` / `.stn-*` classes +
+ * the co-located `../tasks-notes.css`) — NO ZoruUI / Tailwind / clay. There are
+ * no file inputs on this surface, so no SabFiles picker is needed.
+ *
+ * NOTE: this is a reusable board component (exported as {@link MyTasksBoard});
+ * the route itself is rendered by the sibling `./page.tsx`.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { Loader2, Check, CalendarClock } from 'lucide-react';
 
-import { updateRecordAction } from '@/app/actions/sabcrm.actions';
-import type { TaskStatus } from '@/lib/sabcrm/activities.server';
-import { Badge, Button, Card, cn } from '@/components/zoruui';
+import { updateSabcrmRecordTw } from '@/app/actions/sabcrm-twenty.actions';
+import { useProject } from '@/context/project-context';
+
+import '@/styles/sabcrm-twenty.css';
+import '../tasks-notes.css';
+
+/** The three task statuses (kept local — no server-module import in a client). */
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE';
 
 /** A serialisable, client-safe view of one assigned task record. */
 export interface AssignedTask {
@@ -54,12 +60,6 @@ const COLUMNS: ReadonlyArray<{ status: TaskStatus; label: string }> = [
   { status: 'DONE', label: 'Done' },
 ];
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
-  TODO: 'To do',
-  IN_PROGRESS: 'In progress',
-  DONE: 'Done',
-};
-
 /** Formats an ISO date for the due-date chip; returns null when unparseable. */
 function formatDue(iso: string | null): string | null {
   if (!iso) return null;
@@ -81,19 +81,17 @@ function isOverdue(iso: string | null, status: TaskStatus): boolean {
 }
 
 /**
- * One task card: title, optional body, due-date chip, an inline status
- * segmented control and an "Open record" link.
+ * One task card: a completion checkbox, title, optional body, due-date meta,
+ * an inline status `<select>` and an "Open record" link.
  */
 function TaskCard({ task }: { task: AssignedTask }) {
-  const router = useRouter();
+  const { activeProjectId } = useProject();
   const [pending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
-  // Optimistic status so the control reflects the click before the refresh.
-  const [optimisticStatus, setOptimisticStatus] = React.useState<TaskStatus>(
-    task.status,
-  );
+  // Optimistic status so the controls reflect the click before the round-trip.
+  const [optimisticStatus, setOptimisticStatus] = React.useState<TaskStatus>(task.status);
 
-  // Re-sync if the server hands us a fresh status after a refresh.
+  // Re-sync if the parent hands us a fresh status.
   React.useEffect(() => {
     setOptimisticStatus(task.status);
   }, [task.status]);
@@ -105,133 +103,108 @@ function TaskCard({ task }: { task: AssignedTask }) {
       setError(null);
       setOptimisticStatus(next);
       startTransition(async () => {
-        const res = await updateRecordAction(task.id, { status: next });
+        const res = await updateSabcrmRecordTw(
+          task.object,
+          task.id,
+          { status: next },
+          activeProjectId ?? undefined,
+        );
         if (!res.ok) {
           setOptimisticStatus(previous);
           setError(res.error);
-          return;
         }
-        // Server re-buckets the task into its new column.
-        router.refresh();
       });
     },
-    [optimisticStatus, pending, task.id, router],
+    [optimisticStatus, pending, task.id, task.object, activeProjectId],
   );
 
+  const done = optimisticStatus === 'DONE';
   const due = formatDue(task.dueAt);
   const overdue = isOverdue(task.dueAt, optimisticStatus);
 
   return (
-    <Card variant="soft" className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm font-semibold leading-snug text-zoru-ink">
-          {task.title}
-        </span>
-        {task.body ? (
-          <p className="line-clamp-3 text-xs leading-relaxed text-zoru-ink-muted">
-            {task.body}
-          </p>
-        ) : null}
+    <div className="st-card stn-board-card">
+      <div className="stn-card-head">
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={done}
+          aria-label={done ? 'Mark task as to do' : 'Mark task as done'}
+          disabled={pending}
+          className={`stn-check${done ? ' is-done' : ''}`}
+          onClick={() => changeStatus(done ? 'TODO' : 'DONE')}
+        >
+          {done ? <Check size={11} strokeWidth={3} aria-hidden="true" /> : null}
+        </button>
+        <Link
+          href={`/sabcrm/${task.object}/${task.id}`}
+          className={`stn-card-title${done ? ' is-done' : ''}`}
+        >
+          {task.title || 'Untitled task'}
+        </Link>
       </div>
 
+      {task.body ? <p className="stn-note__body">{task.body}</p> : null}
+
       {due ? (
-        <div className="flex items-center gap-2">
-          <Badge variant={overdue ? 'info' : 'secondary'}>
-            {overdue ? 'Overdue' : 'Due'} {due}
-          </Badge>
+        <div className={`stn-card-meta${overdue ? ' is-overdue' : ''}`}>
+          <span className="stn-card-meta__label">
+            <CalendarClock size={13} aria-hidden="true" />
+          </span>
+          {due}
+          {overdue ? <span className="stn-overdue-tag">Overdue</span> : null}
         </div>
       ) : null}
 
-      {/* Inline status change — segmented control built from base Buttons. */}
-      <div
-        role="group"
-        aria-label="Task status"
-        className="flex flex-wrap items-center gap-1.5"
-      >
-        {COLUMNS.map(({ status, label }) => {
-          const active = status === optimisticStatus;
-          return (
-            <Button
-              key={status}
-              type="button"
-              disabled={pending}
-              aria-pressed={active}
-              onClick={() => changeStatus(status)}
-              className={cn(
-                'h-7 rounded-md px-2.5 text-xs font-medium',
-                active
-                  ? 'bg-zoru-ink text-zoru-surface'
-                  : 'bg-transparent text-zoru-ink-muted ring-1 ring-inset ring-zoru-border hover:text-zoru-ink',
-                pending && 'opacity-70',
-              )}
-            >
-              {label}
-            </Button>
-          );
-        })}
-      </div>
-
-      {error ? (
-        <p className="text-xs leading-relaxed text-zoru-ink" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <div className="mt-auto flex items-center justify-between gap-3 pt-1">
-        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-          {STATUS_LABEL[optimisticStatus]}
-        </span>
-        <Link
-          href={`/sabcrm/${task.object}/${task.id}`}
-          aria-label={`Open ${task.title}`}
-          className="text-xs font-medium text-zoru-ink underline-offset-2 hover:underline"
+      <div className="stn-card-foot">
+        <select
+          className="stn-status-select"
+          value={optimisticStatus}
+          disabled={pending}
+          aria-label="Task status"
+          onChange={(e) => changeStatus(e.target.value as TaskStatus)}
         >
-          Open record
-        </Link>
+          {COLUMNS.map(({ status, label }) => (
+            <option key={status} value={status}>
+              {label}
+            </option>
+          ))}
+        </select>
+        <span className="stn-card-foot__status">
+          {pending ? (
+            <span className="stn-card-busy">
+              <Loader2 size={13} className="st-spin" />
+            </span>
+          ) : null}
+        </span>
       </div>
-    </Card>
+
+      {error ? <span className="stn-inline-error">{error}</span> : null}
+    </div>
   );
 }
 
 /** One status column with its header count and stacked task cards. */
-function StatusColumn({
-  label,
-  tasks,
-}: {
-  label: string;
-  tasks: AssignedTask[];
-}) {
+function StatusColumn({ label, tasks }: { label: string; tasks: AssignedTask[] }) {
   return (
-    <section className="flex flex-col gap-3" aria-label={label}>
-      <div className="flex items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold text-zoru-ink">{label}</h2>
-        <span className="text-xs tabular-nums text-zoru-ink-muted">
-          {tasks.length}
-        </span>
+    <div className="st-board__col" aria-label={label}>
+      <div className="st-board__head">
+        <span className="stn-board__title">{label}</span>
+        <span className="st-board__count">{tasks.length}</span>
       </div>
-
-      {tasks.length === 0 ? (
-        <Card
-          variant="soft"
-          className="items-center justify-center py-8 text-center"
-        >
-          <span className="text-xs text-zoru-ink-muted">No tasks</span>
-        </Card>
-      ) : (
-        <ul className="flex list-none flex-col gap-3 p-0">
-          {tasks.map((task) => (
-            <li key={task.id}>
-              <TaskCard task={task} />
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+      <div className="st-board__body">
+        {tasks.length === 0 ? (
+          <div className="st-board__empty">No tasks</div>
+        ) : (
+          tasks.map((task) => <TaskCard key={task.id} task={task} />)
+        )}
+      </div>
+    </div>
   );
 }
 
 export function MyTasksBoard({ tasks }: MyTasksBoardProps) {
-  // Bucket tasks by status once, preserving the server's newest-updated order.
+  // Bucket tasks by status once, preserving the parent's order.
   const byStatus = React.useMemo(() => {
     const buckets: Record<TaskStatus, AssignedTask[]> = {
       TODO: [],
@@ -243,10 +216,12 @@ export function MyTasksBoard({ tasks }: MyTasksBoardProps) {
   }, [tasks]);
 
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <div className="st-board">
       {COLUMNS.map(({ status, label }) => (
         <StatusColumn key={status} label={label} tasks={byStatus[status]} />
       ))}
     </div>
   );
 }
+
+export default MyTasksBoard;

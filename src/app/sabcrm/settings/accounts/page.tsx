@@ -20,10 +20,15 @@
  *      a Disconnect action and two UI-only toggles (Email sync / Calendar sync)
  *      that persist their on/off state but do nothing else.
  *
- * Persistence is a simple localStorage list (no server, no real OAuth). All
- * state is per-browser. Graceful states: a hydration-safe initial render, an
- * empty state when nothing is connected, and the permanent "engine offline"
- * status so the UI never lies about syncing.
+ * Persistence: the placeholder account list is mirrored to the gated CRM
+ * settings document on the backend (via `useSettingsSync('accounts', …)` → the
+ * `getCrmSettingsTw` / `updateCrmSettingsTw` server actions) AND a local
+ * localStorage cache, so the list follows the user across devices while the page
+ * never blocks. When the Rust settings engine is down it degrades to the
+ * per-browser cache. No real OAuth or mailbox contact happens either way.
+ * Graceful states: a hydration-safe initial render, an empty state when nothing
+ * is connected, and the permanent "engine offline" sync status so the UI never
+ * lies about syncing.
  */
 
 import * as React from 'react';
@@ -41,6 +46,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
@@ -106,11 +112,19 @@ const STORAGE_KEY = 'sabcrm.settings.accounts.v1';
 // localStorage in an effect so the markup matches between server and client.
 // ---------------------------------------------------------------------------
 
+/** Coerce the raw server slice into a clean account list (or null). */
+function coerceAccounts(raw: unknown): ConnectedAccount[] | null {
+  if (!Array.isArray(raw)) return null;
+  const list = raw.filter(isAccount);
+  return list;
+}
+
 function useConnectedAccounts() {
   const [accounts, setAccounts] = React.useState<ConnectedAccount[]>([]);
   const [hydrated, setHydrated] = React.useState(false);
+  const sync = useSettingsSync<ConnectedAccount[]>('accounts', coerceAccounts);
 
-  // Initial load from localStorage.
+  // Initial load from localStorage (instant), reconciled by the server below.
   React.useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -127,7 +141,14 @@ function useConnectedAccounts() {
     }
   }, []);
 
+  // When the server resolves a stored list, adopt it as the source of truth.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setAccounts(sync.remote);
+  }, [sync.phase, sync.remote]);
+
   // Persist on every change (once hydrated, so we never clobber on first paint).
+  // Mirrors to localStorage instantly and to the server (fire-and-forget).
   React.useEffect(() => {
     if (!hydrated) return;
     try {
@@ -137,37 +158,64 @@ function useConnectedAccounts() {
     }
   }, [accounts, hydrated]);
 
-  const add = React.useCallback((provider: ProviderId, email: string) => {
-    setAccounts((prev) => [
-      {
-        id:
-          typeof crypto !== 'undefined' && 'randomUUID' in crypto
-            ? crypto.randomUUID()
-            : `acct_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        provider,
-        email,
-        emailSync: true,
-        calendarSync: provider !== 'imap',
-        connectedAt: new Date().toISOString(),
-      },
-      ...prev,
-    ]);
-  }, []);
+  // Save a fully-resolved list to the server (kept out of the localStorage
+  // effect so the server write happens only on real mutations, not on adopt).
+  const persist = React.useCallback(
+    (next: ConnectedAccount[]) => {
+      void sync.save(next);
+    },
+    [sync],
+  );
 
-  const remove = React.useCallback((id: string) => {
-    setAccounts((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+  const add = React.useCallback(
+    (provider: ProviderId, email: string) => {
+      setAccounts((prev) => {
+        const next = [
+          {
+            id:
+              typeof crypto !== 'undefined' && 'randomUUID' in crypto
+                ? crypto.randomUUID()
+                : `acct_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            provider,
+            email,
+            emailSync: true,
+            calendarSync: provider !== 'imap',
+            connectedAt: new Date().toISOString(),
+          },
+          ...prev,
+        ];
+        persist(next);
+        return next;
+      });
+    },
+    [persist],
+  );
+
+  const remove = React.useCallback(
+    (id: string) => {
+      setAccounts((prev) => {
+        const next = prev.filter((a) => a.id !== id);
+        persist(next);
+        return next;
+      });
+    },
+    [persist],
+  );
 
   const toggle = React.useCallback(
     (id: string, key: 'emailSync' | 'calendarSync') => {
-      setAccounts((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, [key]: !a[key] } : a)),
-      );
+      setAccounts((prev) => {
+        const next = prev.map((a) =>
+          a.id === id ? { ...a, [key]: !a[key] } : a,
+        );
+        persist(next);
+        return next;
+      });
     },
-    [],
+    [persist],
   );
 
-  return { accounts, hydrated, add, remove, toggle };
+  return { accounts, hydrated, offline: sync.phase === 'offline', add, remove, toggle };
 }
 
 function isAccount(v: unknown): v is ConnectedAccount {
@@ -304,7 +352,8 @@ function ConnectForm({
 // ---------------------------------------------------------------------------
 
 export default function SabcrmAccountsSettingsPage(): React.JSX.Element {
-  const { accounts, hydrated, add, remove, toggle } = useConnectedAccounts();
+  const { accounts, hydrated, offline, add, remove, toggle } =
+    useConnectedAccounts();
   const [connecting, setConnecting] = React.useState<ProviderId | null>(null);
 
   const handleConnect = React.useCallback(
@@ -323,8 +372,14 @@ export default function SabcrmAccountsSettingsPage(): React.JSX.Element {
           Connect the email and calendar accounts you want SabCRM to sync —
           messages, meetings and contacts flow in once an account is linked.
           Real provider OAuth and the sync engine aren&apos;t available yet, so
-          connecting here creates a local placeholder you can preview. Accounts
-          are stored in this browser only.
+          connecting here creates a placeholder you can preview. Placeholders are
+          saved to your workspace so they follow you across devices.
+          {offline ? (
+            <span className="st-accounts-offline" role="status">
+              The settings service is offline — accounts are kept in this browser
+              only for now.
+            </span>
+          ) : null}
         </p>
 
         {/* ---- Connect account ---- */}

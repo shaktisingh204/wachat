@@ -120,6 +120,23 @@
   min-height: 104px;
   padding: var(--st-space-1) 5px 6px;
   background: var(--st-bg);
+  cursor: pointer;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.cal-day:hover {
+  background: var(--st-bg-secondary);
+}
+
+.cal-day:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+
+/* The day whose records populate the detail panel below the grid. */
+.cal-day--selected {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--st-accent);
 }
 
 .cal-day + .cal-day {
@@ -171,7 +188,9 @@
 }
 
 .cal-event {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   max-width: 100%;
   padding: 2px 6px;
   border-radius: var(--st-radius-sm);
@@ -181,11 +200,16 @@
   line-height: 1.35;
   font-weight: 500;
   text-decoration: none;
+  border: 1px solid transparent;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.cal-event__label {
+  flex: 1 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  border: 1px solid transparent;
-  transition: border-color 0.12s ease, background 0.12s ease;
 }
 
 .cal-event:hover {
@@ -208,6 +232,95 @@
 .cal-more:hover {
   color: var(--st-text);
   text-decoration: underline;
+}
+
+/* ---- Selected-day detail panel ----------------------------------------- */
+/* Twenty's calendar always has a "selected date" driving a panel of that day's
+   records; clicking a day cell populates this below the month grid. */
+
+.cal-detail {
+  margin-top: var(--st-space-4);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.cal-detail__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border-light);
+  color: var(--st-text-secondary);
+}
+
+.cal-detail__title {
+  font-size: var(--st-font-size);
+  font-weight: 600;
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+}
+
+.cal-detail__sub {
+  margin-left: auto;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+
+.cal-detail__empty {
+  padding: var(--st-space-6) var(--st-space-4);
+  text-align: center;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+}
+
+.cal-detail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cal-detail__row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-2) var(--st-space-4);
+}
+
+.cal-detail__row + .cal-detail__row {
+  border-top: 1px solid var(--st-border-light);
+}
+
+.cal-detail__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+  flex: 1 1 auto;
+  text-decoration: none;
+  color: var(--st-text);
+}
+
+.cal-detail__link:hover .cal-detail__name {
+  color: var(--st-accent);
+}
+
+.cal-detail__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--st-font-size-sm);
+  font-weight: 500;
+  transition: color 0.12s ease;
+}
+
+.cal-detail__when {
+  flex: 0 0 auto;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  white-space: nowrap;
 }
 
 /* ---- Footer note -------------------------------------------------------- */

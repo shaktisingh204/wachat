@@ -17,9 +17,14 @@
  *                       else a curated subset), previewed against "now".
  *   - First day of week — Sunday / Monday / Saturday.
  *
- * All choices persist via `useL10nPrefs` (localStorage). The page renders a
- * skeleton until hydrated, and every `Intl` call is guarded so an unsupported
- * locale / zone degrades to a readable fallback rather than throwing.
+ * Choices persist to BOTH the gated CRM settings document on the backend (via
+ * `useSettingsSync('localization', …)` → the `getCrmSettingsTw` /
+ * `updateCrmSettingsTw` server actions) AND the local `useL10nPrefs` cache, so a
+ * user's regional setup follows them across devices while the page never blocks.
+ * When the Rust settings engine is down the page degrades to the device-local
+ * cache and shows an "offline" note. The page renders a skeleton until hydrated,
+ * and every `Intl` call is guarded so an unsupported locale / zone degrades to a
+ * readable fallback rather than throwing.
  */
 
 import * as React from 'react';
@@ -33,11 +38,22 @@ import {
   type L10nTimeFormat,
   type L10nFirstDayOfWeek,
 } from './use-l10n-prefs';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import '../profile/profile.css';
 import './localization.css';
+
+/**
+ * Narrow the raw stored value into a usable localization slice. Only requires an
+ * object — `useL10nPrefs.setPrefs` merges field-by-field and the hook's own
+ * sanitizing read coerces individual fields, so partial payloads are safe.
+ */
+function coerceL10n(raw: unknown): Partial<L10nPrefs> | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  return raw as Partial<L10nPrefs>;
+}
 
 /* -------------------------------------------------------------------------
    Static option tables
@@ -301,6 +317,14 @@ function Field({
 export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
   const { prefs, setPrefs, reset, hydrated } = useL10nPrefs();
   const { toast } = useToast();
+  const sync = useSettingsSync<Partial<L10nPrefs>>('localization', coerceL10n);
+
+  // Adopt the server slice (source of truth) once it resolves, merging it into
+  // the local cache (the hook re-sanitizes each field).
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setPrefs(sync.remote);
+  }, [sync.phase, sync.remote, setPrefs]);
 
   // Resolve the timezone list once: prefer the full IANA set when the runtime
   // exposes `Intl.supportedValuesOf`, otherwise fall back to a curated subset.
@@ -332,17 +356,23 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
   const patch = React.useCallback(
     (next: Partial<L10nPrefs>) => {
       setPrefs(next);
+      // Persist the fully-resolved slice to the server (fire-and-forget; local
+      // cache already updated synchronously, so the UI is never blocked).
+      void sync.save({ ...prefs, ...next });
     },
-    [setPrefs],
+    [setPrefs, sync, prefs],
   );
 
   const handleReset = React.useCallback(() => {
     reset();
+    // Clear the server slice too so the reset sticks across devices; an empty
+    // object is normalized back to defaults on read.
+    void sync.save({});
     toast({
       title: 'Localization reset',
       description: 'Regional and formatting preferences restored to defaults.',
     });
-  }, [reset, toast]);
+  }, [reset, sync, toast]);
 
   // Derive every preview from the current prefs (cheap; recomputed per render).
   const datePreview = previewDate(prefs);
@@ -358,8 +388,14 @@ export default function SabcrmLocalizationSettingsPage(): React.JSX.Element {
         <TwentyPageHeader title="Localization" icon={Languages} />
         <p className="st-settings__intro">
           Choose how dates, times, numbers and currencies are displayed in
-          SabCRM. Each preview updates live. These preferences are stored on
-          this device.
+          SabCRM. Each preview updates live. Saved to your workspace so your
+          regional setup follows you across devices.
+          {sync.phase === 'offline' ? (
+            <span className="st-form-status st-form-status--err" style={{ display: 'block', marginTop: 4 }}>
+              The settings service is offline — changes are kept on this device
+              for now.
+            </span>
+          ) : null}
         </p>
 
         {!hydrated ? (

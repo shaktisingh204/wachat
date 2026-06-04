@@ -174,6 +174,12 @@ export interface UseNotifPrefsResult {
     channel: NotifChannel,
     next: boolean,
   ) => void;
+  /**
+   * Replace the whole preference set from an arbitrary (e.g. server-sourced)
+   * payload, running it through {@link normalize} so partial / older shapes are
+   * coerced to the current event catalogue. Persists to the local cache.
+   */
+  replace: (raw: unknown) => void;
   /** Restore every preference to its default. */
   reset: () => void;
   /** True once the client has hydrated from localStorage (avoids SSR flash). */
@@ -230,9 +236,16 @@ export function useNotifPrefs(): UseNotifPrefsResult {
     [],
   );
 
+  const replace = React.useCallback(
+    (raw: unknown) => {
+      commit(normalize(raw));
+    },
+    [commit],
+  );
+
   const reset = React.useCallback(() => {
     commit(buildDefaults());
   }, [commit]);
 
-  return { prefs, setMuteAll, setChannel, reset, hydrated };
+  return { prefs, setMuteAll, setChannel, replace, reset, hydrated };
 }

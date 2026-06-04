@@ -49,6 +49,7 @@ import {
   EMPTY_VIEW_STATE,
   viewStateToEngineFilters,
   countConditions,
+  recordMatchesFilters,
   type ViewState,
 } from './view-bar';
 import { SabcrmBulkBar } from './bulk-bar';
@@ -2294,6 +2295,8 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setAggregateLoading(true);
 
     const metric: AggregateMetric = metricField ? 'sum' : 'count';
+    const aggFilters = viewStateToEngineFilters(viewState);
+    const hasAggFilters = Object.keys(aggFilters).length > 0;
     (async () => {
       try {
         const res = await aggregateSabcrmRecordsTw(
@@ -2302,6 +2305,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
             groupByField: aggGroupField.key,
             metric,
             metricField: metricField?.key,
+            filters: hasAggFilters ? aggFilters : undefined,
           },
           activeProjectId ?? undefined,
         );
@@ -2320,7 +2324,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [objectSlug, aggGroupField, metricField, activeProjectId, refreshTick]);
+  }, [objectSlug, aggGroupField, metricField, viewState, activeProjectId, refreshTick]);
 
   // Load records / board whenever the query changes.
   React.useEffect(() => {
@@ -2846,6 +2850,62 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     [metricField],
   );
 
+  // The `group` engine endpoint can't take a filter / search / sort predicate,
+  // so the Board (and grouped table) would otherwise ignore the active Filter,
+  // search box, and Sort. We narrow + order the fetched groups client-side here
+  // with the SAME operator semantics the flat list uses (`recordMatchesFilters`
+  // + a free-text scan + the view-bar sort), so every view stays consistent.
+  const displayGroups = React.useMemo<SabcrmRecordTwGroup[]>(() => {
+    if (!grouped || !object) return groups;
+
+    const hasFilters = countConditions(viewState.filters) > 0;
+    const q = search.trim().toLowerCase();
+    const sortKey = viewState.sortBy;
+    const dir = viewState.sortDir === 'desc' ? -1 : 1;
+
+    // A record matches the free-text query when ANY of its scalar field values
+    // contains it (mirrors the engine's `q` across text-ish fields).
+    const matchesSearch = (rec: SabcrmRustRecord): boolean => {
+      if (!q) return true;
+      const data = rec.data ?? {};
+      for (const v of Object.values(data)) {
+        if (v === null || v === undefined) continue;
+        if (typeof v === 'object') continue; // skip arrays / nested blobs
+        if (String(v).toLowerCase().includes(q)) return true;
+      }
+      // Fall back to the record's display label too.
+      return recordLabel(object, rec).toLowerCase().includes(q);
+    };
+
+    const cmp = (a: SabcrmRustRecord, b: SabcrmRustRecord): number => {
+      if (!sortKey) return 0;
+      const av = a.data?.[sortKey];
+      const bv = b.data?.[sortKey];
+      // Nulls sort last regardless of direction.
+      const an = av === null || av === undefined || av === '';
+      const bn = bv === null || bv === undefined || bv === '';
+      if (an && bn) return 0;
+      if (an) return 1;
+      if (bn) return -1;
+      const aNum = typeof av === 'number' ? av : Number(av);
+      const bNum = typeof bv === 'number' ? bv : Number(bv);
+      if (!Number.isNaN(aNum) && !Number.isNaN(bNum)) {
+        return (aNum - bNum) * dir;
+      }
+      return String(av).localeCompare(String(bv)) * dir;
+    };
+
+    return groups.map((g) => {
+      let recs = g.records;
+      if (hasFilters) {
+        recs = recs.filter((r) => recordMatchesFilters(r.data, viewState.filters));
+      }
+      if (q) recs = recs.filter(matchesSearch);
+      if (sortKey) recs = [...recs].sort(cmp);
+      return recs === g.records ? g : { ...g, records: recs };
+    });
+  }, [grouped, groups, viewState.filters, viewState.sortBy, viewState.sortDir, search, object]);
+
   // The columns the board renders. Two modes:
   //
   //   - PIPELINE (a pipeline is chosen): one column per stage, in stage order,
@@ -2862,7 +2922,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
       // be matched to a stage by id or label.
       const norm = (v: unknown): string =>
         v === null || v === undefined ? '' : String(v).trim().toLowerCase();
-      const allRecords = groups.flatMap((g) => g.records);
+      const allRecords = displayGroups.flatMap((g) => g.records);
       // Build a lookup from a normalized stage token → stage id, so a record
       // whose field holds either the id or the label resolves to the stage.
       const tokenToStageId = new Map<string, string>();
@@ -2913,7 +2973,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     }
 
     // Default behavior: map the engine groups 1:1 (no amount pill, no rail).
-    return groups.map((group) => {
+    return displayGroups.map((group) => {
       const opt =
         group.value === null
           ? undefined
@@ -2926,7 +2986,7 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
         records: group.records,
       };
     });
-  }, [pipelineActive, selectedPipeline, groupField, groups, sumMetric]);
+  }, [pipelineActive, selectedPipeline, groupField, displayGroups, sumMetric]);
 
   // Optimistic apply/remove of a tag on a record. Persists the full new
   // `__tags` id list via the existing record-update action; rolls back the

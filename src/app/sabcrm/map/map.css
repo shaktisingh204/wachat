@@ -112,9 +112,40 @@
   color: var(--st-text-tertiary);
 }
 
+/* Search box for filtering the places rail (large place sets). */
+.map-places__search {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  color: var(--st-text-tertiary);
+}
+
+.map-places__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+}
+
+.map-places__search-input::placeholder {
+  color: var(--st-text-tertiary);
+}
+
 .map-places__list {
   max-height: 540px;
   overflow-y: auto;
+}
+
+.map-places__empty {
+  padding: var(--st-space-4) var(--st-space-3);
+  text-align: center;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
 }
 
 .map-place {
@@ -243,6 +274,9 @@
 }
 
 .map-record__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
   text-decoration: none;
 }
 

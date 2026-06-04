@@ -8,10 +8,13 @@
  * the affected object + a deep link to the record (when an id is present), a
  * short change summary, the actor, and a relative timestamp.
  *
- * Two lightweight filters (action type, object) re-query `listAuditTw`, which
- * re-runs the full session → project → RBAC → plan gate server-side, so the
- * page fails closed. The selects' option lists are derived from whatever the
- * engine returns so they stay in sync with the live object metadata.
+ * Two lightweight filters narrow the log. The **object** filter is honoured
+ * server-side (`listAuditTw({ object })`, which re-runs the full
+ * session → project → RBAC → plan gate so the page fails closed). The
+ * **action** filter is applied client-side over the returned page, because the
+ * audit engine only filters by object / record / limit — the action verb is
+ * free-form and classified in the UI. The selects' option lists are derived
+ * from whatever the engine returns so they stay in sync with the live data.
  *
  * States: skeleton while data loads, empty log, error banner (engine down /
  * forbidden), and a graceful "no project" notice. The page degrades to the
@@ -109,6 +112,9 @@ const ALL = '__all__';
 export default function SabcrmAuditSettingsPage(): React.JSX.Element {
   const { activeProjectId, isLoadingProject } = useProject();
 
+  // `entries` holds the server page (already narrowed by the object filter when
+  // set). The action filter is applied client-side below — the audit engine
+  // doesn't filter on the free-form action verb.
   const [entries, setEntries] = React.useState<SabcrmRustAuditEntry[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -129,10 +135,12 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
 
     (async () => {
       try {
-        const res = await listAuditTw({
-          action: actionFilter === ALL ? undefined : actionFilter,
-          object: objectFilter === ALL ? undefined : objectFilter,
-        });
+        // Only the object filter is server-supported; pass the active project
+        // explicitly for parity with the sibling settings pages.
+        const res = await listAuditTw(
+          { object: objectFilter === ALL ? undefined : objectFilter },
+          activeProjectId,
+        );
         if (cancelled) return;
         if (res.ok) {
           setEntries(res.data);
@@ -151,11 +159,10 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [activeProjectId, isLoadingProject, actionFilter, objectFilter]);
+  }, [activeProjectId, isLoadingProject, objectFilter]);
 
-  // Option lists derived from the returned entries so the selects mirror the
-  // live data. (Server-side filtering already narrows results; these keep the
-  // dropdowns populated with the verbs/objects actually present.)
+  // Action options are derived from the full server page (before the client
+  // action filter) so the dropdown always lists every verb present.
   const actionOptions = React.useMemo(
     () =>
       Array.from(new Set(entries.map((e) => e.action).filter(Boolean))).sort((a, b) =>
@@ -169,6 +176,15 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
         new Set(entries.map((e) => e.object).filter((o): o is string => Boolean(o))),
       ).sort((a, b) => a.localeCompare(b)),
     [entries],
+  );
+
+  // Apply the action filter on the client — the engine returns by object only.
+  const visibleEntries = React.useMemo(
+    () =>
+      actionFilter === ALL
+        ? entries
+        : entries.filter((e) => e.action === actionFilter),
+    [entries, actionFilter],
   );
 
   const hasFilter = actionFilter !== ALL || objectFilter !== ALL;
@@ -238,7 +254,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
             <span className="st-audit-filters__spacer" />
             {!loading && !error ? (
               <span className="st-audit-filters__count">
-                {entries.length} event{entries.length !== 1 ? 's' : ''}
+                {visibleEntries.length} event{visibleEntries.length !== 1 ? 's' : ''}
                 {hasFilter ? ' (filtered)' : ''}
               </span>
             ) : null}
@@ -260,7 +276,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
             <AlertTriangle className="st-banner__icon" size={16} />
             <span>{error}</span>
           </div>
-        ) : entries.length === 0 ? (
+        ) : visibleEntries.length === 0 ? (
           <div className="st-empty">
             <span className="st-empty__icon">
               {hasFilter ? <Filter size={20} /> : <ScrollText size={20} />}
@@ -287,7 +303,7 @@ export default function SabcrmAuditSettingsPage(): React.JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((entry) => {
+                {visibleEntries.map((entry) => {
                   const rel = relativeTime(entry.createdAt);
                   const canLink = Boolean(entry.object && entry.recordId);
                   return (

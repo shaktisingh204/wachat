@@ -40,7 +40,11 @@ import {
   Database,
 } from 'lucide-react';
 
-import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  TwentyPageHeader,
+  TwentyButton,
+  TwentyAvatar,
+} from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -124,6 +128,34 @@ function recordLabel(object: ObjectMetadata, record: SabcrmRustRecord): string {
     if (typeof raw === 'number' || typeof raw === 'boolean') return String(raw);
   }
   return `${object.labelSingular} ${record.id.slice(-6)}`;
+}
+
+/**
+ * Format a parsed date for the selected-day detail panel — shows a time when the
+ * source field is a DATE_TIME and the value actually carries one, otherwise the
+ * bare day. Mirrors Twenty's calendar card, which surfaces the event time.
+ */
+function formatFieldDateTime(raw: unknown, isDateTime: boolean): string {
+  const d = parseDateValue(raw);
+  if (!d) return '';
+  if (isDateTime) {
+    const hasTime =
+      d.getHours() !== 0 || d.getMinutes() !== 0 || d.getSeconds() !== 0;
+    if (hasTime) {
+      return d.toLocaleString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      });
+    }
+  }
+  return d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 /**
@@ -218,6 +250,10 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
   // Which day cells are "expanded" past the overflow cap (by day key).
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set());
 
+  // The day whose records are shown in the detail panel below the grid. Twenty's
+  // calendar always has a "selected date" that drives a side/below panel.
+  const [selectedDay, setSelectedDay] = React.useState<string | null>(null);
+
   // ---- Load objects -------------------------------------------------------
   React.useEffect(() => {
     let cancelled = false;
@@ -274,9 +310,11 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
     }
   }, [dateFields, dateFieldKey]);
 
-  // Expanded-day state must not leak across object / field / month changes.
+  // Expanded-day + selected-day state must not leak across object / field /
+  // month changes.
   React.useEffect(() => {
     setExpanded(new Set());
+    setSelectedDay(null);
   }, [objectSlug, dateFieldKey, cursor]);
 
   // ---- Load records for the active object --------------------------------
@@ -329,6 +367,30 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
   );
 
   const todayKey = React.useMemo(() => dayKey(today), [today]);
+
+  const activeDateField = React.useMemo(
+    () => dateFields.find((f) => f.key === dateFieldKey) ?? null,
+    [dateFields, dateFieldKey],
+  );
+
+  // Records on the currently-selected day (drives the detail panel below grid).
+  const selectedRecords = React.useMemo(
+    () => (selectedDay ? buckets.get(selectedDay) ?? [] : []),
+    [selectedDay, buckets],
+  );
+
+  const selectedDayLabel = React.useMemo(() => {
+    if (!selectedDay) return '';
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(selectedDay);
+    if (!m) return selectedDay;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return d.toLocaleDateString(undefined, {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  }, [selectedDay]);
 
   // How many of the loaded records actually fall in the visible month — drives
   // the "no records this month" hint without hiding the grid.
@@ -491,10 +553,19 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                     : dayRecords.slice(0, MAX_PER_DAY);
                   const overflow = dayRecords.length - shown.length;
                   const isToday = cell.key === todayKey;
+                  const isSelected = cell.key === selectedDay;
                   return (
                     <div
                       key={cell.key}
                       role="gridcell"
+                      tabIndex={0}
+                      onClick={() => setSelectedDay(cell.key)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedDay(cell.key);
+                        }
+                      }}
                       aria-label={`${cell.date.toLocaleDateString(undefined, {
                         weekday: 'long',
                         month: 'long',
@@ -509,7 +580,9 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                       }`}
                       className={`cal-day${
                         cell.inMonth ? '' : ' cal-day--outside'
-                      }${isToday ? ' cal-day--today' : ''}`}
+                      }${isToday ? ' cal-day--today' : ''}${
+                        isSelected ? ' cal-day--selected' : ''
+                      }`}
                     >
                       <div className="cal-day__head">
                         <span className="cal-day__num" aria-hidden="true">
@@ -526,8 +599,10 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                                 href={`/sabcrm/${activeObject.slug}/${rec.id}`}
                                 className="cal-event"
                                 title={label}
+                                onClick={(e) => e.stopPropagation()}
                               >
-                                {label}
+                                <TwentyAvatar name={label} size="xs" />
+                                <span className="cal-event__label">{label}</span>
                               </Link>
                             );
                           })}
@@ -535,7 +610,10 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                             <button
                               type="button"
                               className="cal-more"
-                              onClick={() => toggleExpanded(cell.key)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpanded(cell.key);
+                              }}
                             >
                               +{overflow} more
                             </button>
@@ -544,7 +622,10 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                             <button
                               type="button"
                               className="cal-more"
-                              onClick={() => toggleExpanded(cell.key)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpanded(cell.key);
+                              }}
                             >
                               Show less
                             </button>
@@ -558,6 +639,55 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
             ))}
           </div>
 
+          {selectedDay && (
+            <div className="cal-detail" aria-live="polite">
+              <div className="cal-detail__head">
+                <CalendarDays size={15} aria-hidden="true" />
+                <span className="cal-detail__title">{selectedDayLabel}</span>
+                <span className="cal-detail__sub">
+                  {selectedRecords.length === 0
+                    ? `No ${activeObject.labelPlural.toLowerCase()}`
+                    : `${selectedRecords.length} ${
+                        selectedRecords.length === 1
+                          ? activeObject.labelSingular.toLowerCase()
+                          : activeObject.labelPlural.toLowerCase()
+                      }`}
+                </span>
+              </div>
+              {selectedRecords.length === 0 ? (
+                <div className="cal-detail__empty">
+                  Nothing scheduled on this day. Pick another day with records, or
+                  add a {activeObject.labelSingular.toLowerCase()} with a{' '}
+                  {activeDateField?.label ?? 'date'}.
+                </div>
+              ) : (
+                <ul className="cal-detail__list">
+                  {selectedRecords.map((rec) => {
+                    const label = recordLabel(activeObject, rec);
+                    const when = formatFieldDateTime(
+                      rec.data[dateFieldKey],
+                      activeDateField?.type === 'DATE_TIME',
+                    );
+                    return (
+                      <li key={rec.id} className="cal-detail__row">
+                        <Link
+                          href={`/sabcrm/${activeObject.slug}/${rec.id}`}
+                          className="cal-detail__link"
+                        >
+                          <TwentyAvatar name={label} size="sm" />
+                          <span className="cal-detail__name" title={label}>
+                            {label}
+                          </span>
+                        </Link>
+                        {when && <span className="cal-detail__when">{when}</span>}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          )}
+
           <p className="cal-note">
             {visibleCount === 0
               ? `No ${activeObject.labelPlural.toLowerCase()} with a ${
@@ -568,7 +698,9 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
                   visibleCount === 1
                     ? activeObject.labelSingular.toLowerCase()
                     : activeObject.labelPlural.toLowerCase()
-                } shown · up to ${RECORD_LIMIT} most-recent records loaded.`}
+                } shown${
+                  selectedDay ? '' : ' · select a day to see its records'
+                } · up to ${RECORD_LIMIT} most-recent records loaded.`}
           </p>
         </>
       )}

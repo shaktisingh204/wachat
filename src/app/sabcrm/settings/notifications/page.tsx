@@ -16,9 +16,14 @@
  * their stored values (just visually dimmed + disabled) so un-muting restores
  * the previous configuration exactly.
  *
- * All preferences persist locally via `useNotifPrefs` (localStorage). The page
- * is fully client-side and fails closed: a skeleton renders until the hook
- * hydrates so there is no SSR / stored-value flash.
+ * Preferences persist to BOTH the gated CRM settings document on the backend
+ * (via `useSettingsSync('notifications', …)` → the `getCrmSettingsTw` /
+ * `updateCrmSettingsTw` server actions) AND the local `useNotifPrefs` cache, so
+ * a user's notification setup follows them across devices while the page never
+ * blocks. When the Rust settings engine is down the page degrades to the
+ * device-local cache and shows an "offline" note. The page is fully client-side
+ * and fails closed: a skeleton renders until the local hook hydrates so there is
+ * no SSR / stored-value flash.
  */
 
 import * as React from 'react';
@@ -38,11 +43,23 @@ import {
   NOTIF_EVENTS,
   type NotifChannel,
   type NotifEventKey,
+  type NotifPrefs,
 } from './use-notif-prefs';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import './notifications.css';
+
+/**
+ * Narrow the raw stored value into a usable notification slice. We only require
+ * the value to be an object — `useNotifPrefs.normalize` (re-run via `replace`)
+ * does the deep coercion, so partial / older payloads are safe.
+ */
+function coerceNotif(raw: unknown): Partial<NotifPrefs> | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  return raw as Partial<NotifPrefs>;
+}
 
 // ---------------------------------------------------------------------------
 // Switch — native <button role="switch"> for accessibility, namespaced styling
@@ -96,12 +113,31 @@ function TableSkeleton({ rows = 5 }: { rows?: number }): React.JSX.Element {
 // ---------------------------------------------------------------------------
 
 export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
-  const { prefs, setMuteAll, setChannel, reset, hydrated } = useNotifPrefs();
+  const { prefs, setMuteAll, setChannel, replace, reset, hydrated } =
+    useNotifPrefs();
   const { toast } = useToast();
+  const sync = useSettingsSync<Partial<NotifPrefs>>('notifications', coerceNotif);
+
+  // Adopt the server slice (source of truth) once it resolves — `replace`
+  // normalizes it and mirrors it into the local cache.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    replace(sync.remote);
+  }, [sync.phase, sync.remote, replace]);
+
+  // Persist a fully-resolved prefs snapshot to the server (fire-and-forget; the
+  // local cache already updated synchronously, so the UI is never blocked).
+  const persist = React.useCallback(
+    (next: NotifPrefs) => {
+      void sync.save(next);
+    },
+    [sync],
+  );
 
   const handleMute = React.useCallback(
     (next: boolean) => {
       setMuteAll(next);
+      persist({ ...prefs, muteAll: next });
       toast({
         title: next ? 'Notifications muted' : 'Notifications unmuted',
         description: next
@@ -109,23 +145,37 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
           : 'Your per-event preferences are active again.',
       });
     },
-    [setMuteAll, toast],
+    [setMuteAll, persist, prefs, toast],
   );
 
   const handleChannel = React.useCallback(
     (key: NotifEventKey, channel: NotifChannel, next: boolean) => {
       setChannel(key, channel, next);
+      const current = prefs.events[key];
+      if (current) {
+        persist({
+          ...prefs,
+          events: {
+            ...prefs.events,
+            [key]: { ...current, [channel]: next },
+          },
+        });
+      }
     },
-    [setChannel],
+    [setChannel, persist, prefs],
   );
 
   const handleReset = React.useCallback(() => {
     reset();
+    // `reset()` restored the local defaults; the server adopt will reconcile on
+    // next load, but proactively clear the server slice too so the reset sticks
+    // across devices. An empty object is normalized back to defaults on read.
+    void sync.save({});
     toast({
       title: 'Notifications reset',
       description: 'Notification preferences restored to their defaults.',
     });
-  }, [reset, toast]);
+  }, [reset, sync, toast]);
 
   const muted = prefs.muteAll;
 
@@ -134,8 +184,14 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
       <div className="st-settings">
         <TwentyPageHeader title="Notifications" icon={Bell} />
         <p className="st-settings__intro">
-          Choose which events notify you and how. These preferences are stored
-          on this device.
+          Choose which events notify you and how. Saved to your workspace so your
+          preferences follow you across devices.
+          {sync.phase === 'offline' ? (
+            <span className="stn-offline" role="status">
+              The settings service is offline — changes are kept on this device
+              for now.
+            </span>
+          ) : null}
         </p>
 
         {/* Master mute */}
@@ -240,7 +296,9 @@ export default function SabcrmNotificationsSettingsPage(): React.JSX.Element {
         {hydrated ? (
           <div className="stn-footer">
             <p className="stn-footer__note">
-              Saved automatically on this device.
+              {sync.phase === 'offline'
+                ? 'Saved automatically on this device.'
+                : 'Saved automatically to your workspace.'}
             </p>
             <TwentyButton
               variant="secondary"

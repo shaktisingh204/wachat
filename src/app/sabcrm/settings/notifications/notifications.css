@@ -276,6 +276,21 @@
   color: var(--st-text-tertiary);
 }
 
+/* ---- Offline / engine-down notice (in the page intro) ------------------ */
+/* The base `--st-*` set has no semantic danger colour, so it's mapped locally
+   and re-mapped for dark mode to stay legible on the settings surface. */
+.sabcrm-twenty .stn-offline {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+  color: #b3261e;
+}
+
+.sabcrm-twenty.st-theme-dark .stn-offline {
+  color: #f3777a;
+}
+
 /* ---- Loading skeleton -------------------------------------------------- */
 
 .sabcrm-twenty .stn-skeleton {

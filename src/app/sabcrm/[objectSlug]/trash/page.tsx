@@ -218,6 +218,8 @@ export default function SabcrmTrashPage(): React.JSX.Element {
   const [objectError, setObjectError] = React.useState<string | null>(null);
 
   const [records, setRecords] = React.useState<SabcrmRustRecord[]>([]);
+  /** Total trashed records server-side (may exceed the loaded page). */
+  const [total, setTotal] = React.useState(0);
   const [loadingData, setLoadingData] = React.useState(true);
   const [dataError, setDataError] = React.useState<string | null>(null);
 
@@ -259,13 +261,20 @@ export default function SabcrmTrashPage(): React.JSX.Element {
     setLoadingData(true);
     setDataError(null);
     (async () => {
-      const res = await listSabcrmTrashTw(objectSlug, activeProjectId ?? undefined);
+      const res = await listSabcrmTrashTw(
+        objectSlug,
+        undefined,
+        activeProjectId ?? undefined,
+      );
       if (cancelled) return;
       if (!res.ok) {
         setDataError(res.error);
         setRecords([]);
+        setTotal(0);
       } else {
-        setRecords(res.data);
+        // `listSabcrmTrashTw` resolves to a `{ records, total }` page.
+        setRecords(res.data.records);
+        setTotal(res.data.total);
       }
       setLoadingData(false);
     })();
@@ -293,7 +302,11 @@ export default function SabcrmTrashPage(): React.JSX.Element {
       setBusy((b) => new Set(b).add(recordId));
       setDataError(null);
 
-      const res = await restoreSabcrmRecordTw(objectSlug, recordId);
+      const res = await restoreSabcrmRecordTw(
+        objectSlug,
+        recordId,
+        activeProjectId ?? undefined,
+      );
 
       if (!res.ok) {
         setDataError(res.error);
@@ -306,13 +319,14 @@ export default function SabcrmTrashPage(): React.JSX.Element {
       }
       // Restored → it leaves the trash list.
       setRecords((rs) => rs.filter((r) => r.id !== recordId));
+      setTotal((t) => Math.max(0, t - 1));
       setBusy((b) => {
         const n = new Set(b);
         n.delete(recordId);
         return n;
       });
     },
-    [busy, objectSlug],
+    [busy, objectSlug, activeProjectId],
   );
 
   // ---- Permanent delete (confirmed) --------------------------------------
@@ -322,7 +336,11 @@ export default function SabcrmTrashPage(): React.JSX.Element {
     setConfirmDeleting(true);
     setConfirmError(null);
 
-    const res = await permanentDeleteSabcrmRecordTw(objectSlug, target.id);
+    const res = await permanentDeleteSabcrmRecordTw(
+      objectSlug,
+      target.id,
+      activeProjectId ?? undefined,
+    );
     setConfirmDeleting(false);
 
     if (!res.ok) {
@@ -330,8 +348,9 @@ export default function SabcrmTrashPage(): React.JSX.Element {
       return;
     }
     setRecords((rs) => rs.filter((r) => r.id !== target.id));
+    setTotal((t) => Math.max(0, t - 1));
     setConfirmRecord(null);
-  }, [confirmRecord, confirmDeleting, objectSlug]);
+  }, [confirmRecord, confirmDeleting, objectSlug, activeProjectId]);
 
   const openConfirm = React.useCallback((record: SabcrmRustRecord) => {
     setConfirmError(null);
@@ -505,8 +524,10 @@ export default function SabcrmTrashPage(): React.JSX.Element {
               <tr className="st-row">
                 <td colSpan={colSpan}>
                   <span className="str-time">
-                    {records.length}{' '}
-                    {records.length === 1
+                    {total > records.length
+                      ? `Showing ${records.length} of ${total} `
+                      : `${total} `}
+                    {total === 1
                       ? object.labelSingular.toLowerCase()
                       : object.labelPlural.toLowerCase()}{' '}
                     in trash

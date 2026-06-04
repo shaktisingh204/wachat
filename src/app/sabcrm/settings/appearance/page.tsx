@@ -12,8 +12,12 @@
  *               table + section rhythm immediately.
  *   - Language — display-only select (English only for now).
  *
- * All choices persist via `useCrmPrefs` (localStorage); each change fires a
- * lightweight toast so the user sees the preference took.
+ * All choices persist to BOTH the gated CRM settings document on the backend
+ * (via `useSettingsSync('appearance', …)` → the `getCrmSettingsTw` /
+ * `updateCrmSettingsTw` server actions) AND the local `useCrmPrefs` cache, so a
+ * chosen theme follows the user across devices while the page never blocks. When
+ * the Rust settings engine is down the page degrades to the device-local cache
+ * and shows an "offline" note. Each change fires a lightweight toast.
  */
 
 import * as React from 'react';
@@ -26,10 +30,33 @@ import {
   type CrmTheme,
   type CrmDensity,
 } from '../use-crm-prefs';
+import { useSettingsSync } from '../use-settings-sync';
 
 import '@/styles/sabcrm-twenty.css';
 import '../settings-twenty.css';
 import '../profile/profile.css';
+
+/** The appearance slice persisted under the `'appearance'` settings key. */
+interface AppearanceSlice {
+  theme: CrmTheme;
+  density: CrmDensity;
+  language: string;
+}
+
+const THEMES: readonly CrmTheme[] = ['light', 'dark', 'system'];
+const DENSITIES: readonly CrmDensity[] = ['comfortable', 'compact'];
+
+/** Narrow the raw stored value into a usable appearance slice (or null). */
+function coerceAppearance(raw: unknown): Partial<AppearanceSlice> | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const out: Partial<AppearanceSlice> = {};
+  if (THEMES.includes(o.theme as CrmTheme)) out.theme = o.theme as CrmTheme;
+  if (DENSITIES.includes(o.density as CrmDensity))
+    out.density = o.density as CrmDensity;
+  if (typeof o.language === 'string') out.language = o.language;
+  return Object.keys(out).length > 0 ? out : null;
+}
 
 interface SegmentOption<T extends string> {
   value: T;
@@ -88,10 +115,42 @@ const DENSITY_OPTIONS: SegmentOption<CrmDensity>[] = [
 export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
   const { prefs, setPrefs } = useCrmPrefs();
   const { toast } = useToast();
+  const sync = useSettingsSync<Partial<AppearanceSlice>>(
+    'appearance',
+    coerceAppearance,
+  );
+
+  // Keep the freshest prefs in a ref so a per-field save can persist the full
+  // appearance slice without re-creating the save callbacks on every change.
+  const prefsRef = React.useRef(prefs);
+  prefsRef.current = prefs;
+
+  // Adopt the server slice (source of truth) once it resolves, mirroring it into
+  // the local cache so the theme/density classes apply immediately.
+  React.useEffect(() => {
+    if (sync.phase !== 'ready' || !sync.remote) return;
+    setPrefs(sync.remote);
+  }, [sync.phase, sync.remote, setPrefs]);
+
+  // Persist the full appearance slice to the server (fire-and-forget; the local
+  // cache already updated synchronously, so the UI is never blocked).
+  const persist = React.useCallback(
+    (patch: Partial<AppearanceSlice>) => {
+      const next = prefsRef.current;
+      void sync.save({
+        theme: next.theme,
+        density: next.density,
+        language: next.language,
+        ...patch,
+      });
+    },
+    [sync],
+  );
 
   const handleTheme = React.useCallback(
     (theme: CrmTheme) => {
       setPrefs({ theme });
+      persist({ theme });
       toast({
         title: 'Theme updated',
         description:
@@ -102,12 +161,13 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
               : 'Using the light theme.',
       });
     },
-    [setPrefs, toast],
+    [setPrefs, persist, toast],
   );
 
   const handleDensity = React.useCallback(
     (density: CrmDensity) => {
       setPrefs({ density });
+      persist({ density });
       toast({
         title: 'Density updated',
         description:
@@ -116,14 +176,15 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
             : 'Comfortable spacing applied.',
       });
     },
-    [setPrefs, toast],
+    [setPrefs, persist, toast],
   );
 
   const handleLanguage = React.useCallback(
     (language: string) => {
       setPrefs({ language });
+      persist({ language });
     },
-    [setPrefs],
+    [setPrefs, persist],
   );
 
   return (
@@ -131,8 +192,14 @@ export default function SabcrmAppearanceSettingsPage(): React.JSX.Element {
       <div className="st-settings">
         <TwentyPageHeader title="Appearance" icon={Palette} />
         <p className="st-settings__intro">
-          Personalize how SabCRM looks for you. These preferences are stored on
-          this device.
+          Personalize how SabCRM looks for you. Saved to your workspace so your
+          theme follows you across devices.
+          {sync.phase === 'offline' ? (
+            <span className="st-form-status st-form-status--err" style={{ display: 'block', marginTop: 4 }}>
+              The settings service is offline — changes are kept on this device
+              for now.
+            </span>
+          ) : null}
         </p>
 
         <div className="st-section">
