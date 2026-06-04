@@ -18,11 +18,16 @@
 //! | `updateWorkflow`   | `PATCH  /{id}`   |
 //! | `deleteWorkflow`   | `DELETE /{id}`   |
 //!
-//! A workflow couples a record-lifecycle `trigger`
-//! (`record.created` / `record.updated` / `record.deleted`, on one `object`)
-//! with an ordered list of `steps` (`create_task` / `send_notification` /
-//! `update_field` / `webhook`). `enabled` toggles whether it fires; the
-//! `PATCH` route covers both enable/disable and step edits.
+//! A workflow couples a `trigger` (`record.created` / `record.updated` /
+//! `record.deleted` / `manual` / `cron` / `webhook`, optionally on one
+//! `object`) with an ordered list of `steps` (`create_task` /
+//! `send_notification` / `update_field` / `webhook` / `filter` / `if_else` /
+//! `find_records` / `upsert_record`), each with its own `config` and an
+//! `enabled` flag. The top-level `enabled` toggles whether the workflow fires;
+//! the `PATCH` route covers both enable/disable and step edits. Structural
+//! edits (trigger / steps) cut an immutable `version` snapshot, threaded
+//! through `versions` and pinned by `currentVersion`. The DTO round-trips the
+//! `AutomationBuilder` draft shape exactly.
 //!
 //! ## Tenancy
 //!

@@ -292,10 +292,10 @@ pub async fn set_default_view(
 // POST /{id}/run — runView
 // ===========================================================================
 
-/// Resolve the equality operand from one persisted view-filter entry. A bare
-/// scalar is used verbatim; an object `{ "value": <v>, ... }` (the structured
-/// `{ op, value }` shape) contributes its `value`. Persisted view filters are
-/// applied as equality only — `op` is ignored.
+/// Resolve the equality operand from one persisted legacy-`filters` entry. A
+/// bare scalar is used verbatim; an object `{ "value": <v>, ... }` (the
+/// structured `{ op, value }` shape) contributes its `value`. The legacy
+/// `filters` map is applied as equality only — `op` is ignored.
 fn view_filter_operand(cond: &Value) -> Option<&Value> {
     match cond {
         Value::Object(map) => map.get("value"),
@@ -303,8 +303,8 @@ fn view_filter_operand(cond: &Value) -> Option<&Value> {
     }
 }
 
-/// AND each `{ "<fieldKey>": <condition> }` entry of a persisted view's
-/// `filters` into the supplied Mongo `filter` as an equality on
+/// AND each `{ "<fieldKey>": <condition> }` entry of a persisted view's legacy
+/// `filters` map into the supplied Mongo `filter` as an equality on
 /// `data.<fieldKey>`. A non-object `filters` (or absent) is a no-op; bad
 /// operands surface as a `400`.
 fn apply_view_filters(filter: &mut Document, filters: Option<&Value>) -> Result<()> {
@@ -328,6 +328,202 @@ fn apply_view_filters(filter: &mut Document, filters: Option<&Value>) -> Result<
     }
 
     Ok(())
+}
+
+/// Escape a string so it can be embedded literally inside a Mongo `$regex`
+/// pattern (used by the `contains` / `does_not_contain` operators). Avoids
+/// pulling in the `regex` crate just for `escape`.
+fn regex_escape(s: &str) -> String {
+    let mut out = String::with_capacity(s.len());
+    for ch in s.chars() {
+        if matches!(
+            ch,
+            '\\' | '.' | '+' | '*' | '?' | '(' | ')' | '|' | '[' | ']' | '{' | '}' | '^' | '$'
+                | '#' | '&' | '-' | '~'
+        ) {
+            out.push('\\');
+        }
+        out.push(ch);
+    }
+    out
+}
+
+/// Translate one structured [`ViewFilter`](crate::dto::ViewFilter) operator +
+/// operand into the Mongo predicate document for `data.<fieldKey>`. Unknown /
+/// future operators fall back to equality. `is_empty` / `is_not_empty` ignore
+/// the operand. Returns `None` when the leaf produces no usable predicate.
+fn structured_predicate(operator: &str, value: Option<&Value>) -> Result<Option<Bson>> {
+    let to_bson = |v: &Value| {
+        bson::to_bson(v).map_err(|e| ApiError::BadRequest(format!("invalid view filter value: {e}")))
+    };
+    let operand = value.filter(|v| !v.is_null());
+
+    let pred = match operator {
+        "is_empty" => doc! { "$in": [Bson::Null, ""] }.into(),
+        "is_not_empty" => doc! { "$nin": [Bson::Null, ""] }.into(),
+        // operand-bearing operators: skip the leaf entirely when null/absent
+        _ => {
+            let Some(v) = operand else {
+                return Ok(None);
+            };
+            match operator {
+                "is_not" => doc! { "$ne": to_bson(v)? }.into(),
+                "contains" => {
+                    let needle = v.as_str().map(regex_escape).unwrap_or_default();
+                    doc! { "$regex": needle, "$options": "i" }.into()
+                }
+                "does_not_contain" => {
+                    let needle = v.as_str().map(regex_escape).unwrap_or_default();
+                    doc! { "$not": { "$regex": needle, "$options": "i" } }.into()
+                }
+                "greater_than" => doc! { "$gt": to_bson(v)? }.into(),
+                "greater_than_or_equal" => doc! { "$gte": to_bson(v)? }.into(),
+                "less_than" => doc! { "$lt": to_bson(v)? }.into(),
+                "less_than_or_equal" => doc! { "$lte": to_bson(v)? }.into(),
+                "in" => doc! { "$in": to_bson(v)? }.into(),
+                "not_in" => doc! { "$nin": to_bson(v)? }.into(),
+                // "is" and anything unrecognised → equality
+                _ => to_bson(v)?,
+            }
+        }
+    };
+    Ok(Some(pred))
+}
+
+/// Apply the structured `viewFilters` / `filterGroups` arrays (Twenty parity)
+/// onto `filter`. Leaves are grouped by their `groupId`; each group's logical
+/// operator (from `filterGroups`, default AND) decides whether its leaves are
+/// `$and`/`$or`-combined; groups themselves are combined with `$and`. A leaf
+/// with no `groupId` joins the root. Absent / empty arrays are a no-op so the
+/// legacy `filters` path is untouched. Returns `true` when any predicate was
+/// applied (so the caller can skip the legacy map).
+fn apply_structured_filters(filter: &mut Document, view: &Document) -> Result<bool> {
+    let leaves = match view.get_array("viewFilters") {
+        Ok(arr) if !arr.is_empty() => arr,
+        _ => return Ok(false),
+    };
+
+    // groupId (or "" for root) -> logical operator string.
+    let mut group_ops: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    if let Ok(groups) = view.get_array("filterGroups") {
+        for g in groups {
+            if let Bson::Document(gd) = g {
+                let id = gd.get_str("id").unwrap_or("").to_owned();
+                let op = gd.get_str("logicalOperator").unwrap_or("and").to_owned();
+                group_ops.insert(id, op);
+            }
+        }
+    }
+
+    // groupId -> accumulated leaf predicate docs.
+    let mut grouped: std::collections::HashMap<String, Vec<Document>> =
+        std::collections::HashMap::new();
+    let mut order: Vec<String> = Vec::new();
+
+    for leaf in leaves {
+        let Bson::Document(ld) = leaf else { continue };
+        let key = ld.get_str("fieldKey").unwrap_or("").trim().to_owned();
+        if key.is_empty() {
+            continue;
+        }
+        let operator = ld.get_str("operator").unwrap_or("is").to_owned();
+        let value_json = ld
+            .get("value")
+            .map(|b| sabnode_db::bson_helpers::bson_to_clean_json(b.clone()));
+        let Some(pred) = structured_predicate(&operator, value_json.as_ref())? else {
+            continue;
+        };
+        let cond = doc! { format!("data.{key}"): pred };
+        let group_id = ld.get_str("groupId").unwrap_or("").to_owned();
+        grouped.entry(group_id.clone()).or_default().push(cond);
+        if !order.contains(&group_id) {
+            order.push(group_id);
+        }
+    }
+
+    if grouped.is_empty() {
+        return Ok(false);
+    }
+
+    // Build a combined predicate per group, then AND the groups together.
+    let mut group_clauses: Vec<Document> = Vec::new();
+    for group_id in &order {
+        let conds = grouped.remove(group_id).unwrap_or_default();
+        if conds.is_empty() {
+            continue;
+        }
+        let op = group_ops.get(group_id).map(String::as_str).unwrap_or("and");
+        if conds.len() == 1 {
+            group_clauses.push(conds.into_iter().next().unwrap());
+        } else if op.eq_ignore_ascii_case("or") {
+            group_clauses.push(doc! { "$or": conds });
+        } else {
+            group_clauses.push(doc! { "$and": conds });
+        }
+    }
+
+    match group_clauses.len() {
+        0 => Ok(false),
+        1 => {
+            for (k, v) in group_clauses.into_iter().next().unwrap() {
+                filter.insert(k, v);
+            }
+            Ok(true)
+        }
+        _ => {
+            filter.insert("$and", group_clauses);
+            Ok(true)
+        }
+    }
+}
+
+/// Build the Mongo sort document for `run_view`. Prefers the structured
+/// multi-sort `viewSorts` array (Twenty parity, ordered by `position` then
+/// declared order); falls back to the legacy single `sortBy`/`sortDir` pair;
+/// finally defaults to top-level `updatedAt` desc.
+fn build_sort_doc(view: &Document) -> Document {
+    if let Ok(sorts) = view.get_array("viewSorts") {
+        let mut levels: Vec<(i32, usize, String, i32)> = Vec::new();
+        for (idx, s) in sorts.iter().enumerate() {
+            let Bson::Document(sd) = s else { continue };
+            let key = sd.get_str("fieldKey").unwrap_or("").trim().to_owned();
+            if key.is_empty() {
+                continue;
+            }
+            let dir = match sd.get_str("direction").ok().map(str::trim) {
+                Some("asc") => 1,
+                _ => -1,
+            };
+            let pos = sd
+                .get_i32("position")
+                .ok()
+                .or_else(|| sd.get_i64("position").ok().map(|v| v as i32))
+                .unwrap_or(idx as i32);
+            levels.push((pos, idx, key, dir));
+        }
+        if !levels.is_empty() {
+            levels.sort_by(|a, b| a.0.cmp(&b.0).then(a.1.cmp(&b.1)));
+            let mut sort = Document::new();
+            for (_, _, key, dir) in levels {
+                sort.insert(format!("data.{key}"), dir);
+            }
+            return sort;
+        }
+    }
+
+    let sort_dir = match view.get_str("sortDir").ok().map(str::trim) {
+        Some("asc") => 1,
+        _ => -1,
+    };
+    match view
+        .get_str("sortBy")
+        .ok()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        Some(key) => doc! { format!("data.{key}"): sort_dir },
+        None => doc! { "updatedAt": -1 },
+    }
 }
 
 /// `POST /v1/sabcrm/views/{id}/run` — load the saved view by `{ projectId,
@@ -369,26 +565,21 @@ pub async fn run_view(
     let skip = (page - 1).saturating_mul(limit);
 
     // ---- Filter --------------------------------------------------------
+    // Prefer the structured `viewFilters`/`filterGroups` (operators + AND/OR
+    // groups). Fall back to the legacy `filters` equality map when no
+    // structured filters are present, so older views keep working.
     let mut filter = doc! { "projectId": project_id, "object": &object };
-    let filters_json: Option<Value> = view
-        .get("filters")
-        .map(|b| sabnode_db::bson_helpers::bson_to_clean_json(b.clone()));
-    apply_view_filters(&mut filter, filters_json.as_ref())?;
+    let used_structured = apply_structured_filters(&mut filter, &view)?;
+    if !used_structured {
+        let filters_json: Option<Value> = view
+            .get("filters")
+            .map(|b| sabnode_db::bson_helpers::bson_to_clean_json(b.clone()));
+        apply_view_filters(&mut filter, filters_json.as_ref())?;
+    }
 
     // ---- Sort ----------------------------------------------------------
-    let sort_dir = match view.get_str("sortDir").ok().map(str::trim) {
-        Some("asc") => 1,
-        _ => -1, // default desc
-    };
-    let sort_key = match view
-        .get_str("sortBy")
-        .ok()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
-        Some(key) => format!("data.{key}"),
-        None => "updatedAt".to_owned(),
-    };
+    // Multi-sort `viewSorts` first, else the legacy `sortBy`/`sortDir`.
+    let sort_doc = build_sort_doc(&view);
 
     // ---- Query records -------------------------------------------------
     let records_coll = mongo.collection::<Document>(RECORDS_COLL);
@@ -400,7 +591,7 @@ pub async fn run_view(
 
     let mut cursor = records_coll
         .find(filter)
-        .sort(doc! { sort_key: sort_dir })
+        .sort(sort_doc)
         .skip(skip)
         .limit(limit as i64)
         .await

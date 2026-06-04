@@ -16,30 +16,87 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
-/** Record-lifecycle events a workflow trigger can listen on. */
+/**
+ * Events a workflow trigger can listen on. The three `record.*` events mirror
+ * the original engine contract; `manual` / `cron` / `webhook` extend it toward
+ * Twenty's full trigger catalogue. Unknown event slugs round-trip verbatim
+ * (the Rust side maps them to a forward-compatible `Other`).
+ */
 export type SabcrmWorkflowEvent =
   | 'record.created'
   | 'record.updated'
-  | 'record.deleted';
+  | 'record.deleted'
+  | 'manual'
+  | 'cron'
+  | 'webhook'
+  | (string & {});
 
-/** The kinds of action a workflow step can perform. */
+/**
+ * The kinds of action a workflow step can perform. Covers the eight step
+ * types the AutomationBuilder authors; unknown kinds round-trip verbatim.
+ */
 export type SabcrmWorkflowStepType =
   | 'create_task'
   | 'send_notification'
   | 'update_field'
-  | 'webhook';
+  | 'webhook'
+  | 'filter'
+  | 'if_else'
+  | 'find_records'
+  | 'upsert_record'
+  | (string & {});
 
-/** A record-lifecycle trigger: which event, on which object. */
+/** Lifecycle status of a workflow version. */
+export type SabcrmWorkflowVersionStatus =
+  | 'draft'
+  | 'active'
+  | 'deactivated'
+  | 'archived'
+  | (string & {});
+
+/**
+ * A workflow trigger: the firing event coupled to the target object slug.
+ * `object` is optional so object-agnostic triggers (`manual` / `cron` /
+ * `webhook`) round-trip without a synthetic value. Forward-compatible trigger
+ * settings (cron expression, webhook secret, field filters, …) are carried as
+ * extra top-level keys, hence the index signature.
+ */
 export interface SabcrmWorkflowTrigger {
   event: SabcrmWorkflowEvent;
-  object: string;
+  /** Target object slug. Absent for object-agnostic triggers. */
+  object?: string;
+  [key: string]: unknown;
 }
 
-/** One step in a workflow's pipeline. `config` is step-type specific. */
+/**
+ * One step in a workflow's pipeline. `config` is step-type specific. `enabled`
+ * lets a single step be muted without removing it (defaults to `true`).
+ * Forward-compatible per-step metadata (name, position, branch hints) round-
+ * trips through extra top-level keys, hence the index signature.
+ */
 export interface SabcrmWorkflowStep {
   id: string;
   type: SabcrmWorkflowStepType;
   config: Record<string, unknown>;
+  /** Whether this step runs. Defaults to `true` server-side when omitted. */
+  enabled?: boolean;
+  [key: string]: unknown;
+}
+
+/**
+ * An immutable snapshot of a workflow's `{ trigger, steps }` at a given
+ * revision. Each run is pinned to a version so edits are non-destructive and
+ * runs reproducible. `trigger` / `steps` are carried verbatim.
+ */
+export interface SabcrmWorkflowVersion {
+  /** Monotonic version number, starting at 1. */
+  version: number;
+  /** Lifecycle status — `draft` / `active` / `deactivated` / `archived`. */
+  status: SabcrmWorkflowVersionStatus;
+  trigger: SabcrmWorkflowTrigger;
+  steps: SabcrmWorkflowStep[];
+  /** RFC3339 creation timestamp. */
+  createdAt?: string;
 }
 
 /** A SabCRM workflow as returned by the Rust engine (`_id` → `id` hex). */
@@ -51,6 +108,13 @@ export interface SabcrmRustWorkflow {
   enabled: boolean;
   trigger: SabcrmWorkflowTrigger;
   steps: SabcrmWorkflowStep[];
+
+  // --- Versioning depth (additive) ---
+  /** The currently-active version number (monotonic, starts at 1). */
+  currentVersion?: number;
+  /** Immutable snapshots of each revision's `{ trigger, steps }`. */
+  versions?: SabcrmWorkflowVersion[];
+
   createdAt: string;
   updatedAt: string;
   lastRunAt?: string;
@@ -66,6 +130,11 @@ export interface SabcrmWorkflowCreateInput {
   trigger: SabcrmWorkflowTrigger;
   steps?: SabcrmWorkflowStep[];
   enabled?: boolean;
+  /**
+   * Optional explicit starting version number. Defaults to `1` server-side.
+   * Lets a caller seed a workflow at a known revision (e.g. on import).
+   */
+  currentVersion?: number;
 }
 
 /**

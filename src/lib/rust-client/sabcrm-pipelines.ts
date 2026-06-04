@@ -14,6 +14,7 @@ import 'server-only';
  * `rust/crates/sabcrm-pipelines/src/{dto,handlers}.rs`.
  */
 import { rustFetch } from './fetcher';
+import type { SabcrmRustRecord } from './sabcrm-records';
 
 /** A single stage within a pipeline. */
 export interface SabcrmRustPipelineStage {
@@ -60,6 +61,76 @@ interface ListEnvelope {
 /** Raw `{ pipeline }` envelope from `GET /{id}`, `POST /`, `PATCH /{id}`. */
 interface SingleEnvelope {
   pipeline: SabcrmRustPipeline;
+}
+
+// ---------------------------------------------------------------------------
+// Board depth — stages with live counts/amounts, reorder, move-record-to-stage
+// ---------------------------------------------------------------------------
+
+/** Options for {@link sabcrmPipelinesApi.board}. */
+export interface SabcrmPipelineBoardOpts {
+  /**
+   * `data.<field>` on the target object holding the stage id. Defaults to
+   * `"stage"` server-side.
+   */
+  stageField?: string;
+  /**
+   * `data.<field>` on the target object holding the numeric amount summed
+   * per stage. Defaults to `"amount"` server-side.
+   */
+  amountField?: string;
+}
+
+/**
+ * One column of the pipeline board: the stage descriptor (id/label/color,
+ * carried verbatim from the pipeline document) plus the live per-stage
+ * rollups computed from `sabcrm_records`.
+ */
+export interface SabcrmPipelineBoardStage {
+  /** Stage id (always a string on the wire; numeric ids are stringified). */
+  id: string;
+  /** Human label, if the pipeline document carried one. */
+  label?: string;
+  /** Stage color, if the pipeline document carried one. */
+  color?: string;
+  /** Zero-based position of the stage within the ordered pipeline. */
+  position: number;
+  /** Number of live records currently in this stage. */
+  count: number;
+  /** Sum of the amount field across the records in this stage. */
+  amount: number;
+}
+
+/**
+ * `GET /{id}/board` response — the pipeline document plus its ordered,
+ * rolled-up stages, an `unassigned` tail bucket (records whose stage value
+ * matches no declared stage) and grand totals.
+ */
+export interface SabcrmPipelineBoardResponse {
+  pipeline: SabcrmRustPipeline;
+  /** Stages in pipeline order, each carrying its live count + amount. */
+  stages: SabcrmPipelineBoardStage[];
+  /** Rollup of records whose stage value matches no declared stage. */
+  unassigned: SabcrmPipelineBoardStage;
+  /** Total live records across all stages (including unassigned). */
+  totalCount: number;
+  /** Total amount across all stages (including unassigned). */
+  totalAmount: number;
+}
+
+/** `POST /{id}/move-record` body sans `projectId`/pipeline `id`. */
+export interface SabcrmPipelineMoveRecordInput {
+  /** Hex `_id` of the record to move (in `sabcrm_records`). */
+  recordId: string;
+  /** Stage id to move the record into. Must match a declared stage. */
+  stageId: string;
+  /** `data.<field>` carrying the stage id. Defaults to `"stage"` server-side. */
+  stageField?: string;
+}
+
+/** Raw `{ record }` envelope from `POST /{id}/move-record`. */
+interface MoveRecordEnvelope {
+  record: SabcrmRustRecord;
 }
 
 /** Encode query params, dropping undefined/empty values. */
@@ -121,5 +192,60 @@ export const sabcrmPipelinesApi = {
       `${BASE}/${encodeURIComponent(id)}${qs({ projectId })}`,
       { method: 'DELETE' },
     );
+  },
+
+  /**
+   * `GET /v1/sabcrm/pipelines/{id}/board` — the board view of one pipeline:
+   * the pipeline document plus its ordered stages, each carrying a live
+   * `count` and summed `amount`, an `unassigned` tail bucket and grand totals.
+   */
+  board(
+    projectId: string,
+    id: string,
+    opts?: SabcrmPipelineBoardOpts,
+  ): Promise<SabcrmPipelineBoardResponse> {
+    return rustFetch<SabcrmPipelineBoardResponse>(
+      `${BASE}/${encodeURIComponent(id)}/board${qs({
+        projectId,
+        stageField: opts?.stageField,
+        amountField: opts?.amountField,
+      })}`,
+    );
+  },
+
+  /**
+   * `POST /v1/sabcrm/pipelines/{id}/stages/reorder` — reorder a pipeline's
+   * stages by id. `order` defines the new leading order; omitted stage ids
+   * keep their relative order and are appended after. Returns the updated
+   * pipeline.
+   */
+  async reorderStages(
+    projectId: string,
+    id: string,
+    order: string[],
+  ): Promise<SabcrmRustPipeline> {
+    const res = await rustFetch<SingleEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/stages/reorder`,
+      { method: 'POST', body: JSON.stringify({ projectId, order }) },
+    );
+    return res.pipeline;
+  },
+
+  /**
+   * `POST /v1/sabcrm/pipelines/{id}/move-record` — move one target-object
+   * record into a stage of this pipeline by setting `data.<stageField>` to
+   * the stage id. The stage id must match a declared stage. Returns the
+   * updated record document.
+   */
+  async moveRecord(
+    projectId: string,
+    id: string,
+    input: SabcrmPipelineMoveRecordInput,
+  ): Promise<SabcrmRustRecord> {
+    const res = await rustFetch<MoveRecordEnvelope>(
+      `${BASE}/${encodeURIComponent(id)}/move-record`,
+      { method: 'POST', body: JSON.stringify({ projectId, ...input }) },
+    );
+    return res.record;
   },
 };

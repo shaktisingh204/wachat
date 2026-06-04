@@ -33,6 +33,7 @@ use tracing::instrument;
 use crate::dto::{
     CreateRunInput, ListQuery, ListResponse, RunResponse, ScopeQuery, UpdateRunInput,
 };
+use crate::status::{RunStatus, normalize_run_status, normalize_step_status};
 
 /// The Mongo collection backing workflow runs.
 const RUNS_COLL: &str = "sabcrm_workflow_runs";
@@ -84,6 +85,46 @@ fn payload_to_set(value: &Value) -> Result<Document> {
         out.insert(k, v);
     }
     Ok(out)
+}
+
+/// Canonicalize the per-step `status` of every element in a `steps` array
+/// in place. Each step keeps all of its other keys (`id`, `type`,
+/// `output`, `error`, …) verbatim; only `status` is normalized (defaulting
+/// to `not_started` when absent). A present-but-invalid step status is a
+/// `422`. Non-object step entries are left untouched.
+fn normalize_steps_in(doc: &mut Document) -> Result<()> {
+    let Some(Bson::Array(steps)) = doc.get("steps").cloned() else {
+        return Ok(());
+    };
+    let mut out = Vec::with_capacity(steps.len());
+    for entry in steps {
+        match entry {
+            Bson::Document(mut step) => {
+                let raw = step.get_str("status").ok();
+                let canon = normalize_step_status(raw)?;
+                step.insert("status", canon);
+                out.push(Bson::Document(step));
+            }
+            other => out.push(other),
+        }
+    }
+    doc.insert("steps", Bson::Array(out));
+    Ok(())
+}
+
+/// Canonicalize the run-level `status` in place if present, returning the
+/// parsed [`RunStatus`] so callers can decide on `finishedAt` stamping.
+/// Absent / empty status leaves the field untouched and returns `None`.
+fn normalize_run_status_in(doc: &mut Document) -> Result<Option<RunStatus>> {
+    let raw = doc.get_str("status").ok();
+    let canon = normalize_run_status(raw)?;
+    match canon {
+        Some(wire) => {
+            doc.insert("status", wire);
+            Ok(RunStatus::parse(wire))
+        }
+        None => Ok(None),
+    }
 }
 
 // ===========================================================================
@@ -194,22 +235,34 @@ pub async fn create_run(
     new_doc.insert("_id", ObjectId::new());
     new_doc.insert("projectId", project_id);
 
-    // Default status → "running" when not provided.
-    if new_doc
-        .get_str("status")
-        .map(|s| s.trim().is_empty())
-        .unwrap_or(true)
-    {
-        new_doc.insert("status", "running");
-    }
+    // Validate + canonicalize the run status (Twenty / SabCRM aliases →
+    // canonical token). Absent/empty defaults to "running".
+    let run_status = match normalize_run_status_in(&mut new_doc)? {
+        Some(st) => st,
+        None => {
+            new_doc.insert("status", RunStatus::Running.as_wire());
+            RunStatus::Running
+        }
+    };
 
-    // Default steps → [] when not provided.
+    // Default steps → [] when not provided, else canonicalize each step's
+    // per-step status.
     if !new_doc.contains_key("steps") {
         new_doc.insert("steps", Bson::Array(Vec::new()));
+    } else {
+        normalize_steps_in(&mut new_doc)?;
     }
 
     new_doc.insert("startedAt", &now);
     new_doc.insert("createdAt", &now);
+
+    // A run created directly in a terminal state (e.g. an immediately
+    // failed/throttled run) is finished the moment it is created.
+    if run_status.is_terminal() {
+        new_doc
+            .entry("finishedAt".to_owned())
+            .or_insert_with(|| Bson::String(now.clone()));
+    }
 
     let coll = mongo.collection::<Document>(RUNS_COLL);
     coll.insert_one(&new_doc).await.map_err(|e| {
@@ -240,7 +293,24 @@ pub async fn update_run(
     let oid = oid_from_str(&id)?;
 
     let mut set = payload_to_set(&body.patch)?;
-    set.insert("updatedAt", Utc::now().to_rfc3339());
+
+    // Validate + canonicalize a status flip if one is present in the patch.
+    let run_status = normalize_run_status_in(&mut set)?;
+
+    // Canonicalize any per-step statuses if the patch replaces `steps`.
+    normalize_steps_in(&mut set)?;
+
+    let now = Utc::now().to_rfc3339();
+
+    // When a run transitions to a terminal status, stamp `finishedAt`
+    // server-side unless the caller already supplied one in this patch.
+    if let Some(st) = run_status {
+        if st.is_terminal() && !set.contains_key("finishedAt") {
+            set.insert("finishedAt", &now);
+        }
+    }
+
+    set.insert("updatedAt", &now);
 
     let coll = mongo.collection::<Document>(RUNS_COLL);
     let updated = coll

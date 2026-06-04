@@ -318,3 +318,29 @@ pub struct ObjectResponse {
 pub struct OkResponse {
     pub ok: bool,
 }
+
+/// `POST /{slug}/sync` body (only `workspaceMembers` honours it today) —
+/// seed/sync the `workspaceMembers` records for a project from the project's
+/// team roster (owner + agents). Tenant scope only.
+#[derive(Debug, Clone, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncMembersInput {
+    /// Tenant scope — required. The string form of the project's ObjectId.
+    pub project_id: String,
+}
+
+/// Response body for `POST /{slug}/sync` — a count summary of what the
+/// idempotent sync resolved. `upserted` counts members written this call;
+/// `total` is the resolved roster size (owner + agents). `removed` counts
+/// stale member records pruned because they are no longer on the roster.
+#[derive(Debug, Clone, Serialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SyncMembersResponse {
+    pub ok: bool,
+    /// Number of member records upserted (inserted or refreshed) this call.
+    pub upserted: u64,
+    /// Number of stale member records removed (no longer on the roster).
+    pub removed: u64,
+    /// Total resolved roster size (owner + deduplicated agents).
+    pub total: u64,
+}

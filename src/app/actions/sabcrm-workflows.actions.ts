@@ -158,8 +158,20 @@ export async function createWorkflowTw(
   projectId?: string,
 ): Promise<ActionResult<SabcrmRustWorkflow>> {
   if (!input?.name?.trim()) return { ok: false, error: 'A name is required.' };
-  if (!input?.trigger?.event || !input?.trigger?.object) {
-    return { ok: false, error: 'A trigger event and object are required.' };
+  if (!input?.trigger?.event) {
+    return { ok: false, error: 'A trigger event is required.' };
+  }
+  // `record.*` triggers are bound to an object; `manual` / `cron` / `webhook`
+  // (and any future object-agnostic event) are not, so only require `object`
+  // for record-lifecycle triggers.
+  if (
+    String(input.trigger.event).startsWith('record.') &&
+    !input.trigger.object
+  ) {
+    return {
+      ok: false,
+      error: 'A trigger object is required for record events.',
+    };
   }
 
   const g = await gate('create', projectId);

@@ -21,11 +21,18 @@
 //! GET    /{id}    — get_pipeline
 //! PATCH  /{id}    — update_pipeline
 //! DELETE /{id}    — delete_pipeline
+//! GET    /{id}/board           — get_board (per-stage count + summed amount)
+//! POST   /{id}/stages/reorder  — reorder_stages
+//! POST   /{id}/move-record     — move_record
 //! ```
 
 use std::sync::Arc;
 
-use axum::{Router, extract::FromRef, routing::get};
+use axum::{
+    Router,
+    extract::FromRef,
+    routing::{get, post},
+};
 use sabnode_auth::AuthConfig;
 use sabnode_db::mongo::MongoHandle;
 
@@ -50,4 +57,7 @@ where
                 .patch(handlers::update_pipeline)
                 .delete(handlers::delete_pipeline),
         )
+        .route("/{id}/board", get(handlers::get_board))
+        .route("/{id}/stages/reorder", post(handlers::reorder_stages))
+        .route("/{id}/move-record", post(handlers::move_record))
 }

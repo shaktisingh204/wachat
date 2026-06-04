@@ -112,3 +112,248 @@ pub struct RunViewResponse {
 pub struct OkResponse {
     pub ok: bool,
 }
+
+// ===========================================================================
+// Twenty-parity view model (additive, fully optional)
+// ===========================================================================
+//
+// The persisted view document is still stored / returned verbatim as a
+// `serde_json::Value` (see [`CreateViewInput`] / [`UpdateViewInput`] above),
+// which keeps the surface additive and lets the frontend view-bar round-trip
+// any extra keys it writes. The structs below document and type the *canonical*
+// Twenty-parity shape so generated OpenAPI clients and the view-bar agree on
+// the field names / nesting:
+//
+// - [`ViewKind`]       — `table` (Twenty GRID) / `board` (KANBAN) / `calendar`.
+// - [`ViewField`]      — per-view visible field with explicit order + width.
+// - [`ViewFilter`]     — one `field`/`operator`/`value` leaf condition.
+// - [`FilterOperator`] — Twenty's comparator set.
+// - [`ViewFilterGroup`]— AND/OR nesting over leaves + child groups.
+// - [`ViewSort`]       — one sort level (`field` + `direction`), multi-sort
+//                        is an ordered `Vec<ViewSort>`.
+// - [`SavedView`]      — the whole document, mirroring `SavedView` in
+//                        `views.server.ts` / `SabcrmViewDoc` in `db.ts`.
+
+/// Surface a saved view renders. Mirrors Twenty's `ViewType`
+/// (`GRID` → `table`, `KANBAN` → `board`, plus `calendar`). Stored verbatim,
+/// so unknown future kinds survive a round-trip via the raw `Value` payload.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum ViewKind {
+    /// Twenty `GRID` — a record table.
+    Table,
+    /// Twenty `KANBAN` — a board grouped into columns by [`SavedView::group_by_field`].
+    Board,
+    /// A calendar laid out over a date field.
+    Calendar,
+}
+
+impl Default for ViewKind {
+    fn default() -> Self {
+        Self::Table
+    }
+}
+
+/// One per-view visible field. The frontend view-bar uses `position` to order
+/// columns (table) / card fields (board) and `is_visible` to toggle them; the
+/// legacy `fields: string[]` ordering (see [`SavedView::fields`]) remains
+/// supported for round-trip compatibility.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ViewField {
+    /// Field key (matches a record's `data.<fieldKey>`).
+    pub field_key: String,
+    /// 0-based display order within the view.
+    #[serde(default)]
+    pub position: i32,
+    /// Whether the field is shown. Defaults to `true`.
+    #[serde(default = "default_true")]
+    pub is_visible: bool,
+    /// Optional column width in px (table views).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub size: Option<i32>,
+}
+
+fn default_true() -> bool {
+    true
+}
+
+/// Twenty's filter comparator set. Serialized lower-snake so it round-trips the
+/// strings the view-bar persists. Unknown operators are tolerated by the run
+/// handler (it falls back to equality) — the typed enum is for documentation
+/// and the common cases.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum FilterOperator {
+    Is,
+    IsNot,
+    Contains,
+    DoesNotContain,
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual,
+    IsEmpty,
+    IsNotEmpty,
+    In,
+    NotIn,
+}
+
+/// A single leaf filter condition: `field <operator> value`. `value` is an
+/// arbitrary JSON scalar / array (e.g. the operand list for `in`). Belongs to
+/// the filter group identified by `group_id` (root group when absent).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ViewFilter {
+    /// Field key being filtered (matches `data.<fieldKey>`).
+    pub field_key: String,
+    /// Comparator. Defaults to [`FilterOperator::Is`].
+    #[serde(default = "default_operator")]
+    pub operator: FilterOperator,
+    /// Operand. Omitted / null for `is_empty` / `is_not_empty`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Object)]
+    pub value: Option<Value>,
+    /// Owning filter group id; `None` ⇒ the view's root group.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub group_id: Option<String>,
+}
+
+fn default_operator() -> FilterOperator {
+    FilterOperator::Is
+}
+
+/// Logical operator combining the members of a [`ViewFilterGroup`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum LogicalOperator {
+    And,
+    Or,
+}
+
+impl Default for LogicalOperator {
+    fn default() -> Self {
+        Self::And
+    }
+}
+
+/// A nestable AND/OR group of filters. Leaves reference a group through
+/// [`ViewFilter::group_id`]; groups nest through `parent_group_id`. Mirrors
+/// Twenty's `view-filter-group` module.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ViewFilterGroup {
+    /// Stable id referenced by [`ViewFilter::group_id`] / child groups.
+    pub id: String,
+    /// How this group's members combine. Defaults to AND.
+    #[serde(default)]
+    pub logical_operator: LogicalOperator,
+    /// Parent group id; `None` ⇒ this is the root group.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub parent_group_id: Option<String>,
+    /// Display order among sibling groups.
+    #[serde(default)]
+    pub position: i32,
+}
+
+/// Sort direction for one [`ViewSort`] level.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum SortDirection {
+    Asc,
+    Desc,
+}
+
+impl Default for SortDirection {
+    fn default() -> Self {
+        Self::Desc
+    }
+}
+
+/// One level of a multi-sort. The view's full sort is an ordered
+/// `Vec<ViewSort>` (first entry is the primary key). Mirrors the single
+/// `sortBy`/`sortDir` legacy pair, which remains supported.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ViewSort {
+    /// Field key to sort on (matches `data.<fieldKey>`).
+    pub field_key: String,
+    /// Direction. Defaults to descending.
+    #[serde(default)]
+    pub direction: SortDirection,
+    /// Order among sort levels (lower = applied first / primary).
+    #[serde(default)]
+    pub position: i32,
+}
+
+/// The canonical, Twenty-parity saved-view shape. This is the documented
+/// contract the frontend view-bar round-trips. The HTTP handlers persist /
+/// return the document as a raw `Value` (see [`ViewResponse`]), so every field
+/// here is optional and additive — older documents that only carry the legacy
+/// `filters` map / `sortBy`+`sortDir` pair / `fields: string[]` still
+/// deserialize, and unknown keys survive.
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SavedView {
+    /// Hex `_id` of the persisted document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Tenant scope.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub project_id: Option<String>,
+    /// Owner of a private view; omitted for project-shared views.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub user_id: Option<String>,
+    /// Object slug this view belongs to.
+    pub object: String,
+    /// Human label.
+    pub name: String,
+    /// Surface to render. Defaults to `table`.
+    #[serde(default)]
+    pub kind: ViewKind,
+
+    /// Per-view visible fields with explicit order/width. When present this is
+    /// authoritative over the legacy `fields` key.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub view_fields: Vec<ViewField>,
+    /// Legacy ordered field keys (columns / card fields). Kept for round-trip.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fields: Option<Vec<String>>,
+
+    /// AND/OR filter groups (nested via `parentGroupId`). The root group is the
+    /// one with no `parentGroupId`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub filter_groups: Vec<ViewFilterGroup>,
+    /// Structured leaf filters (`field`/`operator`/`value`, `groupId`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub view_filters: Vec<ViewFilter>,
+    /// Legacy `fieldKey -> value` equality map. Still honored by `run_view`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schema(value_type = Object)]
+    pub filters: Option<Value>,
+
+    /// Multi-sort, ordered (primary first). Authoritative over the legacy pair.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub view_sorts: Vec<ViewSort>,
+    /// Legacy single-sort field key.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_by: Option<String>,
+    /// Legacy single-sort direction.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sort_dir: Option<SortDirection>,
+
+    /// Board/calendar group-by field (SELECT field key). Mirrors Twenty's
+    /// `view-group`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub group_by_field: Option<String>,
+
+    /// Whether this is the object's default view.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub is_default: Option<bool>,
+
+    /// RFC3339 timestamps (server-managed).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<String>,
+}

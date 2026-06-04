@@ -34,7 +34,7 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use bson::{Bson, Document, doc};
+use bson::{Bson, Document, doc, oid::ObjectId};
 use chrono::Utc;
 use futures::TryStreamExt;
 use sabcrm_core::{standard_object, standard_object_slugs, standard_objects};
@@ -45,7 +45,8 @@ use tracing::{instrument, warn};
 
 use crate::dto::{
     CreateObjectInput, IndexMetadata, IndexType, ListResponse, ObjectMetadata, ObjectResponse,
-    OkResponse, ScopeQuery, SetIndexesInput, UpdateObjectInput,
+    OkResponse, ScopeQuery, SetIndexesInput, SyncMembersInput, SyncMembersResponse,
+    UpdateObjectInput,
 };
 
 /// The Mongo collection backing persisted custom / override objects.
@@ -54,6 +55,14 @@ const OBJECTS_COLL: &str = "sabcrm_objects";
 /// The Mongo collection backing CRM records (`{ projectId, object, data }`),
 /// targeted best-effort by the ensure-indexes path.
 const RECORDS_COLL: &str = "sabcrm_records";
+
+/// The SabNode `projects` collection — the source of truth for a project's
+/// team roster (`userId` owner + `agents[]`). Read-only here.
+const PROJECTS_COLL: &str = "projects";
+
+/// The SabNode `users` collection — profile fields (`name`, `email`, `image`)
+/// joined onto the roster. Read-only here.
+const USERS_COLL: &str = "users";
 
 // ===========================================================================
 // helpers
@@ -457,4 +466,227 @@ pub async fn delete_object(
     }
 
     Ok(Json(OkResponse { ok: true }))
+}
+
+// ===========================================================================
+// POST /{slug}/sync — seed/sync workspaceMembers records from the roster
+// ===========================================================================
+
+/// The object slug whose records are sourced from the project roster rather
+/// than hand-created in the CRM. Only this slug honours the sync endpoint.
+const WORKSPACE_MEMBERS_SLUG: &str = "workspaceMembers";
+
+/// One resolved roster member: the user's ObjectId (which becomes the
+/// workspaceMembers record `_id` so accountOwner / owner / assignee relation
+/// values — stored as that hex id — resolve directly) plus their workspace
+/// role slug.
+struct RosterMember {
+    user_id: ObjectId,
+    role: String,
+}
+
+/// Map a SabNode project role slug onto the `workspaceMembers.role` SELECT
+/// options (`OWNER` / `ADMIN` / `MEMBER` / `GUEST`). Mirrors the conservative
+/// mapping in `members.server.ts` (owner/admin → elevated; everything else →
+/// member), surfaced here as the CRM object's own role vocabulary.
+fn member_role_option(project_role: &str) -> &'static str {
+    match project_role.trim().to_ascii_lowercase().as_str() {
+        "owner" => "OWNER",
+        "admin" => "ADMIN",
+        "guest" => "GUEST",
+        _ => "MEMBER",
+    }
+}
+
+/// Read the project's owner + agents roster from the `projects` collection.
+/// `agents[].userId` may be stored as an `ObjectId` or a legacy hex string;
+/// both are accepted. The owner is always first and deduplicated against the
+/// agents list. A missing project yields `404`.
+async fn load_roster(mongo: &MongoHandle, project_oid: ObjectId) -> Result<Vec<RosterMember>> {
+    let coll = mongo.collection::<Document>(PROJECTS_COLL);
+    let project = coll
+        .find_one(doc! { "_id": project_oid })
+        .projection(doc! { "userId": 1, "agents": 1 })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("projects.find_one")))?
+        .ok_or_else(|| ApiError::NotFound("project".to_owned()))?;
+
+    let mut roster: Vec<RosterMember> = Vec::new();
+    let mut seen: std::collections::HashSet<ObjectId> = std::collections::HashSet::new();
+
+    // Owner first. `userId` is an ObjectId reference to `users._id`.
+    if let Ok(owner) = project.get_object_id("userId") {
+        seen.insert(owner);
+        roster.push(RosterMember {
+            user_id: owner,
+            role: "owner".to_owned(),
+        });
+    }
+
+    // Agents next, accepting ObjectId or hex-string `userId`.
+    if let Ok(agents) = project.get_array("agents") {
+        for a in agents {
+            let Bson::Document(agent) = a else { continue };
+            let uid = match agent.get("userId") {
+                Some(Bson::ObjectId(o)) => Some(*o),
+                Some(Bson::String(s)) => ObjectId::parse_str(s.trim()).ok(),
+                _ => None,
+            };
+            let Some(uid) = uid else { continue };
+            if !seen.insert(uid) {
+                continue; // already captured (owner listed as agent)
+            }
+            let role = agent
+                .get_str("role")
+                .ok()
+                .map(str::to_owned)
+                .unwrap_or_else(|| "agent".to_owned());
+            roster.push(RosterMember { user_id: uid, role });
+        }
+    }
+
+    Ok(roster)
+}
+
+/// `POST /v1/sabcrm/objects/{slug}/sync` — seed/sync the records that back a
+/// roster-sourced standard object. Only `workspaceMembers` is supported today
+/// (other slugs return `400`); the records are derived from the project's
+/// team (owner + agents) joined to `users` for profile fields.
+///
+/// Each member becomes one `sabcrm_records` document
+/// `{ _id: <users._id>, projectId, object: "workspaceMembers", data: { id,
+/// name, email, avatarUrl, role } }`. Using the user's `_id` as the record id
+/// means relation fields that store a member id (accountOwner / opportunity
+/// owner / task assignee) resolve directly against the existing enrichment
+/// path (which looks members up by `_id`).
+///
+/// Idempotent: members are upserted by `_id`, profile fields are refreshed on
+/// every call, and member records no longer on the roster are pruned. Purely
+/// additive — never touches non-member records.
+#[instrument(skip_all, fields(slug = %slug))]
+pub async fn sync_object_records(
+    _user: AuthUser,
+    State(mongo): State<MongoHandle>,
+    Path(slug): Path<String>,
+    Json(body): Json<SyncMembersInput>,
+) -> Result<Json<SyncMembersResponse>> {
+    let project_id = require_project(&body.project_id)?;
+
+    if slug != WORKSPACE_MEMBERS_SLUG {
+        return Err(ApiError::BadRequest(format!(
+            "sync is only supported for the `{WORKSPACE_MEMBERS_SLUG}` object, not `{slug}`."
+        )));
+    }
+
+    let project_oid = ObjectId::parse_str(project_id)
+        .map_err(|_| ApiError::Validation("projectId must be a valid id.".to_owned()))?;
+
+    // Resolve the roster (owner + agents) from the project doc.
+    let roster = load_roster(&mongo, project_oid).await?;
+
+    // Join `users` for profile fields in a single query.
+    let user_oids: Vec<ObjectId> = roster.iter().map(|m| m.user_id).collect();
+    let mut profiles: std::collections::HashMap<ObjectId, (String, String, Option<String>)> =
+        std::collections::HashMap::new();
+    if !user_oids.is_empty() {
+        let users = mongo.collection::<Document>(USERS_COLL);
+        let mut cursor = users
+            .find(doc! { "_id": { "$in": &user_oids } })
+            .projection(doc! { "name": 1, "email": 1, "image": 1 })
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.find")))?;
+        while let Some(u) = cursor
+            .try_next()
+            .await
+            .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("users.cursor")))?
+        {
+            let Ok(uid) = u.get_object_id("_id") else {
+                continue;
+            };
+            let name = u.get_str("name").unwrap_or_default().to_owned();
+            let email = u.get_str("email").unwrap_or_default().to_owned();
+            let image = u
+                .get_str("image")
+                .ok()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned);
+            profiles.insert(uid, (name, email, image));
+        }
+    }
+
+    // Upsert one record per roster member, keyed by the user's ObjectId.
+    let now = Utc::now().to_rfc3339();
+    let records = mongo.collection::<Document>(RECORDS_COLL);
+    let mut upserted: u64 = 0;
+    let mut member_ids: Vec<ObjectId> = Vec::with_capacity(roster.len());
+
+    for member in &roster {
+        member_ids.push(member.user_id);
+        let (name, email, avatar_url) = profiles
+            .get(&member.user_id)
+            .cloned()
+            .unwrap_or_else(|| (String::new(), String::new(), None));
+
+        let mut data = doc! {
+            "id": member.user_id.to_hex(),
+            "name": &name,
+            "email": &email,
+            "role": member_role_option(&member.role),
+        };
+        match &avatar_url {
+            Some(url) => {
+                data.insert("avatarUrl", url);
+            }
+            None => {
+                data.insert("avatarUrl", Bson::Null);
+            }
+        }
+
+        let res = records
+            .update_one(
+                doc! {
+                    "_id": member.user_id,
+                    "projectId": project_id,
+                    "object": WORKSPACE_MEMBERS_SLUG,
+                },
+                doc! {
+                    "$set": { "data": data, "updatedAt": &now },
+                    "$setOnInsert": {
+                        "projectId": project_id,
+                        "object": WORKSPACE_MEMBERS_SLUG,
+                        "createdAt": &now,
+                    },
+                },
+            )
+            .upsert(true)
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.members.upsert"))
+            })?;
+
+        if res.upserted_id.is_some() || res.modified_count > 0 || res.matched_count > 0 {
+            upserted += 1;
+        }
+    }
+
+    // Prune stale member records that are no longer on the roster (left the
+    // project). Never touches non-member records — scoped by object slug.
+    let prune = records
+        .delete_many(doc! {
+            "projectId": project_id,
+            "object": WORKSPACE_MEMBERS_SLUG,
+            "_id": { "$nin": &member_ids },
+        })
+        .await
+        .map_err(|e| {
+            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_records.members.prune"))
+        })?;
+
+    Ok(Json(SyncMembersResponse {
+        ok: true,
+        upserted,
+        removed: prune.deleted_count,
+        total: roster.len() as u64,
+    }))
 }

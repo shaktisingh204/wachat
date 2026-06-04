@@ -55,6 +55,14 @@ pub struct CreateRunInput {
 /// `PATCH /{id}` body — partial update. Each key in the flattened body
 /// (minus `projectId` / `_id`) is `$set` verbatim; commonly used to flip
 /// `status`, append/replace `steps`, or stamp `finishedAt`.
+///
+/// Two server-side conveniences run on top of the verbatim `$set`:
+/// a present `status` (and any per-step `status` inside a replaced `steps`
+/// array) is validated + canonicalized to the run/step status vocabulary
+/// (`running` | `success` | `failed` | `stopped` | `not_started`; steps
+/// also allow `pending`), and a transition to a terminal run status
+/// (`success` / `failed` / `stopped`) auto-stamps `finishedAt` unless the
+/// caller already supplied one.
 #[derive(Debug, Clone, Deserialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateRunInput {

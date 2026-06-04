@@ -14,12 +14,66 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
-/** A single widget on a dashboard. `config` is an opaque per-type blob. */
+/**
+ * The kind of a dashboard widget. Mirrors Twenty's chart/widget families,
+ * flattened into the archetypes SabCRM renders. Unknown kinds round-trip
+ * verbatim.
+ */
+export type SabcrmWidgetType =
+  | 'kpi'
+  | 'bar'
+  | 'line'
+  | 'donut'
+  | 'funnel'
+  | 'recent'
+  | 'pipeline'
+  | (string & {});
+
+/**
+ * The aggregate metric a data-backed widget computes over its object/field.
+ * Mirrors Twenty's `AggregateOperation`. Unknown values round-trip verbatim.
+ */
+export type SabcrmWidgetMetric =
+  | 'count'
+  | 'sum'
+  | 'avg'
+  | 'min'
+  | 'max'
+  | 'count_unique_values'
+  | 'count_empty'
+  | 'count_not_empty'
+  | 'percentage_empty'
+  | 'percentage_not_empty'
+  | (string & {});
+
+/**
+ * The typed configuration blob of a widget. The three Twenty-parity
+ * coordinates a data-backed widget needs are first class (`object`, `field`,
+ * `metric`); every other key (group-by axes, granularity, limits, colors, view
+ * ids, iframe URLs, …) round-trips losslessly via the index signature.
+ */
+export interface SabcrmWidgetConfig {
+  /** Source object the widget queries (object singular name or metadata id). */
+  object?: string;
+  /** Field the metric aggregates over and/or the primary group-by axis. */
+  field?: string;
+  /** Aggregate operation the widget computes. */
+  metric?: SabcrmWidgetMetric;
+  /** Any remaining config keys, preserved verbatim. */
+  [key: string]: unknown;
+}
+
+/**
+ * A single widget on a dashboard: `{ id, type, title, config }`. `config` is
+ * the typed {@link SabcrmWidgetConfig} blob; unknown widget-level keys round-
+ * trip verbatim via the index signature.
+ */
 export interface SabcrmRustWidget {
   id: string;
-  type: string;
-  title: string;
-  config?: unknown;
+  type: SabcrmWidgetType;
+  title?: string;
+  config?: SabcrmWidgetConfig;
+  [key: string]: unknown;
 }
 
 /** A SabCRM saved dashboard as returned by the Rust engine (`_id` → `id` hex). */

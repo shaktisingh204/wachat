@@ -32,7 +32,7 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateWorkflowInput, ListQuery, ListResponse, OkResponse, ScopeQuery, UpdateWorkflowInput,
-    WorkflowResponse,
+    WorkflowResponse, WorkflowStep, WorkflowTrigger,
 };
 
 /// The Mongo collection backing automation workflows.
@@ -85,6 +85,31 @@ fn payload_to_set(value: &Value) -> Result<Document> {
 /// Convert an arbitrary JSON value into a BSON value for direct `$set`.
 fn json_to_bson(value: &Value, ctx: &'static str) -> Result<Bson> {
     bson::to_bson(value).map_err(|e| ApiError::Internal(anyhow::Error::new(e).context(ctx)))
+}
+
+/// Validate that `trigger` deserializes to the typed [`WorkflowTrigger`] shape
+/// the `AutomationBuilder` round-trips. Returns a `422` on a malformed trigger
+/// (missing/invalid `event`) so the engine never persists an unrunnable rule.
+fn validate_trigger(trigger: &Value) -> Result<()> {
+    serde_json::from_value::<WorkflowTrigger>(trigger.clone()).map_err(|e| {
+        ApiError::Validation(format!("trigger must be {{ event, object? }}: {e}"))
+    })?;
+    Ok(())
+}
+
+/// Validate that `steps` (when present) deserializes to an ordered list of typed
+/// [`WorkflowStep`]s — each `{ id, type, config, enabled? }`. Stored verbatim
+/// afterwards, but rejected with `422` if the shape is wrong.
+fn validate_steps(steps: &Value) -> Result<()> {
+    if steps.is_null() {
+        return Ok(());
+    }
+    serde_json::from_value::<Vec<WorkflowStep>>(steps.clone()).map_err(|e| {
+        ApiError::Validation(format!(
+            "steps must be a list of {{ id, type, config }}: {e}"
+        ))
+    })?;
+    Ok(())
 }
 
 // ===========================================================================
@@ -171,6 +196,12 @@ pub async fn create_workflow(
         return Err(ApiError::Validation("name is required.".to_owned()));
     }
 
+    // Validate the AutomationBuilder shape round-trips before persisting.
+    validate_trigger(&body.trigger)?;
+    if let Some(ref v) = body.steps {
+        validate_steps(v)?;
+    }
+
     let trigger = json_to_bson(&body.trigger, "sabcrm_workflows.trigger.to_bson")?;
     let steps = match body.steps {
         Some(ref v) => json_to_bson(v, "sabcrm_workflows.steps.to_bson")?,
@@ -178,6 +209,18 @@ pub async fn create_workflow(
     };
 
     let now = Utc::now().to_rfc3339();
+    let version = body.current_version.unwrap_or(1).max(1);
+
+    // Seed an initial immutable version snapshot of `{ trigger, steps }` so runs
+    // can pin to a revision and edits stay non-destructive (Twenty parity).
+    let initial_version = doc! {
+        "version": version as i64,
+        "status": "draft",
+        "trigger": trigger.clone(),
+        "steps": steps.clone(),
+        "createdAt": &now,
+    };
+
     let mut new_doc = Document::new();
     new_doc.insert("_id", ObjectId::new());
     new_doc.insert("projectId", project_id);
@@ -188,6 +231,8 @@ pub async fn create_workflow(
     new_doc.insert("enabled", body.enabled.unwrap_or(false));
     new_doc.insert("trigger", trigger);
     new_doc.insert("steps", steps);
+    new_doc.insert("currentVersion", version as i64);
+    new_doc.insert("versions", Bson::Array(vec![Bson::Document(initial_version)]));
     new_doc.insert("createdAt", &now);
     new_doc.insert("updatedAt", &now);
 
@@ -219,15 +264,64 @@ pub async fn update_workflow(
     let project_id = require_project(&body.project_id)?;
     let oid = oid_from_str(&id)?;
 
+    // Validate any structural fields in the patch against the typed
+    // AutomationBuilder shape before persisting (additive — non-structural
+    // patches like `{ enabled }` or `{ name }` are unaffected).
+    let touches_trigger = body.patch.get("trigger").is_some();
+    let touches_steps = body.patch.get("steps").is_some();
+    if let Some(t) = body.patch.get("trigger") {
+        validate_trigger(t)?;
+    }
+    if let Some(s) = body.patch.get("steps") {
+        validate_steps(s)?;
+    }
+
+    let now = Utc::now().to_rfc3339();
     let mut set = payload_to_set(&body.patch)?;
-    set.insert("updatedAt", Utc::now().to_rfc3339());
+    set.insert("updatedAt", &now);
 
     let coll = mongo.collection::<Document>(WORKFLOWS_COLL);
+
+    // A structural edit (trigger or steps) cuts a new immutable version
+    // snapshot and bumps `currentVersion`. Pure metadata edits (name / enabled /
+    // description) leave the version history untouched.
+    let update = if touches_trigger || touches_steps {
+        let existing = coll
+            .find_one(doc! { "projectId": project_id, "_id": oid })
+            .await
+            .map_err(|e| {
+                ApiError::Internal(anyhow::Error::new(e).context("sabcrm_workflows.find_one"))
+            })?
+            .ok_or_else(|| ApiError::NotFound("workflow".to_owned()))?;
+
+        let next_version = existing.get_i64("currentVersion").unwrap_or(1) + 1;
+        let next_trigger = set
+            .get("trigger")
+            .cloned()
+            .or_else(|| existing.get("trigger").cloned())
+            .unwrap_or(Bson::Document(Document::new()));
+        let next_steps = set
+            .get("steps")
+            .cloned()
+            .or_else(|| existing.get("steps").cloned())
+            .unwrap_or(Bson::Array(Vec::new()));
+
+        let snapshot = doc! {
+            "version": next_version,
+            "status": "draft",
+            "trigger": next_trigger,
+            "steps": next_steps,
+            "createdAt": &now,
+        };
+        set.insert("currentVersion", next_version);
+
+        doc! { "$set": set, "$push": { "versions": snapshot } }
+    } else {
+        doc! { "$set": set }
+    };
+
     let updated = coll
-        .find_one_and_update(
-            doc! { "projectId": project_id, "_id": oid },
-            doc! { "$set": set },
-        )
+        .find_one_and_update(doc! { "projectId": project_id, "_id": oid }, update)
         .return_document(mongodb::options::ReturnDocument::After)
         .await
         .map_err(|e| {

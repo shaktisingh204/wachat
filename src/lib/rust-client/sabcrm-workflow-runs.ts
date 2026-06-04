@@ -16,18 +16,33 @@ import 'server-only';
  */
 import { rustFetch } from './fetcher';
 
-/** Lifecycle status of a workflow run / step. */
+/**
+ * Lifecycle status of a workflow RUN. The Rust side validates + canonicalizes
+ * a supplied status into this vocabulary; a transition to a terminal status
+ * (`success` / `failed` / `stopped`) auto-stamps `finishedAt`.
+ */
 export type SabcrmWorkflowRunStatus =
   | 'running'
   | 'success'
   | 'failed'
+  | 'stopped'
+  | 'not_started'
+  | (string & {});
+
+/**
+ * Lifecycle status of a single STEP inside a run. Same vocabulary as the run
+ * status, plus `pending` (queued but not yet started).
+ */
+export type SabcrmWorkflowRunStepStatus =
+  | SabcrmWorkflowRunStatus
+  | 'pending'
   | (string & {});
 
 /** One step inside a workflow run. */
 export interface SabcrmRustWorkflowRunStep {
   id: string;
   type: string;
-  status: SabcrmWorkflowRunStatus;
+  status: SabcrmWorkflowRunStepStatus;
   output?: unknown;
   error?: string;
 }

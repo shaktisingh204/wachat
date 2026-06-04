@@ -32,7 +32,7 @@ use tracing::instrument;
 
 use crate::dto::{
     CreateDashboardInput, DashboardResponse, ListResponse, OkResponse, ScopeQuery,
-    UpdateDashboardInput,
+    UpdateDashboardInput, parse_widgets,
 };
 
 /// The Mongo collection backing saved dashboards.
@@ -80,6 +80,24 @@ fn payload_to_set(value: &Value) -> Result<Document> {
         out.insert(k, v);
     }
     Ok(out)
+}
+
+/// Validate a `widgets` JSON value: it must parse into the typed widget model
+/// (`{ id, type, title, config }`) and widget ids must be unique within the
+/// dashboard. Parsing is lossless, so the caller persists the original blob
+/// unchanged and it round-trips verbatim.
+fn validate_widgets(value: &Value) -> Result<()> {
+    let widgets = parse_widgets(value).map_err(ApiError::Validation)?;
+    let mut seen = std::collections::HashSet::with_capacity(widgets.len());
+    for w in &widgets {
+        if !seen.insert(w.id.as_str()) {
+            return Err(ApiError::Validation(format!(
+                "duplicate widget id '{}'.",
+                w.id
+            )));
+        }
+    }
+    Ok(())
 }
 
 // ===========================================================================
@@ -163,11 +181,17 @@ pub async fn create_dashboard(
         return Err(ApiError::Validation("name is required.".to_owned()));
     }
 
-    // Normalise widgets → a BSON array (default empty).
+    // Normalise widgets → a BSON array (default empty). Validate the typed
+    // shape first, then persist the original blob verbatim (lossless).
     let widgets_bson = match body.widgets {
-        Some(v) if !v.is_null() => bson::to_bson(&v).map_err(|e| {
-            ApiError::Internal(anyhow::Error::new(e).context("sabcrm_dashboards.widgets.to_bson"))
-        })?,
+        Some(v) if !v.is_null() => {
+            validate_widgets(&v)?;
+            bson::to_bson(&v).map_err(|e| {
+                ApiError::Internal(
+                    anyhow::Error::new(e).context("sabcrm_dashboards.widgets.to_bson"),
+                )
+            })?
+        }
         _ => Bson::Array(Vec::new()),
     };
 
@@ -206,6 +230,14 @@ pub async fn update_dashboard(
 ) -> Result<Json<DashboardResponse>> {
     let project_id = require_project(&body.project_id)?;
     let oid = oid_from_str(&id)?;
+
+    // If the patch touches `widgets`, validate the typed shape (and unique
+    // ids) before `$set`. The stored blob is unchanged, so it round-trips.
+    if let Value::Object(map) = &body.patch {
+        if let Some(widgets) = map.get("widgets") {
+            validate_widgets(widgets)?;
+        }
+    }
 
     let mut set = payload_to_set(&body.patch)?;
     set.insert("updatedAt", Utc::now().to_rfc3339());

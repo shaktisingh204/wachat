@@ -32,4 +32,5 @@ pub mod dto;
 pub mod handlers;
 pub mod router;
 
+pub use dto::{DashboardWidget, WidgetConfig, WidgetMetric, WidgetType};
 pub use router::router;
