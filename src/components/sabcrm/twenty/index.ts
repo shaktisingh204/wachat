@@ -16,6 +16,7 @@ export type {
   TwentyChipProps,
   TwentyAvatarProps,
   TwentyAvatarSize,
+  TwentyAvatarShape,
   TwentyPageHeaderProps,
 } from './twenty-primitives';
 export {

@@ -2538,12 +2538,23 @@ interface RecordDetailTwProps {
   object: ObjectMetadata;
   record: SabcrmRustRecord;
   projectId: string | null;
+  /**
+   * Whether the viewer may edit this record's fields. RBAC is enforced upstream
+   * (the `/sabcrm` layout gates read access; every gated action re-checks on
+   * write), so this is the page-level edit capability — `false` makes every
+   * field read-only across BOTH the left field panel and any saved-layout FIELDS
+   * widget. Defaults to `true` (the page is the editable record view); a future
+   * server-side per-object/per-record edit gate can pass `false` to render the
+   * whole record read-only without touching either panel.
+   */
+  canEdit?: boolean;
 }
 
 export function RecordDetailTw({
   object,
   record: initialRecord,
   projectId,
+  canEdit = true,
 }: RecordDetailTwProps): React.JSX.Element {
   const router = useRouter();
   const [record, setRecord] = React.useState<SabcrmRustRecord>(initialRecord);
@@ -3402,10 +3413,10 @@ export function RecordDetailTw({
           object={object}
           record={record}
           onUpdate={handleCommit}
-          canEdit
+          canEdit={canEdit}
         />
       ),
-    [object, record, handleCommit],
+    [object, record, handleCommit, canEdit],
   );
 
   const renderNotesPanel = React.useCallback(
@@ -3877,7 +3888,9 @@ export function RecordDetailTw({
         {/* LEFT field panel — Twenty's record-show left column: every field as a
             label→value row with inline edit + system-field grouping. Wires the
             existing optimistic `handleCommit` (→ gated `updateSabcrmRecordTw`)
-            through; `canEdit` is on (the page is the editable record view). */}
+            through; `canEdit` is the page-level RBAC edit capability, so a
+            read-only viewer gets read-only fields here (and in every saved-layout
+            FIELDS widget, which threads the same value). */}
         <section className="st-panel st-show-fields" aria-label="Record fields">
           <div className="st-panel__head">Details</div>
           <div className="st-panel__body st-show-fields__body">
@@ -3885,7 +3898,7 @@ export function RecordDetailTw({
               object={object}
               record={record}
               onUpdate={handleCommit}
-              canEdit
+              canEdit={canEdit}
             />
           </div>
         </section>

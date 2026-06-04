@@ -23,6 +23,22 @@ export const dynamic = 'force-dynamic';
  * (the shared object catalogue), so custom objects render correctly too. A
  * monotonic request id guards against out-of-order async responses.
  *
+ * Command-search parity
+ * ---------------------
+ *   - Each hit shows a `TwentyAvatar` (round for people-ish objects, the 4px
+ *     rounded square logo shape otherwise) + label + match snippet + kind chip.
+ *   - Keyboard navigation: ↑/↓ rove a single flat index ACROSS object-group
+ *     boundaries (like Twenty's command menu), Enter opens the active (or first)
+ *     hit, Escape clears the box. The roving cursor is exposed via ARIA
+ *     combobox/listbox/option wiring + `aria-activedescendant`.
+ *   - Recent searches persist to `localStorage` (best-effort, quota/SSR-safe)
+ *     and surface as a quick-pick list when the box is empty.
+ *
+ * NB: We deliberately use the engine's single-round-trip `globalSearchTw`
+ * (`sabcrmRecordsApi.searchAll`) rather than looping `listSabcrmRecordsTw` once
+ * per object — same cross-object result, one network call instead of N, and it
+ * is the existing gated action for this surface.
+ *
  * Client Component. The surrounding `src/app/sabcrm/layout.tsx` enforces auth /
  * onboarding / `RBACGuard`, mounts the project provider, and renders this inside
  * `TwentyAppFrame` (the `.sabcrm-twenty` scope). Both actions independently
@@ -35,6 +51,7 @@ export const dynamic = 'force-dynamic';
  */
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Search,
@@ -48,13 +65,17 @@ import {
   CheckCircle2,
   CircleDot,
   ArrowRight,
+  Clock,
+  X,
+  CornerDownLeft,
   type LucideIcon,
 } from 'lucide-react';
 
 import { globalSearchTw } from '@/app/actions/sabcrm-search.actions';
 import type { GlobalSearchHit } from '@/app/actions/sabcrm-search.actions.types';
 import { listSabcrmObjectsTw } from '@/app/actions/sabcrm-twenty.actions';
-import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
+import type { TwentyAvatarShape } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 
 import '../my-work/my-work.css';
@@ -72,6 +93,16 @@ const SEARCH_DEBOUNCE_MS = 250;
 const MIN_QUERY_LEN = 2;
 /** Per-group preview cap — extra hits collapse behind a "view all" footer. */
 const PREVIEW_PER_GROUP = 6;
+/** localStorage key for the recent-searches list (per browser, all projects). */
+const RECENT_KEY = 'sabcrm.search.recent';
+/** How many recent searches to keep / show. */
+const RECENT_MAX = 6;
+
+/**
+ * Object slugs that render a CIRCULAR avatar (people / actors). Everything else
+ * — companies, custom objects — uses Twenty's rounded-square logo shape.
+ */
+const ROUND_AVATAR_OBJECTS = new Set(['people', 'users', 'members']);
 
 /**
  * Lucide icons for the five standard object slugs (the vendored Twenty look
@@ -114,6 +145,20 @@ interface ObjectDescriptor {
 interface ResultGroup {
   descriptor: ObjectDescriptor;
   hits: GlobalHit[];
+}
+
+/**
+ * A previewed hit decorated with its group descriptor + a global keyboard
+ * index. Built once per render so arrow-key navigation can move across object
+ * group boundaries as a single flat list (Twenty command-menu behaviour).
+ */
+interface FlatHit {
+  hit: GlobalHit;
+  descriptor: ObjectDescriptor;
+  /** 0-based position in the flattened, keyboard-navigable list of preview hits. */
+  index: number;
+  /** Destination detail route (`/sabcrm/<object>/<id>`). */
+  href: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -162,16 +207,54 @@ function highlight(text: string, term: string): React.ReactNode {
   );
 }
 
+/** Reads the recent-searches list from localStorage (SSR / quota-safe). */
+function readRecent(): string[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem(RECENT_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+      .slice(0, RECENT_MAX);
+  } catch {
+    return [];
+  }
+}
+
+/** Persists the recent-searches list, swallowing quota / privacy errors. */
+function writeRecent(list: string[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_MAX)));
+  } catch {
+    /* private mode / quota — recent searches are best-effort only */
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 
 export default function SabcrmSearchPage(): React.JSX.Element {
   const { activeProjectId } = useProject();
+  const router = useRouter();
 
   // Search box (raw) → committed (debounced) query.
   const [input, setInput] = React.useState('');
   const [query, setQuery] = React.useState('');
+
+  // Recent searches (localStorage). Hydrated on mount to stay SSR-safe.
+  const [recent, setRecent] = React.useState<string[]>([]);
+  React.useEffect(() => {
+    setRecent(readRecent());
+  }, []);
+
+  // Keyboard "roving" index across the flattened preview hits (-1 = none).
+  const [activeIndex, setActiveIndex] = React.useState(-1);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const listRef = React.useRef<HTMLDivElement>(null);
 
   // Object catalogue (slug → labels) for group headers; best-effort.
   // Mirrored into a ref so the (async, often-later) catalogue load can relabel
@@ -292,6 +375,92 @@ export default function SabcrmSearchPage(): React.JSX.Element {
 
   const hasQuery = query.length >= MIN_QUERY_LEN;
 
+  // Flatten the previewed hits across all groups into a single keyboard-
+  // navigable list (Twenty moves the selection across object boundaries).
+  const flatHits = React.useMemo<FlatHit[]>(() => {
+    const out: FlatHit[] = [];
+    let i = 0;
+    for (const group of groups) {
+      for (const hit of group.hits.slice(0, PREVIEW_PER_GROUP)) {
+        out.push({
+          hit,
+          descriptor: group.descriptor,
+          index: i++,
+          href: `${CRM_BASE_PATH}/${hit.object}/${hit.id}`,
+        });
+      }
+    }
+    return out;
+  }, [groups]);
+
+  // Reset the keyboard cursor whenever the result set changes.
+  React.useEffect(() => {
+    setActiveIndex(-1);
+  }, [flatHits]);
+
+  // Scroll the active row into view as the cursor moves.
+  React.useEffect(() => {
+    if (activeIndex < 0 || !listRef.current) return;
+    const el = listRef.current.querySelector<HTMLElement>(
+      `[data-hit-index="${activeIndex}"]`,
+    );
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex]);
+
+  // Commit a query to the recent-searches list (dedupe, most-recent-first).
+  const rememberSearch = React.useCallback((term: string) => {
+    const t = term.trim();
+    if (t.length < MIN_QUERY_LEN) return;
+    setRecent((prev) => {
+      const next = [t, ...prev.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(
+        0,
+        RECENT_MAX,
+      );
+      writeRecent(next);
+      return next;
+    });
+  }, []);
+
+  // Persist a committed query once it returns results worth remembering.
+  React.useEffect(() => {
+    if (hasQuery && !searchError && total > 0) rememberSearch(query);
+  }, [hasQuery, searchError, total, query, rememberSearch]);
+
+  const clearRecent = React.useCallback(() => {
+    setRecent([]);
+    writeRecent([]);
+  }, []);
+
+  // Keyboard navigation on the search box: ↑/↓ move the cursor, Enter opens the
+  // active hit (or the first hit), Escape clears the box.
+  const onKeyDown = React.useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'ArrowDown') {
+        if (flatHits.length === 0) return;
+        e.preventDefault();
+        setActiveIndex((i) => (i + 1) % flatHits.length);
+      } else if (e.key === 'ArrowUp') {
+        if (flatHits.length === 0) return;
+        e.preventDefault();
+        setActiveIndex((i) => (i <= 0 ? flatHits.length - 1 : i - 1));
+      } else if (e.key === 'Enter') {
+        const target =
+          flatHits[activeIndex] ?? (flatHits.length > 0 ? flatHits[0] : undefined);
+        if (target) {
+          e.preventDefault();
+          rememberSearch(query);
+          router.push(target.href);
+        }
+      } else if (e.key === 'Escape') {
+        if (input) {
+          e.preventDefault();
+          setInput('');
+        }
+      }
+    },
+    [flatHits, activeIndex, query, input, rememberSearch, router],
+  );
+
   // ---- Render --------------------------------------------------------------
 
   return (
@@ -303,11 +472,21 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           <Search size={18} />
         </span>
         <input
+          ref={inputRef}
           className="stw-searchbox__input"
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={onKeyDown}
           placeholder="Search everything — companies, people, opportunities…"
           autoFocus
+          autoComplete="off"
+          spellCheck={false}
+          role="combobox"
+          aria-expanded={flatHits.length > 0}
+          aria-controls="stsg-results"
+          aria-activedescendant={
+            activeIndex >= 0 ? `stsg-hit-${activeIndex}` : undefined
+          }
           aria-label="Search all records"
         />
         {searching ? (
@@ -325,6 +504,16 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           <span className="stsg-summary__term">&ldquo;{query}&rdquo;</span>
           {groups.length > 1 ? ` across ${groups.length} objects` : null}
         </p>
+      ) : !hasQuery && recent.length > 0 ? (
+        <p className="stsg-kbd-hint">
+          <kbd className="stsg-kbd">↑</kbd>
+          <kbd className="stsg-kbd">↓</kbd>
+          to navigate
+          <kbd className="stsg-kbd">
+            <CornerDownLeft size={11} aria-hidden="true" />
+          </kbd>
+          to open
+        </p>
       ) : null}
 
       {searchError ? (
@@ -337,16 +526,52 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           <span>{searchError}</span>
         </div>
       ) : !hasQuery ? (
-        <div className="st-empty">
-          <span className="st-empty__icon" aria-hidden="true">
-            <Search size={20} />
-          </span>
-          <p className="st-empty__title">Start typing to search</p>
-          <p className="st-empty__desc">
-            One search across every object in this workspace — companies,
-            people, opportunities, notes, tasks and your custom records.
-          </p>
-        </div>
+        recent.length > 0 ? (
+          <section className="stsg-recent" aria-label="Recent searches">
+            <div className="stsg-recent__head">
+              <span className="stsg-recent__title">
+                <Clock size={13} aria-hidden="true" />
+                Recent
+              </span>
+              <button
+                type="button"
+                className="stsg-recent__clear"
+                onClick={clearRecent}
+              >
+                Clear
+              </button>
+            </div>
+            <ul className="stsg-recent__list">
+              {recent.map((term) => (
+                <li key={term}>
+                  <button
+                    type="button"
+                    className="stsg-recent__item"
+                    onClick={() => {
+                      setInput(term);
+                      inputRef.current?.focus();
+                    }}
+                  >
+                    <Search size={14} aria-hidden="true" />
+                    <span className="stsg-recent__term">{term}</span>
+                    <ArrowRight size={13} aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <div className="st-empty">
+            <span className="st-empty__icon" aria-hidden="true">
+              <Search size={20} />
+            </span>
+            <p className="st-empty__title">Start typing to search</p>
+            <p className="st-empty__desc">
+              One search across every object in this workspace — companies,
+              people, opportunities, notes, tasks and your custom records.
+            </p>
+          </div>
+        )
       ) : searching && groups.length === 0 ? (
         <ResultsSkeleton />
       ) : groups.length === 0 ? (
@@ -360,12 +585,17 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           </p>
         </div>
       ) : (
-        <div className="stw-groups">
+        <div className="stw-groups" id="stsg-results" role="listbox" ref={listRef}>
           {groups.map((group) => {
             const { descriptor } = group;
             const Icon = descriptor.icon;
             const preview = group.hits.slice(0, PREVIEW_PER_GROUP);
             const overflow = group.hits.length - preview.length;
+            const shape: TwentyAvatarShape = ROUND_AVATAR_OBJECTS.has(
+              descriptor.slug,
+            )
+              ? 'round'
+              : 'square';
             return (
               <section key={descriptor.slug} className="stw-group">
                 <header className="stw-group__head">
@@ -374,30 +604,51 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                   <span className="stw-group__count">{group.hits.length}</span>
                 </header>
                 <ul className="stw-hits">
-                  {preview.map((hit) => (
-                    <li key={`${hit.object}:${hit.id}`}>
-                      <Link
-                        href={`${CRM_BASE_PATH}/${hit.object}/${hit.id}`}
-                        className="stw-hit stsg-hit"
-                      >
-                        <span className="stsg-hit__body">
-                          <span className="stw-hit__label">
-                            {hit.label
-                              ? highlight(hit.label, query)
-                              : 'Untitled'}
-                          </span>
-                          {hit.snippet ? (
-                            <span className="stsg-hit__snippet">
-                              {highlight(hit.snippet, query)}
+                  {preview.map((hit) => {
+                    // Resolve this hit's slot in the flattened keyboard list.
+                    const flat = flatHits.find(
+                      (f) => f.hit.object === hit.object && f.hit.id === hit.id,
+                    );
+                    const flatIndex = flat?.index ?? -1;
+                    const active = flatIndex === activeIndex;
+                    return (
+                      <li key={`${hit.object}:${hit.id}`}>
+                        <Link
+                          id={`stsg-hit-${flatIndex}`}
+                          data-hit-index={flatIndex}
+                          data-active={active}
+                          role="option"
+                          aria-selected={active}
+                          href={`${CRM_BASE_PATH}/${hit.object}/${hit.id}`}
+                          className="stw-hit stsg-hit"
+                          onMouseEnter={() => setActiveIndex(flatIndex)}
+                          onClick={() => rememberSearch(query)}
+                        >
+                          <TwentyAvatar
+                            name={hit.label || 'Untitled'}
+                            size="sm"
+                            shape={shape}
+                            className="stsg-hit__avatar"
+                          />
+                          <span className="stsg-hit__body">
+                            <span className="stw-hit__label">
+                              {hit.label
+                                ? highlight(hit.label, query)
+                                : 'Untitled'}
                             </span>
-                          ) : null}
-                        </span>
-                        <span className="stw-hit__kind">
-                          {descriptor.labelSingular}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
+                            {hit.snippet ? (
+                              <span className="stsg-hit__snippet">
+                                {highlight(hit.snippet, query)}
+                              </span>
+                            ) : null}
+                          </span>
+                          <span className="stw-hit__kind">
+                            {descriptor.labelSingular}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
                 {overflow > 0 ? (
                   <Link

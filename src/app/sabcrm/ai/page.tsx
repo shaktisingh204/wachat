@@ -5,18 +5,39 @@
  *
  * A chat UI rendered in Twenty's visual language (`.st-*` classes + the
  * `@/components/sabcrm/twenty` kit + the sibling `./ai.css` — NO ZoruUI /
- * Tailwind / clay). It posts the running transcript to `/api/sabcrm/ai` and
- * streams the assistant reply back into a bubble.
+ * Tailwind / clay). It posts the running transcript to `/api/sabcrm/ai` (the
+ * existing, gated AI backend route — there is no AI server action in
+ * `sabcrm*.actions.ts`, this dedicated route IS the backend) and streams the
+ * assistant reply back into the transcript.
+ *
+ * Twenty parity notes (mirrors `twenty-front/src/modules/ai/components`):
+ *   - Assistant messages render flush-left with a transparent background and
+ *     no avatar (Twenty's `AiChatMessage` / `StyledMessageText` for non-user).
+ *   - User messages get a small tinted bubble, right-aligned.
+ *   - Each message gets a hover footer with a relative timestamp + a copy
+ *     button (Twenty's `StyledMessageFooter` + `LightCopyIconButton`).
+ *   - A floating "scroll to bottom" button appears when scrolled up
+ *     (Twenty's `AiChatScrollToBottomButton`).
+ *   - Streaming "thinking" indicator while the first token is in flight.
  *
  * Honesty: when the route reports it has no provider key configured (HTTP 503
  * with `{ ok:false, error }`), we surface a clear "AI isn't configured yet"
- * state instead of pretending to answer.
+ * banner instead of pretending to answer (mirrors Twenty's
+ * `AiChatApiKeyNotConfiguredMessage`).
  */
 
 export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
-import { Sparkles, Send, Loader2, AlertTriangle, User } from 'lucide-react';
+import {
+  Sparkles,
+  Send,
+  Loader2,
+  AlertTriangle,
+  ArrowDown,
+  Check,
+  Copy,
+} from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 
@@ -33,6 +54,7 @@ interface ChatMessage {
   id: string;
   role: ChatRole;
   content: string;
+  createdAt: number;
 }
 
 const SUGGESTED_PROMPTS: readonly string[] = [
@@ -46,6 +68,54 @@ function newId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+/** Lightweight relative timestamp ("just now", "2m", "3h", or a date). */
+function relativeTime(then: number, now: number): string {
+  const secs = Math.max(0, Math.round((now - then) / 1000));
+  if (secs < 45) return 'just now';
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(then).toLocaleDateString();
+}
+
+// ---------------------------------------------------------------------------
+// Copy button (Twenty's LightCopyIconButton equivalent)
+// ---------------------------------------------------------------------------
+
+function CopyButton({ text }: { text: string }): React.JSX.Element {
+  const [copied, setCopied] = React.useState(false);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const onCopy = React.useCallback(() => {
+    void navigator.clipboard?.writeText(text).then(() => {
+      setCopied(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 1200);
+    });
+  }, [text]);
+
+  return (
+    <button
+      type="button"
+      className="st-ai__copy"
+      onClick={onCopy}
+      aria-label={copied ? 'Copied' : 'Copy message'}
+      title={copied ? 'Copied' : 'Copy'}
+    >
+      {copied ? <Check size={13} /> : <Copy size={13} />}
+    </button>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
@@ -56,18 +126,53 @@ export default function SabcrmAiPage(): React.JSX.Element {
   const [pending, setPending] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [unconfigured, setUnconfigured] = React.useState(false);
+  const [atBottom, setAtBottom] = React.useState(true);
+  const [nowTick, setNowTick] = React.useState(() => Date.now());
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement | null>(null);
   const abortRef = React.useRef<AbortController | null>(null);
+  const stickRef = React.useRef(true);
 
+  // Auto-grow the composer textarea up to its CSS max-height.
   React.useEffect(() => {
-    // Keep the newest message in view as the transcript / stream grows.
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [input]);
+
+  // Keep the newest message in view as the transcript / stream grows — but
+  // only while the user hasn't scrolled up (Twenty's auto-scroll behaviour).
+  React.useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el && stickRef.current) el.scrollTop = el.scrollHeight;
   }, [messages, pending]);
+
+  // Refresh relative timestamps periodically.
+  React.useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   React.useEffect(() => {
     return () => abortRef.current?.abort();
+  }, []);
+
+  const onScroll = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const isBottom = distance < 32;
+    stickRef.current = isBottom;
+    setAtBottom(isBottom);
+  }, []);
+
+  const scrollToBottom = React.useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    stickRef.current = true;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   }, []);
 
   const send = React.useCallback(
@@ -77,11 +182,14 @@ export default function SabcrmAiPage(): React.JSX.Element {
 
       setError(null);
       setUnconfigured(false);
+      stickRef.current = true;
 
+      const now = Date.now();
       const userMsg: ChatMessage = {
         id: newId(),
         role: 'user',
         content: trimmed,
+        createdAt: now,
       };
       const assistantId = newId();
 
@@ -95,7 +203,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
       setMessages((prev) => [
         ...prev,
         userMsg,
-        { id: assistantId, role: 'assistant', content: '' },
+        { id: assistantId, role: 'assistant', content: '', createdAt: now },
       ]);
       setInput('');
       setPending(true);
@@ -127,7 +235,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
           return;
         }
 
-        // Stream the plain-text body into the assistant bubble.
+        // Stream the plain-text body into the assistant message.
         const reader = res.body?.getReader();
         if (!reader) {
           const fallback = await res.text();
@@ -173,6 +281,10 @@ export default function SabcrmAiPage(): React.JSX.Element {
     [messages, pending],
   );
 
+  const stop = React.useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
+
   const onSubmit = React.useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
@@ -198,7 +310,7 @@ export default function SabcrmAiPage(): React.JSX.Element {
       <TwentyPageHeader title="AI Assistant" icon={Sparkles} />
 
       <div className="st-ai__body">
-        <div className="st-ai__scroll" ref={scrollRef}>
+        <div className="st-ai__scroll" ref={scrollRef} onScroll={onScroll}>
           {isEmpty ? (
             <div className="st-ai__welcome">
               <span className="st-ai__welcome-icon" aria-hidden="true">
@@ -225,32 +337,41 @@ export default function SabcrmAiPage(): React.JSX.Element {
             </div>
           ) : (
             <ul className="st-ai__messages">
-              {messages.map((m) => (
-                <li
-                  key={m.id}
-                  className={`st-ai__msg st-ai__msg--${m.role}`}
-                >
-                  <span className="st-ai__avatar" aria-hidden="true">
-                    {m.role === 'assistant' ? (
-                      <Sparkles size={14} />
-                    ) : (
-                      <User size={14} />
-                    )}
-                  </span>
-                  <div className="st-ai__bubble">
-                    {m.content ? (
-                      m.content
-                    ) : pending && m.role === 'assistant' ? (
-                      <span className="st-ai__typing" aria-label="Thinking">
-                        <Loader2 size={14} className="st-ai__spin" />
-                        Thinking…
-                      </span>
-                    ) : (
-                      ''
-                    )}
-                  </div>
-                </li>
-              ))}
+              {messages.map((m) => {
+                const isUser = m.role === 'user';
+                const streaming =
+                  pending && m.role === 'assistant' && m.content === '';
+                return (
+                  <li
+                    key={m.id}
+                    className={`st-ai__msg st-ai__msg--${m.role}`}
+                  >
+                    <div className="st-ai__bubble">
+                      {m.content ? (
+                        m.content
+                      ) : streaming ? (
+                        <span
+                          className="st-ai__typing"
+                          aria-label="Thinking"
+                        >
+                          <Loader2 size={14} className="st-ai__spin" />
+                          Thinking…
+                        </span>
+                      ) : (
+                        ''
+                      )}
+                    </div>
+                    {m.content && !streaming ? (
+                      <div className="st-ai__footer">
+                        <span className="st-ai__timestamp">
+                          {relativeTime(m.createdAt, nowTick)}
+                        </span>
+                        <CopyButton text={m.content} />
+                      </div>
+                    ) : null}
+                  </li>
+                );
+              })}
             </ul>
           )}
 
@@ -276,8 +397,21 @@ export default function SabcrmAiPage(): React.JSX.Element {
           ) : null}
         </div>
 
+        {!isEmpty && !atBottom ? (
+          <button
+            type="button"
+            className="st-ai__scroll-bottom"
+            onClick={scrollToBottom}
+            aria-label="Scroll to latest"
+            title="Scroll to latest"
+          >
+            <ArrowDown size={16} />
+          </button>
+        ) : null}
+
         <form className="st-ai__composer" onSubmit={onSubmit}>
           <textarea
+            ref={inputRef}
             className="st-ai__input"
             placeholder="Message the AI Assistant…"
             aria-label="Message the AI Assistant"
@@ -285,17 +419,21 @@ export default function SabcrmAiPage(): React.JSX.Element {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
             rows={1}
-            disabled={pending}
           />
-          <TwentyButton
-            variant="primary"
-            type="submit"
-            icon={pending ? Loader2 : Send}
-            disabled={pending || input.trim().length === 0}
-            className={pending ? 'st-ai__send--busy' : undefined}
-          >
-            {pending ? 'Sending' : 'Send'}
-          </TwentyButton>
+          {pending ? (
+            <TwentyButton variant="secondary" type="button" onClick={stop}>
+              Stop
+            </TwentyButton>
+          ) : (
+            <TwentyButton
+              variant="primary"
+              type="submit"
+              icon={Send}
+              disabled={input.trim().length === 0}
+            >
+              Send
+            </TwentyButton>
+          )}
         </form>
       </div>
     </div>

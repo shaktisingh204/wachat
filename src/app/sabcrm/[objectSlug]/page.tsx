@@ -1419,6 +1419,17 @@ interface BoardViewProps {
   ) => void;
   /** Records mid-flight to the engine — rendered with the "saving" ring. */
   savingIds: ReadonlySet<string>;
+  /**
+   * Quick-add a record into a column (the visible "+ New" affordance for
+   * grouped/board views, where the table's inline tail row is hidden). The page
+   * seeds the column's group/stage value so the card lands here. `columnValue`
+   * is `null` for the Ungrouped/Unstaged bucket. Omit to hide the buttons.
+   */
+  onCreateCard?: (columnKey: string, columnValue: string | null) => void;
+  /** Column key whose "+ New" is currently persisting (spinner / disabled). */
+  creatingKey?: string | null;
+  /** Singular object label for the per-column button copy ("New Deal"). */
+  objectLabelSingular: string;
 }
 
 /** Stable key for a board column (the SELECT value, or a sentinel for null). */
@@ -1446,6 +1457,9 @@ function BoardView({
   onMoveCard,
   onMoveCards,
   savingIds,
+  onCreateCard,
+  creatingKey,
+  objectLabelSingular,
 }: BoardViewProps) {
   // The card being dragged (drives the source "ghost" style + drop routing)
   // and the column currently hovered (drives the drop-target highlight).
@@ -1760,11 +1774,12 @@ function BoardView({
                 handleDrop(group.value);
               }}
             >
-              {group.records.length === 0 ? (
+              {group.records.length === 0 && (
                 <div className="st-board__empty">
                   {isOver ? 'Drop here' : 'Nothing here'}
                 </div>
-              ) : (
+              )}
+              {group.records.length > 0 &&
                 group.records.map((record) => {
                   const isDragging = drag?.recordId === record.id;
                   const isSaving = savingIds.has(record.id);
@@ -1848,7 +1863,47 @@ function BoardView({
                       })}
                     </Link>
                   );
-                })
+                })}
+              {/* Per-column "+ New" — the visible add-record affordance for the
+                  board (the table's inline tail row is hidden here). Creates a
+                  record seeded with this column's group/stage value so it lands
+                  in this column (Twenty's per-column new-record button). */}
+              {onCreateCard && (
+                <button
+                  type="button"
+                  className="st-card st-board__add"
+                  disabled={creatingKey === key}
+                  aria-label={`New ${objectLabelSingular} in ${label}`}
+                  // Self-styled (no dedicated CSS class for the board add button
+                  // in this file's stylesheets): inherit the `.st-card` chrome
+                  // but lay the icon + label out inline, dashed + muted so it
+                  // reads as an "add" affordance rather than a real card.
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--st-space-2)',
+                    justifyContent: 'flex-start',
+                    borderStyle: 'dashed',
+                    color: 'var(--st-text-tertiary)',
+                    fontSize: 'var(--st-font-size-sm)',
+                    fontWeight: 'var(--st-fw-medium)',
+                    opacity: creatingKey === key ? 0.6 : 1,
+                  }}
+                  // Never let the add-button press start a marquee / clear the
+                  // card selection on the board surface.
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateCard(key, column.value);
+                  }}
+                >
+                  {creatingKey === key ? (
+                    <Loader2 size={14} className="st-spin" aria-hidden="true" />
+                  ) : (
+                    <Plus size={14} aria-hidden="true" />
+                  )}
+                  <span>New {objectLabelSingular}</span>
+                </button>
               )}
             </div>
           </div>
@@ -2822,6 +2877,57 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
     setRefreshTick((t) => t + 1);
   }, []);
 
+  // Track which board column is currently persisting a quick "+ New" create so
+  // its button can show a spinner / disable while the engine round-trips.
+  const [boardCreating, setBoardCreating] = React.useState<string | null>(null);
+
+  // Board "+ New" create — the visible add-record affordance for grouped/board
+  // views (where the table's inline tail row is hidden). Seeds the object's
+  // label field with a default name AND the column's group/stage field so the
+  // new record lands in the column it was created from (Twenty's per-column new
+  // button). Persists via the same gated `createSabcrmRecordTw`; on success it
+  // refreshes the grouped data, on failure it surfaces the error and never
+  // crashes (degrades gracefully when the Rust engine is DOWN). `columnValue`
+  // is the target column's group/stage value, or `null` for the
+  // Ungrouped/Unstaged bucket (no group field is written then).
+  const handleBoardCreate = React.useCallback(
+    async (columnKey: string, columnValue: string | null) => {
+      if (!object || !groupField) return;
+      if (boardCreating) return;
+
+      const labelKey =
+        object.fields.find((f) => f.isLabel)?.key ??
+        object.fields.find((f) => f.type === 'TEXT' || f.type === 'EMAIL')?.key;
+      if (!labelKey) return;
+
+      const payload: Record<string, unknown> = {
+        [labelKey]: `New ${object.labelSingular}`,
+      };
+      // Only write the grouping field when the column carries a real value —
+      // the Ungrouped/Unstaged bucket leaves it unset (matches the table).
+      if (columnValue !== null) payload[groupField.key] = columnValue;
+
+      setBoardCreating(columnKey);
+      setDataError(null);
+
+      const res = await createSabcrmRecordTw(
+        object.slug,
+        payload,
+        activeProjectId ?? undefined,
+      );
+
+      setBoardCreating(null);
+
+      if (!res.ok) {
+        setDataError(res.error);
+        return;
+      }
+      // Re-fetch the grouped data so the new card shows in its column.
+      setRefreshTick((t) => t + 1);
+    },
+    [object, groupField, boardCreating, activeProjectId],
+  );
+
   // Inline create (the table's bottom "type a name + Enter" row). Seeds the
   // object's label field with the typed name, persists via the same gated
   // `createSabcrmRecordTw` the dialog uses, and is OPTIMISTIC: a placeholder
@@ -3787,17 +3893,33 @@ export default function SabcrmTwentyIndexPage(): React.JSX.Element {
           onMoveCard={handleMoveCard}
           onMoveCards={handleMoveCards}
           savingIds={movingCards}
+          onCreateCard={handleBoardCreate}
+          creatingKey={boardCreating}
+          objectLabelSingular={object.labelSingular}
         />
       ) : (
         <>
-          <div className="stx-kbd-hint" role="note">
+          {/* Keyboard-shortcut legend — advertises the live record-index
+              hotkeys (Twenty's record-table hotkeys). Wraps on narrow widths
+              via the flex layout of `.stx-kbd-hint`. */}
+          <div
+            className="stx-kbd-hint"
+            role="note"
+            aria-label="Keyboard shortcuts"
+            style={{ flexWrap: 'wrap' }}
+          >
             <span className="stx-kbd">↑</span>
             <span className="stx-kbd">↓</span>
             <span>navigate</span>
             <span className="stx-kbd">↵</span>
             <span>open</span>
+            <span className="stx-kbd">x</span>
             <span className="stx-kbd">space</span>
             <span>select</span>
+            <span className="stx-kbd">⇧</span>
+            <span className="stx-kbd">↑</span>
+            <span className="stx-kbd">↓</span>
+            <span>range select</span>
             <span className="stx-kbd">c</span>
             <span>create</span>
             <span className="stx-kbd">/</span>

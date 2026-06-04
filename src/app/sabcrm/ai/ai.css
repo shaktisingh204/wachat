@@ -4,20 +4,14 @@
    Twenty-faithful, scoped under `.st-ai`. Uses ONLY the `--st-*` design tokens
    defined in `src/styles/sabcrm-twenty.css`. Do NOT add these rules to
    `sabcrm-twenty.css`; they live here alongside the page.
-   ========================================================================= */
 
-/* Local danger tokens — the shared kit ships no danger colours, so define
-   theme-aware ones here (softer red surface on dark). */
-.sabcrm-twenty {
-  --ai-danger-bg: #fdecec;
-  --ai-danger-border: #f3c0c0;
-  --ai-danger-text: #9a2222;
-}
-.sabcrm-twenty.st-theme-dark {
-  --ai-danger-bg: #2e1a1a;
-  --ai-danger-border: #5a2a2a;
-  --ai-danger-text: #ff8a80;
-}
+   Parity with `twenty-front/src/modules/ai/components`:
+     - Assistant messages: transparent, flush-left, full-width (no bubble,
+       no avatar) — Twenty's `StyledMessageText` for non-user roles.
+     - User messages: small tinted bubble, right-aligned, fit-content.
+     - Per-message hover footer with relative timestamp + copy button.
+     - Floating scroll-to-bottom pill when scrolled up.
+   ========================================================================= */
 
 .st-ai {
   display: flex;
@@ -30,6 +24,7 @@
 }
 
 .st-ai__body {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -127,62 +122,112 @@
 
 .st-ai__messages {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--st-space-4);
+  gap: var(--st-space-5);
   width: 100%;
   max-width: 760px;
-  margin-inline: auto;
 }
 
+/* Each turn is a vertical stack: bubble/text, then a hover footer. The
+   assistant turn fills the row; the user turn collapses to its content. */
 .st-ai__msg {
   display: flex;
-  gap: var(--st-space-3);
-  align-items: flex-start;
+  flex-direction: column;
+  width: 100%;
 }
 
 .st-ai__msg--user {
+  align-items: flex-end;
+}
+
+.st-ai__msg--assistant {
+  align-items: flex-start;
+}
+
+/* Reveal the per-message footer on hover (Twenty's StyledMessageFooter). */
+.st-ai__msg:hover .st-ai__footer {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Bubble / text ---------------------------------------------------- */
+
+.st-ai__bubble {
+  font-size: var(--st-font-size);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Assistant: transparent, flush-left, full width — Twenty renders assistant
+   copy with no chrome. */
+.st-ai__msg--assistant .st-ai__bubble {
+  width: 100%;
+  max-width: 100%;
+  color: var(--st-text);
+  background: transparent;
+  font-weight: var(--st-fw-regular);
+}
+
+/* User: small tinted bubble, right-aligned, fit-content. Twenty uses the
+   tertiary surface + secondary text here. */
+.st-ai__msg--user .st-ai__bubble {
+  width: fit-content;
+  max-width: 90%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-medium);
+}
+
+/* ---- Per-message footer (timestamp + copy) ---------------------------- */
+
+.st-ai__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-1);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-in-out;
+}
+
+.st-ai__msg--user .st-ai__footer {
   flex-direction: row-reverse;
 }
 
-.st-ai__avatar {
-  flex: 0 0 auto;
+.st-ai__timestamp {
+  color: var(--st-text-light);
+}
+
+.st-ai__copy {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--st-bg-secondary);
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
   color: var(--st-text-secondary);
-  border: 1px solid var(--st-border);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
-.st-ai__msg--assistant .st-ai__avatar {
-  background: var(--st-accent-soft);
-  color: var(--st-accent);
-  border-color: transparent;
-}
-
-.st-ai__bubble {
-  max-width: 80%;
-  padding: var(--st-space-3) var(--st-space-4);
-  border-radius: var(--st-radius-lg);
-  font-size: var(--st-font-size);
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: var(--st-bg-secondary);
+.st-ai__copy:hover {
+  background: var(--st-hover);
   color: var(--st-text);
-  border: 1px solid var(--st-border-light);
-}
-
-.st-ai__msg--user .st-ai__bubble {
-  background: var(--st-accent);
-  color: var(--st-text-inverted);
-  border-color: transparent;
 }
 
 /* ---- Typing / streaming indicator ------------------------------------ */
@@ -205,8 +250,33 @@
   }
 }
 
-.st-ai__send--busy svg {
-  animation: st-ai-spin 0.8s linear infinite;
+/* ---- Floating scroll-to-bottom pill (Twenty AiChatScrollToBottomButton) - */
+
+.st-ai__scroll-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: 84px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  border: 1px solid var(--st-border-strong);
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg);
+  color: var(--st-text-secondary);
+  box-shadow: var(--st-shadow);
+  z-index: 2;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.st-ai__scroll-bottom:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
 }
 
 /* ---- Notices (unconfigured / error) ---------------------------------- */
@@ -230,6 +300,7 @@
 }
 
 .st-ai__notice code {
+  font-family: var(--st-font-mono);
   font-size: 0.85em;
   padding: 1px 5px;
   border-radius: var(--st-radius-sm);
@@ -244,9 +315,9 @@
 }
 
 .st-ai__notice--error {
-  background: var(--ai-danger-bg);
-  border: 1px solid var(--ai-danger-border);
-  color: var(--ai-danger-text);
+  background: var(--st-danger-soft);
+  border: 1px solid var(--st-danger);
+  color: var(--st-danger-strong);
   align-items: center;
 }
 
@@ -281,10 +352,6 @@
 
 .st-ai__input:focus {
   border-color: var(--st-accent);
-}
-
-.st-ai__input:disabled {
-  opacity: 0.6;
 }
 
 .st-ai__input::placeholder {

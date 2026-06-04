@@ -98,3 +98,141 @@
 .stsg-degraded {
   margin-top: var(--st-space-4);
 }
+
+/* =========================================================================
+   Command-search look — avatar rows, keyboard active state, recent searches.
+   Additive over the base `.stw-*` primitives; Twenty look only.
+   ========================================================================= */
+
+/* Leading avatar on a hit row, vertically centred against the two-line body. */
+.stsg-hit__avatar {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+/* The hit row becomes a flex track: avatar | body | kind chip. */
+.stw-hit.stsg-hit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-2);
+}
+
+/*
+ * Keyboard-active row. Mirrors Twenty's command menu: the focused item gets the
+ * hover surface + an accent rail so arrow-key position is unambiguous. Applied
+ * via `data-active` (set by the page's roving keyboard index), not :hover, so a
+ * stray mouse position can't fight the keyboard selection.
+ */
+.stw-hit.stsg-hit[data-active='true'] {
+  background: var(--st-hover);
+  box-shadow: inset 2px 0 0 0 var(--st-accent);
+}
+
+/* Keyboard hint shown to the right of the search box. */
+.stsg-kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin: calc(-1 * var(--st-space-3)) 0 var(--st-space-4);
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+  font-size: var(--st-font-size-sm);
+}
+
+.stsg-kbd {
+  display: inline-flex;
+  align-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary, var(--st-hover));
+  color: var(--st-text-secondary);
+  font-size: 11px;
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+}
+
+/* Recent searches block (shown when the box is empty). */
+.stsg-recent {
+  margin-top: var(--st-space-4);
+}
+
+.stsg-recent__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  margin-bottom: var(--st-space-2);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stsg-recent__title {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+.stsg-recent__clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-text-secondary);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+}
+
+.stsg-recent__clear:hover {
+  color: var(--st-accent);
+}
+
+.stsg-recent__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stsg-recent__item {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 0;
+  border-radius: var(--st-radius-md, var(--st-radius-sm));
+  background: none;
+  color: var(--st-text);
+  font: inherit;
+  font-size: var(--st-font-size-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.stsg-recent__item:hover,
+.stsg-recent__item[data-active='true'] {
+  background: var(--st-hover);
+}
+
+.stsg-recent__item svg {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary, var(--st-text-secondary));
+}
+
+.stsg-recent__term {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

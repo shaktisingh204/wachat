@@ -95,6 +95,8 @@
     "**/*.test.ts",
     "**/*.test.tsx",
     "src/lib/sabcrm/_ported_raw",
-    "src/components/sabcrm/_ported_raw"
+    "src/components/sabcrm/_ported_raw",
+    "_ported_raw_misc",
+    "e2e-sabcrm"
   ]
 }

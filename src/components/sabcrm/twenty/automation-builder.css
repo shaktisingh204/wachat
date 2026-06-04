@@ -1,0 +1,298 @@
+/* =========================================================================
+   AutomationBuilder — reusable Twenty-style trigger → action step builder.
+
+   Scoped under `.sabcrm-twenty` (applied by TwentyAppFrame). Uses only the
+   namespaced `--st-*` tokens. All classes are prefixed `ab-` so they never
+   collide with the shared `.st-*` kit in sabcrm-twenty.css (which we do NOT
+   edit) nor the page-local `wf-*` classes. Reused `.st-*` primitives:
+   st-input, st-select, st-textarea, st-field, st-switch, st-btn.
+   ========================================================================= */
+
+/* ---- Builder shell --------------------------------------------------- */
+.sabcrm-twenty .ab-builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  min-width: 0;
+}
+
+.sabcrm-twenty .ab-builder__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  flex-wrap: wrap;
+}
+
+.sabcrm-twenty .ab-builder__title {
+  flex: 1 1 200px;
+  min-width: 160px;
+  font-weight: var(--st-fw-semibold);
+}
+
+.sabcrm-twenty .ab-builder__spacer {
+  flex: 1 1 auto;
+}
+
+.sabcrm-twenty .ab-desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ---- Flow column (trigger + steps + connectors) ---------------------- */
+.sabcrm-twenty .ab-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.sabcrm-twenty .ab-flow__node {
+  display: flex;
+  flex-direction: column;
+}
+
+.sabcrm-twenty .ab-flow__connector {
+  width: 2px;
+  height: var(--st-space-4);
+  margin: 0 auto;
+  background: var(--st-border);
+}
+
+/* ---- Trigger card ---------------------------------------------------- */
+.sabcrm-twenty .ab-card {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .ab-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .ab-card__head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .ab-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+}
+
+.sabcrm-twenty .ab-trigger-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  align-self: flex-start;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .ab-trigger-pill strong {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .ab-trigger-pill__icon {
+  display: inline-flex;
+  color: var(--st-accent);
+}
+
+/* ---- 2-column field grid -------------------------------------------- */
+.sabcrm-twenty .ab-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-3);
+}
+
+@media (max-width: 640px) {
+  .sabcrm-twenty .ab-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Step card ------------------------------------------------------- */
+.sabcrm-twenty .ab-step {
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+.sabcrm-twenty .ab-step__head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .ab-step__index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border-light);
+  font-size: 10px;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .ab-step__icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .ab-step__title {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .ab-step__tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.sabcrm-twenty .ab-step__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3);
+}
+
+/* ---- Icon buttons (move / remove) ----------------------------------- */
+.sabcrm-twenty .ab-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .ab-icon-btn:hover:not(:disabled) {
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  border-color: var(--st-border-light);
+}
+
+.sabcrm-twenty .ab-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sabcrm-twenty .ab-icon-btn--danger:hover:not(:disabled) {
+  color: var(--st-danger);
+}
+
+/* ---- Empty steps note ----------------------------------------------- */
+.sabcrm-twenty .ab-steps-empty {
+  padding: var(--st-space-3);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  text-align: center;
+}
+
+/* ---- Add step / type picker ----------------------------------------- */
+.sabcrm-twenty .ab-add {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  align-items: center;
+}
+
+.sabcrm-twenty .ab-add__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .ab-add__btn:hover {
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .ab-typepicker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--st-space-2);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-pop);
+}
+
+@media (max-width: 480px) {
+  .sabcrm-twenty .ab-typepicker {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sabcrm-twenty .ab-typepicker__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-3);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.sabcrm-twenty .ab-typepicker__opt:hover {
+  background: var(--st-bg);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .ab-typepicker__opt svg {
+  color: var(--st-accent);
+  flex: 0 0 auto;
+}
