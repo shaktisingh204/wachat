@@ -19,8 +19,9 @@ import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
-import { ZoruAppRail, type ZoruAppRailItem } from '@/components/zoruui/shell/zoru-app-rail';
 import { ZORU_APPS } from '@/components/zoruui/shell/zoru-apps';
+import { AppRail, type AppRailItem } from '@/components/sabcrm/20ui';
+import type { LucideIcon } from 'lucide-react';
 import { ZoruHeader } from '@/components/zoruui/shell/zoru-header';
 import { ZoruNotificationPopover } from '@/components/zoruui/notification-popover';
 import { ZoruUserDropdown } from '@/components/zoruui/user-dropdown';
@@ -42,23 +43,40 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
 
   // The app rail's items come from the central app registry — identical to
   // ZoruHomeShell, so the active app (SabCRM, under /sabcrm) highlights and
-  // every other SabNode app is one click away.
-  const railItems: ZoruAppRailItem[] = React.useMemo(
+  // every other SabNode app is one click away. Now rendered by the 20ui AppRail.
+  const railItems: AppRailItem[] = React.useMemo(
     () =>
       ZORU_APPS.map((app) => ({
         id: app.id,
         label: app.name,
         href: app.href,
         active: app.isActive(pathname),
-        icon: <app.Icon />,
+        icon: app.Icon as LucideIcon,
       })),
     [pathname],
   );
 
+  // The 20ui rail follows the APP theme (the outer shell is the SabNode chrome).
+  // Mirror whatever theme class the app sets on <html> so the rail is never out
+  // of sync (light by default; flips with the app's dark mode).
+  const [appDark, setAppDark] = React.useState(false);
+  React.useEffect(() => {
+    const html = document.documentElement;
+    const sync = () => setAppDark(html.classList.contains('dark'));
+    sync();
+    const obs = new MutationObserver(sync);
+    obs.observe(html, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <CommandPaletteProvider>
       <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
-        <ZoruAppRail items={railItems} />
+        {/* 20ui AppRail, scoped to its own design-system root + synced to the
+            app theme so dark/light always matches the surrounding chrome. */}
+        <div className={`ui20 ${appDark ? 'dark' : 'light'}`} style={{ display: 'flex' }}>
+          <AppRail items={railItems} label="SabNode apps" />
+        </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col">
           <ZoruHeader
