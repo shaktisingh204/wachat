@@ -4,6 +4,11 @@ import {
   Badge,
   type BadgeTone,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardFooter,
+  Separator,
   Button,
   Skeleton,
   Alert,
@@ -132,12 +137,7 @@ export default function AdsRoadmapPage() {
       title={
         <span className="flex items-center gap-3">
           <span
-            className="flex h-9 w-9 items-center justify-center"
-            style={{
-              borderRadius: 'var(--st-radius)',
-              background: 'var(--st-bg-secondary)',
-              color: 'var(--st-text)',
-            }}
+            className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]"
             aria-hidden="true"
           >
             <Route className="h-5 w-5" />
@@ -174,48 +174,39 @@ export default function AdsRoadmapPage() {
               </Card>
             ))
           : phases.map((phase) => (
-              <Card key={phase.phase} className="flex flex-col gap-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p
-                      className="text-[11px] uppercase tracking-wide"
-                      style={{ color: 'var(--st-text-tertiary)' }}
-                    >
-                      {phase.phase}
-                    </p>
-                    <h3
-                      className="mt-1 text-[16px] tracking-tight"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      {phase.title}
-                    </h3>
+              <Card key={phase.phase} className="flex flex-col">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
+                        {phase.phase}
+                      </p>
+                      <CardTitle className="mt-1 text-[16px] tracking-tight">
+                        {phase.title}
+                      </CardTitle>
+                    </div>
+                    <Badge tone={statusTone(phase.status)}>{phase.status}</Badge>
                   </div>
-                  <Badge tone={statusTone(phase.status)}>{phase.status}</Badge>
-                </div>
-                <ul className="flex flex-col gap-2.5 mb-2">
-                  {phase.milestones.map((milestone) => (
-                    <li
-                      key={milestone}
-                      className="flex items-start gap-2.5 text-[13px]"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      <Check
-                        className="mt-0.5 h-4 w-4 shrink-0"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                        aria-hidden="true"
-                      />
-                      <span>{milestone}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div
-                  className="mt-auto flex items-center justify-between pt-4"
-                  style={{ borderTop: '1px solid var(--st-border)' }}
-                >
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: 'var(--st-text-tertiary)' }}
-                  >
+                </CardHeader>
+                <CardBody className="flex-1">
+                  <ul className="flex flex-col gap-2.5">
+                    {phase.milestones.map((milestone) => (
+                      <li
+                        key={milestone}
+                        className="flex items-start gap-2.5 text-[13px] text-[var(--st-text)]"
+                      >
+                        <Check
+                          className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text-secondary)]"
+                          aria-hidden="true"
+                        />
+                        <span>{milestone}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardBody>
+                <Separator />
+                <CardFooter className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-[var(--st-text-tertiary)]">
                     {phase.votes} votes
                   </span>
                   <Button
@@ -226,7 +217,7 @@ export default function AdsRoadmapPage() {
                   >
                     Upvote
                   </Button>
-                </div>
+                </CardFooter>
               </Card>
             ))}
       </div>

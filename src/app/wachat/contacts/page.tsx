@@ -128,10 +128,7 @@ function TagsFilter({
             <CommandEmpty>No tags found.</CommandEmpty>
             <CommandGroup>
               {tags.length === 0 ? (
-                <div
-                  className="px-2 py-6 text-center text-[12px]"
-                  style={{ color: 'var(--st-text-tertiary)' }}
-                >
+                <div className="px-2 py-6 text-center text-[12px] text-[var(--st-text-tertiary)]">
                   No tags defined on this project yet.
                 </div>
               ) : (
@@ -144,10 +141,8 @@ function TagsFilter({
                       className="flex items-center gap-2"
                     >
                       <span
-                        className="flex h-4 w-4 shrink-0 items-center justify-center"
+                        className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border"
                         style={{
-                          borderRadius: '4px',
-                          border: '1px solid',
                           borderColor: isSelected ? 'var(--st-accent)' : 'var(--st-border)',
                           background: isSelected ? 'var(--st-accent)' : 'transparent',
                           color: isSelected ? 'var(--st-accent-contrast, #fff)' : 'transparent',
@@ -155,10 +150,7 @@ function TagsFilter({
                       >
                         {isSelected && <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />}
                       </span>
-                      <span
-                        className="flex-1 truncate text-[13px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <span className="flex-1 truncate text-[13px] text-[var(--st-text)]">
                         {tag.name}
                       </span>
                     </CommandItem>
@@ -207,7 +199,7 @@ function DeleteContactButton({
           size="sm"
           aria-label="Delete contact"
           iconLeft={Trash2}
-          style={{ color: 'var(--st-danger)' }}
+          className="text-[var(--st-danger)]"
         />
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -321,23 +313,17 @@ export default function ContactsPage() {
       header: 'Name',
       cell: (c) => (
         <div className="flex items-center gap-3">
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[11px]"
-            style={{ background: 'var(--st-bg-secondary)', color: 'var(--st-text)' }}
-          >
+          <span className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
             {(c.name || '?').slice(0, 2).toUpperCase()}
           </span>
-          <span style={{ color: 'var(--st-text)' }}>{c.name}</span>
+          <span className="text-[var(--st-text)]">{c.name}</span>
         </div>
       ),
     },
     {
       header: 'WhatsApp ID',
       cell: (c) => (
-        <span
-          className="font-mono text-[12px] tabular-nums"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <span className="font-mono text-[12px] tabular-nums text-[var(--st-text-secondary)]">
           {c.waId}
         </span>
       ),
@@ -345,7 +331,7 @@ export default function ContactsPage() {
     {
       header: 'Email',
       cell: (c) => (
-        <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <span className="text-[12px] text-[var(--st-text-secondary)]">
           {(c as any).email || '—'}
         </span>
       ),
@@ -381,7 +367,7 @@ export default function ContactsPage() {
     {
       header: 'Last activity',
       cell: (c) => (
-        <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <span className="text-[12px] text-[var(--st-text-secondary)]">
           {c.lastMessageTimestamp ? fmtDate(c.lastMessageTimestamp) : '—'}
         </span>
       ),
@@ -484,18 +470,8 @@ export default function ContactsPage() {
             />
           </div>
 
-          <div
-            className="overflow-hidden"
-            style={{
-              border: '1px solid var(--st-border)',
-              borderRadius: 'var(--st-radius-lg)',
-              background: 'var(--st-bg)',
-            }}
-          >
-            <div
-              className="flex items-center justify-end p-2"
-              style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg-secondary)' }}
-            >
+          <Card variant="outlined" padding="none" className="overflow-hidden">
+            <div className="flex items-center justify-end p-2 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)]">
               <Button variant="ghost" size="sm" onClick={handleExportCsv} iconLeft={Download}>
                 Export CSV
               </Button>
@@ -537,14 +513,8 @@ export default function ContactsPage() {
             )}
 
             {totalPages > 1 && !showSkeleton && !isEmpty ? (
-              <div
-                className="flex items-center justify-between gap-3 p-4"
-                style={{ borderTop: '1px solid var(--st-border)' }}
-              >
-                <span
-                  className="text-[11.5px] tabular-nums"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+              <div className="flex items-center justify-between gap-3 p-4 border-t border-[var(--st-border)]">
+                <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                   Page {currentPage} of {totalPages} · {totalContacts.toLocaleString()} items
                 </span>
                 <Pagination
@@ -555,7 +525,7 @@ export default function ContactsPage() {
                 />
               </div>
             ) : null}
-          </div>
+          </Card>
         </Card>
       </div>
     </WachatPage>

@@ -49,7 +49,7 @@ import { WachatPage } from '@/app/wachat/_components/wachat-page';
 /**
  * Wachat Broadcast Scheduler — schedule broadcasts for future delivery.
  *
- * Multi-step numbered stepper: Template → Audience → Schedule → Review.
+ * Multi-step numbered stepper: Template -> Audience -> Schedule -> Review.
  * No tab UI — the stepper is a numbered progress indicator with prev/next
  * buttons. Same data + handlers as before (getScheduledBroadcasts,
  * scheduleBroadcast, cancelScheduledBroadcast).
@@ -87,7 +87,7 @@ const STEPS = [
 
 type StepValue = (typeof STEPS)[number]['value'];
 
-/* ── cancel-schedule confirmation ───────────────────────────────── */
+/* -- cancel-schedule confirmation ------------------------------------------ */
 
 function CancelScheduleDialog({
   schedule,
@@ -127,7 +127,7 @@ function CancelScheduleDialog({
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* -- page ------------------------------------------------------------------ */
 
 export default function BroadcastSchedulerPage() {
   const { activeProject } = useProject();
@@ -237,7 +237,7 @@ export default function BroadcastSchedulerPage() {
     >
       <div className="flex flex-col gap-6">
         <Card padding="lg">
-          <h2 className="text-[16px] mb-4" style={{ color: 'var(--st-text)' }}>
+          <h2 className="text-[16px] mb-4 text-[var(--st-text)]">
             New Schedule
           </h2>
           <form action={formAction} className="flex flex-col gap-4">
@@ -259,37 +259,26 @@ export default function BroadcastSchedulerPage() {
                 return (
                   <li key={s.value} className="flex items-center gap-2">
                     <div
-                      className="flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs"
-                      style={
+                      className={cx(
+                        'flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs',
                         isActive
-                          ? {
-                              background: 'var(--st-accent)',
-                              color: 'var(--st-on-accent, #fff)',
-                            }
+                          ? 'bg-[var(--st-accent)] text-[var(--st-on-accent,#fff)]'
                           : isComplete
-                            ? {
-                                border: '1px solid var(--st-border)',
-                                background: 'var(--st-bg-secondary)',
-                                color: 'var(--st-text)',
-                              }
-                            : {
-                                border: '1px solid var(--st-border)',
-                                background: 'var(--st-bg)',
-                                color: 'var(--st-text-tertiary)',
-                              }
-                      }
+                            ? 'border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]'
+                            : 'border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-tertiary)]',
+                      )}
                     >
                       <span className="text-[11px]">{idx + 1}</span>
                       {s.label}
                     </div>
                     {idx < STEPS.length - 1 && (
                       <span
-                        className="h-px w-6"
-                        style={{
-                          background: isComplete
-                            ? 'var(--st-accent)'
-                            : 'var(--st-border)',
-                        }}
+                        className={cx(
+                          'h-px w-6',
+                          isComplete
+                            ? 'bg-[var(--st-accent)]'
+                            : 'bg-[var(--st-border)]',
+                        )}
                       />
                     )}
                   </li>
@@ -387,10 +376,7 @@ export default function BroadcastSchedulerPage() {
               )}
             </div>
 
-            <div
-              className="mt-2 flex items-center justify-between gap-2 pt-4"
-              style={{ borderTop: '1px solid var(--st-border)' }}
-            >
+            <div className="mt-2 flex items-center justify-between gap-2 pt-4 border-t border-[var(--st-border)]">
               <Button
                 type="button"
                 variant="outline"
@@ -406,7 +392,7 @@ export default function BroadcastSchedulerPage() {
                   variant="primary"
                   disabled={isPending || !projectId}
                 >
-                  {isPending ? 'Scheduling…' : 'Save Schedule'}
+                  {isPending ? 'Scheduling...' : 'Save Schedule'}
                 </Button>
               ) : (
                 <Button type="button" variant="primary" onClick={goNext}>
@@ -437,10 +423,10 @@ export default function BroadcastSchedulerPage() {
                 {schedules.map((s) => (
                   <Tr key={s._id}>
                     <Td>{s.name}</Td>
-                    <Td style={{ color: 'var(--st-text-secondary)' }}>
+                    <Td className="text-[var(--st-text-secondary)]">
                       {s.templateName}
                     </Td>
-                    <Td style={{ color: 'var(--st-text-secondary)' }}>
+                    <Td className="text-[var(--st-text-secondary)]">
                       {s.scheduledAt ? fmtDate(s.scheduledAt) : '--'}
                     </Td>
                     <Td>
@@ -484,23 +470,13 @@ export default function BroadcastSchedulerPage() {
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="p-3"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg-secondary)',
-      }}
-    >
-      <div
-        className="text-[11px] uppercase tracking-wide"
-        style={{ color: 'var(--st-text-tertiary)' }}
-      >
+    <Card variant="outlined" padding="sm">
+      <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </div>
-      <div className="mt-1 truncate" style={{ color: 'var(--st-text)' }}>
+      <div className="mt-1 truncate text-[var(--st-text)]">
         {value}
       </div>
-    </div>
+    </Card>
   );
 }

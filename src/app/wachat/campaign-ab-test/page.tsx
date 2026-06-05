@@ -194,7 +194,7 @@ export default function CampaignAbTestPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Test split">
                 <div className="flex items-center gap-3">
-                  <span className="w-10 text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                  <span className="w-10 text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                     A: {split}%
                   </span>
                   <Slider
@@ -207,18 +207,18 @@ export default function CampaignAbTestPage() {
                     ariaLabel="Variant A traffic share"
                     className="flex-1"
                   />
-                  <span className="w-12 text-right text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                  <span className="w-12 text-right text-[12px] tabular-nums text-[var(--st-text-secondary)]">
                     B: {100 - split}%
                   </span>
                 </div>
                 <div className="ab-split-bar mt-2 flex h-2 w-full overflow-hidden">
                   <div
-                    className="transition-all"
-                    style={{ width: `${split}%`, background: 'var(--st-accent)' }}
+                    className="transition-all bg-[var(--st-accent)]"
+                    style={{ width: `${split}%` }}
                   />
                   <div
-                    className="transition-all"
-                    style={{ width: `${100 - split}%`, background: 'var(--st-text-tertiary)' }}
+                    className="transition-all bg-[var(--st-text-tertiary)]"
+                    style={{ width: `${100 - split}%` }}
                   />
                 </div>
               </Field>

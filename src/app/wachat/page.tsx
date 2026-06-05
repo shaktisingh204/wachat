@@ -149,18 +149,19 @@ function ProjectRow({
       className="u-card u-card--interactive u-card--pad-md group flex w-full items-center gap-4 text-left"
     >
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
-        style={{
-          background: connected ? 'var(--st-surface-muted)' : 'var(--st-surface)',
-          color: connected ? 'var(--st-text)' : 'var(--st-text-muted)',
-        }}
+        className={cx(
+          'flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)]',
+          connected
+            ? 'bg-[var(--st-surface-muted)] text-[var(--st-text)]'
+            : 'bg-[var(--st-surface)] text-[var(--st-text-muted)]',
+        )}
       >
         <MessageSquare className="h-4 w-4" />
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-[14px]" style={{ color: 'var(--st-text)' }}>
+          <p className="truncate text-[14px] text-[var(--st-text)]">
             {project.name || 'Untitled project'}
           </p>
           <HealthPill status={healthStatus} />
@@ -170,34 +171,28 @@ function ProjectRow({
             </Badge>
           )}
         </div>
-        <div
-          className="mt-0.5 flex items-center gap-2 text-[12px]"
-          style={{ color: 'var(--st-text-muted)' }}
-        >
+        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-[var(--st-text-muted)]">
           {connected ? (
             <>
-              <Wifi className="h-3 w-3" style={{ color: 'var(--st-success)' }} />
+              <Wifi className="h-3 w-3 [color:var(--st-success)]" />
               <span>{formatPhone(phone)}</span>
             </>
           ) : (
             <>
-              <WifiOff className="h-3 w-3" style={{ color: 'var(--st-text-light)' }} />
+              <WifiOff className="h-3 w-3 [color:var(--st-text-light)]" />
               <span>Not connected</span>
             </>
           )}
           {project.groupName && (
             <>
-              <span style={{ color: 'var(--st-text-light)' }}>·</span>
+              <span className="[color:var(--st-text-light)]">·</span>
               <span>{project.groupName}</span>
             </>
           )}
         </div>
       </div>
 
-      <ArrowRight
-        className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5"
-        style={{ color: 'var(--st-text-light)' }}
-      />
+      <ArrowRight className="h-4 w-4 shrink-0 [color:var(--st-text-light)] transition group-hover:translate-x-0.5" />
     </button>
   );
 }
@@ -351,10 +346,7 @@ export default function SelectProjectPage() {
 
       {recentProjects.length > 0 && !search && (
         <div className="mt-6">
-          <p
-            className="mb-2.5 text-[11px] uppercase tracking-[0.12em]"
-            style={{ color: 'var(--st-text-muted)' }}
-          >
+          <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-muted)]">
             Recently accessed
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -375,10 +367,7 @@ export default function SelectProjectPage() {
         {recentProjects.length > 0 &&
           !search &&
           projects.length > recentProjects.length && (
-            <p
-              className="mb-2.5 text-[11px] uppercase tracking-[0.12em]"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
+            <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-[var(--st-text-muted)]">
               All projects
             </p>
           )}
@@ -404,14 +393,8 @@ export default function SelectProjectPage() {
       </div>
 
       {totalPages > 1 && (
-        <div
-          className="mt-6 flex items-center justify-between border-t pt-4"
-          style={{ borderColor: 'var(--st-border)' }}
-        >
-          <p
-            className="text-[12px] tabular-nums"
-            style={{ color: 'var(--st-text-muted)' }}
-          >
+        <div className="mt-6 flex items-center justify-between border-t border-[var(--st-border)] pt-4">
+          <p className="text-[12px] tabular-nums text-[var(--st-text-muted)]">
             Page {page} of {totalPages} · {filtered.length} project
             {filtered.length !== 1 ? 's' : ''}
           </p>

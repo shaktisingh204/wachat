@@ -236,8 +236,7 @@ export default function ChatbotPage() {
             <CardTitle>Responses</CardTitle>
             {isPending && (
               <Loader
-                className="h-4 w-4 animate-spin"
-                style={{ color: 'var(--st-text-tertiary)' }}
+                className="h-4 w-4 animate-spin text-[var(--st-text-tertiary)]"
                 aria-hidden="true"
               />
             )}
@@ -273,17 +272,16 @@ export default function ChatbotPage() {
               <TBody>
                 {responses.map((r) => (
                   <Tr key={r._id}>
-                    <Td className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                    <Td className="text-[13px] text-[var(--st-text)]">
                       {r.trigger}
                     </Td>
                     <Td
                       truncate
-                      className="max-w-[260px] text-[13px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
+                      className="max-w-[260px] text-[13px] text-[var(--st-text-secondary)]"
                     >
                       {r.response}
                     </Td>
-                    <Td className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+                    <Td className="text-[13px] text-[var(--st-text-secondary)]">
                       {r.matchType}
                     </Td>
                     <Td>
@@ -316,20 +314,15 @@ export default function ChatbotPage() {
             </CardDescription>
           </CardHeader>
           <CardBody
-            className="flex h-[360px] flex-col gap-2 overflow-y-auto"
-            style={{ background: 'var(--st-bg-secondary)' }}
+            className="flex h-[360px] flex-col gap-2 overflow-y-auto bg-[var(--st-bg-secondary)]"
           >
             {testThread.length === 0 ? (
               <div className="m-auto text-center">
                 <Bot
-                  className="mx-auto h-6 w-6"
-                  style={{ color: 'var(--st-text-tertiary)' }}
+                  className="mx-auto h-6 w-6 text-[var(--st-text-tertiary)]"
                   aria-hidden="true"
                 />
-                <p
-                  className="mt-2 text-[12px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <p className="mt-2 text-[12px] text-[var(--st-text-secondary)]">
                   Start a test conversation
                 </p>
               </div>
@@ -343,21 +336,12 @@ export default function ChatbotPage() {
                   )}
                 >
                   <div
-                    className="max-w-[80%] px-3 py-2 text-[13px]"
-                    style={
+                    className={cx(
+                      'max-w-[80%] rounded-[var(--st-radius)] px-3 py-2 text-[13px]',
                       bubble.role === 'user'
-                        ? {
-                            borderRadius: 'var(--st-radius)',
-                            background: 'var(--st-accent)',
-                            color: 'var(--st-text-inverted)',
-                          }
-                        : {
-                            borderRadius: 'var(--st-radius)',
-                            border: '1px solid var(--st-border)',
-                            background: 'var(--st-bg)',
-                            color: 'var(--st-text)',
-                          }
-                    }
+                        ? 'bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
+                        : 'border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text)]',
+                    )}
                   >
                     {bubble.text}
                   </div>
@@ -390,7 +374,7 @@ export default function ChatbotPage() {
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <p className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <p className="text-[12px] text-[var(--st-text-secondary)]">
           Reset clears all chatbot responses for this project.
         </p>
         <Button

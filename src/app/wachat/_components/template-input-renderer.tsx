@@ -143,7 +143,7 @@ function SmartVariableInput({
         )}
       </div>
       {variableOptions.length > 0 && (
-        <p className="text-[10px] mt-1" style={{ color: 'var(--st-text-muted)' }}>
+        <p className="text-[10px] mt-1 text-[var(--st-text-muted)]">
           Type manually or select a variable.
         </p>
       )}
@@ -211,7 +211,7 @@ export function TemplateInputRenderer({
             if (vars.length > 0) {
               return (
                 <div key={`header-${idx}`} className="space-y-2">
-                  <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
+                  <p className="text-sm font-medium text-[var(--st-text)]">
                     Header Variables
                   </p>
                   {vars.map((v) => (
@@ -288,7 +288,7 @@ export function TemplateInputRenderer({
                           required
                         />
                         <div className="flex items-center justify-between gap-2 pt-1">
-                          <p className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
+                          <p className="text-[10px] text-[var(--st-text-muted)]">
                             Supports{' '}
                             {component.format === 'IMAGE'
                               ? 'JPG, PNG'
@@ -411,7 +411,7 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3">
-            <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
+            <p className="text-sm font-medium text-[var(--st-text)]">
               Body Variables
             </p>
             <div className="grid gap-3">
@@ -452,7 +452,7 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3 pt-2">
-            <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
+            <p className="text-sm font-medium text-[var(--st-text)]">
               Button Parameters
             </p>
             <div className="grid gap-3">
@@ -491,10 +491,10 @@ export function TemplateInputRenderer({
       {(template as any).type === 'MARKETING_CAROUSEL' && (
         <div className="space-y-4 pt-4">
           <Separator />
-          <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
+          <p className="text-sm font-medium text-[var(--st-text)]">
             Carousel Cards Media
           </p>
-          <p className="text-xs" style={{ color: 'var(--st-text-muted)' }}>
+          <p className="text-xs text-[var(--st-text-muted)]">
             Upload media for each card.
           </p>
 
@@ -529,7 +529,7 @@ export function TemplateInputRenderer({
                           required
                         />
                         <div className="flex items-center justify-between gap-2">
-                          <p className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
+                          <p className="text-[10px] text-[var(--st-text-muted)]">
                             {pickedCardMediaNames[index]
                               ? `Picked: ${pickedCardMediaNames[index]}`
                               : 'Or pick from SabFiles'}

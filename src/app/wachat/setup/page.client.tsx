@@ -154,13 +154,7 @@ function ConfigError() {
           <p>
             Add these env variables to your <code>.env</code> file:
           </p>
-          <ul
-            className="list-disc list-inside text-xs space-y-1 rounded-lg p-3"
-            style={{
-              fontFamily: 'var(--st-font-mono)',
-              background: 'var(--st-bg-muted)',
-            }}
-          >
+          <ul className="list-disc list-inside text-xs space-y-1 rounded-lg p-3 font-mono bg-[var(--st-bg-muted)]">
             <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
             <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
           </ul>
@@ -192,19 +186,13 @@ function SetupModal({
   return (
     <Modal open={open} onClose={onClose} title="Guided WhatsApp Setup" description={description} size="md">
       <div className="space-y-5">
-        <div
-          className="flex h-10 w-10 items-center justify-center rounded-2xl"
-          style={{ background: 'var(--st-text)' }}
-        >
-          <MessageCircle className="h-5 w-5" style={{ color: 'var(--st-text-inverted)' }} />
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--st-text)]">
+          <MessageCircle className="h-5 w-5 text-[var(--st-text-inverted)]" />
         </div>
 
         <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} state="whatsapp" />
 
-        <div
-          className="flex items-start gap-3 rounded-xl p-3"
-          style={{ border: '1px solid var(--st-border)', background: 'var(--st-bg-muted)' }}
-        >
+        <div className="flex items-start gap-3 rounded-xl p-3 border border-[var(--st-border)] bg-[var(--st-bg-muted)]">
           <Checkbox
             id={checkboxId}
             checked={includeCatalog}
@@ -215,7 +203,7 @@ function SetupModal({
             <label htmlFor={checkboxId} className="text-sm font-medium cursor-pointer">
               Include Catalog Management
             </label>
-            <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+            <p className="text-xs mt-0.5 text-[var(--st-text-muted)]">
               Grants permission to manage your WhatsApp product catalog
             </p>
           </div>
@@ -223,8 +211,8 @@ function SetupModal({
 
         <div className="space-y-2">
           {TRUST.slice(0, 2).map((t) => (
-            <div key={t.text} className="flex items-center gap-2 text-xs" style={{ color: 'var(--st-text-muted)' }}>
-              <t.icon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--st-text)' }} />
+            <div key={t.text} className="flex items-center gap-2 text-xs text-[var(--st-text-muted)]">
+              <t.icon className="h-3.5 w-3.5 shrink-0 text-[var(--st-text)]" />
               {t.text}
             </div>
           ))}
@@ -239,24 +227,12 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
   return (
     <div className="mb-14 text-center space-y-5">
       <div className="relative mx-auto w-fit">
-        <div
-          className="absolute inset-0 rounded-3xl opacity-40 blur-xl scale-110"
-          style={{ background: 'var(--st-bg-muted)' }}
-        />
-        <div
-          className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl"
-          style={{ background: 'var(--st-text)', boxShadow: 'var(--st-shadow-lg)' }}
-        >
-          <MessageCircle className="h-10 w-10" style={{ color: 'var(--st-text-inverted)' }} />
+        <div className="absolute inset-0 rounded-3xl opacity-40 blur-xl scale-110 bg-[var(--st-bg-muted)]" />
+        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-[var(--st-text)] shadow-[var(--st-shadow-lg)]">
+          <MessageCircle className="h-10 w-10 text-[var(--st-text-inverted)]" />
         </div>
-        <div
-          className="absolute -right-1 -top-1 h-4 w-4 rounded-full shadow-lg"
-          style={{ background: 'var(--st-bg-muted)' }}
-        />
-        <div
-          className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full shadow-lg"
-          style={{ background: 'var(--st-bg-muted)' }}
-        />
+        <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full shadow-lg bg-[var(--st-bg-muted)]" />
+        <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full shadow-lg bg-[var(--st-bg-muted)]" />
       </div>
 
       <div className="flex justify-center">
@@ -265,7 +241,7 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
         </Badge>
       </div>
 
-      <p className="mx-auto max-w-xl text-lg leading-relaxed" style={{ color: 'var(--st-text-muted)' }}>
+      <p className="mx-auto max-w-xl text-lg leading-relaxed text-[var(--st-text-muted)]">
         Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard.
       </p>
 
@@ -292,7 +268,7 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
 function UnlocksSection() {
   return (
     <Card variant="elevated" padding="lg" className="lg:col-span-2 md:p-8">
-      <p className="text-xs font-bold uppercase tracking-widest mb-6" style={{ color: 'var(--st-text)' }}>
+      <p className="text-xs font-bold uppercase tracking-widest mb-6 text-[var(--st-text)]">
         What you unlock
       </p>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
@@ -303,15 +279,12 @@ function UnlocksSection() {
             padding="md"
             className="group flex flex-col gap-2.5"
           >
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
-              style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
-            >
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors bg-[var(--st-bg-muted)] text-[var(--st-text)]">
               <u.icon className="h-[18px] w-[18px]" />
             </div>
             <div>
               <p className="font-semibold text-sm">{u.label}</p>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+              <p className="text-xs mt-0.5 text-[var(--st-text-muted)]">
                 {u.description}
               </p>
             </div>
@@ -319,27 +292,24 @@ function UnlocksSection() {
         ))}
       </div>
 
-      <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--st-border)' }}>
-        <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: 'var(--st-text)' }}>
+      <div className="mt-8 pt-6 border-t border-[var(--st-border)]">
+        <p className="text-xs font-bold uppercase tracking-widest mb-5 text-[var(--st-text)]">
           How it works
         </p>
         <div className="space-y-0">
           {STEPS.map((s, idx) => (
             <div key={s.n} className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                  style={{ background: 'var(--st-text)', color: 'var(--st-text-inverted)', boxShadow: 'var(--st-shadow-md)' }}
-                >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-md)]">
                   {s.n}
                 </div>
                 {idx < STEPS.length - 1 && (
-                  <div className="mt-1 mb-1 w-px flex-1" style={{ background: 'var(--st-border)', minHeight: 24 }} />
+                  <div className="mt-1 mb-1 w-px flex-1 bg-[var(--st-border)]" style={{ minHeight: 24 }} />
                 )}
               </div>
               <div className="pb-5">
                 <p className="font-semibold text-sm">{s.title}</p>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+                <p className="text-xs mt-0.5 text-[var(--st-text-muted)]">
                   {s.sub}
                 </p>
               </div>
@@ -356,19 +326,16 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
   return (
     <div className="flex flex-col gap-4">
       <Card variant="elevated" padding="md">
-        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-4 text-[var(--st-text)]">
           Security & Trust
         </p>
         <div className="space-y-4">
           {TRUST.map((t) => (
             <div key={t.text} className="flex items-start gap-3">
-              <div
-                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-                style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
-              >
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                 <t.icon className="h-3.5 w-3.5" />
               </div>
-              <p className="text-sm leading-snug" style={{ color: 'var(--st-text-muted)' }}>
+              <p className="text-sm leading-snug text-[var(--st-text-muted)]">
                 {t.text}
               </p>
             </div>
@@ -377,7 +344,7 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
       </Card>
 
       <Card variant="elevated" padding="md">
-        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-4 text-[var(--st-text)]">
           Before you start
         </p>
         <ul className="space-y-3">
@@ -386,30 +353,26 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
             'A verified Meta Business Account',
             'A phone number not already registered on WhatsApp personal',
           ].map((req) => (
-            <li key={req} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--st-text-muted)' }}>
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--st-text)' }} />
+            <li key={req} className="flex items-start gap-2.5 text-sm text-[var(--st-text-muted)]">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--st-text)]" />
               {req}
             </li>
           ))}
         </ul>
       </Card>
 
-      <div
-        className="relative overflow-hidden rounded-3xl p-6"
-        style={{ border: '1px solid var(--st-border)', background: 'var(--st-text)', color: 'var(--st-text-inverted)', boxShadow: 'var(--st-shadow-lg)' }}
-      >
+      <Card variant="elevated" padding="none" className="relative overflow-hidden rounded-3xl p-6 bg-[var(--st-text)] text-[var(--st-text-inverted)] shadow-[var(--st-shadow-lg)]">
         <div className="relative space-y-3">
-          <Zap className="h-7 w-7" style={{ color: 'var(--st-text-tertiary)' }} />
+          <Zap className="h-7 w-7 text-[var(--st-text-tertiary)]" />
           <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.9)' }}>
+          <p className="text-sm text-white/90">
             Connect your account in under 2 minutes.
           </p>
           <Button
             block
             iconLeft={MessageCircle}
             onClick={() => setOpen(true)}
-            className="mt-1"
-            style={{ background: 'var(--st-text-inverted)', color: 'var(--st-text)' }}
+            className="mt-1 bg-[var(--st-text-inverted)] text-[var(--st-text)]"
           >
             Connect Now
           </Button>
@@ -424,7 +387,7 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
             description="You'll be redirected to Facebook to authorize access."
           />
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -487,10 +450,7 @@ function ConnectedAccounts() {
 
   return (
     <Card variant="elevated" padding="none" className="mt-16 mb-8 overflow-hidden">
-      <CardHeader
-        className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-        style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg-muted)' }}
-      >
+      <CardHeader className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-muted)]">
         <div>
           <CardTitle>Connected Accounts</CardTitle>
           <CardDescription>Manage your linked WhatsApp Business accounts.</CardDescription>
@@ -560,22 +520,19 @@ function ConnectedAccounts() {
                 className="flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
-                  <div
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-                    style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
-                  >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-muted)] text-[var(--st-text)]">
                     <MessageCircle className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-semibold">{account.name}</p>
-                    <p className="text-sm mt-0.5" style={{ color: 'var(--st-text-muted)', fontFamily: 'var(--st-font-mono)' }}>
+                    <p className="text-sm mt-0.5 font-mono text-[var(--st-text-muted)]">
                       {account.phoneNumber}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right hidden sm:block">
-                    <p className="text-xs font-medium uppercase" style={{ color: 'var(--st-text-muted)' }}>
+                    <p className="text-xs font-medium uppercase text-[var(--st-text-muted)]">
                       Last Synced
                     </p>
                     <p className="text-sm">{new Date(account.lastSynced).toLocaleString()}</p>

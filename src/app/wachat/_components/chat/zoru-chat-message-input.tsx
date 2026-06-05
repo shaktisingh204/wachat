@@ -298,15 +298,13 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                     <PopoverAnchor asChild>
                         <div
-                            className="flex-1 rounded-2xl transition-colors border border-transparent"
-                            style={{ background: 'var(--st-surface-muted)' }}
+                            className="flex-1 rounded-2xl transition-colors border border-transparent bg-[var(--st-surface-muted)]"
                         >
                             <Input
                                 name="messageText"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
                                 autoComplete="off"
-                                className="min-h-[44px] py-3"
-                                style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
+                                className="min-h-[44px] py-3 border-none shadow-none bg-transparent"
                                 value={inputValue}
                                 onChange={handleInputChange}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleTextSend(); }}
@@ -329,26 +327,22 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                         <button
                                             key={msg._id.toString()}
                                             type="button"
-                                            className="w-full text-left p-2 rounded-sm flex flex-col"
-                                            style={{ background: 'transparent' }}
-                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--st-surface-hover)'; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                            className="w-full text-left p-2 rounded-sm flex flex-col bg-transparent hover:bg-[var(--st-surface-hover)] transition-colors"
                                             onClick={() => handleSelectCanned(msg)}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <p className="font-semibold">{msg.name}</p>
                                                 {msg.isFavourite && (
                                                     <Star
-                                                        className="h-4 w-4"
-                                                        style={{ color: 'var(--st-text-muted)', fill: 'var(--st-text-muted)' }}
+                                                        className="h-4 w-4 text-[var(--st-text-muted)] fill-[var(--st-text-muted)]"
                                                     />
                                                 )}
                                             </div>
-                                            <p className="truncate text-xs" style={{ color: 'var(--st-text-muted)' }}>{msg.content.text}</p>
+                                            <p className="truncate text-xs text-[var(--st-text-muted)]">{msg.content.text}</p>
                                         </button>
                                     ))
                                 ) : (
-                                    <p className="p-4 text-center text-sm" style={{ color: 'var(--st-text-muted)' }}>
+                                    <p className="p-4 text-center text-sm text-[var(--st-text-muted)]">
                                         {inputValue.length > 1 ? "No matches found." : "Start typing to search..."}
                                     </p>
                                 )}

@@ -211,7 +211,7 @@ export default function WebhooksPage() {
           </CardHeader>
 
           <CardBody>
-            <ol className="flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed" style={{ color: 'var(--st-text)' }}>
+            <ol className="flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed text-[var(--st-text)]">
               <li>
                 Go to your Meta App&apos;s dashboard and select the{' '}
                 <strong>Webhooks</strong> product.
@@ -236,21 +236,21 @@ export default function WebhooksPage() {
               </li>
               <li>
                 For full functionality, subscribe to all relevant events:
-                <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
+                <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px] text-[var(--st-text-secondary)]">
                   <li>
-                    <strong style={{ color: 'var(--st-text)' }}>WhatsApp:</strong>{' '}
+                    <strong className="text-[var(--st-text)]">WhatsApp:</strong>{' '}
                     <Code>messages</Code>,{' '}
                     <Code>message_template_status_update</Code>,{' '}
                     <Code>phone_number_quality_update</Code>
                   </li>
                   <li>
-                    <strong style={{ color: 'var(--st-text)' }}>
+                    <strong className="text-[var(--st-text)]">
                       Facebook Pages:
                     </strong>{' '}
                     <Code>feed</Code> (comments), <Code>messages</Code> (Messenger)
                   </li>
                   <li>
-                    <strong style={{ color: 'var(--st-text)' }}>
+                    <strong className="text-[var(--st-text)]">
                       E-Commerce:
                     </strong>{' '}
                     <Code>commerce_orders</Code>,{' '}
@@ -554,7 +554,7 @@ export default function WebhooksPage() {
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px] rounded u-card--outlined u-bg-secondary" style={{ color: 'var(--st-text)' }}>
+    <code className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px] rounded u-card--outlined u-bg-secondary text-[var(--st-text)]">
       {children}
     </code>
   );

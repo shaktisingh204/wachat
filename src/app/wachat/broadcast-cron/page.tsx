@@ -17,6 +17,7 @@ import {
   RadioCardGroup,
   RadioCard,
   Select,
+  Separator,
   Spinner,
   Table,
   THead,
@@ -386,16 +387,10 @@ export default function BroadcastCronPage() {
         {/* ── Add Entry ─────────────────────────────────────────────── */}
         <section className="flex flex-col gap-3">
           <div>
-            <h2
-              className="text-[16px] font-medium leading-none"
-              style={{ color: 'var(--st-text)' }}
-            >
+            <h2 className="text-[16px] font-medium leading-none text-[var(--st-text)]">
               1 · Add entry
             </h2>
-            <p
-              className="mt-1.5 text-[12px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
+            <p className="mt-1.5 text-[12px] text-[var(--st-text-secondary)]">
               Pick a phone number, then the template, then this entry's audience.
             </p>
           </div>
@@ -421,10 +416,7 @@ export default function BroadcastCronPage() {
               <div className="flex flex-col gap-1.5">
                 {templateLocked && (
                   <div className="flex items-center justify-end">
-                    <span
-                      className="text-[10px]"
-                      style={{ color: 'var(--st-text-tertiary)' }}
-                    >
+                    <span className="text-[10px] text-[var(--st-text-tertiary)]">
                       Locked · clear queue to switch
                     </span>
                   </div>
@@ -501,35 +493,26 @@ export default function BroadcastCronPage() {
                   }
                 >
                   <div
-                    className="flex items-center justify-between gap-3 px-4 py-3"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      border: csvFile
-                        ? '1px dashed var(--st-accent)'
-                        : '1px dashed var(--st-border)',
-                      background: csvFile
-                        ? 'var(--st-bg-secondary)'
-                        : 'var(--st-bg)',
-                    }}
+                    className={[
+                      'flex items-center justify-between gap-3 px-4 py-3 rounded-[var(--st-radius)] border border-dashed',
+                      csvFile
+                        ? 'border-[var(--st-accent)] bg-[var(--st-bg-secondary)]'
+                        : 'border-[var(--st-border)] bg-[var(--st-bg)]',
+                    ].join(' ')}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       {csvFile ? (
                         <FileText
-                          className="h-4 w-4"
-                          style={{ color: 'var(--st-accent)' }}
+                          className="h-4 w-4 text-[var(--st-accent)]"
                           aria-hidden="true"
                         />
                       ) : (
                         <Upload
-                          className="h-4 w-4"
-                          style={{ color: 'var(--st-text-tertiary)' }}
+                          className="h-4 w-4 text-[var(--st-text-tertiary)]"
                           aria-hidden="true"
                         />
                       )}
-                      <span
-                        className="truncate text-[13px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <span className="truncate text-[13px] text-[var(--st-text)]">
                         {csvFile?.name ??
                           'Pick a CSV or XLSX file from SabFiles'}
                       </span>
@@ -559,24 +542,21 @@ export default function BroadcastCronPage() {
               </div>
             )}
 
-            <div
-              className="mt-5 flex items-center justify-between pt-4"
-              style={{ borderTop: '1px solid var(--st-border)' }}
-            >
-              <p
-                className="text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Each entry sends the chosen template (with variables and media
-                set in the cards below) from this number to the chosen audience.
-              </p>
-              <Button
-                variant="primary"
-                onClick={handleAdd}
-                disabled={!activeProjectId}
-              >
-                Add to Queue
-              </Button>
+            <div className="mt-5">
+              <Separator />
+              <div className="flex items-center justify-between pt-4">
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
+                  Each entry sends the chosen template (with variables and media
+                  set in the cards below) from this number to the chosen audience.
+                </p>
+                <Button
+                  variant="primary"
+                  onClick={handleAdd}
+                  disabled={!activeProjectId}
+                >
+                  Add to Queue
+                </Button>
+              </div>
             </div>
           </Card>
         </section>
@@ -585,25 +565,16 @@ export default function BroadcastCronPage() {
         <section className="flex flex-col gap-3">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h2
-                className="text-[16px] font-medium leading-none"
-                style={{ color: 'var(--st-text)' }}
-              >
+              <h2 className="text-[16px] font-medium leading-none text-[var(--st-text)]">
                 2 · Broadcast queue
               </h2>
-              <p
-                className="mt-1.5 text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <p className="mt-1.5 text-[12px] text-[var(--st-text-secondary)]">
                 Each entry fires the chosen template from its phone number to
                 its own audience.
               </p>
             </div>
             {queue.length > 0 && (
-              <span
-                className="text-[11.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                 {pendingCount} pending · {queue.length} total
               </span>
             )}
@@ -639,10 +610,7 @@ export default function BroadcastCronPage() {
                             ))}
                           </div>
                         ) : (
-                          <span
-                            className="inline-flex items-center gap-1.5 text-[12px]"
-                            style={{ color: 'var(--st-text-secondary)' }}
-                          >
+                          <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--st-text-secondary)]">
                             <FileText
                               className="h-3 w-3"
                               aria-hidden="true"
@@ -660,10 +628,7 @@ export default function BroadcastCronPage() {
                             {statusLabel(entry.status)}
                           </Badge>
                           {entry.error && (
-                            <span
-                              className="text-[10.5px] leading-tight max-w-[260px]"
-                              style={{ color: 'var(--st-danger)' }}
-                            >
+                            <span className="text-[10.5px] leading-tight max-w-[260px] text-[var(--st-danger)]">
                               {entry.error}
                             </span>
                           )}
@@ -738,15 +703,11 @@ export default function BroadcastCronPage() {
               <div className="flex flex-col">
                 <label
                   htmlFor="create-contacts-checkbox"
-                  className="text-[13px] font-medium cursor-pointer"
-                  style={{ color: 'var(--st-text)' }}
+                  className="text-[13px] font-medium cursor-pointer text-[var(--st-text)]"
                 >
                   Create contacts in CRM
                 </label>
-                <span
-                  className="mt-0.5 text-[11.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <span className="mt-0.5 text-[11.5px] text-[var(--st-text-secondary)]">
                   {createContacts
                     ? 'New recipients will be added to your CRM as they receive this broadcast.'
                     : 'Off - only existing contacts will be updated.'}

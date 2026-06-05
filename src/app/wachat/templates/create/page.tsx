@@ -90,64 +90,52 @@ function PhonePreview({
 }) {
   return (
     <div className="mx-auto w-[280px]">
-      <div
-        className="rounded-[18px] border p-3"
-        style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-secondary)' }}
-      >
-        <div className="flex items-center justify-between px-2 py-1 text-[9px]" style={{ color: 'var(--st-text-tertiary)' }}>
+      <div className="rounded-[18px] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] p-3">
+        <div className="flex items-center justify-between px-2 py-1 text-[9px] text-[var(--st-text-tertiary)]">
           <span>WhatsApp</span>
           <span>Preview</span>
         </div>
 
-        <div className="mt-2 max-w-[240px] rounded-lg p-3" style={{ background: 'var(--st-bg)' }}>
+        <div className="mt-2 max-w-[240px] rounded-lg bg-[var(--st-bg)] p-3">
           {headerFormat === 'IMAGE' && (
-            <div
-              className="mb-2 flex h-[120px] items-center justify-center rounded"
-              style={{ background: 'var(--st-bg-secondary)' }}
-            >
-              <ImageIcon className="h-8 w-8" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
+            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-[var(--st-bg-secondary)]">
+              <ImageIcon className="h-8 w-8 text-[var(--st-text-tertiary)]" aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'VIDEO' && (
-            <div
-              className="mb-2 flex h-[120px] items-center justify-center rounded"
-              style={{ background: 'var(--st-bg-secondary)' }}
-            >
-              <Video className="h-8 w-8" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
+            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-[var(--st-bg-secondary)]">
+              <Video className="h-8 w-8 text-[var(--st-text-tertiary)]" aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'DOCUMENT' && (
-            <div className="mb-2 flex items-center gap-2 rounded p-2" style={{ background: 'var(--st-bg-secondary)' }}>
-              <FileText className="h-5 w-5" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
-              <span className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>Document</span>
+            <div className="mb-2 flex items-center gap-2 rounded bg-[var(--st-bg-secondary)] p-2">
+              <FileText className="h-5 w-5 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+              <span className="text-[10px] text-[var(--st-text-secondary)]">Document</span>
             </div>
           )}
           {headerFormat === 'LOCATION' && (
-            <div
-              className="mb-2 flex h-[80px] items-center justify-center rounded"
-              style={{ background: 'var(--st-bg-secondary)' }}
-            >
-              <MapPin className="h-6 w-6" style={{ color: 'var(--st-text-secondary)' }} aria-hidden="true" />
+            <div className="mb-2 flex h-[80px] items-center justify-center rounded bg-[var(--st-bg-secondary)]">
+              <MapPin className="h-6 w-6 text-[var(--st-text-secondary)]" aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'TEXT' && headerText && (
-            <p className="mb-1 text-[12px] font-bold" style={{ color: 'var(--st-text)' }}>
+            <p className="mb-1 text-[12px] font-bold text-[var(--st-text)]">
               {headerText}
             </p>
           )}
 
-          <p className="whitespace-pre-wrap text-[11px] leading-relaxed" style={{ color: 'var(--st-text)' }}>
+          <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-[var(--st-text)]">
             {body || 'Your message body will appear here...'}
           </p>
 
           {footer && (
-            <p className="mt-1.5 text-[9px]" style={{ color: 'var(--st-text-tertiary)' }}>
+            <p className="mt-1.5 text-[9px] text-[var(--st-text-tertiary)]">
               {footer}
             </p>
           )}
 
           <div className="mt-1 flex justify-end">
-            <span className="text-[8px]" style={{ color: 'var(--st-text-tertiary)' }}>12:00 PM</span>
+            <span className="text-[8px] text-[var(--st-text-tertiary)]">12:00 PM</span>
           </div>
         </div>
 
@@ -156,8 +144,7 @@ function PhonePreview({
             {buttons.map((btn, i) => (
               <div
                 key={i}
-                className="flex items-center justify-center rounded-lg py-1.5 text-[11px] font-medium"
-                style={{ background: 'var(--st-bg)', color: 'var(--st-text)' }}
+                className="flex items-center justify-center rounded-lg bg-[var(--st-bg)] py-1.5 text-[11px] font-medium text-[var(--st-text)]"
               >
                 {btn.type === 'URL' && <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />}
                 {btn.type === 'PHONE_NUMBER' && <Phone className="mr-1 h-3 w-3" aria-hidden="true" />}
@@ -169,10 +156,7 @@ function PhonePreview({
         )}
 
         {templateType === 'AUTH' && (
-          <div
-            className="mt-1 flex items-center justify-center rounded-lg py-1.5 text-[11px] font-medium"
-            style={{ background: 'var(--st-bg)', color: 'var(--st-text)' }}
-          >
+          <div className="mt-1 flex items-center justify-center rounded-lg bg-[var(--st-bg)] py-1.5 text-[11px] font-medium text-[var(--st-text)]">
             <Copy className="mr-1 h-3 w-3" aria-hidden="true" />
             Copy Code
           </div>
@@ -211,14 +195,14 @@ function MultiLanguageSelector({
     <Card variant="outlined" padding="sm">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: 'var(--st-text)' }}>
+          <p className="flex items-center gap-1 text-[11px] font-semibold text-[var(--st-text)]">
             <Globe className="h-3 w-3" aria-hidden="true" /> Multi-language cloning
           </p>
           <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
             Close
           </Button>
         </div>
-        <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <p className="text-[10px] text-[var(--st-text-secondary)]">
           After creating the primary template, clones will be auto-created for selected languages.
         </p>
         <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
@@ -235,12 +219,12 @@ function MultiLanguageSelector({
                       : [...selected, l.code],
                   )
                 }
-                className="rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors"
-                style={
+                className={cx(
+                  'rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors',
                   isSelected
-                    ? { borderColor: 'var(--st-text)', background: 'var(--st-text)', color: 'var(--st-bg)' }
-                    : { borderColor: 'var(--st-border)', color: 'var(--st-text-secondary)' }
-                }
+                    ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-bg)]'
+                    : 'border-[var(--st-border)] text-[var(--st-text-secondary)]',
+                )}
               >
                 {l.name}
               </button>
@@ -248,7 +232,7 @@ function MultiLanguageSelector({
           })}
         </div>
         {selected.length > 0 && (
-          <p className="text-[10px] font-medium" style={{ color: 'var(--st-text)' }}>
+          <p className="text-[10px] font-medium text-[var(--st-text)]">
             {selected.length} language(s) selected for cloning
           </p>
         )}
@@ -497,22 +481,25 @@ function CreateTemplateContent() {
                 }}
                 className={cx(
                   'u-card u-card--interactive u-card--pad-sm flex flex-col items-center gap-1.5 text-center transition-colors',
-                  isActive && 'u-card--outlined',
+                  isActive && 'u-card--outlined border-[var(--st-text)] bg-[var(--st-bg-secondary)]',
                 )}
-                style={isActive ? { borderColor: 'var(--st-text)', background: 'var(--st-bg-secondary)' } : undefined}
               >
                 <Icon
-                  className="h-5 w-5"
-                  style={{ color: isActive ? 'var(--st-text)' : 'var(--st-text-secondary)' }}
+                  className={cx(
+                    'h-5 w-5',
+                    isActive ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
+                  )}
                   aria-hidden="true"
                 />
                 <span
-                  className="text-[11px] font-semibold"
-                  style={{ color: isActive ? 'var(--st-text)' : 'var(--st-text-secondary)' }}
+                  className={cx(
+                    'text-[11px] font-semibold',
+                    isActive ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]',
+                  )}
                 >
                   {t.name}
                 </span>
-                <span className="text-[9px] leading-tight" style={{ color: 'var(--st-text-tertiary)' }}>
+                <span className="text-[9px] leading-tight text-[var(--st-text-tertiary)]">
                   {t.desc}
                 </span>
               </button>
@@ -736,7 +723,7 @@ function CreateTemplateContent() {
           {showPreview && (
             <div className="hidden lg:block">
               <div className="sticky top-6 space-y-4">
-                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--st-text-secondary)' }}>
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--st-text-secondary)]">
                   <Smartphone className="h-3.5 w-3.5" aria-hidden="true" /> Live preview
                 </div>
                 <Card variant="elevated">
@@ -754,14 +741,14 @@ function CreateTemplateContent() {
                   />
                 </Card>
                 <div className="space-y-1 text-center">
-                  <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
+                  <p className="text-[10px] text-[var(--st-text-secondary)]">
                     {charCount}/1024 characters
                   </p>
-                  <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
+                  <p className="text-[10px] text-[var(--st-text-secondary)]">
                     {varCount} variable(s) detected
                   </p>
                   {cloneLanguages.length > 0 && (
-                    <p className="text-[10px]" style={{ color: 'var(--st-text)' }}>
+                    <p className="text-[10px] text-[var(--st-text)]">
                       {cloneLanguages.length} language clone(s)
                     </p>
                   )}

@@ -155,27 +155,20 @@ function ClientQrPreview({
 
   if (error) {
     return (
-      <div
-        className="flex items-center justify-center text-sm"
-        style={{
-          width: '100%',
-          maxWidth: size,
-          aspectRatio: '1/1',
-          background: 'var(--st-bg-secondary)',
-          color: 'var(--st-text-tertiary)',
-          border: '1px solid var(--st-border)',
-          borderRadius: 'var(--st-radius)',
-        }}
+      <Card
+        variant="outlined"
+        padding="none"
+        className="flex items-center justify-center text-sm text-[var(--st-text-tertiary)]"
+        style={{ width: '100%', maxWidth: size, aspectRatio: '1/1' }}
       >
         Failed to load QR
-      </div>
+      </Card>
     );
   }
 
   if (!dataUrl) {
     return (
       <Skeleton
-        radius="var(--st-radius)"
         style={{ width: '100%', maxWidth: size, aspectRatio: '1/1' }}
       />
     );
@@ -186,12 +179,8 @@ function ClientQrPreview({
     <img
       src={dataUrl}
       alt="QR code preview"
-      className="w-full h-auto aspect-square"
-      style={{
-        maxWidth: size,
-        borderRadius: 'var(--st-radius)',
-        border: '1px solid var(--st-border)',
-      }}
+      className="w-full h-auto aspect-square rounded-[var(--st-radius)] border border-[color:var(--st-border)]"
+      style={{ maxWidth: size }}
     />
   );
 }
@@ -358,14 +347,7 @@ export default function QrCodesPage() {
           {qrCodes.map((qr) => (
             <Card key={qr.code} padding="lg" className="flex flex-col gap-3">
               <div className="flex items-start justify-between">
-                <div
-                  className="flex h-12 w-12 items-center justify-center"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    background: 'var(--st-bg-secondary)',
-                    color: 'var(--st-text)',
-                  }}
-                >
+                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
                   <QrCode className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <div className="flex gap-1">
@@ -403,29 +385,20 @@ export default function QrCodesPage() {
               </div>
 
               <div className="flex-1">
-                <p
-                  className="line-clamp-2 text-[13px] font-medium"
-                  style={{ color: 'var(--st-text)' }}
-                >
+                <p className="line-clamp-2 text-[13px] font-medium text-[var(--st-text)]">
                   {qr.prefilled_message}
                 </p>
 
-                <div
-                  className="mt-3 flex items-center gap-3 text-xs"
-                  style={{ color: 'var(--st-text-tertiary)' }}
-                >
+                <div className="mt-3 flex items-center gap-3 text-xs text-[var(--st-text-tertiary)]">
                   <div className="flex items-center gap-1.5" title="Total scans">
-                    <BarChart3 className="h-3.5 w-3.5" style={{ color: 'var(--st-text)' }} aria-hidden="true" />
-                    <span className="font-medium" style={{ color: 'var(--st-text)' }}>{getMockScans(qr.code)}</span> scans
+                    <BarChart3 className="h-3.5 w-3.5 text-[var(--st-text)]" aria-hidden="true" />
+                    <span className="font-medium text-[var(--st-text)]">{getMockScans(qr.code)}</span> scans
                   </div>
                 </div>
               </div>
 
               {qr.deep_link_url ? (
-                <div
-                  className="mt-1 pt-3 flex items-center gap-3"
-                  style={{ borderTop: '1px solid var(--st-border)' }}
-                >
+                <div className="mt-1 pt-3 flex items-center gap-3 border-t border-[color:var(--st-border)]">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -441,13 +414,12 @@ export default function QrCodesPage() {
                   >
                     Copy tracking link
                   </Button>
-                  <span className="text-[10px]" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true">•</span>
+                  <span className="text-[10px] text-[var(--st-text-tertiary)]" aria-hidden="true">•</span>
                   <a
                     href={getTrackingUrl(qr)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-[11px] hover:underline truncate max-w-[120px]"
-                    style={{ color: 'var(--st-text)' }}
+                    className="text-[11px] hover:underline truncate max-w-[120px] text-[var(--st-text)]"
                   >
                     {getTrackingUrl(qr).replace('https://', '')}
                   </a>
@@ -576,13 +548,10 @@ export default function QrCodesPage() {
       >
         {downloadTarget && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            <div
-              className="flex flex-col items-center justify-center p-4"
-              style={{
-                background: 'var(--st-bg)',
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-              }}
+            <Card
+              variant="outlined"
+              padding="sm"
+              className="flex flex-col items-center justify-center"
             >
               <ClientQrPreview
                 text={getTrackingUrl(downloadTarget)}
@@ -592,13 +561,10 @@ export default function QrCodesPage() {
                 size={220}
                 onDataUrlReady={(url) => setQrDataUrl(url)}
               />
-              <p
-                className="mt-4 text-[11px] text-center max-w-[220px] truncate"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
+              <p className="mt-4 text-[11px] text-center max-w-[220px] truncate text-[var(--st-text-tertiary)]">
                 {getTrackingUrl(downloadTarget)}
               </p>
-            </div>
+            </Card>
 
             <div className="flex flex-col gap-4">
               <Field label="Foreground Color">
@@ -608,8 +574,7 @@ export default function QrCodesPage() {
                     aria-label="Foreground color picker"
                     value={qrFg}
                     onChange={(e) => setQrFg(e.target.value)}
-                    className="w-8 h-8 cursor-pointer border-0 p-0"
-                    style={{ borderRadius: 'var(--st-radius)' }}
+                    className="w-8 h-8 cursor-pointer border-0 p-0 rounded-[var(--st-radius)]"
                   />
                   <Input
                     value={qrFg}
@@ -626,8 +591,7 @@ export default function QrCodesPage() {
                     aria-label="Background color picker"
                     value={qrBg}
                     onChange={(e) => setQrBg(e.target.value)}
-                    className="w-8 h-8 cursor-pointer border-0 p-0"
-                    style={{ borderRadius: 'var(--st-radius)' }}
+                    className="w-8 h-8 cursor-pointer border-0 p-0 rounded-[var(--st-radius)]"
                   />
                   <Input
                     value={qrBg}

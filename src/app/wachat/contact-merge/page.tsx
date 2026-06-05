@@ -14,9 +14,19 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  Checkbox,
   EmptyState,
   Input,
   Skeleton,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -26,7 +36,6 @@ import {
 import {
   Search,
   GitMerge,
-  Check,
   Users,
   } from 'lucide-react';
 
@@ -35,16 +44,12 @@ import { useProject } from '@/context/project-context';
 import { getContactsPageData, updateContactTags } from '@/app/actions/contact.actions';
 
 /**
- * Wachat Contact Merge — rebuilt on 20ui primitives.
+ * Wachat Contact Merge -- rebuilt on 20ui primitives.
  *
  * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
 
 export default function ContactMergePage() {
   const { activeProject } = useProject();
@@ -124,26 +129,23 @@ export default function ContactMergePage() {
 
   const renderContact = (c: any, label: string) => (
     <div className="min-w-[200px] flex-1">
-      <p
-        className="mb-2 text-[11px] uppercase tracking-wide"
-        style={{ color: 'var(--st-text-tertiary)' }}
-      >
+      <p className="mb-2 text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]">
         {label}
       </p>
       <div className="space-y-2 text-[13px]">
         <p>
-          <span style={{ color: 'var(--st-text-secondary)' }}>Name: </span>
-          <span style={{ color: 'var(--st-text)' }}>{c.name || 'Unknown'}</span>
+          <span className="text-[var(--st-text-secondary)]">Name: </span>
+          <span className="text-[var(--st-text)]">{c.name || 'Unknown'}</span>
         </p>
         <p>
-          <span style={{ color: 'var(--st-text-secondary)' }}>Phone: </span>
-          <span className="font-mono" style={{ color: 'var(--st-text)' }}>
+          <span className="text-[var(--st-text-secondary)]">Phone: </span>
+          <span className="font-mono text-[var(--st-text)]">
             {c.waId || '—'}
           </span>
         </p>
         <p>
-          <span style={{ color: 'var(--st-text-secondary)' }}>Tags: </span>
-          <span style={{ color: 'var(--st-text)' }}>{c.tagIds?.length || 0}</span>
+          <span className="text-[var(--st-text-secondary)]">Tags: </span>
+          <span className="text-[var(--st-text)]">{c.tagIds?.length || 0}</span>
         </p>
       </div>
     </div>
@@ -207,130 +209,101 @@ export default function ContactMergePage() {
           />
         ) : (
           <Card padding="none" className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr
-                  className="text-[11px] uppercase tracking-wide"
-                  style={{
-                    borderBottom: '1px solid var(--st-border)',
-                    color: 'var(--st-text-tertiary)',
-                  }}
-                >
-                  <th className="w-8 px-5 py-3" />
-                  <th className="px-5 py-3">Name</th>
-                  <th className="px-5 py-3">Phone</th>
-                  <th className="px-5 py-3">Tags</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th className="w-8 px-5 py-3" />
+                  <Th className="px-5 py-3">Name</Th>
+                  <Th className="px-5 py-3">Phone</Th>
+                  <Th className="px-5 py-3">Tags</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {contacts.map((c: any) => {
                   const isSelected = selected.includes(c._id);
                   return (
-                    <tr
+                    <Tr
                       key={c._id}
                       onClick={() => selectContact(c._id)}
-                      className="cursor-pointer transition-colors"
-                      style={{
-                        borderTop: '1px solid var(--st-border)',
-                        background: isSelected
-                          ? 'var(--st-bg-secondary)'
-                          : 'transparent',
-                      }}
+                      className={[
+                        'cursor-pointer transition-colors',
+                        isSelected ? 'bg-[var(--st-bg-secondary)]' : '',
+                      ].filter(Boolean).join(' ')}
                     >
-                      <td className="px-5 py-3">
-                        <div
-                          className="flex h-5 w-5 items-center justify-center transition-colors"
-                          style={{
-                            borderRadius: '4px',
-                            border: isSelected
-                              ? '2px solid var(--st-accent)'
-                              : '2px solid var(--st-border)',
-                            background: isSelected
-                              ? 'var(--st-accent)'
-                              : 'transparent',
-                            color: isSelected ? '#fff' : 'transparent',
-                          }}
-                        >
-                          {isSelected && (
-                            <Check className="h-3 w-3" aria-hidden="true" />
-                          )}
-                        </div>
-                      </td>
-                      <td
-                        className="px-5 py-3 text-[13px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <Td className="px-5 py-3">
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => selectContact(c._id)}
+                          aria-label={`Select ${c.name || c.waId}`}
+                        />
+                      </Td>
+                      <Td className="px-5 py-3 text-[13px] text-[var(--st-text)]">
                         {c.name || 'Unknown'}
-                      </td>
-                      <td
-                        className="px-5 py-3 font-mono text-[13px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                      </Td>
+                      <Td className="px-5 py-3 font-mono text-[13px] text-[var(--st-text-secondary)]">
                         {c.waId || '—'}
-                      </td>
-                      <td className="px-5 py-3">
+                      </Td>
+                      <Td className="px-5 py-3">
                         <Badge tone="neutral">{c.tagIds?.length || 0} tags</Badge>
-                      </td>
-                    </tr>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </Card>
         )}
 
         {contactA && contactB && (
           <Card padding="md">
-            <h2
-              className="mb-4 text-[15px] font-medium"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Compare &amp; merge
-            </h2>
-            <div className="flex flex-wrap gap-6">
-              {renderContact(contactA, 'Primary (keep)')}
-              <div className="hidden items-center sm:flex">
-                <GitMerge
-                  className="h-6 w-6"
-                  style={{ color: 'var(--st-text-tertiary)' }}
-                  aria-hidden="true"
-                />
+            <CardHeader>
+              <CardTitle>Compare &amp; merge</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="flex flex-wrap gap-6">
+                {renderContact(contactA, 'Primary (keep)')}
+                <div className="hidden items-center sm:flex">
+                  <GitMerge
+                    className="h-6 w-6 text-[var(--st-text-tertiary)]"
+                    aria-hidden="true"
+                  />
+                </div>
+                {renderContact(
+                  contactB,
+                  'Secondary (merge tags into primary)',
+                )}
               </div>
-              {renderContact(
-                contactB,
-                'Secondary (merge tags into primary)',
-              )}
-            </div>
-            <div className="mt-4">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="primary"
-                    iconLeft={GitMerge}
-                    loading={merging}
-                    disabled={merging}
-                  >
-                    {merging ? 'Merging…' : 'Merge contacts'}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Merge contacts?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Tags from "{contactB.name || contactB.waId}" will be
-                      combined into "{contactA.name || contactA.waId}". This
-                      cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction intent="primary" onClick={handleMerge}>
-                      Merge
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+              <div className="mt-4">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="primary"
+                      iconLeft={GitMerge}
+                      loading={merging}
+                      disabled={merging}
+                    >
+                      {merging ? 'Merging…' : 'Merge contacts'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Merge contacts?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Tags from "{contactB.name || contactB.waId}" will be
+                        combined into "{contactA.name || contactA.waId}". This
+                        cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction intent="primary" onClick={handleMerge}>
+                        Merge
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardBody>
           </Card>
         )}
       </div>
