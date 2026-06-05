@@ -1,0 +1,120 @@
+/* 20ui · SegmentedControl */
+
+.sabcrm-twenty .u-seg {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-secondary);
+  font-family: var(--st-font);
+  /* Contain the sliding fill so it can never paint past the track edges. */
+  isolation: isolate;
+}
+.sabcrm-twenty .u-seg--block {
+  display: flex;
+  width: 100%;
+}
+
+/* ----- The sliding active fill ----- */
+.sabcrm-twenty .u-seg__indicator {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  bottom: 3px;
+  z-index: 0;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg);
+  box-shadow: var(--u-elev-1);
+  /* Hidden until measured, then it slides between segments. */
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--u-dur) var(--u-ease-out),
+    width var(--u-dur) var(--u-ease-out),
+    opacity var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .u-seg__indicator[data-ready] {
+  opacity: 1;
+}
+
+/* ----- A single segment ----- */
+.sabcrm-twenty .u-seg__item {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--st-space-2);
+  height: 26px;
+  padding: 0 var(--st-space-3);
+  border: none;
+  border-radius: var(--st-radius-pill);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: inherit;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+.sabcrm-twenty .u-seg--block .u-seg__item {
+  flex: 1 1 0;
+}
+.sabcrm-twenty .u-seg__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sabcrm-twenty .u-seg__item:hover:not(.is-selected):not(:disabled) {
+  color: var(--st-text);
+  background: var(--st-hover);
+}
+.sabcrm-twenty .u-seg__item.is-selected {
+  color: var(--st-accent-hover, var(--st-accent));
+  font-weight: var(--st-fw-semibold);
+}
+.sabcrm-twenty .u-seg__item:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.sabcrm-twenty .u-seg__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .u-seg__item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----- Size: md (default 26px segments, 32px track) ----- */
+/* ----- Size: sm ----- */
+.sabcrm-twenty .u-seg--sm {
+  padding: 2px;
+  gap: 1px;
+}
+.sabcrm-twenty .u-seg--sm .u-seg__item {
+  height: 22px;
+  padding: 0 var(--st-space-2);
+  font-size: var(--st-font-size-xs);
+}
+.sabcrm-twenty .u-seg--sm .u-seg__indicator {
+  top: 2px;
+  bottom: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .u-seg__indicator {
+    transition: opacity var(--u-dur-fast) var(--u-ease-out);
+  }
+  .sabcrm-twenty .u-seg__item:active:not(:disabled) {
+    transform: none;
+  }
+}

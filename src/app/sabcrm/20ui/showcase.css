@@ -1,0 +1,60 @@
+/* 20ui showcase — gallery scaffolding (scoped, minimal) */
+.sabcrm-twenty .ux-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--st-space-5) var(--st-space-5) 96px;
+}
+.sabcrm-twenty .ux-hero {
+  margin-bottom: var(--st-space-6);
+}
+.sabcrm-twenty .ux-hero h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+}
+.sabcrm-twenty .ux-hero p {
+  margin: var(--st-space-2) 0 0;
+  max-width: 60ch;
+  color: var(--st-text-secondary);
+  line-height: 1.6;
+}
+.sabcrm-twenty .ux-section {
+  padding: var(--st-space-5) 0;
+  border-top: 1px solid var(--st-border-light);
+}
+.sabcrm-twenty .ux-section__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-4);
+}
+.sabcrm-twenty .ux-section__head h2 {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+.sabcrm-twenty .ux-section__head span {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+.sabcrm-twenty .ux-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-3);
+  margin-bottom: var(--st-space-3);
+}
+.sabcrm-twenty .ux-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--st-space-3);
+}
+.sabcrm-twenty .ux-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  max-width: 360px;
+}

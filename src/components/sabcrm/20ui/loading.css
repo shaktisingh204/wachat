@@ -1,0 +1,182 @@
+/* 20ui · Skeleton · Spinner · Progress · ProgressRing */
+
+/* ------------------------------------------------------------------ */
+/* Skeleton — a shimmer that moves a gradient's background-position    */
+/* ------------------------------------------------------------------ */
+.sabcrm-twenty .u-skeleton {
+  display: block;
+  width: 100%;
+  height: 0.85em;
+  border-radius: var(--st-radius-sm);
+  background-color: var(--st-bg-muted);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--st-bg) 70%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  background-position: 200% 0;
+  animation: u-skeleton-shimmer 1.4s var(--u-ease-out) infinite;
+}
+.sabcrm-twenty .u-skeleton--circle {
+  flex: 0 0 auto;
+}
+
+@keyframes u-skeleton-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Spinner — a rotating ring via the border trick                     */
+/* ------------------------------------------------------------------ */
+.sabcrm-twenty .u-spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--u-spinner-size, 18px);
+  height: var(--u-spinner-size, 18px);
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+.sabcrm-twenty .u-spinner__ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: var(--u-spinner-stroke, 2px) solid var(--st-border);
+  border-top-color: currentColor;
+  animation: u-spinner-rotate 0.7s linear infinite;
+}
+
+@keyframes u-spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Progress (linear)                                                   */
+/* ------------------------------------------------------------------ */
+.sabcrm-twenty .u-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-muted);
+  /* tone is exposed as a single var so fill + ring share the palette */
+  --u-progress-tone: var(--st-accent);
+}
+.sabcrm-twenty .u-progress--sm {
+  height: 5px;
+}
+.sabcrm-twenty .u-progress--lg {
+  height: 12px;
+}
+
+.sabcrm-twenty .u-progress--accent {
+  --u-progress-tone: var(--st-accent);
+}
+.sabcrm-twenty .u-progress--success {
+  --u-progress-tone: var(--st-status-ok);
+}
+.sabcrm-twenty .u-progress--warning {
+  --u-progress-tone: var(--st-warn);
+}
+.sabcrm-twenty .u-progress--danger {
+  --u-progress-tone: var(--st-danger);
+}
+
+.sabcrm-twenty .u-progress__fill {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  border-radius: inherit;
+  background: var(--u-progress-tone);
+  transition: transform var(--u-dur-slow) var(--u-ease-out);
+}
+
+/* Indeterminate — a sweep that loops; ignores the scaleX fill. */
+.sabcrm-twenty .u-progress.is-indeterminate .u-progress__fill {
+  inset: 0 auto 0 0;
+  width: 40%;
+  transform: none;
+  animation: u-progress-sweep 1.2s var(--u-ease-in-out) infinite;
+}
+
+@keyframes u-progress-sweep {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* ProgressRing (circular)                                             */
+/* ------------------------------------------------------------------ */
+.sabcrm-twenty .u-ring {
+  display: inline-block;
+  flex: 0 0 auto;
+  --u-ring-tone: var(--st-accent);
+}
+.sabcrm-twenty .u-ring--accent {
+  --u-ring-tone: var(--st-accent);
+}
+.sabcrm-twenty .u-ring--success {
+  --u-ring-tone: var(--st-status-ok);
+}
+.sabcrm-twenty .u-ring--warning {
+  --u-ring-tone: var(--st-warn);
+}
+.sabcrm-twenty .u-ring--danger {
+  --u-ring-tone: var(--st-danger);
+}
+
+.sabcrm-twenty .u-ring__track {
+  stroke: var(--st-bg-muted);
+}
+.sabcrm-twenty .u-ring__indicator {
+  stroke: var(--u-ring-tone);
+  transition: stroke-dashoffset var(--u-dur-slow) var(--u-ease-out);
+}
+.sabcrm-twenty .u-ring__value {
+  fill: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+}
+
+/* Indeterminate — spin the whole ring; the 75%-offset arc reads as motion. */
+.sabcrm-twenty .u-ring.is-indeterminate {
+  animation: u-spinner-rotate 0.9s linear infinite;
+  transform-origin: center;
+}
+.sabcrm-twenty .u-ring.is-indeterminate .u-ring__indicator {
+  transition: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion — slow/stop everything that moves                    */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .u-skeleton {
+    animation-duration: 3.2s;
+  }
+  .sabcrm-twenty .u-spinner__ring,
+  .sabcrm-twenty .u-ring.is-indeterminate {
+    animation-duration: 2s;
+  }
+  .sabcrm-twenty .u-progress.is-indeterminate .u-progress__fill {
+    animation-duration: 2.4s;
+  }
+  .sabcrm-twenty .u-progress__fill,
+  .sabcrm-twenty .u-ring__indicator {
+    transition: none;
+  }
+}
