@@ -113,6 +113,15 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
 
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const innerInputRef = React.useRef<HTMLInputElement>(null);
+    const blurTimeoutRef = React.useRef<number | null>(null);
+    // Clear any pending blur-commit timer on unmount so it can never fire after
+    // the component is gone (no stale state writes / leaked timers).
+    React.useEffect(
+      () => () => {
+        if (blurTimeoutRef.current != null) window.clearTimeout(blurTimeoutRef.current);
+      },
+      [],
+    );
     // Merge the forwarded ref with the internal one so callers can focus it.
     const setInputRef = React.useCallback(
       (node: HTMLInputElement | null) => {
@@ -288,7 +297,9 @@ export const Combobox = React.forwardRef<HTMLInputElement, ComboboxProps>(
 
     const onBlur = (): void => {
       // Defer so a click on an option (which blurs the input) still commits.
-      window.setTimeout(() => {
+      if (blurTimeoutRef.current != null) window.clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = window.setTimeout(() => {
+        blurTimeoutRef.current = null;
         if (anchorRef.current?.contains(document.activeElement)) return;
         if (open) {
           if (allowCustom) commitCustom();

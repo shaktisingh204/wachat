@@ -262,10 +262,16 @@ export function CommandDialog({
   // Focus the search input once the panel has painted.
   React.useEffect(() => {
     if (!open) return;
+    // Remember what was focused so we can restore it when the palette closes
+    // (modal-dialog focus contract, WCAG 2.4.3 Focus Order).
+    const previouslyFocused = document.activeElement as HTMLElement | null;
     const raf = requestAnimationFrame(() => {
       inputRef.current?.focus();
     });
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      previouslyFocused?.focus?.();
+    };
   }, [open]);
 
   // Lock body scroll while open (compensate for the scrollbar to avoid a shift).

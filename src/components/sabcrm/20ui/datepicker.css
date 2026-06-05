@@ -23,7 +23,6 @@
 
 /* Caption + navigation. The whole month section is `position: relative` so the
    nav can sit on the caption row at either edge. */
-:is(.ui20, .sabcrm-twenty) .u-cal__month_caption,
 :is(.ui20, .sabcrm-twenty) .u-cal__caption {
   position: relative;
   display: flex;

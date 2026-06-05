@@ -223,8 +223,8 @@ function ToastItem({
         <RToast.Action
           asChild
           altText={action.label}
-          // Avoid the implicit close so the click handler runs first; we close
-          // explicitly afterwards.
+          // RToast.Action wraps ToastClose, so the toast auto-dismisses after
+          // onClick fires — the handler runs before the exit animation starts.
           onClick={action.onClick}
         >
           <button type="button" className="u-toast__action">

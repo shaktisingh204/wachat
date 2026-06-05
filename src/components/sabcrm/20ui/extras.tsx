@@ -284,6 +284,9 @@ export const Rating = React.forwardRef<HTMLDivElement, RatingProps>(function Rat
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
     if (readOnly || !onChange) return;
+    // Keyboard sets ABSOLUTE values (clamped) per the ARIA slider pattern — it
+    // intentionally does NOT use the pointer-only allowClear toggle, so e.g.
+    // pressing End at max stays at max instead of clearing. Home gives 0.
     switch (e.key) {
       case 'ArrowRight':
       case 'ArrowUp':
@@ -486,7 +489,9 @@ export function OtpInput({
       cursor += 1;
     }
     setChars(next);
-    focusBox(cursor);
+    // After a paste that reaches the end, keep focus on the last box (clamp)
+    // rather than addressing an out-of-range index.
+    focusBox(Math.min(cursor, length - 1));
   };
 
   return (

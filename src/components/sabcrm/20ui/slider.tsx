@@ -192,7 +192,7 @@ export const Slider = React.forwardRef<
           <span className="u-slider__marks" aria-hidden="true">
             {resolvedMarks.map((m) => (
               <span
-                key={m.value}
+                key={`mark-${m.value}`}
                 className="u-slider__mark"
                 style={offsetStyle(pct(m.value, min, max), vertical)}
               >
