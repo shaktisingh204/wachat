@@ -151,6 +151,9 @@
 
 .sabcrm-twenty .st-cmdk-search__input:focus-visible {
   outline: none;
+  /* Keep keyboard focus visible (a11y) with a subtle accent halo rather than
+     the heavier default ring, since this input auto-focuses inside the dialog. */
+  box-shadow: 0 0 0 2px var(--st-accent-ring);
 }
 
 /* Esc chip reads as a quiet token affordance. */

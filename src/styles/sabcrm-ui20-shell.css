@@ -46,14 +46,14 @@
 }
 .sabcrm-twenty .st-rail__item.active {
   background: var(--st-accent-grad);
-  color: #fff;
+  color: var(--st-text-inverted);
   box-shadow:
     0 2px 8px -2px var(--st-accent-ring),
     inset 0 0 0 1px color-mix(in srgb, #fff 18%, transparent);
 }
 .sabcrm-twenty .st-rail__item.active:hover {
   background: var(--st-accent-grad);
-  color: #fff;
+  color: var(--st-text-inverted);
   box-shadow:
     0 4px 12px -2px var(--st-accent-ring),
     inset 0 0 0 1px color-mix(in srgb, #fff 24%, transparent);
