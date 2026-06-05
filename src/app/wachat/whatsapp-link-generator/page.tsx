@@ -161,14 +161,15 @@ export default function WhatsAppLinkGeneratorPage() {
 
           {projectPhone ? (
             <div className="-mt-2 flex justify-end">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setPhone(projectPhone)}
-                className="shrink-0 text-[11px] transition-colors hover:underline"
-                style={{ color: 'var(--st-text-tertiary)' }}
+                className="shrink-0 text-[11px]"
               >
                 Use project number
-              </button>
+              </Button>
             </div>
           ) : null}
 
@@ -191,28 +192,20 @@ export default function WhatsAppLinkGeneratorPage() {
           </Field>
 
           {generatedLink ? (
-            <div
-              className="p-4"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-                  Generated Link
-                </span>
+            <Card variant="outlined" padding="sm" className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="u-card__desc text-[12px]">Generated Link</span>
                 {!shortUrl && (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleShortenLink}
                     disabled={isShortening}
-                    className="text-[11px] font-medium transition-colors hover:underline disabled:opacity-50"
-                    style={{ color: 'var(--st-text)' }}
+                    className="text-[11px] font-medium"
                   >
                     {isShortening ? 'Shortening...' : 'Shorten link'}
-                  </button>
+                  </Button>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -229,7 +222,7 @@ export default function WhatsAppLinkGeneratorPage() {
                   onClick={performCopy}
                 />
               </div>
-            </div>
+            </Card>
           ) : null}
 
           <div className="flex flex-wrap gap-3">
@@ -256,24 +249,16 @@ export default function WhatsAppLinkGeneratorPage() {
         <Card className="flex flex-col items-center justify-center" padding="lg">
           {qrUrl ? (
             <>
-              <div className="mb-4 text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-                Scan to open chat
-              </div>
+              <p className="u-card__desc mb-4 text-[12px]">Scan to open chat</p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrUrl}
                 alt="QR Code for WhatsApp link"
                 width={200}
                 height={200}
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                }}
+                className="u-card u-card--outlined"
               />
-              <p
-                className="mt-4 max-w-[260px] text-center text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <p className="u-card__desc mt-4 max-w-[260px] text-center text-[12px]">
                 Share this QR code so customers can start chatting with you
                 instantly.
               </p>
@@ -305,17 +290,9 @@ export default function WhatsAppLinkGeneratorPage() {
               number and pre-filled message.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div
-            className="px-3 py-2 font-mono text-[12px] break-all"
-            style={{
-              borderRadius: 'var(--st-radius)',
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg-secondary)',
-              color: 'var(--st-text)',
-            }}
-          >
+          <Card variant="outlined" padding="sm" className="font-mono text-[12px] break-all">
             {shortUrl || generatedLink}
-          </div>
+          </Card>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction

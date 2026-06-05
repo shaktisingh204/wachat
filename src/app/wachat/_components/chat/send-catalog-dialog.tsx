@@ -8,6 +8,8 @@ import {
   Textarea,
   ScrollArea,
   Checkbox,
+  Spinner,
+  EmptyState,
 } from '@/components/sabcrm/20ui';
 import {
   useActionState,
@@ -16,7 +18,7 @@ import {
   useState,
   useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle, Send, ShoppingBag } from 'lucide-react';
+import { Send, ShoppingBag } from 'lucide-react';
 import { handleSendCatalogMessage } from '@/app/actions/whatsapp.actions';
 import { getProductsForCatalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -31,8 +33,13 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" variant="primary" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+        <Button
+            type="submit"
+            variant="primary"
+            disabled={pending}
+            loading={pending}
+            iconLeft={pending ? undefined : Send}
+        >
             Send Catalog
         </Button>
     );
@@ -112,11 +119,11 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                 </Field>
 
                 <Field label={`Select Products (${selectedProducts.length}/30)`}>
-                    <div className="rounded-md border" style={{ borderColor: 'var(--st-border)' }}>
+                    <div className="u-card u-card--outlined rounded-md">
                         <ScrollArea style={{ height: 256 }} viewportClassName="p-2">
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full py-16">
-                                    <LoaderCircle className="h-6 w-6 animate-spin" />
+                                    <Spinner size="md" />
                                 </div>
                             ) : products.length > 0 ? (
                                 <div className="space-y-2">
@@ -126,10 +133,7 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                                             <label
                                                 key={product.id}
                                                 htmlFor={`product-${product.id}`}
-                                                className="flex items-center gap-3 p-2 rounded-md cursor-pointer"
-                                                style={{ transition: 'background-color 120ms' }}
-                                                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--st-surface-hover)'; }}
-                                                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
+                                                className="flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors duration-[120ms] hover:bg-[var(--st-surface-hover)]"
                                             >
                                                 <Checkbox
                                                     id={`product-${product.id}`}
@@ -137,22 +141,23 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
                                                     onChange={(e) => handleProductSelect(product.retailer_id, e.target.checked)}
                                                     disabled={selectedProducts.length >= 30 && !checked}
                                                 />
-                                                <div
-                                                    className="w-12 h-12 rounded-md flex items-center justify-center"
-                                                    style={{ backgroundColor: 'var(--st-surface-muted)' }}
-                                                >
-                                                    {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6" style={{ color: 'var(--st-text-tertiary)' }} />}
+                                                <div className="w-12 h-12 rounded-md flex items-center justify-center bg-[var(--st-surface-muted)]">
+                                                    {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-[var(--st-text-tertiary)]" />}
                                                 </div>
                                                 <div className="flex-1">
-                                                    <p className="font-medium" style={{ color: 'var(--st-text)' }}>{product.name}</p>
-                                                    <p className="text-xs font-mono" style={{ color: 'var(--st-text-tertiary)' }}>{product.retailer_id}</p>
+                                                    <p className="font-medium text-[var(--st-text)]">{product.name}</p>
+                                                    <p className="text-xs font-mono text-[var(--st-text-tertiary)]">{product.retailer_id}</p>
                                                 </div>
                                             </label>
                                         );
                                     })}
                                 </div>
                             ) : (
-                                <div className="text-center p-8" style={{ color: 'var(--st-text-tertiary)' }}>No products found in this catalog.</div>
+                                <EmptyState
+                                    icon={ShoppingBag}
+                                    title="No products found"
+                                    description="No products found in this catalog."
+                                />
                             )}
                         </ScrollArea>
                     </div>

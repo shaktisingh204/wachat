@@ -4,6 +4,9 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   Modal,
   EmptyState,
   Field,
@@ -213,77 +216,61 @@ export default function BusinessHoursPage() {
 
         {/* Weekly schedule */}
         <Card padding="lg">
-          <h2
-            className="mb-4 text-[15px]"
-            style={{ color: 'var(--st-text)' }}
-          >
-            Weekly schedule
-          </h2>
-          <div className="space-y-3">
-            {DAYS.map((day) => {
-              const d = schedule[day];
-              return (
-                <div
-                  key={day}
-                  className="flex flex-wrap items-center gap-4 p-3"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    border: '1px solid var(--st-border)',
-                  }}
-                >
-                  <span
-                    className="w-24 text-[13px]"
-                    style={{ color: 'var(--st-text)' }}
+          <CardHeader>
+            <CardTitle>Weekly schedule</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="space-y-3">
+              {DAYS.map((day) => {
+                const d = schedule[day];
+                return (
+                  <Card
+                    key={day}
+                    variant="outlined"
+                    padding="sm"
+                    className="flex flex-wrap items-center gap-4"
                   >
-                    {day}
-                  </span>
-                  <Switch
-                    checked={d.open}
-                    onCheckedChange={(v) => updateDay(day, { open: v })}
-                    aria-label={`${day} open`}
-                  />
-                  <span
-                    className="text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    {d.open ? 'Open' : 'Closed'}
-                  </span>
-                  {d.open && (
-                    <>
-                      <Select
-                        value={d.start}
-                        onChange={(v) => updateDay(day, { start: v ?? d.start })}
-                        options={TIME_OPTIONS}
-                        aria-label={`${day} opening time`}
-                        className="w-28"
-                      />
-                      <span
-                        className="text-[12px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
-                        to
-                      </span>
-                      <Select
-                        value={d.end}
-                        onChange={(v) => updateDay(day, { end: v ?? d.end })}
-                        options={TIME_OPTIONS}
-                        aria-label={`${day} closing time`}
-                        className="w-28"
-                      />
-                    </>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    <span className="w-24 text-[13px]">{day}</span>
+                    <Switch
+                      checked={d.open}
+                      onCheckedChange={(v) => updateDay(day, { open: v })}
+                      aria-label={`${day} open`}
+                    />
+                    <span className="text-[12px] text-[var(--st-text-secondary)]">
+                      {d.open ? 'Open' : 'Closed'}
+                    </span>
+                    {d.open && (
+                      <>
+                        <Select
+                          value={d.start}
+                          onChange={(v) => updateDay(day, { start: v ?? d.start })}
+                          options={TIME_OPTIONS}
+                          aria-label={`${day} opening time`}
+                          className="w-28"
+                        />
+                        <span className="text-[12px] text-[var(--st-text-secondary)]">
+                          to
+                        </span>
+                        <Select
+                          value={d.end}
+                          onChange={(v) => updateDay(day, { end: v ?? d.end })}
+                          options={TIME_OPTIONS}
+                          aria-label={`${day} closing time`}
+                          className="w-28"
+                        />
+                      </>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </CardBody>
         </Card>
 
         {/* Holidays */}
         <Card padding="lg">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-              Holidays
-            </h2>
+          <CardHeader>
+            <CardTitle>Holidays</CardTitle>
             <Button
               type="button"
               size="sm"
@@ -293,61 +280,53 @@ export default function BusinessHoursPage() {
             >
               Add holiday
             </Button>
-          </div>
-          {holidays.length === 0 ? (
-            <EmptyState
-              size="sm"
-              icon={CalendarOff}
-              title="No holidays added"
-              description="Add observed holidays so auto-replies kick in even on closed days."
-            />
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {holidays.map((h) => (
-                <li
-                  key={h.id}
-                  className="flex items-center justify-between gap-3 px-3 py-2"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    border: '1px solid var(--st-border)',
-                  }}
-                >
-                  <div className="min-w-0">
-                    <div
-                      className="text-[13px]"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      {h.name}
+          </CardHeader>
+          <CardBody>
+            {holidays.length === 0 ? (
+              <EmptyState
+                size="sm"
+                icon={CalendarOff}
+                title="No holidays added"
+                description="Add observed holidays so auto-replies kick in even on closed days."
+              />
+            ) : (
+              <div className="flex flex-col gap-2">
+                {holidays.map((h) => (
+                  <Card
+                    key={h.id}
+                    variant="outlined"
+                    padding="sm"
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <div className="min-w-0">
+                      <div className="text-[13px]">{h.name}</div>
+                      <div className="text-[11.5px] text-[var(--st-text-secondary)]">
+                        {h.date}
+                      </div>
                     </div>
-                    <div
-                      className="text-[11.5px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
-                      {h.date}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openHolidayDialog(h)}
+                      >
+                        Edit
+                      </Button>
+                      <IconButton
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        label="Remove holiday"
+                        icon={Trash2}
+                        onClick={() => removeHoliday(h.id)}
+                      />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => openHolidayDialog(h)}
-                    >
-                      Edit
-                    </Button>
-                    <IconButton
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      label="Remove holiday"
-                      icon={Trash2}
-                      onClick={() => removeHoliday(h.id)}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardBody>
         </Card>
 
         {/* Offline message */}

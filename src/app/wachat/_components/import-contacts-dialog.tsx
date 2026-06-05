@@ -112,12 +112,7 @@ export function ImportContactsDialog({
   const titleNode = (
     <span className="flex flex-row items-start gap-3">
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center"
-        style={{
-          borderRadius: 'var(--st-radius-sm)',
-          background: 'var(--st-bg-muted)',
-          color: 'var(--st-text)',
-        }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-muted)] text-[var(--st-text)]"
       >
         <FileUp className="h-5 w-5" />
       </span>
@@ -176,57 +171,39 @@ export function ImportContactsDialog({
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <span
-                  className="text-[11.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <span className="text-[11.5px] text-[var(--st-text-secondary)]">
                   Contact file{' '}
-                  <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
-                    *
-                  </span>
+                  <span className="ml-1 text-[var(--st-danger)]">*</span>
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Download}
                   onClick={handleDownloadSample}
-                  className="inline-flex items-center gap-1 text-[11px] transition-colors"
-                  style={{ color: 'var(--st-text-secondary)' }}
                 >
-                  <Download className="h-3 w-3" />
                   Sample CSV
-                </button>
+                </Button>
               </div>
 
               <label
-                className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed px-4 py-8 text-center transition-colors"
+                className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed px-4 py-8 text-center transition-colors"
                 style={{
-                  borderRadius: 'var(--st-radius-lg)',
-                  borderColor: fileName
-                    ? 'var(--st-text)'
-                    : 'var(--st-border)',
-                  background: fileName
-                    ? 'var(--st-bg-muted)'
-                    : 'var(--st-bg)',
+                  borderColor: fileName ? 'var(--st-text)' : 'var(--st-border)',
+                  background: fileName ? 'var(--st-bg-muted)' : 'var(--st-bg)',
                 }}
               >
                 <Upload
                   className="h-6 w-6 transition-colors"
                   style={{
-                    color: fileName
-                      ? 'var(--st-text)'
-                      : 'var(--st-text-secondary)',
+                    color: fileName ? 'var(--st-text)' : 'var(--st-text-secondary)',
                   }}
                 />
                 <div className="flex flex-col gap-0.5">
-                  <span
-                    className="text-[13px]"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <span className="text-[13px] text-[var(--st-text)]">
                     {fileName || 'Click to choose a file'}
                   </span>
-                  <span
-                    className="text-[11px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <span className="text-[11px] text-[var(--st-text-secondary)]">
                     {fileName ? 'Click to replace' : 'CSV or XLSX, up to 10 MB'}
                   </span>
                 </div>

@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
   CardBody,
+  IconButton,
   Menu,
   MenuItem,
   MenuLabel,
@@ -111,12 +112,10 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
   }
 
   return (
-    <div
-      className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--st-radius-lg)] border p-3"
-      style={{
-        borderColor: 'var(--st-border)',
-        background: 'var(--st-surface)',
-      }}
+    <Card
+      variant="outlined"
+      padding="sm"
+      className="flex h-fit w-72 shrink-0 flex-col gap-2"
     >
       <Input
         autoFocus
@@ -140,7 +139,7 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
           Cancel
         </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -200,7 +199,7 @@ function ZoruKanbanCard({
             {...listeners}
             className={cx("mt-1.5 cursor-grab", isOverlay && "cursor-grabbing")}
         >
-            <GripVertical className="h-4 w-4" style={{ color: 'var(--st-text-muted)' }} />
+            <GripVertical className="h-4 w-4 text-[var(--st-text-muted)]" />
         </div>
         <Avatar
           name={contact.name || contact.waId || "?"}
@@ -211,7 +210,7 @@ function ZoruKanbanCard({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="truncate text-[13px] leading-tight" style={{ color: 'var(--st-text)' }}>
+            <p className="truncate text-[13px] leading-tight text-[var(--st-text)]">
               {contact.name || contact.waId}
             </p>
             <div className="flex shrink-0 items-center gap-1">
@@ -224,14 +223,13 @@ function ZoruKanbanCard({
                 align="end"
                 label="Card actions"
                 trigger={
-                  <button
-                    type="button"
-                    aria-label="Card actions"
-                    className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] transition-colors focus-visible:outline-none"
-                    style={{ color: 'var(--st-text-muted)' }}
-                  >
-                    <MoreHorizontal className="h-3.5 w-3.5" />
-                  </button>
+                  <IconButton
+                    label="Card actions"
+                    icon={MoreHorizontal}
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 text-[var(--st-text-muted)]"
+                  />
                 }
               >
                 <MenuLabel>Move to status</MenuLabel>
@@ -251,10 +249,10 @@ function ZoruKanbanCard({
               </Menu>
             </div>
           </div>
-          <p className="mt-0.5 truncate text-[11px]" style={{ color: 'var(--st-text-muted)' }}>
+          <p className="mt-0.5 truncate text-[11px] text-[var(--st-text-muted)]">
             {contact.waId}
           </p>
-          <p className="mt-1.5 line-clamp-2 text-[11.5px]" style={{ color: 'var(--st-text-muted)' }}>
+          <p className="mt-1.5 line-clamp-2 text-[11.5px] text-[var(--st-text-muted)]">
             {contact.lastMessage || "No recent activity."}
           </p>
         </div>
@@ -298,10 +296,7 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
       variant="outlined"
       padding="none"
     >
-      <CardHeader
-        className="shrink-0 border-b"
-        style={{ borderColor: 'var(--st-border)' }}
-      >
+      <CardHeader className="shrink-0 border-b border-[var(--st-border)]">
         <CardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
           <Badge tone="neutral" className="h-5 px-2 text-[10px]">
@@ -554,7 +549,7 @@ export function ZoruKanbanBoard() {
                   strategy={verticalListSortingStrategy}
                 >
                   {column.contacts.length === 0 ? (
-                    <p className="px-1 py-4 text-center text-[11.5px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                    <p className="px-1 py-4 text-center text-[11.5px] text-[var(--st-text-tertiary)]">
                       No conversations.
                     </p>
                   ) : (

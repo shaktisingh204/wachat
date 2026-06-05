@@ -17,6 +17,9 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   EmptyState,
   Field,
   Input,
@@ -31,6 +34,12 @@ import {
   Spinner,
   Textarea,
   FullscreenCalendar,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
@@ -279,49 +288,53 @@ export default function ScheduledMessagesPage() {
       <div className="flex flex-col gap-6">
         {/* Schedule form */}
         <Card padding="lg">
-          <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Schedule a message</h2>
-          <form
-            action={formAction}
-            className="flex max-w-lg flex-col gap-4"
-          >
-            <input type="hidden" name="projectId" value={projectId || ''} />
-            <Field label="Recipient phone" id="sm-phone">
-              <Input
-                id="sm-phone"
-                name="recipientPhone"
-                placeholder="+919876543210"
-                required
-              />
-            </Field>
-            <Field label="Message" id="sm-text">
-              <Textarea
-                id="sm-text"
-                name="messageText"
-                rows={3}
-                placeholder="Message text…"
-                required
-              />
-            </Field>
-            <Field label="Scheduled at" id="sm-when">
-              <Input
-                id="sm-when"
-                name="scheduledAt"
-                type="datetime-local"
-                required
-              />
-            </Field>
-            <div>
-              <Button type="submit" variant="primary" iconLeft={Send} loading={isPending} disabled={isPending || !projectId}>
-                {isPending ? 'Scheduling…' : 'Schedule message'}
-              </Button>
-            </div>
-          </form>
+          <CardHeader>
+            <CardTitle>Schedule a message</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <form
+              action={formAction}
+              className="flex max-w-lg flex-col gap-4"
+            >
+              <input type="hidden" name="projectId" value={projectId || ''} />
+              <Field label="Recipient phone" id="sm-phone">
+                <Input
+                  id="sm-phone"
+                  name="recipientPhone"
+                  placeholder="+919876543210"
+                  required
+                />
+              </Field>
+              <Field label="Message" id="sm-text">
+                <Textarea
+                  id="sm-text"
+                  name="messageText"
+                  rows={3}
+                  placeholder="Message text…"
+                  required
+                />
+              </Field>
+              <Field label="Scheduled at" id="sm-when">
+                <Input
+                  id="sm-when"
+                  name="scheduledAt"
+                  type="datetime-local"
+                  required
+                />
+              </Field>
+              <div>
+                <Button type="submit" variant="primary" iconLeft={Send} loading={isPending} disabled={isPending || !projectId}>
+                  {isPending ? 'Scheduling…' : 'Schedule message'}
+                </Button>
+              </div>
+            </form>
+          </CardBody>
         </Card>
 
         {/* Messages table */}
         <Card padding="lg">
           <div className="mb-4 flex flex-wrap items-center gap-4">
-            <h2 className="text-sm font-semibold" style={{ color: 'var(--st-text)' }}>Messages ({filtered.length})</h2>
+            <CardTitle>Messages ({filtered.length})</CardTitle>
 
             <SegmentedControl
               aria-label="View mode"
@@ -374,104 +387,79 @@ export default function ScheduledMessagesPage() {
               />
             </div>
           ) : (
-            <div
-              className="overflow-x-auto"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-              }}
-            >
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr
-                    className="text-[11px] uppercase tracking-wide"
-                    style={{
-                      borderBottom: '1px solid var(--st-border)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text-tertiary)',
-                    }}
-                  >
-                    <th className="px-4 py-3 font-medium">Recipient</th>
-                    <th className="px-4 py-3 font-medium">Message</th>
-                    <th className="px-4 py-3 font-medium">Scheduled time</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 text-right font-medium">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((msg) => {
-                    const now = mounted ? Date.now() : 0;
-                    const scheduledTime = new Date(msg.scheduledAt).getTime();
-                    const isLocked = mounted && (scheduledTime - now < 5 * 60 * 1000);
-                    return (
-                      <tr
-                        key={msg._id}
-                        className="transition-colors last:border-0"
-                        style={{ borderBottom: '1px solid var(--st-border)' }}
-                      >
-                        <td className="px-4 py-3 text-[13px] font-medium" style={{ color: 'var(--st-text)' }}>
-                          {msg.recipientPhone}
-                        </td>
-                        <td className="max-w-[200px] truncate px-4 py-3 text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
-                          {msg.messageText}
-                        </td>
-                        <td className="px-4 py-3 text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
-                          {fmtDate(msg.scheduledAt)}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Badge tone={statusTone(msg.status)}>
-                            {msg.status}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          {msg.status === 'pending' && (
-                            <div className="inline-flex items-center gap-1">
-                              <EditScheduleSheet message={msg} projectId={projectId || ''} onUpdated={() => { if(projectId) fetchMessages(projectId); }} />
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <IconButton
-                                    icon={Ban}
-                                    variant="ghost"
-                                    size="sm"
-                                    label="Cancel schedule"
-                                    disabled={cancellingId === msg._id || isLocked}
-                                    title={isLocked ? "Cancellation locked near dispatch time" : "Cancel schedule"}
-                                    style={{ color: 'var(--st-danger)' }}
-                                  />
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Cancel scheduled message?
-                                    </AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      This message to {msg.recipientPhone} will not
-                                      be sent at{' '}
-                                      {fmtDate(msg.scheduledAt)}.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>
-                                      Keep it
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      intent="danger"
-                                      onClick={() => handleCancel(msg._id)}
-                                    >
-                                      Cancel schedule
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Recipient</Th>
+                  <Th>Message</Th>
+                  <Th>Scheduled time</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {filtered.map((msg) => {
+                  const now = mounted ? Date.now() : 0;
+                  const scheduledTime = new Date(msg.scheduledAt).getTime();
+                  const isLocked = mounted && (scheduledTime - now < 5 * 60 * 1000);
+                  return (
+                    <Tr key={msg._id}>
+                      <Td className="text-[13px] font-medium">{msg.recipientPhone}</Td>
+                      <Td className="max-w-[200px] truncate text-[13px]">{msg.messageText}</Td>
+                      <Td className="text-[13px]">{fmtDate(msg.scheduledAt)}</Td>
+                      <Td>
+                        <Badge tone={statusTone(msg.status)}>
+                          {msg.status}
+                        </Badge>
+                      </Td>
+                      <Td align="right">
+                        {msg.status === 'pending' && (
+                          <div className="inline-flex items-center gap-1">
+                            <EditScheduleSheet message={msg} projectId={projectId || ''} onUpdated={() => { if(projectId) fetchMessages(projectId); }} />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <IconButton
+                                  icon={Ban}
+                                  variant="ghost"
+                                  size="sm"
+                                  label="Cancel schedule"
+                                  disabled={cancellingId === msg._id || isLocked}
+                                  title={isLocked ? "Cancellation locked near dispatch time" : "Cancel schedule"}
+                                  className="[color:var(--st-danger)]"
+                                />
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Cancel scheduled message?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This message to {msg.recipientPhone} will not
+                                    be sent at{' '}
+                                    {fmtDate(msg.scheduledAt)}.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>
+                                    Keep it
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction
+                                    intent="danger"
+                                    onClick={() => handleCancel(msg._id)}
+                                  >
+                                    Cancel schedule
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
+                      </Td>
+                    </Tr>
+                  );
+                })}
+              </TBody>
+            </Table>
           )}
         </Card>
       </div>

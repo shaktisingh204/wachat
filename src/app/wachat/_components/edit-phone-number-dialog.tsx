@@ -152,17 +152,13 @@ export function EditPhoneNumberDialog({
   const title = (
     <span className="flex flex-row items-start gap-3">
       <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)]"
-        style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] [background:var(--st-bg-muted)] [color:var(--st-text)]"
       >
         <UserRound className="h-5 w-5" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[16px]">Edit phone number profile</span>
-        <span
-          className="mt-0.5 block text-[12px] font-normal"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <span className="mt-0.5 block text-[12px] font-normal [color:var(--st-text-secondary)]">
           Update the public business profile details for{' '}
           {phone.display_phone_number}.
         </span>
@@ -193,8 +189,7 @@ export function EditPhoneNumberDialog({
             <div className="grid grid-cols-1 gap-6 md:grid-cols-[180px_1fr]">
               <div className="flex flex-col items-center gap-3">
                 <div
-                  className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-colors"
-                  style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-secondary)' }}
+                  className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-colors [border-color:var(--st-border)] [background:var(--st-bg-secondary)]"
                 >
                   {previewUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -204,18 +199,14 @@ export function EditPhoneNumberDialog({
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div
-                      className="flex flex-col items-center gap-1.5"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <div className="flex flex-col items-center gap-1.5 [color:var(--st-text-secondary)]">
                       <Camera className="h-6 w-6" />
                       <span className="text-[11px]">Upload photo</span>
                     </div>
                   )}
                   <label
                     htmlFor="profilePicture"
-                    className="absolute inset-0 flex cursor-pointer items-center justify-center text-[13px] opacity-0 transition-opacity group-hover:opacity-100"
-                    style={{ background: 'rgba(0, 0, 0, 0.6)', color: 'var(--st-text-inverted)' }}
+                    className="absolute inset-0 flex cursor-pointer items-center justify-center text-[13px] opacity-0 transition-opacity group-hover:opacity-100 [background:rgba(0,0,0,0.6)] [color:var(--st-text-inverted)]"
                   >
                     Change
                   </label>
@@ -229,10 +220,7 @@ export function EditPhoneNumberDialog({
                     onChange={handleImageChange}
                   />
                 </div>
-                <p
-                  className="px-2 text-center text-[10.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <p className="px-2 text-center text-[10.5px] [color:var(--st-text-secondary)]">
                   Recommended: 500x500 px, JPG or PNG.
                 </p>
                 <SabFileToFileButton
@@ -281,10 +269,7 @@ export function EditPhoneNumberDialog({
                 label={
                   <span className="flex w-full justify-between">
                     <span>Status (About)</span>
-                    <span
-                      className="text-[11px] font-normal"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="text-[11px] font-normal [color:var(--st-text-secondary)]">
                       Max 139 chars
                     </span>
                   </span>
@@ -302,10 +287,7 @@ export function EditPhoneNumberDialog({
                 label={
                   <span className="flex w-full justify-between">
                     <span>Business Description</span>
-                    <span
-                      className="text-[11px] font-normal"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="text-[11px] font-normal [color:var(--st-text-secondary)]">
                       Max 256 chars
                     </span>
                   </span>
@@ -354,10 +336,7 @@ export function EditPhoneNumberDialog({
           </div>
         </div>
 
-        <div
-          className="mt-4 flex gap-2 border-t px-1 pt-4 sm:justify-end"
-          style={{ borderColor: 'var(--st-border)' }}
-        >
+        <div className="mt-4 flex gap-2 border-t px-1 pt-4 sm:justify-end [border-color:var(--st-border)]">
           <Button
             type="button"
             variant="ghost"

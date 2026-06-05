@@ -5,11 +5,19 @@ import {
   useToast,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   Badge,
   Dot,
   ScrollArea,
   EmptyState,
   Spinner,
+  PageHeader,
+  PageHeaderHeading,
+  PageTitle,
+  PageDescription,
+  PageActions,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -100,36 +108,30 @@ export default function ConversationKanbanPage() {
   return (
     <WachatPage variant="app">
       <div className="flex h-full min-h-0 flex-col gap-6 px-6 pt-6 pb-10">
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1
-              className="text-[30px] leading-[1.1] tracking-[-0.015em]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Conversation Kanban
-            </h1>
-            <p
-              className="mt-1.5 text-[13px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
+        <PageHeader bordered={false} compact>
+          <PageHeaderHeading>
+            <PageTitle>Conversation Kanban</PageTitle>
+            <PageDescription>
               View conversations organized by status ({totalCards} contacts).
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            iconLeft={RefreshCw}
-            loading={isPending}
-            onClick={load}
-          >
-            Refresh
-          </Button>
-        </div>
+            </PageDescription>
+          </PageHeaderHeading>
+          <PageActions>
+            <Button
+              variant="outline"
+              size="sm"
+              iconLeft={RefreshCw}
+              loading={isPending}
+              onClick={load}
+            >
+              Refresh
+            </Button>
+          </PageActions>
+        </PageHeader>
 
         {isPending && columns.length === 0 ? (
           <div className="flex h-40 items-center justify-center gap-3">
             <Spinner size="sm" label="Loading contacts" />
-            <span className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+            <span className="text-[13px] u-pagehead__desc">
               Loading contacts...
             </span>
           </div>
@@ -140,9 +142,7 @@ export default function ConversationKanbanPage() {
                 <div key={col.id} className="w-80 flex-shrink-0">
                   <div className="mb-3 flex items-center gap-2">
                     <Dot tone={col.tone} aria-hidden="true" />
-                    <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                      {col.title}
-                    </h2>
+                    <h2 className="text-[15px] u-card__title">{col.title}</h2>
                     <Badge tone="neutral" className="ml-auto">
                       {col.items.length}
                     </Badge>
@@ -150,34 +150,22 @@ export default function ConversationKanbanPage() {
                   <div className="flex flex-col gap-3">
                     {col.items.map((item: any) => (
                       <Card key={item._id} variant="interactive" padding="md">
-                        <div className="mb-1 flex items-center justify-between gap-2">
-                          <span
-                            className="truncate text-[14px]"
-                            style={{ color: 'var(--st-text)' }}
-                          >
+                        <CardHeader>
+                          <CardTitle className="truncate text-[14px]">
                             {item.name || item.waId || 'Unknown'}
-                          </span>
+                          </CardTitle>
                           {item.lastMessageTimestamp && (
-                            <span
-                              className="whitespace-nowrap text-[11px]"
-                              style={{ color: 'var(--st-text-tertiary)' }}
-                            >
+                            <span className="whitespace-nowrap text-[11px] u-card__desc shrink-0">
                               {fmtDate(item.lastMessageTimestamp)}
                             </span>
                           )}
-                        </div>
-                        <p
-                          className="flex items-center gap-1 truncate text-[12.5px]"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
+                        </CardHeader>
+                        <CardDescription className="flex items-center gap-1 truncate text-[12.5px]">
                           <MessageCircle className="h-3 w-3 shrink-0" aria-hidden="true" />
                           {item.waId || 'No phone'}
-                        </p>
+                        </CardDescription>
                         {item.tagIds?.length > 0 && (
-                          <div
-                            className="mt-2 flex items-center gap-1 text-[11px]"
-                            style={{ color: 'var(--st-text-tertiary)' }}
-                          >
+                          <div className="mt-2 flex items-center gap-1 text-[11px] u-card__desc">
                             <User className="h-3 w-3" aria-hidden="true" />
                             {item.tagIds.length} tag(s)
                           </div>

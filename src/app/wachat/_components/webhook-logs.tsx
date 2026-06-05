@@ -4,9 +4,14 @@ import { fmtDate } from "@/lib/utils";
 import {
   Alert,
   Button,
+  Card,
+  CardTitle,
+  CardDescription,
+  EmptyState,
   IconButton,
   Modal,
   Input,
+  Pagination,
   Skeleton,
   Table,
   TBody,
@@ -243,17 +248,12 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-            Webhook Event Logs
-          </h3>
-          <p
-            className="mt-0.5 text-[12px]"
-            style={{ color: 'var(--st-text-muted)' }}
-          >
+          <CardTitle className="text-[15px]">Webhook Event Logs</CardTitle>
+          <CardDescription className="mt-0.5 text-[12px]">
             {filterByProject
               ? 'Real-time log of events for the selected project.'
               : 'A log of all webhook events received by the system.'}
-          </p>
+          </CardDescription>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-full sm:w-64">
@@ -298,13 +298,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         </Alert>
       ) : (
         <>
-          <div
-            className="overflow-hidden"
-            style={{
-              borderRadius: 'var(--st-radius-lg)',
-              border: '1px solid var(--st-border)',
-            }}
-          >
+          <Card variant="outlined" padding="none" className="overflow-hidden">
             <Table>
               <THead>
                 <Tr>
@@ -350,42 +344,21 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                   ))
                 ) : (
                   <Tr>
-                    <Td
-                      colSpan={4}
-                      align="center"
-                      className="h-24"
-                      style={{ color: 'var(--st-text-muted)' }}
-                    >
-                      No webhook logs found.
+                    <Td colSpan={4} align="center" className="h-24">
+                      <EmptyState title="No webhook logs found." size="sm" />
                     </Td>
                   </Tr>
                 )}
               </TBody>
             </Table>
-          </div>
-          <div className="flex items-center justify-end gap-2 py-2">
-            <span
-              className="text-[12px]"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
-              Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => p - 1)}
-              disabled={currentPage <= 1 || isLoading}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((p) => p + 1)}
-              disabled={currentPage >= totalPages || isLoading}
-            >
-              Next
-            </Button>
+          </Card>
+          <div className="flex items-center justify-end py-2">
+            <Pagination
+              page={currentPage}
+              pageCount={totalPages > 0 ? totalPages : 1}
+              onPageChange={setCurrentPage}
+              size="compact"
+            />
           </div>
         </>
       )}
@@ -413,29 +386,16 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         <div className="max-h-[60vh] overflow-y-auto text-[13px]">
           {loadingPayload ? (
             <div className="flex items-center justify-center p-8">
-              <Loader2
-                className="h-6 w-6 animate-spin"
-                style={{ color: 'var(--st-text-muted)' }}
-              />
+              <Loader2 className="h-6 w-6 animate-spin" />
             </div>
           ) : selectedLogPayload ? (
-            <pre
-              className="whitespace-pre-wrap p-4 font-mono text-[11.5px]"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-            >
-              {JSON.stringify(selectedLogPayload, null, 2)}
-            </pre>
+            <Card variant="ghost" padding="sm">
+              <pre className="whitespace-pre-wrap font-mono text-[11.5px]">
+                {JSON.stringify(selectedLogPayload, null, 2)}
+              </pre>
+            </Card>
           ) : (
-            <div
-              className="p-8 text-center"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
-              Could not load payload.
-            </div>
+            <EmptyState title="Could not load payload." size="sm" />
           )}
         </div>
       </Modal>

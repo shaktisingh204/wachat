@@ -5,6 +5,8 @@ import {
   IconButton,
   ScrollArea,
   Alert,
+  Card,
+  CardBody,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -140,8 +142,7 @@ export function ChatWindow({
     return (
         <div className="flex flex-col h-full bg-transparent relative">
             <div
-                className="flex items-center justify-between gap-3 p-3 border-b backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0"
-                style={{ borderColor: 'var(--st-border)', background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)' }}
+                className="flex items-center justify-between gap-3 p-3 border-b backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0 [border-color:var(--st-border)] [background:color-mix(in_oklab,var(--st-surface)_80%,transparent)]"
             >
                 <div className="flex items-center gap-3">
                     <IconButton
@@ -154,18 +155,13 @@ export function ChatWindow({
                     <Avatar name={contact.name} size="md" shape="round" />
                     <div>
                         <p className="font-semibold leading-none">{contact.name}</p>
-                        <p className="text-xs mt-1" style={{ color: 'var(--st-text-muted)' }}>online</p>
+                        <p className="text-xs mt-1 [color:var(--st-text-muted)]">online</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {sessionExpiryTime && !isWindowExpired && (
                         <div
-                            className="hidden sm:block text-xs p-2 rounded-md border"
-                            style={{
-                                color: 'var(--st-text-muted)',
-                                borderColor: 'var(--st-border)',
-                                background: 'color-mix(in oklab, var(--st-surface-muted) 50%, transparent)',
-                            }}
+                            className="hidden sm:block text-xs p-2 rounded-md border [color:var(--st-text-muted)] [border-color:var(--st-border)] [background:color-mix(in_oklab,var(--st-surface-muted)_50%,transparent)]"
                         >
                             Session closes in: <Countdown targetTime={sessionExpiryTime} onExpire={() => setIsWindowExpired(true)} />
                         </div>
@@ -181,7 +177,7 @@ export function ChatWindow({
             <ScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                        <LoaderCircle className="h-6 w-6 animate-spin" style={{ color: 'var(--st-text-muted)' }} />
+                        <LoaderCircle className="h-6 w-6 animate-spin [color:var(--st-text-muted)]" />
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
@@ -199,44 +195,36 @@ export function ChatWindow({
                     </Alert>
                 )}
                 {replyToMessage && (
-                    <div
-                        className="p-2 mb-2 backdrop-blur-md rounded-xl text-sm relative border shadow-sm"
-                        style={{
-                            borderColor: 'var(--st-border)',
-                            background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)',
-                        }}
-                    >
-                        <IconButton
-                            label="Cancel reply"
-                            icon={X}
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-1 right-1"
-                            onClick={() => setReplyToMessage(null)}
-                        />
-                        <p className="font-semibold" style={{ color: 'var(--st-text)' }}>
-                            Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
-                        </p>
-                        <p className="truncate" style={{ color: 'var(--st-text-muted)' }}>
-                            {replyToMessage.content.text?.body || 'Media or interactive message'}
-                        </p>
-                    </div>
+                    <Card variant="outlined" padding="sm" className="mb-2 backdrop-blur-md text-sm relative">
+                        <CardBody>
+                            <IconButton
+                                label="Cancel reply"
+                                icon={X}
+                                variant="ghost"
+                                size="sm"
+                                className="absolute top-1 right-1"
+                                onClick={() => setReplyToMessage(null)}
+                            />
+                            <p className="font-semibold [color:var(--st-text)]">
+                                Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
+                            </p>
+                            <p className="truncate [color:var(--st-text-muted)]">
+                                {replyToMessage.content.text?.body || 'Media or interactive message'}
+                            </p>
+                        </CardBody>
+                    </Card>
                 )}
-                <div
-                    className="backdrop-blur-xl border rounded-2xl shadow-lg p-2"
-                    style={{
-                        borderColor: 'var(--st-border)',
-                        background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)',
-                    }}
-                >
-                    <ChatMessageInput
-                        project={project}
-                        contact={contact}
-                        templates={templates}
-                        replyToMessageId={replyToMessage?.wamid}
-                        disabled={isWindowExpired}
-                    />
-                </div>
+                <Card variant="outlined" padding="sm" className="backdrop-blur-xl shadow-lg rounded-2xl">
+                    <CardBody>
+                        <ChatMessageInput
+                            project={project}
+                            contact={contact}
+                            templates={templates}
+                            replyToMessageId={replyToMessage?.wamid}
+                            disabled={isWindowExpired}
+                        />
+                    </CardBody>
+                </Card>
             </div>
         </div>
     );

@@ -284,13 +284,10 @@ export default function TeamPerformancePage() {
                     const isSignificant = a.csatReviews >= 30;
                     return (
                       <Tr key={a._id}>
-                        <Td
-                          className="tabular-nums"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        <Td className="tabular-nums [color:var(--st-text-tertiary)]">
                           {i + 1}
                         </Td>
-                        <Td style={{ fontWeight: 500 }}>
+                        <Td className="font-medium">
                           <div className="flex flex-col gap-1.5">
                             <span className="inline-flex items-center gap-2">
                               {a.agentName}
@@ -298,7 +295,7 @@ export default function TeamPerformancePage() {
                                 <Trophy
                                   size={14}
                                   aria-hidden="true"
-                                  style={{ color: 'var(--st-text)' }}
+                                  className="[color:var(--st-text)]"
                                 />
                               )}
                             </span>
@@ -316,28 +313,24 @@ export default function TeamPerformancePage() {
                         </Td>
                         <Td
                           align="right"
-                          className="tabular-nums font-mono"
-                          style={{ fontWeight: 700, color: 'var(--st-text)' }}
+                          className="tabular-nums font-mono font-bold [color:var(--st-text)]"
                         >
                           {(a.points ?? 0).toLocaleString()}
                         </Td>
                         <Td align="right" className="tabular-nums font-mono">
                           {(a.messagesSent ?? 0).toLocaleString()}
                         </Td>
-                        <Td
-                          className="tabular-nums"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        <Td className="tabular-nums [color:var(--st-text-tertiary)]">
                           {formatResponseTime(a.avgResponseMs)}
                         </Td>
                         <Td className="tabular-nums">
                           <div className="flex items-center gap-1">
                             <span
-                              style={{
-                                color: isSignificant
-                                  ? 'var(--st-text)'
-                                  : 'var(--st-text-tertiary)',
-                              }}
+                              className={
+                                isSignificant
+                                  ? '[color:var(--st-text)]'
+                                  : '[color:var(--st-text-tertiary)]'
+                              }
                             >
                               {a.csatScore}%
                             </span>
@@ -348,8 +341,7 @@ export default function TeamPerformancePage() {
                                 <span
                                   role="img"
                                   aria-label={`Not statistically significant: n = ${a.csatReviews}, below 30`}
-                                  className="inline-flex cursor-help"
-                                  style={{ color: 'var(--st-warn)' }}
+                                  className="inline-flex cursor-help [color:var(--st-warn)]"
                                   tabIndex={0}
                                 >
                                   <AlertTriangle size={14} aria-hidden="true" />
@@ -357,10 +349,7 @@ export default function TeamPerformancePage() {
                               </Tooltip>
                             )}
                             {isSignificant && (
-                              <span
-                                className="text-xs ml-1"
-                                style={{ color: 'var(--st-text-tertiary)' }}
-                              >
+                              <span className="text-xs ml-1 [color:var(--st-text-tertiary)]">
                                 (n={a.csatReviews})
                               </span>
                             )}
@@ -446,7 +435,7 @@ export default function TeamPerformancePage() {
 
               {drillAgent.badges && drillAgent.badges.length > 0 && (
                 <Card padding="md">
-                  <h3 className="font-medium mb-3" style={{ color: 'var(--st-text)' }}>
+                  <h3 className="font-medium mb-3 [color:var(--st-text)]">
                     Earned Badges
                   </h3>
                   <div className="flex flex-wrap gap-2">

@@ -7,6 +7,7 @@ import { ChevronLeft } from 'lucide-react';
 import type { Metadata } from 'next';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { CardTitle, CardDescription } from '@/components/sabcrm/20ui';
 
 import {
   PrerequisitesCard,
@@ -43,19 +44,13 @@ export default function ManualSetupDocsPage() {
         </div>
 
         <section>
-          <div
-            className="mb-6 border-b pb-2"
-            style={{ borderColor: 'var(--st-border)' }}
-          >
-            <h2
-              className="text-2xl font-semibold tracking-tight"
-              style={{ color: 'var(--st-text)' }}
-            >
+          <div className="mb-6 border-b border-[var(--st-border)] pb-2">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
               Manual Setup Guide
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+            </CardTitle>
+            <CardDescription>
               Follow these steps to connect your Meta App directly using Developer credentials.
-            </p>
+            </CardDescription>
           </div>
           <div className="grid gap-6">
             <PrerequisitesCard />
@@ -66,37 +61,25 @@ export default function ManualSetupDocsPage() {
         </section>
 
         <section>
-          <div
-            className="mb-6 border-b pb-2"
-            style={{ borderColor: 'var(--st-border)' }}
-          >
-            <h2
-              className="text-2xl font-semibold tracking-tight"
-              style={{ color: 'var(--st-text)' }}
-            >
+          <div className="mb-6 border-b border-[var(--st-border)] pb-2">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
               Diagnostic Tools
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+            </CardTitle>
+            <CardDescription>
               Real-time status checks and testing utilities to ensure your connection is healthy.
-            </p>
+            </CardDescription>
           </div>
           <WhatsAppTools />
         </section>
 
         <section>
-          <div
-            className="mb-6 border-b pb-2"
-            style={{ borderColor: 'var(--st-border)' }}
-          >
-            <h2
-              className="text-2xl font-semibold tracking-tight"
-              style={{ color: 'var(--st-text)' }}
-            >
+          <div className="mb-6 border-b border-[var(--st-border)] pb-2">
+            <CardTitle className="text-2xl font-semibold tracking-tight">
               Knowledge Base
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+            </CardTitle>
+            <CardDescription>
               Searchable articles, troubleshooting steps, and best practices.
-            </p>
+            </CardDescription>
           </div>
           <DocumentationList />
         </section>

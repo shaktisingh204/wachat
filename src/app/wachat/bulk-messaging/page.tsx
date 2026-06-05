@@ -13,6 +13,10 @@ import {
   AlertDialogTrigger,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  EmptyState,
   Field,
   Progress,
   Spinner,
@@ -135,7 +139,7 @@ export default function BulkMessagingPage() {
                   loading={sending}
                   disabled={sending || !canSend}
                 >
-                  {sending ? 'Sending…' : 'Send all'}
+                  {sending ? 'Sending...' : 'Send all'}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -160,68 +164,52 @@ export default function BulkMessagingPage() {
         </Card>
 
         <Card padding="lg">
-          <h2
-            className="mb-4 text-sm"
-            style={{ color: 'var(--st-text)' }}
-          >
-            Result
-          </h2>
-          {sending ? (
-            <div className="flex h-20 items-center justify-center gap-3">
-              <Spinner size="md" label="Sending messages" />
-              <p
-                className="text-[13px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Sending messages…
-              </p>
-            </div>
-          ) : result ? (
-            <>
-              <Progress value={100} tone="success" className="mb-4" />
-              <p
-                className="mb-4 text-[13px]"
-                style={{ color: 'var(--st-text)' }}
-              >
-                {result.total} processed
-              </p>
-              <div className="flex gap-6">
-                <div className="flex items-center gap-2">
-                  <CircleCheck
-                    className="h-4 w-4"
-                    style={{ color: 'var(--st-status-ok)' }}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="text-[13px]"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    {result.success} sent
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CircleX
-                    className="h-4 w-4"
-                    style={{ color: 'var(--st-danger)' }}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className="text-[13px]"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    {result.failed} failed
-                  </span>
-                </div>
+          <CardHeader>
+            <CardTitle>Result</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {sending ? (
+              <div className="flex h-20 items-center justify-center gap-3">
+                <Spinner size="md" label="Sending messages" />
+                <p className="text-[13px] [color:var(--st-text-secondary)]">
+                  Sending messages...
+                </p>
               </div>
-            </>
-          ) : (
-            <p
-              className="py-8 text-center text-[13px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              Enter numbers and a message, then click Send all.
-            </p>
-          )}
+            ) : result ? (
+              <>
+                <Progress value={100} tone="success" className="mb-4" />
+                <p className="mb-4 text-[13px] [color:var(--st-text)]">
+                  {result.total} processed
+                </p>
+                <div className="flex gap-6">
+                  <div className="flex items-center gap-2">
+                    <CircleCheck
+                      className="h-4 w-4 [color:var(--st-status-ok)]"
+                      aria-hidden="true"
+                    />
+                    <span className="text-[13px] [color:var(--st-text)]">
+                      {result.success} sent
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CircleX
+                      className="h-4 w-4 [color:var(--st-danger)]"
+                      aria-hidden="true"
+                    />
+                    <span className="text-[13px] [color:var(--st-text)]">
+                      {result.failed} failed
+                    </span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <EmptyState
+                title="No results yet"
+                description="Enter numbers and a message, then click Send all."
+                size="sm"
+              />
+            )}
+          </CardBody>
         </Card>
       </div>
     </WachatPage>

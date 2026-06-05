@@ -21,6 +21,7 @@ import {
   ScrollArea,
   Tabs,
   TabPanel,
+  EmptyState,
 } from '@/components/sabcrm/20ui';
 import {
   useState,
@@ -111,7 +112,7 @@ function MultiSelectCombobox({
                                 );
                             })
                         ) : (
-                            <span className="font-normal" style={{ color: 'var(--st-text-muted)' }}>{placeholder}</span>
+                            <span className="font-normal [color:var(--st-text-muted)]">{placeholder}</span>
                         )}
                     </div>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -278,12 +279,10 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
 
     return (
         <div
-            className="ui20 flex flex-col h-full border-l"
-            style={{ background: 'var(--st-surface)', borderColor: 'var(--st-border)' }}
+            className="ui20 flex flex-col h-full border-l [background:var(--st-surface)] [border-color:var(--st-border)]"
         >
             <div
-                className="px-4 py-3 border-b flex items-center justify-between flex-shrink-0"
-                style={{ background: 'var(--st-bg-secondary)', borderColor: 'var(--st-border)' }}
+                className="px-4 py-3 border-b flex items-center justify-between flex-shrink-0 [background:var(--st-bg-secondary)] [border-color:var(--st-border)]"
             >
                 <h3 className="font-semibold text-lg">Contact Info</h3>
                 <IconButton label="Close contact info" icon={X} variant="ghost" size="sm" onClick={onClose} />
@@ -291,8 +290,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
 
             <ScrollArea className="flex-1">
                 <div
-                    className="p-4 flex flex-col items-center border-b"
-                    style={{ borderColor: 'var(--st-border)' }}
+                    className="p-4 flex flex-col items-center border-b [border-color:var(--st-border)]"
                 >
                     <div className="mb-3">
                         <Avatar
@@ -324,7 +322,7 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                             </span>
                         </div>
                     )}
-                    <p className="text-sm mb-4" style={{ color: 'var(--st-text-muted)' }}>{contact.waId}</p>
+                    <p className="text-sm mb-4 [color:var(--st-text-muted)]">{contact.waId}</p>
 
                     <div className="grid grid-cols-2 gap-4 w-full">
                         <Field label="Status">
@@ -353,8 +351,8 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                 <div className="p-4 space-y-6">
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>Tags</span>
-                            <Button variant="ghost" size="sm" iconLeft={Settings} className="h-6 text-[10px]" style={{ color: 'var(--st-text-muted)' }} onClick={() => setIsTagsManagerOpen(true)}>
+                            <span className="text-sm font-medium [color:var(--st-text)]">Tags</span>
+                            <Button variant="ghost" size="sm" iconLeft={Settings} className="h-6 text-[10px] [color:var(--st-text-muted)]" onClick={() => setIsTagsManagerOpen(true)}>
                                 Manage
                             </Button>
                         </div>
@@ -405,21 +403,17 @@ export function ContactInfoPanel({ project, contact, onContactUpdate, onClose }:
                                     </Button>
                                 </div>
                             ) : (
-                                <div
-                                    className="text-center text-sm py-8 rounded-lg border border-dashed"
-                                    style={{ color: 'var(--st-text-muted)', background: 'var(--st-bg-secondary)', borderColor: 'var(--st-border)' }}
-                                >
-                                    No custom attributes found
-                                </div>
+                                <EmptyState
+                                    title="No custom attributes found"
+                                    size="sm"
+                                />
                             )}
                         </TabPanel>
                         <TabPanel value="files" className="mt-4">
-                            <div
-                                className="text-center text-sm py-8 rounded-lg border border-dashed"
-                                style={{ color: 'var(--st-text-muted)', background: 'var(--st-bg-secondary)', borderColor: 'var(--st-border)' }}
-                            >
-                                No shared files
-                            </div>
+                            <EmptyState
+                                title="No shared files"
+                                size="sm"
+                            />
                         </TabPanel>
                     </Tabs>
                 </div>
