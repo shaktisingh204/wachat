@@ -641,7 +641,7 @@ export function Ui20Showcase(): React.JSX.Element {
                 <DrawerTitle>Settings</DrawerTitle>
                 <DrawerDescription>A side panel for detail + edit flows.</DrawerDescription>
               </DrawerHeader>
-              <div style={{ padding: 'var(--st-space-4)' }}>
+              <div>
                 <Field label="Workspace name">
                   <Input placeholder="Acme" />
                 </Field>

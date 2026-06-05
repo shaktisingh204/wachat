@@ -87,10 +87,14 @@
   flex: 1 1 auto;
   flex-direction: column;
   align-items: center;
-  gap: var(--st-space-1);
+  gap: 6px;
+  padding: 2px 0;
   overflow-y: auto;
   /* Hide the scrollbar on the rail so the icon column stays clean. */
   scrollbar-width: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-rail__nav::-webkit-scrollbar {
+  display: none;
 }
 :is(.ui20, .sabcrm-twenty) .u-rail__nav::-webkit-scrollbar {
   display: none;
@@ -136,16 +140,17 @@
   outline: none;
 }
 :is(.ui20, .sabcrm-twenty) .u-rail__item.is-active {
-  background: var(--st-text);
-  color: var(--st-text-inverted, #fff);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 22%, transparent);
 }
 :is(.ui20, .sabcrm-twenty) .u-rail__item.is-active:hover {
-  background: var(--st-text);
-  color: var(--st-text-inverted, #fff);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
 }
 :is(.ui20, .sabcrm-twenty) .u-rail__item svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 /* A tiny count badge anchored to the rail tile. */

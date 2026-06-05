@@ -1,0 +1,16 @@
+/* CRM settings shell — centred column + back-button bar. */
+.crm-settings-shell {
+  min-height: 100%;
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+}
+.crm-settings-shell__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--st-space-4) var(--st-space-5) var(--st-space-6);
+}
+.crm-settings-shell__bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--st-space-4);
+}

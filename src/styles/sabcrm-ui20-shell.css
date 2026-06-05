@@ -296,3 +296,28 @@
     transform: none;
   }
 }
+
+/* ===== CRM sidebar header: stack the switcher row, then search BELOW it =====
+   The 20ui SidebarHeader is a single fixed-height row; the CRM header needs the
+   project switcher + bell on one row and the search button on its own row under
+   it, so override to a column with auto height. */
+:is(.ui20, .sabcrm-twenty) .u-sidebar__header.st-crm-sidehead {
+  flex-direction: column;
+  align-items: stretch;
+  height: auto;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-regular);
+  white-space: normal;
+  overflow: visible;
+}
+/* Row 1: switcher grows, bell pinned right. */
+:is(.ui20, .sabcrm-twenty) .st-crm-sidehead .st-sidebar__header {
+  width: 100%;
+  margin: 0;
+}
+/* Row below: full-width search button. */
+:is(.ui20, .sabcrm-twenty) .st-crm-sidehead .st-search-btn {
+  width: 100%;
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 
 import '@/styles/sabcrm-twenty.css';
+import { CrmSettingsShell } from './_components/crm-settings-shell';
 
 export const metadata: Metadata = {
   title: 'Settings · SabNode',
@@ -28,5 +29,5 @@ export default function CrmSettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="sabcrm-twenty">{children}</div>;
+  return <CrmSettingsShell>{children}</CrmSettingsShell>;
 }

@@ -33,6 +33,7 @@ import './notifications.css';
 import { TwentyCommandMenu } from './twenty-command-menu';
 import { TwentyWorkspaceSwitcher } from './twenty-workspace-switcher';
 import { NotificationsBell } from './notifications-bell';
+import { ProjectsSidebarNav } from './projects-sidebar-nav';
 import {
   SidebarProvider,
   Sidebar,
@@ -253,10 +254,11 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     const objectRows: NavItem[] =
       objects && objects.length > 0
         ? objects
-            // Hide system objects, and the renamed-away `opportunities` slug
-            // (it's now `leads`) so a stale persisted copy never double-lists
-            // alongside Leads until the data migration runs.
-            .filter((o) => !o.isSystem && o.slug !== 'opportunities')
+            // Hide system objects, the renamed-away `opportunities` slug (it's
+            // now `leads`) so a stale persisted copy never double-lists alongside
+            // Leads, and `projects` — it has its own dedicated collapsible nav
+            // item below, so the generic object row would be a duplicate.
+            .filter((o) => !o.isSystem && o.slug !== 'opportunities' && o.slug !== 'projects')
             .map((o) => ({
               slug: o.slug,
               label: o.labelPlural || o.slug,
@@ -357,7 +359,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
       <div className="st-shell">
         <SidebarProvider>
           <Sidebar aria-label="SabCRM navigation">
-            <SidebarHeader>
+            <SidebarHeader className="st-crm-sidehead">
               {/* Workspace (project) switcher + notifications bell */}
               <div className="st-sidebar__header">
                 <TwentyWorkspaceSwitcher />
@@ -426,6 +428,12 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
               {/* Workspace — faithful to Twenty's default object navigation */}
               <SidebarGroup label="Workspace">
                 <SidebarMenu>
+                  {/* Projects — dedicated collapsible surface (List/Board/Timeline).
+                      Suspense bounds its `useSearchParams` read for the view-aware
+                      active state. */}
+                  <React.Suspense fallback={null}>
+                    <ProjectsSidebarNav />
+                  </React.Suspense>
                   {workspaceNav.map((item) => {
                     const { slug, label, icon: Icon } = item;
                     const href = navHref(item);
