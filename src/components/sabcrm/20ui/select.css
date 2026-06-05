@@ -3,8 +3,21 @@
 /* The anchor wraps the trigger; it is layout-transparent so the trigger keeps
    its own box. The portal panel (.u-select__panel) inherits the shared
    .st-popover entrance + elevation from the foundation stylesheet. */
+/* Content-width by default: a Select dropped into a toolbar / inline row sizes
+   to its value instead of stretching to fill (and breaking) the layout. The
+   `--block` modifier (added inside a <Field> or via the `block` prop) makes it
+   fill the container, which is what form fields want. */
 :is(.ui20, .sabcrm-twenty) .u-select__anchor {
-  display: block;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__anchor--block {
+  display: flex;
+  width: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__anchor--block .u-select {
+  width: 100%;
 }
 
 /* ----- Trigger ----- */
@@ -12,7 +25,8 @@
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   min-height: 32px;
   padding: 0 var(--st-space-2) 0 var(--st-space-3);
   border: 1px solid var(--st-border);

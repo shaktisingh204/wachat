@@ -311,6 +311,13 @@ export interface SelectProps
   searchable?: boolean;
   /** Add an inline clear button when a value is selected. */
   clearable?: boolean;
+  /**
+   * Stretch the trigger to fill its container. Defaults to `true` when inside a
+   * `<Field>` (form fields), `false` otherwise — so a Select dropped into a
+   * toolbar / inline row sizes to its content instead of stretching and
+   * breaking the layout. Pass explicitly to override.
+   */
+  block?: boolean;
   /** Accessible name when not wrapped in a `<Field>`. */
   'aria-label'?: string;
 }
@@ -339,6 +346,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function 
     invalid,
     searchable = false,
     clearable = false,
+    block,
     className,
     id,
     'aria-label': ariaLabel,
@@ -349,6 +357,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function 
   const field = useFieldContext();
   const resolvedId = id ?? field?.controlId;
   const isInvalid = invalid ?? field?.invalid ?? false;
+  // Full-width when explicitly requested, or by default inside a Field (forms).
+  const fullWidth = block ?? field != null;
 
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [open, setOpen] = React.useState(false);
@@ -390,7 +400,10 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(function 
 
   return (
     <>
-      <div ref={anchorRef} className="u-select__anchor">
+      <div
+        ref={anchorRef}
+        className={cx('u-select__anchor', fullWidth && 'u-select__anchor--block')}
+      >
         <button
           ref={ref}
           id={resolvedId}
@@ -475,6 +488,8 @@ export interface MultiSelectProps
   disabled?: boolean;
   invalid?: boolean;
   searchable?: boolean;
+  /** Fill the container (default true inside a `<Field>`, false otherwise). */
+  block?: boolean;
   /** Accessible name when not wrapped in a `<Field>`. */
   'aria-label'?: string;
 }
@@ -503,6 +518,7 @@ export function MultiSelect({
   disabled = false,
   invalid,
   searchable = false,
+  block,
   className,
   id,
   'aria-label': ariaLabel,
@@ -511,6 +527,7 @@ export function MultiSelect({
   const field = useFieldContext();
   const resolvedId = id ?? field?.controlId;
   const isInvalid = invalid ?? field?.invalid ?? false;
+  const fullWidth = block ?? field != null;
 
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
@@ -560,7 +577,10 @@ export function MultiSelect({
 
   return (
     <>
-      <div ref={anchorRef} className="u-select__anchor">
+      <div
+        ref={anchorRef}
+        className={cx('u-select__anchor', fullWidth && 'u-select__anchor--block')}
+      >
         <button
           ref={triggerRef}
           id={resolvedId}
