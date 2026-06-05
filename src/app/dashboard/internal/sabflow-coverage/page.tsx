@@ -66,7 +66,10 @@ async function loadJson<T>(rel: string): Promise<LoadResult<T>> {
     const filePath = repoFile(rel);
     let raw: string;
     try {
-        raw = await fs.readFile(filePath, 'utf8');
+        // Admin-only, force-dynamic runtime read of a repo artefact. Keep
+        // Turbopack's file tracer from statically analysing this dynamic path
+        // (which would otherwise trace the whole project / over-bundle).
+        raw = await fs.readFile(/*turbopackIgnore: true*/ filePath, 'utf8');
     } catch (err: unknown) {
         const code = (err as NodeJS.ErrnoException)?.code;
         if (code === 'ENOENT') {
@@ -93,7 +96,8 @@ async function loadJson<T>(rel: string): Promise<LoadResult<T>> {
 async function loadText(rel: string): Promise<LoadResult<string>> {
     const filePath = repoFile(rel);
     try {
-        const data = await fs.readFile(filePath, 'utf8');
+        // See loadJson: keep the file tracer from over-tracing this dynamic read.
+        const data = await fs.readFile(/*turbopackIgnore: true*/ filePath, 'utf8');
         return { status: 'ok', data, path: rel };
     } catch (err: unknown) {
         const code = (err as NodeJS.ErrnoException)?.code;
