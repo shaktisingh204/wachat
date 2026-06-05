@@ -42,7 +42,7 @@ export function ChatBubble({
         style={{
           backgroundColor:
             backgroundColor ?? (isBot ? 'var(--gray-3)' : 'var(--orange-8)'),
-          color: color ?? (isBot ? 'var(--gray-12)' : '#ffffff'),
+          color: color ?? (isBot ? 'var(--gray-12)' : 'var(--st-text-inverted)'),
         }}
       >
         {children}

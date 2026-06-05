@@ -682,7 +682,7 @@ function Kpi({
                 </p>
                 <p
                     className="mt-1 text-2xl font-semibold tabular-nums"
-                    style={accent ? { color: '#d97706' } : undefined}
+                    style={accent ? { color: 'var(--st-warn)' } : undefined}
                 >
                     {value}
                 </p>

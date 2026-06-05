@@ -20,8 +20,8 @@ export default function EmbedError({
         margin: 0,
         padding: 24,
         fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-        color: '#111',
-        background: '#fff',
+        color: 'var(--st-text)',
+        background: 'var(--st-bg)',
         height: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -30,10 +30,10 @@ export default function EmbedError({
       }}
     >
       <div>
-        <h1 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: '#e11d48' }}>
+        <h1 style={{ fontSize: 16, fontWeight: 600, marginBottom: 8, color: 'var(--st-danger)' }}>
           Unable to load chat
         </h1>
-        <p style={{ fontSize: 13, color: '#555', marginBottom: 16 }}>
+        <p style={{ fontSize: 13, color: 'var(--st-text-secondary)', marginBottom: 16 }}>
           {error.message || 'An unexpected error occurred while loading this widget.'}
         </p>
         <button
@@ -42,7 +42,7 @@ export default function EmbedError({
             padding: '8px 16px',
             fontSize: 13,
             fontWeight: 500,
-            color: '#fff',
+            color: 'var(--st-text-inverted)',
             background: '#111827',
             border: 'none',
             borderRadius: 6,

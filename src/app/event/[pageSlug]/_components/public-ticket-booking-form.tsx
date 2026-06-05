@@ -126,7 +126,7 @@ export function PublicTicketBookingForm({
           type="submit"
           disabled={totalSeats === 0}
           className="rounded-md px-5 py-2 text-sm font-medium text-black disabled:opacity-40"
-          style={{ backgroundColor: accent, color: '#fff' }}
+          style={{ backgroundColor: accent, color: 'var(--st-text-inverted)' }}
         >
           Book tickets
         </button>

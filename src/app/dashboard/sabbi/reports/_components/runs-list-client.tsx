@@ -98,7 +98,7 @@ export function RunsListClient({ definitionId, runs }: RunsListClientProps) {
                                 <Line type="monotone" dataKey="rows" stroke="#8884d8" strokeWidth={2} dot={false} />
                                 <XAxis dataKey="date" hide />
                                 <RechartsTooltip 
-                                    contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                    contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid var(--st-border)' }}
                                 />
                             </LineChart>
                         </ResponsiveContainer>

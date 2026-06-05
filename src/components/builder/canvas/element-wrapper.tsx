@@ -26,7 +26,7 @@ export const ElementWrapper = ({ element }: ElementWrapperProps) => {
     // Base styles for the wrapper ensuring it can receive clicks and has layout
     const baseStyles = {
         ...element.style,
-        border: isSelected ? '2px solid #3b82f6' : '1px dashed transparent', // Visual feedback
+        border: isSelected ? '2px solid var(--st-accent)' : '1px dashed transparent', // Visual feedback
         position: 'relative' as const,
         minHeight: element.type === 'SECTION' ? '100px' : 'auto',
         padding: element.type === 'SECTION' || element.type === 'COLUMN' ? '10px' : '0',

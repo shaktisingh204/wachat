@@ -13,7 +13,7 @@ export function ChatHeader({ widgetName, primaryColor, onClose, isOnline }: Chat
       style={{
         padding: '12px 16px',
         background: primaryColor,
-        color: '#fff',
+        color: 'var(--st-text-inverted)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -27,7 +27,7 @@ export function ChatHeader({ widgetName, primaryColor, onClose, isOnline }: Chat
             width: '8px',
             height: '8px',
             borderRadius: '50%',
-            backgroundColor: isOnline ? '#10b981' : '#ef4444',
+            backgroundColor: isOnline ? 'var(--st-status-ok)' : 'var(--st-danger)',
             boxShadow: '0 0 0 2px rgba(255,255,255,0.2)',
             transition: 'background-color 0.3s ease',
           }}
@@ -39,7 +39,7 @@ export function ChatHeader({ widgetName, primaryColor, onClose, isOnline }: Chat
         onClick={onClose}
         style={{
           background: 'transparent',
-          color: '#fff',
+          color: 'var(--st-text-inverted)',
           border: 0,
           fontSize: 18,
           cursor: 'pointer',

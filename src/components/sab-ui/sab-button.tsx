@@ -62,7 +62,7 @@ function getVariantStyle(variant: SabButtonVariant, hover = false): React.CSSPro
     case 'danger':
       return {
         background: 'var(--sab-gradient-danger)',
-        color: '#fff',
+        color: 'var(--st-text-inverted)',
         border: '1px solid hsl(var(--sab-danger))',
         boxShadow: hover ? 'var(--sab-glow-danger)' : 'var(--sab-shadow-xs)',
         transform: hover ? 'translateY(-1px)' : 'translateY(0)',

@@ -261,7 +261,7 @@ function RemoteCursor({
 					padding: '2px 6px',
 					borderRadius: 4,
 					background: color,
-					color: '#fff',
+					color: 'var(--st-text-inverted)',
 					fontSize: 11,
 					lineHeight: '14px',
 					fontWeight: 500,

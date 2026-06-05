@@ -260,7 +260,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="hour" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid var(--st-border)' }} />
                   <Bar dataKey="utilized" fill="#f97316" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -287,7 +287,7 @@ export function NumbersAnalyticsClient({ rows, capacityData }: NumbersAnalyticsC
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis dataKey="hour" fontSize={10} axisLine={false} tickLine={false} />
                   <YAxis fontSize={10} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid #e2e8f0' }} />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: '1px solid var(--st-border)' }} />
                   <Area type="monotone" dataKey="utilized" stroke="#3b82f6" fillOpacity={1} fill="url(#colorUtilized)" />
                 </AreaChart>
               </ResponsiveContainer>

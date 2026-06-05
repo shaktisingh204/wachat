@@ -39,7 +39,7 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
         <main
             style={{
                 minHeight: '100vh',
-                background: '#f9fafb',
+                background: 'var(--st-bg-secondary)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -51,14 +51,14 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
                 style={{
                     width: '100%',
                     maxWidth: 420,
-                    background: 'white',
+                    background: 'var(--st-bg)',
                     borderRadius: 16,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.04)',
                     padding: 32,
                 }}
             >
                 <header style={{ marginBottom: 24 }}>
-                    <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: 0 }}>
+                    <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--st-text)', margin: 0 }}>
                         Sign in to your portal
                     </h1>
                     <p style={{ fontSize: 14, color: '#475569', marginTop: 8, marginBottom: 0 }}>
@@ -85,7 +85,7 @@ async function PortalLoginPageContent({ params, searchParams }: PageProps) {
 
                 <PortalLoginForm tenantSlug={tenantSlug} />
 
-                <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 24, marginBottom: 0 }}>
+                <p style={{ fontSize: 12, color: 'var(--st-text-tertiary)', marginTop: 24, marginBottom: 0 }}>
                     Links expire in 15 minutes and can only be used once.
                 </p>
             </section>

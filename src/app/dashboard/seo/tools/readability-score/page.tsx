@@ -186,11 +186,11 @@ export default function ReadabilityScorePage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={distribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{fill: '#6b7280'}} />
-                      <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{fill: '#6b7280'}} allowDecimals={false} />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(0,0,0,0.05)' }} 
-                        contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} 
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{fill: 'var(--st-text-secondary)'}} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{fill: 'var(--st-text-secondary)'}} allowDecimals={false} />
+                      <Tooltip
+                        cursor={{ fill: 'rgba(0,0,0,0.05)' }}
+                        contentStyle={{ borderRadius: '8px', border: '1px solid var(--st-border)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       />
                       <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />
                     </BarChart>

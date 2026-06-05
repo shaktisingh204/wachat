@@ -126,7 +126,7 @@ export default function CampaignCalendarPage() {
                 backgroundColor,
                 borderRadius: '4px',
                 opacity: 0.9,
-                color: '#fff',
+                color: 'var(--st-text-inverted)',
                 border: '0px',
                 display: 'block',
                 fontSize: '11px',

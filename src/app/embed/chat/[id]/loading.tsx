@@ -5,7 +5,7 @@ export default function EmbedLoading() {
         margin: 0,
         padding: 0,
         height: '100vh',
-        background: '#ffffff',
+        background: 'var(--st-bg)',
         display: 'flex',
         flexDirection: 'column',
         fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
@@ -19,13 +19,13 @@ export default function EmbedLoading() {
           alignItems: 'center',
           justifyContent: 'space-between',
           height: '45px', // Approximate header height
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid var(--st-border)',
         }}
       >
         <div className="skeleton" style={{ width: '120px', height: '16px', borderRadius: '4px' }} />
         <div className="skeleton" style={{ width: '20px', height: '20px', borderRadius: '4px' }} />
       </header>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #e2e8f0' }}>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--st-border)' }}>
          <div className="skeleton" style={{ width: '65%', height: '14px', borderRadius: '4px' }} />
       </div>
       <section style={{ flex: 1, padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -34,7 +34,7 @@ export default function EmbedLoading() {
         <div className="skeleton" style={{ alignSelf: 'flex-end', width: '65%', height: '40px', borderRadius: '12px', borderBottomRightRadius: '4px' }} />
         <div className="skeleton" style={{ alignSelf: 'flex-start', width: '85%', height: '40px', borderRadius: '12px', borderBottomLeftRadius: '4px' }} />
       </section>
-      <div style={{ padding: '16px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '8px' }}>
+      <div style={{ padding: '16px', borderTop: '1px solid var(--st-border)', display: 'flex', gap: '8px' }}>
         <div className="skeleton" style={{ flex: 1, height: '40px', borderRadius: '20px' }} />
         <div className="skeleton" style={{ width: '40px', height: '40px', borderRadius: '50%' }} />
       </div>

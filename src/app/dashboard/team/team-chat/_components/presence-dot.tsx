@@ -9,10 +9,10 @@ import * as React from 'react';
 import type { PresenceStatus } from '../../../../actions/team-chat.actions.types';
 
 const COLOR: Record<PresenceStatus, string> = {
-    online: '#22c55e',
-    away: '#f59e0b',
-    dnd: '#ef4444',
-    offline: '#94a3b8',
+    online: 'var(--st-status-ok)',
+    away: 'var(--st-warn)',
+    dnd: 'var(--st-danger)',
+    offline: 'var(--st-text-tertiary)',
 };
 
 export interface PresenceDotProps {

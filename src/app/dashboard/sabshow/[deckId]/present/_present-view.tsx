@@ -187,7 +187,7 @@ export function SlideCanvas({
                                 typeof cfg.fill === 'string'
                                     ? (cfg.fill as string)
                                     : undefined,
-                            color: el.kind === 'text' ? '#111' : undefined,
+                            color: el.kind === 'text' ? 'var(--st-text)' : undefined,
                         }}
                     >
                         {el.kind === 'text' ? (

@@ -167,7 +167,7 @@ function NodeCard({
     >
       <div
         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg mt-0.5"
-        style={{ background: meta.color, color: '#fff' }}
+        style={{ background: meta.color, color: 'var(--st-text-inverted)' }}
       >
         <Icon className="h-3.5 w-3.5" />
       </div>

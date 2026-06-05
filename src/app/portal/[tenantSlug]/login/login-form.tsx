@@ -59,7 +59,7 @@ export function PortalLoginForm({ tenantSlug }: { tenantSlug: string }) {
                 }}
             />
             {localError ? (
-                <div role="alert" style={{ color: '#b91c1c', fontSize: 13 }}>
+                <div role="alert" style={{ color: 'var(--st-danger)', fontSize: 13 }}>
                     {localError}
                 </div>
             ) : null}

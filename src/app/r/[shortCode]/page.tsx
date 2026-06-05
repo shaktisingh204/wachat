@@ -31,11 +31,11 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
         return (
             <html lang="en">
                 <head><title>Link Expired</title></head>
-                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: '#f9fafb' }}>
-                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                        <h1 style={{ fontSize: '1.5rem', color: '#dc2626', marginBottom: '1rem' }}>Link Expired</h1>
+                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: 'var(--st-bg-secondary)' }}>
+                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--st-bg)', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                        <h1 style={{ fontSize: '1.5rem', color: 'var(--st-danger)', marginBottom: '1rem' }}>Link Expired</h1>
                         <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>The link you are trying to access has expired or reached its click limit.</p>
-                        <a href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>Go to Homepage</a>
+                        <a href="/" style={{ color: 'var(--st-accent)', textDecoration: 'none' }}>Go to Homepage</a>
                     </div>
                 </body>
             </html>
@@ -46,11 +46,11 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
         return (
             <html lang="en">
                 <head><title>Link Not Active</title></head>
-                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: '#f9fafb' }}>
-                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-                        <h1 style={{ fontSize: '1.5rem', color: '#d97706', marginBottom: '1rem' }}>Link Not Active</h1>
+                <body style={{ fontFamily: 'sans-serif', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', margin: 0, backgroundColor: 'var(--st-bg-secondary)' }}>
+                    <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--st-bg)', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                        <h1 style={{ fontSize: '1.5rem', color: 'var(--st-warn)', marginBottom: '1rem' }}>Link Not Active</h1>
                         <p style={{ color: '#4b5563', marginBottom: '1.5rem' }}>The link you are trying to access is not yet active.</p>
-                        <a href="/" style={{ color: '#2563eb', textDecoration: 'none' }}>Go to Homepage</a>
+                        <a href="/" style={{ color: 'var(--st-accent)', textDecoration: 'none' }}>Go to Homepage</a>
                     </div>
                 </body>
             </html>
@@ -117,7 +117,7 @@ async function RetargetingPageContent({ params, searchParams }: Props) {
                     }} />
                 )}
             </head>
-            <body style={{ backgroundColor: '#ffffff', margin: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif' }}>
+            <body style={{ backgroundColor: 'var(--st-bg)', margin: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'sans-serif' }}>
                 <noscript>
                     {pixelIds.facebook && (
                         <img height="1" width="1" style={{ display: 'none' }} src={`https://www.facebook.com/tr?id=${pixelIds.facebook}&ev=PageView&noscript=1`} />

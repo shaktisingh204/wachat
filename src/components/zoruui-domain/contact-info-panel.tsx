@@ -105,7 +105,7 @@ function MultiSelectCombobox({
                                         key={id}
                                         variant="secondary"
                                         className="rounded-sm px-1 font-normal"
-                                        style={option.color ? { backgroundColor: option.color, color: '#fff' } : {}}
+                                        style={option.color ? { backgroundColor: option.color, color: 'var(--st-text-inverted)' } : {}}
                                     >
                                         {option.label}
                                     </Badge>

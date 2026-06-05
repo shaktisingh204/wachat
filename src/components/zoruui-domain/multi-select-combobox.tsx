@@ -72,7 +72,7 @@ export function MultiSelectCombobox({
                     key={option.value}
                     variant="secondary"
                     className="rounded-sm px-2 py-1 font-normal flex items-center gap-1"
-                    style={option.color ? { backgroundColor: option.color, color: '#fff' } : {}}
+                    style={option.color ? { backgroundColor: option.color, color: 'var(--st-text-inverted)' } : {}}
                   >
                     {option.label}
                     <button

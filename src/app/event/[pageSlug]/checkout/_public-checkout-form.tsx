@@ -160,7 +160,7 @@ export function PublicCheckoutForm({
         type="submit"
         disabled={busy}
         className="w-full rounded-md px-5 py-3 text-sm font-medium disabled:opacity-50"
-        style={{ backgroundColor: accent, color: '#fff' }}
+        style={{ backgroundColor: accent, color: 'var(--st-text-inverted)' }}
       >
         {busy ? 'Processing…' : 'Pay and reserve tickets'}
       </button>

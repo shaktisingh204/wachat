@@ -94,7 +94,7 @@ export default async function SeverityMatrixPage() {
                         className="block rounded-md p-3 text-center font-semibold"
                         style={{
                           backgroundColor: cellColor(intensity),
-                          color: intensity > 60 ? 'white' : 'inherit',
+                          color: intensity > 60 ? 'var(--st-text-inverted)' : 'inherit',
                         }}
                       >
                         {count}
