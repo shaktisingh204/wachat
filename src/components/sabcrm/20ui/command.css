@@ -177,7 +177,7 @@
 }
 
 /* ===================== Dialog (cmd-k overlay) ===================== */
-:is(.ui20, .sabcrm-twenty) .u-cmd-overlay {
+:is(.ui20, .sabcrm-twenty).u-cmd-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -230,7 +230,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :is(.ui20, .sabcrm-twenty) .u-cmd-overlay,
+  :is(.ui20, .sabcrm-twenty).u-cmd-overlay,
   :is(.ui20, .sabcrm-twenty) .u-cmd-dialog {
     animation: u-cmd-fade var(--u-dur) var(--u-ease-out);
   }
