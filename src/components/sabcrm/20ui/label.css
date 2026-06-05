@@ -1,0 +1,17 @@
+/* 20ui — Label. Standalone form label, token-styled. */
+:is(.ui20, .sabcrm-twenty) .u-label {
+  display: inline-block;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.25;
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-label[data-disabled],
+:is(.ui20, .sabcrm-twenty) .peer:disabled ~ .u-label {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+:is(.ui20, .sabcrm-twenty) .u-label__req {
+  margin-left: 2px;
+  color: var(--st-danger);
+}

@@ -16,6 +16,7 @@ export * from './button';
 export * from './card';
 export * from './badge';
 export * from './field';
+export * from './label';
 export * from './choice';
 // Select: the compound (Radix) API is canonical; the older props-based widget
 // is kept as SelectField.
