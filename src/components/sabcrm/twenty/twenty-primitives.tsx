@@ -4,6 +4,9 @@ import type { LucideIcon } from 'lucide-react';
 import '@/styles/sabcrm-twenty.css';
 // 20ui — SabCRM's design system (motion · interaction · accessibility layer).
 import '@/styles/20ui.css';
+// ui20 CRM theme — re-skins the whole CRM (tokens + chrome) to the new look.
+// Imported AFTER the base sheets so its token + chrome overrides win.
+import '@/styles/sabcrm-ui20-theme.css';
 import { Button } from '../20ui/button';
 
 /* =========================================================================

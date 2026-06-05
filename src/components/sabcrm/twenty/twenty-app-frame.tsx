@@ -329,8 +329,10 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
     };
   }, [settingsData, systemDark]);
 
-  const rootClassName = `sabcrm-twenty${
-    settingsValue.resolvedTheme === 'dark' ? ' st-theme-dark' : ''
+  // `ui20` makes the CRM frame an explicit ui20 design-system root (it already
+  // qualified via `.sabcrm-twenty`); both classes share the new ui20 theme.
+  const rootClassName = `sabcrm-twenty ui20${
+    settingsValue.resolvedTheme === 'dark' ? ' st-theme-dark dark' : ''
   }${settingsValue.density === 'compact' ? ' st-density-compact' : ''}`;
 
   return (

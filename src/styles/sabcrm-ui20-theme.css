@@ -1,0 +1,186 @@
+/* =========================================================================
+   SabCRM · ui20 theme
+   =========================================================================
+
+   The new ui20 visual identity for SabCRM. The CRM chrome (`.st-*`) and the
+   ui20 components (`.u-*`) all read the `--st-*` design tokens, so re-defining
+   those tokens here (under `.sabcrm-twenty`, loaded AFTER sabcrm-twenty.css)
+   re-skins the ENTIRE CRM cohesively with NO markup or logic change.
+
+   Design (4 skills):
+   - taste: one modern indigo accent, one radius system, cool-neutral surfaces,
+     AA contrast, no decorative noise.
+   - emil: transform/opacity transitions, custom ease, <=200ms, reduced-motion.
+   - a11y: visible focus rings, contrast preserved, motion opt-out.
+   - Font size + spacing scale are kept IDENTICAL to Twenty so the dense data
+     table and forms never reflow — only colour, depth, radius and chrome change.
+   ========================================================================= */
+
+/* ---- Tokens: light (modern ui20 palette) ---- */
+.sabcrm-twenty {
+  /* Surfaces — cool neutral, gently layered. */
+  --st-bg: #ffffff;
+  --st-bg-secondary: #f6f7f9;
+  --st-bg-muted: #eef0f4;
+  --st-sidebar-bg: #fbfbfd;
+  --st-sidebar-bg-alt: #f3f4f8;
+
+  /* Borders — softer + cooler. */
+  --st-border: #e7e9ef;
+  --st-border-light: #eef0f4;
+  --st-border-strong: #d4d8e1;
+
+  /* Text — cool near-black. */
+  --st-text: #1a1c23;
+  --st-text-secondary: #5b6271;
+  --st-text-tertiary: #9aa1ae;
+
+  /* Accent — modern indigo (the headline change away from Twenty blue). */
+  --st-accent: #5546e8;
+  --st-accent-hover: #4536d6;
+  --st-accent-soft: #eef0fe;
+  --st-accent-grad: linear-gradient(180deg, #6d5ef2 0%, #5546e8 100%);
+  --st-accent-ring: rgba(85, 70, 232, 0.22);
+
+  /* Interaction — accent-tinted. */
+  --st-hover: #f2f3f9;
+  --st-active: #eceefe;
+
+  /* Shape — a touch rounder = modern. */
+  --st-radius: 8px;
+  --st-radius-sm: 6px;
+  --st-radius-lg: 12px;
+
+  /* Depth — layered, cool-tinted shadows. */
+  --st-shadow-sm: 0 1px 2px rgba(30, 33, 54, 0.06);
+  --st-shadow-md: 0 4px 16px -2px rgba(30, 33, 54, 0.10);
+  --st-shadow-lg: 0 18px 48px -8px rgba(30, 33, 54, 0.20);
+  --st-shadow: 0 1px 2px rgba(30, 33, 54, 0.05), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 12px 32px -6px rgba(30, 33, 54, 0.22);
+
+  /* ui20 elevation mirrors the same cool depth. */
+  --u-elev-1: 0 1px 2px rgba(30, 33, 54, 0.06);
+  --u-elev-2: 0 4px 16px -2px rgba(30, 33, 54, 0.10);
+  --u-elev-3: 0 18px 48px -8px rgba(30, 33, 54, 0.22);
+}
+
+/* ---- Tokens: dark ---- */
+.sabcrm-twenty.st-theme-dark {
+  --st-bg: #15161c;
+  --st-bg-secondary: #1b1d25;
+  --st-bg-muted: #23252f;
+  --st-sidebar-bg: #181a21;
+  --st-sidebar-bg-alt: #1f212a;
+
+  --st-border: #2a2d38;
+  --st-border-light: #23252f;
+  --st-border-strong: #3a3e4c;
+
+  --st-text: #e9eaf0;
+  --st-text-secondary: #99a0ad;
+  --st-text-tertiary: #6b7180;
+
+  --st-accent: #8b7cf6;
+  --st-accent-hover: #a394f8;
+  --st-accent-soft: #221f3a;
+  --st-accent-grad: linear-gradient(180deg, #9a8cf8 0%, #7c6ef2 100%);
+  --st-accent-ring: rgba(139, 124, 246, 0.28);
+
+  --st-hover: #20222c;
+  --st-active: #262248;
+
+  --st-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --st-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --st-shadow-lg: 0 18px 48px -8px rgba(0, 0, 0, 0.6);
+  --st-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 12px 32px -6px rgba(0, 0, 0, 0.6);
+
+  --u-elev-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --u-elev-2: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --u-elev-3: 0 18px 48px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================================================================
+   Chrome modernization — scoped `.sabcrm-twenty .st-*` (specificity 0,2,0)
+   so it wins over the base bare `.st-*` rules regardless of import order.
+   ========================================================================= */
+
+/* ----- Sidebar: soft vertical wash + crisp edge ----- */
+.sabcrm-twenty .st-sidebar {
+  background: linear-gradient(180deg, var(--st-sidebar-bg) 0%, var(--st-sidebar-bg-alt) 100%);
+  border-right: 1px solid var(--st-border);
+}
+.sabcrm-twenty .st-rail {
+  background: linear-gradient(180deg, var(--st-sidebar-bg-alt), var(--st-bg-muted));
+}
+
+/* ----- Nav items: rounded, smooth, accent-pill active state ----- */
+.sabcrm-twenty .st-nav-item {
+  border-radius: var(--st-radius);
+  transition:
+    background 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.sabcrm-twenty .st-nav-item.active {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  font-weight: var(--st-fw-semibold);
+  box-shadow: inset 2px 0 0 var(--st-accent);
+}
+.sabcrm-twenty .st-nav-item.active .st-nav-item__icon {
+  color: var(--st-accent);
+}
+
+/* ----- Top bar: glassy, blurred, sticky presence ----- */
+.sabcrm-twenty .st-topbar {
+  background: color-mix(in srgb, var(--st-bg) 80%, transparent);
+  backdrop-filter: saturate(1.6) blur(10px);
+  -webkit-backdrop-filter: saturate(1.6) blur(10px);
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+/* ----- Page header icon: gradient accent chip ----- */
+.sabcrm-twenty .st-page-header__icon {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 24%, transparent);
+  color: var(--st-accent);
+  border-radius: var(--st-radius-lg);
+}
+
+/* ----- Table header: refined, quiet, modern ----- */
+.sabcrm-twenty .st-table th {
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.01em;
+}
+.sabcrm-twenty .st-table tbody tr {
+  transition: background 120ms ease;
+}
+
+/* ----- Cards: softer border + layered depth + rounder ----- */
+.sabcrm-twenty .st-card {
+  border-radius: var(--st-radius-lg);
+  border-color: var(--st-border-light);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* ----- Search button: rounder, accent-aware focus ----- */
+.sabcrm-twenty .st-search-btn {
+  border-radius: var(--st-radius);
+}
+.sabcrm-twenty .st-search-btn:hover {
+  border-color: var(--st-border-strong);
+}
+
+/* ----- Primary buttons: warm accent glow on hover (ui20 already lifts) ----- */
+.sabcrm-twenty .st-btn--primary:hover:not(:disabled) {
+  box-shadow: 0 6px 18px -6px var(--st-accent-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-nav-item,
+  .sabcrm-twenty .st-table tbody tr {
+    transition: none;
+  }
+}
