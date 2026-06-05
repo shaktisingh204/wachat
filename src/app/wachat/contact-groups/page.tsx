@@ -16,6 +16,7 @@ import {
   Button,
   IconButton,
   Card,
+  CardFooter,
   Modal,
   EmptyState,
   Field,
@@ -204,23 +205,17 @@ export default function ContactGroupsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text)',
-                    }}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]"
                   >
                     <Users className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate text-[14px]" style={{ color: 'var(--st-text)' }}>
+                    <div className="truncate text-[14px]">
                       {g.name}
                     </div>
                     {g.description && (
                       <div
-                        className="mt-0.5 truncate text-[12px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
+                        className="mt-0.5 truncate text-[12px] text-[var(--st-text-secondary)]"
                       >
                         {g.description}
                       </div>
@@ -253,13 +248,7 @@ export default function ContactGroupsPage() {
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
-              <div
-                className="flex items-center justify-between pt-3 text-[12px]"
-                style={{
-                  borderTop: '1px solid var(--st-border)',
-                  color: 'var(--st-text-secondary)',
-                }}
-              >
+              <CardFooter className="justify-between text-[12px] text-[var(--st-text-secondary)]">
                 <Badge tone="neutral">
                   {g.memberCount ?? 0} members
                 </Badge>
@@ -268,7 +257,7 @@ export default function ContactGroupsPage() {
                     ? fmtDate(g.createdAt)
                     : '—'}
                 </span>
-              </div>
+              </CardFooter>
             </Card>
           ))}
         </div>

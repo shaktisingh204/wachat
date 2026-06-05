@@ -3,6 +3,9 @@
 import {
   Button,
   Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Field,
   Input,
   RadioCard,
@@ -152,17 +155,10 @@ export default function AwayMessagesPage() {
         {/* Activate switch */}
         <Card padding="lg">
           <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                Enable away message
-              </h2>
-              <p
-                className="mt-0.5 text-[12.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Automatically reply when you are not available.
-              </p>
-            </div>
+            <CardHeader className="p-0">
+              <CardTitle>Enable away message</CardTitle>
+              <CardDescription>Automatically reply when you are not available.</CardDescription>
+            </CardHeader>
             <Switch
               checked={enabled}
               onCheckedChange={setEnabled}
@@ -187,9 +183,7 @@ export default function AwayMessagesPage() {
         {/* Schedule */}
         <Card padding="lg">
           <div className="flex flex-col gap-3">
-            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-              Schedule
-            </h2>
+            <CardTitle>Schedule</CardTitle>
             <RadioCardGroup
               value={schedule}
               onChange={(v) => setSchedule(v as Schedule)}

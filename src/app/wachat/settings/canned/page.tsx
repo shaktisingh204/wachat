@@ -110,18 +110,14 @@ function GeneralCannedSettings() {
 
         {/* Sync Feature */}
         <div className="flex items-center justify-between space-x-4">
-          <div className="flex flex-col space-y-1">
-            <label
-              htmlFor="sync-projects"
-              className="text-base cursor-pointer"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Sync across sub-projects
-            </label>
-            <span className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
-              Automatically share canned messages with all other active sub-projects in your account.
-            </span>
-          </div>
+          <Field
+            id="sync-projects"
+            label="Sync across sub-projects"
+            help="Automatically share canned messages with all other active sub-projects in your account."
+            className="flex-1"
+          >
+            {null}
+          </Field>
           <Switch
             id="sync-projects"
             checked={syncProjects}

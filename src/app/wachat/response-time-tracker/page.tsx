@@ -178,8 +178,7 @@ export default function ResponseTimeTrackerPage() {
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <div
-            className="flex items-center gap-2 mr-2 pr-3"
-            style={{ borderRight: '1px solid var(--st-border)' }}
+            className="flex items-center gap-2 mr-2 pr-3 border-r border-[var(--st-border)]"
           >
             <Switch
               checked={timezone === 'local'}
@@ -337,8 +336,7 @@ export default function ResponseTimeTrackerPage() {
 
               <div>
                 <h3
-                  className="text-sm font-medium mb-4"
-                  style={{ color: 'var(--st-text)' }}
+                  className="text-sm font-medium mb-4 text-[var(--st-text)]"
                 >
                   Hourly Response Time (Seconds)
                 </h3>

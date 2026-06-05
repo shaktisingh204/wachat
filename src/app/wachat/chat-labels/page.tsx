@@ -4,6 +4,9 @@ import {
   useToast,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   Field,
   Input,
   EmptyState,
@@ -115,87 +118,94 @@ export default function ChatLabelsPage() {
     >
       <div className="flex flex-col gap-6">
         <Card padding="lg">
-          <h2 className="mb-4 text-[16px]" style={{ color: 'var(--st-text)' }}>
-            Create a label
-          </h2>
-          <form action={formAction} className="flex flex-col gap-4">
-            <input type="hidden" name="projectId" value={projectId || ''} />
-            <input type="hidden" name="color" value={selectedColor} />
-            <Field label="Label name">
-              <Input
-                id="label-name"
-                name="name"
-                placeholder="Label name"
-                required
-                className="max-w-sm"
-              />
-            </Field>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-1 text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
-                Color:
-              </span>
-              {PRESET_COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onClick={() => setSelectedColor(c.value)}
-                  className={cx(
-                    'h-7 w-7 rounded-full border-2 transition-all',
-                    selectedColor === c.value ? 'scale-110' : 'border-transparent',
-                  )}
-                  style={{
-                    backgroundColor: c.value,
-                    borderColor: selectedColor === c.value ? 'var(--st-text)' : undefined,
-                  }}
-                  aria-label={c.name}
-                  aria-pressed={selectedColor === c.value}
+          <CardHeader>
+            <CardTitle>Create a label</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <form action={formAction} className="flex flex-col gap-4">
+              <input type="hidden" name="projectId" value={projectId || ''} />
+              <input type="hidden" name="color" value={selectedColor} />
+              <Field label="Label name">
+                <Input
+                  id="label-name"
+                  name="name"
+                  placeholder="Label name"
+                  required
+                  className="max-w-sm"
                 />
-              ))}
-            </div>
-            <div>
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                iconLeft={Plus}
-                loading={isPending}
-                disabled={isPending || !projectId}
-              >
-                {isPending ? 'Saving...' : 'Create Label'}
-              </Button>
-            </div>
-          </form>
+              </Field>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className="mr-1 text-[13px]"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Color:
+                </span>
+                {PRESET_COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onClick={() => setSelectedColor(c.value)}
+                    className={cx(
+                      'h-7 w-7 rounded-full border-2 transition-all',
+                      selectedColor === c.value ? 'scale-110' : 'border-transparent',
+                    )}
+                    style={{
+                      backgroundColor: c.value,
+                      borderColor: selectedColor === c.value ? 'var(--st-text)' : undefined,
+                    }}
+                    aria-label={c.name}
+                    aria-pressed={selectedColor === c.value}
+                  />
+                ))}
+              </div>
+              <div>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="md"
+                  iconLeft={Plus}
+                  loading={isPending}
+                  disabled={isPending || !projectId}
+                >
+                  {isPending ? 'Saving...' : 'Create Label'}
+                </Button>
+              </div>
+            </form>
+          </CardBody>
         </Card>
 
         <Card padding="lg">
-          <h2 className="mb-4 text-[16px]" style={{ color: 'var(--st-text)' }}>
-            Your Labels ({labels.length})
-          </h2>
-          {isLoading && labels.length === 0 ? (
-            <div className="flex h-20 items-center justify-center">
-              <Spinner size="md" label="Loading labels" />
-            </div>
-          ) : labels.length === 0 ? (
-            <EmptyState
-              icon={TagIcon}
-              title="No labels yet"
-              description="Create your first label using the form above."
-              size="sm"
-            />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {labels.map((label) => (
-                <Tag
-                  key={label._id}
-                  color={label.color}
-                  onRemove={() => handleDelete(label._id)}
-                  removeLabel={`Delete ${label.name}`}
-                >
-                  {label.name}
-                </Tag>
-              ))}
-            </div>
-          )}
+          <CardHeader>
+            <CardTitle>Your Labels ({labels.length})</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {isLoading && labels.length === 0 ? (
+              <div className="flex h-20 items-center justify-center">
+                <Spinner size="md" label="Loading labels" />
+              </div>
+            ) : labels.length === 0 ? (
+              <EmptyState
+                icon={TagIcon}
+                title="No labels yet"
+                description="Create your first label using the form above."
+                size="sm"
+              />
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {labels.map((label) => (
+                  <Tag
+                    key={label._id}
+                    color={label.color}
+                    onRemove={() => handleDelete(label._id)}
+                    removeLabel={`Delete ${label.name}`}
+                  >
+                    {label.name}
+                  </Tag>
+                ))}
+              </div>
+            )}
+          </CardBody>
         </Card>
       </div>
     </WachatPage>

@@ -81,20 +81,10 @@ export function BulkActionsClient({
     <div className="flex flex-col gap-8">
       <div className="flex justify-between items-start gap-4">
         <div>
-          <h2
-            className="leading-none"
-            style={{
-              fontSize: '22px',
-              letterSpacing: '-0.01em',
-              color: 'var(--st-text)',
-            }}
-          >
+          <h2 className="leading-none text-[22px] tracking-[-0.01em] text-[var(--st-text)]">
             Bulk operations
           </h2>
-          <p
-            className="mt-1.5"
-            style={{ fontSize: '12.5px', color: 'var(--st-text-muted)' }}
-          >
+          <p className="mt-1.5 text-[12.5px] text-[var(--st-text-muted)]">
             Performing actions on {selectedProjects.length} selected project
             {selectedProjects.length === 1 ? '' : 's'}.
           </p>
@@ -118,18 +108,12 @@ export function BulkActionsClient({
           <button
             type="button"
             onClick={handleCreateTemplateClick}
-            className="flex h-full min-h-48 w-full flex-row items-center gap-4 px-5 py-5 text-left transition-colors focus-visible:outline-none"
-            style={{
-              borderRadius: 'var(--st-radius-lg)',
-              border: '1px solid var(--st-text)',
-              background: 'var(--st-text)',
-              color: 'var(--st-bg)',
-            }}
+            className="u-card u-card--interactive u-card--pad-md flex h-full min-h-48 w-full flex-row items-center gap-4 text-left transition-colors focus-visible:outline-none bg-[var(--st-text)] text-[var(--st-bg)] border-[var(--st-text)]"
           >
             <FileText className="h-8 w-8 shrink-0" />
             <div className="flex flex-col gap-1">
-              <p style={{ fontSize: '15px' }}>Create &amp; Apply New Template</p>
-              <p style={{ fontSize: '12px', opacity: 0.8 }}>
+              <p className="text-[15px]">Create &amp; Apply New Template</p>
+              <p className="text-[12px] opacity-80">
                 Build a template from scratch and apply to all.
               </p>
             </div>

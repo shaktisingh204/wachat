@@ -5,6 +5,10 @@ import {
   useToast,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
   Input,
   Field,
   EmptyState,
@@ -89,7 +93,7 @@ export default function ConversationSearchPage() {
       </div>
 
       {searched && !isLoading && (
-        <p className="text-[12.5px]" style={{ color: 'var(--st-text-tertiary)' }}>
+        <p className="text-[12.5px] u-card__desc">
           {results.length} result{results.length !== 1 ? 's' : ''} found
         </p>
       )}
@@ -109,17 +113,19 @@ export default function ConversationSearchPage() {
               className="block transition-transform hover:-translate-y-0.5"
             >
               <Card variant="interactive" padding="md">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                <CardHeader>
+                  <CardTitle className="text-[13px]">
                     {r.contactName || r.contactId || r.from || 'Unknown'}
-                  </span>
-                  <span className="whitespace-nowrap text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                  </CardTitle>
+                  <CardDescription className="whitespace-nowrap text-[11px]">
                     {r.timestamp ? fmtDate(r.timestamp) : ''}
-                  </span>
-                </div>
-                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--st-text-secondary)' }}>
-                  {r.content?.text || r.messageText || r.type || '--'}
-                </p>
+                  </CardDescription>
+                </CardHeader>
+                <CardBody>
+                  <p className="text-[13px] leading-relaxed u-card__desc">
+                    {r.content?.text || r.messageText || r.type || '--'}
+                  </p>
+                </CardBody>
               </Card>
             </Link>
           ))}

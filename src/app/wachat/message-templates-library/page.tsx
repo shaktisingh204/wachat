@@ -181,20 +181,14 @@ export default function MessageTemplatesLibraryPage() {
           <Card key={t.id} variant="elevated" padding="none" className="flex flex-col">
             <CardBody className="flex flex-1 flex-col gap-2">
               <div className="mb-1 flex items-start justify-between gap-2">
-                <h3
-                  className="text-[14px] font-semibold capitalize"
-                  style={{ color: 'var(--st-text)' }}
-                >
+                <h3 className="text-[14px] font-semibold capitalize text-[var(--st-text)]">
                   {t.name.replace(/_/g, ' ')}
                 </h3>
                 <Badge tone={TONE_MAP[t.category] || 'neutral'} className="capitalize">
                   {t.category.toLowerCase()}
                 </Badge>
               </div>
-              <p
-                className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <p className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed u-text-secondary">
                 {t.body}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">

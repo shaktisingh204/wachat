@@ -5,6 +5,8 @@ import {
   Button,
   IconButton,
   Input,
+  Alert,
+  Separator,
 } from '@/components/sabcrm/20ui';
 import {
   useActionState,
@@ -143,13 +145,11 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
                         Add Tag
                     </Button>
                     {validationError && (
-                        <p className="text-sm" style={{ color: 'var(--st-danger)' }}>{validationError}</p>
+                        <Alert tone="danger">{validationError}</Alert>
                     )}
                 </div>
-                <div
-                    className="flex items-center justify-end gap-2 pt-4"
-                    style={{ borderTop: '1px solid var(--st-border)' }}
-                >
+                <Separator />
+                <div className="flex items-center justify-end gap-2 pt-4">
                     <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                     <SubmitButton disabled={!!validationError} />
                 </div>

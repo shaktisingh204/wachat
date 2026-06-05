@@ -79,7 +79,7 @@ function RazorpayLogs({ projectId }: { projectId: string }) {
   return (
     <div className="mt-8 flex flex-col gap-10">
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+        <h3 className="text-lg font-semibold">
           Recent Transactions
         </h3>
         {logs.transactions.length === 0 ? (
@@ -121,7 +121,7 @@ function RazorpayLogs({ projectId }: { projectId: string }) {
       </div>
 
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+        <h3 className="text-lg font-semibold">
           Payment Links
         </h3>
         {logs.paymentLinks.length === 0 ? (

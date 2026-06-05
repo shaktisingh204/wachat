@@ -13,6 +13,9 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
   EmptyState,
   Field,
   Input,
@@ -167,10 +170,11 @@ export default function ContactBlacklistPage() {
       width="wide"
     >
       {/* Add form */}
-      <Card padding="lg">
-        <h2 className="mb-3 text-[15px]" style={{ color: 'var(--st-text)' }}>
-          Add a number
-        </h2>
+      <Card padding="none">
+        <CardHeader>
+          <CardTitle>Add a number</CardTitle>
+        </CardHeader>
+        <CardBody>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[260px] flex-1">
             <Field label="Phone number">
@@ -238,6 +242,7 @@ export default function ContactBlacklistPage() {
             </Modal>
           </div>
         </div>
+        </CardBody>
       </Card>
 
       {isLoadingInitial ? (
@@ -259,27 +264,20 @@ export default function ContactBlacklistPage() {
             <TBody>
               {numbers.map((item, i) => (
                 <Tr key={item._id}>
-                  <Td
-                    className="tabular-nums"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <Td className="tabular-nums [color:var(--st-text-secondary)]">
                     {i + 1}
                   </Td>
-                  <Td
-                    className="font-mono"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <Td className="font-mono">
                     {item.phone}
                   </Td>
                   <Td align="right">
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button
-                          variant="ghost"
+                          variant="danger"
                           size="sm"
                           iconLeft={Trash2}
                           disabled={isMutating}
-                          style={{ color: 'var(--st-danger)' }}
                         >
                           Remove
                         </Button>

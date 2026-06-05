@@ -263,8 +263,7 @@ export default function MessageStatisticsPage() {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <BarChart3
-                      className="h-4 w-4"
-                      style={{ color: 'var(--st-text-tertiary)' }}
+                      className="h-4 w-4 text-[var(--st-text-tertiary)]"
                       aria-hidden="true"
                     />
                     <CardTitle>Volume Breakdown</CardTitle>

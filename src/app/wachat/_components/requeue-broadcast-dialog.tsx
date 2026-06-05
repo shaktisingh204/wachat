@@ -7,8 +7,8 @@ import {
   Field,
   Input,
   Select,
-  RadioGroup,
-  Radio,
+  RadioCardGroup,
+  RadioCard,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -193,24 +193,22 @@ export function RequeueBroadcastDialog({
 
             {/* Scope radio group */}
             <Field label="Target contacts">
-              <RadioGroup
+              <RadioCardGroup
                 value={requeueScope}
                 onValueChange={(v) => setRequeueScope(v as 'ALL' | 'FAILED')}
                 aria-label="Target contacts"
               >
-                <ScopeOption
+                <RadioCard
                   value="ALL"
-                  active={requeueScope === 'ALL'}
-                  title="All original contacts"
+                  label="All original contacts"
                   description="Resend to every contact in the original audience."
                 />
-                <ScopeOption
+                <RadioCard
                   value="FAILED"
-                  active={requeueScope === 'FAILED'}
-                  title="Only failed contacts"
+                  label="Only failed contacts"
                   description="Retry delivery only to the ones that failed last time."
                 />
-              </RadioGroup>
+              </RadioCardGroup>
             </Field>
           </div>
         </form>
@@ -219,43 +217,3 @@ export function RequeueBroadcastDialog({
   );
 }
 
-/* ── local helper ───────────────────────────────────────────────── */
-
-function ScopeOption({
-  value,
-  active,
-  title,
-  description,
-}: {
-  value: 'ALL' | 'FAILED';
-  active: boolean;
-  title: string;
-  description: string;
-}) {
-  return (
-    <label
-      className="flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
-        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
-      }}
-    >
-      <Radio value={value} />
-      <div className="flex flex-col">
-        <span
-          className="text-[13px]"
-          style={{ color: 'var(--st-text)' }}
-        >
-          {title}
-        </span>
-        <span
-          className="text-[11px]"
-          style={{ color: 'var(--st-text-muted)' }}
-        >
-          {description}
-        </span>
-      </div>
-    </label>
-  );
-}

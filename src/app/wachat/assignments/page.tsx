@@ -4,6 +4,7 @@ import { fmtDate } from "@/lib/utils";
 import {
   useToast,
   Button,
+  Card,
   EmptyState,
   Table,
   THead,
@@ -161,14 +162,7 @@ export default function AssignmentsPage() {
         )}
 
         {contacts.length > 0 ? (
-          <div
-            className="overflow-x-auto"
-            style={{
-              border: '1px solid var(--st-border)',
-              borderRadius: 'var(--st-radius-lg)',
-              background: 'var(--st-bg)',
-            }}
-          >
+          <Card variant="outlined" padding="none" className="overflow-x-auto">
             <Table>
               <THead>
                 <Tr>
@@ -182,24 +176,21 @@ export default function AssignmentsPage() {
                 {contacts.map((c) => (
                   <Tr key={c._id}>
                     <Td>
-                      <div style={{ color: 'var(--st-text)' }}>
+                      <div className="[color:var(--st-text)]">
                         {c.name || c.phone || 'Unknown'}
                       </div>
                       {c.phone && c.name && (
-                        <div
-                          className="font-mono text-[11px]"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        <div className="font-mono text-[11px] [color:var(--st-text-tertiary)]">
                           {c.phone}
                         </div>
                       )}
                     </Td>
                     <Td className="max-w-[260px]">
-                      <p className="truncate" style={{ color: 'var(--st-text-secondary)' }}>
+                      <p className="truncate [color:var(--st-text-secondary)]">
                         {c.lastMessage || c.lastMessagePreview || '--'}
                       </p>
                     </Td>
-                    <Td className="whitespace-nowrap" style={{ color: 'var(--st-text-secondary)' }}>
+                    <Td className="whitespace-nowrap [color:var(--st-text-secondary)]">
                       {c.lastMessageTimestamp
                         ? fmtDate(c.lastMessageTimestamp)
                         : '--'}
@@ -235,7 +226,7 @@ export default function AssignmentsPage() {
                 ))}
               </TBody>
             </Table>
-          </div>
+          </Card>
         ) : (
           !isPending && (
             <EmptyState
