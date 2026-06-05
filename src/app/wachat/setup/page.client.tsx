@@ -10,6 +10,10 @@ import {
   Modal,
   Select,
   EmptyState,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useState, useEffect, useMemo } from 'react';
@@ -490,25 +494,25 @@ function ConnectedAccounts() {
   };
 
   return (
-    <div
-      className="mt-16 mb-8 rounded-3xl overflow-hidden"
-      style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
-    >
-      <div
+    <Card variant="elevated" padding="none" className="mt-16 mb-8 overflow-hidden">
+      <CardHeader
         className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
         style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg-muted)' }}
       >
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Connected Accounts</h2>
-          <p className="text-sm mt-1" style={{ color: 'var(--st-text-muted)' }}>
-            Manage your linked WhatsApp Business accounts.
-          </p>
+          <CardTitle>Connected Accounts</CardTitle>
+          <CardDescription>Manage your linked WhatsApp Business accounts.</CardDescription>
         </div>
-        <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
-          <RefreshCw className={cx('mr-2 h-4 w-4', isLoading && 'animate-spin')} />
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={RefreshCw}
+          loading={isLoading}
+          onClick={refreshData}
+        >
           Refresh
         </Button>
-      </div>
+      </CardHeader>
 
       <div className="p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -557,10 +561,11 @@ function ConnectedAccounts() {
         ) : (
           <div className="space-y-3">
             {filteredAndSortedAccounts.map((account) => (
-              <div
+              <Card
                 key={account.id}
-                className="flex items-center justify-between p-4 rounded-xl transition-colors"
-                style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)' }}
+                variant="outlined"
+                padding="md"
+                className="flex items-center justify-between"
               >
                 <div className="flex items-center gap-4">
                   <div
@@ -587,12 +592,12 @@ function ConnectedAccounts() {
                     {account.status}
                   </Badge>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
