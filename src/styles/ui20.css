@@ -251,3 +251,43 @@
 .ui20 *::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* ----- Portal popover (StPortalPopover) — self-contained so the ui20 dropdowns
+   (Menu, Select, Combobox, Tooltip, TagPicker, ActionSearchBar) are fully styled
+   even on standalone ui20 surfaces where the CRM's sabcrm-twenty.css is NOT
+   loaded. The portal root carries `ui20 sabcrm-twenty st-popover` on one element,
+   so this is a compound selector. ----- */
+.ui20.st-popover {
+  z-index: 1200;
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+  overflow: hidden;
+  /* Size to the content, never stretch to fill the positioned box — fixes the
+     dropdown rendering "infinitely long" instead of only as tall as its items. */
+  height: max-content;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  transform-origin: top center;
+  animation: u-pop-in var(--u-dur) var(--u-ease-out);
+}
+.ui20.st-popover[data-placement='top'] {
+  transform-origin: bottom center;
+}
+@keyframes u-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui20.st-popover {
+    animation: none;
+  }
+}
