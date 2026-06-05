@@ -1,0 +1,54 @@
+/**
+ * SabCRM sidebar — "Projects" collapsible nav styles.
+ *
+ * Scoped under `.sabcrm-twenty` / `.ui20` so the `--st-*` / `--u-*` tokens
+ * resolve. The trigger + sublinks inherit `.u-sidebar__button`; this file only
+ * adds the chevron, the grid-rows height reveal and the submenu indent.
+ */
+
+:is(.ui20, .sabcrm-twenty) .pm-nav {
+  display: block;
+}
+
+:is(.ui20, .sabcrm-twenty) .pm-nav__trigger {
+  width: 100%;
+}
+
+/* The chevron sits at the trailing edge and rotates on open. */
+:is(.ui20, .sabcrm-twenty) .pm-nav__chevron {
+  margin-left: auto;
+  color: var(--st-text-tertiary);
+  transition: transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .pm-nav__chevron.is-open {
+  transform: rotate(90deg);
+}
+
+/* Grid-rows reveal: 0fr → 1fr animates height without a magic max-height. */
+:is(.ui20, .sabcrm-twenty) .pm-nav__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .pm-nav__panel[data-open] {
+  grid-template-rows: 1fr;
+}
+:is(.ui20, .sabcrm-twenty) .pm-nav__sub {
+  overflow: hidden;
+  min-height: 0;
+  /* Indent the submenu under the parent icon + a guide rail. */
+  margin-left: calc(var(--st-space-3) + 7px);
+  padding-left: var(--st-space-2);
+  border-left: 1px solid var(--st-border);
+}
+
+:is(.ui20, .sabcrm-twenty) .pm-nav__sublink .u-sidebar__button-label {
+  font-size: var(--st-font-size-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .pm-nav__panel,
+  :is(.ui20, .sabcrm-twenty) .pm-nav__chevron {
+    transition: none;
+  }
+}

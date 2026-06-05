@@ -1,0 +1,467 @@
+/**
+ * SabCRM Projects — surface styles.
+ *
+ * Scoped under `.sabcrm-twenty` / `.ui20` so every rule resolves the shared
+ * `--st-*` / `--u-*` tokens and never leaks into other design-system roots.
+ * Covers the page chrome, the three views (list / board / timeline), the detail
+ * drawer and the form dialog grid.
+ */
+
+:is(.ui20, .sabcrm-twenty) .pm-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-5) var(--st-space-6);
+  min-height: 100%;
+}
+
+/* Per-tone accent colour for dots, board headers and timeline bars. */
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--neutral,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--neutral {
+  --pm-tone: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--accent,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--accent {
+  --pm-tone: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--success,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--success {
+  --pm-tone: #1f7a37;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--warning,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--warning {
+  --pm-tone: #9a6400;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--danger,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--danger {
+  --pm-tone: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot--info,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar--info {
+  --pm-tone: #1d6fd6;
+}
+
+/* -------------------------------------------------------------- Toolbar --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  flex-wrap: wrap;
+}
+:is(.ui20, .sabcrm-twenty) .pm-toolbar__search {
+  width: min(280px, 100%);
+}
+
+:is(.ui20, .sabcrm-twenty) .pm-page__alert {
+  margin: 0;
+}
+
+:is(.ui20, .sabcrm-twenty) .pm-page__loading {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-6);
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+}
+
+:is(.ui20, .sabcrm-twenty) .pm-page__view {
+  min-height: 0;
+}
+
+/* ------------------------------------------------------ Shared helpers --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-muted {
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-cell-name {
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .pm-due {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .pm-due--over {
+  color: var(--st-danger);
+  font-weight: var(--st-fw-medium);
+}
+:is(.ui20, .sabcrm-twenty) .pm-progress-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-progress-cell .u-progress {
+  flex: 1;
+}
+:is(.ui20, .sabcrm-twenty) .pm-progress-cell__pct {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------- Board --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-board {
+  display: flex;
+  gap: var(--st-space-3);
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: var(--st-space-3);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__col {
+  flex: 0 0 280px;
+  width: 280px;
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  padding: var(--st-space-2);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__col.is-over {
+  background: var(--st-accent-soft);
+  border-color: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__col-head {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: var(--st-space-1) var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pm-tone, var(--st-text-tertiary));
+  flex: none;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__col-title {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  flex: 1;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__count {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-2) var(--st-space-1);
+  min-height: 60px;
+}
+:is(.ui20, .sabcrm-twenty) .pm-board__empty {
+  margin: 0;
+  padding: var(--st-space-4);
+  text-align: center;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+}
+
+/* Cards (board) */
+:is(.ui20, .sabcrm-twenty) .pm-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3);
+  background: var(--st-bg);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  box-shadow: var(--u-elev-1);
+  cursor: grab;
+  transition: box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .pm-card:hover {
+  box-shadow: var(--u-elev-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-card:focus-visible {
+  outline: var(--u-focus-ring);
+  outline-offset: 2px;
+}
+:is(.ui20, .sabcrm-twenty) .pm-card.is-dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+:is(.ui20, .sabcrm-twenty) .pm-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-card__name {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  line-height: 1.35;
+}
+:is(.ui20, .sabcrm-twenty) .pm-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-card__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-card__chip--over {
+  color: var(--st-danger);
+}
+
+/* ------------------------------------------------------------- Timeline --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__grid {
+  min-width: 640px;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__axis,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__axis {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+  height: 36px;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__axis-label {
+  border-right: 1px solid var(--st-border);
+  height: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__axis-track {
+  position: relative;
+  height: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__month {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-left: 6px;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  border-left: 1px solid var(--st-border-light);
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__today,
+:is(.ui20, .sabcrm-twenty) .pm-timeline__today-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--st-accent);
+  opacity: 0.6;
+  pointer-events: none;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row {
+  border-bottom: 1px solid var(--st-border-light);
+  min-height: 44px;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row:last-child {
+  border-bottom: none;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row-label {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  height: 100%;
+  padding: 0 var(--st-space-2);
+  border: none;
+  border-right: 1px solid var(--st-border);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  width: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row-label:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__row-track {
+  position: relative;
+  height: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  min-width: 8px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: color-mix(in srgb, var(--pm-tone) 22%, transparent);
+  cursor: pointer;
+  transition: filter var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar:hover {
+  filter: brightness(0.97);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--pm-tone);
+  opacity: 0.85;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__bar-label {
+  position: relative;
+  z-index: 1;
+  padding: 0 8px;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__unscheduled {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__unscheduled-title {
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__unscheduled-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-timeline__unscheduled-chip {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------- Detail --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+  margin-top: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-4);
+  overflow-y: auto;
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__progress-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__progress-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding-bottom: var(--st-space-2);
+  border-bottom: 1px solid var(--st-border-light);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__value {
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text);
+  text-align: right;
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__desc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .pm-detail__desc p {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.6;
+  color: var(--st-text-secondary);
+  white-space: pre-wrap;
+}
+
+/* ----------------------------------------------------------------- Form --- */
+
+:is(.ui20, .sabcrm-twenty) .pm-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+}
+:is(.ui20, .sabcrm-twenty) .pm-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--st-space-3);
+}
+:is(.ui20, .sabcrm-twenty) .pm-form__error {
+  margin: 0;
+  color: var(--st-danger);
+  font-size: var(--st-font-size-sm);
+}
+
+@media (max-width: 640px) {
+  :is(.ui20, .sabcrm-twenty) .pm-form__row {
+    grid-template-columns: 1fr;
+  }
+}
