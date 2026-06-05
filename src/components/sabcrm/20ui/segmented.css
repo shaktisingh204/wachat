@@ -1,6 +1,6 @@
 /* 20ui · SegmentedControl */
 
-.sabcrm-twenty .u-seg {
+:is(.ui20, .sabcrm-twenty) .u-seg {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -13,13 +13,13 @@
   /* Contain the sliding fill so it can never paint past the track edges. */
   isolation: isolate;
 }
-.sabcrm-twenty .u-seg--block {
+:is(.ui20, .sabcrm-twenty) .u-seg--block {
   display: flex;
   width: 100%;
 }
 
 /* ----- The sliding active fill ----- */
-.sabcrm-twenty .u-seg__indicator {
+:is(.ui20, .sabcrm-twenty) .u-seg__indicator {
   position: absolute;
   top: 3px;
   left: 0;
@@ -36,12 +36,12 @@
     width var(--u-dur) var(--u-ease-out),
     opacity var(--u-dur-fast) var(--u-ease-out);
 }
-.sabcrm-twenty .u-seg__indicator[data-ready] {
+:is(.ui20, .sabcrm-twenty) .u-seg__indicator[data-ready] {
   opacity: 1;
 }
 
 /* ----- A single segment ----- */
-.sabcrm-twenty .u-seg__item {
+:is(.ui20, .sabcrm-twenty) .u-seg__item {
   position: relative;
   z-index: 1;
   display: inline-flex;
@@ -66,55 +66,55 @@
     background var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-.sabcrm-twenty .u-seg--block .u-seg__item {
+:is(.ui20, .sabcrm-twenty) .u-seg--block .u-seg__item {
   flex: 1 1 0;
 }
-.sabcrm-twenty .u-seg__label {
+:is(.ui20, .sabcrm-twenty) .u-seg__label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.sabcrm-twenty .u-seg__item:hover:not(.is-selected):not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-seg__item:hover:not(.is-selected):not(:disabled) {
   color: var(--st-text);
   background: var(--st-hover);
 }
-.sabcrm-twenty .u-seg__item.is-selected {
+:is(.ui20, .sabcrm-twenty) .u-seg__item.is-selected {
   color: var(--st-accent-hover, var(--st-accent));
   font-weight: var(--st-fw-semibold);
 }
-.sabcrm-twenty .u-seg__item:active:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-seg__item:active:not(:disabled) {
   transform: scale(0.97);
 }
-.sabcrm-twenty .u-seg__item:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-seg__item:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-.sabcrm-twenty .u-seg__item:disabled {
+:is(.ui20, .sabcrm-twenty) .u-seg__item:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 /* ----- Size: md (default 26px segments, 32px track) ----- */
 /* ----- Size: sm ----- */
-.sabcrm-twenty .u-seg--sm {
+:is(.ui20, .sabcrm-twenty) .u-seg--sm {
   padding: 2px;
   gap: 1px;
 }
-.sabcrm-twenty .u-seg--sm .u-seg__item {
+:is(.ui20, .sabcrm-twenty) .u-seg--sm .u-seg__item {
   height: 22px;
   padding: 0 var(--st-space-2);
   font-size: var(--st-font-size-xs);
 }
-.sabcrm-twenty .u-seg--sm .u-seg__indicator {
+:is(.ui20, .sabcrm-twenty) .u-seg--sm .u-seg__indicator {
   top: 2px;
   bottom: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-seg__indicator {
+  :is(.ui20, .sabcrm-twenty) .u-seg__indicator {
     transition: opacity var(--u-dur-fast) var(--u-ease-out);
   }
-  .sabcrm-twenty .u-seg__item:active:not(:disabled) {
+  :is(.ui20, .sabcrm-twenty) .u-seg__item:active:not(:disabled) {
     transform: none;
   }
 }

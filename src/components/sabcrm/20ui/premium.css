@@ -2,49 +2,49 @@
    spotlight + feature cards, glow badge. Opt-in flourishes; calm defaults stay. */
 
 /* ----- Tone variables (one gradient + one glow colour per tone family) ----- */
-.sabcrm-twenty .u-gtext--brand,
-.sabcrm-twenty .u-gicon--brand,
-.sabcrm-twenty .u-spotlight--brand,
-.sabcrm-twenty .u-feature--brand,
-.sabcrm-twenty .u-glowbadge--brand {
+:is(.ui20, .sabcrm-twenty) .u-gtext--brand,
+:is(.ui20, .sabcrm-twenty) .u-gicon--brand,
+:is(.ui20, .sabcrm-twenty) .u-spotlight--brand,
+:is(.ui20, .sabcrm-twenty) .u-feature--brand,
+:is(.ui20, .sabcrm-twenty) .u-glowbadge--brand {
   --u-grad: var(--u-brand-grad-br);
   --u-glow-c: var(--u-glow-orange);
 }
-.sabcrm-twenty .u-gtext--violet,
-.sabcrm-twenty .u-gicon--violet,
-.sabcrm-twenty .u-spotlight--violet,
-.sabcrm-twenty .u-feature--violet,
-.sabcrm-twenty .u-glowbadge--violet {
+:is(.ui20, .sabcrm-twenty) .u-gtext--violet,
+:is(.ui20, .sabcrm-twenty) .u-gicon--violet,
+:is(.ui20, .sabcrm-twenty) .u-spotlight--violet,
+:is(.ui20, .sabcrm-twenty) .u-feature--violet,
+:is(.ui20, .sabcrm-twenty) .u-glowbadge--violet {
   --u-grad: linear-gradient(135deg, #a78bfa, #e879f9);
   --u-glow-c: rgba(168, 85, 247, 0.35);
 }
-.sabcrm-twenty .u-gtext--sky,
-.sabcrm-twenty .u-gicon--sky,
-.sabcrm-twenty .u-spotlight--sky,
-.sabcrm-twenty .u-feature--sky,
-.sabcrm-twenty .u-glowbadge--sky {
+:is(.ui20, .sabcrm-twenty) .u-gtext--sky,
+:is(.ui20, .sabcrm-twenty) .u-gicon--sky,
+:is(.ui20, .sabcrm-twenty) .u-spotlight--sky,
+:is(.ui20, .sabcrm-twenty) .u-feature--sky,
+:is(.ui20, .sabcrm-twenty) .u-glowbadge--sky {
   --u-grad: linear-gradient(135deg, #38bdf8, #6366f1);
   --u-glow-c: rgba(56, 189, 248, 0.35);
 }
-.sabcrm-twenty .u-gtext--rose,
-.sabcrm-twenty .u-gicon--rose,
-.sabcrm-twenty .u-spotlight--rose,
-.sabcrm-twenty .u-feature--rose,
-.sabcrm-twenty .u-glowbadge--rose {
+:is(.ui20, .sabcrm-twenty) .u-gtext--rose,
+:is(.ui20, .sabcrm-twenty) .u-gicon--rose,
+:is(.ui20, .sabcrm-twenty) .u-spotlight--rose,
+:is(.ui20, .sabcrm-twenty) .u-feature--rose,
+:is(.ui20, .sabcrm-twenty) .u-glowbadge--rose {
   --u-grad: linear-gradient(135deg, #fb7185, #f472b6);
   --u-glow-c: rgba(244, 63, 94, 0.32);
 }
-.sabcrm-twenty .u-gtext--emerald,
-.sabcrm-twenty .u-gicon--emerald,
-.sabcrm-twenty .u-spotlight--emerald,
-.sabcrm-twenty .u-feature--emerald,
-.sabcrm-twenty .u-glowbadge--emerald {
+:is(.ui20, .sabcrm-twenty) .u-gtext--emerald,
+:is(.ui20, .sabcrm-twenty) .u-gicon--emerald,
+:is(.ui20, .sabcrm-twenty) .u-spotlight--emerald,
+:is(.ui20, .sabcrm-twenty) .u-feature--emerald,
+:is(.ui20, .sabcrm-twenty) .u-glowbadge--emerald {
   --u-grad: linear-gradient(135deg, #34d399, #14b8a6);
   --u-glow-c: rgba(16, 185, 129, 0.35);
 }
 
 /* ----- GradientText ----- */
-.sabcrm-twenty .u-gtext {
+:is(.ui20, .sabcrm-twenty) .u-gtext {
   position: relative;
   display: inline-block;
   background: var(--u-grad);
@@ -54,7 +54,7 @@
   font-weight: var(--st-fw-semibold);
   letter-spacing: -0.01em;
 }
-.sabcrm-twenty .u-gtext--underline::after {
+:is(.ui20, .sabcrm-twenty) .u-gtext--underline::after {
   content: '';
   position: absolute;
   left: 0;
@@ -74,7 +74,7 @@
 }
 
 /* ----- GradientIcon ----- */
-.sabcrm-twenty .u-gicon {
+:is(.ui20, .sabcrm-twenty) .u-gicon {
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -83,23 +83,23 @@
   color: #fff;
   box-shadow: 0 4px 10px -2px var(--u-glow-c);
 }
-.sabcrm-twenty .u-gicon--sm {
+:is(.ui20, .sabcrm-twenty) .u-gicon--sm {
   width: 28px;
   height: 28px;
   border-radius: var(--st-radius-sm);
 }
-.sabcrm-twenty .u-gicon--md {
+:is(.ui20, .sabcrm-twenty) .u-gicon--md {
   width: 38px;
   height: 38px;
 }
-.sabcrm-twenty .u-gicon--lg {
+:is(.ui20, .sabcrm-twenty) .u-gicon--lg {
   width: 48px;
   height: 48px;
   border-radius: var(--st-radius-lg);
 }
 
 /* ----- GlassPill ----- */
-.sabcrm-twenty .u-glasspill {
+:is(.ui20, .sabcrm-twenty) .u-glasspill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -117,12 +117,12 @@
 }
 
 /* ----- Aurora ----- */
-.sabcrm-twenty .u-aurora-wrap {
+:is(.ui20, .sabcrm-twenty) .u-aurora-wrap {
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
-.sabcrm-twenty .u-aurora-wash {
+:is(.ui20, .sabcrm-twenty) .u-aurora-wash {
   position: absolute;
   left: 50%;
   top: -28%;
@@ -134,21 +134,21 @@
   pointer-events: none;
   z-index: -1;
 }
-.sabcrm-twenty .u-aurora-wrap--soft .u-aurora-wash {
+:is(.ui20, .sabcrm-twenty) .u-aurora-wrap--soft .u-aurora-wash {
   opacity: 0.5;
 }
-.sabcrm-twenty .u-aurora-wrap--normal .u-aurora-wash {
+:is(.ui20, .sabcrm-twenty) .u-aurora-wrap--normal .u-aurora-wash {
   opacity: 0.75;
 }
-.sabcrm-twenty .u-aurora-wrap--strong .u-aurora-wash {
+:is(.ui20, .sabcrm-twenty) .u-aurora-wrap--strong .u-aurora-wash {
   opacity: 1;
 }
-.sabcrm-twenty .u-aurora-content {
+:is(.ui20, .sabcrm-twenty) .u-aurora-content {
   position: relative;
 }
 
 /* ----- SpotlightCard ----- */
-.sabcrm-twenty .u-spotlight {
+:is(.ui20, .sabcrm-twenty) .u-spotlight {
   position: relative;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
@@ -156,10 +156,10 @@
   overflow: hidden;
   transition: border-color var(--u-dur) var(--u-ease-out);
 }
-.sabcrm-twenty .u-spotlight:hover {
+:is(.ui20, .sabcrm-twenty) .u-spotlight:hover {
   border-color: var(--st-border-strong);
 }
-.sabcrm-twenty .u-spotlight__glow {
+:is(.ui20, .sabcrm-twenty) .u-spotlight__glow {
   position: absolute;
   inset: -1px;
   z-index: 0;
@@ -172,17 +172,17 @@
   transition: opacity var(--u-dur-slow) var(--u-ease-out);
   pointer-events: none;
 }
-.sabcrm-twenty .u-spotlight:hover .u-spotlight__glow {
+:is(.ui20, .sabcrm-twenty) .u-spotlight:hover .u-spotlight__glow {
   opacity: 0.6;
 }
-.sabcrm-twenty .u-spotlight__inner {
+:is(.ui20, .sabcrm-twenty) .u-spotlight__inner {
   position: relative;
   z-index: 1;
   padding: var(--st-space-4);
 }
 
 /* ----- FeatureTile ----- */
-.sabcrm-twenty .u-feature {
+:is(.ui20, .sabcrm-twenty) .u-feature {
   position: relative;
   border: 1px solid var(--st-border);
   border-radius: var(--st-radius-lg);
@@ -193,12 +193,12 @@
     box-shadow var(--u-dur-slow) var(--u-ease-smooth),
     border-color var(--u-dur-slow) var(--u-ease-smooth);
 }
-.sabcrm-twenty .u-feature:hover {
+:is(.ui20, .sabcrm-twenty) .u-feature:hover {
   transform: translateY(-4px);
   border-color: var(--st-border-strong);
   box-shadow: var(--u-elev-3);
 }
-.sabcrm-twenty .u-feature__glow {
+:is(.ui20, .sabcrm-twenty) .u-feature__glow {
   position: absolute;
   inset: -6px;
   z-index: -1;
@@ -208,23 +208,23 @@
   opacity: 0;
   transition: opacity 500ms var(--u-ease-out);
 }
-.sabcrm-twenty .u-feature:hover .u-feature__glow {
+:is(.ui20, .sabcrm-twenty) .u-feature:hover .u-feature__glow {
   opacity: 0.32;
 }
-.sabcrm-twenty .u-feature__head {
+:is(.ui20, .sabcrm-twenty) .u-feature__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: var(--st-space-3);
 }
-.sabcrm-twenty .u-feature__title {
+:is(.ui20, .sabcrm-twenty) .u-feature__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
-.sabcrm-twenty .u-feature__desc {
+:is(.ui20, .sabcrm-twenty) .u-feature__desc {
   margin: var(--st-space-1) 0 0;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
@@ -232,7 +232,7 @@
 }
 
 /* ----- GlowBadge ----- */
-.sabcrm-twenty .u-glowbadge {
+:is(.ui20, .sabcrm-twenty) .u-glowbadge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -249,22 +249,22 @@
 
 /* ----- Reduced motion ----- */
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-gtext--underline::after {
+  :is(.ui20, .sabcrm-twenty) .u-gtext--underline::after {
     animation: none;
     transform: scaleX(1);
   }
-  .sabcrm-twenty .u-feature:hover {
+  :is(.ui20, .sabcrm-twenty) .u-feature:hover {
     transform: none;
   }
-  .sabcrm-twenty .u-spotlight__glow,
-  .sabcrm-twenty .u-feature__glow {
+  :is(.ui20, .sabcrm-twenty) .u-spotlight__glow,
+  :is(.ui20, .sabcrm-twenty) .u-feature__glow {
     transition: none;
   }
 }
 
 /* No cursor-follow glow on touch (no real hover). */
 @media (hover: none) {
-  .sabcrm-twenty .u-spotlight:hover .u-spotlight__glow {
+  :is(.ui20, .sabcrm-twenty) .u-spotlight:hover .u-spotlight__glow {
     opacity: 0;
   }
 }

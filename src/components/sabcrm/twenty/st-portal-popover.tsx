@@ -151,11 +151,12 @@ export function StPortalPopover({
   return createPortal(
     <div
       ref={popoverRef}
-      // `sabcrm-twenty` is required on the portal root: the design-system
-      // `--st-*` tokens + scoped rules live under `.sabcrm-twenty`, and a
-      // body-mounted portal is not a DOM descendant of the CRM app frame, so
-      // without it the popover would render unstyled.
-      className={['sabcrm-twenty', 'st-popover', className].filter(Boolean).join(' ')}
+      // The portal root carries BOTH design-system roots so its `--st-*` tokens
+      // resolve wherever it mounts: `sabcrm-twenty` for the CRM, and `ui20` for
+      // the app-wide 20ui system (a body-mounted portal is not a descendant of
+      // either app frame). Whichever stylesheet is loaded supplies the tokens;
+      // the other class is inert.
+      className={['ui20', 'sabcrm-twenty', 'st-popover', className].filter(Boolean).join(' ')}
       role={role}
       aria-label={ariaLabel}
       data-placement={coords?.placement ?? placement}

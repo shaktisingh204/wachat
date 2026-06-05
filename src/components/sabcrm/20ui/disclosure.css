@@ -1,0 +1,223 @@
+/* 20ui · Disclosure (Accordion + Collapsible) */
+
+/* ============================================================ Accordion === */
+
+:is(.ui20, .sabcrm-twenty) .u-accordion {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  overflow: hidden;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-accordion__item {
+  border-top: 1px solid var(--st-border-light);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__item:first-child {
+  border-top: none;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-accordion__header {
+  display: flex;
+  margin: 0;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--st-space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--st-space-3) var(--st-space-4);
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+  /* Keep the ring inside the rounded container. */
+  border-radius: var(--st-radius);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger[data-disabled] {
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-accordion__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger[data-state='open'] .u-accordion__chevron {
+  transform: rotate(180deg);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__trigger:hover .u-accordion__chevron {
+  color: var(--st-text-secondary);
+}
+
+/* Height animation via Radix's measured content-height var. */
+:is(.ui20, .sabcrm-twenty) .u-accordion__content {
+  overflow: hidden;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size);
+  line-height: 1.55;
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__content[data-state='open'] {
+  animation: u-disclosure-down var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__content[data-state='closed'] {
+  animation: u-disclosure-up var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-accordion__content-inner {
+  padding: 0 var(--st-space-4) var(--st-space-4);
+}
+
+/* ========================================================== Collapsible === */
+
+:is(.ui20, .sabcrm-twenty) .u-collapsible {
+  width: 100%;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 30px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger:active {
+  transform: scale(0.97);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger[data-disabled] {
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-collapsible__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger[data-state='open'] .u-collapsible__chevron {
+  transform: rotate(180deg);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__trigger:hover .u-collapsible__chevron {
+  color: var(--st-text-secondary);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-collapsible__content {
+  overflow: hidden;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size);
+  line-height: 1.55;
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__content[data-state='open'] {
+  animation: u-collapsible-down var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__content[data-state='closed'] {
+  animation: u-collapsible-up var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-collapsible__content-inner {
+  padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
+}
+
+/* ============================================================= Keyframes === */
+/* Height is the one property Radix's content-height pattern animates; it is the
+   sanctioned exception for a smooth disclosure reveal. Movement is dropped under
+   reduced motion below. */
+
+@keyframes u-disclosure-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+@keyframes u-disclosure-up {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+@keyframes u-collapsible-down {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+}
+@keyframes u-collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-accordion__chevron,
+  :is(.ui20, .sabcrm-twenty) .u-collapsible__chevron {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-accordion__content[data-state='open'],
+  :is(.ui20, .sabcrm-twenty) .u-accordion__content[data-state='closed'],
+  :is(.ui20, .sabcrm-twenty) .u-collapsible__content[data-state='open'],
+  :is(.ui20, .sabcrm-twenty) .u-collapsible__content[data-state='closed'] {
+    animation: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-collapsible__trigger:active {
+    transform: none;
+  }
+}

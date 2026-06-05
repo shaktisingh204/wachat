@@ -1,0 +1,211 @@
+/* 20ui · Slider (range input) */
+
+/* Per-tone fill colour resolved once on the root, consumed by range + thumb. */
+:is(.ui20, .sabcrm-twenty) .u-slider {
+  --u-slider-fill: var(--st-accent);
+  --u-slider-ring: var(--st-accent-ring, rgba(43, 110, 242, 0.18));
+  --u-slider-soft: var(--st-accent-soft);
+  --u-slider-thumb-size: 16px;
+  --u-slider-track: 4px;
+  position: relative;
+  display: block;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--accent {
+  --u-slider-fill: var(--st-accent);
+  --u-slider-ring: var(--st-accent-ring, rgba(43, 110, 242, 0.18));
+  --u-slider-soft: var(--st-accent-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--success {
+  --u-slider-fill: var(--st-status-ok);
+  --u-slider-ring: rgba(46, 125, 50, 0.2);
+  --u-slider-soft: rgba(46, 125, 50, 0.12);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--warn {
+  --u-slider-fill: var(--st-warn);
+  --u-slider-ring: rgba(199, 119, 0, 0.2);
+  --u-slider-soft: rgba(199, 119, 0, 0.12);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--danger {
+  --u-slider-fill: var(--st-danger);
+  --u-slider-ring: rgba(193, 60, 44, 0.2);
+  --u-slider-soft: var(--st-danger-soft);
+}
+
+/* ----- Root (Radix) — the interactive track region ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--u-slider-thumb-size);
+  user-select: none;
+  touch-action: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__root[data-orientation='vertical'] {
+  flex-direction: column;
+  width: var(--u-slider-thumb-size);
+  height: 100%;
+  min-height: 120px;
+}
+
+/* ----- Track (the unfilled rail) ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__track {
+  position: relative;
+  flex-grow: 1;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__track[data-orientation='horizontal'] {
+  height: var(--u-slider-track);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__track[data-orientation='vertical'] {
+  width: var(--u-slider-track);
+}
+
+/* ----- Range (the accent-filled portion) ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__range {
+  position: absolute;
+  border-radius: var(--st-radius-pill);
+  background: var(--u-slider-fill);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__range[data-orientation='horizontal'] {
+  height: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__range[data-orientation='vertical'] {
+  width: 100%;
+}
+
+/* ----- Thumb ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__thumb {
+  display: block;
+  width: var(--u-slider-thumb-size);
+  height: var(--u-slider-thumb-size);
+  border-radius: 50%;
+  background: var(--st-bg);
+  border: 2px solid var(--u-slider-fill);
+  box-shadow: var(--u-elev-1);
+  cursor: grab;
+  outline: none;
+  transition:
+    transform var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__thumb:hover {
+  box-shadow: var(--u-elev-1), 0 0 0 4px var(--u-slider-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__thumb:focus-visible {
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__thumb:active,
+:is(.ui20, .sabcrm-twenty) .u-slider__thumb[data-state='active'] {
+  cursor: grabbing;
+  transform: scale(1.12);
+  box-shadow: var(--u-elev-2), 0 0 0 6px var(--u-slider-ring);
+}
+
+/* ----- Disabled ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider.is-disabled {
+  opacity: 0.55;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider.is-disabled .u-slider__thumb {
+  cursor: not-allowed;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__root[data-disabled] .u-slider__thumb {
+  pointer-events: none;
+}
+
+/* ----- Value read-out (mirrors each thumb above the track) ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__values {
+  position: relative;
+  display: block;
+  height: var(--st-space-5);
+  margin: 0 calc(var(--u-slider-thumb-size) / 2);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__value {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  padding: 1px var(--st-space-1);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ----- Tick marks ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider__marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__mark {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__mark-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider__mark-label {
+  position: absolute;
+  top: calc(50% + var(--st-space-2));
+  white-space: nowrap;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+/* When marks carry labels, leave room beneath the track for them. */
+:is(.ui20, .sabcrm-twenty) .u-slider--with-marks {
+  padding-bottom: var(--st-space-4);
+}
+
+/* ----- Vertical layout ----- */
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical {
+  display: inline-flex;
+  height: 100%;
+  min-height: 120px;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical .u-slider__values {
+  width: var(--st-space-6);
+  height: auto;
+  margin: calc(var(--u-slider-thumb-size) / 2) 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical .u-slider__value {
+  bottom: auto;
+  left: 0;
+  transform: translateY(50%);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical .u-slider__mark {
+  top: auto;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical .u-slider__mark-label {
+  top: auto;
+  left: calc(50% + var(--st-space-2));
+}
+:is(.ui20, .sabcrm-twenty) .u-slider--vertical.u-slider--with-marks {
+  padding-bottom: 0;
+  padding-right: var(--st-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-slider__thumb {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-slider__thumb:active,
+  :is(.ui20, .sabcrm-twenty) .u-slider__thumb[data-state='active'] {
+    transform: none;
+  }
+}

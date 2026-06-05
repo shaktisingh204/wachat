@@ -7,7 +7,7 @@
  * dark, high-contrast label bubble. Motion stays transform/opacity only.
  */
 
-.sabcrm-twenty.st-popover.u-tooltip {
+:is(.ui20, .sabcrm-twenty).st-popover.u-tooltip {
   /* Snappier than a menu: a tooltip should feel instant once it commits. */
   animation-duration: var(--u-dur-fast);
   /* Calm near-monochrome bubble: dark surface, inverted text — AA in both
@@ -21,7 +21,7 @@
   pointer-events: none;
 }
 
-.sabcrm-twenty.st-popover.u-tooltip .u-tooltip__label {
+:is(.ui20, .sabcrm-twenty).st-popover.u-tooltip .u-tooltip__label {
   display: block;
   font-family: var(--st-font);
   font-size: var(--st-font-size-xs);
@@ -35,7 +35,7 @@
 @media (prefers-reduced-motion: reduce) {
   /* The global layer disables movement; keep a quick fade so appearance still
      reads as a state change without any scale. */
-  .sabcrm-twenty.st-popover.u-tooltip {
+  :is(.ui20, .sabcrm-twenty).st-popover.u-tooltip {
     animation: none;
   }
 }

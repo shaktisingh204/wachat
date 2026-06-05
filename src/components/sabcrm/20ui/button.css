@@ -1,6 +1,6 @@
 /* 20ui · Button + IconButton + ButtonGroup */
 
-.sabcrm-twenty .u-btn {
+:is(.ui20, .sabcrm-twenty) .u-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -26,42 +26,42 @@
     transform 80ms var(--u-ease-out);
 }
 
-.sabcrm-twenty .u-btn:active {
+:is(.ui20, .sabcrm-twenty) .u-btn:active {
   transform: scale(0.97);
 }
-.sabcrm-twenty .u-btn:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-btn:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
-.sabcrm-twenty .u-btn:disabled {
+:is(.ui20, .sabcrm-twenty) .u-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
 }
-.sabcrm-twenty .u-btn__label {
+:is(.ui20, .sabcrm-twenty) .u-btn__label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* ----- Sizes ----- */
-.sabcrm-twenty .u-btn--sm {
+:is(.ui20, .sabcrm-twenty) .u-btn--sm {
   height: 26px;
   padding: 0 var(--st-space-2);
   font-size: var(--st-font-size-sm);
   border-radius: var(--st-radius-sm);
 }
-.sabcrm-twenty .u-btn--lg {
+:is(.ui20, .sabcrm-twenty) .u-btn--lg {
   height: 38px;
   padding: 0 var(--st-space-4);
   font-size: var(--st-font-size-lg);
   border-radius: var(--st-radius-lg);
 }
-.sabcrm-twenty .u-btn--block {
+:is(.ui20, .sabcrm-twenty) .u-btn--block {
   width: 100%;
 }
 
 /* ----- Variants ----- */
-.sabcrm-twenty .u-btn--primary {
+:is(.ui20, .sabcrm-twenty) .u-btn--primary {
   background: var(--st-accent-grad, var(--st-accent));
   border-color: transparent;
   color: var(--st-text-inverted);
@@ -69,50 +69,50 @@
     0 1px 2px rgba(16, 24, 40, 0.12),
     0 0 0 1px rgba(37, 99, 235, 0.4) inset;
 }
-.sabcrm-twenty .u-btn--primary:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--primary:hover:not(:disabled) {
   filter: brightness(1.05);
   box-shadow:
     0 3px 10px var(--st-accent-ring, rgba(43, 110, 242, 0.25)),
     0 0 0 1px rgba(37, 99, 235, 0.5) inset;
 }
 
-.sabcrm-twenty .u-btn--secondary:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--secondary:hover:not(:disabled) {
   background: var(--st-hover);
   border-color: var(--st-border-strong);
 }
 
-.sabcrm-twenty .u-btn--ghost {
+:is(.ui20, .sabcrm-twenty) .u-btn--ghost {
   background: transparent;
   border-color: transparent;
   color: var(--st-text-secondary);
 }
-.sabcrm-twenty .u-btn--ghost:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--ghost:hover:not(:disabled) {
   background: var(--st-hover);
   color: var(--st-text);
 }
 
-.sabcrm-twenty .u-btn--outline {
+:is(.ui20, .sabcrm-twenty) .u-btn--outline {
   background: transparent;
   border-color: var(--st-accent);
   color: var(--st-accent);
 }
-.sabcrm-twenty .u-btn--outline:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--outline:hover:not(:disabled) {
   background: var(--st-accent-soft);
 }
 
-.sabcrm-twenty .u-btn--danger {
+:is(.ui20, .sabcrm-twenty) .u-btn--danger {
   background: var(--st-danger);
   border-color: transparent;
   color: #fff;
 }
-.sabcrm-twenty .u-btn--danger:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--danger:hover:not(:disabled) {
   background: var(--st-danger-hover, #a8311f);
 }
 
 /* Premium brand-gradient pill (landing-inspired) — amber to rose, warm glow,
    a hover lift + a one-pass light sheen sweeping across. Opt-in for flagship
    CTAs, never the default. */
-.sabcrm-twenty .u-btn--gradient {
+:is(.ui20, .sabcrm-twenty) .u-btn--gradient {
   position: relative;
   overflow: hidden;
   border: none;
@@ -126,34 +126,34 @@
     box-shadow var(--u-dur-fast) var(--u-ease-smooth),
     filter var(--u-dur-fast) var(--u-ease-smooth);
 }
-.sabcrm-twenty .u-btn--gradient:hover:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 14px 34px -8px var(--u-glow-orange);
   filter: saturate(1.05);
 }
-.sabcrm-twenty .u-btn--gradient:active:not(:disabled) {
+:is(.ui20, .sabcrm-twenty) .u-btn--gradient:active:not(:disabled) {
   transform: scale(0.98);
 }
-.sabcrm-twenty .u-btn--gradient > * {
+:is(.ui20, .sabcrm-twenty) .u-btn--gradient > * {
   position: relative;
   z-index: 1;
 }
-.sabcrm-twenty .u-btn__sheen {
+:is(.ui20, .sabcrm-twenty) .u-btn__sheen {
   position: absolute;
   inset: 0;
   z-index: 0;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
   transform: translateX(-100%);
 }
-.sabcrm-twenty .u-btn--gradient:hover .u-btn__sheen {
+:is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
   animation: u-sheen 700ms var(--u-ease-out);
 }
 
 /* ----- Loading spinner ----- */
-.sabcrm-twenty .u-btn.is-loading {
+:is(.ui20, .sabcrm-twenty) .u-btn.is-loading {
   cursor: progress;
 }
-.sabcrm-twenty .u-btn__spinner {
+:is(.ui20, .sabcrm-twenty) .u-btn__spinner {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -169,54 +169,54 @@
 }
 
 /* ----- IconButton ----- */
-.sabcrm-twenty .u-icon-btn {
+:is(.ui20, .sabcrm-twenty) .u-icon-btn {
   padding: 0;
   width: 32px;
   height: 32px;
   flex: 0 0 auto;
 }
-.sabcrm-twenty .u-icon-btn--sm {
+:is(.ui20, .sabcrm-twenty) .u-icon-btn--sm {
   width: 26px;
   height: 26px;
 }
-.sabcrm-twenty .u-icon-btn--lg {
+:is(.ui20, .sabcrm-twenty) .u-icon-btn--lg {
   width: 38px;
   height: 38px;
 }
 
 /* ----- ButtonGroup — shared borders, no double seams ----- */
-.sabcrm-twenty .u-btn-group {
+:is(.ui20, .sabcrm-twenty) .u-btn-group {
   display: inline-flex;
 }
-.sabcrm-twenty .u-btn-group > .u-btn {
+:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn {
   border-radius: 0;
   margin-left: -1px;
 }
-.sabcrm-twenty .u-btn-group > .u-btn:first-child {
+:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:first-child {
   border-top-left-radius: var(--st-radius);
   border-bottom-left-radius: var(--st-radius);
   margin-left: 0;
 }
-.sabcrm-twenty .u-btn-group > .u-btn:last-child {
+:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:last-child {
   border-top-right-radius: var(--st-radius);
   border-bottom-right-radius: var(--st-radius);
 }
-.sabcrm-twenty .u-btn-group > .u-btn:hover,
-.sabcrm-twenty .u-btn-group > .u-btn:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:hover,
+:is(.ui20, .sabcrm-twenty) .u-btn-group > .u-btn:focus-visible {
   z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-btn:active {
+  :is(.ui20, .sabcrm-twenty) .u-btn:active {
     transform: none;
   }
-  .sabcrm-twenty .u-btn--gradient:hover:not(:disabled) {
+  :is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover:not(:disabled) {
     transform: none;
   }
-  .sabcrm-twenty .u-btn--gradient:hover .u-btn__sheen {
+  :is(.ui20, .sabcrm-twenty) .u-btn--gradient:hover .u-btn__sheen {
     animation: none;
   }
-  .sabcrm-twenty .u-btn__spinner {
+  :is(.ui20, .sabcrm-twenty) .u-btn__spinner {
     animation-duration: 1.2s;
   }
 }

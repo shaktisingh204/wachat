@@ -3,7 +3,7 @@
 /* ===================================================================== */
 /* Alert — tinted notice with a left edge, icon, title, body, dismiss.   */
 /* ===================================================================== */
-.sabcrm-twenty .u-alert {
+:is(.ui20, .sabcrm-twenty) .u-alert {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-3);
@@ -20,71 +20,71 @@
 }
 
 /* tone → tint set, reusing the Badge soft palette. */
-.sabcrm-twenty .u-alert--info,
-.sabcrm-twenty .u-alert--neutral {
+:is(.ui20, .sabcrm-twenty) .u-alert--info,
+:is(.ui20, .sabcrm-twenty) .u-alert--neutral {
   --u-alert-bg: #e6f0fd;
   --u-alert-border: color-mix(in srgb, #2b6ef2 22%, transparent);
   --u-alert-edge: #2b6ef2;
   --u-alert-fg: #1d6fd6;
 }
-.sabcrm-twenty .u-alert--neutral {
+:is(.ui20, .sabcrm-twenty) .u-alert--neutral {
   --u-alert-bg: var(--st-bg-muted);
   --u-alert-border: var(--st-border);
   --u-alert-edge: var(--st-text-tertiary);
   --u-alert-fg: var(--st-text-secondary);
 }
-.sabcrm-twenty .u-alert--success {
+:is(.ui20, .sabcrm-twenty) .u-alert--success {
   --u-alert-bg: #e7f6ec;
   --u-alert-border: color-mix(in srgb, var(--st-status-ok) 26%, transparent);
   --u-alert-edge: var(--st-status-ok);
   --u-alert-fg: #1f7a37;
 }
-.sabcrm-twenty .u-alert--warning {
+:is(.ui20, .sabcrm-twenty) .u-alert--warning {
   --u-alert-bg: #fcf4e0;
   --u-alert-border: color-mix(in srgb, var(--st-warn) 30%, transparent);
   --u-alert-edge: var(--st-warn);
   --u-alert-fg: #9a6400;
 }
-.sabcrm-twenty .u-alert--danger {
+:is(.ui20, .sabcrm-twenty) .u-alert--danger {
   --u-alert-bg: var(--st-danger-soft);
   --u-alert-border: color-mix(in srgb, var(--st-danger) 26%, transparent);
   --u-alert-edge: var(--st-danger);
   --u-alert-fg: var(--st-danger-strong);
 }
 
-.sabcrm-twenty .u-alert__icon {
+:is(.ui20, .sabcrm-twenty) .u-alert__icon {
   display: inline-flex;
   flex: 0 0 auto;
   margin-top: 1px;
   color: var(--u-alert-fg);
 }
-.sabcrm-twenty .u-alert__content {
+:is(.ui20, .sabcrm-twenty) .u-alert__content {
   flex: 1 1 auto;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.sabcrm-twenty .u-alert__title {
+:is(.ui20, .sabcrm-twenty) .u-alert__title {
   margin: 0;
   font-size: var(--st-font-size);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   line-height: 1.4;
 }
-.sabcrm-twenty .u-alert__body {
+:is(.ui20, .sabcrm-twenty) .u-alert__body {
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-.sabcrm-twenty .u-alert__body a {
+:is(.ui20, .sabcrm-twenty) .u-alert__body a {
   color: var(--u-alert-fg);
   font-weight: var(--st-fw-medium);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.sabcrm-twenty .u-alert__close {
+:is(.ui20, .sabcrm-twenty) .u-alert__close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -102,14 +102,14 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-.sabcrm-twenty .u-alert__close:hover {
+:is(.ui20, .sabcrm-twenty) .u-alert__close:hover {
   background: color-mix(in srgb, var(--u-alert-edge) 12%, transparent);
   color: var(--st-text);
 }
-.sabcrm-twenty .u-alert__close:active {
+:is(.ui20, .sabcrm-twenty) .u-alert__close:active {
   transform: scale(0.92);
 }
-.sabcrm-twenty .u-alert__close:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-alert__close:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
@@ -128,7 +128,7 @@
 /* ===================================================================== */
 /* Callout — softer, borderless inline note.                             */
 /* ===================================================================== */
-.sabcrm-twenty .u-callout {
+:is(.ui20, .sabcrm-twenty) .u-callout {
   display: flex;
   align-items: flex-start;
   gap: var(--st-space-2);
@@ -139,47 +139,47 @@
   font-size: var(--st-font-size-sm);
   line-height: 1.5;
 }
-.sabcrm-twenty .u-callout--neutral {
+:is(.ui20, .sabcrm-twenty) .u-callout--neutral {
   --u-callout-bg: var(--st-bg-muted);
   --u-callout-fg: var(--st-text-tertiary);
 }
-.sabcrm-twenty .u-callout--info {
+:is(.ui20, .sabcrm-twenty) .u-callout--info {
   --u-callout-bg: #e6f0fd;
   --u-callout-fg: #1d6fd6;
 }
-.sabcrm-twenty .u-callout--success {
+:is(.ui20, .sabcrm-twenty) .u-callout--success {
   --u-callout-bg: #e7f6ec;
   --u-callout-fg: #1f7a37;
 }
-.sabcrm-twenty .u-callout--warning {
+:is(.ui20, .sabcrm-twenty) .u-callout--warning {
   --u-callout-bg: #fcf4e0;
   --u-callout-fg: #9a6400;
 }
-.sabcrm-twenty .u-callout--danger {
+:is(.ui20, .sabcrm-twenty) .u-callout--danger {
   --u-callout-bg: var(--st-danger-soft);
   --u-callout-fg: var(--st-danger-strong);
 }
-.sabcrm-twenty .u-callout__icon {
+:is(.ui20, .sabcrm-twenty) .u-callout__icon {
   display: inline-flex;
   flex: 0 0 auto;
   margin-top: 2px;
   color: var(--u-callout-fg);
 }
-.sabcrm-twenty .u-callout__content {
+:is(.ui20, .sabcrm-twenty) .u-callout__content {
   min-width: 0;
 }
-.sabcrm-twenty .u-callout__title {
+:is(.ui20, .sabcrm-twenty) .u-callout__title {
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
 }
-.sabcrm-twenty .u-callout__title + .u-callout__body {
+:is(.ui20, .sabcrm-twenty) .u-callout__title + .u-callout__body {
   margin-left: 5px;
 }
 
 /* ===================================================================== */
 /* EmptyState — centred icon chip + title + muted copy + action slot.    */
 /* ===================================================================== */
-.sabcrm-twenty .u-empty {
+:is(.ui20, .sabcrm-twenty) .u-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -187,10 +187,10 @@
   gap: var(--st-space-2);
   padding: var(--st-space-6) var(--st-space-4);
 }
-.sabcrm-twenty .u-empty--sm {
+:is(.ui20, .sabcrm-twenty) .u-empty--sm {
   padding: var(--st-space-4) var(--st-space-3);
 }
-.sabcrm-twenty .u-empty__chip {
+:is(.ui20, .sabcrm-twenty) .u-empty__chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -202,44 +202,44 @@
   color: var(--st-text-tertiary);
   animation: u-empty-chip-in var(--u-dur-slow) var(--u-ease-out);
 }
-.sabcrm-twenty .u-empty--sm .u-empty__chip {
+:is(.ui20, .sabcrm-twenty) .u-empty--sm .u-empty__chip {
   width: 40px;
   height: 40px;
 }
-.sabcrm-twenty .u-empty__chip--info {
+:is(.ui20, .sabcrm-twenty) .u-empty__chip--info {
   background: #e6f0fd;
   color: #1d6fd6;
 }
-.sabcrm-twenty .u-empty__chip--success {
+:is(.ui20, .sabcrm-twenty) .u-empty__chip--success {
   background: #e7f6ec;
   color: #1f7a37;
 }
-.sabcrm-twenty .u-empty__chip--warning {
+:is(.ui20, .sabcrm-twenty) .u-empty__chip--warning {
   background: #fcf4e0;
   color: #9a6400;
 }
-.sabcrm-twenty .u-empty__chip--danger {
+:is(.ui20, .sabcrm-twenty) .u-empty__chip--danger {
   background: var(--st-danger-soft);
   color: var(--st-danger-strong);
 }
-.sabcrm-twenty .u-empty__title {
+:is(.ui20, .sabcrm-twenty) .u-empty__title {
   margin: 0;
   font-size: var(--st-font-size-lg);
   font-weight: var(--st-fw-semibold);
   color: var(--st-text);
   letter-spacing: -0.01em;
 }
-.sabcrm-twenty .u-empty--sm .u-empty__title {
+:is(.ui20, .sabcrm-twenty) .u-empty--sm .u-empty__title {
   font-size: var(--st-font-size);
 }
-.sabcrm-twenty .u-empty__desc {
+:is(.ui20, .sabcrm-twenty) .u-empty__desc {
   margin: 0;
   max-width: 38ch;
   font-size: var(--st-font-size-sm);
   color: var(--st-text-secondary);
   line-height: 1.5;
 }
-.sabcrm-twenty .u-empty__action {
+:is(.ui20, .sabcrm-twenty) .u-empty__action {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -262,13 +262,13 @@
 /* Reduced motion — kill all movement, keep the components legible.      */
 /* ===================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-alert {
+  :is(.ui20, .sabcrm-twenty) .u-alert {
     animation: none;
   }
-  .sabcrm-twenty .u-alert__close:active {
+  :is(.ui20, .sabcrm-twenty) .u-alert__close:active {
     transform: none;
   }
-  .sabcrm-twenty .u-empty__chip {
+  :is(.ui20, .sabcrm-twenty) .u-empty__chip {
     animation: none;
   }
 }

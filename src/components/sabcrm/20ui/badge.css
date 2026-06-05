@@ -1,6 +1,6 @@
 /* 20ui · Badge · Tag · Dot */
 
-.sabcrm-twenty .u-badge {
+:is(.ui20, .sabcrm-twenty) .u-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -13,7 +13,7 @@
   line-height: 1;
   white-space: nowrap;
 }
-.sabcrm-twenty .u-badge__dot {
+:is(.ui20, .sabcrm-twenty) .u-badge__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -22,53 +22,53 @@
 }
 
 /* tone → colour pair (text/bg). Defined per tone, applied by kind. */
-.sabcrm-twenty .u-badge--neutral {
+:is(.ui20, .sabcrm-twenty) .u-badge--neutral {
   --u-badge-fg: var(--st-text-secondary);
   --u-badge-bg: var(--st-bg-muted);
   --u-badge-solid: var(--st-text-secondary);
 }
-.sabcrm-twenty .u-badge--accent {
+:is(.ui20, .sabcrm-twenty) .u-badge--accent {
   --u-badge-fg: var(--st-accent-hover);
   --u-badge-bg: var(--st-accent-soft);
   --u-badge-solid: var(--st-accent);
 }
-.sabcrm-twenty .u-badge--success {
+:is(.ui20, .sabcrm-twenty) .u-badge--success {
   --u-badge-fg: #1f7a37;
   --u-badge-bg: #e7f6ec;
   --u-badge-solid: var(--st-status-ok);
 }
-.sabcrm-twenty .u-badge--warning {
+:is(.ui20, .sabcrm-twenty) .u-badge--warning {
   --u-badge-fg: #9a6400;
   --u-badge-bg: #fcf4e0;
   --u-badge-solid: var(--st-warn);
 }
-.sabcrm-twenty .u-badge--danger {
+:is(.ui20, .sabcrm-twenty) .u-badge--danger {
   --u-badge-fg: var(--st-danger-strong);
   --u-badge-bg: var(--st-danger-soft);
   --u-badge-solid: var(--st-danger);
 }
-.sabcrm-twenty .u-badge--info {
+:is(.ui20, .sabcrm-twenty) .u-badge--info {
   --u-badge-fg: #1d6fd6;
   --u-badge-bg: #e6f0fd;
   --u-badge-solid: #2b6ef2;
 }
 
-.sabcrm-twenty .u-badge--soft {
+:is(.ui20, .sabcrm-twenty) .u-badge--soft {
   background: var(--u-badge-bg);
   color: var(--u-badge-fg);
 }
-.sabcrm-twenty .u-badge--solid {
+:is(.ui20, .sabcrm-twenty) .u-badge--solid {
   background: var(--u-badge-solid);
   color: #fff;
 }
-.sabcrm-twenty .u-badge--outline {
+:is(.ui20, .sabcrm-twenty) .u-badge--outline {
   background: transparent;
   border-color: color-mix(in srgb, var(--u-badge-solid) 38%, transparent);
   color: var(--u-badge-fg);
 }
 
 /* ----- Tag ----- */
-.sabcrm-twenty .u-tag {
+:is(.ui20, .sabcrm-twenty) .u-tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -81,18 +81,18 @@
   color: var(--st-text);
   white-space: nowrap;
 }
-.sabcrm-twenty .u-tag__dot {
+:is(.ui20, .sabcrm-twenty) .u-tag__dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: var(--st-text-tertiary);
   flex: 0 0 auto;
 }
-.sabcrm-twenty .u-tag__label {
+:is(.ui20, .sabcrm-twenty) .u-tag__label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sabcrm-twenty .u-tag__remove {
+:is(.ui20, .sabcrm-twenty) .u-tag__remove {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -106,17 +106,17 @@
   cursor: pointer;
   transition: background var(--u-dur-fast) var(--u-ease-out), color var(--u-dur-fast) var(--u-ease-out);
 }
-.sabcrm-twenty .u-tag__remove:hover {
+:is(.ui20, .sabcrm-twenty) .u-tag__remove:hover {
   background: var(--st-hover);
   color: var(--st-text);
 }
-.sabcrm-twenty .u-tag__remove:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-tag__remove:focus-visible {
   outline: none;
   box-shadow: var(--u-focus-ring);
 }
 
 /* ----- Dot ----- */
-.sabcrm-twenty .u-dot {
+:is(.ui20, .sabcrm-twenty) .u-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
@@ -124,25 +124,25 @@
   flex: 0 0 auto;
   background: var(--st-text-tertiary);
 }
-.sabcrm-twenty .u-dot--accent {
+:is(.ui20, .sabcrm-twenty) .u-dot--accent {
   background: var(--st-accent);
 }
-.sabcrm-twenty .u-dot--success {
+:is(.ui20, .sabcrm-twenty) .u-dot--success {
   background: var(--st-status-ok);
 }
-.sabcrm-twenty .u-dot--warning {
+:is(.ui20, .sabcrm-twenty) .u-dot--warning {
   background: var(--st-warn);
 }
-.sabcrm-twenty .u-dot--danger {
+:is(.ui20, .sabcrm-twenty) .u-dot--danger {
   background: var(--st-danger);
 }
-.sabcrm-twenty .u-dot--info {
+:is(.ui20, .sabcrm-twenty) .u-dot--info {
   background: #2b6ef2;
 }
-.sabcrm-twenty .u-dot--pulse {
+:is(.ui20, .sabcrm-twenty) .u-dot--pulse {
   position: relative;
 }
-.sabcrm-twenty .u-dot--pulse::after {
+:is(.ui20, .sabcrm-twenty) .u-dot--pulse::after {
   content: '';
   position: absolute;
   inset: -3px;
@@ -162,7 +162,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-dot--pulse::after {
+  :is(.ui20, .sabcrm-twenty) .u-dot--pulse::after {
     animation: none;
   }
 }

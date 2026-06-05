@@ -1,0 +1,33 @@
+/* 20ui · Form (react-hook-form wrappers)
+ *
+ * Layout + label/help/error styling are inherited from field.css (the .u-field,
+ * .u-field__label, .u-field__help, .u-field__error classes). Only the additions
+ * specific to the validated form pattern live here.
+ */
+
+/* Redden the label when its field is invalid (data-invalid set by FormLabel). */
+:is(.ui20, .sabcrm-twenty) .u-field__label[data-invalid] {
+  color: var(--st-danger);
+}
+
+/* Soft entrance for the validation message so errors arrive, not blink in. */
+:is(.ui20, .sabcrm-twenty) .u-form-message {
+  animation: u-form-message-in var(--u-dur-fast) var(--u-ease-out);
+}
+
+@keyframes u-form-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-form-message {
+    animation: none;
+  }
+}

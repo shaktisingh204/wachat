@@ -1,0 +1,292 @@
+/* 20ui · Select · MultiSelect */
+
+/* The anchor wraps the trigger; it is layout-transparent so the trigger keeps
+   its own box. The portal panel (.u-select__panel) inherits the shared
+   .st-popover entrance + elevation from the foundation stylesheet. */
+:is(.ui20, .sabcrm-twenty) .u-select__anchor {
+  display: block;
+}
+
+/* ----- Trigger ----- */
+:is(.ui20, .sabcrm-twenty) .u-select {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  min-height: 32px;
+  padding: 0 var(--st-space-2) 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-select:hover {
+  border-color: var(--st-border-strong);
+}
+:is(.ui20, .sabcrm-twenty) .u-select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-select.is-open {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-select:disabled {
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+:is(.ui20, .sabcrm-twenty) .u-select.is-invalid {
+  border-color: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .u-select.is-invalid.is-open,
+:is(.ui20, .sabcrm-twenty) .u-select.is-invalid:focus-visible {
+  box-shadow: 0 0 0 3px var(--st-danger-soft);
+}
+
+/* Sizes */
+:is(.ui20, .sabcrm-twenty) .u-select--sm {
+  min-height: 26px;
+  padding-left: var(--st-space-2);
+  font-size: var(--st-font-size-sm);
+  border-radius: var(--st-radius-sm);
+}
+
+/* Trigger contents */
+:is(.ui20, .sabcrm-twenty) .u-select__value-icon {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__value.is-placeholder {
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chevron {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-select.is-open .u-select__chevron {
+  transform: rotate(180deg);
+}
+
+/* Inline clear (single-select) */
+:is(.ui20, .sabcrm-twenty) .u-select__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__clear:hover {
+  background: var(--st-hover);
+  color: var(--st-text-secondary);
+}
+
+/* ----- Multi-select trigger ----- */
+:is(.ui20, .sabcrm-twenty) .u-select--multi {
+  min-height: 32px;
+  height: auto;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  align-items: center;
+}
+:is(.ui20, .sabcrm-twenty) .u-select--multi.u-select--sm {
+  min-height: 26px;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 4px 2px 8px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.2;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chip-icon {
+  flex: 0 0 auto;
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--st-radius-pill);
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__chip-remove:hover {
+  background: var(--st-active);
+  color: var(--st-text);
+}
+
+/* ----- Panel (portal) ----- */
+:is(.ui20, .sabcrm-twenty) .u-select__panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 184px;
+  max-width: 360px;
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+}
+
+/* Search box */
+:is(.ui20, .sabcrm-twenty) .u-select__search {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  padding: 0 var(--st-space-2);
+  margin-bottom: var(--st-space-1);
+  height: 32px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__search:focus-within {
+  border-color: var(--st-accent);
+  background: var(--st-bg);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__search-icon {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  outline: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__search-input::placeholder {
+  color: var(--st-text-tertiary);
+}
+
+/* List */
+:is(.ui20, .sabcrm-twenty) .u-select__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: min(50vh, 320px);
+  overflow-y: auto;
+  outline: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__list:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  border-radius: var(--st-radius);
+}
+
+/* Option */
+:is(.ui20, .sabcrm-twenty) .u-select__option {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 30px;
+  padding: 0 var(--st-space-2);
+  border-radius: var(--st-radius);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option.is-active {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option:active {
+  transform: scale(0.985);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option.is-selected {
+  color: var(--st-accent);
+  font-weight: var(--st-fw-medium);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option.is-disabled {
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option-icon {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option.is-selected .u-select__option-icon {
+  color: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option-label {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .u-select__option-check {
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+/* Empty state */
+:is(.ui20, .sabcrm-twenty) .u-select__empty {
+  padding: var(--st-space-3) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-select__chevron,
+  :is(.ui20, .sabcrm-twenty) .u-select.is-open .u-select__chevron {
+    transition: none;
+    transform: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-select__option:active {
+    transform: none;
+  }
+}

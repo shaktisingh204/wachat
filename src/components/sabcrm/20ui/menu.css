@@ -3,11 +3,11 @@
 /* The anchor wraps the caller's trigger node; it is layout-transparent so the
    trigger keeps its own box. The portal panel (.u-menu) inherits the shared
    .st-popover entrance + elevation from 20ui.css. */
-.sabcrm-twenty .u-menu__anchor {
+:is(.ui20, .sabcrm-twenty) .u-menu__anchor {
   display: inline-flex;
 }
 
-.sabcrm-twenty .u-menu {
+:is(.ui20, .sabcrm-twenty) .u-menu {
   min-width: 184px;
   max-width: 320px;
   padding: var(--st-space-1);
@@ -17,7 +17,7 @@
   color: var(--st-text);
 }
 
-.sabcrm-twenty .u-menu__list {
+:is(.ui20, .sabcrm-twenty) .u-menu__list {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -26,7 +26,7 @@
 }
 
 /* ----- Item ----- */
-.sabcrm-twenty .u-menu__item {
+:is(.ui20, .sabcrm-twenty) .u-menu__item {
   display: flex;
   align-items: center;
   gap: var(--st-space-2);
@@ -49,38 +49,38 @@
     color var(--u-dur-fast) var(--u-ease-out),
     transform 80ms var(--u-ease-out);
 }
-.sabcrm-twenty .u-menu__item:hover,
-.sabcrm-twenty .u-menu__item:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-menu__item:hover,
+:is(.ui20, .sabcrm-twenty) .u-menu__item:focus-visible {
   background: var(--st-hover);
   outline: none;
 }
-.sabcrm-twenty .u-menu__item:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-menu__item:focus-visible {
   box-shadow: var(--u-focus-ring);
 }
-.sabcrm-twenty .u-menu__item:active {
+:is(.ui20, .sabcrm-twenty) .u-menu__item:active {
   background: var(--st-active);
   transform: scale(0.985);
 }
-.sabcrm-twenty .u-menu__item[aria-disabled='true'] {
+:is(.ui20, .sabcrm-twenty) .u-menu__item[aria-disabled='true'] {
   color: var(--st-text-tertiary);
   cursor: not-allowed;
   pointer-events: none;
 }
 
-.sabcrm-twenty .u-menu__item-icon {
+:is(.ui20, .sabcrm-twenty) .u-menu__item-icon {
   flex: 0 0 auto;
   color: var(--st-text-tertiary);
 }
-.sabcrm-twenty .u-menu__item:hover .u-menu__item-icon,
-.sabcrm-twenty .u-menu__item:focus-visible .u-menu__item-icon {
+:is(.ui20, .sabcrm-twenty) .u-menu__item:hover .u-menu__item-icon,
+:is(.ui20, .sabcrm-twenty) .u-menu__item:focus-visible .u-menu__item-icon {
   color: var(--st-text-secondary);
 }
-.sabcrm-twenty .u-menu__item-label {
+:is(.ui20, .sabcrm-twenty) .u-menu__item-label {
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sabcrm-twenty .u-menu__item-hint {
+:is(.ui20, .sabcrm-twenty) .u-menu__item-hint {
   flex: 0 0 auto;
   padding-left: var(--st-space-3);
   color: var(--st-text-tertiary);
@@ -88,31 +88,31 @@
 }
 
 /* ----- Danger variant (destructive) ----- */
-.sabcrm-twenty .u-menu__item--danger {
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger {
   color: var(--st-danger);
 }
-.sabcrm-twenty .u-menu__item--danger .u-menu__item-icon {
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger .u-menu__item-icon {
   color: var(--st-danger);
 }
-.sabcrm-twenty .u-menu__item--danger:hover,
-.sabcrm-twenty .u-menu__item--danger:focus-visible {
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger:hover,
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger:focus-visible {
   background: var(--st-danger-soft);
   color: var(--st-danger);
 }
-.sabcrm-twenty .u-menu__item--danger:hover .u-menu__item-icon,
-.sabcrm-twenty .u-menu__item--danger:focus-visible .u-menu__item-icon {
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger:hover .u-menu__item-icon,
+:is(.ui20, .sabcrm-twenty) .u-menu__item--danger:focus-visible .u-menu__item-icon {
   color: var(--st-danger);
 }
 
 /* ----- Separator ----- */
-.sabcrm-twenty .u-menu__sep {
+:is(.ui20, .sabcrm-twenty) .u-menu__sep {
   height: 1px;
   margin: var(--st-space-1) calc(var(--st-space-1) * -1);
   background: var(--st-border-light);
 }
 
 /* ----- Group label ----- */
-.sabcrm-twenty .u-menu__group-label {
+:is(.ui20, .sabcrm-twenty) .u-menu__group-label {
   padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
   color: var(--st-text-tertiary);
   font-size: var(--st-font-size-xs);
@@ -123,7 +123,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sabcrm-twenty .u-menu__item:active {
+  :is(.ui20, .sabcrm-twenty) .u-menu__item:active {
     transform: none;
   }
 }

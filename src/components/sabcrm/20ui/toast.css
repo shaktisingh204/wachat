@@ -1,0 +1,260 @@
+/* 20ui · Toast (Radix-skinned) */
+
+/* ----- Viewport: a fixed corner stack -----
+   Radix portals this to <body>; we keep it pinned bottom-right with a tight
+   column gap. It sits above modals/popovers and is itself non-interactive
+   except for the toasts inside it. */
+:is(.ui20, .sabcrm-twenty) .u-toast-viewport {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  width: 380px;
+  max-width: 100vw;
+  margin: 0;
+  padding: var(--st-space-4);
+  list-style: none;
+  outline: none;
+}
+
+/* ----- Toast surface ----- */
+:is(.ui20, .sabcrm-twenty) .u-toast {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  column-gap: var(--st-space-2);
+  row-gap: var(--st-space-1);
+  width: 100%;
+  padding: var(--st-space-3) var(--st-space-3) var(--st-space-3) var(--st-space-4);
+  overflow: hidden;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--u-elev-3);
+  /* `--u-toast-edge` is the tinted accent colour for this tone; set per-tone. */
+  --u-toast-edge: var(--st-text-tertiary);
+  --u-toast-icon: var(--st-text-secondary);
+}
+
+/* The left tinted edge — a slim coloured rail keyed to the tone. */
+:is(.ui20, .sabcrm-twenty) .u-toast__edge {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--u-toast-edge);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-toast__icon {
+  grid-row: 1 / span 2;
+  margin-top: 1px;
+  color: var(--u-toast-icon);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-toast__body {
+  grid-column: 2;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-toast__title {
+  margin: 0;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  line-height: 1.35;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-toast__desc {
+  margin: 0;
+  color: var(--st-text-secondary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-regular);
+  line-height: 1.45;
+}
+
+/* ----- Inline action button ----- */
+:is(.ui20, .sabcrm-twenty) .u-toast__action {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: var(--st-space-1);
+  height: 26px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border-strong);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__action:hover {
+  background: var(--st-hover);
+  border-color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__action:active {
+  transform: scale(0.97);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__action:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Close button ----- */
+:is(.ui20, .sabcrm-twenty) .u-toast__close {
+  grid-column: 3;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -2px -2px 0 0;
+  padding: 0;
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__close:hover {
+  background: var(--st-hover);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__close:active {
+  transform: scale(0.92);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast__close:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Tones: tinted edge + icon ----- */
+:is(.ui20, .sabcrm-twenty) .u-toast--info {
+  --u-toast-edge: var(--st-accent);
+  --u-toast-icon: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast--success {
+  --u-toast-edge: var(--st-status-ok);
+  --u-toast-icon: var(--st-status-ok);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast--warning {
+  --u-toast-edge: var(--st-warn);
+  --u-toast-icon: var(--st-warn);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast--danger {
+  --u-toast-edge: var(--st-danger);
+  --u-toast-icon: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast--neutral {
+  --u-toast-edge: var(--st-text-tertiary);
+  --u-toast-icon: var(--st-text-secondary);
+}
+
+/* ----- Motion: slide + fade in, fade + scale out, swipe-to-dismiss -----
+   Radix drives state via [data-state] + [data-swipe] and exposes the live swipe
+   offset in --radix-toast-swipe-move-x. Transform/opacity only, custom ease,
+   sub-250ms — Emil-clean. */
+:is(.ui20, .sabcrm-twenty) .u-toast[data-state='open'] {
+  animation: u-toast-in var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-toast[data-state='closed'] {
+  animation: u-toast-out var(--u-dur) var(--u-ease-out);
+}
+/* While dragging, follow the pointer 1:1 with no transition. */
+:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='move'] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+/* Released below threshold — snap back to rest. */
+:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
+  transform: translateX(0);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+/* Released past threshold — fling out and let Radix close it. */
+:is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='end'] {
+  animation: u-toast-swipe-out var(--u-dur) var(--u-ease-out);
+}
+
+@keyframes u-toast-in {
+  from {
+    transform: translateX(calc(100% + var(--st-space-4)));
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes u-toast-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+@keyframes u-toast-swipe-out {
+  from {
+    transform: translateX(var(--radix-toast-swipe-end-x));
+    opacity: 1;
+  }
+  to {
+    transform: translateX(calc(100% + var(--st-space-4)));
+    opacity: 0;
+  }
+}
+
+/* ----- Reduced motion: fade only, no movement ----- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-toast[data-state='open'] {
+    animation: u-toast-fade-in var(--u-dur) var(--u-ease-out);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-toast[data-state='closed'] {
+    animation: u-toast-fade-out var(--u-dur-fast) var(--u-ease-out);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='cancel'] {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-toast[data-swipe='end'] {
+    animation: u-toast-fade-out var(--u-dur-fast) var(--u-ease-out);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-toast__action:active,
+  :is(.ui20, .sabcrm-twenty) .u-toast__close:active {
+    transform: none;
+  }
+  @keyframes u-toast-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes u-toast-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

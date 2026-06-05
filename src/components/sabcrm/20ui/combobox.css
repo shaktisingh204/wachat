@@ -1,0 +1,172 @@
+/* 20ui · Combobox (autocomplete) */
+
+/* ----- Input shell ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox:focus-within {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox.is-invalid {
+  border-color: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox.is-invalid:focus-within {
+  box-shadow: 0 0 0 3px var(--st-danger-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox.is-disabled {
+  background: var(--st-bg-muted);
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* ----- Leading search glyph ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox__lead {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Native input (the real role=combobox) ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  outline: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__input::placeholder {
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__input:disabled {
+  cursor: not-allowed;
+}
+
+/* ----- Trailing caret + async spinner ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox__caret {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__caret.is-open {
+  transform: rotate(180deg);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__spin {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+  animation: u-combobox-spin 0.7s linear infinite;
+}
+@keyframes u-combobox-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ----- Portal panel ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox-pop {
+  min-width: 200px;
+  max-width: 420px;
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-combobox__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: min(56vh, 360px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ----- Option row ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox__option {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 32px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border-radius: var(--st-radius);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  line-height: 1.3;
+  cursor: pointer;
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+/* Active = virtually focused via aria-activedescendant (keyboard or hover). */
+:is(.ui20, .sabcrm-twenty) .u-combobox__option.is-active {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__option.is-selected {
+  color: var(--st-accent);
+  font-weight: var(--st-fw-medium);
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__option.is-disabled {
+  color: var(--st-text-tertiary);
+  cursor: not-allowed;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-combobox__option-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__option-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__option-desc {
+  overflow: hidden;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+:is(.ui20, .sabcrm-twenty) .u-combobox__check {
+  flex: 0 0 auto;
+  color: var(--st-accent);
+}
+
+/* ----- Empty state ----- */
+:is(.ui20, .sabcrm-twenty) .u-combobox__empty {
+  padding: var(--st-space-3) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-combobox__caret,
+  :is(.ui20, .sabcrm-twenty) .u-combobox__option {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-combobox__spin {
+    animation-duration: 1.4s;
+  }
+}

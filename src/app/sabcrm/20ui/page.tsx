@@ -29,6 +29,12 @@ import {
   Workflow,
   BarChart3,
   MessageSquare,
+  Filter,
+  CalendarDays,
+  Settings,
+  Bell,
+  Rocket,
+  Gauge,
 } from 'lucide-react';
 
 import {
@@ -80,6 +86,50 @@ import {
   SpotlightCard,
   FeatureTile,
   GlowBadge,
+  Select,
+  Combobox,
+  Slider,
+  Pagination,
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerClose,
+  ToastProvider,
+  Toaster,
+  useToast,
+  Command,
+  CommandDialog,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandShortcut,
+  DatePicker,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  DataTable,
+  type DataTableColumn,
+  RadioCardGroup,
+  RadioCard,
+  Rating,
+  OtpInput,
+  SearchInput,
 } from '@/components/sabcrm/20ui';
 
 import './showcase.css';
@@ -111,9 +161,21 @@ export default function TwentyUiShowcase(): React.JSX.Element {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [agree, setAgree] = React.useState(true);
   const [plan, setPlan] = React.useState('growth');
+  const [stage, setStage] = React.useState<string | null>('proposal');
+  const [city, setCity] = React.useState<string | null>(null);
+  const [budget, setBudget] = React.useState<number | number[]>(60);
+  const [page, setPage] = React.useState(3);
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
+  const [otp, setOtp] = React.useState('');
+  const [stars, setStars] = React.useState(4);
+  const [search, setSearch] = React.useState('');
+  const [size, setSize] = React.useState('growth');
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [cmdOpen, setCmdOpen] = React.useState(false);
 
   return (
-    <div className="ux-page">
+    <ToastProvider>
+    <div className="ui20 ux-page">
       <Breadcrumb
         items={[{ label: 'SabCRM', href: '/sabcrm' }, { label: '20ui' }]}
       />
@@ -486,6 +548,176 @@ export default function TwentyUiShowcase(): React.JSX.Element {
         </div>
       </Section>
 
+      {/* SELECTS */}
+      <Section title="Selects & search" note="select · combobox · search · slider">
+        <div className="ux-grid">
+          <Field label="Stage">
+            <Select
+              value={stage}
+              onChange={setStage}
+              placeholder="Select stage"
+              options={[
+                { value: 'new', label: 'New' },
+                { value: 'screening', label: 'Screening' },
+                { value: 'meeting', label: 'Meeting' },
+                { value: 'proposal', label: 'Proposal' },
+                { value: 'customer', label: 'Customer' },
+              ]}
+            />
+          </Field>
+          <Field label="City">
+            <Combobox
+              value={city}
+              onChange={(v) => setCity(v)}
+              placeholder="Search a city"
+              options={[
+                { value: 'pune', label: 'Pune' },
+                { value: 'mumbai', label: 'Mumbai' },
+                { value: 'bengaluru', label: 'Bengaluru' },
+                { value: 'delhi', label: 'New Delhi' },
+                { value: 'lisbon', label: 'Lisbon' },
+              ]}
+            />
+          </Field>
+          <Field label="Search">
+            <SearchInput
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Search records"
+              shortcut="⌘K"
+            />
+          </Field>
+        </div>
+        <div style={{ maxWidth: 360, marginTop: 16 }}>
+          <Field label="Budget">
+            <Slider value={budget} onValueChange={setBudget} min={0} max={100} showValue />
+          </Field>
+        </div>
+      </Section>
+
+      {/* DISCLOSURE + POPOVER */}
+      <Section title="Disclosure & popovers" note="accordion · popover · drawer · command">
+        <div className="ux-col" style={{ maxWidth: 560 }}>
+          <Accordion type="single" collapsible defaultValue="a1">
+            <AccordionItem value="a1">
+              <AccordionTrigger>What is 20ui?</AccordionTrigger>
+              <AccordionContent>
+                SabNode&apos;s standalone design system, built to be advanced, minimal,
+                and accessible by default.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="a2">
+              <AccordionTrigger>Does it work app-wide?</AccordionTrigger>
+              <AccordionContent>
+                Yes. Wrap any subtree in a `ui20` class and every component renders
+                with its own self-contained tokens.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div className="ux-row" style={{ marginTop: 16 }}>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="secondary" iconLeft={Filter}>Filter</Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 200 }}>
+                <span style={{ fontWeight: 600, fontSize: 13 }}>Filter leads</span>
+                <RadioCardGroup value={size} onChange={setSize} label="Deal size">
+                  <RadioCard value="growth" label="Growth" description="Mid-market" icon={Gauge} />
+                  <RadioCard value="enterprise" label="Enterprise" description="500+ seats" icon={Rocket} />
+                </RadioCardGroup>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Drawer side="right">
+            <DrawerTrigger asChild>
+              <Button variant="secondary" iconLeft={Settings}>Open drawer</Button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>Settings</DrawerTitle>
+                <DrawerDescription>A side panel for detail + edit flows.</DrawerDescription>
+              </DrawerHeader>
+              <div style={{ padding: 'var(--st-space-4)' }}>
+                <Field label="Workspace name">
+                  <Input placeholder="Acme" />
+                </Field>
+              </div>
+              <DrawerFooter>
+                <DrawerClose asChild><Button variant="secondary">Cancel</Button></DrawerClose>
+                <Button variant="primary">Save</Button>
+              </DrawerFooter>
+            </DrawerContent>
+          </Drawer>
+
+          <Button variant="secondary" iconLeft={Sparkles} onClick={() => setCmdOpen(true)}>
+            Command menu
+          </Button>
+          <ToastDemo />
+        </div>
+
+        <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen} label="Command menu">
+          <CommandInput placeholder="Type a command or search" />
+          <CommandList>
+            <CommandEmpty>No results.</CommandEmpty>
+            <CommandGroup heading="Actions">
+              <CommandItem>New lead<CommandShortcut>⌘N</CommandShortcut></CommandItem>
+              <CommandItem>New company</CommandItem>
+              <CommandItem>Search records<CommandShortcut>⌘K</CommandShortcut></CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </CommandDialog>
+      </Section>
+
+      {/* DATA */}
+      <Section title="Data" note="data table · pagination · date · rating · otp">
+        <DataTable
+          columns={
+            [
+              { key: 'name', header: 'Company', sortable: true },
+              { key: 'stage', header: 'Stage', render: (r) => <Badge tone="info">{r.stage}</Badge> },
+              { key: 'amount', header: 'Amount', align: 'right', sortable: true },
+            ] as DataTableColumn<{ id: string; name: string; stage: string; amount: string }>[]
+          }
+          rows={[
+            { id: '1', name: 'Northwind Trading', stage: 'Proposal', amount: '$48,200' },
+            { id: '2', name: 'Lumen Health', stage: 'Meeting', amount: '$31,900' },
+            { id: '3', name: 'Atlas Robotics', stage: 'Customer', amount: '$120,400' },
+          ]}
+          getRowId={(r) => r.id}
+          hover
+        />
+        <div className="ux-row" style={{ marginTop: 16 }}>
+          <Pagination page={page} pageCount={12} onPageChange={setPage} />
+        </div>
+        <div className="ux-grid" style={{ marginTop: 16 }}>
+          <Field label="Close date">
+            <DatePicker value={date} onChange={setDate} placeholder="Pick a date" />
+          </Field>
+          <Field label="Rating">
+            <Rating value={stars} onChange={setStars} label="Deal confidence" />
+          </Field>
+          <Field label="Verification code">
+            <OtpInput value={otp} onChange={setOtp} length={6} />
+          </Field>
+        </div>
+      </Section>
+
+      {/* PRIMITIVE TABLE */}
+      <Section title="Table primitives" note="composable Table">
+        <Table>
+          <THead>
+            <Tr><Th>Owner</Th><Th>Role</Th><Th align="right">Deals</Th></Tr>
+          </THead>
+          <TBody>
+            <Tr><Td>Aanya Sharma</Td><Td>Account Executive</Td><Td align="right">14</Td></Tr>
+            <Tr><Td>Rohan Mehta</Td><Td>SDR</Td><Td align="right">9</Td></Tr>
+          </TBody>
+        </Table>
+      </Section>
+
       {/* MISC */}
       <Section title="Misc" note="separator · kbd · breadcrumb">
         <div className="ux-row">
@@ -499,5 +731,28 @@ export default function TwentyUiShowcase(): React.JSX.Element {
         <Separator label="Section" />
       </Section>
     </div>
+    <Toaster />
+    </ToastProvider>
+  );
+}
+
+/** Small demo that uses the toast hook (must live inside ToastProvider). */
+function ToastDemo(): React.JSX.Element {
+  const { toast } = useToast();
+  return (
+    <Button
+      variant="secondary"
+      iconLeft={Bell}
+      onClick={() =>
+        toast({
+          tone: 'success',
+          title: 'Lead created',
+          description: 'Northwind Trading was added to Growth.',
+          action: { label: 'View', onClick: () => undefined },
+        })
+      }
+    >
+      Show toast
+    </Button>
   );
 }
