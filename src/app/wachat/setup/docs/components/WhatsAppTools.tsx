@@ -66,12 +66,11 @@ export function WhatsAppTools() {
         <CardBody>
           <div className="flex flex-col gap-4">
             <div
-              className="flex justify-between items-center p-3 rounded-lg"
-              style={{ background: 'var(--st-bg-secondary)', border: '1px solid var(--st-border)' }}
+              className="flex justify-between items-center p-3 rounded-lg bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
             >
               <span className="font-medium">Status</span>
               {isRefreshing && !status ? (
-                <span className="text-sm animate-pulse" style={{ color: 'var(--st-text-muted)' }}>
+                <span className="text-sm animate-pulse text-[var(--st-text-muted)]">
                   Checking...
                 </span>
               ) : (
@@ -87,8 +86,7 @@ export function WhatsAppTools() {
               )}
             </div>
             <div
-              className="flex justify-between items-center p-3 rounded-lg"
-              style={{ background: 'var(--st-bg-secondary)', border: '1px solid var(--st-border)' }}
+              className="flex justify-between items-center p-3 rounded-lg bg-[var(--st-bg-secondary)] border border-[var(--st-border)]"
             >
               <span className="font-medium">Quality Rating</span>
               <span className="capitalize">{status?.qualityRating || 'N/A'}</span>

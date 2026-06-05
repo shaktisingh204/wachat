@@ -190,7 +190,7 @@ export default function TemplateAnalyticsPage() {
       actions={
         <div className="flex items-center gap-3">
           {lastSynced && (
-            <span className="text-[12px]" style={{ color: 'var(--st-text-tertiary)' }}>
+            <span className="text-[12px] text-[var(--st-text-tertiary)]">
               Last synced: {formatDate(lastSynced)}
             </span>
           )}

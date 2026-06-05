@@ -98,26 +98,18 @@ const ProductsTable = ({
           products.map((product) => (
             <Tr key={product.id}>
               <Td>
-                <div
-                  className="flex h-16 w-16 items-center justify-center"
-                  style={{
-                    background: 'var(--st-bg-secondary)',
-                    borderRadius: 'var(--st-radius)',
-                  }}
-                >
+                <div className="flex h-16 w-16 items-center justify-center bg-[var(--st-bg-secondary)] rounded-[var(--st-radius)]">
                   {product.image_url ? (
                     <Image
                       src={product.image_url}
                       alt={product.name}
                       width={64}
                       height={64}
-                      className="object-cover"
-                      style={{ borderRadius: 'var(--st-radius)' }}
+                      className="object-cover rounded-[var(--st-radius)]"
                     />
                   ) : (
                     <ShoppingBag
-                      className="h-8 w-8"
-                      style={{ color: 'var(--st-text-tertiary)' }}
+                      className="h-8 w-8 text-[var(--st-text-tertiary)]"
                       aria-hidden="true"
                     />
                   )}

@@ -1,11 +1,8 @@
-import * as React from 'react';
-import { useState } from 'react';
-import { Input, Button, Field } from '@/components/sabcrm/20ui';
-import { Wand, Sparkles } from 'lucide-react';
+'use client';
 
-function cx(...a: Array<string | false | null | undefined>) {
-  return a.filter(Boolean).join(' ');
-}
+import { useState } from 'react';
+import { Input, Button, Field, Card, CardHeader, CardTitle, CardBody } from '@/components/sabcrm/20ui';
+import { Wand, Sparkles } from 'lucide-react';
 
 export function AIBodyGenerator({
   onGenerate,
@@ -44,63 +41,42 @@ export function AIBodyGenerator({
 
   if (!open) {
     return (
-      <button
-        type="button"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => setOpen(true)}
         aria-label="Generate message body with AI"
-        className={cx(
-          'flex items-center gap-1.5 transition-colors',
-        )}
-        style={{
-          fontSize: 'var(--st-font-size-xs)',
-          color: 'var(--st-text-tertiary)',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.color = 'var(--st-text)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.color = 'var(--st-text-tertiary)';
-        }}
+        iconLeft={<Wand className="h-3 w-3" aria-hidden="true" />}
       >
-        <Wand className="h-3 w-3" aria-hidden="true" /> Generate with AI
-      </button>
+        Generate with AI
+      </Button>
     );
   }
 
   return (
-    <div
-      className="space-y-2 p-3"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg-secondary)',
-      }}
-    >
-      <div
-        className="flex items-center gap-1.5"
-        style={{
-          fontSize: 'var(--st-font-size-xs)',
-          fontWeight: 'var(--st-fw-semibold)' as React.CSSProperties['fontWeight'],
-          color: 'var(--st-text)',
-        }}
-      >
-        <Sparkles className="h-3 w-3" aria-hidden="true" /> AI Body Generator
-      </div>
-      <Field label="Describe your message">
-        <Input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe your message (e.g., 'order confirmation with tracking')"
-        />
-      </Field>
-      <div className="flex gap-2">
-        <Button variant="primary" size="sm" onClick={generate}>
-          Generate
-        </Button>
-        <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-          Cancel
-        </Button>
-      </div>
-    </div>
+    <Card variant="outlined" padding="sm">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-1.5 text-[var(--st-text)]">
+          <Sparkles className="h-3 w-3" aria-hidden="true" /> AI Body Generator
+        </CardTitle>
+      </CardHeader>
+      <CardBody className="space-y-2">
+        <Field label="Describe your message">
+          <Input
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Describe your message (e.g., 'order confirmation with tracking')"
+          />
+        </Field>
+        <div className="flex gap-2">
+          <Button variant="primary" size="sm" onClick={generate}>
+            Generate
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </CardBody>
+    </Card>
   );
 }

@@ -42,13 +42,13 @@ export function FindIdsCard() {
       <CardBody className="space-y-4">
         <div>
           <h3 className="font-semibold">WhatsApp Business Account (WABA) ID</h3>
-          <p className="text-sm mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <p className="text-sm mt-1 text-[var(--st-text-secondary)]">
             Navigate to your Meta App's dashboard. Under the WhatsApp product, go to <strong>API Setup</strong>. Your WABA ID will be listed there.
           </p>
         </div>
         <div>
           <h3 className="font-semibold">App ID</h3>
-          <p className="text-sm mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <p className="text-sm mt-1 text-[var(--st-text-secondary)]">
             Your App ID is visible at the top of your Meta App's dashboard at all times.
           </p>
         </div>
@@ -97,7 +97,7 @@ export function ConnectToSabNodeCard() {
       <CardBody>
         <p className="text-sm">
           Go back to the{' '}
-          <Link href="/wachat/setup" className="hover:underline" style={{ color: 'var(--st-text)' }}>
+          <Link href="/wachat/setup" className="hover:underline text-[var(--st-text)]">
             Setup Page
           </Link>
           , open the "Manual Setup" dialog, and paste your{' '}

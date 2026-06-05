@@ -6,6 +6,10 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  StatCard,
   EmptyState,
   Input,
   useToast,
@@ -147,6 +151,13 @@ const yAxisFormatter = (val: number) => {
   return '';
 };
 
+const STATUS_CHIP_CLS: Record<HealthColor, string> = {
+  green: 'bg-[var(--st-status-ok)] text-[var(--st-text-inverted)]',
+  amber: 'bg-[var(--st-warn)] text-[var(--st-text-inverted)]',
+  red: 'bg-[var(--st-danger)] text-[var(--st-text-inverted)]',
+  muted: 'bg-[var(--st-bg-muted)] text-[var(--st-text-secondary)]',
+};
+
 /** Icon chip — coloured circle housing a status glyph. */
 function StatusChip({
   color,
@@ -157,20 +168,14 @@ function StatusChip({
   size?: 'sm' | 'md';
   children: React.ReactNode;
 }) {
-  const bg =
-    color === 'green'
-      ? 'var(--st-status-ok)'
-      : color === 'amber'
-        ? 'var(--st-warn)'
-        : color === 'red'
-          ? 'var(--st-danger)'
-          : 'var(--st-bg-muted)';
-  const fg = color === 'muted' ? 'var(--st-text-secondary)' : 'var(--st-text-inverted)';
   const dim = size === 'sm' ? 'h-8 w-8' : 'h-12 w-12';
   return (
     <div
-      className={cx('flex shrink-0 items-center justify-center rounded-[var(--st-radius-lg)]', dim)}
-      style={{ background: bg, color: fg }}
+      className={cx(
+        'flex shrink-0 items-center justify-center rounded-[var(--st-radius-lg)]',
+        dim,
+        STATUS_CHIP_CLS[color],
+      )}
     >
       {children}
     </div>
@@ -288,7 +293,7 @@ export default function HealthPage() {
         {wabaHealth && (
           <Card padding="none" className="overflow-hidden">
             {/* Card header row */}
-            <div className="flex items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-5">
+            <CardHeader className="flex items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-5">
               <StatusChip color={overallColor} size="md">
                 {overallColor === 'green' ? (
                   <CircleCheck className="h-6 w-6" aria-hidden="true" />
@@ -302,10 +307,10 @@ export default function HealthPage() {
               </StatusChip>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2.5">
-                  <h2 className="text-[16px] text-[var(--st-text)]">Messaging status</h2>
+                  <CardTitle className="text-[16px]">Messaging status</CardTitle>
                   <StatusPill status={overallStatus} />
                 </div>
-                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
+                <CardDescription className="mt-0.5 text-xs">
                   {overallColor === 'green'
                     ? 'Your account is healthy. You can send business-initiated and user-initiated messages.'
                     : overallColor === 'amber'
@@ -313,9 +318,9 @@ export default function HealthPage() {
                       : overallStatus
                         ? 'Your account has issues that are blocking messaging. Review the details below.'
                         : 'Unable to determine messaging status.'}
-                </p>
+                </CardDescription>
               </div>
-            </div>
+            </CardHeader>
 
             {entities.length > 0 && (
               <div className="flex flex-col text-[var(--st-text)]">
@@ -427,22 +432,15 @@ export default function HealthPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
-                      <p className="mb-0.5 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-                        Messaging tier
-                      </p>
-                      <p className="text-sm text-[var(--st-text)]">
-                        {phone.messagingLimitTier || 'Unknown'}
-                      </p>
-                    </div>
-                    <div className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
-                      <p className="mb-0.5 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
-                        Name status
-                      </p>
-                      <p className="text-sm capitalize text-[var(--st-text)]">
-                        {(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}
-                      </p>
-                    </div>
+                    <StatCard
+                      label="Messaging tier"
+                      value={phone.messagingLimitTier || 'Unknown'}
+                    />
+                    <StatCard
+                      label="Name status"
+                      value={(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}
+                      className="capitalize"
+                    />
                   </div>
 
                   <Separator className="my-4" />
@@ -463,7 +461,7 @@ export default function HealthPage() {
 
                   <ChartContainer
                     config={QUALITY_CHART_CONFIG}
-                    style={{ height: 140, aspectRatio: 'auto' }}
+                    className="h-[140px] aspect-auto"
                   >
                     <LineChart data={MOCK_QUALITY_HISTORY} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />

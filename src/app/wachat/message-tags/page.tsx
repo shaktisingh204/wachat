@@ -201,11 +201,8 @@ export default function MessageTagsPage() {
         width: 44,
         render: (row) => (
           <span
-            className="block h-4 w-4 rounded-full"
-            style={{
-              backgroundColor: row.color,
-              border: '1px solid var(--st-border)',
-            }}
+            className="block h-4 w-4 rounded-full border border-[var(--st-border)]"
+            style={{ backgroundColor: row.color }}
             aria-label={`Tag color ${row.color}`}
           />
         ),
@@ -215,7 +212,7 @@ export default function MessageTagsPage() {
         header: 'Name',
         sortable: true,
         render: (row) => (
-          <span style={{ color: 'var(--st-text)' }}>{row.name}</span>
+          <span className="text-[var(--st-text)]">{row.name}</span>
         ),
       },
       {
@@ -224,10 +221,7 @@ export default function MessageTagsPage() {
         sortable: true,
         sortValue: (row) => row.usageCount ?? 0,
         render: (row) => (
-          <span
-            className="tabular-nums"
-            style={{ color: 'var(--st-text-secondary)' }}
-          >
+          <span className="tabular-nums text-[var(--st-text-secondary)]">
             {row.usageCount ?? 0}
           </span>
         ),

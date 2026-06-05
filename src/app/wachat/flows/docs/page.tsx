@@ -137,7 +137,7 @@ export default function FlowsUserGuidePage() {
 
         <div>
           <h2 className="text-2xl">Common patterns &amp; use cases</h2>
-          <p className="mt-1 text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             Here are some ideas for flows you can build, and how to structure them.
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function FlowsUserGuidePage() {
             <Blocks className="h-6 w-6" aria-hidden="true" />
             Available flow components
           </h2>
-          <p className="mt-1 text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+          <p className="mt-1 text-sm text-[var(--st-text-secondary)]">
             These are the official building blocks available in the Meta Flows API. Combine them to build rich user experiences.
           </p>
         </div>
@@ -183,7 +183,7 @@ export default function FlowsUserGuidePage() {
                     <Badge tone="neutral" kind="soft" className="font-mono w-fit">
                       {item.name}
                     </Badge>
-                    <span className="text-sm mt-1" style={{ color: 'var(--st-text-secondary)' }}>{item.description}</span>
+                    <span className="text-sm mt-1 text-[var(--st-text-secondary)]">{item.description}</span>
                   </div>
                 ))}
               </CardBody>

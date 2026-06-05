@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Card, CardBody, Input } from '@/components/sabcrm/20ui';
 
 export function VariableExamples({
   text,
@@ -27,66 +28,34 @@ export function VariableExamples({
   };
 
   return (
-    <div
-      className="space-y-2 p-3"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg-secondary)',
-      }}
-    >
-      <p
-        className="text-[11px]"
-        style={{
-          fontWeight: 'var(--st-fw-semibold)',
-          color: 'var(--st-text)',
-        }}
-      >
-        Variable examples required
-      </p>
-      <div className="space-y-1.5">
-        {vars.map((v) => {
-          const fieldId = `${prefix}_example_${v}`;
-          return (
-            <div key={v} className="flex items-center gap-2">
-              <label
-                htmlFor={fieldId}
-                className="w-12 text-[11px]"
-                style={{
-                  fontFamily: 'var(--st-font-mono)',
-                  color: 'var(--st-text-tertiary)',
-                }}
-              >
-                {`{{${v}}}`}
-              </label>
-              <input
-                id={fieldId}
-                name={fieldId}
-                placeholder={
-                  suggestions[v] || `Example for variable ${v}`
-                }
-                required
-                className="h-8 flex-1 px-2.5 text-[12px] outline-none"
-                style={{
-                  borderRadius: 'var(--st-radius-sm)',
-                  border: '1px solid var(--st-border)',
-                  background: 'var(--st-bg)',
-                  color: 'var(--st-text)',
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--st-accent)';
-                  e.currentTarget.style.boxShadow =
-                    '0 0 0 3px var(--st-accent-soft)';
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--st-border)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              />
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <Card variant="outlined" padding="sm">
+      <CardBody>
+        <p className="text-[11px] font-semibold text-[var(--st-text)] mb-2">
+          Variable examples required
+        </p>
+        <div className="space-y-1.5">
+          {vars.map((v) => {
+            const fieldId = `${prefix}_example_${v}`;
+            return (
+              <div key={v} className="flex items-center gap-2">
+                <label
+                  htmlFor={fieldId}
+                  className="w-12 text-[11px] font-mono text-[var(--st-text-tertiary)]"
+                >
+                  {`{{${v}}}`}
+                </label>
+                <Input
+                  id={fieldId}
+                  name={fieldId}
+                  placeholder={suggestions[v] || `Example for variable ${v}`}
+                  required
+                  className="h-8 flex-1 text-[12px]"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </CardBody>
+    </Card>
   );
 }

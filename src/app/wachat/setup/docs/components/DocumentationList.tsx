@@ -99,40 +99,39 @@ export function DocumentationList() {
 
   return (
     <div className="space-y-6">
-      <div
-        className="flex flex-col sm:flex-row gap-4 justify-between items-center p-4 rounded-lg"
-        style={{ background: 'var(--st-bg-secondary)' }}
-      >
-        <div className="w-full sm:max-w-xs">
-          <Input
-            iconLeft={Search}
-            placeholder="Search documentation..."
-            aria-label="Search documentation"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <div className="w-full sm:w-[150px]">
-            <Select
-              value={categoryFilter}
-              onChange={(val) => setCategoryFilter(val ?? 'all')}
-              options={CATEGORY_OPTIONS}
-              placeholder="Category"
-              aria-label="Filter by category"
+      <Card variant="outlined" padding="md">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+          <div className="w-full sm:max-w-xs">
+            <Input
+              iconLeft={Search}
+              placeholder="Search documentation..."
+              aria-label="Search documentation"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="w-full sm:w-[150px]">
-            <Select
-              value={sortOption}
-              onChange={(val) => setSortOption((val ?? 'date-desc') as SortOption)}
-              options={SORT_OPTIONS}
-              placeholder="Sort By"
-              aria-label="Sort articles"
-            />
+          <div className="flex gap-2 w-full sm:w-auto">
+            <div className="w-full sm:w-[150px]">
+              <Select
+                value={categoryFilter}
+                onChange={(val) => setCategoryFilter(val ?? 'all')}
+                options={CATEGORY_OPTIONS}
+                placeholder="Category"
+                aria-label="Filter by category"
+              />
+            </div>
+            <div className="w-full sm:w-[150px]">
+              <Select
+                value={sortOption}
+                onChange={(val) => setSortOption((val ?? 'date-desc') as SortOption)}
+                options={SORT_OPTIONS}
+                placeholder="Sort By"
+                aria-label="Sort articles"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       {error && (
         <Alert
@@ -196,8 +195,7 @@ function ArticleCard({ article }: { article: DocArticle }) {
             {article.category.replace('-', ' ')}
           </Badge>
           <span
-            className="text-xs whitespace-nowrap"
-            style={{ color: 'var(--st-text-secondary)' }}
+            className="text-xs whitespace-nowrap text-[var(--st-text-secondary)]"
           >
             {formattedDate || '...'}
           </span>
@@ -206,8 +204,7 @@ function ArticleCard({ article }: { article: DocArticle }) {
       </CardHeader>
       <CardBody className="flex-1">
         <p
-          className="text-sm line-clamp-3"
-          style={{ color: 'var(--st-text-secondary)' }}
+          className="text-sm line-clamp-3 text-[var(--st-text-secondary)]"
         >
           {article.content}
         </p>

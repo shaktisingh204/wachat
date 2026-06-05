@@ -57,12 +57,7 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
     <Card padding="none" className="flex flex-col p-5">
       <div className="flex items-center gap-3">
         <span
-          className="flex h-10 w-10 items-center justify-center"
-          style={{
-            borderRadius: 'var(--st-radius)',
-            background: 'var(--st-bg-secondary)',
-            color: 'var(--st-text)',
-          }}
+          className="flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[color:var(--st-text)]"
           aria-hidden="true"
         >
           <ShoppingBag className="h-[18px] w-[18px]" />
@@ -199,12 +194,7 @@ export default function CatalogPage() {
           <CardBody>
             <div className="flex flex-col items-center gap-4 py-4 text-center">
               <span
-                className="flex h-16 w-16 items-center justify-center"
-                style={{
-                  borderRadius: 'var(--st-radius-lg)',
-                  background: 'color-mix(in oklab, var(--st-danger) 10%, transparent)',
-                  color: 'var(--st-danger)',
-                }}
+                className="flex h-16 w-16 items-center justify-center rounded-[var(--st-radius-lg)] bg-[color-mix(in_oklab,var(--st-danger)_10%,transparent)] text-[color:var(--st-danger)]"
                 aria-hidden="true"
               >
                 <Lock className="h-7 w-7" />
@@ -251,12 +241,7 @@ export default function CatalogPage() {
           <CardBody>
             <div className="flex items-center gap-2.5">
               <span
-                className="flex h-8 w-8 items-center justify-center"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  background: 'var(--st-bg-secondary)',
-                  color: 'var(--st-text)',
-                }}
+                className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[color:var(--st-text)]"
                 aria-hidden="true"
               >
                 <GitBranch className="h-4 w-4" />

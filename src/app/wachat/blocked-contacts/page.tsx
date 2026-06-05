@@ -203,20 +203,17 @@ export default function BlockedContactsPage() {
               {contacts.map((c) => (
                 <Tr key={c._id}>
                   <Td>
-                    <span
-                      className="font-mono text-[13px]"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <span className="font-mono text-[13px] text-[var(--st-text)]">
                       {c.phone}
                     </span>
                   </Td>
                   <Td>
-                    <span className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+                    <span className="text-[13px] text-[var(--st-text-secondary)]">
                       {c.reason || '—'}
                     </span>
                   </Td>
                   <Td>
-                    <span className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+                    <span className="text-[13px] text-[var(--st-text-secondary)]">
                       {c.blockedAt ? fmtDate(c.blockedAt) : '—'}
                     </span>
                   </Td>

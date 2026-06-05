@@ -106,10 +106,7 @@ export default function WebhookLogsPage() {
         render: (row) => {
           const t = row.receivedAt;
           return (
-            <span
-              className="font-mono text-[12.5px] tabular-nums"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
+            <span className="font-mono text-[12.5px] tabular-nums text-[var(--st-text-secondary)]">
               {t ? fmtDate(t) : '--'}
             </span>
           );
@@ -121,7 +118,7 @@ export default function WebhookLogsPage() {
         sortable: true,
         sortValue: (row) => row.event || row.type || 'webhook',
         render: (row) => (
-          <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+          <span className="text-[13px] text-[var(--st-text)]">
             {row.event || row.type || 'webhook'}
           </span>
         ),
@@ -248,15 +245,7 @@ export default function WebhookLogsPage() {
             </DrawerDescription>
           </DrawerHeader>
           <div className="mt-4 flex-1 overflow-auto">
-            <pre
-              className="p-4 font-mono text-[12px]"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-            >
+            <pre className="p-4 font-mono text-[12px] rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               {JSON.stringify(previewPayload, null, 2)}
             </pre>
           </div>

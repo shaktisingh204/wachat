@@ -98,7 +98,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="u-tooltip-chart p-3">
-        <p className="mb-2 text-sm font-medium" style={{ color: 'var(--st-text)' }}>{label}</p>
+        <p className="mb-2 text-sm font-medium text-[var(--st-text)]">{label}</p>
         <div className="flex flex-col gap-1.5">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 text-xs">
@@ -107,8 +107,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
-              <span style={{ color: 'var(--st-text-secondary)' }}>{entry.name}:</span>
-              <span className="font-medium" style={{ color: 'var(--st-text)' }}>{entry.value}</span>
+              <span className="text-[var(--st-text-secondary)]">{entry.name}:</span>
+              <span className="font-medium text-[var(--st-text)]">{entry.value}</span>
             </div>
           ))}
         </div>
