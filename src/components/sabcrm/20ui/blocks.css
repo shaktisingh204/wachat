@@ -1,0 +1,410 @@
+/* 20ui · Content blocks — FeatureCard / FeatureGrid / Testimonials / JobListing */
+
+/* ============================================================ FeatureCard === */
+
+:is(.ui20, .sabcrm-twenty) .u-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding: var(--st-space-5);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-card--default {
+  border: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-card--soft {
+  background: var(--st-bg-secondary);
+  border: 1px solid transparent;
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-card--outline {
+  border: 1px solid var(--st-border-strong);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-feature-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  flex-shrink: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-card__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-card__desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.55;
+  color: var(--st-text-secondary);
+}
+
+/* ============================================================ FeatureGrid === */
+
+:is(.ui20, .sabcrm-twenty) .u-feature-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-6);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-grid__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  max-width: 42rem;
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-grid__heading {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-grid__subhead {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  line-height: 1.55;
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-feature-grid__items {
+  display: grid;
+  gap: var(--st-space-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  :is(.ui20, .sabcrm-twenty) .u-feature-grid__items--2,
+  :is(.ui20, .sabcrm-twenty) .u-feature-grid__items--3,
+  :is(.ui20, .sabcrm-twenty) .u-feature-grid__items--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  :is(.ui20, .sabcrm-twenty) .u-feature-grid__items--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-feature-grid__items--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ========================================================= TestimonialCard === */
+
+:is(.ui20, .sabcrm-twenty) .u-testimonial {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  margin: 0;
+  padding: var(--st-space-5);
+  border-radius: var(--st-radius-lg);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  box-shadow: var(--u-elev-1);
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__mark {
+  color: var(--st-accent);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__quote {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  line-height: 1.55;
+  color: var(--st-text);
+  /* Clamp the quote to 3 lines so cards stay even in a wall. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__name {
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-testimonial__role {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+/* ===================================================== TestimonialsColumns === */
+
+:is(.ui20, .sabcrm-twenty) .u-tcolumns {
+  display: grid;
+  gap: var(--st-space-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--2,
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--3,
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1024px) {
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Marquee mode: a fixed-height masked viewport with auto-scrolling columns. */
+:is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee {
+  position: relative;
+  overflow: hidden;
+  align-items: start;
+}
+:is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee .u-tcolumns__col {
+  overflow: hidden;
+  height: 100%;
+}
+:is(.ui20, .sabcrm-twenty) .u-tcolumns__track {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+}
+/* Animate only the duplicated marquee track. translateY only (transform), no
+   paint of layout properties; the clone makes -50% a seamless wrap point. */
+:is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee .u-tcolumns__track {
+  padding-bottom: var(--st-space-4);
+  will-change: transform;
+  animation-duration: var(--u-marquee-dur, 32s);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-tcolumns--marquee
+  .u-tcolumns__col--down
+  .u-tcolumns__track {
+  animation-name: u-marquee-down;
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-tcolumns--marquee
+  .u-tcolumns__col--up
+  .u-tcolumns__track {
+  animation-name: u-marquee-up;
+}
+/* Pause the whole wall on hover so a reader can dwell on a quote. */
+:is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee:hover .u-tcolumns__track {
+  animation-play-state: paused;
+}
+
+@keyframes u-marquee-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes u-marquee-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Soft top / bottom fades so cards dissolve into the page edges. */
+:is(.ui20, .sabcrm-twenty) .u-tcolumns__fade {
+  position: absolute;
+  inset-inline: 0;
+  height: 72px;
+  pointer-events: none;
+  z-index: 1;
+}
+:is(.ui20, .sabcrm-twenty) .u-tcolumns__fade--top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--st-bg), transparent);
+}
+:is(.ui20, .sabcrm-twenty) .u-tcolumns__fade--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--st-bg), transparent);
+}
+
+/* ============================================================== JobListing === */
+
+:is(.ui20, .sabcrm-twenty) .u-job {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--st-space-4);
+  padding: var(--st-space-5);
+  border-radius: var(--st-radius-lg);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg);
+  color: var(--st-text);
+  transition:
+    border-color var(--u-dur) var(--u-ease-out),
+    box-shadow var(--u-dur) var(--u-ease-out),
+    transform var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-job:hover {
+  border-color: var(--st-border-strong);
+  box-shadow: var(--u-elev-2);
+  transform: translateY(-1px);
+}
+:is(.ui20, .sabcrm-twenty) .u-job:focus-within {
+  border-color: var(--st-border-strong);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+  min-width: 0;
+  flex: 1 1 16rem;
+}
+:is(.ui20, .sabcrm-twenty) .u-job__dept {
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__title {
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.55;
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-2) var(--st-space-4);
+  margin-top: var(--st-space-1);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__metaitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__metaitem svg {
+  color: var(--st-text-tertiary);
+  flex-shrink: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-job__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-2);
+  margin: var(--st-space-1) 0 0;
+  padding: 0;
+  list-style: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-job__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--st-radius-pill);
+  border: 1px solid var(--st-border);
+  background: var(--st-bg-secondary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__cta {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Anchor-styled apply CTA (matches the primary button shape). */
+:is(.ui20, .sabcrm-twenty) .u-job__apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--st-radius);
+  background: var(--st-accent);
+  color: #fff;
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__apply:hover {
+  background: var(--st-accent-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__apply:active {
+  transform: scale(0.97);
+}
+:is(.ui20, .sabcrm-twenty) .u-job__apply:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ================================================================ Reduced === */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee {
+    height: auto !important;
+    overflow: visible;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee .u-tcolumns__col {
+    height: auto;
+    overflow: visible;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns--marquee .u-tcolumns__track {
+    animation: none;
+    transform: none;
+    will-change: auto;
+    padding-bottom: 0;
+  }
+  /* Hide the duplicated clone so the static wall shows each quote once. */
+  :is(.ui20, .sabcrm-twenty)
+    .u-tcolumns--marquee
+    .u-tcolumns__track
+    .u-tcolumns__card[aria-hidden='true'] {
+    display: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-tcolumns__fade {
+    display: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-job {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-job:hover {
+    transform: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-job__apply {
+    transition: background var(--u-dur-fast) var(--u-ease-out);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-job__apply:active {
+    transform: none;
+  }
+}

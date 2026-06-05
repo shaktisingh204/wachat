@@ -1,0 +1,246 @@
+/* 20ui · ActionSearchBar — inline search that ranks + runs actions */
+
+:is(.ui20, .sabcrm-twenty) .u-asb {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  font-family: var(--st-font);
+}
+
+/* ----- Field ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__field {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--st-space-2) 0 var(--st-space-3);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  /* Border + shadow only — no movement on a constantly-seen control (Emil). */
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__field:hover {
+  border-color: var(--st-border-strong);
+}
+/* Field shows the focus state when its inner input is focused. */
+:is(.ui20, .sabcrm-twenty) .u-asb__field:has(.u-asb__input:focus-visible),
+:is(.ui20, .sabcrm-twenty) .u-asb__field[data-active] {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__lead {
+  flex: 0 0 auto;
+  color: var(--st-text-tertiary);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  line-height: 1.4;
+  outline: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__input::placeholder {
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Clear button (icon-only) ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__clear {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__clear:hover {
+  background: var(--st-hover);
+  color: var(--st-text-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__clear:active {
+  transform: scale(0.92);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__clear:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Trailing hint (e.g. a "/" key) ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__hint {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-font-size-xs);
+  line-height: 1;
+}
+
+/* ----- Panel ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__panel {
+  position: absolute;
+  top: calc(100% + var(--st-space-2));
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  box-shadow: var(--u-elev-3);
+  /* Grow out of the field's top edge. */
+  transform-origin: top center;
+  animation: u-asb-in var(--u-dur) var(--u-ease-out);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* ----- Group heading ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__heading {
+  padding: var(--st-space-2) var(--st-space-2) var(--st-space-1);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+/* The very first heading needs no extra lead-in space. */
+:is(.ui20, .sabcrm-twenty) .u-asb__heading:first-child {
+  padding-top: var(--st-space-1);
+}
+
+/* ----- Option row ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__option {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 32px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  cursor: pointer;
+  user-select: none;
+  /* Colour only — the active row is keyboard-driven and constantly visible. */
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__option[data-active] {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__option:active {
+  background: var(--st-active);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__option-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__option-icon :where(svg) {
+  width: 16px;
+  height: 16px;
+}
+:is(.ui20, .sabcrm-twenty) .u-asb__option[data-active] .u-asb__option-icon {
+  color: var(--st-text-secondary);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-asb__option-shortcut {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: var(--st-space-3);
+  color: var(--st-text-tertiary);
+  font-family: var(--st-font-mono);
+  font-size: var(--st-font-size-xs);
+  letter-spacing: 0.04em;
+}
+
+/* ----- Empty state ----- */
+:is(.ui20, .sabcrm-twenty) .u-asb__empty {
+  margin: 0;
+  padding: var(--st-space-3) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  text-align: center;
+}
+
+/* ----- Entrance (Emil: transform + opacity only, < 250ms, eased) ----- */
+@keyframes u-asb-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-asb__panel {
+    /* Fade only — no movement or scale. */
+    animation: u-asb-fade var(--u-dur-fast) ease;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-asb__clear,
+  :is(.ui20, .sabcrm-twenty) .u-asb__field {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-asb__clear:active {
+    transform: none;
+  }
+  @keyframes u-asb-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

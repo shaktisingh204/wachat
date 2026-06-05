@@ -1,0 +1,90 @@
+/* 20ui · PageHeader family — page chrome */
+
+:is(.ui20, .sabcrm-twenty) .u-pagehead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  padding-bottom: var(--st-space-5);
+}
+
+/* Bottom hairline separating the header from page content. */
+:is(.ui20, .sabcrm-twenty) .u-pagehead--bordered {
+  border-bottom: 1px solid var(--st-border);
+}
+
+/* Denser rhythm for nested / secondary headers. */
+:is(.ui20, .sabcrm-twenty) .u-pagehead--compact {
+  gap: var(--st-space-2);
+  padding-bottom: var(--st-space-4);
+}
+
+/* Stack on phones, become a baseline-aligned row from ~640px up. */
+@media (min-width: 640px) {
+  :is(.ui20, .sabcrm-twenty) .u-pagehead {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--st-space-5);
+  }
+}
+
+/* ----- Left column: eyebrow + title + description ----- */
+:is(.ui20, .sabcrm-twenty) .u-pagehead__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  min-width: 0; /* let long titles truncate/wrap instead of overflowing the row */
+}
+
+:is(.ui20, .sabcrm-twenty) .u-pagehead__eyebrow {
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--st-text-tertiary);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-pagehead__title {
+  margin: 0;
+  font-size: var(--st-font-size-xl);
+  font-weight: var(--st-fw-semibold);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--st-text);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-pagehead__desc {
+  margin: 2px 0 0;
+  max-width: 60ch;
+  font-size: var(--st-font-size-sm);
+  line-height: 1.5;
+  color: var(--st-text-secondary);
+}
+
+/* ----- Right column: actions ----- */
+:is(.ui20, .sabcrm-twenty) .u-pagehead__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-2);
+}
+
+/* On the row layout, keep actions from being squeezed and align them right. */
+@media (min-width: 640px) {
+  :is(.ui20, .sabcrm-twenty) .u-pagehead__actions {
+    flex-shrink: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Nothing here animates per-frame; this block is kept for system consistency
+   so any motion introduced by composed children is disabled too. */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-pagehead,
+  :is(.ui20, .sabcrm-twenty) .u-pagehead * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

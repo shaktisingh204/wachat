@@ -1,0 +1,252 @@
+/* 20ui · NotificationPopover — bell trigger + feed panel
+   Tokens only (--st-* / --u-*). Emil motion: transform/opacity, <250ms, eased,
+   scale-on-press; a reduced-motion block disables movement. The panel entrance
+   is owned by popover.css; this file only styles the surfaces inside it. */
+
+/* ----- Trigger: icon-only bell with a count badge ----- */
+:is(.ui20, .sabcrm-twenty) .u-notif__trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__trigger:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__trigger:active {
+  transform: scale(0.94);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__trigger[data-state='open'] {
+  background: var(--st-active);
+  color: var(--st-text);
+}
+
+/* The unread badge — a small accent pill notched into the top-right corner,
+   ringed in the page background so it reads as a separate layer. */
+:is(.ui20, .sabcrm-twenty) .u-notif__count {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: var(--st-fw-semibold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--st-bg);
+}
+
+/* ----- Panel: override the popover's default padding/width ----- */
+:is(.ui20, .sabcrm-twenty) .u-notif.u-popover {
+  width: 360px;
+  max-width: calc(100vw - var(--st-space-4));
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ----- Header ----- */
+:is(.ui20, .sabcrm-twenty) .u-notif__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding: var(--st-space-3) var(--st-space-3) var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__title {
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__sub {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__markall {
+  flex-shrink: 0;
+}
+
+/* ----- List ----- */
+:is(.ui20, .sabcrm-twenty) .u-notif__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__row + .u-notif__row .u-notif__item {
+  border-top: 1px solid var(--st-border-light);
+}
+
+/* Each row is a full-width pressable. */
+:is(.ui20, .sabcrm-twenty) .u-notif__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--st-space-3);
+  width: 100%;
+  padding: var(--st-space-3) var(--st-space-4);
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: background-color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item:focus-visible {
+  outline: none;
+  background: var(--st-hover);
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item.is-unread {
+  background: var(--st-accent-soft);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item.is-unread:hover {
+  background: var(--st-active);
+}
+
+/* Leading column: unread dot or a caller-supplied glyph. */
+:is(.ui20, .sabcrm-twenty) .u-notif__lead {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  margin-top: 3px;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__dot.is-read {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--st-border-strong);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__icon :where(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+/* Content column: title + time on one row, body below. */
+:is(.ui20, .sabcrm-twenty) .u-notif__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__row-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item-title {
+  min-width: 0;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.45;
+  color: var(--st-text);
+  /* Keep the headline to two lines so rows stay scannable. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__item.is-unread .u-notif__item-title {
+  font-weight: var(--st-fw-semibold);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__time {
+  flex-shrink: 0;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__body {
+  font-size: var(--st-font-size-sm);
+  line-height: 1.45;
+  color: var(--st-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ----- Empty state ----- */
+:is(.ui20, .sabcrm-twenty) .u-notif__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--st-space-3);
+  padding: var(--st-space-6) var(--st-space-4);
+  text-align: center;
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-bg-muted);
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-notif__empty-text {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ----- Reduced motion (emil-design-eng): no movement, only colour ----- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-notif__trigger {
+    transition: background-color var(--u-dur-fast) ease, color var(--u-dur-fast) ease;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-notif__trigger:active {
+    transform: none;
+  }
+}

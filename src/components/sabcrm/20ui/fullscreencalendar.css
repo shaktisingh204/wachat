@@ -1,0 +1,275 @@
+/* 20ui · FullscreenCalendar
+   A full-page month grid with events. Every selector is scoped under
+   :is(.ui20, .sabcrm-twenty) so it works app-wide and inside the CRM. Motion is
+   transform/opacity only with the shared --u-ease-out; one accent, one radius
+   system, AA-contrast text. A prefers-reduced-motion block disables movement. */
+
+:is(.ui20, .sabcrm-twenty) .u-fc {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+:is(.ui20, .sabcrm-twenty) .u-fc__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-3);
+  padding: var(--st-space-3) var(--st-space-4);
+  border-bottom: 1px solid var(--st-border);
+  flex: 0 0 auto;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  line-height: 1.2;
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__subtitle {
+  margin: 0;
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-fc__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-3);
+  flex: 0 0 auto;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__view-label {
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+/* ── Grid container ─────────────────────────────────────────────────────── */
+:is(.ui20, .sabcrm-twenty) .u-fc__grid {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* Weekday header row. */
+:is(.ui20, .sabcrm-twenty) .u-fc__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--st-border);
+  flex: 0 0 auto;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__weekday {
+  padding: var(--st-space-2) var(--st-space-3);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--st-text-tertiary);
+  text-align: left;
+}
+
+/* Weeks fill the remaining height; each week is an equal-height row. */
+:is(.ui20, .sabcrm-twenty) .u-fc__weeks {
+  display: grid;
+  grid-auto-rows: minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  min-height: 96px;
+}
+
+/* ── Day cell ───────────────────────────────────────────────────────────── */
+:is(.ui20, .sabcrm-twenty) .u-fc__cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--st-space-1);
+  gap: var(--st-space-1);
+  border-bottom: 1px solid var(--st-border-light);
+  border-right: 1px solid var(--st-border-light);
+}
+/* Remove the trailing right border on the last column of every row. */
+:is(.ui20, .sabcrm-twenty) .u-fc__cell:nth-child(7n) {
+  border-right: none;
+}
+/* Remove the bottom border on the final week. */
+:is(.ui20, .sabcrm-twenty) .u-fc__week:last-child .u-fc__cell {
+  border-bottom: none;
+}
+
+/* The date-number button fills the top of the cell and is the day affordance. */
+:is(.ui20, .sabcrm-twenty) .u-fc__day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: stretch;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--st-radius-sm);
+  outline: none;
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day:focus-visible {
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Date numeral — a small chip; today gets the accent fill. */
+:is(.ui20, .sabcrm-twenty) .u-fc__date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  margin: 2px;
+  padding: 0 6px;
+  border-radius: var(--st-radius-pill);
+  font-size: var(--st-font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--st-text);
+  transition: transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day:active .u-fc__date {
+  transform: scale(0.92);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day--outside {
+  background: var(--st-bg-secondary);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day--outside .u-fc__date {
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__day--today .u-fc__date {
+  background: var(--st-accent);
+  color: #fff;
+  font-weight: var(--st-fw-semibold);
+}
+
+/* ── Event chips ────────────────────────────────────────────────────────── */
+:is(.ui20, .sabcrm-twenty) .u-fc__events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-height: 0;
+  overflow: hidden;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event-item {
+  min-width: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 2px var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-muted);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event:active {
+  transform: scale(0.98);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event:focus-visible {
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event-dot {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--st-radius-pill);
+  background: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__event-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Overflow "+N more" — a quiet text button that opens the day. */
+:is(.ui20, .sabcrm-twenty) .u-fc__overflow {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  padding: 1px var(--st-space-2);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-medium);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__overflow:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-fc__overflow:focus-visible {
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-fc__day,
+  :is(.ui20, .sabcrm-twenty) .u-fc__date,
+  :is(.ui20, .sabcrm-twenty) .u-fc__event,
+  :is(.ui20, .sabcrm-twenty) .u-fc__overflow {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-fc__day:active .u-fc__date,
+  :is(.ui20, .sabcrm-twenty) .u-fc__event:active {
+    transform: none;
+  }
+}
