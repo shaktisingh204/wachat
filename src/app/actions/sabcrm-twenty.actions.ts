@@ -301,6 +301,81 @@ export async function getSabcrmRecordTw(
   }
 }
 
+/** A minimal display reference for a record (used by the client name resolver). */
+export interface SabcrmRecordRefDto {
+  id: string;
+  label: string;
+  avatarUrl?: string;
+}
+
+/** Slug-based person detection (mirrors the directory resolver). */
+function isPersonSlugTw(slug: string): boolean {
+  return /people|person|contact/i.test(slug) || /member|workspace/i.test(slug);
+}
+
+/** First non-empty trimmed string among candidates. */
+function firstStrTw(...candidates: unknown[]): string {
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim()) return c.trim();
+  }
+  return '';
+}
+
+/**
+ * Resolves a batch of record ids (of ONE object) to minimal display refs
+ * `{ id, label, avatarUrl }` — people as their FULL name. Powers the client
+ * record resolver's ON-DEMAND path, so relation ids render as names regardless
+ * of how many records the workspace holds (no pre-load cap). The relation ids
+ * actually referenced on a page are resolved in one batched call; the server
+ * fans out to the Rust engine in parallel.
+ */
+export async function resolveSabcrmRefsTw(
+  object: string,
+  ids: string[],
+  projectId?: string,
+): Promise<ActionResult<SabcrmRecordRefDto[]>> {
+  if (!object) return { ok: false, error: 'Object is required.' };
+  const unique = [...new Set((ids ?? []).filter(Boolean))].slice(0, 100);
+  if (unique.length === 0) return { ok: true, data: [] };
+
+  const g = await gate('view', projectId);
+  if (!g.ok) return { ok: false, error: g.error };
+
+  const person = isPersonSlugTw(object);
+  const avatarKey = /compan/i.test(object) ? 'logoUrl' : person ? 'avatarUrl' : null;
+
+  try {
+    const results = await Promise.all(
+      unique.map((id) =>
+        sabcrmRecordsApi
+          .get(object, id, g.ctx.projectId)
+          .then((rec): SabcrmRecordRefDto | null => {
+            const data = (rec?.data ?? {}) as Record<string, unknown>;
+            const label = person
+              ? firstStrTw(
+                  [firstStrTw(data.firstName), firstStrTw(data.lastName)]
+                    .filter(Boolean)
+                    .join(' '),
+                  data.name,
+                  data.email,
+                )
+              : firstStrTw(data.name, data.title, data.firstName, data.email);
+            if (!label) return null;
+            const avatarUrl = avatarKey ? firstStrTw(data[avatarKey]) : '';
+            return { id, label, avatarUrl: avatarUrl || undefined };
+          })
+          .catch(() => null),
+      ),
+    );
+    return {
+      ok: true,
+      data: results.filter((r): r is SabcrmRecordRefDto => r !== null),
+    };
+  } catch (e) {
+    return fail(e, 'Failed to resolve records.');
+  }
+}
+
 /**
  * Loads every related record for a single record in one call — across all of
  * the object's RELATION fields (MANY_TO_ONE parents + ONE_TO_MANY children).

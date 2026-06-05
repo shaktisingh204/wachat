@@ -27,6 +27,7 @@ import { TwentyAvatar, TwentyChip } from './twenty-primitives';
 import {
   useResolveActorName,
   useResolveRecordRef,
+  useRequestRecordRefs,
   type ResolveActorName,
   type ResolveRecordRef,
 } from './sabcrm-actors-context';
@@ -569,6 +570,24 @@ export function TwentyFieldValue({
   // Resolve RELATION record ids → { label, avatar } so relation cells show real
   // names (people as full name) instead of raw Mongo ids.
   const resolveRecordRef = useResolveRecordRef();
+  const requestRecordRefs = useRequestRecordRefs();
+
+  // On-demand: ask the resolver to fetch any relation id on this field that would
+  // otherwise render as a raw Mongo id (not in the warm cache + no usable label
+  // on the value itself). The provider batches/dedupes/caches + remembers
+  // attempts, so this resolves any dataset size without ever looping.
+  React.useEffect(() => {
+    if (field.type !== 'RELATION' || !field.relation) return;
+    const target = field.relation.targetObject;
+    const arr = Array.isArray(value) ? value : [value];
+    const missing: string[] = [];
+    for (const v of arr) {
+      const id = relationId(v);
+      if (!id || resolveRecordRef(id)) continue;
+      if (looksLikeId(relationLabel(field, v), id)) missing.push(id);
+    }
+    if (missing.length) requestRecordRefs(target, missing);
+  }, [field, value, resolveRecordRef, requestRecordRefs]);
   // Locale-aware formatters from the workspace Localization settings (date /
   // number / currency). Defaults to en-US outside the settings provider.
   const { fmt } = useSabcrmSettings();
