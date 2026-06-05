@@ -19,8 +19,8 @@ import {
   IconButton,
   Input,
   Modal,
-  Radio,
-  RadioGroup,
+  RadioCard,
+  RadioCardGroup,
   Separator,
   Switch,
   Textarea,
@@ -40,7 +40,7 @@ import {
   Sparkles,
   Terminal,
   Trash2,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
@@ -58,10 +58,6 @@ import {
  *
  * 20ui visual swap. Model picker rendered as a 20ui RadioGroup.
  */
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
 
 const MODEL_OPTIONS = [
   {
@@ -250,44 +246,28 @@ export default function AutomationPage() {
             <CardDescription>
               Pick the engine that powers this project&apos;s automation.
             </CardDescription>
-            <RadioGroup
+            <RadioCardGroup
               value={model}
-              onValueChange={setModel}
-              aria-label="Automation model"
+              onChange={setModel}
+              label="Automation model"
               className="mt-4 grid gap-3 sm:grid-cols-2"
             >
               {MODEL_OPTIONS.map((opt) => (
-                <label
+                <RadioCard
                   key={opt.value}
-                  className="flex cursor-pointer flex-col gap-1.5 p-3"
-                  style={{
-                    border: `1px solid ${model === opt.value ? 'var(--st-accent)' : 'var(--st-border)'}`,
-                    borderRadius: 'var(--st-radius)',
-                    background: model === opt.value ? 'var(--st-accent-soft)' : 'var(--st-bg)',
-                  }}
-                >
-                  <Radio value={opt.value} label={opt.label} />
-                  <span
-                    className="text-[12.5px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    {opt.description}
-                  </span>
-                </label>
+                  value={opt.value}
+                  label={opt.label}
+                  description={opt.description}
+                />
               ))}
-            </RadioGroup>
+            </RadioCardGroup>
           </Card>
 
           {/* Welcome */}
           <Card padding="lg">
             <div className="mb-4 flex items-center gap-3">
               <span
-                className="flex h-9 w-9 items-center justify-center [&_svg]:size-4"
-                style={{
-                  borderRadius: 'var(--st-radius-sm)',
-                  background: 'var(--st-bg-secondary)',
-                  color: 'var(--st-text)',
-                }}
+                className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] [&_svg]:size-4"
               >
                 <MessageCircle aria-hidden="true" />
               </span>
@@ -310,12 +290,7 @@ export default function AutomationPage() {
           <Card padding="lg">
             <div className="mb-4 flex items-center gap-3">
               <span
-                className="flex h-9 w-9 items-center justify-center [&_svg]:size-4"
-                style={{
-                  borderRadius: 'var(--st-radius-sm)',
-                  background: 'var(--st-bg-secondary)',
-                  color: 'var(--st-text)',
-                }}
+                className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] [&_svg]:size-4"
               >
                 <Sparkles aria-hidden="true" />
               </span>
@@ -335,17 +310,9 @@ export default function AutomationPage() {
                 {prompts.map((prompt, i) => (
                   <li
                     key={i}
-                    className="flex items-center gap-2 px-3 py-2"
-                    style={{
-                      border: '1px solid var(--st-border)',
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg)',
-                    }}
+                    className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                   >
-                    <span
-                      className="flex-1 text-sm"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <span className="flex-1 text-sm text-[var(--st-text)]">
                       {prompt}
                     </span>
                     <IconButton
@@ -392,12 +359,7 @@ export default function AutomationPage() {
           <Card padding="lg">
             <div className="mb-4 flex items-center gap-3">
               <span
-                className="flex h-9 w-9 items-center justify-center [&_svg]:size-4"
-                style={{
-                  borderRadius: 'var(--st-radius-sm)',
-                  background: 'var(--st-bg-secondary)',
-                  color: 'var(--st-text)',
-                }}
+                className="flex h-9 w-9 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] text-[var(--st-text)] [&_svg]:size-4"
               >
                 <Terminal aria-hidden="true" />
               </span>
@@ -417,23 +379,12 @@ export default function AutomationPage() {
                 {commands.map((cmd, i) => (
                   <li
                     key={i}
-                    className="flex items-center gap-3 px-3 py-2"
-                    style={{
-                      border: '1px solid var(--st-border)',
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg)',
-                    }}
+                    className="flex items-center gap-3 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-3 py-2"
                   >
-                    <span
-                      className="font-mono text-sm"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <span className="font-mono text-sm text-[var(--st-text)]">
                       /{cmd.command_name}
                     </span>
-                    <span
-                      className="flex-1 truncate text-sm"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="flex-1 truncate text-sm text-[var(--st-text-secondary)]">
                       {cmd.command_description}
                     </span>
                     <IconButton
@@ -490,7 +441,7 @@ export default function AutomationPage() {
           <Separator />
 
           <div className="flex items-center justify-between">
-            <p className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+            <p className="text-[12px] text-[var(--st-text-secondary)]">
               Reset clears all welcome, ice-breaker and command configuration on Meta.
             </p>
             <Button

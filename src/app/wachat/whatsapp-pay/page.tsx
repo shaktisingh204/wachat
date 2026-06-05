@@ -13,6 +13,11 @@ import {
   type BadgeTone,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  StatCard,
   DataTable,
   type DataTableColumn,
   DateRangePicker,
@@ -89,9 +94,9 @@ function statusTone(status?: string): BadgeTone {
   return 'neutral';
 }
 
-/* ── Stat card ────────────────────────────────────────────────── */
+/* ── KPI stat tile ─────────────────────────────────────────────── */
 
-function StatCard({
+function KpiTile({
   label,
   value,
   hint,
@@ -101,41 +106,25 @@ function StatCard({
   label: string;
   value: string;
   hint: string;
-  icon: React.ReactNode;
+  icon: React.ComponentType<{ size?: number }>;
   loading?: boolean;
 }) {
+  if (loading) {
+    return (
+      <Card padding="md" className="flex flex-col gap-2">
+        <Skeleton height={16} width={120} />
+        <Skeleton height={28} width={96} />
+        <Skeleton height={12} width={80} />
+      </Card>
+    );
+  }
   return (
-    <Card className="flex items-start gap-4" padding="md">
-      <span
-        className="flex h-10 w-10 shrink-0 items-center justify-center [&_svg]:size-5"
-        style={{
-          borderRadius: 'var(--st-radius)',
-          background: 'var(--st-bg-secondary)',
-          color: 'var(--st-text)',
-        }}
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-          {label}
-        </p>
-        {loading ? (
-          <Skeleton className="mt-1" height={28} width={96} />
-        ) : (
-          <p
-            className="text-[22px] tabular-nums leading-tight"
-            style={{ color: 'var(--st-text)' }}
-          >
-            {value}
-          </p>
-        )}
-        <p className="mt-0.5 text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
-          {hint}
-        </p>
-      </div>
-    </Card>
+    <StatCard
+      label={label}
+      value={value}
+      icon={icon}
+      delta={{ value: hint, tone: 'neutral' }}
+    />
   );
 }
 
@@ -289,7 +278,7 @@ export default function WhatsAppPayPage() {
         key: 'date',
         header: 'Date',
         render: (row) => (
-          <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+          <span className="text-[12px] [color:var(--st-text-secondary)]">
             {format(new Date(row.date), 'PPp')}
           </span>
         ),
@@ -297,14 +286,14 @@ export default function WhatsAppPayPage() {
       {
         key: 'description',
         header: 'Description',
-        render: (row) => <span style={{ color: 'var(--st-text)' }}>{row.description}</span>,
+        render: (row) => <span className="[color:var(--st-text)]">{row.description}</span>,
       },
       {
         key: 'amount',
         header: 'Amount',
         align: 'right',
         render: (row) => (
-          <div className="text-right tabular-nums" style={{ color: 'var(--st-text)' }}>
+          <div className="text-right tabular-nums [color:var(--st-text)]">
             {fmtINR(row.amount / 100)}
           </div>
         ),
@@ -436,50 +425,49 @@ export default function WhatsAppPayPage() {
 
         {/* Stats */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <StatCard
+          <KpiTile
             label="Total revenue"
             value={fmtINR(stats.totalRevenue)}
             hint="from successful transactions"
-            icon={<IndianRupee />}
+            icon={IndianRupee}
             loading={statsLoading}
           />
-          <StatCard
+          <KpiTile
             label="Successful transactions"
             value={stats.successfulTransactions.toLocaleString()}
             hint="payments completed"
-            icon={<CheckCircle2 />}
+            icon={CheckCircle2}
             loading={statsLoading}
           />
-          <StatCard
+          <KpiTile
             label="Failed or pending"
             value={(
               transactions.length - stats.successfulTransactions
             ).toLocaleString()}
             hint="awaiting or failed"
-            icon={<XCircle />}
+            icon={XCircle}
             loading={statsLoading}
           />
         </div>
 
         {/* Chart */}
-        <Card padding="md">
-          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-            Transactions over time
-          </h3>
-          <p className="mb-4 text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-            Revenue curve across the selected date range.
-          </p>
-          <TransactionChart transactions={transactions} dateRange={dateRange} />
+        <Card padding="none">
+          <CardHeader>
+            <CardTitle>Transactions over time</CardTitle>
+            <CardDescription>Revenue curve across the selected date range.</CardDescription>
+          </CardHeader>
+          <CardBody>
+            <TransactionChart transactions={transactions} dateRange={dateRange} />
+          </CardBody>
         </Card>
 
         {/* Table */}
-        <Card padding="md">
-          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-            Transaction history
-          </h3>
-          <p className="mb-4 text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-            A detailed log of all payments initiated from this platform.
-          </p>
+        <Card padding="none">
+          <CardHeader>
+            <CardTitle>Transaction history</CardTitle>
+            <CardDescription>A detailed log of all payments initiated from this platform.</CardDescription>
+          </CardHeader>
+          <CardBody>
           {statsLoading ? (
             <div className="flex flex-col gap-2">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -519,6 +507,7 @@ export default function WhatsAppPayPage() {
               />
             </div>
           )}
+          </CardBody>
         </Card>
       </div>
 
@@ -534,7 +523,7 @@ export default function WhatsAppPayPage() {
             <AlertDialogTitle>Refund this payment?</AlertDialogTitle>
             <AlertDialogDescription>
               This will request a refund for{' '}
-              <span style={{ color: 'var(--st-text)' }}>
+              <span className="[color:var(--st-text)]">
                 {refundTarget ? fmtINR(refundTarget.amount / 100) : ''}
               </span>
               . Refunds typically settle within 5–10 business days. This action

@@ -264,26 +264,19 @@ export default function CustomerSatisfactionPage() {
                 description="Customer feedback will show up here as it arrives."
               />
             ) : (
-              <ul style={{ borderTop: '1px solid var(--st-border)' }}>
+              <ul className="divide-y divide-[var(--st-border)] border-t border-t-[var(--st-border)]">
                 {ratings.slice(0, 20).map((r: any, i: number) => (
                   <li
                     key={r._id || i}
                     className="flex items-start gap-4 py-3"
-                    style={{ borderBottom: '1px solid var(--st-border)' }}
                   >
                     <Stars count={r.rating} />
                     <div className="min-w-0 flex-1">
-                      <span
-                        className="text-[11px]"
-                        style={{ color: 'var(--st-text-tertiary)' }}
-                      >
+                      <span className="text-[11px] [color:var(--st-text-tertiary)]">
                         {r.createdAt ? fmtDate(r.createdAt) : ''}
                       </span>
                       {r.feedback && (
-                        <p
-                          className="mt-0.5 text-[12.5px] leading-relaxed"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
+                        <p className="mt-0.5 text-[12.5px] leading-relaxed [color:var(--st-text-secondary)]">
                           {r.feedback}
                         </p>
                       )}
@@ -314,29 +307,22 @@ export default function CustomerSatisfactionPage() {
                 size="sm"
               />
             ) : (
-              <ul style={{ borderTop: '1px solid var(--st-border)' }}>
+              <ul className="divide-y divide-[var(--st-border)] border-t border-t-[var(--st-border)]">
                 {lowRatings.map((r: any, i: number) => (
                   <li
                     key={r._id || i}
                     className="flex items-start gap-4 py-3"
-                    style={{ borderBottom: '1px solid var(--st-border)' }}
                   >
                     <Stars count={r.rating} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <Badge tone="danger">{r.rating} stars</Badge>
-                        <span
-                          className="text-[11px]"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        <span className="text-[11px] [color:var(--st-text-tertiary)]">
                           {r.createdAt ? fmtDate(r.createdAt) : ''}
                         </span>
                       </div>
                       {r.feedback && (
-                        <p
-                          className="mt-1 text-[12.5px] leading-relaxed"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
+                        <p className="mt-1 text-[12.5px] leading-relaxed [color:var(--st-text-secondary)]">
                           {r.feedback}
                         </p>
                       )}

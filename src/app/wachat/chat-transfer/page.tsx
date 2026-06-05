@@ -5,6 +5,9 @@ import {
   useToast,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   Field,
   Input,
   Textarea,
@@ -133,66 +136,65 @@ export default function ChatTransferPage() {
       description="Transfer conversations between agents with optional notes."
       width="narrow"
     >
-      <Card padding="lg">
-        <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
-          Transfer a Conversation
-        </h2>
-        <div className="grid max-w-lg gap-3">
-          <Field label="Contact ID">
-            <Input
-              id="contact-id"
-              placeholder="e.g. 6612abc..."
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-            />
-          </Field>
-          <Field label="From Agent">
-            <Select
-              value={fromAgent || null}
-              onChange={(v) => setFromAgent(v ?? '')}
-              options={agentOptions}
-              placeholder="Select agent..."
-              aria-label="From Agent"
-            />
-          </Field>
-          <Field label="To Agent">
-            <Select
-              value={toAgent || null}
-              onChange={(v) => setToAgent(v ?? '')}
-              options={agentOptions}
-              placeholder="Select agent..."
-              aria-label="To Agent"
-            />
-          </Field>
-          <Field label="Note (optional)">
-            <Textarea
-              id="transfer-note"
-              rows={2}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Add context..."
-            />
-          </Field>
-        </div>
-        <div className="mt-4">
-          <Button
-            variant="primary"
-            iconLeft={Send}
-            loading={isSending}
-            onClick={requestTransfer}
-            disabled={
-              isSending || !contactId.trim() || !fromAgent || !toAgent
-            }
-          >
-            {isSending ? 'Transferring...' : 'Transfer Conversation'}
-          </Button>
-        </div>
+      <Card padding="none">
+        <CardHeader>
+          <CardTitle>Transfer a Conversation</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div className="grid max-w-lg gap-3">
+            <Field label="Contact ID">
+              <Input
+                id="contact-id"
+                placeholder="e.g. 6612abc..."
+                value={contactId}
+                onChange={(e) => setContactId(e.target.value)}
+              />
+            </Field>
+            <Field label="From Agent">
+              <Select
+                value={fromAgent || null}
+                onChange={(v) => setFromAgent(v ?? '')}
+                options={agentOptions}
+                placeholder="Select agent..."
+                aria-label="From Agent"
+              />
+            </Field>
+            <Field label="To Agent">
+              <Select
+                value={toAgent || null}
+                onChange={(v) => setToAgent(v ?? '')}
+                options={agentOptions}
+                placeholder="Select agent..."
+                aria-label="To Agent"
+              />
+            </Field>
+            <Field label="Note (optional)">
+              <Textarea
+                id="transfer-note"
+                rows={2}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="Add context..."
+              />
+            </Field>
+          </div>
+          <div className="mt-4">
+            <Button
+              variant="primary"
+              iconLeft={Send}
+              loading={isSending}
+              onClick={requestTransfer}
+              disabled={
+                isSending || !contactId.trim() || !fromAgent || !toAgent
+              }
+            >
+              {isSending ? 'Transferring...' : 'Transfer Conversation'}
+            </Button>
+          </div>
+        </CardBody>
       </Card>
 
-      <h2
-        className="text-[22px] tracking-tight leading-none"
-        style={{ color: 'var(--st-text)' }}
-      >
+      <h2 className="text-[22px] tracking-tight leading-none text-[var(--st-text)]">
         Transfer History
       </h2>
 
@@ -215,26 +217,22 @@ export default function ChatTransferPage() {
             <TBody>
               {history.map((t) => (
                 <Tr key={t._id}>
-                  <Td className="font-mono text-[13px]" style={{ color: 'var(--st-text)' }}>
+                  <Td className="font-mono text-[13px] text-[var(--st-text)]">
                     {t.contactId}
                   </Td>
-                  <Td className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                  <Td className="text-[13px] text-[var(--st-text)]">
                     {t.fromAgentId}
                   </Td>
-                  <Td className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                  <Td className="text-[13px] text-[var(--st-text)]">
                     {t.toAgentId}
                   </Td>
                   <Td
                     truncate
-                    className="max-w-[200px] text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
+                    className="max-w-[200px] text-[12px] text-[var(--st-text-secondary)]"
                   >
                     {t.note || '--'}
                   </Td>
-                  <Td
-                    className="whitespace-nowrap text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <Td className="whitespace-nowrap text-[12px] text-[var(--st-text-secondary)]">
                     {t.transferredAt
                       ? fmtDate(t.transferredAt)
                       : '--'}
@@ -260,12 +258,12 @@ export default function ChatTransferPage() {
         description={
           <>
             You&apos;re about to transfer conversation{' '}
-            <span className="font-mono" style={{ color: 'var(--st-text)' }}>{contactId}</span> from{' '}
-            <span style={{ color: 'var(--st-text)' }}>{fromAgentLabel}</span> to{' '}
-            <span style={{ color: 'var(--st-text)' }}>{toAgentLabel}</span>.
+            <span className="font-mono text-[var(--st-text)]">{contactId}</span> from{' '}
+            <span className="text-[var(--st-text)]">{fromAgentLabel}</span> to{' '}
+            <span className="text-[var(--st-text)]">{toAgentLabel}</span>.
             {note.trim() && (
               <span className="mt-2 block">
-                Note: <span style={{ color: 'var(--st-text)' }}>{note}</span>
+                Note: <span className="text-[var(--st-text)]">{note}</span>
               </span>
             )}
           </>

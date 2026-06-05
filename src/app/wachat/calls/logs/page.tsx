@@ -3,6 +3,7 @@
 import {
   Badge,
   Button,
+  Callout,
   Card,
   EmptyState,
   Input,
@@ -80,11 +81,7 @@ function DirectionPill({ direction }: { direction?: string }) {
   const inbound = isInbound(direction);
   return (
     <span
-      className="inline-flex h-7 w-7 items-center justify-center rounded-full"
-      style={{
-        background: 'var(--st-bg-secondary)',
-        color: 'var(--st-text)',
-      }}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full [background:var(--st-bg-secondary)] [color:var(--st-text)]"
       aria-label={inbound ? 'Inbound' : 'Outbound'}
     >
       {inbound ? (
@@ -396,11 +393,7 @@ export default function CallLogsPage() {
             ) : null}
           </div>
           <div
-            className="mt-3 flex items-center gap-2 border-t pt-3 text-[11.5px]"
-            style={{
-              borderColor: 'var(--st-border)',
-              color: 'var(--st-text-tertiary)',
-            }}
+            className="mt-3 flex items-center gap-2 border-t pt-3 text-[11.5px] [border-color:var(--st-border)] [color:var(--st-text-tertiary)]"
           >
             <span>{filtered.length}</span>
             <span>of</span>
@@ -452,41 +445,26 @@ export default function CallLogsPage() {
                       <Td>
                         <DirectionPill direction={log.direction} />
                       </Td>
-                      <Td
-                        className="font-mono text-[12px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <Td className="font-mono text-[12px] [color:var(--st-text)]">
                         {log.from || '—'}
                       </Td>
-                      <Td
-                        className="font-mono text-[12px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <Td className="font-mono text-[12px] [color:var(--st-text)]">
                         {log.to || '—'}
                       </Td>
-                      <Td
-                        className="tabular-nums"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                      <Td className="tabular-nums [color:var(--st-text)]">
                         {formatDuration(log.duration)}
                       </Td>
                       <Td>
                         <StatusBadge status={log.status} />
                       </Td>
-                      <Td
-                        className="whitespace-nowrap text-[12px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                      <Td className="whitespace-nowrap text-[12px] [color:var(--st-text-secondary)]">
                         {log.createdAt
                           ? formatDistanceToNow(new Date(log.createdAt), {
                               addSuffix: true,
                             })
                           : '—'}
                       </Td>
-                      <Td
-                        className="font-mono text-[11px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                      <Td className="font-mono text-[11px] [color:var(--st-text-secondary)]">
                         {log.callId || '—'}
                       </Td>
                     </Tr>
@@ -542,19 +520,11 @@ export default function CallLogsPage() {
                   {detailLog.callId || '—'}
                 </span>
               </DetailRow>
-              <div
-                className="border border-dashed p-4 text-[12px]"
-                style={{
-                  borderColor: 'var(--st-border)',
-                  background: 'var(--st-bg-secondary)',
-                  color: 'var(--st-text-secondary)',
-                  borderRadius: 'var(--st-radius)',
-                }}
-              >
+              <Callout tone="neutral">
                 Recording and transcript playback are not yet available for this
                 call. They will appear here once Meta exposes them via the
                 Calling API.
-              </div>
+              </Callout>
             </div>
           ) : null}
         </DrawerContent>
@@ -573,14 +543,9 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className="flex items-start justify-between gap-4 border-b pb-3 text-[13px]"
-      style={{ borderColor: 'var(--st-border)' }}
-    >
-      <span style={{ color: 'var(--st-text-secondary)' }}>{label}</span>
-      <span className="text-right" style={{ color: 'var(--st-text)' }}>
-        {children}
-      </span>
+    <div className="flex items-start justify-between gap-4 border-b pb-3 text-[13px] [border-color:var(--st-border)]">
+      <span className="[color:var(--st-text-secondary)]">{label}</span>
+      <span className="text-right [color:var(--st-text)]">{children}</span>
     </div>
   );
 }

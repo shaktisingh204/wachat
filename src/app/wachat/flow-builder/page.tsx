@@ -12,6 +12,7 @@ import {
   EmptyState,
   Field,
   Input,
+  Separator,
   Skeleton,
   useToast,
   Checkbox,
@@ -237,27 +238,17 @@ export default function FlowBuilderListPage() {
               <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={fetchFlows} disabled={isLoading}>
                 {isLoading ? 'Refreshing…' : 'Refresh'}
               </Button>
-              <span
-                className="ml-auto text-[11.5px] tabular-nums"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
+              <span className="ml-auto text-[11.5px] tabular-nums u-text-tertiary">
                 {filtered.length} / {flows.length} flows
               </span>
             </div>
 
             {selectedIds.size > 0 && (
-              <div
-                className="mt-4 flex items-center gap-3 p-3 text-sm"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                  background: 'var(--st-bg-secondary)',
-                }}
-              >
-                <span className="font-medium" style={{ color: 'var(--st-text)' }}>
+              <Card variant="outlined" padding="sm" className="mt-4 flex items-center gap-3 text-sm">
+                <span className="font-medium u-text">
                   {selectedIds.size} selected
                 </span>
-                <div className="h-4 w-px" style={{ background: 'var(--st-border)' }} />
+                <Separator orientation="vertical" className="h-4" />
                 <Button size="sm" variant="ghost" iconLeft={CheckCircle} onClick={() => handleBulkStatus('ACTIVE')}>
                   Activate
                 </Button>
@@ -267,13 +258,10 @@ export default function FlowBuilderListPage() {
                 <Button size="sm" variant="danger" iconLeft={Trash2} onClick={handleBulkDelete}>
                   Delete
                 </Button>
-              </div>
+              </Card>
             )}
 
-            <div
-              className="mt-5 flex flex-1 flex-col overflow-hidden"
-              style={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--st-border)' }}
-            >
+            <div className="mt-5 flex flex-1 flex-col overflow-hidden rounded-[var(--st-radius)] border border-[var(--st-border)]">
               {isLoading && flows.length === 0 ? (
                 <div className="flex flex-col gap-2 p-3">
                   {Array.from({ length: 5 }).map((_, i) => (
@@ -340,8 +328,7 @@ export default function FlowBuilderListPage() {
                           <Td>
                             <Link
                               href={`/wachat/flow-builder/${flow._id.toString()}`}
-                              className="hover:underline"
-                              style={{ color: 'var(--st-text)' }}
+                              className="hover:underline u-text"
                             >
                               {flow.name}
                             </Link>
@@ -360,31 +347,22 @@ export default function FlowBuilderListPage() {
                                   </Badge>
                                 ))
                               ) : (
-                                <span
-                                  className="text-[11.5px] italic"
-                                  style={{ color: 'var(--st-text-tertiary)' }}
-                                >
+                                <span className="text-[11.5px] italic u-text-tertiary">
                                   No triggers
                                 </span>
                               )}
                             </div>
                           </Td>
                           <Td>
-                            <div
-                              className="flex flex-col text-[11.5px]"
-                              style={{ color: 'var(--st-text-tertiary)' }}
-                            >
-                              <span className="font-medium" style={{ color: 'var(--st-text)' }}>
+                            <div className="flex flex-col text-[11.5px] u-text-tertiary">
+                              <span className="font-medium u-text">
                                 {getMockMetrics(flow._id.toString()).today} today
                               </span>
                               <span>{getMockMetrics(flow._id.toString()).total} total</span>
                             </div>
                           </Td>
                           <Td>
-                            <span
-                              className="text-[11.5px]"
-                              style={{ color: 'var(--st-text-tertiary)' }}
-                            >
+                            <span className="text-[11.5px] u-text-tertiary">
                               {flow.updatedAt ? formatUTC(flow.updatedAt, true) : 'N/A'}
                             </span>
                           </Td>
@@ -450,25 +428,11 @@ export default function FlowBuilderListPage() {
         {analyticsData && (
           <div className="grid gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <Card padding="md" className="flex flex-col items-center justify-center text-center">
-                <span className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>
-                  Triggers Today
-                </span>
-                <span className="text-3xl font-medium mt-1" style={{ color: 'var(--st-text)' }}>
-                  {analyticsData.metrics.triggersToday}
-                </span>
-              </Card>
-              <Card padding="md" className="flex flex-col items-center justify-center text-center">
-                <span className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>
-                  Total Triggers
-                </span>
-                <span className="text-3xl font-medium mt-1" style={{ color: 'var(--st-text)' }}>
-                  {analyticsData.metrics.totalTriggers}
-                </span>
-              </Card>
+              <StatCard label="Triggers Today" value={String(analyticsData.metrics.triggersToday ?? 0)} />
+              <StatCard label="Total Triggers" value={String(analyticsData.metrics.totalTriggers ?? 0)} />
             </div>
             {analyticsData.metrics.lastTriggeredAt && (
-              <p className="text-xs text-center mt-2" style={{ color: 'var(--st-text-tertiary)' }}>
+              <p className="text-xs text-center mt-2 u-text-tertiary">
                 Last triggered: {formatUTC(analyticsData.metrics.lastTriggeredAt, true)}
               </p>
             )}

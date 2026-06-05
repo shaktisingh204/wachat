@@ -1,49 +1,56 @@
 'use client';
 
-import { Alert, Badge, Button, Card, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
+import {
+  Alert,
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  EmptyState,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useToast } from '@/hooks/use-toast';
 import {
   useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
+  useCallback,
+} from 'react';
 import {
   ExternalLink,
   RefreshCw,
   Loader2,
   CirclePlus,
   Settings,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { getPaymentConfigurations } from '@/app/actions/whatsapp-pay.actions';
 import { getProjectById } from '@/app/actions/index';
 import { useProject } from '@/context/project-context';
-import type { PaymentConfiguration,
-  Project } from '@/lib/definitions';
+import type { PaymentConfiguration, Project } from '@/lib/definitions';
 import {
   CreatePaymentConfigDialog,
   DeletePaymentConfigButton,
   RegenerateOauthDialog,
   UpdateDataEndpointDialog,
-  } from '@/app/wachat/_components/payment-config-dialogs';
+} from '@/app/wachat/_components/payment-config-dialogs';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat WhatsApp Pay — Setup tab (20ui).
+ * Wachat WhatsApp Pay -- Setup tab (20ui).
  *
  * Setup instructions card + payment configuration list. Verify-merchant
  * dialog opens when the user requests OAuth regeneration. Existing
  * wabasimplify dialogs (Create / Update / Regenerate / Delete) handle
- * the actual flows — we keep them so server actions remain unchanged.
+ * the actual flows -- we keep them so server actions remain unchanged.
  */
 
 import * as React from 'react';
 
-/* ── helpers ──────────────────────────────────────────────────── */
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
+/* -- helpers --------------------------------------------------------------- */
 
 function InfoRow({
   label,
@@ -53,12 +60,9 @@ function InfoRow({
   value: React.ReactNode;
 }) {
   return (
-    <div
-      className="flex items-center justify-between py-2.5 text-[13px] last:border-b-0"
-      style={{ borderBottom: '1px solid var(--st-border)' }}
-    >
-      <span style={{ color: 'var(--st-text-secondary)' }}>{label}</span>
-      <span style={{ color: 'var(--st-text)' }}>{value}</span>
+    <div className="flex items-center justify-between py-2.5 text-[13px] border-b border-[var(--st-border)] last:border-b-0">
+      <span className="[color:var(--st-text-secondary)]">{label}</span>
+      <span className="[color:var(--st-text)]">{value}</span>
     </div>
   );
 }
@@ -73,7 +77,7 @@ function statusTone(
   return 'danger';
 }
 
-/* ── page ──────────────────────────────────────────────────────── */
+/* -- page ------------------------------------------------------------------- */
 
 export default function WhatsAppPaySetupPage() {
   const { activeProject } = useProject();
@@ -164,63 +168,54 @@ export default function WhatsAppPaySetupPage() {
         )}
 
         {/* Setup instructions */}
-        <Card padding="none" className="p-5">
-          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-            WhatsApp Pay Setup
-          </h3>
-          <p
-            className="mt-1 text-[13px]"
-            style={{ color: 'var(--st-text-secondary)' }}
-          >
-            To enable WhatsApp Pay, configure a payment provider (like Razorpay
-            or PayU) within your Meta Commerce Manager.
-          </p>
-          <ol
-            className="mt-4 list-inside list-decimal space-y-1.5 text-[13px]"
-            style={{ color: 'var(--st-text-secondary)' }}
-          >
-            <li>Navigate to your Meta Commerce Manager.</li>
-            <li>
-              Go to the{' '}
-              <span style={{ color: 'var(--st-text)' }}>Settings</span> tab.
-            </li>
-            <li>
-              Select{' '}
-              <span style={{ color: 'var(--st-text)' }}>Payment Method</span> and
-              add your preferred provider.
-            </li>
-            <li>
-              Once configured, click &quot;Refresh&quot; below to see your setup.
-            </li>
-          </ol>
-          <div className="mt-5">
-            <a
-              href={commerceManagerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button size="sm" iconRight={ExternalLink}>
-                Go to Commerce Manager
-              </Button>
-            </a>
-          </div>
+        <Card padding="none">
+          <CardHeader className="p-5 pb-0">
+            <CardTitle>WhatsApp Pay Setup</CardTitle>
+            <CardDescription className="mt-1">
+              To enable WhatsApp Pay, configure a payment provider (like Razorpay
+              or PayU) within your Meta Commerce Manager.
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="px-5 pb-5 pt-4">
+            <ol className="list-inside list-decimal space-y-1.5 text-[13px] [color:var(--st-text-secondary)]">
+              <li>Navigate to your Meta Commerce Manager.</li>
+              <li>
+                Go to the{' '}
+                <span className="[color:var(--st-text)]">Settings</span> tab.
+              </li>
+              <li>
+                Select{' '}
+                <span className="[color:var(--st-text)]">Payment Method</span> and
+                add your preferred provider.
+              </li>
+              <li>
+                Once configured, click &quot;Refresh&quot; below to see your setup.
+              </li>
+            </ol>
+            <div className="mt-5">
+              <a
+                href={commerceManagerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button size="sm" iconRight={ExternalLink}>
+                  Go to Commerce Manager
+                </Button>
+              </a>
+            </div>
+          </CardBody>
         </Card>
 
         {/* Configurations list */}
-        <Card padding="none" className="p-5">
-          <div className="flex items-center justify-between gap-4">
+        <Card padding="none">
+          <CardHeader className="p-5 pb-0 flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                Your Payment Configurations
-              </h3>
-              <p
-                className="mt-0.5 text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <CardTitle>Your Payment Configurations</CardTitle>
+              <CardDescription className="mt-0.5 text-[12px]">
                 Payment providers linked to your WABA.
-              </p>
+              </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
                 size="sm"
@@ -230,13 +225,18 @@ export default function WhatsAppPaySetupPage() {
               >
                 Refresh
               </Button>
-              <Button size="sm" variant="primary" onClick={() => setIsCreateOpen(true)} iconLeft={CirclePlus}>
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={() => setIsCreateOpen(true)}
+                iconLeft={CirclePlus}
+              >
                 Create
               </Button>
             </div>
-          </div>
+          </CardHeader>
 
-          <div className="mt-5">
+          <CardBody className="px-5 pb-5 pt-5">
             {error ? (
               <Alert tone="danger">{error}</Alert>
             ) : isLoading ? (
@@ -264,17 +264,16 @@ export default function WhatsAppPaySetupPage() {
                     padding="none"
                     className="p-4"
                   >
-                    <div className="flex items-center gap-2">
+                    <CardHeader className="pb-0">
                       <Settings
-                        className="h-4 w-4"
-                        style={{ color: 'var(--st-text-secondary)' }}
+                        className="h-4 w-4 [color:var(--st-text-secondary)]"
                         aria-hidden="true"
                       />
-                      <h4 className="text-[14px]" style={{ color: 'var(--st-text)' }}>
+                      <CardTitle className="text-[14px]">
                         {config.configuration_name}
-                      </h4>
-                    </div>
-                    <div className="mt-3">
+                      </CardTitle>
+                    </CardHeader>
+                    <CardBody className="mt-3">
                       <InfoRow
                         label="Provider"
                         value={
@@ -299,7 +298,7 @@ export default function WhatsAppPaySetupPage() {
                           </span>
                         }
                       />
-                    </div>
+                    </CardBody>
                     <div className="mt-4 flex flex-wrap justify-end gap-2">
                       <UpdateDataEndpointDialog
                         project={project!}
@@ -328,13 +327,18 @@ export default function WhatsAppPaySetupPage() {
                 title="No payment configurations"
                 description="No payment providers are linked to this WABA yet. Create one to get started."
                 action={
-                  <Button size="sm" variant="primary" onClick={() => setIsCreateOpen(true)} iconLeft={CirclePlus}>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setIsCreateOpen(true)}
+                    iconLeft={CirclePlus}
+                  >
                     Create configuration
                   </Button>
                 }
               />
             )}
-          </div>
+          </CardBody>
         </Card>
       </div>
     </WachatPage>

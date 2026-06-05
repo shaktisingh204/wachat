@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   Badge,
+  Callout,
   Card,
   CardBody,
   CardDescription,
@@ -180,7 +181,7 @@ export default function FlowBuilderDocsPage() {
               Variables let you personalize your flows and use data dynamically.
             </CardDescription>
           </CardHeader>
-          <CardBody className="space-y-4 text-sm" style={{ color: 'var(--st-text)' }}>
+          <CardBody className="space-y-4 text-sm">
             <p>
               Variables are placeholders for data that can change, such as a user&apos;s name or their
               answer to a question. Use double curly braces to insert a variable, like this:{' '}
@@ -211,7 +212,7 @@ export default function FlowBuilderDocsPage() {
               Present a menu to the user and perform an action based on their choice.
             </CardDescription>
           </CardHeader>
-          <CardBody className="space-y-4 text-sm" style={{ color: 'var(--st-text)' }}>
+          <CardBody className="space-y-4 text-sm">
             <p>Here&apos;s how to build a &apos;Show balance&apos; flow that checks the user&apos;s input:</p>
             <ol className="list-inside list-decimal space-y-2">
               <li>
@@ -250,29 +251,19 @@ export default function FlowBuilderDocsPage() {
                 </ul>
               </li>
             </ol>
-            <div
-              className="p-3 text-sm"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <p>
-                <strong>Key insight:</strong> when you connect a button to a Condition block, the
-                block automatically uses the button&apos;s text as the input to check. You don&apos;t
-                need a separate &quot;Get user input&quot; block. This makes building menus fast and
-                intuitive.
-              </p>
-            </div>
+            <Callout tone="neutral" title="Key insight">
+              When you connect a button to a Condition block, the block automatically uses the
+              button&apos;s text as the input to check. You don&apos;t need a separate &quot;Get
+              user input&quot; block. This makes building menus fast and intuitive.
+            </Callout>
           </CardBody>
         </Card>
 
         <Separator />
 
         <div>
-          <h2 className="text-2xl" style={{ color: 'var(--st-text)' }}>Flow blocks</h2>
-          <p className="mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <h2 className="text-2xl">Flow blocks</h2>
+          <p className="mt-1 opacity-60">
             An overview of all available blocks and their configurations.
           </p>
         </div>
@@ -282,11 +273,11 @@ export default function FlowBuilderDocsPage() {
             <AccordionItem value={`item-${index}`} key={index}>
               <AccordionTrigger className="text-lg">{doc.title}</AccordionTrigger>
               <AccordionContent className="space-y-4 pt-2">
-                <p className="text-base" style={{ color: 'var(--st-text-secondary)' }}>{doc.description}</p>
+                <p className="text-base opacity-60">{doc.description}</p>
 
                 <div className="space-y-2">
-                  <h4 className="font-semibold" style={{ color: 'var(--st-text)' }}>Properties:</h4>
-                  <ul className="list-inside list-disc space-y-1 text-sm" style={{ color: 'var(--st-text)' }}>
+                  <h4 className="font-semibold">Properties:</h4>
+                  <ul className="list-inside list-disc space-y-1 text-sm">
                     {doc.properties.map((prop, pIndex) => (
                       <li key={pIndex}>
                         <strong>{prop.name}:</strong> {prop.desc}
@@ -296,8 +287,8 @@ export default function FlowBuilderDocsPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="font-semibold" style={{ color: 'var(--st-text)' }}>Outputs:</h4>
-                  <ul className="list-inside list-disc space-y-1 text-sm" style={{ color: 'var(--st-text)' }}>
+                  <h4 className="font-semibold">Outputs:</h4>
+                  <ul className="list-inside list-disc space-y-1 text-sm">
                     {doc.outputs.map((out, oIndex) => (
                       <li key={oIndex}>{out}</li>
                     ))}
@@ -305,19 +296,9 @@ export default function FlowBuilderDocsPage() {
                 </div>
 
                 {doc.notes && (
-                  <div
-                    className="p-3 text-sm"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      border: '1px solid var(--st-border)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text)',
-                    }}
-                  >
-                    <p>
-                      <strong>Note:</strong> {doc.notes}
-                    </p>
-                  </div>
+                  <Callout tone="neutral" title="Note">
+                    {doc.notes}
+                  </Callout>
                 )}
               </AccordionContent>
             </AccordionItem>

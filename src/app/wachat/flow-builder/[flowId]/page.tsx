@@ -2,6 +2,7 @@
 
 import {
   Button,
+  IconButton,
   EmptyState,
   Popover,
   PopoverContent,
@@ -15,6 +16,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   Modal,
+  Badge,
+  Separator,
 } from '@/components/sabcrm/20ui';
 import {
   useState,
@@ -45,7 +48,6 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import {
-  LuLoader,
   LuSave,
   LuSettings2,
   LuArrowLeft,
@@ -355,32 +357,21 @@ function FlowBuilder({ flowId }: { flowId: string }) {
   return (
     <WachatPage variant="app">
       <div
-        className="relative flex h-full w-full flex-col overflow-hidden"
-        style={{ background: 'var(--st-bg)' }}
+        className="relative flex h-full w-full flex-col overflow-hidden bg-[var(--st-bg)]"
       >
       {/* ─── Header bar ─── */}
       <header
-        className="flex h-[64px] shrink-0 items-center justify-between gap-4 px-5 backdrop-blur"
-        style={{
-          borderBottom: '1px solid var(--st-border)',
-          background: 'color-mix(in srgb, var(--st-bg) 80%, transparent)',
-        }}
+        className="flex h-[64px] shrink-0 items-center justify-between gap-4 px-5 backdrop-blur border-b border-[var(--st-border)] bg-[color-mix(in_srgb,var(--st-bg)_80%,transparent)]"
       >
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/wachat/flow-builder"
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11.5px] font-medium transition-colors"
-            style={{
-              borderRadius: 'var(--st-radius-pill)',
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg)',
-              color: 'var(--st-text-secondary)',
-            }}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11.5px] font-medium transition-colors rounded-[var(--st-radius-pill)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]"
           >
             <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
             Back
           </Link>
-          <div className="h-6 w-px" style={{ background: 'var(--st-border)' }} />
+          <Separator orientation="vertical" className="h-6" />
           <Input
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
@@ -389,25 +380,14 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             aria-label="Flow name"
           />
           {currentFlow ? (
-            <div
-              className="flex items-center gap-2 px-3 py-1"
-              style={{
-                borderRadius: 'var(--st-radius-pill)',
-                border: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{ background: isPaused ? 'var(--st-warn)' : 'var(--st-status-ok)' }}
-                aria-hidden="true"
-              />
-              <span
-                className="text-[10.5px] font-semibold uppercase tracking-wide"
-                style={{ color: 'var(--st-text-secondary)' }}
+            <div className="flex items-center gap-2">
+              <Badge
+                tone={isPaused ? 'warning' : 'success'}
+                kind="soft"
+                dot
               >
                 {isPaused ? 'Paused' : 'Active'}
-              </span>
+              </Badge>
               <Switch
                 checked={!isPaused}
                 onCheckedChange={(checked) =>
@@ -426,25 +406,26 @@ function FlowBuilder({ flowId }: { flowId: string }) {
           <Button
             variant="outline"
             size="sm"
+            iconLeft={LuBookOpen}
             onClick={() => window.open('/wachat/flow-builder/docs', '_blank')}
           >
-            <LuBookOpen className="h-3.5 w-3.5" aria-hidden="true" />
             Docs
           </Button>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={LuSettings2}
             onClick={() => setIsSettingsOpen(true)}
           >
-            <LuSettings2 className="h-3.5 w-3.5" aria-hidden="true" />
             Settings
           </Button>
-          <Button variant="primary" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
-            ) : (
-              <LuSave className="h-3.5 w-3.5" aria-hidden="true" />
-            )}
+          <Button
+            variant="primary"
+            iconLeft={isSaving ? undefined : LuSave}
+            loading={isSaving}
+            onClick={handleSave}
+            disabled={isSaving}
+          >
             {isSaving ? 'Saving…' : 'Save flow'}
           </Button>
         </div>
@@ -466,9 +447,8 @@ function FlowBuilder({ flowId }: { flowId: string }) {
       <div className="flex flex-1 overflow-hidden">
         {/* Canvas */}
         <div
-          className="relative h-full w-full flex-1"
+          className="relative h-full w-full flex-1 bg-[var(--st-bg)]"
           ref={reactFlowWrapper}
-          style={{ backgroundColor: 'var(--st-bg)' }}
         >
           <ReactFlow
             nodes={nodes}
@@ -498,14 +478,13 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             <Panel position="top-left" className="m-4">
               <Popover>
                 <PopoverTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="Add block"
-                    className="group flex h-12 w-12 items-center justify-center rounded-full text-white shadow-md transition-[transform,background] active:scale-95"
-                    style={{ background: 'var(--st-accent)' }}
-                  >
-                    <LuPlus className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
-                  </button>
+                  <IconButton
+                    label="Add block"
+                    icon={LuPlus}
+                    variant="primary"
+                    size="lg"
+                    className="h-12 w-12 rounded-full shadow-md active:scale-95"
+                  />
                 </PopoverTrigger>
                 <PopoverContent
                   side="right"
@@ -513,19 +492,12 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                   className="ml-4 w-[340px] p-0"
                 >
                   <div
-                    className="px-4 py-3.5"
-                    style={{ borderBottom: '1px solid var(--st-border)' }}
+                    className="px-4 py-3.5 border-b border-[var(--st-border)]"
                   >
-                    <h4
-                      className="text-[14px] font-semibold leading-none"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <h4 className="text-[14px] font-semibold leading-none text-[var(--st-text)]">
                       Add block
                     </h4>
-                    <p
-                      className="mt-1 text-[11.5px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <p className="mt-1 text-[11.5px] text-[var(--st-text-secondary)]">
                       Drag a block onto the canvas to add it to your flow.
                     </p>
                   </div>
@@ -542,18 +514,11 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             {nodes.length <= 1 ? (
               <Panel position="bottom-center" className="mb-6">
                 <div
-                  className="pointer-events-none px-4 py-2 text-[11.5px] font-medium shadow-sm"
-                  style={{
-                    borderRadius: 'var(--st-radius-pill)',
-                    border: '1px solid var(--st-border)',
-                    background: 'var(--st-bg)',
-                    color: 'var(--st-text-secondary)',
-                  }}
+                  className="pointer-events-none px-4 py-2 text-[11.5px] font-medium shadow-sm rounded-[var(--st-radius-pill)] border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-secondary)]"
                 >
                   Tap the{' '}
                   <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] text-white"
-                    style={{ background: 'var(--st-accent)' }}
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] text-white bg-[var(--st-accent)]"
                   >
                     +
                   </span>{' '}
@@ -567,8 +532,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         {/* Right properties panel — desktop pinned */}
         {selectedNode && isPropsOpen ? (
           <aside
-            className="hidden w-[320px] shrink-0 overflow-y-auto md:block"
-            style={{ borderLeft: '1px solid var(--st-border)', background: 'var(--st-bg)' }}
+            className="hidden w-[320px] shrink-0 overflow-y-auto md:block border-l border-[var(--st-border)] bg-[var(--st-bg)]"
           >
             <PropertiesPanel
               node={selectedNode}

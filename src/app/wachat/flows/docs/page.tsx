@@ -1,6 +1,8 @@
 'use client';
 
 import {
+  Badge,
+  Callout,
   Card,
   CardBody,
   CardDescription,
@@ -9,18 +11,15 @@ import {
   Separator,
 } from '@/components/sabcrm/20ui';
 import {
+  Blocks,
   ChevronLeft,
   GitFork,
-  Lightbulb } from 'lucide-react';
+  Lightbulb,
+} from 'lucide-react';
 
 import Link from 'next/link';
-import { Blocks } from 'lucide-react';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
 
 const commonPatterns = [
   {
@@ -109,7 +108,7 @@ export default function FlowsUserGuidePage() {
         <div>
           <Link
             href="/wachat/flows"
-            className={cx('u-btn', 'u-btn--ghost', 'u-btn--sm', '-ml-2')}
+            className="u-btn u-btn--ghost u-btn--sm -ml-2"
           >
             <ChevronLeft className="mr-1 h-4 w-4" aria-hidden="true" />
             <span className="u-btn__label">Back to Meta Flows</span>
@@ -121,43 +120,24 @@ export default function FlowsUserGuidePage() {
             <CardTitle>What are Meta Flows?</CardTitle>
           </CardHeader>
           <CardBody className="space-y-4">
-            <p style={{ color: 'var(--st-text)' }}>
+            <p>
               Meta Flows are rich, native experiences that you can launch within WhatsApp conversations.
               Think of them as mini-apps or forms inside the chat. Instead of asking a user for their
               name, then their email, then their availability one message at a time, you can send a
               single Flow that collects all this information on one or more screens.
             </p>
-            <div
-              className="p-4"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <Lightbulb
-                  className="mt-1 h-5 w-5 flex-shrink-0"
-                  style={{ color: 'var(--st-accent)' }}
-                  aria-hidden="true"
-                />
-                <div>
-                  <h4 className="font-semibold" style={{ color: 'var(--st-text)' }}>Key advantage</h4>
-                  <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
-                    Flows reduce friction for the user, leading to higher completion rates for tasks
-                    like booking appointments, generating leads, or collecting feedback.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <Callout tone="info" icon={Lightbulb} title="Key advantage">
+              Flows reduce friction for the user, leading to higher completion rates for tasks
+              like booking appointments, generating leads, or collecting feedback.
+            </Callout>
           </CardBody>
         </Card>
 
         <Separator />
 
         <div>
-          <h2 className="text-2xl" style={{ color: 'var(--st-text)' }}>Common patterns & use cases</h2>
-          <p className="mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <h2 className="text-2xl">Common patterns &amp; use cases</h2>
+          <p className="mt-1 text-sm" style={{ color: 'var(--st-text-secondary)' }}>
             Here are some ideas for flows you can build, and how to structure them.
           </p>
         </div>
@@ -170,7 +150,7 @@ export default function FlowsUserGuidePage() {
                 <CardDescription>{pattern.description}</CardDescription>
               </CardHeader>
               <CardBody className="flex-grow">
-                <ol className="list-inside list-decimal space-y-2 text-sm" style={{ color: 'var(--st-text)' }}>
+                <ol className="list-inside list-decimal space-y-2 text-sm">
                   {pattern.steps.map((step, index) => (
                     <li key={index}>{step}</li>
                   ))}
@@ -182,11 +162,11 @@ export default function FlowsUserGuidePage() {
         <Separator />
 
         <div>
-          <h2 className="text-2xl flex items-center gap-2" style={{ color: 'var(--st-text)' }}>
-            <Blocks className="h-6 w-6" style={{ color: 'var(--st-accent)' }} aria-hidden="true" />
+          <h2 className="text-2xl flex items-center gap-2">
+            <Blocks className="h-6 w-6" aria-hidden="true" />
             Available flow components
           </h2>
-          <p className="mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+          <p className="mt-1 text-sm" style={{ color: 'var(--st-text-secondary)' }}>
             These are the official building blocks available in the Meta Flows API. Combine them to build rich user experiences.
           </p>
         </div>
@@ -200,16 +180,9 @@ export default function FlowsUserGuidePage() {
               <CardBody className="flex-grow space-y-4">
                 {category.items.map((item) => (
                   <div key={item.name} className="flex flex-col">
-                    <span
-                      className="text-sm font-mono font-medium w-fit px-1.5 py-0.5"
-                      style={{
-                        color: 'var(--st-text)',
-                        background: 'var(--st-bg-secondary)',
-                        borderRadius: 'var(--st-radius)',
-                      }}
-                    >
+                    <Badge tone="neutral" kind="soft" className="font-mono w-fit">
                       {item.name}
-                    </span>
+                    </Badge>
                     <span className="text-sm mt-1" style={{ color: 'var(--st-text-secondary)' }}>{item.description}</span>
                   </div>
                 ))}

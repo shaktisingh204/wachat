@@ -70,7 +70,7 @@ function TemplateTile({
     const parts = text.split(/({{\d+}})/g);
     return parts.map((part, i) =>
       part.match(/{{\d+}}/) ? (
-        <span key={i} className="font-bold" style={{ color: 'var(--st-text)' }}>
+        <span key={i} className="font-bold [color:var(--st-text)]">
           {part}
         </span>
       ) : (
@@ -103,10 +103,7 @@ function TemplateTile({
     <Card variant="elevated" padding="none" className="flex flex-col">
       <CardBody className="flex flex-1 flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
-          <h3
-            className="text-[14px] font-semibold capitalize"
-            style={{ color: 'var(--st-text)' }}
-          >
+          <h3 className="text-[14px] font-semibold capitalize [color:var(--st-text)]">
             {template.name.replace(/_/g, ' ')}
           </h3>
           <Badge tone="neutral" className="capitalize">
@@ -114,7 +111,7 @@ function TemplateTile({
           </Badge>
         </div>
 
-        <p className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <p className="text-[12px] [color:var(--st-text-secondary)]">
           A pre-built template for{' '}
           {template.category.replace(/_/g, ' ').toLowerCase()} use cases.
         </p>
@@ -149,46 +146,27 @@ function TemplateTile({
               );
             })}
           </div>
-          <span className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
+          <span className="text-[11px] [color:var(--st-text-secondary)]">
             {aggregateRating.toFixed(1)} ({reviewCount} reviews)
           </span>
         </div>
 
-        <div
-          className="flex-1 p-4"
-          style={{
-            borderRadius: 'var(--st-radius)',
-            border: '1px solid var(--st-border)',
-            background: 'var(--st-bg-secondary)',
-          }}
-        >
+        <Card variant="outlined" padding="sm" className="flex-1">
           <div className="mx-auto w-full max-w-xs">
-            <div
-              className="space-y-2 p-3 text-sm"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg)',
-                color: 'var(--st-text)',
-                boxShadow: 'var(--st-shadow-sm)',
-              }}
-            >
+            <Card variant="elevated" padding="sm" className="space-y-2 text-sm [color:var(--st-text)]">
               {headerComponent &&
                 (headerComponent.format === 'IMAGE' ||
                   headerComponent.format === 'VIDEO' ||
                   headerComponent.format === 'DOCUMENT') && (
-                  <div
-                    className="mb-2 flex aspect-video items-center justify-center rounded-md"
-                    style={{ background: 'var(--st-bg-secondary)' }}
-                  >
+                  <div className="mb-2 flex aspect-video items-center justify-center rounded-md [background:var(--st-bg-secondary)]">
                     <ImageIcon
-                      className="h-10 w-10"
+                      className="h-10 w-10 [color:var(--st-text-tertiary)]"
                       aria-hidden="true"
-                      style={{ color: 'var(--st-text-tertiary)' }}
                     />
                   </div>
                 )}
               {headerComponent && headerComponent.format === 'TEXT' && (
-                <h3 className="mb-1 text-base font-bold" style={{ color: 'var(--st-text)' }}>
+                <h3 className="mb-1 text-base font-bold [color:var(--st-text)]">
                   {headerComponent.text}
                 </h3>
               )}
@@ -196,24 +174,17 @@ function TemplateTile({
                 {renderTextWithVariables(template.body)}
               </p>
               {footerComponent && (
-                <p className="pt-1 text-xs" style={{ color: 'var(--st-text-secondary)' }}>
+                <p className="pt-1 text-xs [color:var(--st-text-secondary)]">
                   {footerComponent.text}
                 </p>
               )}
-            </div>
+            </Card>
             {buttons.length > 0 && (
               <div className="mt-2 space-y-1">
                 {buttons.map((button: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center justify-center p-2 text-center text-sm font-medium"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      border: '1px solid var(--st-border)',
-                      background: 'var(--st-bg)',
-                      color: 'var(--st-text)',
-                      boxShadow: 'var(--st-shadow-sm)',
-                    }}
+                    className="flex items-center justify-center rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] p-2 text-center text-sm font-medium shadow-[var(--st-shadow-sm)] [color:var(--st-text)]"
                   >
                     {getButtonIcon(button.type)}
                     {button.text}
@@ -222,7 +193,7 @@ function TemplateTile({
               </div>
             )}
           </div>
-        </div>
+        </Card>
 
         <Button
           variant="primary"
@@ -301,8 +272,7 @@ export default function TemplateLibraryPage() {
         <button
           type="button"
           onClick={() => router.push('/wachat/templates')}
-          className="flex items-center gap-1 text-[12px] transition-colors"
-          style={{ color: 'var(--st-text-secondary)' }}
+          className="flex items-center gap-1 text-[12px] transition-colors [color:var(--st-text-secondary)]"
         >
           <ChevronLeft className="h-3 w-3" aria-hidden="true" /> Back to my templates
         </button>

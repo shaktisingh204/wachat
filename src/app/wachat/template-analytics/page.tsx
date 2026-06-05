@@ -4,6 +4,9 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -20,6 +23,7 @@ import {
   Th,
   Tr,
   Td,
+  Badge,
   useToast,
   Select,
   Field,
@@ -32,7 +36,7 @@ import {
   useState,
   useTransition,
   useCallback,
-  } from 'react';
+} from 'react';
 import {
   BarChart3,
   RefreshCw,
@@ -41,14 +45,14 @@ import {
   Eye,
   CircleX,
   Info,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
 
 /**
- * Wachat Template Analytics — view delivery and read metrics per
+ * Wachat Template Analytics - view delivery and read metrics per
  * template, rebuilt on the 20ui design system.
  */
 
@@ -68,10 +72,10 @@ const ENGAGEMENT_CONFIG: ChartConfig = {
   Read: { label: 'Read', color: 'var(--st-text-secondary)' },
 };
 
-function rateStyle(rate: number): React.CSSProperties {
-  if (rate >= 80) return { color: 'var(--st-status-ok)' };
-  if (rate >= 50) return { color: 'var(--st-warn)' };
-  return { color: 'var(--st-danger)' };
+function rateTone(rate: number): 'success' | 'warning' | 'danger' {
+  if (rate >= 80) return 'success';
+  if (rate >= 50) return 'warning';
+  return 'danger';
 }
 
 function pct(num: number, den: number): number {
@@ -186,10 +190,7 @@ export default function TemplateAnalyticsPage() {
       actions={
         <div className="flex items-center gap-3">
           {lastSynced && (
-            <span
-              className="text-[12px]"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
+            <span className="text-[12px]" style={{ color: 'var(--st-text-tertiary)' }}>
               Last synced: {formatDate(lastSynced)}
             </span>
           )}
@@ -200,7 +201,7 @@ export default function TemplateAnalyticsPage() {
             onClick={() => projectId && fetchAnalytics(projectId, true)}
             disabled={!projectId || isLoading}
           >
-            {isLoading ? 'Refreshing…' : 'Refresh'}
+            {isLoading ? 'Refreshing...' : 'Refresh'}
           </Button>
         </div>
       }
@@ -236,23 +237,11 @@ export default function TemplateAnalyticsPage() {
 
       {/* Engagement chart */}
       <Card>
+        <CardHeader>
+          <CardTitle>Engagement by template</CardTitle>
+          <CardDescription>Top 10 templates by send volume</CardDescription>
+        </CardHeader>
         <CardBody>
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h3
-                className="text-[15px] font-semibold"
-                style={{ color: 'var(--st-text)' }}
-              >
-                Engagement by template
-              </h3>
-              <p
-                className="mt-0.5 text-[12px]"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
-                Top 10 templates by send volume
-              </p>
-            </div>
-          </div>
           {isLoading && analytics.length === 0 ? (
             <Skeleton width="100%" height={280} radius="var(--st-radius-lg)" />
           ) : chartData.length === 0 ? (
@@ -306,22 +295,13 @@ export default function TemplateAnalyticsPage() {
 
       {/* A/B Testing Card */}
       <Card>
+        <CardHeader>
+          <CardTitle>A/B testing comparison</CardTitle>
+          <CardDescription>
+            Compare performance between two different templates.
+          </CardDescription>
+        </CardHeader>
         <CardBody>
-          <div className="mb-4">
-            <h3
-              className="text-[15px] font-semibold"
-              style={{ color: 'var(--st-text)' }}
-            >
-              A/B testing comparison
-            </h3>
-            <p
-              className="mt-0.5 text-[12px]"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
-              Compare performance between two different templates.
-            </p>
-          </div>
-
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Template A">
               <Select
@@ -384,42 +364,25 @@ export default function TemplateAnalyticsPage() {
               </Recharts.BarChart>
             </ChartContainer>
           ) : (
-            <div
-              className="flex h-[280px] items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius-lg)',
-                border: '1px dashed var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <p
-                className="text-[13px]"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
-                Select two templates above to compare their performance.
-              </p>
-            </div>
+            <EmptyState
+              size="sm"
+              icon={BarChart3}
+              title="Select two templates"
+              description="Select two templates above to compare their performance."
+            />
           )}
         </CardBody>
       </Card>
 
       {/* Per-template table */}
       <Card>
+        <CardHeader>
+          <CardTitle>Per-template breakdown</CardTitle>
+          <CardDescription>
+            Delivery and read rates for every template that sent messages.
+          </CardDescription>
+        </CardHeader>
         <CardBody>
-          <div className="mb-4">
-            <h3
-              className="text-[15px] font-semibold"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Per-template breakdown
-            </h3>
-            <p
-              className="mt-0.5 text-[12px]"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
-              Delivery and read rates for every template that sent messages.
-            </p>
-          </div>
           {isLoading && analytics.length === 0 ? (
             <div className="flex h-20 items-center justify-center">
               <Spinner label="Loading analytics" />
@@ -465,19 +428,15 @@ export default function TemplateAnalyticsPage() {
                       <Td align="right" className="text-[13px] tabular-nums">
                         {(row.failed || 0).toLocaleString()}
                       </Td>
-                      <Td
-                        align="right"
-                        className="text-[13px] font-semibold tabular-nums"
-                        style={rateStyle(deliveryRate)}
-                      >
-                        {deliveryRate}%
+                      <Td align="right">
+                        <Badge tone={rateTone(deliveryRate)} kind="soft">
+                          {deliveryRate}%
+                        </Badge>
                       </Td>
-                      <Td
-                        align="right"
-                        className="text-[13px] font-semibold tabular-nums"
-                        style={rateStyle(readRate)}
-                      >
-                        {readRate}%
+                      <Td align="right">
+                        <Badge tone={rateTone(readRate)} kind="soft">
+                          {readRate}%
+                        </Badge>
                       </Td>
                     </Tr>
                   );

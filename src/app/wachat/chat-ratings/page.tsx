@@ -4,6 +4,9 @@ import { fmtDate } from "@/lib/utils";
 import {
   useToast,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   StatCard,
   EmptyState,
   Spinner,
@@ -37,8 +40,10 @@ function Stars({ count }: { count: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={cx('h-3.5 w-3.5', i <= count ? 'fill-current' : '')}
-          style={{ color: i <= count ? 'var(--st-text)' : 'var(--st-text-tertiary)' }}
+          className={cx(
+            'h-3.5 w-3.5',
+            i <= count ? 'fill-current text-[var(--st-text)]' : 'text-[var(--st-text-tertiary)]',
+          )}
           strokeWidth={1.75}
         />
       ))}
@@ -114,11 +119,10 @@ export default function ChatRatingsPage() {
           {dist.map((d) => (
             <div
               key={d.stars}
-              className="text-[12px]"
-              style={{ color: 'var(--st-text-secondary)' }}
+              className="text-[12px] text-[var(--st-text-secondary)]"
             >
               {d.stars}-star:{' '}
-              <span style={{ color: 'var(--st-text)' }}>{d.count}</span>
+              <span className="text-[var(--st-text)]">{d.count}</span>
             </div>
           ))}
         </Card>
@@ -126,92 +130,75 @@ export default function ChatRatingsPage() {
 
       {/* Distribution chart */}
       <Card padding="lg">
-        <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
-          Rating Distribution
-        </h2>
-        <div className="space-y-2.5">
-          {dist.map((d) => (
-            <div key={d.stars} className="flex items-center gap-3">
-              <span
-                className="flex w-16 items-center gap-1 text-[13px]"
-                style={{ color: 'var(--st-text)' }}
-              >
-                {d.stars}{' '}
-                <Star
-                  className="h-3 w-3 fill-current"
-                  aria-hidden="true"
-                  style={{ color: 'var(--st-text)' }}
-                />
-              </span>
-              <div
-                className="h-5 flex-1 overflow-hidden rounded-full"
-                style={{ background: 'var(--st-bg-secondary)' }}
-              >
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${(d.count / maxDist) * 100}%`,
-                    background: 'var(--st-text)',
-                  }}
-                />
+        <CardHeader>
+          <CardTitle>Rating Distribution</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <div className="space-y-2.5">
+            {dist.map((d) => (
+              <div key={d.stars} className="flex items-center gap-3">
+                <span className="flex w-16 items-center gap-1 text-[13px] text-[var(--st-text)]">
+                  {d.stars}{' '}
+                  <Star
+                    className="h-3 w-3 fill-current text-[var(--st-text)]"
+                    aria-hidden="true"
+                  />
+                </span>
+                <div className="h-5 flex-1 overflow-hidden rounded-full bg-[var(--st-bg-secondary)]">
+                  <div
+                    className="h-full rounded-full bg-[var(--st-text)] transition-all"
+                    style={{ width: `${(d.count / maxDist) * 100}%` }}
+                  />
+                </div>
+                <span className="w-10 text-right text-[12px] text-[var(--st-text-secondary)]">
+                  {d.count}
+                </span>
               </div>
-              <span
-                className="w-10 text-right text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                {d.count}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </CardBody>
       </Card>
 
       {/* Recent ratings */}
       <Card padding="lg">
-        <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
-          Recent Ratings
-        </h2>
-        {ratings.length === 0 && !isPending && (
-          <EmptyState
-            icon={MessageSquare}
-            title="No ratings received yet."
-          />
-        )}
-        <div className="space-y-3">
-          {ratings.slice(0, 20).map((r) => (
-            <div
-              key={r._id}
-              className="flex items-start gap-3 p-3"
-              style={{
-                border: '1px solid var(--st-border)',
-                borderRadius: 'var(--st-radius)',
-              }}
-            >
-              <Stars count={r.rating} />
-              <div className="min-w-0 flex-1">
-                {r.feedback && (
-                  <p className="text-[13px]" style={{ color: 'var(--st-text)' }}>
-                    {r.feedback}
-                  </p>
-                )}
-                {!r.feedback && (
-                  <p
-                    className="text-[12px] italic"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    No feedback provided
-                  </p>
-                )}
-              </div>
-              <span
-                className="shrink-0 text-[11.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
+        <CardHeader>
+          <CardTitle>Recent Ratings</CardTitle>
+        </CardHeader>
+        <CardBody>
+          {ratings.length === 0 && !isPending && (
+            <EmptyState
+              icon={MessageSquare}
+              title="No ratings received yet."
+            />
+          )}
+          <div className="space-y-3">
+            {ratings.slice(0, 20).map((r) => (
+              <Card
+                key={r._id}
+                variant="outlined"
+                padding="sm"
+                className="flex items-start gap-3"
               >
-                {r.createdAt ? fmtDate(r.createdAt) : '--'}
-              </span>
-            </div>
-          ))}
-        </div>
+                <Stars count={r.rating} />
+                <div className="min-w-0 flex-1">
+                  {r.feedback && (
+                    <p className="text-[13px] text-[var(--st-text)]">
+                      {r.feedback}
+                    </p>
+                  )}
+                  {!r.feedback && (
+                    <p className="text-[12px] italic text-[var(--st-text-secondary)]">
+                      No feedback provided
+                    </p>
+                  )}
+                </div>
+                <span className="shrink-0 text-[11.5px] text-[var(--st-text-secondary)]">
+                  {r.createdAt ? fmtDate(r.createdAt) : '--'}
+                </span>
+              </Card>
+            ))}
+          </div>
+        </CardBody>
       </Card>
     </WachatPage>
   );
