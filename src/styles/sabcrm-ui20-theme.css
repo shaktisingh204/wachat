@@ -16,8 +16,12 @@
      table and forms never reflow — only colour, depth, radius and chrome change.
    ========================================================================= */
 
-/* ---- Tokens: light (modern ui20 palette) ---- */
-.sabcrm-twenty {
+/* ---- Tokens: light (modern ui20 palette) ----
+   Selector is `.sabcrm-twenty.ui20` (specificity 0,2,0) so these token values
+   DETERMINISTICALLY beat every single-class definition of `--st-*` (the base
+   `.sabcrm-twenty`, `.ui20`, and `:root`), regardless of CSS bundle order. The
+   CRM frame root carries BOTH classes. */
+.sabcrm-twenty.ui20 {
   /* Surfaces — cool neutral, gently layered. */
   --st-bg: #ffffff;
   --st-bg-secondary: #f6f7f9;
@@ -64,8 +68,8 @@
   --u-elev-3: 0 18px 48px -8px rgba(30, 33, 54, 0.22);
 }
 
-/* ---- Tokens: dark ---- */
-.sabcrm-twenty.st-theme-dark {
+/* ---- Tokens: dark (specificity 0,3,0 beats base `.sabcrm-twenty.st-theme-dark`) ---- */
+.sabcrm-twenty.ui20.st-theme-dark {
   --st-bg: #15161c;
   --st-bg-secondary: #1b1d25;
   --st-bg-muted: #23252f;
