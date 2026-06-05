@@ -1,16 +1,16 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
-import { Loader2,
-  Rss } from 'lucide-react';
+import { Rss } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 
 /**
- * SubscribeProjectButton (wachat-local, ZoruUI).
+ * SubscribeProjectButton (wachat-local, 20ui).
  *
  * Replaces the legacy subscribe-project-button. Same
  * server actions (handleSubscribeProjectWebhook, getProjectById), same
@@ -31,7 +31,7 @@ export function SubscribeProjectButton({
   buttonText,
 }: SubscribeProjectButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onSubscribe = () => {
     startTransition(async () => {
@@ -79,9 +79,9 @@ export function SubscribeProjectButton({
       onClick={onSubscribe}
       variant="outline"
       size="sm"
-      disabled={isPending}
+      loading={isPending}
+      iconLeft={Rss}
     >
-      {isPending ? <Loader2 className="animate-spin" /> : <Rss />}
       {text}
     </Button>
   );

@@ -2,21 +2,18 @@
 
 import {
   Button,
+  IconButton,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   Plus,
   Trash2 } from 'lucide-react';
 import type { WeeklyOperatingHours } from '@/lib/definitions';
 
 /**
- * WeeklyHoursEditor (wachat-local, ZoruUI).
+ * WeeklyHoursEditor (wachat-local, 20ui).
  *
  * Adds/edits weekly operating hours rows. Pure controlled component —
  * mirrors the wabasimplify version's API exactly.
@@ -33,6 +30,8 @@ const daysOfWeek = [
   'SATURDAY',
   'SUNDAY',
 ];
+
+const dayOptions = daysOfWeek.map((day) => ({ value: day, label: day }));
 
 interface WeeklyHoursEditorProps {
   hours: WeeklyOperatingHours[];
@@ -72,46 +71,41 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-[14px] text-zoru-ink">Weekly Operating Hours</h4>
+      <h4 className="text-[14px]" style={{ color: 'var(--st-text)' }}>
+        Weekly Operating Hours
+      </h4>
       <div className="flex flex-col gap-3">
         {hours.map((entry, index) => (
           <div
             key={index}
-            className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3"
+            className="relative p-3"
+            style={{
+              borderRadius: 'var(--st-radius-lg)',
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-surface)',
+            }}
           >
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Remove time slot"
-              className="absolute right-1 top-1 text-zoru-danger hover:bg-zoru-danger/10"
-              onClick={() => handleRemove(index)}
-            >
-              <Trash2 />
-            </Button>
+            <div className="absolute right-1 top-1">
+              <IconButton
+                label="Remove time slot"
+                icon={Trash2}
+                variant="danger"
+                size="sm"
+                onClick={() => handleRemove(index)}
+              />
+            </div>
             <div className="grid items-end gap-3 md:grid-cols-3">
-              <div className="flex flex-col gap-1.5">
-                <Label>Day of Week</Label>
+              <Field label="Day of Week">
                 <Select
+                  aria-label="Day of Week"
                   value={entry.day_of_week}
-                  onValueChange={(val) =>
-                    handleChange(index, 'day_of_week', val)
+                  options={dayOptions}
+                  onChange={(val) =>
+                    handleChange(index, 'day_of_week', val ?? '')
                   }
-                >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    {daysOfWeek.map((day) => (
-                      <ZoruSelectItem key={day} value={day}>
-                        {day}
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </Select>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Open Time</Label>
+                />
+              </Field>
+              <Field label="Open Time">
                 <Input
                   type="time"
                   value={
@@ -121,9 +115,8 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
                     handleChange(index, 'open_time', e.target.value)
                   }
                 />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Close Time</Label>
+              </Field>
+              <Field label="Close Time">
                 <Input
                   type="time"
                   value={
@@ -135,7 +128,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
                     handleChange(index, 'close_time', e.target.value)
                   }
                 />
-              </div>
+              </Field>
             </div>
           </div>
         ))}
@@ -144,9 +137,9 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
         type="button"
         variant="outline"
         size="sm"
+        iconLeft={Plus}
         onClick={handleAdd}
       >
-        <Plus />
         Add Time Slot
       </Button>
     </div>

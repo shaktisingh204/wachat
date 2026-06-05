@@ -2,34 +2,31 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
   Button,
   Card,
   EmptyState,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback,
   useActionState,
+  type ReactNode,
 } from 'react';
 import {
   CalendarClock,
@@ -49,6 +46,15 @@ import {
 } from '@/app/actions/wachat-features.actions';
 
 const TIMEZONES = ['UTC', 'Asia/Kolkata', 'America/New_York', 'Europe/London'];
+
+const TIMEZONE_OPTIONS = TIMEZONES.map((tz) => ({ value: tz, label: tz }));
+
+const RECURRING_OPTIONS = [
+  { value: 'none', label: 'One-time' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+];
 
 const STEPS = [
   { value: 'template', label: '1. Template', icon: <Send className="h-3.5 w-3.5" /> },
@@ -71,31 +77,36 @@ function CancelScheduleDialog({
   disabled?: boolean;
 }) {
   return (
-    <ZoruAlertDialog>
-      <ZoruAlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={disabled} className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger">
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          style={{ color: 'var(--st-danger)' }}
+        >
           Cancel
         </Button>
-      </ZoruAlertDialogTrigger>
-      <ZoruAlertDialogContent>
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Cancel scheduled broadcast?</ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Cancel scheduled broadcast?</AlertDialogTitle>
+          <AlertDialogDescription>
             &ldquo;{schedule.name}&rdquo; will not be sent at{' '}
             {schedule.scheduledAt
               ? fmtDate(schedule.scheduledAt)
               : 'its scheduled time'}
             . This action cannot be undone.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Keep schedule</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction onClick={() => onConfirm(schedule._id)}>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Keep schedule</AlertDialogCancel>
+          <AlertDialogAction onClick={() => onConfirm(schedule._id)}>
             Cancel schedule
-          </ZoruAlertDialogAction>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -103,8 +114,24 @@ function CancelScheduleDialog({
 
 export function SchedulerView() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast: rawToast } = useToast();
   const projectId = activeProject?._id?.toString();
+
+  // Adapter: keep the existing call sites ({ title, description, variant })
+  // while mapping to the 20ui toast API ({ title, description, tone }).
+  const toast = useCallback(
+    (opts: {
+      title: ReactNode;
+      description?: ReactNode;
+      variant?: 'destructive';
+    }) =>
+      rawToast({
+        title: opts.title,
+        description: opts.description,
+        tone: opts.variant === 'destructive' ? 'danger' : 'neutral',
+      }),
+    [rawToast],
+  );
 
   const [schedules, setSchedules] = useState<any[]>([]);
   const [isLoading, startLoading] = useTransition();
@@ -197,7 +224,7 @@ export function SchedulerView() {
   return (
     <div className="flex flex-col gap-6 w-full">
       <Card className="p-6">
-        <h2 className="text-[16px] text-zoru-ink mb-4">New Schedule</h2>
+        <h2 className="text-[16px] mb-4" style={{ color: 'var(--st-text)' }}>New Schedule</h2>
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="name" value={name} />
@@ -215,22 +242,37 @@ export function SchedulerView() {
               return (
                 <li key={s.value} className="flex items-center gap-2">
                   <div
-                    className={`flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs ${
+                    className="flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs"
+                    style={
                       isActive
-                        ? 'bg-zoru-ink text-zoru-on-primary'
+                        ? {
+                            background: 'var(--st-text)',
+                            color: 'var(--st-bg)',
+                          }
                         : isComplete
-                          ? 'border border-zoru-line bg-zoru-surface text-zoru-ink'
-                          : 'border border-zoru-line bg-zoru-bg text-zoru-ink-muted'
-                    }`}
+                          ? {
+                              border: '1px solid var(--st-border)',
+                              background: 'var(--st-surface)',
+                              color: 'var(--st-text)',
+                            }
+                          : {
+                              border: '1px solid var(--st-border)',
+                              background: 'var(--st-bg)',
+                              color: 'var(--st-text-muted)',
+                            }
+                    }
                   >
                     <span className="text-[11px]">{idx + 1}</span>
                     {s.label}
                   </div>
                   {idx < STEPS.length - 1 && (
                     <span
-                      className={`h-px w-6 ${
-                        isComplete ? 'bg-zoru-ink' : 'bg-zoru-line'
-                      }`}
+                      className="h-px w-6"
+                      style={{
+                        background: isComplete
+                          ? 'var(--st-text)'
+                          : 'var(--st-border)',
+                      }}
                     />
                   )}
                 </li>
@@ -241,85 +283,66 @@ export function SchedulerView() {
           <div className="mt-5">
             {step === 'template' && (
               <div className="flex flex-col gap-4 max-w-xl">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-name">Broadcast name *</Label>
+                <Field label="Broadcast name" required>
                   <Input
-                    id="bs-name"
                     placeholder="Spring promo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-template">Template name *</Label>
+                </Field>
+                <Field label="Template name" required>
                   <Input
-                    id="bs-template"
                     placeholder="welcome_v3"
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
                     required
                   />
-                </div>
+                </Field>
               </div>
             )}
 
             {step === 'audience' && (
               <div className="flex flex-col gap-4 max-w-xl">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-audience">
-                    Audience (default: all)
-                  </Label>
+                <Field label="Audience (default: all)">
                   <Input
-                    id="bs-audience"
                     placeholder="segment-id or empty for all contacts"
                     value={audience}
                     onChange={(e) => setAudience(e.target.value)}
                   />
-                </div>
+                </Field>
               </div>
             )}
 
             {step === 'schedule' && (
               <div className="grid gap-4 max-w-xl sm:grid-cols-2">
-                <div className="flex flex-col gap-1.5">
-                  <Label>Timezone</Label>
-                  <Select value={timezone} onValueChange={setTimezone}>
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Timezone" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      {TIMEZONES.map((tz) => (
-                        <ZoruSelectItem key={tz} value={tz}>
-                          {tz}
-                        </ZoruSelectItem>
-                      ))}
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="bs-when">Scheduled at *</Label>
+                <Field label="Timezone">
+                  <Select
+                    value={timezone}
+                    onChange={(v) => setTimezone(v ?? TIMEZONES[0])}
+                    options={TIMEZONE_OPTIONS}
+                    placeholder="Timezone"
+                    aria-label="Timezone"
+                  />
+                </Field>
+                <Field label="Scheduled at" required>
                   <Input
-                    id="bs-when"
                     type="datetime-local"
                     value={scheduledAt}
                     onChange={(e) => setScheduledAt(e.target.value)}
                     required
                   />
-                </div>
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <Label>Recurring</Label>
-                  <Select value={recurring} onValueChange={setRecurring}>
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Frequency" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="none">One-time</ZoruSelectItem>
-                      <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                      <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                      <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
+                </Field>
+                <div className="sm:col-span-2">
+                  <Field label="Recurring">
+                    <Select
+                      value={recurring}
+                      onChange={(v) => setRecurring(v ?? 'none')}
+                      options={RECURRING_OPTIONS}
+                      placeholder="Frequency"
+                      aria-label="Recurring"
+                    />
+                  </Field>
                 </div>
               </div>
             )}
@@ -343,7 +366,10 @@ export function SchedulerView() {
             )}
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-2 border-t border-zoru-line pt-4">
+          <div
+            className="mt-2 flex items-center justify-between gap-2 pt-4"
+            style={{ borderTop: '1px solid var(--st-border)' }}
+          >
             <Button
               type="button"
               variant="outline"
@@ -354,11 +380,11 @@ export function SchedulerView() {
               Back
             </Button>
             {isLastStep ? (
-              <Button type="submit" disabled={isPending || !projectId}>
+              <Button type="submit" variant="primary" disabled={isPending || !projectId}>
                 {isPending ? 'Scheduling…' : 'Save Schedule'}
               </Button>
             ) : (
-              <Button type="button" onClick={goNext}>
+              <Button type="button" variant="primary" onClick={goNext}>
                 Next
               </Button>
             )}
@@ -368,13 +394,19 @@ export function SchedulerView() {
 
       {isLoading && schedules.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+          <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'var(--st-text-muted)' }} />
         </div>
       ) : schedules.length > 0 ? (
         <Card className="overflow-x-auto p-0">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+              <tr
+                className="text-[11px] uppercase tracking-wide"
+                style={{
+                  borderBottom: '1px solid var(--st-border)',
+                  color: 'var(--st-text-muted)',
+                }}
+              >
                 <th className="px-5 py-3">Name</th>
                 <th className="px-5 py-3">Template</th>
                 <th className="px-5 py-3">Scheduled At</th>
@@ -386,27 +418,28 @@ export function SchedulerView() {
               {schedules.map((s) => (
                 <tr
                   key={s._id}
-                  className="border-b border-zoru-line last:border-0"
+                  className="last:border-0"
+                  style={{ borderBottom: '1px solid var(--st-border)' }}
                 >
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink">
+                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text)' }}>
                     {s.name}
                   </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
+                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text-muted)' }}>
                     {s.templateName}
                   </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
+                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text-muted)' }}>
                     {s.scheduledAt
                       ? fmtDate(s.scheduledAt)
                       : '--'}
                   </td>
                   <td className="px-5 py-3">
                     <Badge
-                      variant={
+                      tone={
                         s.status === 'scheduled'
                           ? 'info'
                           : s.status === 'cancelled'
                             ? 'danger'
-                            : 'secondary'
+                            : 'neutral'
                       }
                     >
                       {s.status}
@@ -428,7 +461,7 @@ export function SchedulerView() {
         </Card>
       ) : (
         <EmptyState
-          icon={<CalendarClock />}
+          icon={CalendarClock}
           title="No scheduled broadcasts"
           description="Use the form above to queue a broadcast for the future."
         />
@@ -439,11 +472,18 @@ export function SchedulerView() {
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-3">
-      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+    <div
+      className="p-3"
+      style={{
+        borderRadius: 'var(--st-radius, 8px)',
+        border: '1px solid var(--st-border)',
+        background: 'var(--st-bg)',
+      }}
+    >
+      <div className="text-[11px] uppercase tracking-wide" style={{ color: 'var(--st-text-muted)' }}>
         {label}
       </div>
-      <div className="mt-1 text-zoru-ink truncate">{value}</div>
+      <div className="mt-1 truncate" style={{ color: 'var(--st-text)' }}>{value}</div>
     </div>
   );
 }

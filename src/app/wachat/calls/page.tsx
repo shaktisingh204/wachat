@@ -1,10 +1,10 @@
 'use client';
 
-import { EmptyState } from '@/components/zoruui';
-import {
-  useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+
+import { EmptyState, Spinner } from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 // Redirect the base /wachat/calls route to the default logs tab.
 export default function CallsRedirectPage() {
@@ -13,10 +13,19 @@ export default function CallsRedirectPage() {
     router.replace('/wachat/calls/logs');
   }, [router]);
   return (
-    <EmptyState
-      icon={<Loader2 className="h-6 w-6 animate-spin" />}
-      title="Redirecting…"
-      description="Taking you to call logs."
-    />
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Calls' },
+      ]}
+      width="narrow"
+    >
+      <EmptyState
+        title="Redirecting…"
+        description="Taking you to call logs."
+        action={<Spinner size="lg" label="Redirecting" />}
+      />
+    </WachatPage>
   );
 }

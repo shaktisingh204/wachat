@@ -3,23 +3,13 @@
 import {
   Badge,
   Button,
+  IconButton,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Skeleton,
-  cn,
-  useZoruToast,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/zoruui';
+  useToast,
+  Modal,
+} from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useCallback,
@@ -29,7 +19,6 @@ import {
   useTransition } from 'react';
 import { useRouter,
   useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import {
   AlertTriangle,
   Archive,
@@ -44,6 +33,7 @@ import {
   } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { MetaFlowBuilderLayout } from '@/components/zoruui-domain/meta-flow-editor/layout/meta-flow-layout';
 import { flowCategories } from '@/components/zoruui-domain/meta-flow-templates';
@@ -62,6 +52,10 @@ import {
 import type { MetaFlowValidationError,
   Project } from '@/lib/definitions';
 
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
+
 const DEFAULT_FLOW = {
   version: '7.3',
   data_api_version: '3.0',
@@ -73,23 +67,23 @@ function PageSkeleton() {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-10 w-64" />
+        <Skeleton height={40} width={192} />
+        <Skeleton height={40} width={256} />
       </div>
       <div className="grid flex-1 grid-cols-12 gap-4">
-        <Skeleton className="col-span-2 h-full" />
-        <Skeleton className="col-span-7 h-full" />
-        <Skeleton className="col-span-3 h-full" />
+        <Skeleton className="col-span-2 h-full" height="100%" />
+        <Skeleton className="col-span-7 h-full" height="100%" />
+        <Skeleton className="col-span-3 h-full" height="100%" />
       </div>
     </div>
   );
 }
 
-function ValidationBanner({ 
+function ValidationBanner({
   errors,
   flowData,
   onSelectNode
-}: { 
+}: {
   errors: MetaFlowValidationError[];
   flowData: any;
   onSelectNode: (screenId: string, component: any) => void;
@@ -123,9 +117,16 @@ function ValidationBanner({
   };
 
   return (
-    <div className="border-b border-zoru-danger/30 bg-zoru-danger/5 px-4 py-2 text-[12.5px] text-zoru-danger-ink">
+    <div
+      className="px-4 py-2 text-[12.5px]"
+      style={{
+        borderBottom: '1px solid color-mix(in srgb, var(--st-danger) 30%, transparent)',
+        background: 'color-mix(in srgb, var(--st-danger) 5%, transparent)',
+        color: 'var(--st-danger)',
+      }}
+    >
       <div className="flex items-center gap-2">
-        <AlertTriangle className="h-3.5 w-3.5" />
+        <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
         {errors.length} validation error{errors.length > 1 ? 's' : ''}
       </div>
       <ul className="mt-1 list-disc pl-6 leading-relaxed">
@@ -134,7 +135,13 @@ function ValidationBanner({
             <span className="font-mono">{e.error_type ?? e.error ?? 'error'}</span>
             {e.line_start ? ` (line ${e.line_start})` : ''}: {e.message}
             {e.pointers?.length ? (
-               <Button variant="link" size="sm" className="ml-2 h-auto p-0 text-zoru-danger-ink underline" onClick={() => handleClick(e)}>
+               <Button
+                 variant="ghost"
+                 size="sm"
+                 className="ml-2 h-auto p-0 underline"
+                 style={{ color: 'var(--st-danger)' }}
+                 onClick={() => handleClick(e)}
+               >
                  Locate
                </Button>
             ) : null}
@@ -172,11 +179,11 @@ function ScreenReorderDialog({
   const handleDragOver = (e: React.DragEvent, index: number) => {
     e.preventDefault();
     if (draggedIdx === null || draggedIdx === index) return;
-    
+
     const newScreens = [...localScreens];
     const [dragged] = newScreens.splice(draggedIdx, 1);
     newScreens.splice(index, 0, dragged);
-    
+
     setDraggedIdx(index);
     setLocalScreens(newScreens);
   };
@@ -186,47 +193,51 @@ function ScreenReorderDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Reorder Screens</DialogTitle>
-          <DialogDescription>Drag and drop to reorder the screens in your flow.</DialogDescription>
-        </DialogHeader>
-        <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
-           {localScreens.map((screen, idx) => (
-             <div
-               key={screen.id}
-               draggable
-               onDragStart={(e) => handleDragStart(e, idx)}
-               onDragOver={(e) => handleDragOver(e, idx)}
-               onDragEnd={handleDragEnd}
-               className={cn(
-                 "cursor-grab active:cursor-grabbing p-3 border rounded-md flex items-center gap-3 transition-colors",
-                 draggedIdx === idx ? "bg-zoru-surface-hover opacity-50" : "bg-zoru-surface hover:bg-zoru-surface-hover"
-               )}
-             >
-               <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
-               <Layers className="h-4 w-4 text-zoru-brand" />
-               <span className="font-medium">{screen.title || screen.id}</span>
-             </div>
-           ))}
-           {localScreens.length === 0 ? (
-             <div className="p-4 text-center text-sm text-zoru-ink-muted">No screens to reorder.</div>
-           ) : null}
-        </div>
-        <DialogFooter>
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Reorder Screens"
+      description="Drag and drop to reorder the screens in your flow."
+      footer={
+        <>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => { onReorder(localScreens); onOpenChange(false); }}>Save Order</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <Button variant="primary" onClick={() => { onReorder(localScreens); onOpenChange(false); }}>Save Order</Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
+         {localScreens.map((screen, idx) => (
+           <div
+             key={screen.id}
+             draggable
+             onDragStart={(e) => handleDragStart(e, idx)}
+             onDragOver={(e) => handleDragOver(e, idx)}
+             onDragEnd={handleDragEnd}
+             className="cursor-grab active:cursor-grabbing p-3 flex items-center gap-3 transition-colors"
+             style={{
+               border: '1px solid var(--st-border)',
+               borderRadius: 'var(--st-radius)',
+               background: draggedIdx === idx ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
+               opacity: draggedIdx === idx ? 0.5 : 1,
+             }}
+           >
+             <GripVertical className="h-4 w-4" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
+             <Layers className="h-4 w-4" style={{ color: 'var(--st-accent)' }} aria-hidden="true" />
+             <span className="font-medium">{screen.title || screen.id}</span>
+           </div>
+         ))}
+         {localScreens.length === 0 ? (
+           <div className="p-4 text-center text-sm" style={{ color: 'var(--st-text-tertiary)' }}>No screens to reorder.</div>
+         ) : null}
+      </div>
+    </Modal>
   );
 }
 
 function CreateMetaFlowPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId } = useProject();
 
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -256,7 +267,7 @@ function CreateMetaFlowPageContent() {
 
   const [lastSavedData, setLastSavedData] = useState<string>('');
   const [reorderDialogOpen, setReorderDialogOpen] = useState(false);
-  
+
   // History State
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -289,7 +300,7 @@ function CreateMetaFlowPageContent() {
       startLoading(async () => {
         const fetched = await getMetaFlowById(flowIdParam);
         if (!fetched) {
-          toast({ title: 'Error', description: 'Could not load flow.', variant: 'destructive' });
+          toast({ title: 'Error', description: 'Could not load flow.', tone: 'danger' });
           router.push('/wachat/flows');
           return;
         }
@@ -343,15 +354,15 @@ function CreateMetaFlowPageContent() {
   const runSaveDraft = useCallback(
     async (overrideFlowData?: any, showToast = true): Promise<string | null> => {
       if (!projectId) {
-        if (showToast) toast({ title: 'No project selected', variant: 'destructive' });
+        if (showToast) toast({ title: 'No project selected', tone: 'danger' });
         return null;
       }
       if (!flowName.trim()) {
-        if (showToast) toast({ title: 'Flow name is required', variant: 'destructive' });
+        if (showToast) toast({ title: 'Flow name is required', tone: 'danger' });
         return null;
       }
       if (!category) {
-        if (showToast) toast({ title: 'Pick a category', variant: 'destructive' });
+        if (showToast) toast({ title: 'Pick a category', tone: 'danger' });
         return null;
       }
 
@@ -369,7 +380,7 @@ function CreateMetaFlowPageContent() {
           if (!created.success || !created.flowId) {
             setValidation(created.validation_errors ?? []);
             if (created.error && !handleEncryptionError(created.error)) {
-              if (showToast) toast({ title: 'Create failed', description: created.error, variant: 'destructive' });
+              if (showToast) toast({ title: 'Create failed', description: created.error, tone: 'danger' });
             }
             return null;
           }
@@ -387,7 +398,7 @@ function CreateMetaFlowPageContent() {
               if (showToast) toast({
                 title: 'Flow created, but JSON upload failed',
                 description: saved.error,
-                variant: 'destructive',
+                tone: 'danger',
               });
             }
             router.replace(`/wachat/flows/create?flowId=${created.flowId}`);
@@ -413,7 +424,7 @@ function CreateMetaFlowPageContent() {
         setValidation(saved.validation_errors ?? []);
         if (!saved.success) {
           if (saved.error && !handleEncryptionError(saved.error)) {
-            if (showToast) toast({ title: 'Save failed', description: saved.error, variant: 'destructive' });
+            if (showToast) toast({ title: 'Save failed', description: saved.error, tone: 'danger' });
           }
           return null;
         }
@@ -421,7 +432,7 @@ function CreateMetaFlowPageContent() {
           if (showToast) toast({
             title: 'Metadata update failed',
             description: meta.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
         if (showToast) toast({ title: 'Draft saved' });
@@ -476,9 +487,9 @@ function CreateMetaFlowPageContent() {
     const isEditingNow = !!flowId;
     const isDraftNow = status === 'DRAFT' || !status;
     const isDeprecatedNow = status === 'DEPRECATED';
-    
+
     if (!isEditingNow || !isDraftNow || isDeprecatedNow || savingDraft || publishing) return;
-    
+
     const currentDataStr = JSON.stringify(flowData);
     if (currentDataStr === lastSavedData) return;
 
@@ -495,7 +506,7 @@ function CreateMetaFlowPageContent() {
       toast({
         title: 'Add a screen first',
         description: 'A flow needs at least one screen to publish.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -524,7 +535,7 @@ function CreateMetaFlowPageContent() {
       if (!res.success) {
         setValidation(res.validation_errors ?? validation);
         if (res.error && !handleEncryptionError(res.error)) {
-          toast({ title: 'Publish failed', description: res.error, variant: 'destructive' });
+          toast({ title: 'Publish failed', description: res.error, tone: 'danger' });
         }
         return;
       }
@@ -537,7 +548,7 @@ function CreateMetaFlowPageContent() {
 
   const runPreview = useCallback(async () => {
     if (!flowId) {
-      toast({ title: 'Save the flow first', variant: 'destructive' });
+      toast({ title: 'Save the flow first', tone: 'danger' });
       return;
     }
     setPreviewing(true);
@@ -545,7 +556,7 @@ function CreateMetaFlowPageContent() {
       const res = await getMetaFlowPreview({ flowId, invalidate: false, interactive: true });
       if (!res.success || !res.preview_url) {
         if (res.error && !handleEncryptionError(res.error)) {
-          toast({ title: 'Preview failed', description: res.error, variant: 'destructive' });
+          toast({ title: 'Preview failed', description: res.error, tone: 'danger' });
         }
         return;
       }
@@ -567,7 +578,7 @@ function CreateMetaFlowPageContent() {
     try {
       const res = await deprecateMetaFlow(flowId);
       if (!res.success) {
-        toast({ title: 'Deprecate failed', description: res.error, variant: 'destructive' });
+        toast({ title: 'Deprecate failed', description: res.error, tone: 'danger' });
         return;
       }
       setStatus('DEPRECATED');
@@ -578,9 +589,9 @@ function CreateMetaFlowPageContent() {
   }, [flowId, toast]);
 
   const statusChip = useMemo(() => {
-    if (isPublished) return <Badge variant="success">PUBLISHED</Badge>;
-    if (isDeprecated) return <Badge variant="danger">DEPRECATED</Badge>;
-    return <Badge variant="ghost">DRAFT</Badge>;
+    if (isPublished) return <Badge tone="success">PUBLISHED</Badge>;
+    if (isDeprecated) return <Badge tone="danger">DEPRECATED</Badge>;
+    return <Badge tone="neutral">DRAFT</Badge>;
   }, [isPublished, isDeprecated]);
 
   if (isLoading) return <PageSkeleton />;
@@ -590,81 +601,85 @@ function CreateMetaFlowPageContent() {
   return (
     <Suspense fallback={<PageSkeleton />}>
       <div className="flex h-[calc(100vh-theme(spacing.20))] flex-col">
-        <header className="flex flex-shrink-0 flex-col gap-0 border-b border-zoru-line bg-zoru-bg">
+        <header
+          className="flex flex-shrink-0 flex-col gap-0"
+          style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg)' }}
+        >
           <div className="flex items-center justify-between gap-3 p-3">
             <div className="flex min-w-0 items-center gap-4">
-              <Button variant="ghost" size="sm" asChild>
-                <Link href="/wachat/flows">
-                  <ChevronLeft className="mr-2 h-4 w-4" /> Back
-                </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                iconLeft={ChevronLeft}
+                onClick={() => router.push('/wachat/flows')}
+              >
+                Back
               </Button>
-              <div className="h-6 w-px bg-zoru-line" />
+              <div className="h-6 w-px" style={{ background: 'var(--st-border)' }} />
               <Input
                 aria-label="Flow name"
                 value={flowName}
                 onChange={(e) => setFlowName(e.target.value)}
                 disabled={disableEdits}
-                className="h-8 w-64 border-transparent bg-transparent px-2 text-lg shadow-none hover:border-zoru-line focus:border-zoru-line"
+                className="h-8 w-64 px-2 text-lg"
+                style={{ border: '1px solid transparent', background: 'transparent', boxShadow: 'none' }}
               />
               {statusChip}
               {metaId ? (
-                <span className="truncate font-mono text-[11px] text-zoru-ink-muted">
+                <span className="truncate font-mono text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
                   ID {metaId}
                 </span>
               ) : null}
             </div>
 
             <div className="flex items-center gap-3">
-              <Select value={category} onValueChange={setCategory} disabled={disableEdits}>
-                <ZoruSelectTrigger className="h-8 w-[170px]">
-                  <ZoruSelectValue placeholder="Category" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {flowCategories.map((c) => (
-                    <ZoruSelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
+              <Select
+                value={category}
+                onChange={(v) => setCategory(v ?? '')}
+                disabled={disableEdits}
+                placeholder="Category"
+                aria-label="Category"
+                size="sm"
+                className="w-[170px]"
+                options={flowCategories.map((c) => ({ value: c.id, label: c.name }))}
+              />
 
-              <div className="flex items-center rounded-md border border-zoru-line">
-                <Button
+              <div className="flex items-center" style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}>
+                <IconButton
+                  label="Undo"
+                  icon={History}
                   variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-none rounded-l-md border-r border-zoru-line"
+                  size="sm"
+                  className="-scale-x-100"
                   disabled={disableEdits || historyIndex <= 0}
                   onClick={undo}
-                  title="Undo"
-                >
-                  <History className="h-3.5 w-3.5 -scale-x-100" />
-                </Button>
-                <Button
+                />
+                <IconButton
+                  label="Redo"
+                  icon={History}
                   variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 rounded-none rounded-r-md"
+                  size="sm"
                   disabled={disableEdits || historyIndex >= history.length - 1}
                   onClick={redo}
-                  title="Redo"
-                >
-                  <History className="h-3.5 w-3.5" />
-                </Button>
+                />
               </div>
 
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={GripVertical}
                 disabled={disableEdits || !isDraft}
                 onClick={() => setReorderDialogOpen(true)}
                 title="Reorder Screens"
               >
-                <GripVertical className="h-4 w-4" />
                 Reorder
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
+                iconLeft={savingDraft ? undefined : Save}
+                loading={savingDraft}
                 disabled={savingDraft || disableEdits || !isDraft}
                 onClick={() => runSaveDraft(flowData, true)}
                 title={
@@ -673,67 +688,58 @@ function CreateMetaFlowPageContent() {
                     : 'Save the current canvas as DRAFT on Meta'
                 }
               >
-                {savingDraft ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="h-4 w-4" />
-                )}
                 Save draft
               </Button>
 
               <Button
+                variant="primary"
                 size="sm"
+                iconLeft={publishing ? undefined : Upload}
+                loading={publishing}
                 disabled={publishing || disableEdits || !isDraft}
                 onClick={runPublish}
                 title={!isDraft ? 'Already published' : 'Save and publish to Meta'}
               >
-                {publishing ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
                 Publish
               </Button>
 
               <Button
                 variant="secondary"
                 size="sm"
+                iconLeft={previewing ? undefined : Eye}
+                loading={previewing}
                 disabled={previewing || !flowId}
                 onClick={runPreview}
               >
-                {previewing ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
                 Preview
               </Button>
 
               {isPublished ? (
                 <Button
-                  variant="destructive"
+                  variant="danger"
                   size="sm"
+                  iconLeft={deprecating ? undefined : Archive}
+                  loading={deprecating}
                   disabled={deprecating}
                   onClick={runDeprecate}
                 >
-                  {deprecating ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Archive className="h-4 w-4" />
-                  )}
                   Deprecate
                 </Button>
               ) : null}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 border-t border-zoru-line bg-zoru-surface px-3 py-1.5">
-            <Label
+          <div
+            className="flex items-center gap-3 px-3 py-1.5"
+            style={{ borderTop: '1px solid var(--st-border)', background: 'var(--st-bg-secondary)' }}
+          >
+            <label
               htmlFor="endpoint_uri"
-              className="text-[11px] uppercase tracking-wide text-zoru-ink-muted"
+              className="text-[11px] uppercase tracking-wide"
+              style={{ color: 'var(--st-text-tertiary)' }}
             >
               Endpoint URI
-            </Label>
+            </label>
             <Input
               id="endpoint_uri"
               value={endpointUri}
@@ -759,16 +765,16 @@ function CreateMetaFlowPageContent() {
                 Auto-fill
               </Button>
             ) : null}
-            <span className="text-[10.5px] text-zoru-ink-muted">For data_exchange screens</span>
+            <span className="text-[10.5px]" style={{ color: 'var(--st-text-tertiary)' }}>For data_exchange screens</span>
           </div>
 
-          <ValidationBanner 
-            errors={validation} 
-            flowData={flowData} 
+          <ValidationBanner
+            errors={validation}
+            flowData={flowData}
             onSelectNode={(screenId, comp) => {
               setSelectedScreenId(screenId);
               if (comp) setSelectedComponent(comp);
-            }} 
+            }}
           />
         </header>
 
@@ -814,7 +820,9 @@ function CreateMetaFlowPageContent() {
 export default function CreateMetaFlowPage() {
   return (
     <Suspense fallback={<PageSkeleton />}>
-      <CreateMetaFlowPageContent />
+      <WachatPage variant="app">
+        <CreateMetaFlowPageContent />
+      </WachatPage>
     </Suspense>
   );
 }

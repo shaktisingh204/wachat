@@ -2,23 +2,14 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
-  Card,
   Skeleton,
-} from '@/components/zoruui';
+  StatCard,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { formatUTC } from '@/lib/utils';
 import { BarChart3,
   Eye,
   RefreshCw,
@@ -29,6 +20,7 @@ import type { WithId,
 import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
 import { WhatsAppWidgetGenerator } from '@/components/zoruui-domain/whatsapp-widget-generator';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import React from 'react';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error?: Error }> {
@@ -44,9 +36,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <Alert variant="destructive">
-          <ZoruAlertTitle>Something went wrong</ZoruAlertTitle>
-          <ZoruAlertDescription>{this.state.error?.message || "An unexpected error occurred."}</ZoruAlertDescription>
+        <Alert tone="danger" title="Something went wrong">
+          {this.state.error?.message || 'An unexpected error occurred.'}
         </Alert>
       );
     }
@@ -60,30 +51,6 @@ function PageSkeleton() {
       <Skeleton className="h-24 w-full" />
       <Skeleton className="h-80 w-full" />
     </div>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-}) {
-  return (
-    <Card className="flex items-center gap-4 p-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink-muted">
-        {icon}
-      </span>
-      <div>
-        <p className="text-xs text-zoru-ink-muted">{title}</p>
-        <p className="text-[20px] tabular-nums text-zoru-ink">
-          {typeof value === 'number' ? value.toLocaleString() : value}
-        </p>
-      </div>
-    </Card>
   );
 }
 
@@ -110,62 +77,50 @@ export default function WhatsappWidgetGeneratorPage() {
   const stats = project?.widgetSettings?.stats || { loads: 0, opens: 0, clicks: 0 };
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Widget generator</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex-1 space-y-6">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Integrations', href: '/wachat/integrations' },
+        { label: 'Widget generator' },
+      ]}
+      title="Widget generator"
+      description="Embed a WhatsApp chat widget on your site and track its performance."
+    >
+      <div className="flex-1 space-y-6">
         {isLoading ? (
           <PageSkeleton />
         ) : !project ? (
-          <Alert variant="destructive">
-            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-            <ZoruAlertDescription>
-              Please select a project from the main dashboard.
-            </ZoruAlertDescription>
+          <Alert tone="danger" title="No project selected">
+            Please select a project from the main dashboard.
           </Alert>
         ) : (
           <>
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px] text-zoru-ink">Widget analytics</h2>
+              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                Widget analytics
+              </h2>
               <Button
                 size="sm"
                 variant="outline"
+                iconLeft={RefreshCw}
                 onClick={() =>
                   startLoadingTransition(() => {
                     fetchProjectData();
                   })
                 }
               >
-                <RefreshCw className="h-3.5 w-3.5" strokeWidth={2} />
                 Refresh
               </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-              <StatCard title="Widget loads" value={stats.loads} icon={<Eye className="h-4 w-4" />} />
-              <StatCard title="Chat opens" value={stats.opens} icon={<Users className="h-4 w-4" />} />
+              <StatCard label="Widget loads" value={stats.loads.toLocaleString()} icon={Eye} />
+              <StatCard label="Chat opens" value={stats.opens.toLocaleString()} icon={Users} />
               <StatCard
-                title="Clicks to WhatsApp"
-                value={stats.clicks}
-                icon={<BarChart3 className="h-4 w-4" />}
+                label="Clicks to WhatsApp"
+                value={stats.clicks.toLocaleString()}
+                icon={BarChart3}
               />
             </div>
 
@@ -175,6 +130,6 @@ export default function WhatsappWidgetGeneratorPage() {
           </>
         )}
       </div>
-    </div>
+    </WachatPage>
   );
 }

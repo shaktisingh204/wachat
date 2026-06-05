@@ -1,44 +1,31 @@
 'use client';
 
 import {
-  ZORU_CHART_PALETTE,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
+  CardBody,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
   EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Skeleton,
+  Spinner,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruAlert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-} from '@/components/zoruui';
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+  useToast,
+  Select,
+  Field,
+  Alert,
+} from '@/components/sabcrm/20ui';
+import * as Recharts from 'recharts';
 import {
   useEffect,
   useMemo,
@@ -48,7 +35,6 @@ import {
   } from 'react';
 import {
   BarChart3,
-  Loader2,
   RefreshCw,
   Send,
   CircleCheck,
@@ -57,12 +43,13 @@ import {
   Info,
   } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
 
 /**
  * Wachat Template Analytics — view delivery and read metrics per
- * template, rebuilt on ZoruUI primitives. Greyscale chart palette.
+ * template, rebuilt on the 20ui design system.
  */
 
 import * as React from 'react';
@@ -75,10 +62,16 @@ type AnalyticsRow = {
   failed?: number;
 };
 
-function rateClass(rate: number): string {
-  if (rate >= 80) return 'text-zoru-success';
-  if (rate >= 50) return 'text-zoru-warning';
-  return 'text-zoru-danger';
+const ENGAGEMENT_CONFIG: ChartConfig = {
+  Sent: { label: 'Sent', color: 'var(--st-accent)' },
+  Delivered: { label: 'Delivered', color: 'var(--st-status-ok)' },
+  Read: { label: 'Read', color: 'var(--st-text-secondary)' },
+};
+
+function rateStyle(rate: number): React.CSSProperties {
+  if (rate >= 80) return { color: 'var(--st-status-ok)' };
+  if (rate >= 50) return { color: 'var(--st-warn)' };
+  return { color: 'var(--st-danger)' };
 }
 
 function pct(num: number, den: number): number {
@@ -93,7 +86,7 @@ function formatDate(date: Date) {
 
 export default function TemplateAnalyticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [analytics, setAnalytics] = useState<AnalyticsRow[]>([]);
@@ -110,7 +103,7 @@ export default function TemplateAnalyticsPage() {
           toast({
             title: 'Error',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         } else {
           setAnalytics(res.analytics || []);
@@ -174,307 +167,326 @@ export default function TemplateAnalyticsPage() {
     ];
   }, [analytics, abTestTemplate1, abTestTemplate2]);
 
-  return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/templates">
-              Templates
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+  const templateOptions = useMemo(
+    () =>
+      analytics.map((a) => ({ value: a._id || '', label: a._id || 'Unknown' })),
+    [analytics],
+  );
 
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Template analytics</ZoruPageTitle>
-          <ZoruPageDescription>
-            Track delivery, read, and failure rates for your WhatsApp message
-            templates.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions className="flex items-center gap-3">
+  return (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Templates', href: '/wachat/templates' },
+        { label: 'Analytics' },
+      ]}
+      title="Template analytics"
+      description="Track delivery, read, and failure rates for your WhatsApp message templates."
+      actions={
+        <div className="flex items-center gap-3">
           {lastSynced && (
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span
+              className="text-[12px]"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
               Last synced: {formatDate(lastSynced)}
             </span>
           )}
           <Button
             variant="outline"
             size="sm"
+            iconLeft={RefreshCw}
             onClick={() => projectId && fetchAnalytics(projectId, true)}
             disabled={!projectId || isLoading}
           >
-            <RefreshCw className={isLoading ? 'animate-spin' : ''} />
             {isLoading ? 'Refreshing…' : 'Refresh'}
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <ZoruAlert variant="default" className="bg-zoru-surface border-zoru-line shadow-sm">
-        <Info className="h-4 w-4 text-zoru-ink-muted" />
-        <ZoruAlertTitle>Data sync delay</ZoruAlertTitle>
-        <ZoruAlertDescription className="text-zoru-ink-muted">
-          Template analytics heavily rely on Meta webhook deliveries, which can sometimes be delayed. Refresh periodically to get the latest metrics.
-        </ZoruAlertDescription>
-      </ZoruAlert>
+        </div>
+      }
+    >
+      <Alert tone="info" icon={Info} title="Data sync delay">
+        Template analytics heavily rely on Meta webhook deliveries, which can
+        sometimes be delayed. Refresh periodically to get the latest metrics.
+      </Alert>
 
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard
           label="Total sent"
           value={totals.totalSent.toLocaleString()}
-          icon={<Send />}
+          icon={Send}
         />
         <StatCard
           label="Delivered"
           value={totals.totalDelivered.toLocaleString()}
-          icon={<CircleCheck />}
+          icon={CircleCheck}
         />
         <StatCard
           label="Read"
           value={totals.totalRead.toLocaleString()}
-          icon={<Eye />}
+          icon={Eye}
         />
         <StatCard
           label="Failed"
           value={totals.totalFailed.toLocaleString()}
-          icon={<CircleX />}
+          icon={CircleX}
         />
       </div>
 
       {/* Engagement chart */}
       <Card>
-        <ZoruCardContent className="pt-6">
+        <CardBody>
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h3 className="text-[15px] font-semibold text-zoru-ink">
+              <h3
+                className="text-[15px] font-semibold"
+                style={{ color: 'var(--st-text)' }}
+              >
                 Engagement by template
               </h3>
-              <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+              <p
+                className="mt-0.5 text-[12px]"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
                 Top 10 templates by send volume
               </p>
             </div>
           </div>
           {isLoading && analytics.length === 0 ? (
-            <Skeleton className="h-[280px] w-full" />
+            <Skeleton width="100%" height={280} radius="var(--st-radius-lg)" />
           ) : chartData.length === 0 ? (
             <EmptyState
-              compact
-              icon={<BarChart3 />}
+              size="sm"
+              icon={BarChart3}
               title="No engagement data"
               description="Send template messages to begin collecting metrics."
             />
           ) : (
-            <ZoruChartContainer height={280}>
-              <ZoruChart.BarChart data={chartData}>
-                <ZoruChart.CartesianGrid
+            <ChartContainer config={ENGAGEMENT_CONFIG} style={{ height: 280 }}>
+              <Recharts.BarChart data={chartData}>
+                <Recharts.CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="hsl(var(--zoru-line))"
+                  stroke="var(--st-border)"
+                  vertical={false}
                 />
-                <ZoruChart.XAxis
+                <Recharts.XAxis
                   dataKey="name"
-                  stroke="hsl(var(--zoru-ink-muted))"
-                  fontSize={11}
+                  tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--st-border)' }}
+                />
+                <Recharts.YAxis
+                  tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
                   tickLine={false}
                   axisLine={false}
                 />
-                <ZoruChart.YAxis
-                  stroke="hsl(var(--zoru-ink-muted))"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <ZoruChart.Tooltip
-                  content={(props: any) => <ZoruChartTooltip {...props} />}
-                  cursor={{ fill: 'hsl(var(--zoru-surface))' }}
-                />
-                <ZoruChart.Legend
-                  iconType="circle"
-                  wrapperStyle={{ fontSize: 11 }}
-                />
-                <ZoruChart.Bar
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Recharts.Bar
                   dataKey="Sent"
-                  fill={ZORU_CHART_PALETTE[0]}
+                  fill="var(--color-Sent)"
                   radius={[4, 4, 0, 0]}
                 />
-                <ZoruChart.Bar
+                <Recharts.Bar
                   dataKey="Delivered"
-                  fill={ZORU_CHART_PALETTE[1]}
+                  fill="var(--color-Delivered)"
                   radius={[4, 4, 0, 0]}
                 />
-                <ZoruChart.Bar
+                <Recharts.Bar
                   dataKey="Read"
-                  fill={ZORU_CHART_PALETTE[2]}
+                  fill="var(--color-Read)"
                   radius={[4, 4, 0, 0]}
                 />
-              </ZoruChart.BarChart>
-            </ZoruChartContainer>
+              </Recharts.BarChart>
+            </ChartContainer>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* A/B Testing Card */}
       <Card>
-        <ZoruCardContent className="pt-6">
+        <CardBody>
           <div className="mb-4">
-            <h3 className="text-[15px] font-semibold text-zoru-ink">
+            <h3
+              className="text-[15px] font-semibold"
+              style={{ color: 'var(--st-text)' }}
+            >
               A/B testing comparison
             </h3>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <p
+              className="mt-0.5 text-[12px]"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
               Compare performance between two different templates.
             </p>
           </div>
-          
+
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-medium text-zoru-ink">Template A</label>
-              <ZoruSelect value={abTestTemplate1} onValueChange={setAbTestTemplate1}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select first template" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {analytics.map((a) => (
-                    <ZoruSelectItem key={a._id} value={a._id || ''}>
-                      {a._id}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[13px] font-medium text-zoru-ink">Template B</label>
-              <ZoruSelect value={abTestTemplate2} onValueChange={setAbTestTemplate2}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select second template" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {analytics.map((a) => (
-                    <ZoruSelectItem key={a._id} value={a._id || ''}>
-                      {a._id}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
+            <Field label="Template A">
+              <Select
+                value={abTestTemplate1}
+                onChange={(v) => setAbTestTemplate1(v ?? '')}
+                options={templateOptions}
+                placeholder="Select first template"
+                searchable
+                aria-label="Template A"
+              />
+            </Field>
+            <Field label="Template B">
+              <Select
+                value={abTestTemplate2}
+                onChange={(v) => setAbTestTemplate2(v ?? '')}
+                options={templateOptions}
+                placeholder="Select second template"
+                searchable
+                aria-label="Template B"
+              />
+            </Field>
           </div>
-          
+
           {abTestTemplate1 && abTestTemplate2 ? (
-            <ZoruChartContainer height={280}>
-              <ZoruChart.BarChart data={abTestData}>
-                <ZoruChart.CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                <ZoruChart.XAxis dataKey="name" stroke="hsl(var(--zoru-ink-muted))" fontSize={11} tickLine={false} axisLine={false} />
-                <ZoruChart.YAxis stroke="hsl(var(--zoru-ink-muted))" fontSize={11} tickLine={false} axisLine={false} />
-                <ZoruChart.Tooltip content={(props: any) => <ZoruChartTooltip {...props} />} cursor={{ fill: 'hsl(var(--zoru-surface))' }} />
-                <ZoruChart.Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} />
-                <ZoruChart.Bar dataKey="Sent" fill={ZORU_CHART_PALETTE[0]} radius={[4, 4, 0, 0]} />
-                <ZoruChart.Bar dataKey="Delivered" fill={ZORU_CHART_PALETTE[1]} radius={[4, 4, 0, 0]} />
-                <ZoruChart.Bar dataKey="Read" fill={ZORU_CHART_PALETTE[2]} radius={[4, 4, 0, 0]} />
-              </ZoruChart.BarChart>
-            </ZoruChartContainer>
+            <ChartContainer config={ENGAGEMENT_CONFIG} style={{ height: 280 }}>
+              <Recharts.BarChart data={abTestData}>
+                <Recharts.CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="var(--st-border)"
+                  vertical={false}
+                />
+                <Recharts.XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                  tickLine={false}
+                  axisLine={{ stroke: 'var(--st-border)' }}
+                />
+                <Recharts.YAxis
+                  tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Recharts.Bar
+                  dataKey="Sent"
+                  fill="var(--color-Sent)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Recharts.Bar
+                  dataKey="Delivered"
+                  fill="var(--color-Delivered)"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Recharts.Bar
+                  dataKey="Read"
+                  fill="var(--color-Read)"
+                  radius={[4, 4, 0, 0]}
+                />
+              </Recharts.BarChart>
+            </ChartContainer>
           ) : (
-            <div className="flex h-[280px] items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-surface-hover/50">
-              <p className="text-[13px] text-zoru-ink-muted">Select two templates above to compare their performance.</p>
+            <div
+              className="flex h-[280px] items-center justify-center"
+              style={{
+                borderRadius: 'var(--st-radius-lg)',
+                border: '1px dashed var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+              }}
+            >
+              <p
+                className="text-[13px]"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
+                Select two templates above to compare their performance.
+              </p>
             </div>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
       {/* Per-template table */}
       <Card>
-        <ZoruCardContent className="pt-6">
+        <CardBody>
           <div className="mb-4">
-            <h3 className="text-[15px] font-semibold text-zoru-ink">
+            <h3
+              className="text-[15px] font-semibold"
+              style={{ color: 'var(--st-text)' }}
+            >
               Per-template breakdown
             </h3>
-            <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+            <p
+              className="mt-0.5 text-[12px]"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
               Delivery and read rates for every template that sent messages.
             </p>
           </div>
           {isLoading && analytics.length === 0 ? (
             <div className="flex h-20 items-center justify-center">
-              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+              <Spinner label="Loading analytics" />
             </div>
           ) : analytics.length === 0 ? (
             <EmptyState
-              compact
-              icon={<BarChart3 />}
+              size="sm"
+              icon={BarChart3}
               title="No analytics data"
               description="Send template messages to start collecting delivery metrics."
             />
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Template name</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Sent</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Delivered</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Read</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Failed</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Delivery %</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Read %</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Template name</Th>
+                  <Th align="right">Sent</Th>
+                  <Th align="right">Delivered</Th>
+                  <Th align="right">Read</Th>
+                  <Th align="right">Failed</Th>
+                  <Th align="right">Delivery %</Th>
+                  <Th align="right">Read %</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {analytics.map((row) => {
                   const deliveryRate = pct(row.delivered || 0, row.sent || 0);
                   const readRate = pct(row.read || 0, row.sent || 0);
                   return (
-                    <ZoruTableRow key={row._id || 'unknown'}>
-                      <ZoruTableCell className="text-[13px] font-medium">
+                    <Tr key={row._id || 'unknown'}>
+                      <Td className="text-[13px] font-medium">
                         {row._id || 'Unknown'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                      </Td>
+                      <Td align="right" className="text-[13px] tabular-nums">
                         {(row.sent || 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                      </Td>
+                      <Td align="right" className="text-[13px] tabular-nums">
                         {(row.delivered || 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                      </Td>
+                      <Td align="right" className="text-[13px] tabular-nums">
                         {(row.read || 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-right text-[13px] tabular-nums">
+                      </Td>
+                      <Td align="right" className="text-[13px] tabular-nums">
                         {(row.failed || 0).toLocaleString()}
-                      </ZoruTableCell>
-                      <ZoruTableCell
-                        className={cn(
-                          'text-right text-[13px] font-semibold tabular-nums',
-                          rateClass(deliveryRate),
-                        )}
+                      </Td>
+                      <Td
+                        align="right"
+                        className="text-[13px] font-semibold tabular-nums"
+                        style={rateStyle(deliveryRate)}
                       >
                         {deliveryRate}%
-                      </ZoruTableCell>
-                      <ZoruTableCell
-                        className={cn(
-                          'text-right text-[13px] font-semibold tabular-nums',
-                          rateClass(readRate),
-                        )}
+                      </Td>
+                      <Td
+                        align="right"
+                        className="text-[13px] font-semibold tabular-nums"
+                        style={rateStyle(readRate)}
                       >
                         {readRate}%
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   );
                 })}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
-
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

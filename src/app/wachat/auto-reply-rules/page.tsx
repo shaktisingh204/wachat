@@ -1,53 +1,39 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
   EmptyState,
+  Field,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
+  Spinner,
+  StatCard,
   Switch,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  TBody,
+  Td,
   Textarea,
-  useZoruToast,
-  cn,
-} from '@/components/zoruui';
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useCallback,
@@ -57,11 +43,11 @@ import {
   startTransition,
   } from 'react';
 import { Bot,
-  Loader,
   Plus,
   Trash2, GripVertical, Wand2 } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { AiSuggestionsDialog } from './ai-suggestions';
 import {
   deleteAutoReplyRule,
@@ -87,8 +73,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-
-import * as React from 'react';
 
 type AutoReplyRule = {
   _id: string;
@@ -117,60 +101,67 @@ function SortableRuleRow({ rule, setDeleteTarget }: { rule: AutoReplyRule; setDe
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    ...(isDragging
+      ? { opacity: 0.5, position: 'relative' as const, zIndex: 10, background: 'var(--st-bg-secondary)' }
+      : null),
   };
 
   return (
-    <ZoruTableRow ref={setNodeRef} style={style} className={cn(isDragging && "opacity-50 relative z-10 bg-zoru-surface-2")}>
-      <ZoruTableCell className="w-10">
-        <div {...attributes} {...listeners} className="cursor-grab hover:text-zoru-ink text-zoru-ink-muted transition-colors">
-            <GripVertical className="h-4 w-4" />
+    <Tr ref={setNodeRef} style={style}>
+      <Td className="w-10">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab transition-colors"
+          style={{ color: 'var(--st-text-tertiary)' }}
+        >
+            <GripVertical className="h-4 w-4" aria-hidden="true" />
         </div>
-      </ZoruTableCell>
-      <ZoruTableCell className="text-[13px] text-zoru-ink">
+      </Td>
+      <Td style={{ fontSize: 13, color: 'var(--st-text)' }}>
         {rule.name}
-      </ZoruTableCell>
-      <ZoruTableCell>
+      </Td>
+      <Td>
         <div className="flex flex-wrap gap-1">
           {(rule.keywords || []).slice(0, 3).map((kw) => (
-            <Badge key={kw} variant="secondary">
+            <Badge key={kw} tone="neutral">
               {kw}
             </Badge>
           ))}
           {(rule.keywords || []).length > 3 && (
-            <Badge variant="outline">
+            <Badge kind="outline">
               +{(rule.keywords || []).length - 3}
             </Badge>
           )}
         </div>
-      </ZoruTableCell>
-      <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+      </Td>
+      <Td style={{ fontSize: 13, color: 'var(--st-text-secondary)' }}>
         {rule.matchType}
-      </ZoruTableCell>
-      <ZoruTableCell className="max-w-[200px] truncate text-[13px] text-zoru-ink-muted">
+      </Td>
+      <Td truncate className="max-w-[200px]" style={{ fontSize: 13, color: 'var(--st-text-secondary)' }}>
         {rule.responseText || rule.templateName || '-'}
-      </ZoruTableCell>
-      <ZoruTableCell>
-        <Badge variant={rule.isActive ? 'success' : 'secondary'}>
+      </Td>
+      <Td>
+        <Badge tone={rule.isActive ? 'success' : 'neutral'}>
           {rule.isActive ? 'Active' : 'Inactive'}
         </Badge>
-      </ZoruTableCell>
-      <ZoruTableCell className="text-right">
+      </Td>
+      <Td align="right">
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           onClick={() => setDeleteTarget(rule)}
           aria-label="Delete rule"
-        >
-          <Trash2 />
-        </Button>
-      </ZoruTableCell>
-    </ZoruTableRow>
+          iconLeft={Trash2}
+        />
+      </Td>
+    </Tr>
   );
 }
 
 export default function AutoReplyRulesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [rules, setRules] = useState<AutoReplyRule[]>([]);
@@ -205,7 +196,7 @@ export default function AutoReplyRulesPage() {
       startLoading(async () => {
         const res = await getAutoReplyRules(pid);
         if (res.error) {
-          toast({ title: 'Error', description: res.error, variant: 'destructive' });
+          toast({ title: 'Error', description: res.error, tone: 'danger' });
         } else {
           setRules((res.rules || []) as AutoReplyRule[]);
         }
@@ -220,7 +211,7 @@ export default function AutoReplyRulesPage() {
 
   useEffect(() => {
     if (formState?.message) {
-      toast({ title: 'Saved', description: formState.message });
+      toast({ title: 'Saved', description: formState.message, tone: 'success' });
       setCreateOpen(false);
       // Reset form states
       setFormName('');
@@ -232,7 +223,7 @@ export default function AutoReplyRulesPage() {
       if (projectId) fetchRules(projectId);
     }
     if (formState?.error) {
-      toast({ title: 'Error', description: formState.error, variant: 'destructive' });
+      toast({ title: 'Error', description: formState.error, tone: 'danger' });
     }
   }, [formState, toast, projectId, fetchRules]);
 
@@ -242,7 +233,7 @@ export default function AutoReplyRulesPage() {
     startDeleting(async () => {
       const res = await deleteAutoReplyRule(target._id);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
         setRules((prev) => prev.filter((r) => r._id !== target._id));
         toast({ title: 'Deleted', description: 'Rule removed.' });
@@ -269,147 +260,122 @@ export default function AutoReplyRulesPage() {
       setRules((items) => {
         const oldIndex = items.findIndex((i) => i._id === active.id);
         const newIndex = items.findIndex((i) => i._id === over.id);
-        
+
         // Optimistic UI update
         const newItems = arrayMove(items, oldIndex, newIndex);
-        
+
         // Fire off a server action to save the new sort order.
         startTransition(() => {
           updateAutoReplyRuleOrder(newItems.map(i => i._id));
         });
-        
+
         return newItems;
       });
     }
+  };
+
+  const resetForm = () => {
+    setFormName('');
+    setFormKeywords('');
+    setFormResponseText('');
+    setResponseType('text');
+    setMatchType('contains');
+    setIsActive(true);
   };
 
   const totalRules = rules.length;
   const activeRules = rules.filter((r) => r.isActive).length;
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Auto-Reply Rules</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageTitle>Auto-Reply Rules</ZoruPageTitle>
-          <ZoruPageDescription>
-            Set up keyword-based auto-reply rules for incoming WhatsApp messages.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Auto-Reply Rules' },
+      ]}
+      title="Auto-Reply Rules"
+      description="Set up keyword-based auto-reply rules for incoming WhatsApp messages."
+      actions={
+        <>
           <Button
             size="sm"
             variant="outline"
             onClick={() => setAiSuggestionsOpen(true)}
             disabled={!projectId}
-            className="text-zoru-ink hover:text-zoru-ink hover:bg-zoru-surface-2"
+            iconLeft={Wand2}
           >
-            <Wand2 className="mr-2 h-4 w-4" /> AI Suggestions
+            AI Suggestions
           </Button>
           <Button
             size="sm"
+            variant="primary"
             onClick={() => {
-              setFormName('');
-              setFormKeywords('');
-              setFormResponseText('');
-              setResponseType('text');
-              setMatchType('contains');
-              setIsActive(true);
+              resetForm();
               setCreateOpen(true);
             }}
             disabled={!projectId}
+            iconLeft={Plus}
           >
-            <Plus /> Create rule
+            Create rule
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
+        </>
+      }
+    >
       {/* Stats */}
-      <div className="mt-6 grid max-w-md grid-cols-2 gap-3">
-        <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Total rules
-          </div>
-          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
-            {totalRules}
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Active rules
-          </div>
-          <div className="mt-2 text-[22px] text-zoru-ink leading-none">
-            {activeRules}
-          </div>
-        </Card>
+      <div className="grid max-w-md grid-cols-2 gap-3">
+        <StatCard label="Total rules" value={totalRules} />
+        <StatCard label="Active rules" value={activeRules} />
       </div>
 
       {/* Rules list */}
-      <Card className="mt-6 p-5">
+      <Card padding="lg" className="mt-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[15px] text-zoru-ink">Rules</h2>
-          {isLoading && (
-            <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
-          )}
+          <h2 style={{ fontSize: 15, color: 'var(--st-text)' }}>Rules</h2>
+          {isLoading && <Spinner size="sm" label="Loading rules" />}
         </div>
 
         {isLoading && rules.length === 0 ? (
           <div className="flex h-20 items-center justify-center">
-            <Loader className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+            <Spinner label="Loading rules" />
           </div>
         ) : rules.length === 0 ? (
           <EmptyState
-            icon={<Bot />}
+            icon={Bot}
             title="No rules yet"
             description="Create your first auto-reply rule to handle keyword-triggered responses."
             action={
-              <Button size="sm" onClick={() => {
-                setFormName('');
-                setFormKeywords('');
-                setFormResponseText('');
-                setResponseType('text');
-                setMatchType('contains');
-                setIsActive(true);
-                setCreateOpen(true);
-              }}>
-                <Plus /> Create rule
+              <Button
+                size="sm"
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => {
+                  resetForm();
+                  setCreateOpen(true);
+                }}
+              >
+                Create rule
               </Button>
             }
           />
         ) : (
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead className="w-10"></ZoruTableHead>
-                <ZoruTableHead>Name</ZoruTableHead>
-                <ZoruTableHead>Keywords</ZoruTableHead>
-                <ZoruTableHead>Match</ZoruTableHead>
-                <ZoruTableHead>Response</ZoruTableHead>
-                <ZoruTableHead>Status</ZoruTableHead>
-                <ZoruTableHead className="text-right">Action</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
+            <THead>
+              <Tr>
+                <Th className="w-10"></Th>
+                <Th>Name</Th>
+                <Th>Keywords</Th>
+                <Th>Match</Th>
+                <Th>Response</Th>
+                <Th>Status</Th>
+                <Th align="right">Action</Th>
+              </Tr>
+            </THead>
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
             >
-                <ZoruTableBody>
+                <TBody>
                     <SortableContext
                         items={rules.map((r) => r._id)}
                         strategy={verticalListSortingStrategy}
@@ -418,21 +384,21 @@ export default function AutoReplyRulesPage() {
                         <SortableRuleRow key={rule._id} rule={rule} setDeleteTarget={setDeleteTarget} />
                     ))}
                     </SortableContext>
-                </ZoruTableBody>
+                </TBody>
             </DndContext>
           </Table>
         )}
       </Card>
 
-      {/* Create-rule sheet */}
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <ZoruSheetContent side="right" className="sm:max-w-lg">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Create auto-reply rule</ZoruSheetTitle>
-            <ZoruSheetDescription>
+      {/* Create-rule drawer */}
+      <Drawer open={createOpen} onOpenChange={setCreateOpen} side="right">
+        <DrawerContent side="right" closeLabel="Close" className="sm:max-w-lg">
+          <DrawerHeader>
+            <DrawerTitle>Create auto-reply rule</DrawerTitle>
+            <DrawerDescription>
               Trigger a response when an incoming message matches your keywords.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
 
           <form action={formAction} className="mt-6 space-y-4">
             <input type="hidden" name="projectId" value={projectId || ''} />
@@ -440,13 +406,14 @@ export default function AutoReplyRulesPage() {
             <input type="hidden" name="responseType" value={responseType} />
             <input type="hidden" name="isActive" value={isActive ? 'on' : ''} />
 
-            <div className="grid gap-2">
-              <Label htmlFor="rule-name">Rule name</Label>
+            <Field label="Rule name">
               <Input id="rule-name" name="name" placeholder="Welcome new customers" value={formName} onChange={e => setFormName(e.target.value)} required />
-            </div>
+            </Field>
 
-            <div className="grid gap-2">
-              <Label htmlFor="rule-keywords">Keywords</Label>
+            <Field
+              label="Keywords"
+              help="Comma-separated. Matching is case-insensitive."
+            >
               <Input
                 id="rule-keywords"
                 name="keywords"
@@ -455,41 +422,35 @@ export default function AutoReplyRulesPage() {
                 onChange={e => setFormKeywords(e.target.value)}
                 required
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Comma-separated. Matching is case-insensitive.
-              </p>
-            </div>
+            </Field>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="grid gap-2">
-                <Label>Match type</Label>
-                <Select value={matchType} onValueChange={setMatchType}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Match type" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="contains">Contains</ZoruSelectItem>
-                    <ZoruSelectItem value="exact">Exact</ZoruSelectItem>
-                    <ZoruSelectItem value="starts_with">Starts with</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label>Response type</Label>
-                <Select value={responseType} onValueChange={setResponseType}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Response type" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="text">Text</ZoruSelectItem>
-                    <ZoruSelectItem value="template">Template</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </Select>
-              </div>
+              <Field label="Match type">
+                <Select
+                  value={matchType}
+                  onChange={(v) => setMatchType(v ?? 'contains')}
+                  placeholder="Match type"
+                  options={[
+                    { value: 'contains', label: 'Contains' },
+                    { value: 'exact', label: 'Exact' },
+                    { value: 'starts_with', label: 'Starts with' },
+                  ]}
+                />
+              </Field>
+              <Field label="Response type">
+                <Select
+                  value={responseType}
+                  onChange={(v) => setResponseType(v ?? 'text')}
+                  placeholder="Response type"
+                  options={[
+                    { value: 'text', label: 'Text' },
+                    { value: 'template', label: 'Template' },
+                  ]}
+                />
+              </Field>
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="rule-response">Response text</Label>
+            <Field label="Response text">
               <Textarea
                 id="rule-response"
                 name="responseText"
@@ -498,40 +459,35 @@ export default function AutoReplyRulesPage() {
                 onChange={e => setFormResponseText(e.target.value)}
                 rows={3}
               />
-            </div>
+            </Field>
 
             {responseType === 'template' && (
-              <div className="grid gap-2">
-                <Label htmlFor="rule-template">Template name</Label>
+              <Field label="Template name">
                 <Input
                   id="rule-template"
                   name="templateName"
                   placeholder="welcome_template"
                 />
-              </div>
+              </Field>
             )}
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label htmlFor="rule-from">Active from</Label>
+              <Field label="Active from">
                 <Input id="rule-from" name="timeFrom" type="time" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="rule-to">Active to</Label>
+              </Field>
+              <Field label="Active to">
                 <Input id="rule-to" name="timeTo" type="time" />
-              </div>
+              </Field>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Switch
-                id="rule-active"
-                checked={isActive}
-                onCheckedChange={setIsActive}
-              />
-              <Label htmlFor="rule-active">Active</Label>
-            </div>
+            <Switch
+              id="rule-active"
+              checked={isActive}
+              onCheckedChange={setIsActive}
+              label="Active"
+            />
 
-            <ZoruSheetFooter className="pt-2">
+            <DrawerFooter className="pt-2">
               <Button
                 type="button"
                 variant="ghost"
@@ -539,51 +495,49 @@ export default function AutoReplyRulesPage() {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isPending || !projectId}>
+              <Button type="submit" variant="primary" loading={isPending} disabled={isPending || !projectId}>
                 {isPending ? 'Saving…' : 'Create rule'}
               </Button>
-            </ZoruSheetFooter>
+            </DrawerFooter>
           </form>
-        </ZoruSheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
       {/* Delete-rule confirm */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!deleteTarget}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this rule?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this rule?</AlertDialogTitle>
+            <AlertDialogDescription>
               {deleteTarget?.name
                 ? `“${deleteTarget.name}” will stop responding to incoming messages.`
                 : 'This rule will stop responding to incoming messages.'}{' '}
               This action cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              destructive
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              intent="danger"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
             >
               {isDeleting ? 'Deleting…' : 'Yes, delete'}
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AiSuggestionsDialog
         open={aiSuggestionsOpen}
         onOpenChange={setAiSuggestionsOpen}
         onSelectSuggestion={handleSelectAiSuggestion}
       />
-
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

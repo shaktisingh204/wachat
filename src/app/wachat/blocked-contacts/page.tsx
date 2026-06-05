@@ -2,36 +2,30 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
+  Modal,
   EmptyState,
+  Field,
   Input,
-  Label,
   Skeleton,
-} from '@/components/zoruui';
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -45,17 +39,23 @@ import { Ban,
 import { useProject } from '@/context/project-context';
 import { getBlockedContacts, blockContact, unblockContact } from '@/app/actions/wachat-features.actions';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
 /**
- * Wachat Blocked Contacts — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Blocked Contacts — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 export default function BlockedContactsPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [phone, setPhone] = useState('');
@@ -70,7 +70,7 @@ export default function BlockedContactsPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       else setContacts(res.contacts ?? []);
     });
@@ -92,10 +92,10 @@ export default function BlockedContactsPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       else {
-        toast({ title: 'Blocked', description: `${phone} has been blocked.` });
+        toast({ title: 'Blocked', description: `${phone} has been blocked.`, tone: 'success' });
         setPhone('');
         setReason('');
         setOpen(false);
@@ -111,10 +111,10 @@ export default function BlockedContactsPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       else {
-        toast({ title: 'Unblocked', description: 'Contact unblocked.' });
+        toast({ title: 'Unblocked', description: 'Contact unblocked.', tone: 'success' });
         fetchData();
       }
     });
@@ -123,91 +123,64 @@ export default function BlockedContactsPage() {
   const isLoadingInitial = isPending && contacts.length === 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Blocked</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex items-end justify-between gap-6">
-        <div>
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Blocked Contacts
-          </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
-            Manage contacts blocked from sending messages to this project.
-          </p>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <ZoruDialogTrigger asChild>
-            <Button size="sm">
-              <Plus /> Block contact
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Blocked' },
+      ]}
+      title="Blocked Contacts"
+      description="Manage contacts blocked from sending messages to this project."
+      width="wide"
+      actions={
+        <Button size="sm" variant="primary" iconLeft={Plus} onClick={() => setOpen(true)}>
+          Block contact
+        </Button>
+      }
+    >
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Block a contact"
+        description="Block a phone number from sending messages to this project."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>Block a contact</ZoruDialogTitle>
-              <ZoruDialogDescription>
-                Block a phone number from sending messages to this project.
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="block-phone" required>
-                  Phone number
-                </Label>
-                <Input
-                  id="block-phone"
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1234567890"
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="block-reason">Reason (optional)</Label>
-                <Input
-                  id="block-reason"
-                  type="text"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="Why is this contact being blocked?"
-                />
-              </div>
-            </div>
-            <ZoruDialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleBlock}
-                disabled={isPending || !phone.trim()}
-              >
-                {isPending ? <Loader2 className="animate-spin" /> : <Ban />}
-                Block
-              </Button>
-            </ZoruDialogFooter>
-          </ZoruDialogContent>
-        </Dialog>
-      </div>
+            <Button
+              variant="danger"
+              onClick={handleBlock}
+              disabled={isPending || !phone.trim()}
+            >
+              {isPending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <Ban aria-hidden="true" />}
+              Block
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field label="Phone number" required>
+            <Input
+              id="block-phone"
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+1234567890"
+            />
+          </Field>
+          <Field label="Reason (optional)">
+            <Input
+              id="block-reason"
+              type="text"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Why is this contact being blocked?"
+            />
+          </Field>
+        </div>
+      </Modal>
 
       {isLoadingInitial ? (
         <div className="flex flex-col gap-2">
@@ -216,76 +189,84 @@ export default function BlockedContactsPage() {
           ))}
         </div>
       ) : contacts.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="px-5 py-3">Phone</th>
-                <th className="px-5 py-3">Reason</th>
-                <th className="px-5 py-3">Blocked Date</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zoru-line">
+        <Card padding="none" className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Phone</Th>
+                <Th>Reason</Th>
+                <Th>Blocked Date</Th>
+                <Th align="right">Action</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {contacts.map((c) => (
-                <tr key={c._id}>
-                  <td className="px-5 py-3 font-mono text-[13px] text-zoru-ink">
-                    {c.phone}
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
-                    {c.reason || '—'}
-                  </td>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink-muted">
-                    {c.blockedAt
-                      ? fmtDate(c.blockedAt)
-                      : '—'}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <ZoruAlertDialog>
-                      <ZoruAlertDialogTrigger asChild>
+                <Tr key={c._id}>
+                  <Td>
+                    <span
+                      className="font-mono text-[13px]"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      {c.phone}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+                      {c.reason || '—'}
+                    </span>
+                  </Td>
+                  <Td>
+                    <span className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+                      {c.blockedAt ? fmtDate(c.blockedAt) : '—'}
+                    </span>
+                  </Td>
+                  <Td align="right">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <Button
                           variant="ghost"
                           size="sm"
+                          iconLeft={ShieldOff}
                           disabled={isPending}
                         >
-                          <ShieldOff /> Unblock
+                          Unblock
                         </Button>
-                      </ZoruAlertDialogTrigger>
-                      <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                          <ZoruAlertDialogTitle>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
                             Unblock this contact?
-                          </ZoruAlertDialogTitle>
-                          <ZoruAlertDialogDescription>
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
                             {c.phone} will be allowed to send messages again.
-                          </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                          <ZoruAlertDialogCancel>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
                             Cancel
-                          </ZoruAlertDialogCancel>
-                          <ZoruAlertDialogAction
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            intent="primary"
                             onClick={() => handleUnblock(c._id)}
                           >
                             Unblock
-                          </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                      </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
-                  </td>
-                </tr>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </Card>
       ) : (
         <EmptyState
-          icon={<Ban />}
+          icon={Ban}
           title="No blocked contacts"
           description="Use the Block contact button above to block a phone number from contacting your project."
         />
       )}
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

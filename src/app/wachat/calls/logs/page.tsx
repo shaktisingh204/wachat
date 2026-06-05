@@ -7,19 +7,21 @@ import {
   EmptyState,
   Input,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
   Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useMemo,
@@ -31,7 +33,6 @@ import {
   ArrowUpRight,
   Check,
   Clock,
-  Loader2,
   Phone,
   PhoneMissed,
   RefreshCw,
@@ -42,14 +43,15 @@ import {
 import { formatDistanceToNow,
   format } from 'date-fns';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { getCallLogs } from '@/app/actions/calling.actions';
 import { useProject } from '@/context/project-context';
 
 /**
- * Wachat Calls — Logs tab (ZoruUI).
+ * Wachat Calls — Logs tab (20ui).
  *
  * KPI tiles, filters, sortable table, CSV export, refresh.
- * Per-call detail sheet for transcript / recording metadata.
+ * Per-call detail drawer for transcript / recording metadata.
  *
  * Data: crm_call_logs collection via getCallLogs().
  */
@@ -78,13 +80,17 @@ function DirectionPill({ direction }: { direction?: string }) {
   const inbound = isInbound(direction);
   return (
     <span
-      className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink"
+      className="inline-flex h-7 w-7 items-center justify-center rounded-full"
+      style={{
+        background: 'var(--st-bg-secondary)',
+        color: 'var(--st-text)',
+      }}
       aria-label={inbound ? 'Inbound' : 'Outbound'}
     >
       {inbound ? (
-        <ArrowDownLeft className="h-3.5 w-3.5" />
+        <ArrowDownLeft className="h-3.5 w-3.5" aria-hidden="true" />
       ) : (
-        <ArrowUpRight className="h-3.5 w-3.5" />
+        <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
       )}
     </span>
   );
@@ -92,25 +98,25 @@ function DirectionPill({ direction }: { direction?: string }) {
 
 function StatusBadge({ status }: { status?: string }) {
   const s = (status ?? '').toLowerCase();
-  type Variant = 'success' | 'warning' | 'danger' | 'ghost';
+  type Tone = 'success' | 'warning' | 'danger' | 'neutral';
   const map: Record<
     string,
-    { variant: Variant; Icon: React.ComponentType<{ className?: string }>; label: string }
+    { tone: Tone; Icon: React.ComponentType<{ className?: string }>; label: string }
   > = {
-    completed: { variant: 'success', Icon: Check, label: 'Completed' },
-    answered: { variant: 'success', Icon: Check, label: 'Answered' },
-    'no-answer': { variant: 'warning', Icon: PhoneMissed, label: 'No Answer' },
-    missed: { variant: 'warning', Icon: PhoneMissed, label: 'Missed' },
-    failed: { variant: 'danger', Icon: X, label: 'Failed' },
-    canceled: { variant: 'danger', Icon: X, label: 'Cancelled' },
-    cancelled: { variant: 'danger', Icon: X, label: 'Cancelled' },
+    completed: { tone: 'success', Icon: Check, label: 'Completed' },
+    answered: { tone: 'success', Icon: Check, label: 'Answered' },
+    'no-answer': { tone: 'warning', Icon: PhoneMissed, label: 'No Answer' },
+    missed: { tone: 'warning', Icon: PhoneMissed, label: 'Missed' },
+    failed: { tone: 'danger', Icon: X, label: 'Failed' },
+    canceled: { tone: 'danger', Icon: X, label: 'Cancelled' },
+    cancelled: { tone: 'danger', Icon: X, label: 'Cancelled' },
   };
   const entry =
-    map[s] ?? { variant: 'ghost' as Variant, Icon: Clock, label: status || 'Unknown' };
-  const { variant, Icon, label } = entry;
+    map[s] ?? { tone: 'neutral' as Tone, Icon: Clock, label: status || 'Unknown' };
+  const { tone, Icon, label } = entry;
   return (
-    <Badge variant={variant} className="capitalize">
-      <Icon className="h-3 w-3" />
+    <Badge tone={tone} className="capitalize">
+      <Icon className="h-3 w-3" aria-hidden="true" />
       {label}
     </Badge>
   );
@@ -155,9 +161,16 @@ function downloadCsv(rows: CallLog[]) {
   URL.revokeObjectURL(url);
 }
 
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Calls', href: '/wachat/calls' },
+  { label: 'Logs' },
+];
+
 export default function CallLogsPage() {
   const { activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [logs, setLogs] = useState<CallLog[]>([]);
   const [isLoading, startTransition] = useTransition();
 
@@ -183,7 +196,7 @@ export default function CallLogsPage() {
         } catch (err: unknown) {
           const message =
             err instanceof Error ? err.message : 'Failed to load call logs.';
-          toast({ title: 'Error', description: message, variant: 'destructive' });
+          toast({ title: 'Error', description: message, tone: 'danger' });
         }
       });
     },
@@ -242,19 +255,38 @@ export default function CallLogsPage() {
     return { total, inbound, outbound, answered, missed, failed, avg };
   }, [logs]);
 
+  const directionOptions = useMemo(
+    () => [
+      { value: 'all', label: 'All directions' },
+      { value: 'inbound', label: 'Inbound' },
+      { value: 'outbound', label: 'Outbound' },
+    ],
+    [],
+  );
+
   const statusOptions = useMemo(() => {
     const set = new Set<string>();
     logs.forEach((l) => l.status && set.add(l.status.toLowerCase()));
-    return ['all', ...Array.from(set)];
+    return [
+      { value: 'all', label: 'All statuses' },
+      ...Array.from(set).map((s) => ({ value: s, label: s })),
+    ];
   }, [logs]);
 
   if (!activeProjectId) {
     return (
-      <EmptyState
-        icon={<Phone />}
-        title="No project selected"
-        description="Select a project from the home screen to view its call logs."
-      />
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Call logs"
+        description="Inbound and outbound WhatsApp Business calls."
+        width="wide"
+      >
+        <EmptyState
+          icon={Phone}
+          title="No project selected"
+          description="Select a project from the home screen to view its call logs."
+        />
+      </WachatPage>
     );
   }
 
@@ -262,210 +294,226 @@ export default function CallLogsPage() {
     search || direction !== 'all' || status !== 'all' || fromDate || toDate;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* KPIs */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Kpi label="Total calls" value={kpis.total.toLocaleString()} />
-        <Kpi label="Inbound" value={kpis.inbound.toLocaleString()} />
-        <Kpi label="Outbound" value={kpis.outbound.toLocaleString()} />
-        <Kpi label="Answered" value={kpis.answered.toLocaleString()} />
-        <Kpi
-          label="Missed / failed"
-          value={(kpis.missed + kpis.failed).toLocaleString()}
-        />
-        <Kpi label="Avg duration" value={formatDuration(kpis.avg)} />
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="Call logs"
+      description="Inbound and outbound WhatsApp Business calls."
+      width="wide"
+      actions={
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Download}
+            onClick={() => downloadCsv(filtered)}
+            disabled={filtered.length === 0}
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            loading={isLoading}
+            onClick={() => fetchData(false)}
+          >
+            Refresh
+          </Button>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {/* KPIs */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <StatCard label="Total calls" value={kpis.total.toLocaleString()} />
+          <StatCard label="Inbound" value={kpis.inbound.toLocaleString()} />
+          <StatCard label="Outbound" value={kpis.outbound.toLocaleString()} />
+          <StatCard label="Answered" value={kpis.answered.toLocaleString()} />
+          <StatCard
+            label="Missed / failed"
+            value={(kpis.missed + kpis.failed).toLocaleString()}
+          />
+          <StatCard label="Avg duration" value={formatDuration(kpis.avg)} />
+        </div>
+
+        {/* Filter bar */}
+        <Card padding="md">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="min-w-[220px] flex-1">
+              <Input
+                type="text"
+                placeholder="Search by phone or Call SID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                iconLeft={Search}
+                aria-label="Search calls"
+              />
+            </div>
+            <Select
+              value={direction}
+              onChange={(v) => setDirection((v ?? 'all') as typeof direction)}
+              options={directionOptions}
+              placeholder="All directions"
+              aria-label="Filter by direction"
+              className="w-[160px]"
+            />
+            <Select
+              value={status}
+              onChange={(v) => setStatus(v ?? 'all')}
+              options={statusOptions}
+              placeholder="All statuses"
+              aria-label="Filter by status"
+              className="w-[160px] capitalize"
+            />
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              aria-label="From date"
+              className="w-[150px]"
+            />
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              aria-label="To date"
+              className="w-[150px]"
+            />
+            {filtersActive ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  setDirection('all');
+                  setStatus('all');
+                  setFromDate('');
+                  setToDate('');
+                }}
+              >
+                Clear
+              </Button>
+            ) : null}
+          </div>
+          <div
+            className="mt-3 flex items-center gap-2 border-t pt-3 text-[11.5px]"
+            style={{
+              borderColor: 'var(--st-border)',
+              color: 'var(--st-text-tertiary)',
+            }}
+          >
+            <span>{filtered.length}</span>
+            <span>of</span>
+            <span>{logs.length} calls</span>
+          </div>
+        </Card>
+
+        {/* Table */}
+        <Card padding="none" className="overflow-hidden">
+          {isLoading && logs.length === 0 ? (
+            <div className="flex flex-col gap-2 p-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} height={40} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={Phone}
+              title={
+                logs.length === 0 ? 'No calls yet' : 'No calls match your filters'
+              }
+              description={
+                logs.length === 0
+                  ? 'Call logs will appear here once your WhatsApp Business Calling is enabled and active.'
+                  : 'Try adjusting your search or clearing the filters.'
+              }
+            />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table hover>
+                <THead>
+                  <Tr>
+                    <Th width={40} aria-label="Direction" />
+                    <Th>From</Th>
+                    <Th>To</Th>
+                    <Th>Duration</Th>
+                    <Th>Status</Th>
+                    <Th>When</Th>
+                    <Th>Call SID</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {filtered.map((log) => (
+                    <Tr
+                      key={log._id}
+                      className="cursor-pointer"
+                      onClick={() => setDetailLog(log)}
+                    >
+                      <Td>
+                        <DirectionPill direction={log.direction} />
+                      </Td>
+                      <Td
+                        className="font-mono text-[12px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {log.from || '—'}
+                      </Td>
+                      <Td
+                        className="font-mono text-[12px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {log.to || '—'}
+                      </Td>
+                      <Td
+                        className="tabular-nums"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {formatDuration(log.duration)}
+                      </Td>
+                      <Td>
+                        <StatusBadge status={log.status} />
+                      </Td>
+                      <Td
+                        className="whitespace-nowrap text-[12px]"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                      >
+                        {log.createdAt
+                          ? formatDistanceToNow(new Date(log.createdAt), {
+                              addSuffix: true,
+                            })
+                          : '—'}
+                      </Td>
+                      <Td
+                        className="font-mono text-[11px]"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                      >
+                        {log.callId || '—'}
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </div>
+          )}
+        </Card>
       </div>
 
-      {/* Filter bar */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="min-w-[220px] flex-1">
-            <Input
-              type="text"
-              placeholder="Search by phone or Call SID..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              leadingSlot={<Search />}
-            />
-          </div>
-          <Select
-            value={direction}
-            onValueChange={(v) => setDirection(v as typeof direction)}
-          >
-            <ZoruSelectTrigger className="h-9 w-[160px]">
-              <ZoruSelectValue placeholder="All directions" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="all">All directions</ZoruSelectItem>
-              <ZoruSelectItem value="inbound">Inbound</ZoruSelectItem>
-              <ZoruSelectItem value="outbound">Outbound</ZoruSelectItem>
-            </ZoruSelectContent>
-          </Select>
-          <Select value={status} onValueChange={setStatus}>
-            <ZoruSelectTrigger className="h-9 w-[160px] capitalize">
-              <ZoruSelectValue placeholder="All statuses" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {statusOptions.map((s) => (
-                <ZoruSelectItem key={s} value={s} className="capitalize">
-                  {s === 'all' ? 'All statuses' : s}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
-          <Input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            aria-label="From date"
-            className="w-[150px]"
-          />
-          <Input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            aria-label="To date"
-            className="w-[150px]"
-          />
-          {filtersActive ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSearch('');
-                setDirection('all');
-                setStatus('all');
-                setFromDate('');
-                setToDate('');
-              }}
-            >
-              Clear
-            </Button>
-          ) : null}
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => downloadCsv(filtered)}
-              disabled={filtered.length === 0}
-            >
-              <Download /> Export CSV
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fetchData(false)}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <RefreshCw />
-              )}
-              Refresh
-            </Button>
-          </div>
-        </div>
-        <div className="mt-3 flex items-center gap-2 border-t border-zoru-line pt-3 text-[11.5px] text-zoru-ink-muted">
-          <span>{filtered.length}</span>
-          <span>of</span>
-          <span>{logs.length} calls</span>
-        </div>
-      </Card>
-
-      {/* Table */}
-      <Card className="overflow-hidden p-0">
-        {isLoading && logs.length === 0 ? (
-          <div className="flex flex-col gap-2 p-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-10" />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            icon={<Phone />}
-            className="border-0"
-            title={
-              logs.length === 0 ? 'No calls yet' : 'No calls match your filters'
-            }
-            description={
-              logs.length === 0
-                ? 'Call logs will appear here once your WhatsApp Business Calling is enabled and active.'
-                : 'Try adjusting your search or clearing the filters.'
-            }
-          />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-              <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <tr>
-                  <th className="w-10 px-4 py-3 text-left" />
-                  <th className="px-4 py-3 text-left">From</th>
-                  <th className="px-4 py-3 text-left">To</th>
-                  <th className="px-4 py-3 text-left">Duration</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">When</th>
-                  <th className="px-4 py-3 text-left">Call SID</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zoru-line">
-                {filtered.map((log) => (
-                  <tr
-                    key={log._id}
-                    className={cn(
-                      'cursor-pointer transition-colors hover:bg-zoru-surface',
-                    )}
-                    onClick={() => setDetailLog(log)}
-                  >
-                    <td className="px-4 py-3">
-                      <DirectionPill direction={log.direction} />
-                    </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
-                      {log.from || '—'}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
-                      {log.to || '—'}
-                    </td>
-                    <td className="px-4 py-3 tabular-nums text-zoru-ink">
-                      {formatDuration(log.duration)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusBadge status={log.status} />
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-[12px] text-zoru-ink-muted">
-                      {log.createdAt
-                        ? formatDistanceToNow(new Date(log.createdAt), {
-                            addSuffix: true,
-                          })
-                        : '—'}
-                    </td>
-                    <td className="px-4 py-3 font-mono text-[11px] text-zoru-ink-muted">
-                      {log.callId || '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      {/* Per-call detail sheet (transcript / recording metadata) */}
-      <Sheet
+      {/* Per-call detail drawer (transcript / recording metadata) */}
+      <Drawer
         open={detailLog !== null}
         onOpenChange={(open) => {
           if (!open) setDetailLog(null);
         }}
       >
-        <ZoruSheetContent side="right" className="w-full max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Call detail</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <DrawerContent side="right">
+          <DrawerHeader>
+            <DrawerTitle>Call detail</DrawerTitle>
+            <DrawerDescription>
               Transcript and recording metadata for this call.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           {detailLog ? (
-            <div className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 px-4 pb-4">
               <DetailRow label="Direction">
                 {isInbound(detailLog.direction) ? 'Inbound' : 'Outbound'}
               </DetailRow>
@@ -494,33 +542,28 @@ export default function CallLogsPage() {
                   {detailLog.callId || '—'}
                 </span>
               </DetailRow>
-              <div className="rounded-[var(--zoru-radius)] border border-dashed border-zoru-line bg-zoru-surface p-4 text-[12px] text-zoru-ink-muted">
+              <div
+                className="border border-dashed p-4 text-[12px]"
+                style={{
+                  borderColor: 'var(--st-border)',
+                  background: 'var(--st-bg-secondary)',
+                  color: 'var(--st-text-secondary)',
+                  borderRadius: 'var(--st-radius)',
+                }}
+              >
                 Recording and transcript playback are not yet available for this
                 call. They will appear here once Meta exposes them via the
                 Calling API.
               </div>
             </div>
           ) : null}
-        </ZoruSheetContent>
-      </Sheet>
-    </div>
+        </DrawerContent>
+      </Drawer>
+    </WachatPage>
   );
 }
 
-/* ── KPI tile ───────────────────────────────────────────────────── */
-
-function Kpi({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4">
-      <div className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-2 text-[22px] tracking-[-0.01em] leading-none tabular-nums text-zoru-ink">
-        {value}
-      </div>
-    </div>
-  );
-}
+/* ── detail row ─────────────────────────────────────────────────── */
 
 function DetailRow({
   label,
@@ -530,9 +573,14 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-zoru-line pb-3 text-[13px]">
-      <span className="text-zoru-ink-muted">{label}</span>
-      <span className="text-right text-zoru-ink">{children}</span>
+    <div
+      className="flex items-start justify-between gap-4 border-b pb-3 text-[13px]"
+      style={{ borderColor: 'var(--st-border)' }}
+    >
+      <span style={{ color: 'var(--st-text-secondary)' }}>{label}</span>
+      <span className="text-right" style={{ color: 'var(--st-text)' }}>
+        {children}
+      </span>
     </div>
   );
 }

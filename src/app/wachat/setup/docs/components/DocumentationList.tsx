@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, Input, Select, Button, Alert, ZoruAlertTitle, ZoruAlertDescription, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/zoruui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Input,
+  Select,
+  Button,
+  Alert,
+  Badge,
+  Skeleton,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { DocArticle, SortOption, ApiError } from '../lib/types';
 import { fetchArticles } from '../lib/mockApi';
 import { AlertCircle, Search, RefreshCw } from 'lucide-react';
-import { Skeleton } from '@/components/zoruui';
 
 // Custom hook to handle isomorphic dates (preventing hydration mismatch)
 function useIsomorphicDate(isoString: string) {
@@ -21,11 +32,25 @@ function useIsomorphicDate(isoString: string) {
   return dateStr;
 }
 
+const CATEGORY_OPTIONS = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'setup', label: 'Setup' },
+  { value: 'troubleshooting', label: 'Troubleshooting' },
+  { value: 'best-practices', label: 'Best Practices' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'date-desc', label: 'Newest First' },
+  { value: 'date-asc', label: 'Oldest First' },
+  { value: 'title-asc', label: 'Title (A-Z)' },
+  { value: 'title-desc', label: 'Title (Z-A)' },
+];
+
 export function DocumentationList() {
   const [articles, setArticles] = useState<DocArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<ApiError | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [sortOption, setSortOption] = useState<SortOption>('date-desc');
@@ -51,7 +76,7 @@ export function DocumentationList() {
   }, []);
 
   const filteredArticles = articles.filter(article => {
-    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           article.content.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || article.category === categoryFilter;
     return matchesSearch && matchesCategory;
@@ -74,76 +99,80 @@ export function DocumentationList() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-zoru-surface-2/30 p-4 rounded-lg">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
-          <Input 
-            placeholder="Search documentation..." 
+      <div
+        className="flex flex-col sm:flex-row gap-4 justify-between items-center p-4 rounded-lg"
+        style={{ background: 'var(--st-bg-secondary)' }}
+      >
+        <div className="w-full sm:max-w-xs">
+          <Input
+            iconLeft={Search}
+            placeholder="Search documentation..."
+            aria-label="Search documentation"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
           />
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-full sm:w-[150px]">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="setup">Setup</SelectItem>
-              <SelectItem value="troubleshooting">Troubleshooting</SelectItem>
-              <SelectItem value="best-practices">Best Practices</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sortOption} onValueChange={(val: SortOption) => setSortOption(val)}>
-            <SelectTrigger className="w-full sm:w-[150px]">
-              <SelectValue placeholder="Sort By" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date-desc">Newest First</SelectItem>
-              <SelectItem value="date-asc">Oldest First</SelectItem>
-              <SelectItem value="title-asc">Title (A-Z)</SelectItem>
-              <SelectItem value="title-desc">Title (Z-A)</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-[150px]">
+            <Select
+              value={categoryFilter}
+              onChange={(val) => setCategoryFilter(val ?? 'all')}
+              options={CATEGORY_OPTIONS}
+              placeholder="Category"
+              aria-label="Filter by category"
+            />
+          </div>
+          <div className="w-full sm:w-[150px]">
+            <Select
+              value={sortOption}
+              onChange={(val) => setSortOption((val ?? 'date-desc') as SortOption)}
+              options={SORT_OPTIONS}
+              placeholder="Sort By"
+              aria-label="Sort articles"
+            />
+          </div>
         </div>
       </div>
 
       {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Error Loading Articles ({error.code})</ZoruAlertTitle>
-          <ZoruAlertDescription className="flex flex-col gap-2">
+        <Alert
+          tone="danger"
+          icon={AlertCircle}
+          title={`Error Loading Articles (${error.code})`}
+        >
+          <div className="flex flex-col gap-2">
             <p>{error.message}</p>
-            <Button variant="outline" size="sm" onClick={loadArticles} className="w-fit">
-              <RefreshCw className="mr-2 h-4 w-4" />
+            <Button variant="outline" size="sm" iconLeft={RefreshCw} onClick={loadArticles} className="w-fit">
               Try Again
             </Button>
-          </ZoruAlertDescription>
+          </div>
         </Alert>
       )}
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {[1, 2, 3, 4].map(i => (
-            <Card key={i} className="overflow-hidden">
-              <ZoruCardHeader className="pb-2">
+            <Card key={i} padding="none" className="overflow-hidden">
+              <CardHeader>
                 <Skeleton className="h-5 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-1/4" />
-              </ZoruCardHeader>
-              <ZoruCardContent>
+              </CardHeader>
+              <CardBody>
                 <Skeleton className="h-4 w-full mb-2" />
                 <Skeleton className="h-4 w-5/6" />
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           ))}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {sortedArticles.length === 0 && !error ? (
-            <div className="col-span-2 text-center py-12 text-zoru-ink-muted border border-dashed rounded-lg">
-              No articles found matching your criteria.
+            <div className="col-span-2">
+              <EmptyState
+                icon={Search}
+                title="No articles found"
+                description="No articles found matching your criteria."
+              />
             </div>
           ) : (
             sortedArticles.map(article => (
@@ -158,25 +187,31 @@ export function DocumentationList() {
 
 function ArticleCard({ article }: { article: DocArticle }) {
   const formattedDate = useIsomorphicDate(article.updatedAt);
-  
+
   return (
-    <Card className="flex flex-col h-full hover:border-primary/50 transition-colors">
-      <ZoruCardHeader className="pb-2">
+    <Card padding="none" className="flex flex-col h-full">
+      <CardHeader>
         <div className="flex justify-between items-start mb-1 gap-2">
-          <span className="text-xs font-medium px-2 py-1 rounded-full bg-zoru-ink/10 text-zoru-ink capitalize">
+          <Badge tone="neutral" className="capitalize">
             {article.category.replace('-', ' ')}
-          </span>
-          <span className="text-xs text-zoru-ink-muted whitespace-nowrap">
+          </Badge>
+          <span
+            className="text-xs whitespace-nowrap"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
             {formattedDate || '...'}
           </span>
         </div>
-        <ZoruCardTitle className="text-lg leading-tight">{article.title}</ZoruCardTitle>
-      </ZoruCardHeader>
-      <ZoruCardContent className="flex-1">
-        <p className="text-sm text-zoru-ink-muted line-clamp-3">
+        <CardTitle className="text-lg leading-tight">{article.title}</CardTitle>
+      </CardHeader>
+      <CardBody className="flex-1">
+        <p
+          className="text-sm line-clamp-3"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           {article.content}
         </p>
-      </ZoruCardContent>
+      </CardBody>
     </Card>
   );
 }

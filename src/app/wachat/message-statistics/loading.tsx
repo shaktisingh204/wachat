@@ -1,17 +1,21 @@
 'use client';
 
-import { Skeleton, Card } from '@/components/zoruui';
+import { Skeleton, Card } from '@/components/sabcrm/20ui';
+
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 export default function MessageStatisticsLoading() {
   return (
-    <div className="p-6 space-y-6">
-      <Skeleton className="h-8 w-1/4" />
-      <Skeleton className="h-4 w-2/4" />
-      <Card className="p-6 space-y-4">
-        <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-20 w-full" />
-        <Skeleton className="h-20 w-full" />
-      </Card>
-    </div>
+    <WachatPage>
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-1/4" />
+        <Skeleton className="h-4 w-2/4" />
+        <Card className="space-y-4 p-6">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </Card>
+      </div>
+    </WachatPage>
   );
 }

@@ -2,17 +2,11 @@
 
 import {
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
+  Modal,
+  Field,
   Input,
-  Label,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useRef,
@@ -24,13 +18,17 @@ import { Loader2,
 import { handleSyncWabas } from '@/app/actions/index.ts';
 
 /**
- * SyncProjectsDialog (wachat-local, ZoruUI).
+ * SyncProjectsDialog (wachat-local, 20ui).
  *
  * Replaces the legacy sync-projects-dialog. Same server
  * action (handleSyncWabas), same form fields, same callback signature.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 const initialState: { message?: string | null; error?: string | null } = {
   message: null,
@@ -48,7 +46,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
     message?: string | null;
     error?: string | null;
   }>(initialState);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const action = (formData: FormData) => {
@@ -60,7 +58,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: 'Success!', description: state.message, tone: 'success' });
       formRef.current?.reset();
       setOpen(false);
       onSuccess();
@@ -69,35 +67,36 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
       toast({
         title: 'Could not add WABA',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast, onSuccess]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
-        <Button variant="outline" size="md">
-          <RefreshCw />
-          Add WABA from Meta
-        </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="sm:max-w-md">
+    <>
+      <Button variant="outline" size="md" iconLeft={RefreshCw} onClick={() => setOpen(true)}>
+        Add WABA from Meta
+      </Button>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        size="md"
+        className="sm:max-w-md"
+        title="Add WhatsApp Business Account"
+        description="Paste a single WhatsApp Business Account (WABA) ID, a permanent access token, and your App ID. We'll fetch the WABA from Meta and add it as a project."
+      >
         <form action={action} ref={formRef}>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add WhatsApp Business Account</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Paste a single WhatsApp Business Account (WABA) ID, a permanent
-              access token, and your App ID. We&rsquo;ll fetch the WABA from
-              Meta and add it as a project.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="wabaId">
-                WhatsApp Business Account ID
-              </Label>
+          <div className="grid gap-4 py-1">
+            <Field
+              label="WhatsApp Business Account ID"
+              help={
+                <>
+                  Find this in Meta Business Manager &rarr; WhatsApp Accounts
+                  &rarr; your WABA. Do not paste the Business Portfolio ID, Page
+                  ID, or App ID here.
+                </>
+              }
+            >
               <Input
                 id="wabaId"
                 name="wabaId"
@@ -105,14 +104,18 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 inputMode="numeric"
                 required
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Find this in Meta Business Manager &rarr; WhatsApp Accounts
-                &rarr; your WABA. Do not paste the Business Portfolio ID, Page
-                ID, or App ID here.
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="accessToken">Meta Access Token</Label>
+            </Field>
+            <Field
+              label="Meta Access Token"
+              help={
+                <>
+                  Needs <code className="font-mono">whatsapp_business_management</code>{' '}
+                  and <code className="font-mono">whatsapp_business_messaging</code>{' '}
+                  scopes. See the manual setup guide for instructions on
+                  generating a system-user token.
+                </>
+              }
+            >
               <Input
                 id="accessToken"
                 name="accessToken"
@@ -120,35 +123,27 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 placeholder="Permanent system-user token"
                 required
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Needs <code className="font-mono">whatsapp_business_management</code>{' '}
-                and <code className="font-mono">whatsapp_business_messaging</code>{' '}
-                scopes. See the manual setup guide for instructions on
-                generating a system-user token.
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="appId">App ID</Label>
+            </Field>
+            <Field label="App ID">
               <Input
                 id="appId"
                 name="appId"
                 placeholder="Your Meta App ID"
                 required
               />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="groupName">Group Name (Optional)</Label>
+            </Field>
+            <Field
+              label="Group Name (Optional)"
+              help="The added project will be placed into this new group."
+            >
               <Input
                 id="groupName"
                 name="groupName"
                 placeholder="e.g. My Agency's Clients"
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                The added project will be placed into this new group.
-              </p>
-            </div>
+            </Field>
           </div>
-          <ZoruDialogFooter>
+          <div className={cx('flex justify-end gap-2 pt-4')}>
             <Button
               type="button"
               variant="ghost"
@@ -156,7 +151,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" variant="primary" disabled={isPending}>
               {isPending ? (
                 <>
                   <Loader2 className="animate-spin" />
@@ -166,9 +161,9 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                 'Add WABA'
               )}
             </Button>
-          </ZoruDialogFooter>
+          </div>
         </form>
-      </ZoruDialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 }

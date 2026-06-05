@@ -1,42 +1,33 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  EmptyState,
+  IconButton,
   Skeleton,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  Tabs,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -64,6 +55,8 @@ import { useProject } from '@/context/project-context';
 import { CreateCollectionDialog } from '@/components/zoruui-domain/create-collection-dialog';
 import { DeleteCollectionButton } from '@/components/zoruui-domain/delete-collection-button';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
 const ProductsTable = ({
   products,
   catalogId,
@@ -73,106 +66,127 @@ const ProductsTable = ({
   catalogId: string;
   onAction: () => void;
 }) => {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProjectId } = useProject();
 
   const handleDeleteProduct = async (productId: string) => {
     if (!activeProjectId) return;
     const result = await deleteProductFromCatalog(productId, activeProjectId);
     if (result.success) {
-      toast({ title: 'Product deleted' });
+      toast({ title: 'Product deleted', tone: 'success' });
       onAction();
     } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      toast({ title: 'Error', description: result.error, tone: 'danger' });
     }
   };
 
   return (
     <Table>
-      <ZoruTableHeader>
-        <ZoruTableRow>
-          <ZoruTableHead className="w-20"></ZoruTableHead>
-          <ZoruTableHead>Name</ZoruTableHead>
-          <ZoruTableHead>Price</ZoruTableHead>
-          <ZoruTableHead>Inventory</ZoruTableHead>
-          <ZoruTableHead>Availability</ZoruTableHead>
-          <ZoruTableHead>SKU</ZoruTableHead>
-          <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-        </ZoruTableRow>
-      </ZoruTableHeader>
-      <ZoruTableBody>
+      <THead>
+        <Tr>
+          <Th width={80}></Th>
+          <Th>Name</Th>
+          <Th>Price</Th>
+          <Th>Inventory</Th>
+          <Th>Availability</Th>
+          <Th>SKU</Th>
+          <Th align="right">Actions</Th>
+        </Tr>
+      </THead>
+      <TBody>
         {products.length > 0 ? (
           products.map((product) => (
-            <ZoruTableRow key={product.id}>
-              <ZoruTableCell>
-                <div className="flex h-16 w-16 items-center justify-center rounded-md bg-zoru-surface-2">
+            <Tr key={product.id}>
+              <Td>
+                <div
+                  className="flex h-16 w-16 items-center justify-center"
+                  style={{
+                    background: 'var(--st-bg-secondary)',
+                    borderRadius: 'var(--st-radius)',
+                  }}
+                >
                   {product.image_url ? (
                     <Image
                       src={product.image_url}
                       alt={product.name}
                       width={64}
                       height={64}
-                      className="rounded-md object-cover"
+                      className="object-cover"
+                      style={{ borderRadius: 'var(--st-radius)' }}
                     />
                   ) : (
-                    <ShoppingBag className="h-8 w-8 text-zoru-ink-muted" />
+                    <ShoppingBag
+                      className="h-8 w-8"
+                      style={{ color: 'var(--st-text-tertiary)' }}
+                      aria-hidden="true"
+                    />
                   )}
                 </div>
-              </ZoruTableCell>
-              <ZoruTableCell>{product.name}</ZoruTableCell>
-              <ZoruTableCell>
+              </Td>
+              <Td>{product.name}</Td>
+              <Td>
                 {product.price
                   ? new Intl.NumberFormat('en-US', {
                       style: 'currency',
                       currency: product.currency,
                     }).format(product.price / 100)
                   : 'N/A'}
-              </ZoruTableCell>
-              <ZoruTableCell>{product.inventory?.toLocaleString() || 'N/A'}</ZoruTableCell>
-              <ZoruTableCell>
-                <Badge variant={product.availability === 'in_stock' ? 'success' : 'secondary'}>
+              </Td>
+              <Td>{product.inventory?.toLocaleString() || 'N/A'}</Td>
+              <Td>
+                <Badge tone={product.availability === 'in_stock' ? 'success' : 'neutral'}>
                   {product.availability?.replace(/_/g, ' ') || 'N/A'}
                 </Badge>
-              </ZoruTableCell>
-              <ZoruTableCell className="font-mono text-xs">{product.retailer_id}</ZoruTableCell>
-              <ZoruTableCell className="text-right">
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/wachat/catalog/${catalogId}/${product.id}/edit`}>
-                    <Edit className="h-4 w-4" />
+              </Td>
+              <Td className="font-mono text-xs">{product.retailer_id}</Td>
+              <Td align="right">
+                <div className="inline-flex items-center justify-end gap-1">
+                  <Link
+                    href={`/wachat/catalog/${catalogId}/${product.id}/edit`}
+                    className="u-btn u-icon-btn u-btn--ghost u-icon-btn--md"
+                    aria-label={`Edit ${product.name}`}
+                  >
+                    <Edit size={14} aria-hidden="true" />
                   </Link>
-                </Button>
-                <ZoruAlertDialog>
-                  <ZoruAlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4 text-zoru-danger" />
-                    </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
-                        This will permanently delete the product &quot;{product.name}&quot;.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
-                        Delete
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
-              </ZoruTableCell>
-            </ZoruTableRow>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <IconButton
+                        label={`Delete ${product.name}`}
+                        icon={Trash2}
+                        variant="ghost"
+                      />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This will permanently delete the product &quot;{product.name}&quot;.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </Td>
+            </Tr>
           ))
         ) : (
-          <ZoruTableRow>
-            <ZoruTableCell colSpan={7} className="h-24 text-center text-zoru-ink-muted">
-              No products found in this catalog.
-            </ZoruTableCell>
-          </ZoruTableRow>
+          <Tr>
+            <Td colSpan={7}>
+              <EmptyState
+                icon={ShoppingBag}
+                title="No products found"
+                description="No products found in this catalog."
+              />
+            </Td>
+          </Tr>
         )}
-      </ZoruTableBody>
+      </TBody>
     </Table>
   );
 };
@@ -198,37 +212,41 @@ const CollectionsTable = ({
         />
       </div>
       <Table>
-        <ZoruTableHeader>
-          <ZoruTableRow>
-            <ZoruTableHead>Collection name</ZoruTableHead>
-            <ZoruTableHead>Product count</ZoruTableHead>
-            <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-          </ZoruTableRow>
-        </ZoruTableHeader>
-        <ZoruTableBody>
+        <THead>
+          <Tr>
+            <Th>Collection name</Th>
+            <Th>Product count</Th>
+            <Th align="right">Actions</Th>
+          </Tr>
+        </THead>
+        <TBody>
           {collections.length > 0 ? (
             collections.map((set) => (
-              <ZoruTableRow key={set.id}>
-                <ZoruTableCell>{set.name}</ZoruTableCell>
-                <ZoruTableCell>{set.product_count}</ZoruTableCell>
-                <ZoruTableCell className="text-right">
+              <Tr key={set.id}>
+                <Td>{set.name}</Td>
+                <Td>{set.product_count}</Td>
+                <Td align="right">
                   <DeleteCollectionButton
                     setId={set.id}
                     setName={set.name}
                     projectId={projectId}
                     onDeleted={onAction}
                   />
-                </ZoruTableCell>
-              </ZoruTableRow>
+                </Td>
+              </Tr>
             ))
           ) : (
-            <ZoruTableRow>
-              <ZoruTableCell colSpan={3} className="h-24 text-center text-zoru-ink-muted">
-                No collections found in this catalog.
-              </ZoruTableCell>
-            </ZoruTableRow>
+            <Tr>
+              <Td colSpan={3}>
+                <EmptyState
+                  icon={Package}
+                  title="No collections found"
+                  description="No collections found in this catalog."
+                />
+              </Td>
+            </Tr>
           )}
-        </ZoruTableBody>
+        </TBody>
       </Table>
     </div>
   );
@@ -261,87 +279,71 @@ export default function CatalogProductsPage() {
     fetchData();
   }, [fetchData]);
 
+  const breadcrumb = [
+    { label: 'SabNode', href: '/dashboard' },
+    { label: 'WaChat', href: '/wachat' },
+    { label: 'Catalog', href: '/wachat/catalog' },
+    { label: 'Products' },
+  ];
+
   if (isLoading && products.length === 0 && collections.length === 0) {
-    return <Skeleton className="h-96 w-full" />;
+    return (
+      <WachatPage
+        breadcrumb={breadcrumb}
+        eyebrow="Catalog"
+        title="Catalog management"
+        description="Manage products and collections within your catalog."
+        width="wide"
+      >
+        <Skeleton height={384} width="100%" />
+      </WachatPage>
+    );
   }
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/catalog">Catalog</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Products</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link href="/wachat/catalog">
-          <ChevronLeft className="mr-1 h-4 w-4" /> Back to catalogs
+    <WachatPage
+      breadcrumb={breadcrumb}
+      eyebrow="Catalog"
+      title="Catalog management"
+      description="Manage products and collections within your catalog."
+      width="wide"
+      actions={
+        <Link
+          href="/wachat/catalog"
+          className="u-btn u-btn--ghost u-btn--sm"
+        >
+          <ChevronLeft size={14} aria-hidden="true" />
+          <span className="u-btn__label">Back to catalogs</span>
         </Link>
-      </Button>
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>
-            <span className="inline-flex items-center gap-3">
-              <ShoppingBag className="h-7 w-7" />
-              Catalog management
-            </span>
-          </ZoruPageTitle>
-          <ZoruPageDescription>
-            Manage products and collections within your catalog.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <div className="flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1 sm:w-fit">
-        {(['products', 'collections'] as const).map((id) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={cn(
-              'inline-flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-4 py-1.5 text-sm transition-colors',
-              tab === id
-                ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
-                : 'text-zoru-ink-muted hover:text-zoru-ink',
-            )}
-          >
-            {id === 'products' ? <ShoppingBag className="h-4 w-4" /> : <Package className="h-4 w-4" />}
-            {id === 'products' ? 'Products' : 'Collections'}
-          </button>
-        ))}
-      </div>
+      }
+    >
+      <Tabs
+        value={tab}
+        onChange={(v) => setTab(v as 'products' | 'collections')}
+        items={[
+          { value: 'products', label: 'Products', icon: ShoppingBag },
+          { value: 'collections', label: 'Collections', icon: Package },
+        ]}
+      />
 
       {tab === 'products' && (
-        <Card>
-          <ZoruCardHeader>
+        <Card padding="none">
+          <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <ZoruCardTitle>Products</ZoruCardTitle>
-                <ZoruCardDescription>A list of products in this catalog.</ZoruCardDescription>
+                <CardTitle>Products</CardTitle>
+                <CardDescription>A list of products in this catalog.</CardDescription>
               </div>
-              <Button asChild>
-                <Link href={`/wachat/catalog/new?catalogId=${catalogId}`}>
-                  <PlusCircle className="mr-1 h-4 w-4" /> Add product
-                </Link>
-              </Button>
+              <Link
+                href={`/wachat/catalog/new?catalogId=${catalogId}`}
+                className="u-btn u-btn--primary u-btn--md"
+              >
+                <PlusCircle size={14} aria-hidden="true" />
+                <span className="u-btn__label">Add product</span>
+              </Link>
             </div>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+          </CardHeader>
+          <CardBody>
             {activeProjectId && (
               <ProductsTable
                 products={products}
@@ -349,19 +351,19 @@ export default function CatalogProductsPage() {
                 onAction={fetchData}
               />
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
 
       {tab === 'collections' && (
-        <Card>
-          <ZoruCardHeader>
-            <ZoruCardTitle>Collections (product sets)</ZoruCardTitle>
-            <ZoruCardDescription>
+        <Card padding="none">
+          <CardHeader>
+            <CardTitle>Collections (product sets)</CardTitle>
+            <CardDescription>
               Group products into sets for ads and promotions.
-            </ZoruCardDescription>
-          </ZoruCardHeader>
-          <ZoruCardContent>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
             {activeProjectId && (
               <CollectionsTable
                 collections={collections}
@@ -370,9 +372,9 @@ export default function CatalogProductsPage() {
                 onAction={fetchData}
               />
             )}
-          </ZoruCardContent>
+          </CardBody>
         </Card>
       )}
-    </div>
+    </WachatPage>
   );
 }

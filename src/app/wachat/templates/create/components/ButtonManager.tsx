@@ -1,7 +1,11 @@
 import * as React from 'react';
-import { Input, Button } from '@/components/zoruui';
+import { Input, IconButton } from '@/components/sabcrm/20ui';
 import { Trash2, Plus } from 'lucide-react';
 import { BUTTON_TYPES, ButtonData } from '../constants';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 interface ButtonManagerProps {
   buttons: ButtonData[];
@@ -30,7 +34,10 @@ export function ButtonManager({
   return (
     <>
       <div className="flex items-center justify-between">
-        <h3 className="text-[13px] font-semibold text-zoru-ink">
+        <h3
+          className="text-[13px] font-semibold"
+          style={{ color: 'var(--st-text)' }}
+        >
           Buttons ({buttons.length}/10)
         </h3>
       </div>
@@ -38,20 +45,27 @@ export function ButtonManager({
       {buttons.map((btn, i) => (
         <div
           key={i}
-          className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+          className="space-y-2 border p-3"
+          style={{
+            borderRadius: 'var(--st-radius)',
+            borderColor: 'var(--st-border)',
+            background: 'var(--st-bg-secondary)',
+          }}
         >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
+            <span
+              className="text-[10px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
               {btn.type.replace('_', ' ')}
             </span>
-            <Button
+            <IconButton
+              label="Remove button"
+              icon={Trash2}
               variant="ghost"
-              size="icon-sm"
+              size="sm"
               onClick={() => removeButton(i)}
-              aria-label="Remove button"
-            >
-              <Trash2 />
-            </Button>
+            />
           </div>
           <Input
             value={btn.text}
@@ -111,7 +125,22 @@ export function ButtonManager({
               key={bt.id}
               type="button"
               onClick={() => addButton(bt.id)}
-              className="flex items-center gap-1 rounded-[var(--zoru-radius)] border border-dashed border-zoru-line px-2.5 py-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:border-zoru-line-strong hover:text-zoru-ink"
+              className={cx(
+                'flex items-center gap-1 border border-dashed px-2.5 py-1.5 text-[11px] transition-colors',
+              )}
+              style={{
+                borderRadius: 'var(--st-radius)',
+                borderColor: 'var(--st-border)',
+                color: 'var(--st-text-tertiary)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--st-border-strong)';
+                e.currentTarget.style.color = 'var(--st-text)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--st-border)';
+                e.currentTarget.style.color = 'var(--st-text-tertiary)';
+              }}
             >
               <Plus className="h-3 w-3" /> {bt.name}
             </button>

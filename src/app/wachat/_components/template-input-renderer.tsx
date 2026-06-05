@@ -2,21 +2,20 @@
 
 import {
   Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Input,
-  Label,
+  Field,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   RadioGroup,
-  ZoruRadioGroupItem,
-  cn,
-} from '@/components/zoruui';
+  Radio,
+} from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import {
@@ -31,17 +30,21 @@ import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
 
 /**
- * TemplateInputRenderer (wachat-local, ZoruUI)
+ * TemplateInputRenderer (wachat-local, 20ui)
  *
  * Renders the dynamic per-template variable inputs (header text vars,
  * media file/URL, location header, body vars, button params, carousel
  * card media). Same form-field names + behavior as the wabasimplify
- * version — only the visual layer is on Zoru primitives.
+ * version — only the visual layer is on 20ui primitives.
  */
 
 import * as React from 'react';
 
 import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 interface SmartVariableInputProps {
   id: string;
@@ -91,33 +94,33 @@ function SmartVariableInput({
         />
         {variableOptions.length > 0 && (
           <Popover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
+            <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
+                aria-label="Select Variable"
                 className="w-[40px] px-0 flex-shrink-0"
                 type="button"
                 title="Select Variable"
               >
                 <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                <span className="sr-only">Select Variable</span>
               </Button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent className="w-[200px] p-0" align="end">
-              <ZoruCommand>
-                <ZoruCommandInput placeholder="Search variable..." />
-                <ZoruCommandList>
-                  <ZoruCommandEmpty>No variable found.</ZoruCommandEmpty>
-                  <ZoruCommandGroup heading="Variables">
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" align="end">
+              <Command>
+                <CommandInput placeholder="Search variable..." />
+                <CommandList>
+                  <CommandEmpty>No variable found.</CommandEmpty>
+                  <CommandGroup heading="Variables">
                     {variableOptions.map((variable) => (
-                      <ZoruCommandItem
+                      <CommandItem
                         key={variable}
                         value={variable}
                         onSelect={() => handleSelect(variable)}
                       >
                         <Check
-                          className={cn(
+                          className={cx(
                             'mr-2 h-4 w-4',
                             inputValue === `{{${variable}}}`
                               ? 'opacity-100'
@@ -125,17 +128,20 @@ function SmartVariableInput({
                           )}
                         />
                         {variable}
-                      </ZoruCommandItem>
+                      </CommandItem>
                     ))}
-                  </ZoruCommandGroup>
-                </ZoruCommandList>
-              </ZoruCommand>
-            </ZoruPopoverContent>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
           </Popover>
         )}
       </div>
       {variableOptions.length > 0 && (
-        <p className="text-[10px] text-zoru-ink-muted mt-1">
+        <p
+          className="text-[10px] mt-1"
+          style={{ color: 'var(--st-text-muted)' }}
+        >
           Type manually or select a variable.
         </p>
       )}
@@ -203,19 +209,23 @@ export function TemplateInputRenderer({
             if (vars.length > 0) {
               return (
                 <div key={`header-${idx}`} className="space-y-2">
-                  <Label className="text-zoru-ink">
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--st-text)' }}
+                  >
                     Header Variables
-                  </Label>
+                  </p>
                   {vars.map((v) => (
                     <div key={`header-var-${v}`} className="space-y-1">
-                      <Label
+                      <label
                         htmlFor={`variable_header_${v}`}
-                        className="text-xs text-zoru-ink-muted"
+                        className="text-xs"
+                        style={{ color: 'var(--st-text-muted)' }}
                       >
                         Variable {'{{'}
                         {v}
                         {'}}'}
-                      </Label>
+                      </label>
                       <SmartVariableInput
                         id={`variable_header_${v}`}
                         name={`variable_header_${v}`}
@@ -234,36 +244,46 @@ export function TemplateInputRenderer({
             return (
               <div
                 key={`header-${idx}`}
-                className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+                className="space-y-3 p-3"
+                style={{
+                  borderRadius: 'var(--st-radius)',
+                  border: '1px solid var(--st-border)',
+                  background: 'var(--st-surface)',
+                }}
               >
-                <Label className="text-zoru-ink">
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   Header Media ({component.format})
-                </Label>
+                </p>
                 <RadioGroup
                   value={headerMediaSource}
                   onValueChange={(v) =>
                     setHeaderMediaSource(v as 'url' | 'file')
                   }
+                  orientation="horizontal"
+                  aria-label="Header media source"
                   className="flex gap-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <ZoruRadioGroupItem value="file" id="h-source-file" />
-                    <Label
-                      htmlFor="h-source-file"
-                      className="font-normal flex items-center gap-1 cursor-pointer"
-                    >
-                      <UploadCloud className="h-4 w-4" /> Upload
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <ZoruRadioGroupItem value="url" id="h-source-url" />
-                    <Label
-                      htmlFor="h-source-url"
-                      className="font-normal flex items-center gap-1 cursor-pointer"
-                    >
-                      <LinkIcon className="h-4 w-4" /> URL
-                    </Label>
-                  </div>
+                  <Radio
+                    value="file"
+                    id="h-source-file"
+                    label={
+                      <span className="flex items-center gap-1">
+                        <UploadCloud className="h-4 w-4" /> Upload
+                      </span>
+                    }
+                  />
+                  <Radio
+                    value="url"
+                    id="h-source-url"
+                    label={
+                      <span className="flex items-center gap-1">
+                        <LinkIcon className="h-4 w-4" /> URL
+                      </span>
+                    }
+                  />
                 </RadioGroup>
 
                 {headerMediaSource === 'file' ? (
@@ -283,7 +303,10 @@ export function TemplateInputRenderer({
                       required
                     />
                     <div className="flex items-center justify-between gap-2 pt-1">
-                      <p className="text-[10px] text-zoru-ink-muted">
+                      <p
+                        className="text-[10px]"
+                        style={{ color: 'var(--st-text-muted)' }}
+                      >
                         Supports{' '}
                         {component.format === 'IMAGE'
                           ? 'JPG, PNG'
@@ -337,16 +360,21 @@ export function TemplateInputRenderer({
             return (
               <div
                 key={`header-${idx}`}
-                className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+                className="space-y-3 p-3"
+                style={{
+                  borderRadius: 'var(--st-radius)',
+                  border: '1px solid var(--st-border)',
+                  background: 'var(--st-surface)',
+                }}
               >
-                <Label className="flex items-center gap-2 text-zoru-ink">
+                <p
+                  className="flex items-center gap-2 text-sm font-medium"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   <MapPin className="h-4 w-4" /> Location Header
-                </Label>
+                </p>
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="location_lat" className="text-xs">
-                      Latitude
-                    </Label>
+                  <Field label="Latitude" id="location_lat">
                     <Input
                       name="location_lat"
                       id="location_lat"
@@ -355,11 +383,8 @@ export function TemplateInputRenderer({
                       step="any"
                       type="number"
                     />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="location_long" className="text-xs">
-                      Longitude
-                    </Label>
+                  </Field>
+                  <Field label="Longitude" id="location_long">
                     <Input
                       name="location_long"
                       id="location_long"
@@ -368,28 +393,26 @@ export function TemplateInputRenderer({
                       step="any"
                       type="number"
                     />
+                  </Field>
+                  <div className="col-span-2">
+                    <Field label="Location Name" id="location_name">
+                      <Input
+                        name="location_name"
+                        id="location_name"
+                        placeholder="Burj Khalifa"
+                        required
+                      />
+                    </Field>
                   </div>
-                  <div className="col-span-2 space-y-1">
-                    <Label htmlFor="location_name" className="text-xs">
-                      Location Name
-                    </Label>
-                    <Input
-                      name="location_name"
-                      id="location_name"
-                      placeholder="Burj Khalifa"
-                      required
-                    />
-                  </div>
-                  <div className="col-span-2 space-y-1">
-                    <Label htmlFor="location_address" className="text-xs">
-                      Address
-                    </Label>
-                    <Input
-                      name="location_address"
-                      id="location_address"
-                      placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai"
-                      required
-                    />
+                  <div className="col-span-2">
+                    <Field label="Address" id="location_address">
+                      <Input
+                        name="location_address"
+                        id="location_address"
+                        placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai"
+                        required
+                      />
+                    </Field>
                   </div>
                 </div>
               </div>
@@ -409,18 +432,24 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3">
-            <Label className="text-zoru-ink">Body Variables</Label>
+            <p
+              className="text-sm font-medium"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Body Variables
+            </p>
             <div className="grid gap-3">
               {vars.map((v) => (
                 <div key={`body-var-${v}`} className="space-y-1">
-                  <Label
+                  <label
                     htmlFor={`variable_body_${v}`}
-                    className="text-xs text-zoru-ink-muted"
+                    className="text-xs"
+                    style={{ color: 'var(--st-text-muted)' }}
                   >
                     Variable {'{{'}
                     {v}
                     {'}}'}
-                  </Label>
+                  </label>
                   <SmartVariableInput
                     id={`variable_body_${v}`}
                     name={`variable_body_${v}`}
@@ -452,18 +481,24 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3 pt-2">
-            <Label className="text-zoru-ink">Button Parameters</Label>
+            <p
+              className="text-sm font-medium"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Button Parameters
+            </p>
             <div className="grid gap-3">
               {interactiveButtons.map((btn: any) => (
                 <div key={`btn-${btn.index}`} className="space-y-1">
-                  <Label
+                  <label
                     htmlFor={`variable_button_${btn.index}`}
-                    className="text-xs text-zoru-ink-muted"
+                    className="text-xs"
+                    style={{ color: 'var(--st-text-muted)' }}
                   >
                     {btn.type === 'COPY_CODE'
                       ? `Coupon Code (Button: ${btn.text})`
                       : `URL Suffix (Button: ${btn.text})`}
-                  </Label>
+                  </label>
                   <SmartVariableInput
                     id={`variable_button_${btn.index}`}
                     name={`variable_button_${btn.index}`}
@@ -474,7 +509,10 @@ export function TemplateInputRenderer({
                     variableOptions={variableOptions}
                   />
                   {btn.type === 'URL' && (
-                    <p className="text-[10px] text-zoru-ink-muted">
+                    <p
+                      className="text-[10px]"
+                      style={{ color: 'var(--st-text-muted)' }}
+                    >
                       Appended to: {btn.url.split('{{1}}')[0]}
                     </p>
                   )}
@@ -487,9 +525,14 @@ export function TemplateInputRenderer({
 
       {/* CAROUSEL card media */}
       {(template as any).type === 'MARKETING_CAROUSEL' && (
-        <div className="space-y-4 border-t border-zoru-line pt-4">
-          <h3 className="text-sm text-zoru-ink">Carousel Cards Media</h3>
-          <p className="text-xs text-zoru-ink-muted">
+        <div
+          className="space-y-4 pt-4"
+          style={{ borderTop: '1px solid var(--st-border)' }}
+        >
+          <h3 className="text-sm" style={{ color: 'var(--st-text)' }}>
+            Carousel Cards Media
+          </h3>
+          <p className="text-xs" style={{ color: 'var(--st-text-muted)' }}>
             Upload media for each card.
           </p>
 
@@ -506,12 +549,20 @@ export function TemplateInputRenderer({
                 return (
                   <div
                     key={index}
-                    className="space-y-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
+                    className="space-y-3 p-4"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      border: '1px solid var(--st-border)',
+                      background: 'var(--st-surface)',
+                    }}
                   >
                     <div className="flex justify-between items-center">
-                      <Label className="text-zoru-ink">
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: 'var(--st-text)' }}
+                      >
                         Card {index + 1} ({header.format})
-                      </Label>
+                      </p>
                     </div>
                     <Input
                       ref={(el) => {
@@ -525,7 +576,10 @@ export function TemplateInputRenderer({
                       required
                     />
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[10px] text-zoru-ink-muted">
+                      <p
+                        className="text-[10px]"
+                        style={{ color: 'var(--st-text-muted)' }}
+                      >
                         {pickedCardMediaNames[index]
                           ? `Picked: ${pickedCardMediaNames[index]}`
                           : 'Or pick from SabFiles'}

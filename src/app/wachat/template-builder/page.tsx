@@ -1,37 +1,17 @@
 "use client";
 import { fmtDate } from "@/lib/utils";
 
+import { WachatPage } from "@/app/wachat/_components/wachat-page";
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Field,
   Input,
-  Label,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Modal,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Textarea,
-  cn,
-  useZoruToast,
-} from "@/components/zoruui";
+  useToast,
+} from "@/components/sabcrm/20ui";
 import { memo, useMemo, useState } from "react";
 import { Plus, Eye, Copy, Trash2, GripVertical, History } from "lucide-react";
 import {
@@ -53,6 +33,10 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { useProject } from "@/context/project-context";
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(" ");
+}
 
 type HeaderType = "none" | "text" | "image" | "video" | "document";
 type BtnType = "quick_reply" | "url" | "phone";
@@ -86,9 +70,11 @@ const SortableBlock = memo(
         <div
           {...attributes}
           {...listeners}
-          className="absolute left-[-28px] top-6 p-1 cursor-grab text-zoru-ink-muted opacity-0 group-hover:opacity-100 transition-opacity hover:text-zoru-ink"
+          aria-label="Drag to reorder block"
+          className="absolute left-[-28px] top-6 p-1 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity"
+          style={{ color: "var(--st-text-tertiary)" }}
         >
-          <GripVertical size={18} />
+          <GripVertical size={18} aria-hidden="true" />
         </div>
         {children}
       </div>
@@ -99,7 +85,7 @@ SortableBlock.displayName = "SortableBlock";
 
 export default function TemplateBuilderPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [category, setCategory] = useState("marketing");
   const [headerType, setHeaderType] = useState<HeaderType>("none");
@@ -205,6 +191,7 @@ export default function TemplateBuilderPage() {
     toast({
       title: "Template JSON copied & Version saved",
       description: `Template payload (${json.length} chars) copied to clipboard.`,
+      tone: "success",
     });
     setSaveOpen(false);
   };
@@ -228,21 +215,25 @@ export default function TemplateBuilderPage() {
   const categoryBlock = useMemo(
     () => (
       <Card>
-        <ZoruCardContent className="space-y-3 pt-6">
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Category</h2>
-          <Select value={category} onValueChange={setCategory}>
-            <ZoruSelectTrigger>
-              <ZoruSelectValue />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              <ZoruSelectItem value="marketing">Marketing</ZoruSelectItem>
-              <ZoruSelectItem value="utility">Utility</ZoruSelectItem>
-              <ZoruSelectItem value="authentication">
-                Authentication
-              </ZoruSelectItem>
-            </ZoruSelectContent>
-          </Select>
-        </ZoruCardContent>
+        <div className="space-y-3">
+          <h2
+            className="text-[15px] font-semibold"
+            style={{ color: "var(--st-text)" }}
+          >
+            Category
+          </h2>
+          <Field label="Category">
+            <Select
+              value={category}
+              onChange={(v) => setCategory(v ?? "marketing")}
+              options={[
+                { value: "marketing", label: "Marketing" },
+                { value: "utility", label: "Utility" },
+                { value: "authentication", label: "Authentication" },
+              ]}
+            />
+          </Field>
+        </div>
       </Card>
     ),
     [category],
@@ -251,8 +242,13 @@ export default function TemplateBuilderPage() {
   const headerBlock = useMemo(
     () => (
       <Card>
-        <ZoruCardContent className="space-y-3 pt-6">
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Header</h2>
+        <div className="space-y-3">
+          <h2
+            className="text-[15px] font-semibold"
+            style={{ color: "var(--st-text)" }}
+          >
+            Header
+          </h2>
           <div className="flex flex-wrap gap-2">
             {(["none", "text", "image", "video", "document"] as const).map(
               (t) => {
@@ -262,12 +258,19 @@ export default function TemplateBuilderPage() {
                     key={t}
                     type="button"
                     onClick={() => setHeaderType(t)}
-                    className={cn(
-                      "rounded-[var(--zoru-radius)] border px-3 py-1.5 text-[12px] font-medium capitalize transition-colors",
-                      isActive
-                        ? "border-zoru-ink bg-zoru-ink text-zoru-on-primary"
-                        : "border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:text-zoru-ink",
-                    )}
+                    aria-pressed={isActive}
+                    className="px-3 py-1.5 text-[12px] font-medium capitalize transition-colors"
+                    style={{
+                      borderRadius: "var(--st-radius)",
+                      border: "1px solid",
+                      borderColor: isActive
+                        ? "var(--st-text)"
+                        : "var(--st-border)",
+                      background: isActive ? "var(--st-text)" : "var(--st-bg)",
+                      color: isActive
+                        ? "var(--st-bg)"
+                        : "var(--st-text-secondary)",
+                    }}
                   >
                     {t}
                   </button>
@@ -276,20 +279,25 @@ export default function TemplateBuilderPage() {
             )}
           </div>
           {headerType === "text" && (
-            <Input
-              placeholder="Header text"
-              value={headerText}
-              onChange={(e) => setHeaderText(e.target.value)}
-            />
+            <Field label="Header text">
+              <Input
+                placeholder="Header text"
+                value={headerText}
+                onChange={(e) => setHeaderText(e.target.value)}
+              />
+            </Field>
           )}
           {(headerType === "image" ||
             headerType === "video" ||
             headerType === "document") && (
-            <p className="text-[12px] text-zoru-ink-muted">
+            <p
+              className="text-[12px]"
+              style={{ color: "var(--st-text-secondary)" }}
+            >
               Upload {headerType} when submitting for approval.
             </p>
           )}
-        </ZoruCardContent>
+        </div>
       </Card>
     ),
     [headerType, headerText],
@@ -298,26 +306,44 @@ export default function TemplateBuilderPage() {
   const bodyBlock = useMemo(
     () => (
       <Card>
-        <ZoruCardContent className="space-y-3 pt-6">
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Body</h2>
-          <Textarea
-            rows={4}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Message body…"
-          />
+        <div className="space-y-3">
+          <h2
+            className="text-[15px] font-semibold"
+            style={{ color: "var(--st-text)" }}
+          >
+            Body
+          </h2>
+          <Field label="Body">
+            <Textarea
+              rows={4}
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Message body…"
+            />
+          </Field>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[12px] text-zoru-ink-muted">Variables:</span>
+            <span
+              className="text-[12px]"
+              style={{ color: "var(--st-text-secondary)" }}
+            >
+              Variables:
+            </span>
             {[1, 2, 3].map((n) => (
               <button
                 key={n}
                 type="button"
                 onClick={() => insertVar(n)}
-                className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2 py-1 font-mono text-[11px] text-zoru-ink hover:bg-zoru-surface"
+                className="px-2 py-1 font-mono text-[11px]"
+                style={{
+                  borderRadius: "var(--st-radius)",
+                  border: "1px solid var(--st-border)",
+                  background: "var(--st-bg)",
+                  color: "var(--st-text)",
+                }}
               >{`{{${n}}}`}</button>
             ))}
           </div>
-        </ZoruCardContent>
+        </div>
       </Card>
     ),
     [body],
@@ -326,14 +352,21 @@ export default function TemplateBuilderPage() {
   const footerBlock = useMemo(
     () => (
       <Card>
-        <ZoruCardContent className="space-y-3 pt-6">
-          <h2 className="text-[15px] font-semibold text-zoru-ink">Footer</h2>
-          <Input
-            placeholder="Footer text (optional)"
-            value={footer}
-            onChange={(e) => setFooter(e.target.value)}
-          />
-        </ZoruCardContent>
+        <div className="space-y-3">
+          <h2
+            className="text-[15px] font-semibold"
+            style={{ color: "var(--st-text)" }}
+          >
+            Footer
+          </h2>
+          <Field label="Footer text (optional)">
+            <Input
+              placeholder="Footer text (optional)"
+              value={footer}
+              onChange={(e) => setFooter(e.target.value)}
+            />
+          </Field>
+        </div>
       </Card>
     ),
     [footer],
@@ -342,44 +375,51 @@ export default function TemplateBuilderPage() {
   const buttonsBlock = useMemo(
     () => (
       <Card>
-        <ZoruCardContent className="space-y-3 pt-6">
+        <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-[15px] font-semibold text-zoru-ink">
+            <h2
+              className="text-[15px] font-semibold"
+              style={{ color: "var(--st-text)" }}
+            >
               Buttons ({buttons.length}/3)
             </h2>
             <Button
               size="sm"
               variant="outline"
+              iconLeft={Plus}
               onClick={addButton}
               disabled={buttons.length >= 3}
             >
-              <Plus /> Add
+              Add
             </Button>
           </div>
           {buttons.map((btn, i) => (
             <div
               key={i}
-              className="flex flex-wrap items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+              className="flex flex-wrap items-center gap-2 p-3"
+              style={{
+                borderRadius: "var(--st-radius)",
+                border: "1px solid var(--st-border)",
+                background: "var(--st-bg-secondary)",
+              }}
             >
               <div className="min-w-[140px]">
                 <Select
+                  aria-label="Button type"
                   value={btn.type}
-                  onValueChange={(v) => updateButton(i, { type: v as BtnType })}
-                >
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="quick_reply">
-                      Quick reply
-                    </ZoruSelectItem>
-                    <ZoruSelectItem value="url">URL</ZoruSelectItem>
-                    <ZoruSelectItem value="phone">Phone</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </Select>
+                  onChange={(v) =>
+                    updateButton(i, { type: (v ?? "quick_reply") as BtnType })
+                  }
+                  options={[
+                    { value: "quick_reply", label: "Quick reply" },
+                    { value: "url", label: "URL" },
+                    { value: "phone", label: "Phone" },
+                  ]}
+                />
               </div>
               <Input
                 className="min-w-[120px] flex-1"
+                aria-label="Button label"
                 placeholder="Button label"
                 value={btn.text}
                 onChange={(e) => updateButton(i, { text: e.target.value })}
@@ -387,6 +427,7 @@ export default function TemplateBuilderPage() {
               {btn.type !== "quick_reply" && (
                 <Input
                   className="min-w-[120px] flex-1"
+                  aria-label={btn.type === "url" ? "Button URL" : "Button phone number"}
                   placeholder={btn.type === "url" ? "https://…" : "+1234567890"}
                   value={btn.value}
                   onChange={(e) => updateButton(i, { value: e.target.value })}
@@ -394,15 +435,14 @@ export default function TemplateBuilderPage() {
               )}
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="sm"
+                iconLeft={Trash2}
                 aria-label="Remove button"
                 onClick={() => removeButton(i)}
-              >
-                <Trash2 />
-              </Button>
+              />
             </div>
           ))}
-        </ZoruCardContent>
+        </div>
       </Card>
     ),
     [buttons],
@@ -417,39 +457,16 @@ export default function TemplateBuilderPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/templates">
-              Templates
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Builder</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Template builder</ZoruPageTitle>
-          <ZoruPageDescription>
-            Build WhatsApp message templates visually. Save copies the JSON
-            payload to your clipboard for submission.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={[
+        { label: "SabNode", href: "/dashboard" },
+        { label: "WaChat", href: "/wachat" },
+        { label: "Templates", href: "/wachat/templates" },
+        { label: "Builder" },
+      ]}
+      title="Template builder"
+      description="Build WhatsApp message templates visually. Save copies the JSON payload to your clipboard for submission."
+    >
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-4 pl-8">
           <DndContext
@@ -470,34 +487,68 @@ export default function TemplateBuilderPage() {
           </DndContext>
 
           <div className="flex gap-4">
-            <Button onClick={() => setSaveOpen(true)}>
-              <Copy /> Save template (copy JSON)
+            <Button
+              variant="primary"
+              iconLeft={Copy}
+              onClick={() => setSaveOpen(true)}
+            >
+              Save template (copy JSON)
             </Button>
-            <Button variant="secondary" onClick={() => setVersionsOpen(true)}>
-              <History /> Versions ({versions.length})
+            <Button
+              variant="secondary"
+              iconLeft={History}
+              onClick={() => setVersionsOpen(true)}
+            >
+              Versions ({versions.length})
             </Button>
           </div>
         </div>
 
         <div className="lg:sticky lg:top-6 lg:self-start">
           <Card variant="elevated">
-            <ZoruCardContent className="space-y-3 pt-6">
-              <h2 className="flex items-center gap-1.5 text-[15px] font-semibold text-zoru-ink">
-                <Eye className="h-4 w-4" /> Preview
+            <div className="space-y-3">
+              <h2
+                className="flex items-center gap-1.5 text-[15px] font-semibold"
+                style={{ color: "var(--st-text)" }}
+              >
+                <Eye className="h-4 w-4" aria-hidden="true" /> Preview
               </h2>
-              <div className="rounded-[var(--zoru-radius-lg)] bg-zoru-surface p-4">
-                <div className="max-w-[260px] rounded-[var(--zoru-radius)] bg-zoru-bg p-3 shadow-[var(--zoru-shadow-sm)]">
+              <div
+                className="p-4"
+                style={{
+                  borderRadius: "var(--st-radius-lg)",
+                  background: "var(--st-bg-secondary)",
+                }}
+              >
+                <div
+                  className="max-w-[260px] p-3"
+                  style={{
+                    borderRadius: "var(--st-radius)",
+                    background: "var(--st-bg)",
+                    boxShadow: "var(--st-shadow-sm)",
+                  }}
+                >
                   {blocks.map((blockId) => {
                     if (blockId === "header" && headerType !== "none") {
                       return (
                         <div key={blockId} className="mb-2">
                           {headerType === "text" && headerText && (
-                            <p className="mb-1 text-[13px] font-semibold text-zoru-ink">
+                            <p
+                              className="mb-1 text-[13px] font-semibold"
+                              style={{ color: "var(--st-text)" }}
+                            >
                               {headerText}
                             </p>
                           )}
                           {headerType !== "text" && (
-                            <div className="flex h-24 items-center justify-center rounded bg-zoru-surface-2 text-[11px] uppercase text-zoru-ink-subtle">
+                            <div
+                              className="flex h-24 items-center justify-center text-[11px] uppercase"
+                              style={{
+                                borderRadius: "var(--st-radius)",
+                                background: "var(--st-bg-muted)",
+                                color: "var(--st-text-tertiary)",
+                              }}
+                            >
                               {headerType}
                             </div>
                           )}
@@ -508,7 +559,8 @@ export default function TemplateBuilderPage() {
                       return (
                         <p
                           key={blockId}
-                          className="whitespace-pre-wrap text-[13px] text-zoru-ink mb-2"
+                          className="whitespace-pre-wrap text-[13px] mb-2"
+                          style={{ color: "var(--st-text)" }}
                         >
                           {body || "Message body…"}
                         </p>
@@ -518,7 +570,8 @@ export default function TemplateBuilderPage() {
                       return (
                         <p
                           key={blockId}
-                          className="mt-2 text-[11px] text-zoru-ink-muted"
+                          className="mt-2 text-[11px]"
+                          style={{ color: "var(--st-text-secondary)" }}
                         >
                           {footer}
                         </p>
@@ -528,12 +581,14 @@ export default function TemplateBuilderPage() {
                       return (
                         <div
                           key={blockId}
-                          className="mt-2 flex flex-col gap-1 border-t border-zoru-line pt-2"
+                          className="mt-2 flex flex-col gap-1 pt-2"
+                          style={{ borderTop: "1px solid var(--st-border)" }}
                         >
                           {buttons.map((b, i) => (
                             <div
                               key={i}
-                              className="py-1 text-center text-[12px] font-medium text-zoru-ink"
+                              className="py-1 text-center text-[12px] font-medium"
+                              style={{ color: "var(--st-text)" }}
                             >
                               {b.text || "Button"}
                             </div>
@@ -546,84 +601,91 @@ export default function TemplateBuilderPage() {
                 </div>
               </div>
               {activeProject?.name && (
-                <Label className="block text-[10px] uppercase tracking-wide text-zoru-ink-subtle">
+                <p
+                  className="block text-[10px] uppercase tracking-wide"
+                  style={{ color: "var(--st-text-tertiary)" }}
+                >
                   Project: {activeProject.name}
-                </Label>
+                </p>
               )}
-            </ZoruCardContent>
+            </div>
           </Card>
         </div>
       </div>
 
-      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Save template</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              The template JSON payload will be copied to your clipboard, and a
-              new version will be saved to your history. Paste it into your Meta
-              Business Manager (or the Templates page) to submit it for
-              approval.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+      <Modal
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        title="Save template"
+        description="The template JSON payload will be copied to your clipboard, and a new version will be saved to your history. Paste it into your Meta Business Manager (or the Templates page) to submit it for approval."
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setSaveOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              <Copy /> Copy JSON & Save
+            <Button variant="primary" iconLeft={Copy} onClick={handleSave}>
+              Copy JSON & Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      />
 
-      <Dialog open={versionsOpen} onOpenChange={setVersionsOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Version History</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Restore a previously saved version of this template.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto mt-4">
-            {versions.length === 0 ? (
-              <p className="text-sm text-zoru-ink-muted">
-                No versions saved yet. Save your template to create a version.
-              </p>
-            ) : (
-              versions.map((v) => (
-                <div
-                  key={v.id}
-                  className="flex items-center justify-between p-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface"
-                >
-                  <div>
-                    <p className="text-[14px] font-medium text-zoru-ink">
-                      {v.name}
-                    </p>
-                    <p className="text-[12px] text-zoru-ink-muted">
-                      {fmtDate(v.timestamp)}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => loadVersion(v)}
+      <Modal
+        open={versionsOpen}
+        onClose={() => setVersionsOpen(false)}
+        title="Version History"
+        description="Restore a previously saved version of this template."
+        footer={
+          <Button variant="ghost" onClick={() => setVersionsOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+          {versions.length === 0 ? (
+            <p
+              className="text-sm"
+              style={{ color: "var(--st-text-secondary)" }}
+            >
+              No versions saved yet. Save your template to create a version.
+            </p>
+          ) : (
+            versions.map((v) => (
+              <div
+                key={v.id}
+                className="flex items-center justify-between p-3"
+                style={{
+                  borderRadius: "var(--st-radius)",
+                  border: "1px solid var(--st-border)",
+                  background: "var(--st-bg-secondary)",
+                }}
+              >
+                <div>
+                  <p
+                    className="text-[14px] font-medium"
+                    style={{ color: "var(--st-text)" }}
                   >
-                    Restore
-                  </Button>
+                    {v.name}
+                  </p>
+                  <p
+                    className="text-[12px]"
+                    style={{ color: "var(--st-text-secondary)" }}
+                  >
+                    {fmtDate(v.timestamp)}
+                  </p>
                 </div>
-              ))
-            )}
-          </div>
-          <ZoruDialogFooter>
-            <Button variant="ghost" onClick={() => setVersionsOpen(false)}>
-              Close
-            </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => loadVersion(v)}
+                >
+                  Restore
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      </Modal>
+    </WachatPage>
   );
 }

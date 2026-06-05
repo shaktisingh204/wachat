@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Skeleton,
-} from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useEffect,
@@ -22,13 +14,14 @@ import type { WithId,
   Project,
   Template } from '@/lib/definitions';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { BulkActionsClient } from '@/app/wachat/_components/bulk-actions-client';
 
 /**
  * Wachat Bulk — root bulk-send page (CSV-driven).
  *
  * Keeps the existing BulkActionsClient component (it implements the
- * underlying upload/preview/dispatch flow). ZoruUI only replaces the
+ * underlying upload/preview/dispatch flow). 20ui only replaces the
  * page chrome.
  */
 
@@ -104,36 +97,18 @@ function BulkPageContent() {
 
 export default function BulkPage() {
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Bulk Actions</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Bulk Actions
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Send WhatsApp messages, run template imports, and orchestrate jobs
-          across multiple projects at once.
-        </p>
-      </div>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Bulk Actions' },
+      ]}
+      title="Bulk Actions"
+      description="Send WhatsApp messages, run template imports, and orchestrate jobs across multiple projects at once."
+    >
       <Suspense fallback={<BulkActionsSkeleton />}>
         <BulkPageContent />
       </Suspense>
-    </div>
+    </WachatPage>
   );
 }

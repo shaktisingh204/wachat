@@ -1,30 +1,29 @@
 'use client';
 
 import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   Button,
   Input,
-  Label,
+  Field,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
   useRef,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId,
   Contact } from '@/lib/definitions';
 
 import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
 import { WaPayIcon } from '@/components/zoruui-domain/custom-sidebar-components';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 const initialState = { message: null, error: undefined };
 
@@ -37,8 +36,7 @@ interface RequestWhatsAppPaymentDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-      <Button type="submit" disabled={pending}>
-        {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+      <Button type="submit" variant="primary" loading={pending} iconLeft={Send}>
         Send Request
       </Button>
     );
@@ -61,36 +59,36 @@ export function RequestWhatsAppPaymentDialog({ isOpen, onOpenChange, contact }: 
     }, [state, toast, onOpenChange]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-md">
-                <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="contactId" value={contact._id.toString()} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle className="flex items-center gap-2"><WaPayIcon className="h-5 w-5"/>Request WhatsApp Payment</ZoruDialogTitle>
-                        <ZoruDialogDescription>
-                            Send a UPI payment request to {contact.name}.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="amount">Amount (INR)</Label>
-                            <Input id="amount" name="amount" type="number" step="0.01" required />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea id="description" name="description" placeholder="e.g., Payment for Order #1234" required />
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="externalReference">External Reference ID (Optional)</Label>
-                            <Input id="externalReference" name="externalReference" placeholder="e.g., order_1234" />
-                        </div>
-                    </div>
-                    <ZoruDialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <SubmitButton />
-                    </ZoruDialogFooter>
-                </form>
-            </ZoruDialogContent>
-        </Dialog>
+        <Modal
+            open={isOpen}
+            onClose={() => onOpenChange(false)}
+            size="md"
+            title={
+                <span className="flex items-center gap-2">
+                    <WaPayIcon className="h-5 w-5" />
+                    Request WhatsApp Payment
+                </span>
+            }
+            description={`Send a UPI payment request to ${contact.name}.`}
+        >
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="contactId" value={contact._id.toString()} />
+                <div className="grid gap-4 py-1">
+                    <Field label="Amount (INR)" required>
+                        <Input id="amount" name="amount" type="number" step="0.01" required />
+                    </Field>
+                    <Field label="Description" required>
+                        <Textarea id="description" name="description" placeholder="e.g., Payment for Order #1234" required />
+                    </Field>
+                    <Field label="External Reference ID (Optional)">
+                        <Input id="externalReference" name="externalReference" placeholder="e.g., order_1234" />
+                    </Field>
+                </div>
+                <div className="flex justify-end gap-2 pt-4">
+                    <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <SubmitButton />
+                </div>
+            </form>
+        </Modal>
     );
 }

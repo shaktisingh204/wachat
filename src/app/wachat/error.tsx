@@ -1,10 +1,10 @@
 'use client';
 
-import { Button, Card } from '@/components/zoruui';
-import {
-  useEffect } from 'react';
-import { AlertTriangle,
-  RotateCcw } from 'lucide-react';
+import { useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * Wachat error boundary — catches unexpected React render errors and
@@ -23,34 +23,36 @@ export default function WachatError({
     console.error('[WaChat Error]', error);
   }, [error]);
 
+  const description = error.message
+    ? error.message.length > 120
+      ? `${error.message.slice(0, 120)}…`
+      : error.message
+    : 'An unexpected error occurred loading this page.';
+
   return (
-    <div className="flex min-h-[60vh] items-center justify-center p-6">
-      <Card className="w-full max-w-sm p-8 text-center">
-        <AlertTriangle className="mx-auto mb-4 h-10 w-10 text-zoru-warning" />
-        <h2 className="mb-2 text-[18px] text-zoru-ink">
-          Something went wrong
-        </h2>
-        <p className="mb-6 text-[13px] text-zoru-ink-muted">
-          {error.message
-            ? error.message.length > 120
-              ? `${error.message.slice(0, 120)}…`
-              : error.message
-            : 'An unexpected error occurred loading this page.'}
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <Button onClick={reset} size="sm">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Try again
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => (window.location.href = '/wachat')}
-          >
-            Back to WaChat
-          </Button>
-        </div>
-      </Card>
-    </div>
+    <WachatPage>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <EmptyState
+          icon={AlertCircle}
+          tone="danger"
+          title="Something went wrong"
+          description={description}
+          action={
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="primary" size="sm" onClick={() => reset()}>
+                Try again
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => (window.location.href = '/wachat')}
+              >
+                Back to WaChat
+              </Button>
+            </div>
+          }
+        />
+      </div>
+    </WachatPage>
   );
 }

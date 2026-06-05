@@ -1,30 +1,21 @@
 'use client';
 
+import { useState } from 'react';
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruTable,
-  ZoruTableHeader,
-  ZoruTableBody,
-  ZoruTableRow,
-  ZoruTableHead,
-  ZoruTableCell,
+  IconButton,
   Tabs,
-  ZoruTabsList,
-  ZoruTabsTrigger,
-  ZoruTabsContent,
-} from '@/components/zoruui';
+  TabPanel,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   ArrowRight,
   Code2,
@@ -45,6 +36,10 @@ import {
 
 import Link from 'next/link';
 
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(' ');
+}
+
 type Integration = {
   title: string;
   description: string;
@@ -58,7 +53,7 @@ const integrations: Integration[] = [
     title: 'WhatsApp link generator',
     description:
       'Create wa.me links with pre-filled messages and track them through UTM parameters.',
-    icon: <LinkIcon className="h-[18px] w-[18px]" />,
+    icon: <LinkIcon className="h-[18px] w-[18px]" aria-hidden="true" />,
     href: '/wachat/integrations/whatsapp-link-generator',
     status: 'ready',
   },
@@ -66,7 +61,7 @@ const integrations: Integration[] = [
     title: 'Website widget',
     description:
       'Embed a floating WhatsApp chat widget on your website. Zero dev work, custom branding.',
-    icon: <Code2 className="h-[18px] w-[18px]" />,
+    icon: <Code2 className="h-[18px] w-[18px]" aria-hidden="true" />,
     href: '/wachat/integrations/whatsapp-widget-generator',
     status: 'ready',
   },
@@ -74,7 +69,7 @@ const integrations: Integration[] = [
     title: 'Razorpay',
     description:
       'Connect your Razorpay account to accept payments directly from WhatsApp messages.',
-    icon: <KeyRound className="h-[18px] w-[18px]" />,
+    icon: <KeyRound className="h-[18px] w-[18px]" aria-hidden="true" />,
     href: '/wachat/integrations/razorpay',
     status: 'ready',
   },
@@ -82,27 +77,27 @@ const integrations: Integration[] = [
     title: 'Shopify',
     description:
       'Sync orders, send abandoned-cart nudges and delivery updates from Shopify to WhatsApp.',
-    icon: <ShoppingBag className="h-[18px] w-[18px]" />,
+    icon: <ShoppingBag className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'coming-soon',
   },
   {
     title: 'Zapier',
     description:
       'Connect 5,000+ apps to Wachat: trigger broadcasts, sync contacts, log events — no code.',
-    icon: <Zap className="h-[18px] w-[18px]" />,
+    icon: <Zap className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'coming-soon',
   },
   {
     title: 'Google Sheets',
     description:
       'Sync contacts to/from a spreadsheet. Two-way updates, column mapping, scheduled pulls.',
-    icon: <FileSpreadsheet className="h-[18px] w-[18px]" />,
+    icon: <FileSpreadsheet className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'coming-soon',
   },
   {
     title: 'WooCommerce',
     description: 'Trigger WhatsApp flows on order events: created, paid, shipped, delivered.',
-    icon: <Store className="h-[18px] w-[18px]" />,
+    icon: <Store className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'coming-soon',
   },
 ];
@@ -111,20 +106,20 @@ const oauthConnections = [
   {
     name: 'Facebook / Meta',
     description: 'Connect your WhatsApp Business Account (WABA)',
-    icon: <Globe className="h-[18px] w-[18px]" />,
+    icon: <Globe className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'connected',
     connectedAt: 'Dec 1, 2023',
   },
   {
     name: 'Shopify',
     description: 'Sync your products and customers',
-    icon: <ShoppingBag className="h-[18px] w-[18px]" />,
+    icon: <ShoppingBag className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'disconnected',
   },
   {
     name: 'Google Analytics',
     description: 'Track WhatsApp link clicks and widget interactions',
-    icon: <PieChart className="h-[18px] w-[18px]" />,
+    icon: <PieChart className="h-[18px] w-[18px]" aria-hidden="true" />,
     status: 'disconnected',
   }
 ];
@@ -164,69 +159,70 @@ const apiKeys = [
 ];
 
 export default function IntegrationsPage() {
+  const [tab, setTab] = useState('integrations');
+
   return (
-    <div className="flex h-full w-full flex-col">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Integrations</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageTitle>Integrations</ZoruPageTitle>
-          <ZoruPageDescription>
-            Plug SabNode into the rest of your stack. Link generators, embeddable widgets, and
-            payment providers.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <Tabs defaultValue="integrations" className="mt-6 w-full">
-        <ZoruTabsList className="mb-4">
-          <ZoruTabsTrigger value="integrations">App Integrations</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="oauth">OAuth Connections</ZoruTabsTrigger>
-          <ZoruTabsTrigger value="webhooks">Webhooks & API Keys</ZoruTabsTrigger>
-        </ZoruTabsList>
-
-        <ZoruTabsContent value="integrations" className="mt-0 outline-none">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Integrations' },
+      ]}
+      title="Integrations"
+      description="Plug SabNode into the rest of your stack. Link generators, embeddable widgets, and payment providers."
+      width="wide"
+    >
+      <Tabs
+        value={tab}
+        onChange={setTab}
+        items={[
+          { value: 'integrations', label: 'App Integrations' },
+          { value: 'oauth', label: 'OAuth Connections' },
+          { value: 'webhooks', label: 'Webhooks & API Keys' },
+        ]}
+      >
+        <TabPanel value="integrations" className="mt-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {integrations.map((integration) => (
-              <Card key={integration.title} className="flex flex-col gap-4 p-5">
+              <Card key={integration.title} padding="none" className="flex flex-col gap-4 p-5">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
                     {integration.icon}
                   </span>
-                  <h3 className="text-[15px] text-zoru-ink">{integration.title}</h3>
+                  <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                    {integration.title}
+                  </h3>
                 </div>
 
-                <p className="flex-1 text-sm leading-relaxed text-zoru-ink-muted">
+                <p
+                  className="flex-1 text-sm leading-relaxed"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
                   {integration.description}
                 </p>
 
-                <div className="flex items-center justify-between border-t border-zoru-line pt-4">
+                <div
+                  className="flex items-center justify-between pt-4"
+                  style={{ borderTop: '1px solid var(--st-border)' }}
+                >
                   {integration.status === 'ready' ? (
-                    <Badge variant="success">Ready to configure</Badge>
+                    <Badge tone="success">Ready to configure</Badge>
                   ) : (
-                    <Badge variant="ghost">Coming soon</Badge>
+                    <Badge tone="neutral">Coming soon</Badge>
                   )}
                   {integration.status === 'ready' && integration.href ? (
-                    <Button size="sm" asChild>
-                      <Link href={integration.href}>
+                    <Link href={integration.href}>
+                      <Button size="sm" variant="primary" iconRight={ArrowRight}>
                         Configure
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </Button>
+                      </Button>
+                    </Link>
                   ) : (
                     <Button size="sm" variant="outline" disabled>
                       Notify me
@@ -237,146 +233,170 @@ export default function IntegrationsPage() {
             ))}
           </div>
 
-          <Card className="mt-6 flex items-center gap-4 p-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-              <Puzzle className="h-[18px] w-[18px]" />
+          <Card padding="none" className="mt-6 flex items-center gap-4 p-5">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                background: 'var(--st-bg-secondary)',
+                color: 'var(--st-text)',
+              }}
+            >
+              <Puzzle className="h-[18px] w-[18px]" aria-hidden="true" />
             </span>
             <div className="flex-1">
-              <p className="text-[14px] text-zoru-ink">More integrations coming soon</p>
-              <p className="text-[12.5px] leading-snug text-zoru-ink-muted">
+              <p className="text-[14px]" style={{ color: 'var(--st-text)' }}>
+                More integrations coming soon
+              </p>
+              <p className="text-[12.5px] leading-snug" style={{ color: 'var(--st-text-secondary)' }}>
                 Shopify, HubSpot, Zapier and Stripe are in the works. Need a specific one? Tell us.
               </p>
             </div>
           </Card>
-        </ZoruTabsContent>
+        </TabPanel>
 
-        <ZoruTabsContent value="oauth" className="mt-0 outline-none">
+        <TabPanel value="oauth" className="mt-4">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {oauthConnections.map((app) => (
-              <Card key={app.name} className="flex items-center justify-between p-5">
+              <Card key={app.name} padding="none" className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
                     {app.icon}
                   </span>
                   <div>
-                    <h3 className="text-[15px] font-medium text-zoru-ink">{app.name}</h3>
-                    <p className="text-sm text-zoru-ink-muted">{app.description}</p>
+                    <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
+                      {app.name}
+                    </h3>
+                    <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+                      {app.description}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   {app.status === 'connected' ? (
                     <>
                       <div className="flex flex-col items-end">
-                        <Badge variant="success">Connected</Badge>
-                        <span className="mt-1 text-[11px] text-zoru-ink-muted">Since {app.connectedAt}</span>
+                        <Badge tone="success">Connected</Badge>
+                        <span className="mt-1 text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                          Since {app.connectedAt}
+                        </span>
                       </div>
                       <Button size="sm" variant="outline">Disconnect</Button>
                     </>
                   ) : (
-                    <Button size="sm">Connect</Button>
+                    <Button size="sm" variant="primary">Connect</Button>
                   )}
                 </div>
               </Card>
             ))}
           </div>
-        </ZoruTabsContent>
+        </TabPanel>
 
-        <ZoruTabsContent value="webhooks" className="mt-0 outline-none">
+        <TabPanel value="webhooks" className="mt-4">
           <div className="space-y-8">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-medium text-zoru-ink">Webhooks</h3>
-                  <p className="text-sm text-zoru-ink-muted">Manage webhook endpoints to receive real-time updates.</p>
+                  <h3 className="text-base font-medium" style={{ color: 'var(--st-text)' }}>Webhooks</h3>
+                  <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+                    Manage webhook endpoints to receive real-time updates.
+                  </p>
                 </div>
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button size="sm" variant="primary" iconLeft={Plus}>
                   Add Webhook
                 </Button>
               </div>
-              <ZoruTable>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>URL</ZoruTableHead>
-                    <ZoruTableHead>Events</ZoruTableHead>
-                    <ZoruTableHead>Status</ZoruTableHead>
-                    <ZoruTableHead>Created</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>URL</Th>
+                    <Th>Events</Th>
+                    <Th>Status</Th>
+                    <Th>Created</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {webhooks.map((wh) => (
-                    <ZoruTableRow key={wh.id}>
-                      <ZoruTableCell className="font-medium">{wh.url}</ZoruTableCell>
-                      <ZoruTableCell>
+                    <Tr key={wh.id}>
+                      <Td className="font-medium">{wh.url}</Td>
+                      <Td>
                         <div className="flex flex-wrap gap-1">
                           {wh.events.map((ev) => (
-                            <Badge key={ev} variant="secondary" className="text-[10px] uppercase font-medium">{ev}</Badge>
+                            <Badge key={ev} tone="neutral" className="text-[10px] uppercase font-medium">{ev}</Badge>
                           ))}
                         </div>
-                      </ZoruTableCell>
-                      <ZoruTableCell>
+                      </Td>
+                      <Td>
                         {wh.status === 'active' ? (
-                          <Badge variant="success">Active</Badge>
+                          <Badge tone="success">Active</Badge>
                         ) : (
-                          <Badge variant="ghost">Inactive</Badge>
+                          <Badge tone="neutral">Inactive</Badge>
                         )}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">{wh.createdAt}</ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                      </Td>
+                      <Td style={{ color: 'var(--st-text-secondary)' }}>{wh.createdAt}</Td>
+                      <Td align="right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button size="icon" variant="ghost" className="h-8 w-8"><Edit2 className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
+                          <IconButton label="Edit webhook" icon={Edit2} variant="ghost" size="sm" />
+                          <IconButton label="Delete webhook" icon={Trash2} variant="danger" size="sm" />
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
-              </ZoruTable>
+                </TBody>
+              </Table>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-medium text-zoru-ink">API Keys</h3>
-                  <p className="text-sm text-zoru-ink-muted">Manage API keys to authenticate your API requests.</p>
+                  <h3 className="text-base font-medium" style={{ color: 'var(--st-text)' }}>API Keys</h3>
+                  <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+                    Manage API keys to authenticate your API requests.
+                  </p>
                 </div>
-                <Button size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
+                <Button size="sm" variant="primary" iconLeft={Plus}>
                   Generate Key
                 </Button>
               </div>
-              <ZoruTable>
-                <ZoruTableHeader>
-                  <ZoruTableRow>
-                    <ZoruTableHead>Name</ZoruTableHead>
-                    <ZoruTableHead>Key</ZoruTableHead>
-                    <ZoruTableHead>Created At</ZoruTableHead>
-                    <ZoruTableHead>Last Used</ZoruTableHead>
-                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                  </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Name</Th>
+                    <Th>Key</Th>
+                    <Th>Created At</Th>
+                    <Th>Last Used</Th>
+                    <Th align="right">Actions</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {apiKeys.map((k) => (
-                    <ZoruTableRow key={k.id}>
-                      <ZoruTableCell className="font-medium">{k.name}</ZoruTableCell>
-                      <ZoruTableCell className="font-mono text-xs">{k.key}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">{k.createdAt}</ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink-muted">{k.lastUsed}</ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                    <Tr key={k.id}>
+                      <Td className="font-medium">{k.name}</Td>
+                      <Td className="font-mono text-xs">{k.key}</Td>
+                      <Td style={{ color: 'var(--st-text-secondary)' }}>{k.createdAt}</Td>
+                      <Td style={{ color: 'var(--st-text-secondary)' }}>{k.lastUsed}</Td>
+                      <Td align="right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button size="icon" variant="ghost" className="h-8 w-8"><Copy className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-zoru-danger-ink hover:text-zoru-danger-ink hover:bg-zoru-danger/10"><Trash2 className="h-4 w-4" /></Button>
+                          <IconButton label="Copy API key" icon={Copy} variant="ghost" size="sm" />
+                          <IconButton label="Delete API key" icon={Trash2} variant="danger" size="sm" />
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))}
-                </ZoruTableBody>
-              </ZoruTable>
+                </TBody>
+              </Table>
             </div>
           </div>
-        </ZoruTabsContent>
+        </TabPanel>
       </Tabs>
-    </div>
+    </WachatPage>
   );
 }

@@ -2,26 +2,26 @@
 
 import {
   Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Badge,
-  Button,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Separator,
-} from '@/components/zoruui';
-import {
-  ChevronLeft } from 'lucide-react';
+} from '@/components/sabcrm/20ui';
+import { ChevronLeft } from 'lucide-react';
 
 import Link from 'next/link';
+
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 const blockDocs = [
   {
@@ -155,161 +155,175 @@ const blockDocs = [
 
 export default function FlowBuilderDocsPage() {
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-4">
-          <Link href="/wachat/flow-builder">
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Back to flow builder
-          </Link>
-        </Button>
-
-        <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Flow builder documentation</ZoruPageTitle>
-            <ZoruPageDescription>
-              Welcome to the flow builder guide. Learn about each building block and how to use
-              them to create powerful automations for your WhatsApp conversations.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-        </PageHeader>
-      </div>
-
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Using variables</ZoruCardTitle>
-          <ZoruCardDescription>
-            Variables let you personalize your flows and use data dynamically.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4 text-sm text-zoru-ink">
-          <p>
-            Variables are placeholders for data that can change, such as a user&apos;s name or their
-            answer to a question. Use double curly braces to insert a variable, like this:{' '}
-            <Badge variant="outline" className="font-mono">{`{{name}}`}</Badge>.
-          </p>
-          <p>
-            The &quot;Get user input&quot; block is the primary way to create custom variables. When
-            you configure it to save an answer to a variable named{' '}
-            <Badge variant="outline">color</Badge>, you can later use the user&apos;s
-            answer by writing{' '}
-            <Badge variant="outline" className="font-mono">{`{{color}}`}</Badge> in a
-            &quot;Send message&quot; block.
-          </p>
-          <p>
-            There are pre-defined variables you can use:{' '}
-            <Badge variant="outline" className="font-mono">{`{{name}}`}</Badge> (the
-            user&apos;s WhatsApp profile name) and{' '}
-            <Badge variant="outline" className="font-mono">{`{{waId}}`}</Badge> (their phone
-            number). Variables you save from an API call can also be used this way.
-          </p>
-        </ZoruCardContent>
-      </Card>
-
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Common pattern: button-based menu</ZoruCardTitle>
-          <ZoruCardDescription>
-            Present a menu to the user and perform an action based on their choice.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent className="space-y-4 text-sm text-zoru-ink">
-          <p>Here&apos;s how to build a &apos;Show balance&apos; flow that checks the user&apos;s input:</p>
-          <ol className="list-inside list-decimal space-y-2">
-            <li>
-              <strong>Add buttons block</strong>: create a button with the text &apos;Show
-              balance&apos; and another with &apos;Speak to agent&apos;.
-            </li>
-            <li>
-              <strong>Add condition block</strong>: add a &apos;Condition&apos; block. Configure it
-              to check if the input <em>Equals</em> the value &apos;Show balance&apos;.
-            </li>
-            <li>
-              <strong>Add API call block</strong>: add a &apos;Call API&apos; block to fetch the
-              balance from your server. Map the result to a variable named <code>balance</code>.
-            </li>
-            <li>
-              <strong>Add message blocks</strong>: add two &apos;Send message&apos; blocks. One
-              saying &apos;Your balance is {`{{balance}}`}&apos;, and another saying
-              &apos;Connecting you to an agent…&apos;.
-            </li>
-            <li>
-              <strong>Connect them</strong>:
-              <ul className="ml-4 mt-1 list-inside list-disc">
-                <li>
-                  Drag from the &apos;Show balance&apos; button output to the input of the{' '}
-                  <strong>Condition</strong> block.
-                </li>
-                <li>
-                  Connect the <strong>Yes</strong> output of Condition to your{' '}
-                  <strong>API call</strong> block.
-                </li>
-                <li>Connect the API call output to the &quot;Your balance is…&quot; message block.</li>
-                <li>
-                  Connect the <strong>No</strong> output of Condition to the &quot;Connecting
-                  you…&quot; message block.
-                </li>
-              </ul>
-            </li>
-          </ol>
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Flow builder', href: '/wachat/flow-builder' },
+        { label: 'Documentation' },
+      ]}
+      title="Flow builder documentation"
+      description="Welcome to the flow builder guide. Learn about each building block and how to use them to create powerful automations for your WhatsApp conversations."
+      actions={
+        <Link href="/wachat/flow-builder" className="u-btn u-btn--ghost u-btn--sm">
+          <ChevronLeft size={14} aria-hidden="true" />
+          <span className="u-btn__label">Back to flow builder</span>
+        </Link>
+      }
+      width="narrow"
+    >
+      <div className="flex flex-col gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Using variables</CardTitle>
+            <CardDescription>
+              Variables let you personalize your flows and use data dynamically.
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4 text-sm" style={{ color: 'var(--st-text)' }}>
             <p>
-              <strong>Key insight:</strong> when you connect a button to a Condition block, the
-              block automatically uses the button&apos;s text as the input to check. You don&apos;t
-              need a separate &quot;Get user input&quot; block. This makes building menus fast and
-              intuitive.
+              Variables are placeholders for data that can change, such as a user&apos;s name or their
+              answer to a question. Use double curly braces to insert a variable, like this:{' '}
+              <Badge kind="outline" className="font-mono">{`{{name}}`}</Badge>.
             </p>
-          </div>
-        </ZoruCardContent>
-      </Card>
+            <p>
+              The &quot;Get user input&quot; block is the primary way to create custom variables. When
+              you configure it to save an answer to a variable named{' '}
+              <Badge kind="outline">color</Badge>, you can later use the user&apos;s
+              answer by writing{' '}
+              <Badge kind="outline" className="font-mono">{`{{color}}`}</Badge> in a
+              &quot;Send message&quot; block.
+            </p>
+            <p>
+              There are pre-defined variables you can use:{' '}
+              <Badge kind="outline" className="font-mono">{`{{name}}`}</Badge> (the
+              user&apos;s WhatsApp profile name) and{' '}
+              <Badge kind="outline" className="font-mono">{`{{waId}}`}</Badge> (their phone
+              number). Variables you save from an API call can also be used this way.
+            </p>
+          </CardBody>
+        </Card>
 
-      <Separator />
-
-      <div>
-        <h2 className="text-2xl text-zoru-ink">Flow blocks</h2>
-        <p className="mt-1 text-zoru-ink-muted">
-          An overview of all available blocks and their configurations.
-        </p>
-      </div>
-
-      <Accordion type="single" collapsible className="w-full">
-        {blockDocs.map((doc, index) => (
-          <ZoruAccordionItem value={`item-${index}`} key={index}>
-            <ZoruAccordionTrigger className="text-lg">{doc.title}</ZoruAccordionTrigger>
-            <ZoruAccordionContent className="space-y-4 pt-2">
-              <p className="text-base text-zoru-ink-muted">{doc.description}</p>
-
-              <div className="space-y-2">
-                <h4 className="font-semibold text-zoru-ink">Properties:</h4>
-                <ul className="list-inside list-disc space-y-1 text-sm text-zoru-ink">
-                  {doc.properties.map((prop, pIndex) => (
-                    <li key={pIndex}>
-                      <strong>{prop.name}:</strong> {prop.desc}
-                    </li>
-                  ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>Common pattern: button-based menu</CardTitle>
+            <CardDescription>
+              Present a menu to the user and perform an action based on their choice.
+            </CardDescription>
+          </CardHeader>
+          <CardBody className="space-y-4 text-sm" style={{ color: 'var(--st-text)' }}>
+            <p>Here&apos;s how to build a &apos;Show balance&apos; flow that checks the user&apos;s input:</p>
+            <ol className="list-inside list-decimal space-y-2">
+              <li>
+                <strong>Add buttons block</strong>: create a button with the text &apos;Show
+                balance&apos; and another with &apos;Speak to agent&apos;.
+              </li>
+              <li>
+                <strong>Add condition block</strong>: add a &apos;Condition&apos; block. Configure it
+                to check if the input <em>Equals</em> the value &apos;Show balance&apos;.
+              </li>
+              <li>
+                <strong>Add API call block</strong>: add a &apos;Call API&apos; block to fetch the
+                balance from your server. Map the result to a variable named <code>balance</code>.
+              </li>
+              <li>
+                <strong>Add message blocks</strong>: add two &apos;Send message&apos; blocks. One
+                saying &apos;Your balance is {`{{balance}}`}&apos;, and another saying
+                &apos;Connecting you to an agent…&apos;.
+              </li>
+              <li>
+                <strong>Connect them</strong>:
+                <ul className="ml-4 mt-1 list-inside list-disc">
+                  <li>
+                    Drag from the &apos;Show balance&apos; button output to the input of the{' '}
+                    <strong>Condition</strong> block.
+                  </li>
+                  <li>
+                    Connect the <strong>Yes</strong> output of Condition to your{' '}
+                    <strong>API call</strong> block.
+                  </li>
+                  <li>Connect the API call output to the &quot;Your balance is…&quot; message block.</li>
+                  <li>
+                    Connect the <strong>No</strong> output of Condition to the &quot;Connecting
+                    you…&quot; message block.
+                  </li>
                 </ul>
-              </div>
+              </li>
+            </ol>
+            <div
+              className="p-3 text-sm"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                border: '1px solid var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+              }}
+            >
+              <p>
+                <strong>Key insight:</strong> when you connect a button to a Condition block, the
+                block automatically uses the button&apos;s text as the input to check. You don&apos;t
+                need a separate &quot;Get user input&quot; block. This makes building menus fast and
+                intuitive.
+              </p>
+            </div>
+          </CardBody>
+        </Card>
 
-              <div className="space-y-2">
-                <h4 className="font-semibold text-zoru-ink">Outputs:</h4>
-                <ul className="list-inside list-disc space-y-1 text-sm text-zoru-ink">
-                  {doc.outputs.map((out, oIndex) => (
-                    <li key={oIndex}>{out}</li>
-                  ))}
-                </ul>
-              </div>
+        <Separator />
 
-              {doc.notes && (
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-sm text-zoru-ink">
-                  <p>
-                    <strong>Note:</strong> {doc.notes}
-                  </p>
+        <div>
+          <h2 className="text-2xl" style={{ color: 'var(--st-text)' }}>Flow blocks</h2>
+          <p className="mt-1" style={{ color: 'var(--st-text-secondary)' }}>
+            An overview of all available blocks and their configurations.
+          </p>
+        </div>
+
+        <Accordion type="single" collapsible className="w-full">
+          {blockDocs.map((doc, index) => (
+            <AccordionItem value={`item-${index}`} key={index}>
+              <AccordionTrigger className="text-lg">{doc.title}</AccordionTrigger>
+              <AccordionContent className="space-y-4 pt-2">
+                <p className="text-base" style={{ color: 'var(--st-text-secondary)' }}>{doc.description}</p>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold" style={{ color: 'var(--st-text)' }}>Properties:</h4>
+                  <ul className="list-inside list-disc space-y-1 text-sm" style={{ color: 'var(--st-text)' }}>
+                    {doc.properties.map((prop, pIndex) => (
+                      <li key={pIndex}>
+                        <strong>{prop.name}:</strong> {prop.desc}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              )}
-            </ZoruAccordionContent>
-          </ZoruAccordionItem>
-        ))}
-      </Accordion>
-    </div>
+
+                <div className="space-y-2">
+                  <h4 className="font-semibold" style={{ color: 'var(--st-text)' }}>Outputs:</h4>
+                  <ul className="list-inside list-disc space-y-1 text-sm" style={{ color: 'var(--st-text)' }}>
+                    {doc.outputs.map((out, oIndex) => (
+                      <li key={oIndex}>{out}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {doc.notes && (
+                  <div
+                    className="p-3 text-sm"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      border: '1px solid var(--st-border)',
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
+                    <p>
+                      <strong>Note:</strong> {doc.notes}
+                    </p>
+                  </div>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+    </WachatPage>
   );
 }

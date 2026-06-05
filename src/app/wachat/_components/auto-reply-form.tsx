@@ -3,23 +3,19 @@
 import {
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardFooter,
-  ZoruCardHeader,
-  ZoruCardTitle,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Field,
+  IconButton,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Switch,
   Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -39,7 +35,7 @@ import type { GeneralReplyRule,
 import { timezones } from '@/lib/timezones';
 
 /**
- * AutoReplyForm (wachat-local, ZoruUI).
+ * AutoReplyForm (wachat-local, 20ui).
  *
  * Replaces the legacy auto-reply-form. Same server
  * action (handleUpdateAutoReplySettings), same hidden form fields,
@@ -48,16 +44,27 @@ import { timezones } from '@/lib/timezones';
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
+
 const initialState: { message: string | null; error: string | null } = {
   message: null,
   error: null,
 };
 
+const MATCH_TYPE_OPTIONS = [
+  { value: 'contains', label: 'Contains keyword' },
+  { value: 'exact', label: 'Exact match' },
+];
+
+const TIMEZONE_OPTIONS = timezones.map((tz) => ({ value: tz, label: tz }));
+
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : <Save />}
+    <Button type="submit" variant="primary" disabled={pending} iconLeft={pending ? undefined : Save}>
+      {pending ? <Loader2 className="animate-spin" /> : null}
       Save
     </Button>
   );
@@ -93,13 +100,16 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
     handleUpdateAutoReplySettings as any,
     initialState as any,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [replies, setReplies] = useState<GeneralReplyRule[]>([]);
 
   const [autoTranslate, setAutoTranslate] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
+  const [timezone, setTimezone] = useState<string>(
+    project.autoReplySettings?.inactiveHours?.timezone || 'Asia/Kolkata',
+  );
 
   useEffect(() => {
     if (project.autoReplySettings?.[type]) {
@@ -113,19 +123,20 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
       }
       if (type === 'inactiveHours') {
         setSelectedDays((settings as any).days || []);
+        setTimezone((settings as any).timezone || 'Asia/Kolkata');
       }
     }
   }, [project, type]);
 
   useEffect(() => {
     if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: 'Success!', description: state.message, tone: 'success' });
     }
     if (state.error) {
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast]);
@@ -165,8 +176,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
     switch (type) {
       case 'welcomeMessage':
         return (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="message">Message</Label>
+          <Field label="Message">
             <Textarea
               id="message"
               name="message"
@@ -175,14 +185,16 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
               }
               placeholder="Hello! 👋 Welcome to our business. How can we help you today?"
             />
-          </div>
+          </Field>
         );
 
       case 'aiAssistant':
         return (
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="context">Business Context</Label>
+            <Field
+              label="Business Context"
+              help="Provide information about your business for the AI to use when answering questions."
+            >
               <Textarea
                 id="context"
                 name="context"
@@ -192,20 +204,12 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                 }
                 placeholder="We are a clothing store specializing in men's fashion. Our business hours are 9 AM to 6 PM. We offer free shipping on orders above $50..."
               />
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Provide information about your business for the AI to use when
-                answering questions.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={autoTranslate}
-                onCheckedChange={setAutoTranslate}
-              />
-              <Label className="font-normal">
-                Auto-detect &amp; translate to user&apos;s language
-              </Label>
-            </div>
+            </Field>
+            <Switch
+              checked={autoTranslate}
+              onCheckedChange={setAutoTranslate}
+              label="Auto-detect & translate to user's language"
+            />
           </div>
         );
 
@@ -213,79 +217,70 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
         const settings = project.autoReplySettings?.inactiveHours;
         return (
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="message">Away Message</Label>
+            <Field label="Away Message">
               <Textarea
                 id="message"
                 name="message"
                 defaultValue={settings?.message || ''}
                 placeholder="Thanks for reaching out! We're currently away. Our business hours are Mon-Fri 9 AM to 6 PM. We'll get back to you as soon as possible."
               />
-            </div>
+            </Field>
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="startTime">Away From (Start)</Label>
+              <Field label="Away From (Start)">
                 <Input
                   id="startTime"
                   name="startTime"
                   type="time"
                   defaultValue={settings?.startTime || '20:00'}
                 />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="endTime">Available At (End)</Label>
+              </Field>
+              <Field label="Available At (End)">
                 <Input
                   id="endTime"
                   name="endTime"
                   type="time"
                   defaultValue={settings?.endTime || '08:00'}
                 />
-              </div>
+              </Field>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="timezone">Timezone</Label>
+            <Field label="Timezone">
               <Select
-                name="timezone"
-                defaultValue={settings?.timezone || 'Asia/Kolkata'}
-              >
-                <ZoruSelectTrigger id="timezone">
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent className="max-h-60">
-                  {timezones.map((tz) => (
-                    <ZoruSelectItem key={tz} value={tz}>
-                      {tz}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label>Active on these days</Label>
-              <p className="text-[11.5px] text-zoru-ink-muted">
-                Away message will be sent on selected days during the inactive
-                hours.
-              </p>
+                aria-label="Timezone"
+                value={timezone}
+                onChange={(val) => setTimezone(val ?? 'Asia/Kolkata')}
+                options={TIMEZONE_OPTIONS}
+                searchable
+              />
+              <input type="hidden" name="timezone" value={timezone} />
+            </Field>
+            <Field
+              label="Active on these days"
+              help="Away message will be sent on selected days during the inactive hours."
+            >
               <div className="mt-1 flex flex-wrap gap-2">
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
-                  (day, index) => (
-                    <button
-                      key={day}
-                      type="button"
-                      onClick={() => toggleDay(index)}
-                      className={cn(
-                        'rounded-full border px-3 py-1.5 text-[12px] transition-colors',
-                        selectedDays.includes(index)
-                          ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                          : 'border-zoru-line bg-zoru-bg text-zoru-ink-muted hover:bg-zoru-surface-2',
-                      )}
-                    >
-                      {day}
-                    </button>
-                  ),
+                  (day, index) => {
+                    const active = selectedDays.includes(index);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => toggleDay(index)}
+                        className={cx(
+                          'rounded-full border px-3 py-1.5 text-[12px] transition-colors',
+                          active
+                            ? 'border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-text-inverted)]'
+                            : 'border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-muted)] hover:bg-[var(--st-surface-hover)]',
+                        )}
+                      >
+                        {day}
+                      </button>
+                    );
+                  },
                 )}
               </div>
-            </div>
+            </Field>
           </div>
         );
       }
@@ -294,27 +289,24 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
         return (
           <div className="flex flex-col gap-4">
             {replies.length === 0 && (
-              <p className="text-[13px] italic text-zoru-ink-muted">
+              <p className="text-[13px] italic text-[var(--st-text-muted)]">
                 No keyword rules yet. Add one below.
               </p>
             )}
             {replies.map((rule) => (
               <div
                 key={rule.id}
-                className="relative flex flex-col gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
+                className="relative flex flex-col gap-3 rounded-[var(--st-radius-lg)] border border-[var(--st-border)] bg-[var(--st-surface)] p-4"
               >
-                <Button
-                  type="button"
+                <IconButton
+                  label="Remove rule"
+                  icon={Trash2}
                   variant="ghost"
-                  size="icon-sm"
-                  aria-label="Remove rule"
-                  className="absolute right-1 top-1 text-zoru-danger hover:bg-zoru-danger/10"
+                  size="sm"
+                  className="absolute right-1 top-1 text-[var(--st-danger)] hover:bg-[var(--st-danger-soft)]"
                   onClick={() => removeReplyRule(rule.id)}
-                >
-                  <Trash2 />
-                </Button>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Keywords (comma-separated)</Label>
+                />
+                <Field label="Keywords (comma-separated)">
                   <Input
                     value={rule.keywords}
                     onChange={(e) =>
@@ -322,9 +314,8 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     }
                     placeholder="hello, hi, hey"
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Reply Message</Label>
+                </Field>
+                <Field label="Reply Message">
                   <Textarea
                     value={rule.reply}
                     onChange={(e) =>
@@ -332,32 +323,26 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
                     }
                     placeholder="Hi there! How can I help you?"
                   />
-                </div>
+                </Field>
                 <Select
+                  aria-label="Match type"
                   value={rule.matchType}
-                  onValueChange={(val) =>
-                    handleReplyRuleChange(rule.id, 'matchType', val)
+                  onChange={(val) =>
+                    handleReplyRuleChange(rule.id, 'matchType', val ?? 'contains')
                   }
-                >
-                  <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
-                    <ZoruSelectValue />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="contains">
-                      Contains keyword
-                    </ZoruSelectItem>
-                    <ZoruSelectItem value="exact">Exact match</ZoruSelectItem>
-                  </ZoruSelectContent>
-                </Select>
+                  options={MATCH_TYPE_OPTIONS}
+                  size="sm"
+                  className="w-[180px]"
+                />
               </div>
             ))}
             <Button
               type="button"
               variant="outline"
               size="sm"
+              iconLeft={PlusCircle}
               onClick={addReplyRule}
             >
-              <PlusCircle />
               Add Rule
             </Button>
           </div>
@@ -369,7 +354,7 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
   };
 
   return (
-    <Card>
+    <Card padding="none">
       <form action={formAction as any} ref={formRef}>
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <input type="hidden" name="replyType" value={type} />
@@ -392,25 +377,29 @@ export function AutoReplyForm({ type, project }: AutoReplyFormProps) {
           selectedDays.map((d) => (
             <input key={d} type="hidden" name={`day_${d}`} value="true" />
           ))}
-        <ZoruCardHeader>
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1.5">
-              <ZoruCardTitle>{formDetails[type].title}</ZoruCardTitle>
-              <ZoruCardDescription>
+              <CardTitle>{formDetails[type].title}</CardTitle>
+              <CardDescription>
                 {formDetails[type].description}
-              </ZoruCardDescription>
+              </CardDescription>
             </div>
-            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch
+              checked={isEnabled}
+              onCheckedChange={setIsEnabled}
+              aria-label={`Enable ${formDetails[type].title}`}
+            />
           </div>
-        </ZoruCardHeader>
-        <ZoruCardContent
-          className={cn(!isEnabled && 'pointer-events-none opacity-50')}
+        </CardHeader>
+        <CardBody
+          className={cx(!isEnabled && 'pointer-events-none opacity-50')}
         >
           {renderFormContent()}
-        </ZoruCardContent>
-        <ZoruCardFooter className={cn(!isEnabled && 'hidden')}>
+        </CardBody>
+        <CardFooter className={cx(!isEnabled && 'hidden')}>
           <SubmitButton />
-        </ZoruCardFooter>
+        </CardFooter>
       </form>
     </Card>
   );

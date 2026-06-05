@@ -2,38 +2,27 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
+  Modal,
   EmptyState,
+  Field,
   Input,
-  Label,
   Skeleton,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -41,23 +30,23 @@ import {
   useCallback } from 'react';
 import { Plus,
   Trash2,
-  Users,
-  Loader2 } from 'lucide-react';
+  Users } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getContactGroups, saveContactGroup, deleteContactGroup } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Contact Groups — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Contact Groups — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
 
 export default function ContactGroupsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [groups, setGroups] = useState<any[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -73,7 +62,7 @@ export default function ContactGroupsPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -99,7 +88,7 @@ export default function ContactGroupsPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -117,7 +106,7 @@ export default function ContactGroupsPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -129,166 +118,149 @@ export default function ContactGroupsPage() {
   const isLoadingInitial = isPending && groups.length === 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Groups</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Contact Groups
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Organise contacts into groups for targeted broadcasts.
-          </p>
-        </div>
-        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-          <ZoruDialogTrigger asChild>
-            <Button size="sm">
-              <Plus /> New Group
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Groups' },
+      ]}
+      title="Contact Groups"
+      description="Organise contacts into groups for targeted broadcasts."
+      actions={
+        <Button variant="primary" iconLeft={Plus} onClick={() => setCreateOpen(true)}>
+          New Group
+        </Button>
+      }
+    >
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Create contact group"
+        description="Group contacts together for targeted broadcasts."
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setCreateOpen(false)}
+            >
+              Cancel
             </Button>
-          </ZoruDialogTrigger>
-          <ZoruDialogContent>
-            <ZoruDialogHeader>
-              <ZoruDialogTitle>Create contact group</ZoruDialogTitle>
-              <ZoruDialogDescription>
-                Group contacts together for targeted broadcasts.
-              </ZoruDialogDescription>
-            </ZoruDialogHeader>
-            <form onSubmit={handleCreate} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="group-name" required>
-                  Name
-                </Label>
-                <Input
-                  id="group-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. VIP Customers"
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="group-description">Description</Label>
-                <Textarea
-                  id="group-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional description"
-                />
-              </div>
-              <ZoruDialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setCreateOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={submitting || !name.trim()}>
-                  {submitting ? <Loader2 className="animate-spin" /> : null}
-                  Create group
-                </Button>
-              </ZoruDialogFooter>
-            </form>
-          </ZoruDialogContent>
-        </Dialog>
-      </div>
+            <Button
+              type="submit"
+              form="create-group-form"
+              variant="primary"
+              loading={submitting}
+              disabled={submitting || !name.trim()}
+            >
+              Create group
+            </Button>
+          </>
+        }
+      >
+        <form id="create-group-form" onSubmit={handleCreate} className="flex flex-col gap-4">
+          <Field label="Name" required>
+            <Input
+              id="group-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. VIP Customers"
+              required
+            />
+          </Field>
+          <Field label="Description">
+            <Textarea
+              id="group-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Optional description"
+            />
+          </Field>
+        </form>
+      </Modal>
 
       {isLoadingInitial ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32" />
+            <Skeleton key={i} height={128} />
           ))}
         </div>
       ) : groups.length === 0 ? (
         <EmptyState
-          icon={<Users />}
+          icon={Users}
           title="No groups yet"
           description="Create your first group to start segmenting contacts."
           action={
-            <Button size="sm" onClick={() => setCreateOpen(true)}>
-              <Plus /> Create group
+            <Button variant="primary" iconLeft={Plus} onClick={() => setCreateOpen(true)}>
+              Create group
             </Button>
           }
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {groups.map((g) => (
-            <Card
-              key={g._id}
-              className="flex flex-col gap-3 p-5"
-            >
+            <Card key={g._id} padding="lg" className="flex flex-col gap-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-                    <Users className="h-4 w-4" />
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
+                    <Users className="h-4 w-4" aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <div className="truncate text-[14px] text-zoru-ink">
+                    <div className="truncate text-[14px]" style={{ color: 'var(--st-text)' }}>
                       {g.name}
                     </div>
                     {g.description && (
-                      <div className="mt-0.5 truncate text-[12px] text-zoru-ink-muted">
+                      <div
+                        className="mt-0.5 truncate text-[12px]"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                      >
                         {g.description}
                       </div>
                     )}
                   </div>
                 </div>
-                <ZoruAlertDialog>
-                  <ZoruAlertDialogTrigger asChild>
-                    <Button
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <IconButton
                       variant="ghost"
-                      size="icon-sm"
-                      className="text-zoru-ink-muted hover:text-zoru-danger"
-                      aria-label="Delete group"
-                    >
-                      <Trash2 />
-                    </Button>
-                  </ZoruAlertDialogTrigger>
-                  <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                      <ZoruAlertDialogTitle>
-                        Delete group?
-                      </ZoruAlertDialogTitle>
-                      <ZoruAlertDialogDescription>
+                      size="sm"
+                      icon={Trash2}
+                      label="Delete group"
+                    />
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete group?</AlertDialogTitle>
+                      <AlertDialogDescription>
                         This will remove the group "{g.name}". Contacts will
                         not be deleted.
-                      </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                      <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                      <ZoruAlertDialogAction
-                        destructive
-                        onClick={() => handleDelete(g._id)}
-                      >
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(g._id)}>
                         Delete
-                      </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                  </ZoruAlertDialogContent>
-                </ZoruAlertDialog>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
-              <div className="flex items-center justify-between border-t border-zoru-line pt-3 text-[12px] text-zoru-ink-muted">
-                <Badge variant="secondary">
+              <div
+                className="flex items-center justify-between pt-3 text-[12px]"
+                style={{
+                  borderTop: '1px solid var(--st-border)',
+                  color: 'var(--st-text-secondary)',
+                }}
+              >
+                <Badge tone="neutral">
                   {g.memberCount ?? 0} members
                 </Badge>
                 <span>
@@ -301,7 +273,6 @@ export default function ContactGroupsPage() {
           ))}
         </div>
       )}
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

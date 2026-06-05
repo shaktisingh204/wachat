@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Input, Button } from '@/components/zoruui';
+import { Input, Button, Field } from '@/components/sabcrm/20ui';
 import { Wand, Sparkles } from 'lucide-react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 export function AIBodyGenerator({
   onGenerate,
@@ -43,32 +47,57 @@ export function AIBodyGenerator({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+        aria-label="Generate message body with AI"
+        className={cx(
+          'flex items-center gap-1.5 transition-colors',
+        )}
+        style={{
+          fontSize: 'var(--st-font-size-xs)',
+          color: 'var(--st-text-tertiary)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--st-text)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--st-text-tertiary)';
+        }}
       >
-        <Wand className="h-3 w-3" /> Generate with AI
+        <Wand className="h-3 w-3" aria-hidden="true" /> Generate with AI
       </button>
     );
   }
 
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-      <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zoru-ink">
-        <Sparkles className="h-3 w-3" /> AI Body Generator
+    <div
+      className="space-y-2 p-3"
+      style={{
+        borderRadius: 'var(--st-radius)',
+        border: '1px solid var(--st-border)',
+        background: 'var(--st-bg-secondary)',
+      }}
+    >
+      <div
+        className="flex items-center gap-1.5"
+        style={{
+          fontSize: 'var(--st-font-size-xs)',
+          fontWeight: 'var(--st-fw-semibold)' as React.CSSProperties['fontWeight'],
+          color: 'var(--st-text)',
+        }}
+      >
+        <Sparkles className="h-3 w-3" aria-hidden="true" /> AI Body Generator
       </div>
-      <Input
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Describe your message (e.g., 'order confirmation with tracking')"
-      />
+      <Field label="Describe your message">
+        <Input
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Describe your message (e.g., 'order confirmation with tracking')"
+        />
+      </Field>
       <div className="flex gap-2">
-        <Button size="sm" onClick={generate}>
+        <Button variant="primary" size="sm" onClick={generate}>
           Generate
         </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setOpen(false)}
-        >
+        <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
           Cancel
         </Button>
       </div>

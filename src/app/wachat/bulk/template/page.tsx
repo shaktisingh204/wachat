@@ -2,26 +2,19 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  Badge,
   Button,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useEffect,
   useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft,
-  Database,
-  AlertCircle } from 'lucide-react';
+  Database } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { CreateTemplateForm } from '@/app/wachat/_components/create-template-form';
 import { getProjectById } from '@/app/actions/project.actions';
 import type { WithId,
@@ -29,10 +22,14 @@ import type { WithId,
 
 /**
  * Wachat Bulk → Create Template — bulk-create one template across many
- * projects. Keeps existing CreateTemplateForm, only ZoruUI chrome.
+ * projects. Keeps existing CreateTemplateForm, only 20ui chrome.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 function BulkTemplatePageSkeleton() {
   return (
@@ -45,6 +42,7 @@ function BulkTemplatePageSkeleton() {
 }
 
 function BulkTemplatePageContent() {
+  const router = useRouter();
   const [projectIds, setProjectIds] = useState<string[]>([]);
   const [projects, setProjects] = useState<WithId<Project>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,13 +72,8 @@ function BulkTemplatePageContent() {
 
   if (projectIds.length === 0) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>No projects selected</ZoruAlertTitle>
-        <ZoruAlertDescription>
-          Go to the main dashboard to select projects for bulk template
-          creation.
-        </ZoruAlertDescription>
+      <Alert tone="danger" title="No projects selected">
+        Go to the main dashboard to select projects for bulk template creation.
       </Alert>
     );
   }
@@ -88,29 +81,33 @@ function BulkTemplatePageContent() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-2">
-          <Link href="/wachat/bulk">
-            <ChevronLeft className="h-3.5 w-3.5" />
-            Back to bulk actions
-          </Link>
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={ChevronLeft}
+          className="-ml-2 mb-2"
+          onClick={() => router.push('/wachat/bulk')}
+        >
+          Back to bulk actions
         </Button>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Create Bulk Template
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+        <p
+          className="text-[13px]"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           This template will be created for all {projects.length} selected
           projects.
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
         {projects.map((p) => (
-          <span
-            key={p._id.toString()}
-            className="inline-flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-2.5 py-1 text-[12px] text-zoru-ink"
-          >
-            <Database className="h-3.5 w-3.5 text-zoru-ink-muted" />
+          <Badge key={p._id.toString()} tone="neutral" kind="outline">
+            <Database
+              className="h-3.5 w-3.5"
+              style={{ color: 'var(--st-text-tertiary)' }}
+              aria-hidden="true"
+            />
             {p.name}
-          </span>
+          </Badge>
         ))}
       </div>
       <CreateTemplateForm isBulkForm bulkProjectIds={projectIds} />
@@ -120,32 +117,20 @@ function BulkTemplatePageContent() {
 
 export default function BulkTemplatePage() {
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/bulk">
-              Bulk
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Template</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Bulk', href: '/wachat/bulk' },
+        { label: 'Template' },
+      ]}
+      title="Create Bulk Template"
+      description="Create one WhatsApp message template across every selected project at once."
+      width="narrow"
+    >
       <Suspense fallback={<BulkTemplatePageSkeleton />}>
         <BulkTemplatePageContent />
       </Suspense>
-    </div>
+    </WachatPage>
   );
 }

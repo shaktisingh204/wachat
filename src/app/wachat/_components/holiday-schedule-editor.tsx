@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Input, Label } from '@/components/zoruui';
+import { Button, DatePicker, Field, IconButton, Input } from '@/components/sabcrm/20ui';
 import {
   format } from 'date-fns';
 import { Plus,
@@ -8,7 +8,7 @@ import { Plus,
 import type { HolidaySchedule } from '@/lib/definitions';
 
 /**
- * HolidayScheduleEditor (wachat-local, ZoruUI).
+ * HolidayScheduleEditor (wachat-local, 20ui).
  *
  * Adds/edits holiday-override entries that override weekly hours on
  * specific dates. Mirrors the wabasimplify version's API exactly.
@@ -58,35 +58,40 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-[14px] text-zoru-ink">
+      <h4
+        className="text-[14px]"
+        style={{ color: 'var(--st-text)' }}
+      >
         Holiday Schedule (Overrides)
       </h4>
       <div className="flex flex-col gap-3">
         {schedule.map((entry, index) => (
           <div
             key={index}
-            className="relative rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3"
+            className="relative p-3"
+            style={{
+              borderRadius: 'var(--st-radius-lg)',
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-bg)',
+            }}
           >
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Remove holiday"
-              className="absolute right-1 top-1 text-zoru-danger hover:bg-zoru-danger/10"
-              onClick={() => handleRemove(index)}
-            >
-              <Trash2 />
-            </Button>
+            <div className="absolute right-1 top-1">
+              <IconButton
+                label="Remove holiday"
+                icon={Trash2}
+                variant="danger"
+                size="sm"
+                onClick={() => handleRemove(index)}
+              />
+            </div>
             <div className="grid items-end gap-3 md:grid-cols-3">
-              <div className="flex flex-col gap-1.5">
-                <Label>Date</Label>
+              <Field label="Date">
                 <DatePicker
                   value={new Date(entry.date)}
                   onChange={(d) => handleChange(index, 'date', d)}
                 />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>Start Time</Label>
+              </Field>
+              <Field label="Start Time">
                 <Input
                   type="time"
                   value={
@@ -98,9 +103,8 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
                     handleChange(index, 'start_time', e.target.value)
                   }
                 />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label>End Time</Label>
+              </Field>
+              <Field label="End Time">
                 <Input
                   type="time"
                   value={
@@ -110,7 +114,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
                     handleChange(index, 'end_time', e.target.value)
                   }
                 />
-              </div>
+              </Field>
             </div>
           </div>
         ))}
@@ -119,9 +123,9 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
         type="button"
         variant="outline"
         size="sm"
+        iconLeft={Plus}
         onClick={handleAdd}
       >
-        <Plus />
         Add Holiday
       </Button>
     </div>

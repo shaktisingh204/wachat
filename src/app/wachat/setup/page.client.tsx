@@ -2,26 +2,16 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
   Checkbox,
-  Label,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
   Button,
   Badge,
   Skeleton,
   Input,
+  Modal,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/zoruui';
+  EmptyState,
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useState, useEffect, useMemo } from 'react';
 import EmbeddedSignup from '@/components/zoruui-domain/embedded-signup';
 import {
@@ -43,7 +33,10 @@ import {
   RefreshCw,
   Phone,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ------------------------------------------------------------------ */
 /* Types & Interfaces                                                 */
@@ -106,26 +99,38 @@ const STEPS: StepItem[] = [
   { n: '4', title: "You're live", sub: 'Return here — your project appears instantly.' },
 ];
 
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All Status' },
+  { value: 'active', label: 'Active' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'disconnected', label: 'Disconnected' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'lastSynced', label: 'Last Synced' },
+  { value: 'name', label: 'Name (A-Z)' },
+];
+
 /* ------------------------------------------------------------------ */
 /* Components                                                         */
 /* ------------------------------------------------------------------ */
 
 function SetupSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl pb-12 space-y-12">
+    <div className="pb-12 space-y-12">
       <div className="flex flex-col items-center justify-center space-y-4 pt-10">
-        <Skeleton className="h-20 w-20 rounded-3xl" />
-        <Skeleton className="h-6 w-48 rounded-full" />
-        <Skeleton className="h-10 w-96" />
-        <Skeleton className="h-6 w-3/4 max-w-xl" />
-        <Skeleton className="h-12 w-48 rounded-full mt-4" />
+        <Skeleton width={80} height={80} radius={24} />
+        <Skeleton width={192} height={24} radius={9999} />
+        <Skeleton width={384} height={40} />
+        <Skeleton className="w-3/4 max-w-xl" height={24} />
+        <Skeleton width={192} height={48} radius={9999} className="mt-4" />
       </div>
       <div className="grid gap-6 lg:grid-cols-3">
-        <Skeleton className="lg:col-span-2 h-96 rounded-3xl" />
+        <Skeleton className="lg:col-span-2" height={384} radius={24} />
         <div className="flex flex-col gap-4">
-          <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-64 rounded-3xl" />
+          <Skeleton height={192} radius={24} />
+          <Skeleton height={192} radius={24} />
+          <Skeleton height={256} radius={24} />
         </div>
       </div>
     </div>
@@ -135,138 +140,206 @@ function SetupSkeleton() {
 function ConfigError() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <Alert variant="destructive" className="max-w-lg w-full rounded-2xl">
-        <AlertCircle className="h-4 w-4" />
-        <ZoruAlertTitle>Configuration Missing</ZoruAlertTitle>
-        <ZoruAlertDescription className="space-y-2 mt-2">
-          <p>Add these env variables to your <code>.env</code> file:</p>
-          <ul className="list-disc list-inside text-xs space-y-1 font-mono bg-zoru-ink/10 rounded-lg p-3">
+      <Alert
+        tone="danger"
+        icon={AlertCircle}
+        title="Configuration Missing"
+        className="max-w-lg w-full"
+      >
+        <div className="space-y-2">
+          <p>
+            Add these env variables to your <code>.env</code> file:
+          </p>
+          <ul
+            className="list-disc list-inside text-xs space-y-1 rounded-lg p-3"
+            style={{
+              fontFamily: 'var(--st-font-mono)',
+              background: 'var(--st-bg-muted)',
+            }}
+          >
             <li>NEXT_PUBLIC_META_ONBOARDING_APP_ID</li>
             <li>NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID</li>
           </ul>
-        </ZoruAlertDescription>
+        </div>
       </Alert>
     </div>
   );
 }
 
+function SetupModal({
+  open,
+  onClose,
+  appId,
+  configId,
+  includeCatalog,
+  setIncludeCatalog,
+  checkboxId,
+  description,
+}: {
+  open: boolean;
+  onClose: () => void;
+  appId: string;
+  configId: string;
+  includeCatalog: boolean;
+  setIncludeCatalog: (val: boolean) => void;
+  checkboxId: string;
+  description: string;
+}) {
+  return (
+    <Modal open={open} onClose={onClose} title="Guided WhatsApp Setup" description={description} size="md">
+      <div className="space-y-5">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-2xl"
+          style={{ background: 'var(--st-text)' }}
+        >
+          <MessageCircle className="h-5 w-5" style={{ color: 'var(--st-text-inverted)' }} />
+        </div>
+
+        <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} state="whatsapp" />
+
+        <div
+          className="flex items-start gap-3 rounded-xl p-3"
+          style={{ border: '1px solid var(--st-border)', background: 'var(--st-bg-muted)' }}
+        >
+          <Checkbox
+            id={checkboxId}
+            checked={includeCatalog}
+            onChange={(e) => setIncludeCatalog(e.target.checked)}
+            className="mt-0.5"
+          />
+          <div>
+            <label htmlFor={checkboxId} className="text-sm font-medium cursor-pointer">
+              Include Catalog Management
+            </label>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+              Grants permission to manage your WhatsApp product catalog
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {TRUST.slice(0, 2).map((t) => (
+            <div key={t.text} className="flex items-center gap-2 text-xs" style={{ color: 'var(--st-text-muted)' }}>
+              <t.icon className="h-3.5 w-3.5 shrink-0" style={{ color: 'var(--st-text)' }} />
+              {t.text}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { appId: string; configId: string; includeCatalog: boolean; setIncludeCatalog: (val: boolean) => void }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="mb-14 text-center space-y-5">
       <div className="relative mx-auto w-fit">
-        <div className="absolute inset-0 rounded-3xl bg-zoru-surface-2 opacity-40 blur-xl scale-110" />
-        <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-zoru-ink shadow-[0_8px_32px_rgba(5,150,105,0.28)]">
-          <MessageCircle className="h-10 w-10 text-white" />
+        <div
+          className="absolute inset-0 rounded-3xl opacity-40 blur-xl scale-110"
+          style={{ background: 'var(--st-bg-muted)' }}
+        />
+        <div
+          className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl"
+          style={{ background: 'var(--st-text)', boxShadow: 'var(--st-shadow-lg)' }}
+        >
+          <MessageCircle className="h-10 w-10" style={{ color: 'var(--st-text-inverted)' }} />
         </div>
-        <div className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-zoru-surface-2 shadow-lg shadow-zoru-line/50" />
-        <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-zoru-surface-2 shadow-lg" />
+        <div
+          className="absolute -right-1 -top-1 h-4 w-4 rounded-full shadow-lg"
+          style={{ background: 'var(--st-bg-muted)' }}
+        />
+        <div
+          className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full shadow-lg"
+          style={{ background: 'var(--st-bg-muted)' }}
+        />
       </div>
 
-      <Badge className="rounded-full bg-zoru-surface-2 text-zoru-ink border border-zoru-line px-4 py-1 text-xs font-semibold hover:bg-zoru-surface-2">
-        <Sparkles className="mr-1.5 h-3 w-3" /> Official Meta Embedded Signup
-      </Badge>
+      <div className="flex justify-center">
+        <Badge tone="neutral" kind="outline">
+          <Sparkles className="mr-1.5 h-3 w-3" /> Official Meta Embedded Signup
+        </Badge>
+      </div>
 
-      <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-        Connect Your <span className="text-zoru-ink">WhatsApp Account</span>
-      </h1>
-
-      <p className="mx-auto max-w-xl text-lg text-zoru-ink-muted leading-relaxed">
+      <p className="mx-auto max-w-xl text-lg leading-relaxed" style={{ color: 'var(--st-text-muted)' }}>
         Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard.
       </p>
 
-      <Dialog>
-        <ZoruDialogTrigger asChild>
-          <Button size="lg" className="rounded-full px-10 text-base shadow-xl shadow-zoru-line/30 hover:shadow-zoru-line/50 hover:scale-[1.03] transition-all mt-2">
-            <MessageCircle className="mr-2 h-5 w-5" />
-            Connect WhatsApp Account
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </ZoruDialogTrigger>
-        <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
-          <ZoruDialogHeader>
-            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
-              <MessageCircle className="h-5 w-5 text-white" />
-            </div>
-            <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              You'll be redirected to Facebook to authorize access. It only takes a minute.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
+      <div className="flex justify-center pt-2">
+        <Button variant="primary" size="lg" iconLeft={MessageCircle} iconRight={ArrowRight} onClick={() => setOpen(true)}>
+          Connect WhatsApp Account
+        </Button>
+      </div>
 
-          <div className="py-4 space-y-5">
-            <EmbeddedSignup
-              appId={appId}
-              configId={configId}
-              includeCatalog={includeCatalog}
-              state="whatsapp"
-            />
-
-            <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
-              <Checkbox
-                id="include-catalog"
-                checked={includeCatalog}
-                onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
-                className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
-              />
-              <div>
-                <Label htmlFor="include-catalog" className="text-sm font-medium cursor-pointer">
-                  Include Catalog Management
-                </Label>
-                <p className="text-xs text-zoru-ink-muted mt-0.5">
-                  Grants permission to manage your WhatsApp product catalog
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              {TRUST.slice(0, 2).map((t) => (
-                <div key={t.text} className="flex items-center gap-2 text-xs text-zoru-ink-muted">
-                  <t.icon className="h-3.5 w-3.5 shrink-0 text-zoru-ink" />
-                  {t.text}
-                </div>
-              ))}
-            </div>
-          </div>
-        </ZoruDialogContent>
-      </Dialog>
+      <SetupModal
+        open={open}
+        onClose={() => setOpen(false)}
+        appId={appId}
+        configId={configId}
+        includeCatalog={includeCatalog}
+        setIncludeCatalog={setIncludeCatalog}
+        checkboxId="include-catalog"
+        description="You'll be redirected to Facebook to authorize access. It only takes a minute."
+      />
     </div>
   );
 }
 
 function UnlocksSection() {
   return (
-    <div className="lg:col-span-2 rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 md:p-8 shadow-sm">
-      <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-6">What you unlock</p>
+    <div
+      className="lg:col-span-2 rounded-3xl p-6 md:p-8"
+      style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
+    >
+      <p className="text-xs font-bold uppercase tracking-widest mb-6" style={{ color: 'var(--st-text)' }}>
+        What you unlock
+      </p>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {UNLOCKS.map((u) => (
-          <div key={u.label} className="group flex flex-col gap-2.5 rounded-2xl border border-zoru-line/60 bg-white p-4 transition hover:shadow-md hover:border-zoru-line">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zoru-surface-2 text-zoru-ink group-hover:bg-zoru-ink group-hover:text-white transition-colors">
+          <div
+            key={u.label}
+            className="group flex flex-col gap-2.5 rounded-2xl p-4 transition"
+            style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)' }}
+          >
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
+              style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
+            >
               <u.icon className="h-[18px] w-[18px]" />
             </div>
             <div>
               <p className="font-semibold text-sm">{u.label}</p>
-              <p className="text-xs text-zoru-ink-muted mt-0.5">{u.description}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+                {u.description}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-8 pt-6 border-t border-zoru-line/60">
-        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-5">How it works</p>
+      <div className="mt-8 pt-6" style={{ borderTop: '1px solid var(--st-border)' }}>
+        <p className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: 'var(--st-text)' }}>
+          How it works
+        </p>
         <div className="space-y-0">
           {STEPS.map((s, idx) => (
             <div key={s.n} className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zoru-ink text-xs font-bold text-white shadow-md shadow-zoru-line/25">
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                  style={{ background: 'var(--st-text)', color: 'var(--st-text-inverted)', boxShadow: 'var(--st-shadow-md)' }}
+                >
                   {s.n}
                 </div>
                 {idx < STEPS.length - 1 && (
-                  <div className="mt-1 mb-1 w-px flex-1 bg-zoru-surface-2" style={{ minHeight: 24 }} />
+                  <div className="mt-1 mb-1 w-px flex-1" style={{ background: 'var(--st-border)', minHeight: 24 }} />
                 )}
               </div>
               <div className="pb-5">
                 <p className="font-semibold text-sm">{s.title}</p>
-                <p className="text-xs text-zoru-ink-muted mt-0.5">{s.sub}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--st-text-muted)' }}>
+                  {s.sub}
+                </p>
               </div>
             </div>
           ))}
@@ -277,86 +350,83 @@ function UnlocksSection() {
 }
 
 function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { appId: string; configId: string; includeCatalog: boolean; setIncludeCatalog: (val: boolean) => void }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Security & Trust</p>
+      <div
+        className="rounded-3xl p-6"
+        style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
+      >
+        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
+          Security & Trust
+        </p>
         <div className="space-y-4">
           {TRUST.map((t) => (
             <div key={t.text} className="flex items-start gap-3">
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zoru-surface-2 text-zoru-ink">
+              <div
+                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+                style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
+              >
                 <t.icon className="h-3.5 w-3.5" />
               </div>
-              <p className="text-sm text-zoru-ink-muted leading-snug">{t.text}</p>
+              <p className="text-sm leading-snug" style={{ color: 'var(--st-text-muted)' }}>
+                {t.text}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-3xl border border-zoru-line/40 bg-white/70 backdrop-blur-xl p-6 shadow-sm">
-        <p className="text-xs font-bold uppercase tracking-widest text-zoru-ink mb-4">Before you start</p>
+      <div
+        className="rounded-3xl p-6"
+        style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
+      >
+        <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
+          Before you start
+        </p>
         <ul className="space-y-3">
           {[
             'A Facebook account with admin access to your Business portfolio',
             'A verified Meta Business Account',
             'A phone number not already registered on WhatsApp personal',
           ].map((req) => (
-            <li key={req} className="flex items-start gap-2.5 text-sm text-zoru-ink-muted">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink" />
+            <li key={req} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--st-text-muted)' }}>
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" style={{ color: 'var(--st-text)' }} />
               {req}
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl border border-zoru-line bg-zoru-ink p-6 text-white shadow-xl shadow-zoru-line/25">
+      <div
+        className="relative overflow-hidden rounded-3xl p-6"
+        style={{ border: '1px solid var(--st-border)', background: 'var(--st-text)', color: 'var(--st-text-inverted)', boxShadow: 'var(--st-shadow-lg)' }}
+      >
         <div className="relative space-y-3">
-          <Zap className="h-7 w-7 text-zoru-ink-muted" />
+          <Zap className="h-7 w-7" style={{ color: 'var(--st-text-tertiary)' }} />
           <p className="font-bold text-lg leading-snug">Ready to start reaching customers?</p>
-          <p className="text-sm text-white/90">Connect your account in under 2 minutes.</p>
-          <Dialog>
-            <ZoruDialogTrigger asChild>
-              <Button className="w-full rounded-xl bg-white text-zoru-ink hover:bg-white/90 font-semibold shadow-lg mt-1">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Connect Now
-              </Button>
-            </ZoruDialogTrigger>
-            <ZoruDialogContent className="sm:max-w-md rounded-3xl border-zoru-line/40">
-              <ZoruDialogHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-zoru-ink">
-                  <MessageCircle className="h-5 w-5 text-white" />
-                </div>
-                <ZoruDialogTitle className="text-lg">Guided WhatsApp Setup</ZoruDialogTitle>
-                <ZoruDialogDescription>
-                  You'll be redirected to Facebook to authorize access.
-                </ZoruDialogDescription>
-              </ZoruDialogHeader>
-              <div className="py-4 space-y-5">
-                <EmbeddedSignup
-                  appId={appId}
-                  configId={configId}
-                  includeCatalog={includeCatalog}
-                  state="whatsapp"
-                />
-                <div className="flex items-start gap-3 rounded-xl border border-zoru-line/60 bg-zoru-surface-2/60 p-3">
-                  <Checkbox
-                    id="include-catalog-2"
-                    checked={includeCatalog}
-                    onCheckedChange={(c) => setIncludeCatalog(Boolean(c))}
-                    className="mt-0.5 border-zoru-line data-[state=checked]:bg-zoru-ink data-[state=checked]:border-zoru-line"
-                  />
-                  <div>
-                    <Label htmlFor="include-catalog-2" className="text-sm font-medium cursor-pointer">
-                      Include Catalog Management
-                    </Label>
-                    <p className="text-xs text-zoru-ink-muted mt-0.5">
-                      Grants permission to manage your WhatsApp product catalog
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </ZoruDialogContent>
-          </Dialog>
+          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.9)' }}>
+            Connect your account in under 2 minutes.
+          </p>
+          <Button
+            block
+            iconLeft={MessageCircle}
+            onClick={() => setOpen(true)}
+            className="mt-1"
+            style={{ background: 'var(--st-text-inverted)', color: 'var(--st-text)' }}
+          >
+            Connect Now
+          </Button>
+          <SetupModal
+            open={open}
+            onClose={() => setOpen(false)}
+            appId={appId}
+            configId={configId}
+            includeCatalog={includeCatalog}
+            setIncludeCatalog={setIncludeCatalog}
+            checkboxId="include-catalog-2"
+            description="You'll be redirected to Facebook to authorize access."
+          />
         </div>
       </div>
     </div>
@@ -367,7 +437,7 @@ function ConnectedAccounts() {
   const [accounts, setAccounts] = useState<WabaAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filtering & Sorting State
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -420,14 +490,22 @@ function ConnectedAccounts() {
   };
 
   return (
-    <div className="mt-16 mb-8 rounded-3xl border border-zoru-line bg-zoru-surface shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-zoru-line bg-zoru-surface-2/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div
+      className="mt-16 mb-8 rounded-3xl overflow-hidden"
+      style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
+    >
+      <div
+        className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg-muted)' }}
+      >
         <div>
           <h2 className="text-xl font-bold tracking-tight">Connected Accounts</h2>
-          <p className="text-sm text-zoru-ink-muted mt-1">Manage your linked WhatsApp Business accounts.</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--st-text-muted)' }}>
+            Manage your linked WhatsApp Business accounts.
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
-          <RefreshCw className={cn("mr-2 h-4 w-4", isLoading && "animate-spin")} />
+          <RefreshCw className={cx('mr-2 h-4 w-4', isLoading && 'animate-spin')} />
           Refresh
         </Button>
       </div>
@@ -435,85 +513,77 @@ function ConnectedAccounts() {
       <div className="p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zoru-ink-muted" />
             <Input
+              iconLeft={Search}
               placeholder="Search by name or number..."
+              aria-label="Search accounts by name or number"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-zoru-surface"
             />
           </div>
           <div className="flex gap-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[140px] bg-zoru-surface">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="disconnected">Disconnected</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sortBy} onValueChange={(val: 'name' | 'lastSynced') => setSortBy(val)}>
-              <SelectTrigger className="w-[140px] bg-zoru-surface">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lastSynced">Last Synced</SelectItem>
-                <SelectItem value="name">Name (A-Z)</SelectItem>
-              </SelectContent>
-            </Select>
+            <Select
+              aria-label="Filter by status"
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val ?? 'all')}
+              options={STATUS_OPTIONS}
+              placeholder="Status"
+              className="w-[140px]"
+            />
+            <Select
+              aria-label="Sort accounts"
+              value={sortBy}
+              onChange={(val) => setSortBy((val as 'name' | 'lastSynced') ?? 'lastSynced')}
+              options={SORT_OPTIONS}
+              placeholder="Sort by"
+              className="w-[140px]"
+            />
           </div>
         </div>
 
         {error && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Error</ZoruAlertTitle>
-            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          <Alert tone="danger" icon={AlertCircle} title="Error" className="mb-6">
+            {error}
           </Alert>
         )}
 
         {isLoading ? (
           <div className="space-y-4">
-            <Skeleton className="h-20 w-full rounded-xl" />
-            <Skeleton className="h-20 w-full rounded-xl" />
+            <Skeleton className="w-full" height={80} radius={12} />
+            <Skeleton className="w-full" height={80} radius={12} />
           </div>
         ) : filteredAndSortedAccounts.length === 0 ? (
-          <div className="text-center py-12 text-zoru-ink-muted border-2 border-dashed border-zoru-line rounded-xl">
-            <Phone className="mx-auto h-8 w-8 mb-3 opacity-50" />
-            <p>No accounts found matching your criteria.</p>
-          </div>
+          <EmptyState icon={Phone} title="No accounts found matching your criteria." />
         ) : (
           <div className="space-y-3">
             {filteredAndSortedAccounts.map((account) => (
-              <div key={account.id} className="flex items-center justify-between p-4 rounded-xl border border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2/50 transition-colors">
+              <div
+                key={account.id}
+                className="flex items-center justify-between p-4 rounded-xl transition-colors"
+                style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)' }}
+              >
                 <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
-                    account.status === 'active' ? 'bg-zoru-surface-2 text-zoru-ink' :
-                    account.status === 'pending' ? 'bg-zoru-surface-2 text-zoru-ink' :
-                    'bg-zoru-surface-2 text-zoru-ink'
-                  )}>
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                    style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
+                  >
                     <MessageCircle className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="font-semibold">{account.name}</p>
-                    <p className="text-sm text-zoru-ink-muted font-mono mt-0.5">{account.phoneNumber}</p>
+                    <p className="text-sm mt-0.5" style={{ color: 'var(--st-text-muted)', fontFamily: 'var(--st-font-mono)' }}>
+                      {account.phoneNumber}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-6">
                   <div className="text-right hidden sm:block">
-                    <p className="text-xs font-medium uppercase text-zoru-ink-muted">Last Synced</p>
+                    <p className="text-xs font-medium uppercase" style={{ color: 'var(--st-text-muted)' }}>
+                      Last Synced
+                    </p>
                     <p className="text-sm">{new Date(account.lastSynced).toLocaleString()}</p>
                   </div>
-                  <Badge variant="outline" className={cn(
-                    "px-2.5 py-0.5 capitalize font-medium",
-                    account.status === 'active' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
-                    account.status === 'pending' ? 'border-zoru-line text-zoru-ink bg-zoru-surface-2' :
-                    'border-zoru-line text-zoru-ink bg-zoru-surface-2'
-                  )}>
+                  <Badge tone="neutral" kind="outline" className="capitalize">
                     {account.status}
                   </Badge>
                 </div>
@@ -530,6 +600,12 @@ function ConnectedAccounts() {
 /* Page                                                               */
 /* ------------------------------------------------------------------ */
 
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Setup' },
+];
+
 export default function SetupPage() {
   const [mounted, setMounted] = useState(false);
   const [includeCatalog, setIncludeCatalog] = useState(true);
@@ -539,38 +615,56 @@ export default function SetupPage() {
   }, []);
 
   if (!mounted) {
-    return <SetupSkeleton />;
+    return (
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Connect Your WhatsApp Account"
+        description="Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard."
+      >
+        <SetupSkeleton />
+      </WachatPage>
+    );
   }
 
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
   const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
 
   if (!appId || !configId) {
-    return <ConfigError />;
+    return (
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Connect Your WhatsApp Account"
+        description="Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard."
+      >
+        <ConfigError />
+      </WachatPage>
+    );
   }
 
   return (
-    <div className="relative">
-      <div className="mx-auto max-w-6xl pb-12">
-        <HeroSection
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="Connect Your WhatsApp Account"
+      description="Securely link your WhatsApp Business Account to unlock messaging, automation, CRM and AI — all from one dashboard."
+    >
+      <HeroSection
+        appId={appId}
+        configId={configId}
+        includeCatalog={includeCatalog}
+        setIncludeCatalog={setIncludeCatalog}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <UnlocksSection />
+        <RightPanel
           appId={appId}
           configId={configId}
           includeCatalog={includeCatalog}
           setIncludeCatalog={setIncludeCatalog}
         />
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <UnlocksSection />
-          <RightPanel
-            appId={appId}
-            configId={configId}
-            includeCatalog={includeCatalog}
-            setIncludeCatalog={setIncludeCatalog}
-          />
-        </div>
-
-        <ConnectedAccounts />
       </div>
-    </div>
+
+      <ConnectedAccounts />
+    </WachatPage>
   );
 }

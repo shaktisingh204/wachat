@@ -3,32 +3,35 @@
 import {
   Badge,
   Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   ScrollArea,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   Check,
   ChevronsUpDown,
   X } from 'lucide-react';
 
 /**
- * MultiSelectCombobox (wachat-local, ZoruUI).
+ * MultiSelectCombobox (wachat-local, 20ui).
  *
  * Drop-in replacement for the wabasimplify multi-select-combobox used
- * by AddContactDialog. Built only on Zoru primitives — neutral palette,
+ * by AddContactDialog. Built only on 20ui primitives — neutral palette,
  * no clay tokens.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 export type MultiSelectOption = {
   value: string;
@@ -63,12 +66,12 @@ export function MultiSelectCombobox({
 
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
-      <ZoruPopoverTrigger asChild>
+      <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn(
+          className={cx(
             'h-auto min-h-9 w-full justify-between font-normal',
             className,
           )}
@@ -78,15 +81,17 @@ export function MultiSelectCombobox({
               options
                 .filter((option) => selected.includes(option.value))
                 .map((option) => (
-                  <Badge
-                    key={option.value}
-                    variant="secondary"
-                    className="px-2 py-0.5"
-                  >
+                  <Badge key={option.value} tone="neutral" kind="soft">
                     {option.label}
                     <button
                       type="button"
-                      className="ml-1 rounded-full focus:outline-none focus:ring-2 focus:ring-zoru-ink"
+                      aria-label={`Remove ${option.label}`}
+                      className="ml-1 inline-flex items-center justify-center rounded-full outline-none focus-visible:ring-2"
+                      style={{
+                        color: 'var(--st-text-secondary)',
+                        // @ts-expect-error -- CSS custom property for the focus ring colour
+                        '--tw-ring-color': 'var(--st-text)',
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleSelect(option.value);
                       }}
@@ -99,35 +104,37 @@ export function MultiSelectCombobox({
                         handleSelect(option.value);
                       }}
                     >
-                      <X className="h-3 w-3 text-zoru-ink-muted hover:text-zoru-ink" />
+                      <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 ))
             ) : (
-              <span className="text-zoru-ink-muted">{placeholder}</span>
+              <span style={{ color: 'var(--st-text-secondary)' }}>
+                {placeholder}
+              </span>
             )}
           </div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </ZoruPopoverTrigger>
-      <ZoruPopoverContent
+      </PopoverTrigger>
+      <PopoverContent
         align="start"
         className="w-[--radix-popover-trigger-width] p-0"
       >
-        <ZoruCommand>
-          <ZoruCommandInput placeholder="Search tags…" />
-          <ZoruCommandList>
-            <ZoruCommandEmpty>No options found.</ZoruCommandEmpty>
-            <ZoruCommandGroup>
+        <Command>
+          <CommandInput placeholder="Search tags…" />
+          <CommandList>
+            <CommandEmpty>No options found.</CommandEmpty>
+            <CommandGroup>
               <ScrollArea className="max-h-60">
                 {options.map((option) => (
-                  <ZoruCommandItem
+                  <CommandItem
                     key={option.value}
                     value={option.label}
                     onSelect={() => handleSelect(option.value)}
                   >
                     <Check
-                      className={cn(
+                      className={cx(
                         'mr-2 h-4 w-4',
                         selected.includes(option.value)
                           ? 'opacity-100'
@@ -135,13 +142,13 @@ export function MultiSelectCombobox({
                       )}
                     />
                     {option.label}
-                  </ZoruCommandItem>
+                  </CommandItem>
                 ))}
               </ScrollArea>
-            </ZoruCommandGroup>
-          </ZoruCommandList>
-        </ZoruCommand>
-      </ZoruPopoverContent>
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
     </Popover>
   );
 }

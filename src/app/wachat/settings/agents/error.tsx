@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button, EmptyState } from '@/components/zoruui';
 import { CircleAlert } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 export default function ErrorBoundary({
   error,
@@ -16,17 +18,23 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-full min-h-[400px] w-full items-center justify-center">
-      <EmptyState
-        icon={<CircleAlert className="h-10 w-10 text-zoru-ink" />}
-        title="Something went wrong!"
-        description={error.message || "An unexpected error occurred while loading agent settings."}
-        action={
-          <Button onClick={() => reset()} variant="outline">
-            Try again
-          </Button>
-        }
-      />
-    </div>
+    <WachatPage>
+      <div className="flex h-full min-h-[400px] w-full items-center justify-center">
+        <EmptyState
+          icon={CircleAlert}
+          tone="danger"
+          title="Something went wrong!"
+          description={
+            error.message ||
+            'An unexpected error occurred while loading agent settings.'
+          }
+          action={
+            <Button variant="outline" onClick={() => reset()}>
+              Try again
+            </Button>
+          }
+        />
+      </div>
+    </WachatPage>
   );
 }

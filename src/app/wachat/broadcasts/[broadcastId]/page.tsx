@@ -2,22 +2,15 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   EmptyState,
-  Progress,
   Skeleton,
+  Spinner,
   StatCard,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -39,13 +32,13 @@ import {
   CircleX,
   Download,
   Eye,
-  Loader2,
   RefreshCw,
   Send,
   TriangleAlert,
   Users,
   } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   getBroadcastById,
   getBroadcastAttempts,
@@ -56,14 +49,18 @@ import type { BroadcastAttempt,
   BroadcastLog } from '@/lib/definitions';
 
 /**
- * Broadcast Report — per-campaign detail, ZoruUI rebuild.
+ * Broadcast Report — per-campaign detail, 20ui rebuild.
  *
  * Same data + handlers as before (getBroadcastById, getBroadcastAttempts,
  * getBroadcastAttemptsForExport, getBroadcastLogs). Visual layer fully
- * on Zoru primitives — neutral palette, no rainbow.
+ * on 20ui primitives — neutral palette, no rainbow.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ── types ──────────────────────────────────────────────────────── */
 
@@ -114,75 +111,58 @@ function pct(num: number, den: number): number {
 
 function statusTone(status: string | undefined): {
   label: string;
-  variant: 'success' | 'info' | 'warning' | 'danger' | 'secondary';
-  dot: string;
+  tone: 'success' | 'info' | 'warning' | 'danger' | 'neutral';
 } {
   const s = (status ?? '').toLowerCase();
-  if (s === 'completed')
-    return { label: 'Completed', variant: 'success', dot: 'bg-zoru-success' };
+  if (s === 'completed') return { label: 'Completed', tone: 'success' };
   if (s === 'processing' || s === 'pending_processing' || s === 'queued')
     return {
       label: (status ?? '').replace(/_/g, ' ') || 'Processing',
-      variant: 'info',
-      dot: 'bg-zoru-info',
+      tone: 'info',
     };
   if (s === 'partial failure')
-    return {
-      label: 'Partial failure',
-      variant: 'warning',
-      dot: 'bg-zoru-warning',
-    };
-  if (s === 'failed')
-    return { label: 'Failed', variant: 'danger', dot: 'bg-zoru-danger' };
-  if (s === 'cancelled')
-    return {
-      label: 'Cancelled',
-      variant: 'secondary',
-      dot: 'bg-zoru-ink-subtle',
-    };
-  return {
-    label: status ?? 'Unknown',
-    variant: 'secondary',
-    dot: 'bg-zoru-ink-subtle',
-  };
+    return { label: 'Partial failure', tone: 'warning' };
+  if (s === 'failed') return { label: 'Failed', tone: 'danger' };
+  if (s === 'cancelled') return { label: 'Cancelled', tone: 'neutral' };
+  return { label: status ?? 'Unknown', tone: 'neutral' };
 }
 
 function attemptStatusChip(status: BroadcastAttempt['status']): {
   icon: React.ReactNode;
   label: string;
-  variant: 'success' | 'info' | 'danger' | 'secondary';
+  tone: 'success' | 'info' | 'danger' | 'neutral';
 } {
   switch (status) {
     case 'READ':
       return {
-        icon: <Eye className="h-3 w-3" />,
+        icon: <Eye className="h-3 w-3" aria-hidden="true" />,
         label: 'Read',
-        variant: 'info',
+        tone: 'info',
       };
     case 'DELIVERED':
       return {
-        icon: <CheckCheck className="h-3 w-3" />,
+        icon: <CheckCheck className="h-3 w-3" aria-hidden="true" />,
         label: 'Delivered',
-        variant: 'success',
+        tone: 'success',
       };
     case 'SENT':
       return {
-        icon: <Check className="h-3 w-3" />,
+        icon: <Check className="h-3 w-3" aria-hidden="true" />,
         label: 'Sent',
-        variant: 'info',
+        tone: 'info',
       };
     case 'FAILED':
       return {
-        icon: <CircleX className="h-3 w-3" />,
+        icon: <CircleX className="h-3 w-3" aria-hidden="true" />,
         label: 'Failed',
-        variant: 'danger',
+        tone: 'danger',
       };
     case 'PENDING':
     default:
       return {
-        icon: <CircleDashed className="h-3 w-3" />,
+        icon: <CircleDashed className="h-3 w-3" aria-hidden="true" />,
         label: 'Pending',
-        variant: 'secondary',
+        tone: 'neutral',
       };
   }
 }
@@ -196,26 +176,28 @@ const FILTERS: Array<{ value: FilterStatus; label: string }> = [
   { value: 'PENDING', label: 'Pending' },
 ];
 
+const CRUMBS = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Campaigns', href: '/wachat/broadcasts' },
+  { label: 'Report' },
+];
+
 /* ── skeleton ───────────────────────────────────────────────────── */
 
 function ReportSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Skeleton className="h-3 w-56" />
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-9 w-72" />
-        <div className="flex gap-2">
-          <Skeleton className="h-9 w-28" />
-          <Skeleton className="h-9 w-24" />
+    <WachatPage breadcrumb={CRUMBS} title="Broadcast report" width="wide">
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-[100px]" />
+          ))}
         </div>
+        <Skeleton className="h-[140px]" />
+        <Skeleton className="h-[420px]" />
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} className="h-[100px]" />
-        ))}
-      </div>
-      <Skeleton className="h-[420px]" />
-    </div>
+    </WachatPage>
   );
 }
 
@@ -230,7 +212,7 @@ export default function BroadcastReportPage() {
   const [isExporting, startExportTransition] = useTransition();
   const params = useParams();
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [filter, setFilter] = useState<FilterStatus>('ALL');
@@ -265,7 +247,7 @@ export default function BroadcastReportPage() {
             toast({
               title: 'Error',
               description: 'Broadcast not found.',
-              variant: 'destructive',
+              tone: 'danger',
             });
             router.push('/wachat/broadcasts');
           }
@@ -281,7 +263,7 @@ export default function BroadcastReportPage() {
           toast({
             title: 'Error',
             description: 'Failed to load broadcast details.',
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       });
@@ -335,7 +317,7 @@ export default function BroadcastReportPage() {
           toast({
             title: 'Nothing to export',
             description: 'No contacts found for the current filter.',
-            variant: 'destructive',
+            tone: 'danger',
           });
           return;
         }
@@ -373,7 +355,7 @@ export default function BroadcastReportPage() {
         toast({
           title: 'Export error',
           description: 'Could not export the data.',
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     });
@@ -382,17 +364,21 @@ export default function BroadcastReportPage() {
   if (isPageLoading) return <ReportSkeleton />;
   if (!broadcast) {
     return (
-      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
+      <WachatPage breadcrumb={CRUMBS} title="Broadcast report" width="wide">
         <EmptyState
-          icon={<TriangleAlert />}
+          icon={TriangleAlert}
+          tone="danger"
           title="Broadcast not found"
           action={
-            <Button onClick={() => router.push('/wachat/broadcasts')}>
+            <Button
+              variant="primary"
+              onClick={() => router.push('/wachat/broadcasts')}
+            >
               Back to broadcasts
             </Button>
           }
         />
-      </div>
+      </WachatPage>
     );
   }
 
@@ -415,270 +401,276 @@ export default function BroadcastReportPage() {
     return { ...attempt, detail };
   });
 
-  return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/broadcasts">
-              Campaigns
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
-              {broadcast.templateName || 'Report'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      {/* Back link + header */}
-      <div>
-        <Link
-          href="/wachat/broadcasts"
-          className="inline-flex items-center gap-1.5 text-[11.5px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3 w-3" />
-          Back to broadcasts
-        </Link>
-
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-6">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-                {broadcast.templateName || 'Broadcast report'}
-              </h1>
-              <Badge variant={tone.variant}>
-                <span className={cn('h-1.5 w-1.5 rounded-full', tone.dot)} />
-                {tone.label}
-              </Badge>
-            </div>
-            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-[12.5px] text-zoru-ink-muted">
-              {broadcast.fileName ? (
-                <span>
-                  File:{' '}
-                  <span className="text-zoru-ink">{broadcast.fileName}</span>
-                </span>
-              ) : null}
-              <span className="inline-flex items-center gap-1">
-                <CalendarIcon className="h-3 w-3" />
-                Queued{' '}
-                {formatDistanceToNow(new Date(broadcast.createdAt), {
-                  addSuffix: true,
-                })}
-              </span>
-              {broadcast.completedAt ? (
-                <span>
-                  · Completed{' '}
-                  {formatDistanceToNow(new Date(broadcast.completedAt), {
-                    addSuffix: true,
-                  })}
-                </span>
-              ) : null}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isRefreshing}
-            >
-              <RefreshCw
-                className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')}
-              />
-              {isRefreshing ? 'Refreshing…' : 'Refresh'}
-            </Button>
-            <Button
-              size="sm"
-              onClick={onExport}
-              disabled={isExporting}
-            >
-              {isExporting ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Download className="h-3.5 w-3.5" />
-              )}
-              {isExporting ? 'Exporting…' : 'Export CSV'}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard
-          label="Total contacts"
-          value={compact(total)}
-          icon={<Users />}
-        />
-        <StatCard
-          label="Sent"
-          value={compact(sent)}
-          period={`${pct(sent, total)}% of total`}
-          icon={<Send />}
-        />
-        <StatCard
-          label="Delivered"
-          value={compact(delivered)}
-          period={`${pct(delivered, sent)}% of sent`}
-          icon={<CheckCheck />}
-        />
-        <StatCard
-          label="Read"
-          value={compact(read)}
-          period={`${pct(read, delivered)}% of delivered`}
-          icon={<Eye />}
-        />
-        <StatCard
-          label="Failed"
-          value={compact(failed)}
-          period={`${pct(failed, total)}% of total`}
-          icon={<TriangleAlert />}
-        />
-      </div>
-
-      {/* Delivery funnel */}
-      <Card className="p-6">
-        <div className="text-sm text-zoru-ink">Delivery funnel</div>
-        <div className="mt-4 flex flex-col gap-3">
-          <FunnelBar label="Queued" count={total} total={total} />
-          <FunnelBar label="Sent" count={sent} total={total} />
-          <FunnelBar label="Delivered" count={delivered} total={total} />
-          <FunnelBar label="Read" count={read} total={total} />
-          {failed > 0 ? (
-            <FunnelBar label="Failed" count={failed} total={total} negative />
-          ) : null}
-        </div>
-      </Card>
-
-      {/* Delivery results table */}
-      <section>
-        <div>
-          <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
-            Delivery results
-          </h2>
-          <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-            Live status for each contact. Auto-refreshes every 10 seconds while
-            the campaign is still processing.
-          </p>
-        </div>
-
-        <Card className="mt-5 p-6">
-          {/* Filter pills */}
-          <div className="flex flex-wrap gap-2">
-            {FILTERS.map((f) => {
-              const active = filter === f.value;
-              return (
-                <Button
-                  key={f.value}
-                  variant={active ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handleFilterChange(f.value)}
-                >
-                  {f.label}
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Table */}
-          <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
-            {isRefreshing && enrichedAttempts.length === 0 ? (
-              <div className="flex h-40 items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-              </div>
-            ) : enrichedAttempts.length === 0 ? (
-              <EmptyState
-                icon={<CircleDashed />}
-                title={`No ${filter.toLowerCase()} results`}
-                description="Nothing matched this filter for the current broadcast. Choose a different tab or refresh."
-                className="border-0"
-              />
-            ) : (
-              <div className="max-h-[60vh] overflow-y-auto">
-                <table className="w-full text-[13px]">
-                  <thead className="sticky top-0 z-10 border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                    <tr>
-                      <th className="px-4 py-3 text-left">Phone number</th>
-                      <th className="px-4 py-3 text-left">Status</th>
-                      <th className="px-4 py-3 text-left">
-                        Message ID / error details
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zoru-line bg-zoru-bg">
-                    {enrichedAttempts.map((attempt) => {
-                      const chip = attemptStatusChip(attempt.status);
-                      return (
-                        <tr
-                          key={attempt._id}
-                          className="transition-colors hover:bg-zoru-surface"
-                        >
-                          <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink tabular-nums">
-                            {attempt.phone}
-                          </td>
-                          <td className="px-4 py-3">
-                            <Badge variant={chip.variant}>
-                              {chip.icon}
-                              {chip.label}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 font-mono text-[11px] text-zoru-ink-muted">
-                            {attempt.detail}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-zoru-line pt-4">
-              <span className="text-[11.5px] tabular-nums text-zoru-ink-muted">
-                Page {currentPage} of {totalPages}
-              </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1 || isRefreshing}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={currentPage >= totalPages || isRefreshing}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </Card>
-      </section>
-
-      <div className="h-6" />
+  const headerActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        iconLeft={RefreshCw}
+        onClick={onRefresh}
+        disabled={isRefreshing}
+      >
+        {isRefreshing ? 'Refreshing…' : 'Refresh'}
+      </Button>
+      <Button
+        variant="primary"
+        size="sm"
+        iconLeft={Download}
+        loading={isExporting}
+        onClick={onExport}
+        disabled={isExporting}
+      >
+        {isExporting ? 'Exporting…' : 'Export CSV'}
+      </Button>
     </div>
+  );
+
+  return (
+    <WachatPage
+      breadcrumb={CRUMBS}
+      title={broadcast.templateName || 'Broadcast report'}
+      actions={headerActions}
+      width="wide"
+    >
+      <div className="flex flex-col gap-6">
+        {/* Back link + status/meta strip */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Link
+            href="/wachat/broadcasts"
+            className="inline-flex items-center gap-1.5 text-[11.5px] transition-colors"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
+            <ArrowLeft className="h-3 w-3" aria-hidden="true" />
+            Back to broadcasts
+          </Link>
+          <Badge tone={tone.tone} dot>
+            {tone.label}
+          </Badge>
+        </div>
+
+        <div
+          className="flex flex-wrap items-center gap-3 text-[12.5px]"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
+          {broadcast.fileName ? (
+            <span>
+              File:{' '}
+              <span style={{ color: 'var(--st-text)' }}>
+                {broadcast.fileName}
+              </span>
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1">
+            <CalendarIcon className="h-3 w-3" aria-hidden="true" />
+            Queued{' '}
+            {formatDistanceToNow(new Date(broadcast.createdAt), {
+              addSuffix: true,
+            })}
+          </span>
+          {broadcast.completedAt ? (
+            <span>
+              · Completed{' '}
+              {formatDistanceToNow(new Date(broadcast.completedAt), {
+                addSuffix: true,
+              })}
+            </span>
+          ) : null}
+        </div>
+
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          <StatCard label="Total contacts" value={compact(total)} icon={Users} />
+          <StatCard
+            label="Sent"
+            value={compact(sent)}
+            delta={{ value: `${pct(sent, total)}% of total`, tone: 'neutral' }}
+            icon={Send}
+          />
+          <StatCard
+            label="Delivered"
+            value={compact(delivered)}
+            delta={{ value: `${pct(delivered, sent)}% of sent`, tone: 'neutral' }}
+            icon={CheckCheck}
+          />
+          <StatCard
+            label="Read"
+            value={compact(read)}
+            delta={{
+              value: `${pct(read, delivered)}% of delivered`,
+              tone: 'neutral',
+            }}
+            icon={Eye}
+          />
+          <StatCard
+            label="Failed"
+            value={compact(failed)}
+            delta={{ value: `${pct(failed, total)}% of total`, tone: 'neutral' }}
+            icon={TriangleAlert}
+          />
+        </div>
+
+        {/* Delivery funnel */}
+        <Card className="p-6">
+          <div className="text-sm" style={{ color: 'var(--st-text)' }}>
+            Delivery funnel
+          </div>
+          <div className="mt-4 flex flex-col gap-3">
+            <FunnelBar label="Queued" count={total} total={total} />
+            <FunnelBar label="Sent" count={sent} total={total} />
+            <FunnelBar label="Delivered" count={delivered} total={total} />
+            <FunnelBar label="Read" count={read} total={total} />
+            {failed > 0 ? (
+              <FunnelBar label="Failed" count={failed} total={total} negative />
+            ) : null}
+          </div>
+        </Card>
+
+        {/* Delivery results table */}
+        <section>
+          <div>
+            <h2
+              className="text-[22px] tracking-tight leading-none"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Delivery results
+            </h2>
+            <p
+              className="mt-1.5 text-[12.5px]"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
+              Live status for each contact. Auto-refreshes every 10 seconds while
+              the campaign is still processing.
+            </p>
+          </div>
+
+          <Card className="mt-5 p-6">
+            {/* Filter pills */}
+            <div className="flex flex-wrap gap-2">
+              {FILTERS.map((f) => {
+                const active = filter === f.value;
+                return (
+                  <Button
+                    key={f.value}
+                    variant={active ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => handleFilterChange(f.value)}
+                  >
+                    {f.label}
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Table */}
+            <div
+              className="mt-5 overflow-hidden"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                border: '1px solid var(--st-border)',
+              }}
+            >
+              {isRefreshing && enrichedAttempts.length === 0 ? (
+                <div className="flex h-40 items-center justify-center">
+                  <Spinner size="md" />
+                </div>
+              ) : enrichedAttempts.length === 0 ? (
+                <EmptyState
+                  icon={CircleDashed}
+                  title={`No ${filter.toLowerCase()} results`}
+                  description="Nothing matched this filter for the current broadcast. Choose a different tab or refresh."
+                />
+              ) : (
+                <div className="max-h-[60vh] overflow-y-auto">
+                  <table className="w-full text-[13px]">
+                    <thead
+                      className="sticky top-0 z-10 text-[11px] uppercase tracking-wide"
+                      style={{
+                        background: 'var(--st-bg-secondary)',
+                        color: 'var(--st-text-secondary)',
+                        borderBottom: '1px solid var(--st-border)',
+                      }}
+                    >
+                      <tr>
+                        <th className="px-4 py-3 text-left">Phone number</th>
+                        <th className="px-4 py-3 text-left">Status</th>
+                        <th className="px-4 py-3 text-left">
+                          Message ID / error details
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ background: 'var(--st-bg)' }}>
+                      {enrichedAttempts.map((attempt) => {
+                        const chip = attemptStatusChip(attempt.status);
+                        return (
+                          <tr
+                            key={attempt._id}
+                            style={{ borderTop: '1px solid var(--st-border)' }}
+                          >
+                            <td
+                              className="px-4 py-3 font-mono text-[12px] tabular-nums"
+                              style={{ color: 'var(--st-text)' }}
+                            >
+                              {attempt.phone}
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge tone={chip.tone}>
+                                {chip.icon}
+                                {chip.label}
+                              </Badge>
+                            </td>
+                            <td
+                              className="px-4 py-3 font-mono text-[11px]"
+                              style={{ color: 'var(--st-text-secondary)' }}
+                            >
+                              {attempt.detail}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 ? (
+              <div
+                className="mt-5 flex items-center justify-between gap-3 pt-4"
+                style={{ borderTop: '1px solid var(--st-border)' }}
+              >
+                <span
+                  className="text-[11.5px] tabular-nums"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Page {currentPage} of {totalPages}
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1 || isRefreshing}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setCurrentPage((p) => Math.min(totalPages, p + 1))
+                    }
+                    disabled={currentPage >= totalPages || isRefreshing}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </Card>
+        </section>
+      </div>
+    </WachatPage>
   );
 }
 
@@ -699,18 +691,24 @@ function FunnelBar({
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span className="text-zoru-ink">{label}</span>
-        <span className="text-zoru-ink-muted tabular-nums">
+        <span style={{ color: 'var(--st-text)' }}>{label}</span>
+        <span
+          className="tabular-nums"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-zoru-surface-2">
+      <div
+        className="mt-1.5 h-2 w-full overflow-hidden rounded-full"
+        style={{ background: 'var(--st-bg-secondary)' }}
+      >
         <div
-          className={cn(
-            'h-full rounded-full transition-[width] duration-500',
-            negative ? 'bg-zoru-danger' : 'bg-zoru-ink',
-          )}
-          style={{ width: `${width}%` }}
+          className="h-full rounded-full transition-[width] duration-500"
+          style={{
+            width: `${width}%`,
+            background: negative ? 'var(--st-danger)' : 'var(--st-text)',
+          }}
         />
       </div>
     </div>

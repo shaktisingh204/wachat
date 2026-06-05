@@ -1,18 +1,14 @@
 'use client';
 
 import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   Button,
   Input,
-  Label,
+  Field,
   Textarea,
-  Select,
-} from '@/components/zoruui';
+  ScrollArea,
+  Checkbox,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -28,7 +24,6 @@ import type { WithId,
   Contact,
   Project } from '@/lib/definitions';
 
-import { ScrollArea, Checkbox } from '@/components/zoruui';
 import Image from 'next/image';
 
 const initialState = { message: undefined, error: undefined };
@@ -36,7 +31,7 @@ const initialState = { message: undefined, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" variant="primary" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Send Catalog
         </Button>
@@ -86,78 +81,83 @@ export function SendCatalogDialog({ isOpen, onOpenChange, contact, project }: Se
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="max-w-2xl max-h-[85vh] flex flex-col overflow-hidden p-0">
-                <form action={formAction} ref={formRef} className="flex h-full flex-col overflow-hidden">
+        <Modal
+            open={isOpen}
+            onClose={() => onOpenChange(false)}
+            size="lg"
+            className="max-w-2xl"
+            title={<span className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</span>}
+            description={`Select products to send to ${contact.name}. You can send up to 30 items at a time.`}
+            footer={
+                <form action={formAction} ref={formRef} className="flex items-center justify-end gap-2">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <input type="hidden" name="projectId" value={project._id.toString()} />
                     <input type="hidden" name="productRetailerIds" value={selectedProducts.join(',')} />
-
-                    <ZoruDialogHeader className="px-6 pt-6 pb-2">
-                        <ZoruDialogTitle className="flex items-center gap-2"><ShoppingBag />Send Product Catalog</ZoruDialogTitle>
-                        <ZoruDialogDescription>
-                            Select products to send to {contact.name}. You can send up to 30 items at a time.
-                        </ZoruDialogDescription>
-                    </ZoruDialogHeader>
-
-                    <div className="flex-1 overflow-y-auto px-6 py-2">
-                        <div className="grid gap-6">
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="headerText">Header Text</Label>
-                                    <Input id="headerText" name="headerText" placeholder="Our Top Products" required />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="footerText">Footer Text (Optional)</Label>
-                                    <Input id="footerText" name="footerText" placeholder="Sale ends soon!" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="bodyText">Body Text</Label>
-                                <Textarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Select Products ({selectedProducts.length}/30)</Label>
-                                <ScrollArea className="h-64 border rounded-md p-2">
-                                    {isLoading ? (
-                                        <div className="flex items-center justify-center h-full">
-                                            <LoaderCircle className="h-6 w-6 animate-spin" />
-                                        </div>
-                                    ) : products.length > 0 ? (
-                                        <div className="space-y-2">
-                                            {products.map(product => (
-                                                <div key={product.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-zoru-surface-2">
-                                                    <Checkbox
-                                                        id={`product-${product.id}`}
-                                                        checked={selectedProducts.includes(product.retailer_id)}
-                                                        onCheckedChange={(checked) => handleProductSelect(product.retailer_id, !!checked)}
-                                                        disabled={selectedProducts.length >= 30 && !selectedProducts.includes(product.retailer_id)}
-                                                    />
-                                                    <div className="w-12 h-12 bg-zoru-surface-2 rounded-md flex items-center justify-center">
-                                                        {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6 text-zoru-ink-muted" />}
-                                                    </div>
-                                                    <Label htmlFor={`product-${product.id}`} className="flex-1 cursor-pointer">
-                                                        <p className="font-medium">{product.name}</p>
-                                                        <p className="text-xs text-zoru-ink-muted font-mono">{product.retailer_id}</p>
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="text-center p-8 text-zoru-ink-muted">No products found in this catalog.</div>
-                                    )}
-                                </ScrollArea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ZoruDialogFooter className="px-6 pb-6 pt-2">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <SubmitButton />
-                    </ZoruDialogFooter>
+                    <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <SubmitButton />
                 </form>
-            </ZoruDialogContent>
-        </Dialog>
+            }
+        >
+            <div className="grid gap-6">
+                <div className="grid md:grid-cols-2 gap-4">
+                    <Field label="Header Text">
+                        <Input id="headerText" name="headerText" placeholder="Our Top Products" required />
+                    </Field>
+                    <Field label="Footer Text (Optional)">
+                        <Input id="footerText" name="footerText" placeholder="Sale ends soon!" />
+                    </Field>
+                </div>
+                <Field label="Body Text">
+                    <Textarea id="bodyText" name="bodyText" placeholder="Check out these amazing products from our collection." required />
+                </Field>
+
+                <Field label={`Select Products (${selectedProducts.length}/30)`}>
+                    <div className="rounded-md border" style={{ borderColor: 'var(--st-border)' }}>
+                        <ScrollArea style={{ height: 256 }} viewportClassName="p-2">
+                            {isLoading ? (
+                                <div className="flex items-center justify-center h-full py-16">
+                                    <LoaderCircle className="h-6 w-6 animate-spin" />
+                                </div>
+                            ) : products.length > 0 ? (
+                                <div className="space-y-2">
+                                    {products.map(product => {
+                                        const checked = selectedProducts.includes(product.retailer_id);
+                                        return (
+                                            <label
+                                                key={product.id}
+                                                htmlFor={`product-${product.id}`}
+                                                className="flex items-center gap-3 p-2 rounded-md cursor-pointer"
+                                                style={{ transition: 'background-color 120ms' }}
+                                                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--st-surface-hover)'; }}
+                                                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; }}
+                                            >
+                                                <Checkbox
+                                                    id={`product-${product.id}`}
+                                                    checked={checked}
+                                                    onChange={(e) => handleProductSelect(product.retailer_id, e.target.checked)}
+                                                    disabled={selectedProducts.length >= 30 && !checked}
+                                                />
+                                                <div
+                                                    className="w-12 h-12 rounded-md flex items-center justify-center"
+                                                    style={{ backgroundColor: 'var(--st-surface-muted)' }}
+                                                >
+                                                    {product.image_url ? <Image src={product.image_url} alt={product.name} width={48} height={48} className="object-cover rounded-md" /> : <ShoppingBag className="h-6 w-6" style={{ color: 'var(--st-text-tertiary)' }} />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-medium" style={{ color: 'var(--st-text)' }}>{product.name}</p>
+                                                    <p className="text-xs font-mono" style={{ color: 'var(--st-text-tertiary)' }}>{product.retailer_id}</p>
+                                                </div>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="text-center p-8" style={{ color: 'var(--st-text-tertiary)' }}>No products found in this catalog.</div>
+                            )}
+                        </ScrollArea>
+                    </div>
+                </Field>
+            </div>
+        </Modal>
     );
 }

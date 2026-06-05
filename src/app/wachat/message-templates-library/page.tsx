@@ -2,31 +2,16 @@
 
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  CardBody,
   EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Modal,
+  SegmentedControl,
   Skeleton,
-  useZoruToast,
-  type ZoruBadgeProps,
-} from '@/components/zoruui';
+  useToast,
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -37,7 +22,6 @@ import {
   CircleX,
   Copy,
   Check,
-  Loader2,
   RefreshCw,
   } from 'lucide-react';
 
@@ -45,15 +29,20 @@ import { useProject } from '@/context/project-context';
 import { getTemplates, saveLibraryTemplate } from '@/app/actions/template.actions';
 import { premadeTemplates } from '@/lib/premade-templates';
 import { useRouter } from 'next/navigation';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * Wachat Message Templates Library — browse project templates +
- * premade library, rebuilt on ZoruUI primitives.
+ * premade library, rebuilt on the 20ui design system.
  */
 
 import * as React from 'react';
 
-const TONE_MAP: Record<string, ZoruBadgeProps['variant']> = {
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
+const TONE_MAP: Record<string, BadgeTone> = {
   UTILITY: 'info',
   MARKETING: 'success',
   AUTHENTICATION: 'warning',
@@ -68,7 +57,7 @@ type LibraryRow = {
 
 export default function MessageTemplatesLibraryPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [projectTemplates, setProjectTemplates] = useState<any[]>([]);
   const [tab, setTab] = useState<'project' | 'premade'>('project');
@@ -95,6 +84,7 @@ export default function MessageTemplatesLibraryPage() {
     toast({
       title: 'Copied',
       description: `"${name}" copied to clipboard.`,
+      tone: 'success',
     });
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -128,12 +118,13 @@ export default function MessageTemplatesLibraryPage() {
       toast({
         title: 'Error publishing',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       toast({
         title: 'Published',
         description: 'Template successfully published to the community library.',
+        tone: 'success',
       });
       load();
     }
@@ -161,7 +152,7 @@ export default function MessageTemplatesLibraryPage() {
       return (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-44 w-full" />
+            <Skeleton key={i} height={176} className="w-full" />
           ))}
         </div>
       );
@@ -169,7 +160,7 @@ export default function MessageTemplatesLibraryPage() {
     if (rows.length === 0) {
       return (
         <EmptyState
-          icon={<CircleX />}
+          icon={CircleX}
           title={
             tab === 'project'
               ? 'No templates in this project yet'
@@ -187,53 +178,50 @@ export default function MessageTemplatesLibraryPage() {
     return (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {rows.map((t) => (
-          <Card
-            key={t.id}
-            variant="elevated"
-            className="flex flex-col"
-          >
-            <ZoruCardContent className="flex flex-1 flex-col gap-2 pt-6">
+          <Card key={t.id} variant="elevated" padding="none" className="flex flex-col">
+            <CardBody className="flex flex-1 flex-col gap-2">
               <div className="mb-1 flex items-start justify-between gap-2">
-                <h3 className="text-[14px] font-semibold capitalize text-zoru-ink">
+                <h3
+                  className="text-[14px] font-semibold capitalize"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   {t.name.replace(/_/g, ' ')}
                 </h3>
-                <Badge
-                  variant={TONE_MAP[t.category] || 'secondary'}
-                  className="capitalize"
-                >
+                <Badge tone={TONE_MAP[t.category] || 'neutral'} className="capitalize">
                   {t.category.toLowerCase()}
                 </Badge>
               </div>
-              <p className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+              <p
+                className="line-clamp-3 flex-1 text-[12.5px] leading-relaxed"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 {t.body}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button
                   size="sm"
                   variant="outline"
+                  iconLeft={copiedId === t.id ? Check : Copy}
                   onClick={() => handleCopy(t.body, t.id, t.name)}
                 >
-                  {copiedId === t.id ? <Check /> : <Copy />}
                   {copiedId === t.id ? 'Copied!' : 'Copy'}
                 </Button>
-                <Button size="sm" onClick={() => setCloneTarget(t)}>
+                <Button size="sm" variant="primary" onClick={() => setCloneTarget(t)}>
                   Use template
                 </Button>
                 {tab === 'project' && (
                   <Button
                     size="sm"
                     variant="outline"
+                    loading={publishingId === t.id}
                     onClick={() => handlePublish(t)}
                     disabled={publishingId === t.id}
                   >
-                    {publishingId === t.id ? (
-                      <Loader2 className="animate-spin mr-1 h-4 w-4" />
-                    ) : null}
                     Publish
                   </Button>
                 )}
               </div>
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         ))}
       </div>
@@ -241,82 +229,42 @@ export default function MessageTemplatesLibraryPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/templates">
-              Templates
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Message library</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Message templates library</ZoruPageTitle>
-          <ZoruPageDescription>
-            Browse your project templates or the premade library. Click to copy
-            or clone into your account.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          {tab === 'project' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={load}
-              disabled={isPending}
-            >
-              {isPending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <RefreshCw />
-              )}
-              Refresh
-            </Button>
-          )}
-        </ZoruPageActions>
-      </PageHeader>
-
-      {/* Segmented toggle (no tabs) — switches between project + premade. */}
-      <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-1">
-        <button
-          type="button"
-          onClick={() => setTab('project')}
-          aria-pressed={tab === 'project'}
-          className={`inline-flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors ${
-            tab === 'project'
-              ? 'bg-zoru-surface-2 text-zoru-ink'
-              : 'text-zoru-ink-muted hover:text-zoru-ink'
-          }`}
-        >
-          Project templates ({projectTemplates.length})
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('premade')}
-          aria-pressed={tab === 'premade'}
-          className={`inline-flex items-center gap-2 rounded-[var(--zoru-radius-sm)] px-3 py-1.5 text-sm transition-colors ${
-            tab === 'premade'
-              ? 'bg-zoru-surface-2 text-zoru-ink'
-              : 'text-zoru-ink-muted hover:text-zoru-ink'
-          }`}
-        >
-          Premade library ({premadeTemplates.length})
-        </button>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Templates', href: '/wachat/templates' },
+        { label: 'Message library' },
+      ]}
+      title="Message templates library"
+      description="Browse your project templates or the premade library. Click to copy or clone into your account."
+      width="wide"
+      actions={
+        tab === 'project' ? (
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            loading={isPending}
+            onClick={load}
+            disabled={isPending}
+          >
+            Refresh
+          </Button>
+        ) : undefined
+      }
+    >
+      {/* Segmented toggle — switches between project + premade. */}
+      <div className="flex">
+        <SegmentedControl
+          aria-label="Template source"
+          value={tab}
+          onChange={(v) => setTab(v as 'project' | 'premade')}
+          items={[
+            { value: 'project', label: `Project templates (${projectTemplates.length})` },
+            { value: 'premade', label: `Premade library (${premadeTemplates.length})` },
+          ]}
+        />
       </div>
 
       <div className="mt-4">
@@ -324,29 +272,24 @@ export default function MessageTemplatesLibraryPage() {
       </div>
 
       {/* Clone-to-account dialog */}
-      <Dialog
+      <Modal
         open={Boolean(cloneTarget)}
-        onOpenChange={(open) => !open && setCloneTarget(null)}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Clone template</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              {cloneTarget
-                ? `Use "${cloneTarget.name.replace(/_/g, ' ')}" as a starting point in ${
-                    activeProject?.name || 'your project'
-                  }. The body will be copied to your clipboard.`
-                : ''}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setCloneTarget(null)}
-            >
+        onClose={() => setCloneTarget(null)}
+        title="Clone template"
+        description={
+          cloneTarget
+            ? `Use "${cloneTarget.name.replace(/_/g, ' ')}" as a starting point in ${
+                activeProject?.name || 'your project'
+              }. The body will be copied to your clipboard.`
+            : ''
+        }
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setCloneTarget(null)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
                 if (cloneTarget) {
                   handleClone(cloneTarget);
@@ -356,11 +299,9 @@ export default function MessageTemplatesLibraryPage() {
             >
               Open Builder
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }

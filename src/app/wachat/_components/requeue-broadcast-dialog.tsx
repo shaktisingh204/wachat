@@ -2,25 +2,15 @@
 
 import {
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
+  IconButton,
+  Modal,
+  Field,
   Input,
-  Label,
-  RadioGroup,
-  ZoruRadioGroupItem,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  RadioGroup,
+  Radio,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -36,15 +26,15 @@ import type { Project,
   Template } from '@/lib/definitions';
 
 /**
- * RequeueBroadcastDialog (wachat-local, ZoruUI)
+ * RequeueBroadcastDialog (wachat-local, 20ui)
  *
  * Confirmation + composer for re-sending a previously-completed broadcast,
  * either to ALL original contacts or only the FAILED ones. Visual layer is
- * pure Zoru — neutral palette, bold-by-default. Server action call
+ * pure 20ui — neutral palette, bold-by-default. Server action call
  * (handleRequeueBroadcast) and form-state behavior preserved 1:1.
  */
 
-import * as React from 'react';
+const FORM_ID = 'requeue-broadcast-form';
 
 const initialState = {
   message: null,
@@ -54,7 +44,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" form={FORM_ID} disabled={pending} variant="primary">
       {pending ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
       ) : (
@@ -83,7 +73,7 @@ export function RequeueBroadcastDialog({
     handleRequeueBroadcast as any,
     initialState as any,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [selectedTemplateId, setSelectedTemplateId] =
@@ -100,180 +90,143 @@ export function RequeueBroadcastDialog({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Success', description: state.message });
+      toast({ title: 'Success', description: state.message, tone: 'success' });
       setOpen(false);
     }
     if (state?.error) {
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast]);
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      formRef.current?.reset();
-      setSelectedTemplateId(originalTemplateId);
-      setRequeueScope('ALL');
-    }
-    setOpen(isOpen);
+  const resetForm = () => {
+    formRef.current?.reset();
+    setSelectedTemplateId(originalTemplateId);
+    setRequeueScope('ALL');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    setOpen(false);
   };
 
   const approvedTemplates = templates.filter(
     (t) => t.status?.toUpperCase() === 'APPROVED',
   );
 
+  const templateOptions = approvedTemplates.map((template) => {
+    const status = template.status
+      ? template.status.replace(/_/g, ' ').toLowerCase()
+      : 'n/a';
+    return {
+      value: template._id.toString(),
+      label: `${template.name} · ${status}`,
+    };
+  });
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <ZoruDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Requeue broadcast"
-        >
-          <RotateCw className="h-3.5 w-3.5" />
-        </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[540px] p-0">
-        <form ref={formRef} action={formAction}>
+    <>
+      <IconButton
+        label="Requeue broadcast"
+        icon={RotateCw}
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpen(true)}
+      />
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        title="Requeue broadcast"
+        description="Send this campaign again to the same audience — all contacts or only the ones that failed the first time."
+        footer={
+          <>
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <SubmitButton />
+          </>
+        }
+      >
+        <form id={FORM_ID} ref={formRef} action={formAction}>
           <input type="hidden" name="broadcastId" value={broadcastId} />
           <input type="hidden" name="templateId" value={selectedTemplateId} />
           <input type="hidden" name="requeueScope" value={requeueScope} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-              <RotateCw className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] text-zoru-ink leading-tight">
-                Requeue broadcast
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
-                Send this campaign again to the same audience — all contacts
-                or only the ones that failed the first time.
-              </ZoruDialogDescription>
-            </div>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-5 px-6 py-5">
+          <div className="flex flex-col gap-5">
             {/* Template select */}
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Message template{' '}
-                <span className="ml-1 text-zoru-danger">*</span>
-              </Label>
+            <Field
+              label="Message template"
+              required
+              help={
+                approvedTemplates.length === 0
+                  ? 'No approved templates found.'
+                  : undefined
+              }
+            >
               <Select
                 value={selectedTemplateId}
-                onValueChange={setSelectedTemplateId}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Choose an approved template…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {approvedTemplates.length > 0 ? (
-                    approvedTemplates.map((template) => (
-                      <ZoruSelectItem
-                        key={template._id.toString()}
-                        value={template._id.toString()}
-                      >
-                        {template.name}
-                        <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
-                          {template.status
-                            ? template.status.replace(/_/g, ' ').toLowerCase()
-                            : 'n/a'}
-                        </span>
-                      </ZoruSelectItem>
-                    ))
-                  ) : (
-                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                      No approved templates found.
-                    </div>
-                  )}
-                </ZoruSelectContent>
-              </Select>
-            </div>
+                onChange={(v) => setSelectedTemplateId(v ?? '')}
+                options={templateOptions}
+                placeholder="Choose an approved template…"
+                aria-label="Message template"
+              />
+            </Field>
 
             {/* Header media (optional) */}
             {showImageUpload ? (
-              <div className="flex flex-col gap-1.5">
-                <Label
-                  htmlFor="headerImageUrl"
-                  className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted"
-                >
-                  Header media URL
-                  <span className="ml-1 text-zoru-ink-subtle">(optional)</span>
-                </Label>
+              <Field
+                label="Header media URL"
+                help="Provide a new public media URL to override the template's header image."
+              >
                 <Input
                   id="headerImageUrl"
                   name="headerImageUrl"
                   type="url"
                   placeholder="https://example.com/image.jpg"
                 />
-                <div className="text-[11px] text-zoru-ink-muted">
-                  Provide a new public media URL to override the
-                  template&apos;s header image.
-                </div>
-              </div>
+              </Field>
             ) : null}
 
             {/* Scope radio group */}
-            <div className="flex flex-col gap-2">
-              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Target contacts
-              </Label>
+            <Field label="Target contacts">
               <RadioGroup
                 value={requeueScope}
-                onValueChange={(v) =>
-                  setRequeueScope(v as 'ALL' | 'FAILED')
-                }
-                className="flex flex-col gap-2"
+                onValueChange={(v) => setRequeueScope(v as 'ALL' | 'FAILED')}
+                aria-label="Target contacts"
               >
                 <ScopeOption
-                  id="scope-all"
                   value="ALL"
                   active={requeueScope === 'ALL'}
                   title="All original contacts"
                   description="Resend to every contact in the original audience."
                 />
                 <ScopeOption
-                  id="scope-failed"
                   value="FAILED"
                   active={requeueScope === 'FAILED'}
                   title="Only failed contacts"
                   description="Retry delivery only to the ones that failed last time."
                 />
               </RadioGroup>
-            </div>
+            </Field>
           </div>
-
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton />
-          </ZoruDialogFooter>
         </form>
-      </ZoruDialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 }
 
 /* ── local helper ───────────────────────────────────────────────── */
 
 function ScopeOption({
-  id,
   value,
   active,
   title,
   description,
 }: {
-  id: string;
   value: 'ALL' | 'FAILED';
   active: boolean;
   title: string;
@@ -281,18 +234,27 @@ function ScopeOption({
 }) {
   return (
     <label
-      htmlFor={id}
-      className={cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-[var(--zoru-radius)] border px-3 py-2.5 transition-colors',
-        active
-          ? 'border-zoru-ink bg-zoru-surface-2'
-          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
-      )}
+      className="flex cursor-pointer items-center gap-2.5 border px-3 py-2.5 transition-colors"
+      style={{
+        borderRadius: 'var(--st-radius)',
+        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
+        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
+      }}
     >
-      <ZoruRadioGroupItem value={value} id={id} />
+      <Radio value={value} />
       <div className="flex flex-col">
-        <span className="text-[13px] text-zoru-ink">{title}</span>
-        <span className="text-[11px] text-zoru-ink-muted">{description}</span>
+        <span
+          className="text-[13px]"
+          style={{ color: 'var(--st-text)' }}
+        >
+          {title}
+        </span>
+        <span
+          className="text-[11px]"
+          style={{ color: 'var(--st-text-muted)' }}
+        >
+          {description}
+        </span>
       </div>
     </label>
   );

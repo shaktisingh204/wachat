@@ -1,36 +1,32 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   EmptyState,
+  Field,
   Input,
-  Label,
+  Progress,
   Skeleton,
-  Textarea,
-  useZoruToast,
-  ZoruFileUploadCard,
-  ZoruFileUploadItem,
+  Spinner,
   Switch,
-} from '@/components/zoruui';
+  Textarea,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
+  useRef,
   useState,
   useTransition,
   useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import {
   Download,
-  Loader2,
   Plus,
   ShieldOff,
   Trash2,
   Upload,
+  CloudUpload,
+  X,
   Bot,
   } from 'lucide-react';
 
@@ -40,14 +36,19 @@ import {
   getOptOutList,
   removeFromOptOut,
   } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Opt-Out / DND — ZoruUI migration.
+ * Wachat Opt-Out / DND — 20ui migration.
  * Single-add form, bulk-paste, list, export CSV, per-keyword stats.
  */
 
 import * as React from 'react';
 import { fmtDate } from '@/lib/utils';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 type OptOutItem = {
   _id: string;
@@ -56,16 +57,26 @@ type OptOutItem = {
   optedOutAt?: string;
 };
 
+type UploadItem = {
+  id: string;
+  file: File;
+  /** 0..100 progress. `null` for "unknown / indeterminate". */
+  progress: number | null;
+  status: 'uploading' | 'done' | 'error';
+  errorMessage?: string;
+};
+
 export default function OptOutPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [list, setList] = useState<OptOutItem[]>([]);
   const [phone, setPhone] = useState('');
   const [reason, setReason] = useState('');
   const [bulkText, setBulkText] = useState('');
-  const [uploadItems, setUploadItems] = useState<ZoruFileUploadItem[]>([]);
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [autoSentiment, setAutoSentiment] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = useCallback(() => {
     if (!activeProject?._id) return;
@@ -166,7 +177,17 @@ export default function OptOutPage() {
     newItems.forEach((item) => processCsvFile(item));
   };
 
-  const processCsvFile = async (item: ZoruFileUploadItem) => {
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = e.target.files;
+    if (incoming && incoming.length > 0) {
+      const maxSize = 5 * 1024 * 1024;
+      const arr = Array.from(incoming).filter((f) => f.size <= maxSize);
+      if (arr.length > 0) handleFilesSelected(arr);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const processCsvFile = async (item: UploadItem) => {
     try {
       const text = await item.file.text();
       const rows = text.split(/\r?\n/).map((r) => r.trim()).filter(Boolean);
@@ -208,7 +229,7 @@ export default function OptOutPage() {
             failCount++;
           }
         }
-        
+
         const currentProgress = Math.round(
           ((i - startIndex + 1) / totalToProcess) * 100
         );
@@ -283,40 +304,27 @@ export default function OptOutPage() {
   }, [list]);
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Opt-out / DND</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Opt-out / DND management
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Manage numbers that have opted out of receiving messages.
-        </p>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Opt-out / DND' },
+      ]}
+      title="Opt-out / DND management"
+      description="Manage numbers that have opted out of receiving messages."
+    >
+      <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
           {/* Add form */}
-          <Card className="p-5">
-            <h2 className="mb-4 text-[15px] text-zoru-ink">Add to opt-out list</h2>
+          <Card>
+            <h2
+              className="mb-4 text-[15px]"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Add to opt-out list
+            </h2>
             <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="opt-phone">Phone number</Label>
+              <Field label="Phone number">
                 <Input
                   id="opt-phone"
                   value={phone}
@@ -325,26 +333,35 @@ export default function OptOutPage() {
                   required
                   className="w-52"
                 />
+              </Field>
+              <div className="flex flex-1 flex-col">
+                <Field label="Reason">
+                  <Input
+                    id="opt-reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="e.g. User requested"
+                  />
+                </Field>
               </div>
-              <div className="flex flex-1 flex-col gap-1.5">
-                <Label htmlFor="opt-reason">Reason</Label>
-                <Input
-                  id="opt-reason"
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  placeholder="e.g. User requested"
-                />
-              </div>
-              <Button type="submit" size="sm">
-                <Plus /> Add
+              <Button type="submit" variant="primary" size="sm" iconLeft={Plus}>
+                Add
               </Button>
             </form>
           </Card>
 
           {/* Bulk paste */}
-          <Card className="p-5">
-            <h2 className="mb-3 text-[15px] text-zoru-ink">Bulk add</h2>
-            <p className="mb-2 text-[12px] text-zoru-ink-muted">
+          <Card>
+            <h2
+              className="mb-3 text-[15px]"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Bulk add
+            </h2>
+            <p
+              className="mb-2 text-[12px]"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               Paste multiple phone numbers separated by newlines or commas.
             </p>
             <Textarea
@@ -359,41 +376,146 @@ export default function OptOutPage() {
               className="mt-3"
               onClick={handleBulkPaste}
               disabled={!bulkText.trim()}
+              iconLeft={Upload}
             >
-              <Upload /> Bulk add
+              Bulk add
             </Button>
           </Card>
-          
+
           {/* CSV Upload */}
-          <Card className="p-5">
-            <h2 className="mb-3 text-[15px] text-zoru-ink">Upload CSV</h2>
-            <p className="mb-4 text-[12px] text-zoru-ink-muted">
+          <Card>
+            <h2
+              className="mb-3 text-[15px]"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Upload CSV
+            </h2>
+            <p
+              className="mb-4 text-[12px]"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               Upload a CSV file containing opt-outs. Expected columns: <b>phone, reason</b> (optional).
             </p>
-            <ZoruFileUploadCard
+            <input
+              ref={fileInputRef}
+              type="file"
               accept=".csv"
-              hint="CSV up to 5MB"
-              maxSize={5 * 1024 * 1024}
-              onFilesSelected={handleFilesSelected}
-              items={uploadItems}
-              onRemove={(id) => setUploadItems((p) => p.filter((i) => i.id !== id))}
+              className="sr-only"
+              onChange={handleFileInputChange}
             />
+            <div
+              className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed px-4 py-6 text-center"
+              style={{
+                borderColor: 'var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+              }}
+            >
+              <CloudUpload
+                size={22}
+                aria-hidden="true"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              />
+              <p
+                className="text-[12px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                CSV up to 5MB
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Choose file
+              </Button>
+            </div>
+            {uploadItems.length > 0 ? (
+              <ul className="mt-3 flex flex-col gap-2">
+                {uploadItems.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex flex-col gap-1.5 rounded-[var(--st-radius)] border px-3 py-2"
+                    style={{
+                      borderColor: 'var(--st-border)',
+                      background: 'var(--st-bg)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className="min-w-0 truncate text-[12.5px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {item.file.name}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={X}
+                        aria-label={`Remove ${item.file.name}`}
+                        onClick={() =>
+                          setUploadItems((p) => p.filter((i) => i.id !== item.id))
+                        }
+                      />
+                    </div>
+                    {item.status === 'uploading' ? (
+                      <Progress
+                        value={item.progress ?? 0}
+                        indeterminate={item.progress == null}
+                        size="sm"
+                        label={`Uploading ${item.file.name}`}
+                      />
+                    ) : null}
+                    {item.status === 'error' ? (
+                      <span
+                        className="text-[11.5px]"
+                        style={{ color: 'var(--st-danger)' }}
+                      >
+                        {item.errorMessage || 'Upload failed'}
+                      </span>
+                    ) : null}
+                    {item.status === 'done' ? (
+                      <span
+                        className="text-[11.5px]"
+                        style={{ color: 'var(--st-status-ok)' }}
+                      >
+                        Done{item.errorMessage ? ` — ${item.errorMessage}` : ''}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </Card>
 
           {/* Per-keyword stats */}
           {keywordStats.length > 0 && (
-            <Card className="p-5">
-              <h2 className="mb-3 text-[15px] text-zoru-ink">Per-reason stats</h2>
+            <Card>
+              <h2
+                className="mb-3 text-[15px]"
+                style={{ color: 'var(--st-text)' }}
+              >
+                Per-reason stats
+              </h2>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
                 {keywordStats.slice(0, 8).map(([k, n]) => (
                   <div
                     key={k}
-                    className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2"
+                    className="rounded-[var(--st-radius)] border px-3 py-2"
+                    style={{
+                      borderColor: 'var(--st-border)',
+                      background: 'var(--st-bg-secondary)',
+                    }}
                   >
-                    <div className="truncate text-[11.5px] text-zoru-ink-muted">
+                    <div
+                      className="truncate text-[11.5px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       {k}
                     </div>
-                    <div className="mt-0.5 text-[18px] text-zoru-ink leading-none">
+                    <div
+                      className="mt-0.5 text-[18px] leading-none"
+                      style={{ color: 'var(--st-text)' }}
+                    >
                       {n}
                     </div>
                   </div>
@@ -403,34 +525,40 @@ export default function OptOutPage() {
           )}
 
           {/* List */}
-          <Card className="p-5">
+          <Card>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[15px] text-zoru-ink">Opt-out numbers</h2>
+              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                Opt-out numbers
+              </h2>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleExport}
                 disabled={list.length === 0}
+                iconLeft={Download}
               >
-                <Download /> Export CSV
+                Export CSV
               </Button>
             </div>
             {isPending && list.length === 0 ? (
               <div className="flex flex-col gap-2">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
+                <Skeleton height={32} width="100%" />
+                <Skeleton height={32} width="100%" />
+                <Skeleton height={32} width="100%" />
               </div>
             ) : !isPending && list.length === 0 ? (
               <EmptyState
-                compact
-                icon={<ShieldOff />}
+                size="sm"
+                icon={ShieldOff}
                 title="No opt-out numbers recorded"
                 description="Numbers added here will be skipped from outbound campaigns."
               />
             ) : (
               <div className="space-y-1">
-                <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] text-zoru-ink-muted">
+                <div
+                  className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px]"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
                   <span>Phone</span>
                   <span>Reason</span>
                   <span>Opted out</span>
@@ -439,31 +567,35 @@ export default function OptOutPage() {
                 {list.map((item) => (
                   <div
                     key={item._id}
-                    className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--zoru-radius)] px-1 py-2 text-[13px] text-zoru-ink hover:bg-zoru-surface"
+                    className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--st-radius)] px-1 py-2 text-[13px]"
+                    style={{ color: 'var(--st-text)' }}
                   >
                     <span>{item.phone}</span>
-                    <span className="text-zoru-ink-muted">
+                    <span style={{ color: 'var(--st-text-secondary)' }}>
                       {item.reason || '--'}
                     </span>
-                    <span className="text-[12px] text-zoru-ink-muted">
+                    <span
+                      className="text-[12px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       {item.optedOutAt
                         ? fmtDate(item.optedOutAt)
                         : '--'}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-zoru-ink-muted hover:text-zoru-danger"
-                      onClick={() => handleRemove(item._id)}
-                      disabled={isPending}
-                      aria-label={`Remove ${item.phone}`}
-                    >
-                      {isPending ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <Trash2 />
-                      )}
-                    </Button>
+                    {isPending ? (
+                      <span className="flex h-7 w-7 items-center justify-center">
+                        <Spinner size="sm" label="Removing" />
+                      </span>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconLeft={Trash2}
+                        onClick={() => handleRemove(item._id)}
+                        disabled={isPending}
+                        aria-label={`Remove ${item.phone}`}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -473,20 +605,36 @@ export default function OptOutPage() {
 
         {/* Sidebar settings */}
         <div className="flex flex-col gap-4">
-          <Card className="p-5">
-            <h2 className="mb-1 flex items-center gap-2 text-[15px] font-medium text-zoru-ink">
-              <Bot className="h-4 w-4 text-zoru-ink-muted" /> AI Settings
+          <Card>
+            <h2
+              className="mb-1 flex items-center gap-2 text-[15px] font-medium"
+              style={{ color: 'var(--st-text)' }}
+            >
+              <Bot
+                className="h-4 w-4"
+                aria-hidden="true"
+                style={{ color: 'var(--st-text-secondary)' }}
+              />{' '}
+              AI Settings
             </h2>
-            <p className="mb-4 text-[12px] text-zoru-ink-muted leading-relaxed">
+            <p
+              className="mb-4 text-[12px] leading-relaxed"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               Auto-add contacts to opt-out list based on sentiment analysis of inbound messages (e.g. "stop messaging me", "unsubscribe").
             </p>
             <div className="flex items-center justify-between">
-              <Label htmlFor="auto-sentiment-switch" className="cursor-pointer">
+              <label
+                htmlFor="auto-sentiment-switch"
+                className="cursor-pointer text-[13px]"
+                style={{ color: 'var(--st-text)' }}
+              >
                 Enable Sentiment Auto-Opt-Out
-              </Label>
+              </label>
               <Switch
                 id="auto-sentiment-switch"
                 checked={autoSentiment}
+                aria-label="Enable Sentiment Auto-Opt-Out"
                 onCheckedChange={(c) => {
                   setAutoSentiment(c);
                   toast({
@@ -499,8 +647,6 @@ export default function OptOutPage() {
           </Card>
         </div>
       </div>
-
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

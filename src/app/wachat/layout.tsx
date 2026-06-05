@@ -21,6 +21,7 @@ import { redirect } from "next/navigation";
 import { getCachedSession, getCachedProjects } from "@/lib/server-cache";
 import { RBACGuard } from "@/components/zoruui-domain/rbac-guard";
 import { ProjectProvider } from "@/context/project-context";
+import { ToastProvider, Toaster } from "@/components/sabcrm/20ui";
 
 import { WachatShell } from "./_components/wachat-shell";
 
@@ -63,19 +64,26 @@ export default async function WachatLayout({
   return (
     <RBACGuard>
       <ProjectProvider initialProjects={projects} user={user}>
-        <WachatShell
-          user={{
-            name: user?.name,
-            email: user?.email,
-            avatar: user?.image,
-          }}
-          plan={{
-            name: user?.plan?.name,
-            credits: totalCredits,
-          }}
-        >
-          {children}
-        </WachatShell>
+        {/* 20ui toast context for every WaChat page. The 85+ pages/components
+            ported to 20ui call its useToast(), which requires this provider in
+            an ancestor; the Toaster viewport portals to <body> with the ui20
+            class baked in, so toasts resolve their tokens anywhere. */}
+        <ToastProvider>
+          <WachatShell
+            user={{
+              name: user?.name,
+              email: user?.email,
+              avatar: user?.image,
+            }}
+            plan={{
+              name: user?.plan?.name,
+              credits: totalCredits,
+            }}
+          >
+            {children}
+          </WachatShell>
+          <Toaster />
+        </ToastProvider>
       </ProjectProvider>
     </RBACGuard>
   );

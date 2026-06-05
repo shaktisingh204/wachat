@@ -2,47 +2,24 @@
 
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  Menu,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
   EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Skeleton,
   StatCard,
-  cn,
-  zoruSonnerToast,
   Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  Input,
-  Label,
+  Modal,
+  Field,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { toast } from '@/hooks/use-toast';
 import {
   useRouter } from 'next/navigation';
 import {
@@ -86,6 +63,10 @@ import {
 
 import * as React from 'react';
 import Link from 'next/link';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 const STORAGE_KEY = 'wachat:whatsapp-ads:adAccountId';
 // Heuristic: the objectives that can carry a click-to-WhatsApp adset
@@ -138,6 +119,12 @@ type InsightRow = {
   cpc?: string;
   actions?: Array<{ action_type: string; value: string }>;
 };
+
+const ADS_BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'WhatsApp Ads' },
+];
 
 function toNum(v: string | number | undefined): number {
   if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
@@ -318,13 +305,15 @@ function WhatsAppAdsPageContent(): React.ReactElement {
       try {
         const res = await updateEntityStatus(campaign.id, 'campaign', next);
         if (res.error) {
-          zoruSonnerToast.error(
-            `Couldn't ${next === 'PAUSED' ? 'pause' : 'resume'} "${campaign.name}": ${res.error}`,
-          );
+          toast({
+            variant: 'destructive',
+            title: `Couldn't ${next === 'PAUSED' ? 'pause' : 'resume'} "${campaign.name}"`,
+            description: res.error,
+          });
         } else {
-          zoruSonnerToast.success(
-            `${campaign.name} ${next === 'PAUSED' ? 'paused' : 'activated'}`,
-          );
+          toast({
+            title: `${campaign.name} ${next === 'PAUSED' ? 'paused' : 'activated'}`,
+          });
           loadData();
         }
       } finally {
@@ -356,46 +345,28 @@ function WhatsAppAdsPageContent(): React.ReactElement {
     };
   }, [accountInsight]);
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>WhatsApp Ads</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   // Empty/setup states.
   if (accountsLoading) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <Skeleton className="h-9 w-64" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-[118px]" />
-          ))}
+      <WachatPage breadcrumb={ADS_BREADCRUMB} title="WhatsApp Ads">
+        <div className="flex flex-col gap-6">
+          <Skeleton height={36} width={256} />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} height={118} />
+            ))}
+          </div>
+          <Skeleton height={260} />
         </div>
-        <Skeleton className="h-[260px]" />
-      </div>
+      </WachatPage>
     );
   }
 
   if (accounts.length === 0) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
+      <WachatPage breadcrumb={ADS_BREADCRUMB} title="WhatsApp Ads">
         <EmptyState
-          icon={<Megaphone className="h-10 w-10" />}
+          icon={Megaphone}
           title="Connect an ad account to launch click-to-WhatsApp campaigns"
           description={
             accountsError
@@ -404,8 +375,11 @@ function WhatsAppAdsPageContent(): React.ReactElement {
           }
           action={
             <div className="flex flex-wrap gap-2">
-              <Button onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}>
-                <Plus className="h-3.5 w-3.5" />
+              <Button
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => router.push('/dashboard/ad-manager/ad-accounts')}
+              >
                 Connect ad account
               </Button>
               <Button
@@ -416,227 +390,248 @@ function WhatsAppAdsPageContent(): React.ReactElement {
               </Button>
               <Button
                 variant="ghost"
+                iconRight={ArrowUpRight}
                 onClick={() => router.push('/wachat/whatsapp-ads/roadmap')}
               >
                 Roadmap
-                <ArrowUpRight className="h-3.5 w-3.5" />
               </Button>
             </div>
           }
         />
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>WhatsApp Ads</ZoruPageTitle>
-            <ZoruPageDescription>
-              Click-to-WhatsApp campaigns across Facebook & Instagram
-              {activeProject?.name ? ` · ${activeProject.name}` : ''}
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-        </PageHeader>
-
+    <WachatPage
+      breadcrumb={ADS_BREADCRUMB}
+      title="WhatsApp Ads"
+      description={`Click-to-WhatsApp campaigns across Facebook & Instagram${
+        activeProject?.name ? ` · ${activeProject.name}` : ''
+      }`}
+      actions={
         <div className="flex flex-wrap items-center gap-2">
           <Select
-            value={selectedAccountId ?? undefined}
-            onValueChange={(v) => setSelectedAccountId(v)}
+            value={selectedAccountId}
+            onChange={(v) => setSelectedAccountId(v)}
+            placeholder="Pick an ad account"
+            aria-label="Ad account"
+            className="w-[240px]"
+            options={accounts.map((a) => ({
+              value: a.id,
+              label: `${a.name || `Ad Account ${a.account_id ?? a.id}`}${
+                a.currency ? ` · ${a.currency}` : ''
+              }`,
+            }))}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            onClick={loadData}
+            loading={dataLoading}
           >
-            <ZoruSelectTrigger className="w-[240px]">
-              <ZoruSelectValue placeholder="Pick an ad account" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {accounts.map((a) => (
-                <ZoruSelectItem key={a.id} value={a.id}>
-                  {a.name || `Ad Account ${a.account_id ?? a.id}`}
-                  {a.currency ? ` · ${a.currency}` : ''}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
-          <Button variant="outline" size="sm" onClick={loadData} disabled={dataLoading}>
-            <RefreshCw className={cn('h-3.5 w-3.5', dataLoading && 'animate-spin')} />
             Refresh
           </Button>
           <Button
+            variant="primary"
+            iconLeft={Plus}
             onClick={() =>
               router.push(
                 '/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT',
               )
             }
           >
-            <Plus className="h-3.5 w-3.5" />
             New CTW campaign
           </Button>
           <AiCampaignDialog />
         </div>
-      </div>
-
-      {/* KPI strip — last 30 days, scoped to CTW-eligible campaigns */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard
-          label="Spend (30d)"
-          value={fmtMoney(kpi.spend, currency)}
-          icon={<DollarSign className="h-4 w-4" />}
-          period={accountKpi ? `${fmtMoney(accountKpi.spend, currency)} account total` : undefined}
-        />
-        <StatCard
-          label="Impressions"
-          value={fmtNum(kpi.impressions)}
-          icon={<Eye className="h-4 w-4" />}
-          period={accountKpi ? `${fmtNum(accountKpi.impressions)} account total` : undefined}
-        />
-        <StatCard
-          label="Link clicks"
-          value={fmtNum(kpi.clicks)}
-          icon={<MousePointerClick className="h-4 w-4" />}
-          period={accountKpi ? `${fmtNum(accountKpi.clicks)} account total` : undefined}
-        />
-        <StatCard label="CTR" value={fmtPct(kpi.ctr)} icon={<Target className="h-4 w-4" />} />
-        <StatCard
-          label="Avg. CPC"
-          value={fmtMoney(kpi.cpc, currency)}
-          icon={<DollarSign className="h-4 w-4" />}
-        />
-        <StatCard
-          label="Chats started"
-          value={fmtNum(kpi.msgs)}
-          icon={<MessagesSquare className="h-4 w-4" />}
-          period={accountKpi ? `${fmtNum(accountKpi.msgs)} account total` : undefined}
-        />
-      </div>
-
-      {/* Campaigns list */}
-      <div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-[22px] leading-none tracking-tight text-zoru-ink">Campaigns</h2>
-            <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-              {dataLoading && campaigns.length === 0
-                ? 'Loading…'
-                : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days insights`}
-            </p>
-          </div>
-          <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                More
-                <ChevronDown className="h-3 w-3 opacity-60" />
-              </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Manage</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem
-                onSelect={() => router.push('/dashboard/ad-manager/campaigns')}
-              >
-                All campaigns
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
-                onSelect={() => router.push('/dashboard/ad-manager/insights')}
-              >
-                Open Insights
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
-                onSelect={() => router.push('/dashboard/ad-manager/audiences')}
-              >
-                Audiences
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuItem
-                onSelect={() => router.push('/dashboard/ad-manager/creative-library')}
-              >
-                Creative library
-              </ZoruDropdownMenuItem>
-              <ZoruDropdownMenuSeparator />
-              <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/whatsapp-ads/roadmap')}>
-                Roadmap
-              </ZoruDropdownMenuItem>
-            </ZoruDropdownMenuContent>
-          </DropdownMenu>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {/* KPI strip — last 30 days, scoped to CTW-eligible campaigns */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <StatCard
+            label="Spend (30d)"
+            value={fmtMoney(kpi.spend, currency)}
+            icon={DollarSign}
+            delta={
+              accountKpi
+                ? { value: `${fmtMoney(accountKpi.spend, currency)} account total`, tone: 'neutral' }
+                : undefined
+            }
+          />
+          <StatCard
+            label="Impressions"
+            value={fmtNum(kpi.impressions)}
+            icon={Eye}
+            delta={
+              accountKpi
+                ? { value: `${fmtNum(accountKpi.impressions)} account total`, tone: 'neutral' }
+                : undefined
+            }
+          />
+          <StatCard
+            label="Link clicks"
+            value={fmtNum(kpi.clicks)}
+            icon={MousePointerClick}
+            delta={
+              accountKpi
+                ? { value: `${fmtNum(accountKpi.clicks)} account total`, tone: 'neutral' }
+                : undefined
+            }
+          />
+          <StatCard label="CTR" value={fmtPct(kpi.ctr)} icon={Target} />
+          <StatCard label="Avg. CPC" value={fmtMoney(kpi.cpc, currency)} icon={DollarSign} />
+          <StatCard
+            label="Chats started"
+            value={fmtNum(kpi.msgs)}
+            icon={MessagesSquare}
+            delta={
+              accountKpi
+                ? { value: `${fmtNum(accountKpi.msgs)} account total`, tone: 'neutral' }
+                : undefined
+            }
+          />
         </div>
 
-        <Card className="mt-5">
-          {dataLoading && campaigns.length === 0 ? (
-            <div className="flex flex-col gap-3 p-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-14" />
-              ))}
+        {/* Campaigns list */}
+        <div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2
+                className="text-[22px] leading-none tracking-tight"
+                style={{ color: 'var(--st-text)' }}
+              >
+                Campaigns
+              </h2>
+              <p
+                className="mt-1.5 text-[12.5px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                {dataLoading && campaigns.length === 0
+                  ? 'Loading…'
+                  : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days insights`}
+              </p>
             </div>
-          ) : dataError ? (
-            <div className="p-6">
-              <EmptyState
-                icon={<AlertTriangle className="h-10 w-10 text-zoru-danger" />}
-                title="Failed to load campaigns"
-                description={dataError}
-                action={
-                  <Button variant="outline" onClick={loadData}>
-                    <RefreshCw className="h-3.5 w-3.5 mr-2" />
-                    Retry
-                  </Button>
-                }
-              />
-            </div>
-          ) : campaigns.length === 0 ? (
-            <div className="p-6">
-              <EmptyState
-                icon={<MessagesSquare className="h-10 w-10" />}
-                title="No CTW campaigns yet"
-                description="Launch your first click-to-WhatsApp campaign and start collecting inbound conversations."
-                action={
-                  <Button
-                    onClick={() =>
-                      router.push(
-                        '/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT',
-                      )
-                    }
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Create campaign
-                  </Button>
-                }
-              />
-            </div>
-          ) : (
-            <div className="divide-y divide-zoru-line">
-              {campaigns.map((c) => (
-                <CampaignRow
-                  key={c.id}
-                  campaign={c}
-                  insight={insightsMap[c.id]}
-                  currency={currency}
-                  toggling={pendingTogglesId === c.id}
-                  onToggle={handleStatusToggle}
-                  onOpen={() => router.push(`/dashboard/ad-manager/campaigns/${c.id}`)}
+            <Menu
+              align="end"
+              label="Manage campaigns"
+              trigger={
+                <Button variant="outline" size="sm" iconRight={ChevronDown}>
+                  More
+                </Button>
+              }
+            >
+              <MenuLabel>Manage</MenuLabel>
+              <MenuSeparator />
+              <MenuItem onSelect={() => router.push('/dashboard/ad-manager/campaigns')}>
+                All campaigns
+              </MenuItem>
+              <MenuItem onSelect={() => router.push('/dashboard/ad-manager/insights')}>
+                Open Insights
+              </MenuItem>
+              <MenuItem onSelect={() => router.push('/dashboard/ad-manager/audiences')}>
+                Audiences
+              </MenuItem>
+              <MenuItem onSelect={() => router.push('/dashboard/ad-manager/creative-library')}>
+                Creative library
+              </MenuItem>
+              <MenuSeparator />
+              <MenuItem onSelect={() => router.push('/wachat/whatsapp-ads/roadmap')}>
+                Roadmap
+              </MenuItem>
+            </Menu>
+          </div>
+
+          <Card padding="none" className="mt-5">
+            {dataLoading && campaigns.length === 0 ? (
+              <div className="flex flex-col gap-3 p-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} height={56} />
+                ))}
+              </div>
+            ) : dataError ? (
+              <div className="p-6">
+                <EmptyState
+                  icon={AlertTriangle}
+                  tone="danger"
+                  title="Failed to load campaigns"
+                  description={dataError}
+                  action={
+                    <Button variant="outline" iconLeft={RefreshCw} onClick={loadData}>
+                      Retry
+                    </Button>
+                  }
                 />
-              ))}
+              </div>
+            ) : campaigns.length === 0 ? (
+              <div className="p-6">
+                <EmptyState
+                  icon={MessagesSquare}
+                  title="No CTW campaigns yet"
+                  description="Launch your first click-to-WhatsApp campaign and start collecting inbound conversations."
+                  action={
+                    <Button
+                      variant="primary"
+                      iconLeft={Plus}
+                      onClick={() =>
+                        router.push(
+                          '/dashboard/ad-manager/create?destination=WHATSAPP&objective=OUTCOME_ENGAGEMENT',
+                        )
+                      }
+                    >
+                      Create campaign
+                    </Button>
+                  }
+                />
+              </div>
+            ) : (
+              <div className="divide-y" style={{ borderColor: 'var(--st-border)' }}>
+                {campaigns.map((c) => (
+                  <CampaignRow
+                    key={c.id}
+                    campaign={c}
+                    insight={insightsMap[c.id]}
+                    currency={currency}
+                    toggling={pendingTogglesId === c.id}
+                    onToggle={handleStatusToggle}
+                    onOpen={() => router.push(`/dashboard/ad-manager/campaigns/${c.id}`)}
+                  />
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {/* Cross-link to full Ad Manager */}
+        <Card padding="md" className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <ExternalLink
+              className="h-4 w-4"
+              style={{ color: 'var(--st-text-secondary)' }}
+              aria-hidden="true"
+            />
+            <div>
+              <div className="text-sm" style={{ color: 'var(--st-text)' }}>
+                Full Ad Manager
+              </div>
+              <div className="text-[11.5px]" style={{ color: 'var(--st-text-secondary)' }}>
+                Audiences, creatives, A/B tests, and detailed insights live in the unified Ad Manager.
+              </div>
             </div>
-          )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            iconRight={ArrowUpRight}
+            onClick={() => router.push('/dashboard/ad-manager')}
+          >
+            Open Ad Manager
+          </Button>
         </Card>
       </div>
-
-      {/* Cross-link to full Ad Manager */}
-      <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
-        <div className="flex items-center gap-3">
-          <ExternalLink className="h-4 w-4 text-zoru-ink-muted" />
-          <div>
-            <div className="text-sm text-zoru-ink">Full Ad Manager</div>
-            <div className="text-[11.5px] text-zoru-ink-muted">
-              Audiences, creatives, A/B tests, and detailed insights live in the unified Ad Manager.
-            </div>
-          </div>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => router.push('/dashboard/ad-manager')}>
-          Open Ad Manager
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Button>
-      </Card>
-    </div>
+    </WachatPage>
   );
 }
 
@@ -657,25 +652,29 @@ function CampaignRow({
 }): React.ReactElement {
   const isActive = campaign.effective_status === 'ACTIVE';
   const status = campaign.effective_status || campaign.status || 'UNKNOWN';
-  const badgeVariant: 'success' | 'warning' | 'danger' | 'secondary' = isActive
+  const badgeTone: 'success' | 'warning' | 'danger' | 'neutral' = isActive
     ? 'success'
     : status === 'PAUSED'
       ? 'warning'
       : status.includes('DISAPPROVED') || status.includes('ARCHIVED') || status.includes('DELETED')
         ? 'danger'
-        : 'secondary';
+        : 'neutral';
 
   return (
     <div className="flex flex-wrap items-center gap-4 p-4">
       <div className="min-w-0 flex-1">
         <Link
           href={`/dashboard/ad-manager/campaigns/${campaign.id}`}
-          className="block truncate text-sm font-medium text-zoru-ink hover:underline"
+          className="block truncate text-sm font-medium hover:underline"
+          style={{ color: 'var(--st-text)' }}
         >
           {campaign.name}
         </Link>
-        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-          <Badge variant={badgeVariant}>{status}</Badge>
+        <div
+          className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px]"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
+          <Badge tone={badgeTone}>{status}</Badge>
           {campaign.objective && <span>{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
           {campaign.daily_budget !== undefined && campaign.daily_budget !== null && (
             <span>{fmtMoney(budgetMajor(campaign.daily_budget), currency)}/day</span>
@@ -693,18 +692,21 @@ function CampaignRow({
         />
       </div>
       <div className="flex items-center gap-1">
-        <Button
+        <IconButton
           variant="ghost"
-          size="icon-sm"
-          aria-label={isActive ? 'Pause campaign' : 'Resume campaign'}
+          size="sm"
+          icon={isActive ? Pause : Play}
+          label={isActive ? 'Pause campaign' : 'Resume campaign'}
           onClick={() => onToggle(campaign)}
           disabled={toggling}
-        >
-          {isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-        </Button>
-        <Button variant="ghost" size="icon-sm" aria-label="Open campaign" onClick={onOpen}>
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Button>
+        />
+        <IconButton
+          variant="ghost"
+          size="sm"
+          icon={ArrowUpRight}
+          label="Open campaign"
+          onClick={onOpen}
+        />
       </div>
     </div>
   );
@@ -720,9 +722,13 @@ function Metric({
   className?: string;
 }): React.ReactElement {
   return (
-    <div className={cn('flex flex-col items-end', className)}>
-      <span className="text-[11px] text-zoru-ink-muted">{label}</span>
-      <span className="text-[12.5px] tabular-nums text-zoru-ink">{value}</span>
+    <div className={cx('flex flex-col items-end', className)}>
+      <span className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
+        {label}
+      </span>
+      <span className="text-[12.5px] tabular-nums" style={{ color: 'var(--st-text)' }}>
+        {value}
+      </span>
     </div>
   );
 }
@@ -732,6 +738,14 @@ function AiCampaignDialog() {
   const [prompt, setPrompt] = React.useState('');
   const [generating, setGenerating] = React.useState(false);
   const [result, setResult] = React.useState<{ primaryText: string; headline: string; description: string; creativeIdea: string } | null>(null);
+
+  const closeAndReset = (val: boolean) => {
+    setOpen(val);
+    if (!val) {
+      setResult(null);
+      setPrompt('');
+    }
+  };
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -747,23 +761,19 @@ function AiCampaignDialog() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) { setResult(null); setPrompt(''); } }}>
-      <DialogTrigger asChild>
-        <Button variant="secondary">
-          <Sparkles className="h-3.5 w-3.5" />
-          Generate with AI
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>AI Campaign Generator</DialogTitle>
-          <DialogDescription>
-            Describe your offer or product, and we'll generate WhatsApp-optimized ad copy and creative suggestions using AI.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="flex flex-col gap-2">
-            <Label>What are you promoting?</Label>
+    <>
+      <Button variant="secondary" iconLeft={Sparkles} onClick={() => setOpen(true)}>
+        Generate with AI
+      </Button>
+      <Modal
+        open={open}
+        onClose={() => closeAndReset(false)}
+        title="AI Campaign Generator"
+        description="Describe your offer or product, and we'll generate WhatsApp-optimized ad copy and creative suggestions using AI."
+        size="md"
+      >
+        <div className="grid gap-4">
+          <Field label="What are you promoting?">
             <Textarea
               placeholder="e.g. A new summer collection of sneakers with 20% off"
               value={prompt}
@@ -771,30 +781,77 @@ function AiCampaignDialog() {
               className="resize-none"
               rows={3}
             />
-          </div>
+          </Field>
           {!result && (
-            <Button onClick={handleGenerate} disabled={generating || !prompt.trim()}>
-              {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            <Button
+              variant="primary"
+              onClick={handleGenerate}
+              disabled={generating || !prompt.trim()}
+              iconLeft={generating ? undefined : Sparkles}
+            >
+              {generating ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
               {generating ? 'Generating...' : 'Generate AI Copy'}
             </Button>
           )}
           {result && (
-            <div className="flex flex-col gap-4 mt-2 pt-4 border-t border-zoru-line">
+            <div
+              className="flex flex-col gap-4 mt-2 pt-4 border-t"
+              style={{ borderColor: 'var(--st-border)' }}
+            >
               <div className="flex flex-col gap-1.5">
-                <Label className="text-zoru-ink-muted">Primary Text</Label>
-                <div className="text-sm bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                <span
+                  className="text-[12px] font-medium"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Primary Text
+                </span>
+                <div
+                  className="text-sm p-3"
+                  style={{
+                    background: 'var(--st-bg-secondary)',
+                    borderRadius: 'var(--st-radius-lg)',
+                    border: '1px solid var(--st-border)',
+                    color: 'var(--st-text)',
+                  }}
+                >
                   {result.primaryText}
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-zoru-ink-muted">Headline</Label>
-                <div className="text-sm font-semibold bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                <span
+                  className="text-[12px] font-medium"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Headline
+                </span>
+                <div
+                  className="text-sm font-semibold p-3"
+                  style={{
+                    background: 'var(--st-bg-secondary)',
+                    borderRadius: 'var(--st-radius-lg)',
+                    border: '1px solid var(--st-border)',
+                    color: 'var(--st-text)',
+                  }}
+                >
                   {result.headline}
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-zoru-ink-muted">Creative Suggestion</Label>
-                <div className="text-sm bg-zoru-surface p-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line text-zoru-ink-muted">
+                <span
+                  className="text-[12px] font-medium"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Creative Suggestion
+                </span>
+                <div
+                  className="text-sm p-3"
+                  style={{
+                    background: 'var(--st-bg-secondary)',
+                    borderRadius: 'var(--st-radius-lg)',
+                    border: '1px solid var(--st-border)',
+                    color: 'var(--st-text-secondary)',
+                  }}
+                >
                   {result.creativeIdea}
                 </div>
               </div>
@@ -804,8 +861,8 @@ function AiCampaignDialog() {
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 }
 
@@ -834,18 +891,16 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
-          <Alert variant="destructive" className="max-w-xl text-left mb-4">
-            <AlertTriangle className="h-5 w-5" />
-            <ZoruAlertTitle>Component Error</ZoruAlertTitle>
-            <ZoruAlertDescription>
+        <WachatPage breadcrumb={ADS_BREADCRUMB} title="WhatsApp Ads">
+          <div className="flex min-h-[400px] flex-col items-center justify-center p-6 text-center">
+            <Alert tone="danger" title="Component Error" className="max-w-xl text-left mb-4">
               {this.state.error?.message || "An unexpected error occurred while rendering the page."}
-            </ZoruAlertDescription>
-          </Alert>
-          <Button variant="outline" onClick={() => window.location.reload()}>
-            Reload page
-          </Button>
-        </div>
+            </Alert>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              Reload page
+            </Button>
+          </div>
+        </WachatPage>
       );
     }
     return this.props.children;

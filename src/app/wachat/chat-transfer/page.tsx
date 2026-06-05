@@ -2,52 +2,39 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
   Button,
   Card,
+  Field,
   Input,
   Textarea,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   EmptyState,
+  Spinner,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback } from 'react';
 import { ArrowRightLeft,
-  Send,
-  Loader2 } from 'lucide-react';
+  Send } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { transferConversation, getTransferHistory, getAgentStatuses } from '@/app/actions/wachat-features.actions';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
 /**
  * /wachat/chat-transfer — Manual conversation reassignment, rebuilt
- * on ZoruUI primitives. Adds a confirm-transfer dialog on top of the
+ * on 20ui primitives. Adds a confirm-transfer dialog on top of the
  * existing form.
  */
 
@@ -55,7 +42,7 @@ import * as React from 'react';
 
 export default function ChatTransferPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [agents, setAgents] = useState<any[]>([]);
@@ -88,7 +75,7 @@ export default function ChatTransferPage() {
       toast({
         title: 'Missing fields',
         description: 'Fill contact ID, from, and to agent.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -106,11 +93,12 @@ export default function ChatTransferPage() {
     setIsSending(false);
     setConfirmOpen(false);
     if (res.error) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({ title: 'Error', description: res.error, tone: 'danger' });
     } else {
       toast({
         title: 'Transferred',
         description: 'Conversation transferred successfully.',
+        tone: 'success',
       });
       setContactId('');
       setFromAgent('');
@@ -119,6 +107,11 @@ export default function ChatTransferPage() {
       if (projectId) fetchData(projectId);
     }
   };
+
+  const agentOptions = agents.map((a) => ({
+    value: a._id as string,
+    label: (a.name || a.email) as string,
+  }));
 
   const fromAgentLabel =
     agents.find((a) => a._id === fromAgent)?.name ||
@@ -130,76 +123,48 @@ export default function ChatTransferPage() {
     '—';
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Chat Transfer</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Chat Transfer
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Transfer conversations between agents with optional notes.
-        </p>
-      </div>
-
-      <Card className="p-5">
-        <h2 className="mb-4 text-[15px] text-zoru-ink">Transfer a Conversation</h2>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Chat Transfer' },
+      ]}
+      title="Chat Transfer"
+      description="Transfer conversations between agents with optional notes."
+      width="narrow"
+    >
+      <Card padding="lg">
+        <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
+          Transfer a Conversation
+        </h2>
         <div className="grid max-w-lg gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="contact-id">Contact ID</Label>
+          <Field label="Contact ID">
             <Input
               id="contact-id"
               placeholder="e.g. 6612abc..."
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>From Agent</Label>
-            <Select value={fromAgent} onValueChange={setFromAgent}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Select agent..." />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {agents.map((a) => (
-                  <ZoruSelectItem key={a._id} value={a._id}>
-                    {a.name || a.email}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>To Agent</Label>
-            <Select value={toAgent} onValueChange={setToAgent}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Select agent..." />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {agents.map((a) => (
-                  <ZoruSelectItem key={a._id} value={a._id}>
-                    {a.name || a.email}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="transfer-note">Note (optional)</Label>
+          </Field>
+          <Field label="From Agent">
+            <Select
+              value={fromAgent || null}
+              onChange={(v) => setFromAgent(v ?? '')}
+              options={agentOptions}
+              placeholder="Select agent..."
+              aria-label="From Agent"
+            />
+          </Field>
+          <Field label="To Agent">
+            <Select
+              value={toAgent || null}
+              onChange={(v) => setToAgent(v ?? '')}
+              options={agentOptions}
+              placeholder="Select agent..."
+              aria-label="To Agent"
+            />
+          </Field>
+          <Field label="Note (optional)">
             <Textarea
               id="transfer-note"
               rows={2}
@@ -207,96 +172,106 @@ export default function ChatTransferPage() {
               onChange={(e) => setNote(e.target.value)}
               placeholder="Add context..."
             />
-          </div>
+          </Field>
         </div>
         <div className="mt-4">
           <Button
+            variant="primary"
+            iconLeft={Send}
+            loading={isSending}
             onClick={requestTransfer}
             disabled={
               isSending || !contactId.trim() || !fromAgent || !toAgent
             }
           >
-            {isSending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Send />
-            )}
             {isSending ? 'Transferring...' : 'Transfer Conversation'}
           </Button>
         </div>
       </Card>
 
-      <h2 className="text-[22px] tracking-tight text-zoru-ink leading-none">
+      <h2
+        className="text-[22px] tracking-tight leading-none"
+        style={{ color: 'var(--st-text)' }}
+      >
         Transfer History
       </h2>
 
       {isLoading && history.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+          <Spinner label="Loading transfer history" />
         </div>
       ) : history.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
+        <Card padding="none" className="overflow-x-auto">
           <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Contact</ZoruTableHead>
-                <ZoruTableHead>From</ZoruTableHead>
-                <ZoruTableHead>To</ZoruTableHead>
-                <ZoruTableHead>Note</ZoruTableHead>
-                <ZoruTableHead>Time</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
+            <THead>
+              <Tr>
+                <Th>Contact</Th>
+                <Th>From</Th>
+                <Th>To</Th>
+                <Th>Note</Th>
+                <Th>Time</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {history.map((t) => (
-                <ZoruTableRow key={t._id}>
-                  <ZoruTableCell className="font-mono text-[13px] text-zoru-ink">
+                <Tr key={t._id}>
+                  <Td className="font-mono text-[13px]" style={{ color: 'var(--st-text)' }}>
                     {t.contactId}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  </Td>
+                  <Td className="text-[13px]" style={{ color: 'var(--st-text)' }}>
                     {t.fromAgentId}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="text-[13px] text-zoru-ink">
+                  </Td>
+                  <Td className="text-[13px]" style={{ color: 'var(--st-text)' }}>
                     {t.toAgentId}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="max-w-[200px] truncate text-[12px] text-zoru-ink-muted">
+                  </Td>
+                  <Td
+                    truncate
+                    className="max-w-[200px] text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
                     {t.note || '--'}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="whitespace-nowrap text-[12px] text-zoru-ink-muted">
+                  </Td>
+                  <Td
+                    className="whitespace-nowrap text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
                     {t.transferredAt
                       ? fmtDate(t.transferredAt)
                       : '--'}
-                  </ZoruTableCell>
-                </ZoruTableRow>
+                  </Td>
+                </Tr>
               ))}
-            </ZoruTableBody>
+            </TBody>
           </Table>
         </Card>
       ) : (
         <EmptyState
-          icon={<ArrowRightLeft />}
+          icon={ArrowRightLeft}
           title="No transfers yet"
           description="Once you transfer a conversation, it will appear here."
         />
       )}
 
       {/* Confirm transfer dialog */}
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Confirm transfer</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              You&apos;re about to transfer conversation{' '}
-              <span className="font-mono text-zoru-ink">{contactId}</span> from{' '}
-              <span className="text-zoru-ink">{fromAgentLabel}</span> to{' '}
-              <span className="text-zoru-ink">{toAgentLabel}</span>.
-              {note.trim() && (
-                <span className="mt-2 block">
-                  Note: <span className="text-zoru-ink">{note}</span>
-                </span>
-              )}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+      <Modal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Confirm transfer"
+        description={
+          <>
+            You&apos;re about to transfer conversation{' '}
+            <span className="font-mono" style={{ color: 'var(--st-text)' }}>{contactId}</span> from{' '}
+            <span style={{ color: 'var(--st-text)' }}>{fromAgentLabel}</span> to{' '}
+            <span style={{ color: 'var(--st-text)' }}>{toAgentLabel}</span>.
+            {note.trim() && (
+              <span className="mt-2 block">
+                Note: <span style={{ color: 'var(--st-text)' }}>{note}</span>
+              </span>
+            )}
+          </>
+        }
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => setConfirmOpen(false)}
@@ -304,19 +279,18 @@ export default function ChatTransferPage() {
             >
               Cancel
             </Button>
-            <Button onClick={handleTransfer} disabled={isSending}>
-              {isSending ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Send />
-              )}
+            <Button
+              variant="primary"
+              iconLeft={Send}
+              loading={isSending}
+              onClick={handleTransfer}
+              disabled={isSending}
+            >
               {isSending ? 'Transferring...' : 'Confirm transfer'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }

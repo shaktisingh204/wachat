@@ -1,15 +1,15 @@
 'use client';
 
-import { Button, useZoruToast } from '@/components/zoruui';
+import { Button } from '@/components/sabcrm/20ui';
 import {
   useTransition } from 'react';
-import { CheckSquare,
-  Loader2 } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 import { registerPhoneNumber } from '@/app/actions/whatsapp.actions';
 
 /**
- * RegisterPhoneButton (wachat-local, ZoruUI).
+ * RegisterPhoneButton (wachat-local, 20ui).
  *
  * Replaces the legacy register-phone-button. Same server
  * action (registerPhoneNumber), same handler signature.
@@ -27,7 +27,7 @@ export function RegisterPhoneButton({
   phoneNumberId,
 }: RegisterPhoneButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleRegister = () => {
     startTransition(async () => {
@@ -51,12 +51,12 @@ export function RegisterPhoneButton({
   return (
     <Button
       onClick={handleRegister}
-      disabled={isPending}
+      loading={isPending}
+      iconLeft={CheckSquare}
       variant="outline"
       size="sm"
       block
     >
-      {isPending ? <Loader2 className="animate-spin" /> : <CheckSquare />}
       Register
     </Button>
   );

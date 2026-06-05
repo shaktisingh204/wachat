@@ -2,29 +2,23 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
   Avatar,
-  ZoruAvatarFallback,
   Badge,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Menu,
+  MenuItem,
+  MenuLabel,
+  MenuSeparator,
   Input,
   ScrollArea,
-  ZoruScrollBar,
+  ScrollBar,
   Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -71,6 +65,10 @@ import type {
 
 import * as React from "react";
 
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
+
 /* ── skeleton ─────────────────────────────────────────────────────── */
 
 function KanbanPageSkeleton() {
@@ -103,16 +101,23 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
     return (
       <Button
         variant="outline"
+        iconLeft={Plus}
         className="h-12 w-72 shrink-0"
         onClick={() => setIsAdding(true)}
       >
-        <Plus /> Add another list
+        Add another list
       </Button>
     );
   }
 
   return (
-    <div className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-3">
+    <div
+      className="flex h-fit w-72 shrink-0 flex-col gap-2 rounded-[var(--st-radius-lg)] border p-3"
+      style={{
+        borderColor: 'var(--st-border)',
+        background: 'var(--st-surface)',
+      }}
+    >
       <Input
         autoFocus
         placeholder="Enter list title..."
@@ -124,7 +129,7 @@ function AddListInline({ onAddList }: { onAddList: (name: string) => void }) {
         }}
       />
       <div className="flex items-center gap-2">
-        <Button size="sm" onClick={handleAdd}>
+        <Button size="sm" variant="primary" onClick={handleAdd}>
           Add list
         </Button>
         <Button
@@ -183,67 +188,73 @@ function ZoruKanbanCard({
   };
 
   return (
+    <div ref={setNodeRef} style={style}>
     <Card
-      ref={setNodeRef}
-      style={style}
-      className={cn("p-3 relative", isOverlay && "shadow-2xl cursor-grabbing scale-105")}
-      variant="default"
+      className={cx("relative", isOverlay && "shadow-2xl cursor-grabbing scale-105")}
+      variant="outlined"
+      padding="sm"
     >
       <div className="flex items-start gap-2.5">
         <div
             {...attributes}
             {...listeners}
-            className={cn("mt-1.5 cursor-grab", isOverlay && "cursor-grabbing")}
+            className={cx("mt-1.5 cursor-grab", isOverlay && "cursor-grabbing")}
         >
-            <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+            <GripVertical className="h-4 w-4" style={{ color: 'var(--st-text-muted)' }} />
         </div>
-        <Avatar className="h-8 w-8 shrink-0">
-          <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
-        </Avatar>
+        <Avatar
+          name={contact.name || contact.waId || "?"}
+          initials={initial}
+          shape="round"
+          size="lg"
+          className="shrink-0"
+        />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <p className="truncate text-[13px] text-zoru-ink leading-tight">
+            <p className="truncate text-[13px] leading-tight" style={{ color: 'var(--st-text)' }}>
               {contact.name || contact.waId}
             </p>
             <div className="flex shrink-0 items-center gap-1">
               {unread > 0 && (
-                <Badge className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
+                <Badge tone="accent" kind="solid" className="h-5 min-w-[1.25rem] justify-center px-1.5 text-[10px]">
                   {unread}
                 </Badge>
               )}
-              <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
+              <Menu
+                align="end"
+                label="Card actions"
+                trigger={
                   <button
                     type="button"
                     aria-label="Card actions"
-                    className="flex h-6 w-6 items-center justify-center rounded-[var(--zoru-radius-sm)] text-zoru-ink-muted transition-colors hover:bg-zoru-surface-2 hover:text-zoru-ink focus-visible:outline-none"
+                    className="flex h-6 w-6 items-center justify-center rounded-[var(--st-radius-sm)] transition-colors focus-visible:outline-none"
+                    style={{ color: 'var(--st-text-muted)' }}
                   >
                     <MoreHorizontal className="h-3.5 w-3.5" />
                   </button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end" className="w-48">
-                  <ZoruDropdownMenuLabel>Move to status</ZoruDropdownMenuLabel>
-                  {allColumns.map((col) => (
-                    <ZoruDropdownMenuItem
-                      key={col}
-                      disabled={col === currentColumn}
-                      onSelect={() => onMove(id, col)}
-                    >
-                      {col.replace(/_/g, " ")}
-                    </ZoruDropdownMenuItem>
-                  ))}
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuItem onSelect={handleGoToChat}>
-                    <MessageSquare /> Open chat
-                  </ZoruDropdownMenuItem>
-                </ZoruDropdownMenuContent>
-              </DropdownMenu>
+                }
+              >
+                <MenuLabel>Move to status</MenuLabel>
+                {allColumns.map((col) => (
+                  <MenuItem
+                    key={col}
+                    disabled={col === currentColumn}
+                    onSelect={() => onMove(id, col)}
+                  >
+                    {col.replace(/_/g, " ")}
+                  </MenuItem>
+                ))}
+                <MenuSeparator />
+                <MenuItem icon={MessageSquare} onSelect={handleGoToChat}>
+                  Open chat
+                </MenuItem>
+              </Menu>
             </div>
           </div>
-          <p className="mt-0.5 truncate text-[11px] text-zoru-ink-muted">
+          <p className="mt-0.5 truncate text-[11px]" style={{ color: 'var(--st-text-muted)' }}>
             {contact.waId}
           </p>
-          <p className="mt-1.5 line-clamp-2 text-[11.5px] text-zoru-ink-muted">
+          <p className="mt-1.5 line-clamp-2 text-[11.5px]" style={{ color: 'var(--st-text-muted)' }}>
             {contact.lastMessage || "No recent activity."}
           </p>
         </div>
@@ -252,13 +263,15 @@ function ZoruKanbanCard({
         <Button
           size="sm"
           variant="outline"
-          className="w-full"
+          iconLeft={MessageSquare}
+          block
           onClick={handleGoToChat}
         >
-          <MessageSquare /> Open chat
+          Open chat
         </Button>
       </div>
     </Card>
+    </div>
   );
 }
 
@@ -277,27 +290,32 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
   });
 
   return (
+    <div ref={setNodeRef} className="h-full w-80 shrink-0">
     <Card
-      ref={setNodeRef}
-      className={cn(
-        "flex h-full w-80 shrink-0 flex-col gap-0 p-0",
+      className={cx(
+        "flex h-full w-full flex-col gap-0",
       )}
-      variant="soft"
+      variant="outlined"
+      padding="none"
     >
-      <ZoruCardHeader className="shrink-0 border-b border-zoru-line">
-        <ZoruCardTitle className="flex items-center gap-2 text-[14px] capitalize">
+      <CardHeader
+        className="shrink-0 border-b"
+        style={{ borderColor: 'var(--st-border)' }}
+      >
+        <CardTitle className="flex items-center gap-2 text-[14px] capitalize">
           <span>{title.replace(/_/g, " ")}</span>
-          <Badge variant="secondary" className="h-5 px-2 text-[10px]">
+          <Badge tone="neutral" className="h-5 px-2 text-[10px]">
             {count}
           </Badge>
-        </ZoruCardTitle>
-      </ZoruCardHeader>
+        </CardTitle>
+      </CardHeader>
       <ScrollArea className="flex-1">
-        <ZoruCardContent className="flex flex-col gap-3 p-3 min-h-[200px]">
+        <CardBody className="flex flex-col gap-3 p-3 min-h-[200px]">
           {children}
-        </ZoruCardContent>
+        </CardBody>
       </ScrollArea>
     </Card>
+    </div>
   );
 }
 
@@ -308,7 +326,7 @@ export function ZoruKanbanBoard() {
   const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [activeContact, setActiveContact] = useState<WithId<Contact> | null>(null);
 
   const fetchData = React.useCallback(() => {
@@ -344,7 +362,7 @@ export function ZoruKanbanBoard() {
         toast({
           title: "Error",
           description: "Could not save new list.",
-          variant: "destructive",
+          tone: "danger",
         });
         fetchData(); // revert on failure
       } else {
@@ -504,13 +522,9 @@ export function ZoruKanbanBoard() {
   if (!project) {
     return (
       <div className="p-4">
-        <Alert variant="destructive">
-          <AlertCircle />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
-            Please select a project from the main dashboard page to view the
-            chat kanban board.
-          </ZoruAlertDescription>
+        <Alert tone="danger" icon={AlertCircle} title="No project selected">
+          Please select a project from the main dashboard page to view the
+          chat kanban board.
         </Alert>
       </div>
     );
@@ -520,7 +534,7 @@ export function ZoruKanbanBoard() {
 
   return (
     <div className="h-full w-full">
-      <ScrollArea className="h-full w-full">
+      <ScrollArea className="h-full w-full" horizontal>
         <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -540,7 +554,7 @@ export function ZoruKanbanBoard() {
                   strategy={verticalListSortingStrategy}
                 >
                   {column.contacts.length === 0 ? (
-                    <p className="px-1 py-4 text-center text-[11.5px] text-zoru-ink-subtle">
+                    <p className="px-1 py-4 text-center text-[11.5px]" style={{ color: 'var(--st-text-tertiary)' }}>
                       No conversations.
                     </p>
                   ) : (
@@ -578,7 +592,7 @@ export function ZoruKanbanBoard() {
             ) : null}
           </DragOverlay>
         </DndContext>
-        <ZoruScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
   );

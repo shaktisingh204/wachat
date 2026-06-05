@@ -2,27 +2,21 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
   Button,
+  IconButton,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  Field,
   Input,
-  Label,
   RadioGroup,
-  ZoruRadioGroupItem,
+  Radio,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -55,15 +49,15 @@ import type {
   } from '@/lib/definitions';
 
 /**
- * CreateTemplateForm (wachat-local, ZoruUI)
+ * CreateTemplateForm (wachat-local, 20ui)
  *
  * The WhatsApp template builder. Three top-level template types:
  *   - STANDARD            (text/media + buttons)            — full parity
  *   - MARKETING_CAROUSEL  (scrollable cards)                — STUBBED
  *   - CATALOG_MESSAGE     (catalog product picker)          — STUBBED
  *
- * The 80% case (STANDARD) is fully reproduced on Zoru primitives.
- * Carousel and Catalog modes show a TODO placeholder pending zoru-port
+ * The 80% case (STANDARD) is fully reproduced on 20ui primitives.
+ * Carousel and Catalog modes show a TODO placeholder pending 20ui-port
  * of CarouselBuilder + ProductPicker (currently wabasimplify-only).
  *
  * Server-action calls preserved 1:1:
@@ -72,12 +66,20 @@ import type {
  *   handleBulkCreateTemplate (isBulkForm)
  *
  * NOTE: FlowsEncryptionDialog (Meta error 139002 fallback) is also
- * stubbed — error surfaces via toast instead. TODO: zoru-local port.
+ * stubbed — error surfaces via toast instead. TODO: 20ui-local port.
+ *
+ * 20ui note: the 20ui `Select` is a button-based listbox widget (not a
+ * native <select name>), so each select value is mirrored into a hidden
+ * <input name> below to preserve the exact FormData contract.
  */
 
 import * as React from 'react';
 
 import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 const createTemplateInitialState: CreateTemplateState = {
   message: null,
@@ -105,12 +107,14 @@ function SubmitButton({
     buttonText = 'Submit Carousel for Approval';
 
   return (
-    <Button size="lg" type="submit" disabled={pending}>
-      {pending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <FileUp className="h-4 w-4" />
-      )}
+    <Button
+      variant="primary"
+      size="lg"
+      type="submit"
+      disabled={pending}
+      iconLeft={pending ? Loader2 : FileUp}
+      block
+    >
       {pending ? 'Submitting…' : buttonText}
     </Button>
   );
@@ -207,7 +211,7 @@ export function CreateTemplateForm({
   isBulkForm = false,
 }: CreateTemplateFormProps) {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   let serverAction: any = handleCreateTemplate;
   if (isAdminForm) serverAction = saveLibraryTemplate;
@@ -296,7 +300,7 @@ export function CreateTemplateForm({
 
   const formAction = (formData: FormData) => {
     if (templateType === 'MARKETING_CAROUSEL') {
-      // TODO: zoru-port CarouselBuilder. Until then we send empty cards.
+      // TODO: 20ui-port CarouselBuilder. Until then we send empty cards.
       formData.set('carouselCards', JSON.stringify([]));
     } else if (templateType === 'CATALOG_MESSAGE') {
       formData.set('catalogId', catalogId);
@@ -304,7 +308,7 @@ export function CreateTemplateForm({
       formData.set('carouselBody', catalogBody);
       formData.set('carouselFooter', catalogFooter);
       formData.set('section1Title', catalogSection1Title);
-      // TODO: zoru-port ProductPicker — section IDs currently unset.
+      // TODO: 20ui-port ProductPicker — section IDs currently unset.
       formData.set('section1ProductIDs', '');
       if (catalogSection2Title) {
         formData.set('section2Title', catalogSection2Title);
@@ -322,20 +326,33 @@ export function CreateTemplateForm({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Success!', description: state.message });
+      toast({ title: 'Success!', description: state.message, tone: 'success' });
       if (isAdminForm) router.push('/admin/dashboard/template-library');
       else if (isBulkForm) router.push('/wachat');
       else router.push('/wachat/templates');
     }
     if (state?.error) {
-      // TODO: zoru-port FlowsEncryptionDialog (Meta 139002 fallback).
+      // TODO: 20ui-port FlowsEncryptionDialog (Meta 139002 fallback).
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, router, toast, isAdminForm, isBulkForm]);
+
+  const categoryOptions = categories.map((c) => ({
+    value: c.id,
+    label: c.name,
+  }));
+  const languageOptions = languages.map((l) => ({
+    value: l.code,
+    label: l.name,
+  }));
+  const catalogOptions = catalogs.map((c) => ({
+    value: c.id,
+    label: `${c.name} (${c.id})`,
+  }));
 
   return (
     <form action={formAction}>
@@ -357,11 +374,20 @@ export function CreateTemplateForm({
 
       {/* Type selector */}
       <div className="mb-8">
-        <Label className="text-base mb-2 block text-zoru-ink">
+        <span
+          id="template-type-label"
+          className="mb-2 block"
+          style={{
+            fontSize: 'var(--st-font-size)',
+            fontWeight: 'var(--st-fw-semibold)',
+            color: 'var(--st-text)',
+          }}
+        >
           Choose Template Type
-        </Label>
+        </span>
         <RadioGroup
           value={templateType}
+          aria-label="Choose Template Type"
           onValueChange={(v) => {
             const newType = v as
               | 'STANDARD'
@@ -417,12 +443,11 @@ export function CreateTemplateForm({
         <div className="lg:col-span-2 space-y-6">
           {/* Common details */}
           <Card>
-            <ZoruCardHeader>
-              <ZoruCardTitle>Template Details</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Name</Label>
+            <CardHeader>
+              <CardTitle>Template Details</CardTitle>
+            </CardHeader>
+            <CardBody className="grid md:grid-cols-2 gap-4">
+              <Field label="Name">
                 <Input
                   name="name"
                   value={templateName}
@@ -430,67 +455,62 @@ export function CreateTemplateForm({
                   placeholder="e.g., summer_promo"
                   required
                 />
-              </div>
+              </Field>
               {templateType !== 'CATALOG_MESSAGE' && (
                 <>
-                  <div className="space-y-2">
-                    <Label>Category</Label>
+                  {/* 20ui Select is a button widget — mirror its value into a
+                      hidden input to preserve the `category` FormData key. */}
+                  <input type="hidden" name="category" value={category} />
+                  <Field label="Category">
                     <Select
-                      name="category"
-                      value={category}
-                      onValueChange={(v) => setCategory(v as any)}
-                      required
-                    >
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {categories.map((c) => (
-                          <ZoruSelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Language</Label>
+                      value={category || null}
+                      onChange={(v) => setCategory((v ?? '') as any)}
+                      options={categoryOptions}
+                      placeholder="Select category"
+                      aria-label="Category"
+                    />
+                  </Field>
+                  <input type="hidden" name="language" value={language} />
+                  <Field label="Language">
                     <Select
-                      name="language"
                       value={language}
-                      onValueChange={setLanguage}
-                      required
-                    >
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {languages.map((l) => (
-                          <ZoruSelectItem key={l.code} value={l.code}>
-                            {l.name}
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </Select>
-                  </div>
+                      onChange={(v) => setLanguage(v ?? '')}
+                      options={languageOptions}
+                      placeholder="Select language"
+                      searchable
+                      aria-label="Language"
+                    />
+                  </Field>
                 </>
               )}
-            </ZoruCardContent>
+            </CardBody>
           </Card>
 
           {/* STANDARD message editor */}
           {templateType === 'STANDARD' && (
             <Card>
-              <ZoruCardHeader>
-                <ZoruCardTitle>Message Content</ZoruCardTitle>
-              </ZoruCardHeader>
-              <ZoruCardContent className="space-y-6">
+              <CardHeader>
+                <CardTitle>Message Content</CardTitle>
+              </CardHeader>
+              <CardBody className="space-y-6">
                 {/* Header */}
                 <div className="space-y-3">
-                  <Label>Header</Label>
+                  <span
+                    id="header-format-label"
+                    className="block"
+                    style={{
+                      fontSize: 'var(--st-font-size)',
+                      fontWeight: 'var(--st-fw-medium)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
+                    Header
+                  </span>
                   <RadioGroup
                     value={headerFormat}
                     onValueChange={setHeaderFormat}
+                    orientation="horizontal"
+                    aria-label="Header format"
                     className="flex flex-wrap gap-2"
                   >
                     {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(
@@ -498,15 +518,28 @@ export function CreateTemplateForm({
                         <label
                           key={f}
                           htmlFor={`h-${f}`}
-                          className={cn(
-                            'flex items-center space-x-2 rounded-[var(--zoru-radius)] border p-2 cursor-pointer transition-colors',
-                            headerFormat === f
-                              ? 'border-zoru-ink bg-zoru-surface-2'
-                              : 'border-zoru-line hover:bg-zoru-surface',
-                          )}
+                          className="flex items-center space-x-2 p-2 cursor-pointer"
+                          style={{
+                            borderRadius: 'var(--st-radius)',
+                            border: '1px solid',
+                            borderColor:
+                              headerFormat === f
+                                ? 'var(--st-text)'
+                                : 'var(--st-border)',
+                            background:
+                              headerFormat === f
+                                ? 'var(--st-bg-secondary)'
+                                : 'transparent',
+                            transition: 'background 0.15s, border-color 0.15s',
+                          }}
                         >
-                          <ZoruRadioGroupItem value={f} id={`h-${f}`} />
-                          <span className="text-[13px] text-zoru-ink">
+                          <Radio value={f} id={`h-${f}`} />
+                          <span
+                            style={{
+                              fontSize: '13px',
+                              color: 'var(--st-text)',
+                            }}
+                          >
                             {f}
                           </span>
                         </label>
@@ -528,15 +561,21 @@ export function CreateTemplateForm({
                         onChange={(e) => setHeaderText(e.target.value)}
                       />
                       {headerText.match(/{{\s*(\d+)\s*}}/g) && (
-                        <div className="mt-2 rounded-[var(--zoru-radius)] bg-zoru-surface p-2 text-sm">
-                          <Label className="text-xs mb-1 block">
-                            Header Variable Example
-                          </Label>
-                          <Input
-                            name="headerExample"
-                            placeholder="e.g. Discount"
-                            required
-                          />
+                        <div
+                          className="mt-2 p-2"
+                          style={{
+                            borderRadius: 'var(--st-radius)',
+                            background: 'var(--st-bg-secondary)',
+                            fontSize: 'var(--st-font-size-sm)',
+                          }}
+                        >
+                          <Field label="Header Variable Example">
+                            <Input
+                              name="headerExample"
+                              placeholder="e.g. Discount"
+                              required
+                            />
+                          </Field>
                         </div>
                       )}
                     </div>
@@ -560,7 +599,12 @@ export function CreateTemplateForm({
                         }
                       />
                       <div className="flex items-center justify-between gap-2">
-                        <div className="text-xs text-zoru-ink-muted">
+                        <div
+                          style={{
+                            fontSize: 'var(--st-font-size-xs)',
+                            color: 'var(--st-text-muted)',
+                          }}
+                        >
                           {pickedHeaderFileName
                             ? `Picked from SabFiles: ${pickedHeaderFileName}`
                             : 'Pick from SabFiles instead of uploading'}
@@ -586,14 +630,21 @@ export function CreateTemplateForm({
                             toast({
                               title: 'Pick failed',
                               description: err.message,
-                              variant: 'destructive',
+                              tone: 'danger',
                             })
                           }
                         >
                           Pick from SabFiles
                         </SabFileToFileButton>
                       </div>
-                      <div className="text-xs text-zoru-ink-muted">OR</div>
+                      <div
+                        style={{
+                          fontSize: 'var(--st-font-size-xs)',
+                          color: 'var(--st-text-muted)',
+                        }}
+                      >
+                        OR
+                      </div>
                       <SabFileUrlInput
                         name="headerSampleUrl"
                         placeholder="https://..."
@@ -614,8 +665,7 @@ export function CreateTemplateForm({
                 </div>
 
                 {/* Body */}
-                <div className="space-y-2">
-                  <Label>Body</Label>
+                <Field label="Body">
                   <Textarea
                     name="body"
                     value={body}
@@ -624,82 +674,121 @@ export function CreateTemplateForm({
                     className="min-h-[120px]"
                     required
                   />
-                  {/* Body variable examples */}
-                  {(() => {
-                    const matches = body.match(/{{\s*(\d+)\s*}}/g);
-                    if (matches && matches.length > 0) {
-                      const vars = [
-                        ...new Set(
-                          matches.map((m) => {
-                            const matchResult = m.match(/\d+/);
-                            return matchResult
-                              ? parseInt(matchResult[0])
-                              : 0;
-                          }),
-                        ),
-                      ]
-                        .sort((a, b) => a - b)
-                        .filter((n) => n > 0);
+                </Field>
+                {/* Body variable examples */}
+                {(() => {
+                  const matches = body.match(/{{\s*(\d+)\s*}}/g);
+                  if (matches && matches.length > 0) {
+                    const vars = [
+                      ...new Set(
+                        matches.map((m) => {
+                          const matchResult = m.match(/\d+/);
+                          return matchResult
+                            ? parseInt(matchResult[0])
+                            : 0;
+                        }),
+                      ),
+                    ]
+                      .sort((a, b) => a - b)
+                      .filter((n) => n > 0);
 
-                      if (vars.length > 0) {
-                        return (
-                          <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 mt-2">
-                            <Label className="text-xs">
-                              Variable Examples (Required)
-                            </Label>
-                            <div className="grid gap-2">
-                              {vars.map((v) => (
-                                <div
-                                  key={v}
-                                  className="flex items-center gap-2"
+                    if (vars.length > 0) {
+                      return (
+                        <div
+                          className="space-y-2 p-3 mt-2"
+                          style={{
+                            borderRadius: 'var(--st-radius)',
+                            border: '1px solid var(--st-border)',
+                            background: 'var(--st-bg-secondary)',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: 'var(--st-font-size-xs)',
+                              fontWeight: 'var(--st-fw-medium)',
+                              color: 'var(--st-text)',
+                            }}
+                          >
+                            Variable Examples (Required)
+                          </span>
+                          <div className="grid gap-2">
+                            {vars.map((v) => (
+                              <div
+                                key={v}
+                                className="flex items-center gap-2"
+                              >
+                                <span
+                                  className="w-8"
+                                  style={{
+                                    fontSize: 'var(--st-font-size-xs)',
+                                    color: 'var(--st-text-muted)',
+                                    fontFamily: 'var(--st-font-mono)',
+                                  }}
                                 >
-                                  <span className="text-xs text-zoru-ink-muted w-8 font-mono">
-                                    {`{{${v}}}`}
-                                  </span>
-                                  <Input
-                                    name={`body_example_${v}`}
-                                    placeholder="e.g. John"
-                                    className="text-sm"
-                                    required
-                                  />
-                                </div>
-                              ))}
-                            </div>
+                                  {`{{${v}}}`}
+                                </span>
+                                <Input
+                                  name={`body_example_${v}`}
+                                  placeholder="e.g. John"
+                                  inputSize="sm"
+                                  aria-label={`Example for variable {{${v}}}`}
+                                  required
+                                />
+                              </div>
+                            ))}
                           </div>
-                        );
-                      }
+                        </div>
+                      );
                     }
-                    return null;
-                  })()}
-                </div>
+                  }
+                  return null;
+                })()}
 
                 {/* Footer */}
-                <div className="space-y-2">
-                  <Label>Footer (Optional)</Label>
+                <Field label="Footer (Optional)">
                   <Input
                     name="footer"
                     value={footer}
                     onChange={(e) => setFooter(e.target.value)}
                   />
-                </div>
-              </ZoruCardContent>
+                </Field>
+              </CardBody>
 
               {/* Buttons editor */}
-              <ZoruCardContent className="space-y-3 pt-0">
+              <CardBody className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base">
+                  <span
+                    style={{
+                      fontSize: 'var(--st-font-size)',
+                      fontWeight: 'var(--st-fw-medium)',
+                      color: 'var(--st-text)',
+                    }}
+                  >
                     Buttons ({buttons.length})
-                  </Label>
+                  </span>
                 </div>
 
                 {buttons.map((b, i) => (
                   <div
                     key={i}
-                    className="relative space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3"
+                    className="relative space-y-2 p-3"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      border: '1px solid var(--st-border)',
+                      background: 'var(--st-bg-secondary)',
+                    }}
                   >
-                    <div className="text-xs text-zoru-ink-muted">{b.type}</div>
+                    <div
+                      style={{
+                        fontSize: 'var(--st-font-size-xs)',
+                        color: 'var(--st-text-muted)',
+                      }}
+                    >
+                      {b.type}
+                    </div>
                     <Input
                       placeholder="Label"
+                      aria-label={`${b.type} button label`}
                       value={b.text}
                       onChange={(e) => {
                         const newBtns = [...buttons];
@@ -707,24 +796,23 @@ export function CreateTemplateForm({
                         setButtons(newBtns);
                       }}
                     />
-                    <Button
-                      type="button"
+                    <IconButton
+                      label="Remove button"
+                      icon={Trash2}
                       variant="ghost"
-                      size="icon-sm"
+                      size="sm"
                       className="absolute top-1 right-1"
                       onClick={() =>
                         setButtons((btns) =>
                           btns.filter((_, idx) => idx !== i),
                         )
                       }
-                      aria-label="Remove button"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                    />
 
                     {b.type === 'URL' && (
                       <Input
                         placeholder="https://website.com"
+                        aria-label="Button URL"
                         value={b.url || ''}
                         onChange={(e) => {
                           const newBtns = [...buttons];
@@ -737,6 +825,7 @@ export function CreateTemplateForm({
                     {b.type === 'PHONE_NUMBER' && (
                       <Input
                         placeholder="+1234567890"
+                        aria-label="Button phone number"
                         value={b.phone_number || ''}
                         onChange={(e) => {
                           const newBtns = [...buttons];
@@ -780,20 +869,20 @@ export function CreateTemplateForm({
                     </Button>
                   </div>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
           )}
 
           {/* MARKETING_CAROUSEL — stubbed */}
           {templateType === 'MARKETING_CAROUSEL' && (
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <ZoruAlertTitle>Marketing Carousel — TODO</ZoruAlertTitle>
-              <ZoruAlertDescription>
-                The carousel builder UI hasn&apos;t been ported to ZoruUI yet.
-                Submitting will create an empty-card carousel — please use
-                the legacy Wachat builder for now if you need card content.
-              </ZoruAlertDescription>
+            <Alert
+              tone="warning"
+              icon={AlertCircle}
+              title="Marketing Carousel — TODO"
+            >
+              The carousel builder UI hasn&apos;t been ported to 20ui yet.
+              Submitting will create an empty-card carousel — please use
+              the legacy Wachat builder for now if you need card content.
             </Alert>
           )}
 
@@ -801,102 +890,88 @@ export function CreateTemplateForm({
           {templateType === 'CATALOG_MESSAGE' && (
             <div className="space-y-6">
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Catalog Configuration</ZoruCardTitle>
-                  <ZoruCardDescription>
+                <CardHeader>
+                  <CardTitle>Catalog Configuration</CardTitle>
+                  <CardDescription>
                     Select a catalog and define your sections.
-                  </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Catalog</Label>
+                  </CardDescription>
+                </CardHeader>
+                <CardBody className="space-y-4">
+                  <Field label="Select Catalog">
                     <Select
-                      value={catalogId}
-                      onValueChange={setCatalogId}
-                      required
-                    >
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Choose a catalog..." />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {catalogs.map((c) => (
-                          <ZoruSelectItem key={c.id} value={c.id}>
-                            {c.name} ({c.id})
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </Select>
-                  </div>
+                      value={catalogId || null}
+                      onChange={(v) => setCatalogId(v ?? '')}
+                      options={catalogOptions}
+                      placeholder="Choose a catalog..."
+                      searchable
+                      aria-label="Select Catalog"
+                    />
+                  </Field>
 
-                  <div className="space-y-2">
-                    <Label>Header Text (Optional)</Label>
+                  <Field label="Header Text (Optional)">
                     <Input
                       value={catalogHeader}
                       onChange={(e) => setCatalogHeader(e.target.value)}
                       placeholder="Our Collection"
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Body Text</Label>
+                  </Field>
+                  <Field label="Body Text">
                     <Textarea
                       value={catalogBody}
                       onChange={(e) => setCatalogBody(e.target.value)}
                       placeholder="Check out these items..."
                       required
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Footer Text (Optional)</Label>
+                  </Field>
+                  <Field label="Footer Text (Optional)">
                     <Input
                       value={catalogFooter}
                       onChange={(e) => setCatalogFooter(e.target.value)}
                       placeholder="Prices incl. VAT"
                     />
-                  </div>
-                </ZoruCardContent>
+                  </Field>
+                </CardBody>
               </Card>
 
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <ZoruAlertTitle>Product Picker — TODO</ZoruAlertTitle>
-                <ZoruAlertDescription>
-                  The catalog product picker hasn&apos;t been ported to ZoruUI
-                  yet. Section product IDs will be empty on submit.
-                </ZoruAlertDescription>
+              <Alert
+                tone="warning"
+                icon={AlertCircle}
+                title="Product Picker — TODO"
+              >
+                The catalog product picker hasn&apos;t been ported to 20ui
+                yet. Section product IDs will be empty on submit.
               </Alert>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Section 1</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Section Title</Label>
+                <CardHeader>
+                  <CardTitle>Section 1</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-4">
+                  <Field label="Section Title">
                     <Input
                       value={catalogSection1Title}
                       onChange={(e) =>
                         setCatalogSection1Title(e.target.value)
                       }
                     />
-                  </div>
-                </ZoruCardContent>
+                  </Field>
+                </CardBody>
               </Card>
 
               <Card>
-                <ZoruCardHeader>
-                  <ZoruCardTitle>Section 2 (Optional)</ZoruCardTitle>
-                </ZoruCardHeader>
-                <ZoruCardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Section Title</Label>
+                <CardHeader>
+                  <CardTitle>Section 2 (Optional)</CardTitle>
+                </CardHeader>
+                <CardBody className="space-y-4">
+                  <Field label="Section Title">
                     <Input
                       value={catalogSection2Title}
                       onChange={(e) =>
                         setCatalogSection2Title(e.target.value)
                       }
                     />
-                  </div>
-                </ZoruCardContent>
+                  </Field>
+                </CardBody>
               </Card>
             </div>
           )}
@@ -905,11 +980,16 @@ export function CreateTemplateForm({
         {/* Action column */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="sticky top-6">
-            <ZoruCardHeader>
-              <ZoruCardTitle>Publish</ZoruCardTitle>
-            </ZoruCardHeader>
-            <ZoruCardContent className="space-y-4">
-              <p className="text-sm text-zoru-ink-muted">
+            <CardHeader>
+              <CardTitle>Publish</CardTitle>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              <p
+                style={{
+                  fontSize: 'var(--st-font-size-sm)',
+                  color: 'var(--st-text-muted)',
+                }}
+              >
                 {templateType === 'STANDARD' &&
                   'Submitting will send this template to Meta for review. Approval usually takes 1 minute.'}
                 {templateType === 'MARKETING_CAROUSEL' &&
@@ -922,7 +1002,7 @@ export function CreateTemplateForm({
                 isAdminForm={isAdminForm}
                 isBulkForm={isBulkForm}
               />
-            </ZoruCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -950,18 +1030,27 @@ function TypeCard({
   return (
     <label
       htmlFor={id}
-      className={cn(
-        'relative flex cursor-pointer flex-col items-center gap-2 rounded-[var(--zoru-radius)] border-2 p-4 transition-colors h-full',
-        active
-          ? 'border-zoru-ink bg-zoru-surface-2'
-          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
-      )}
+      className="relative flex cursor-pointer flex-col items-center gap-2 p-4 h-full"
+      style={{
+        borderRadius: 'var(--st-radius)',
+        border: '2px solid',
+        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
+        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
+        transition: 'background 0.15s, border-color 0.15s',
+      }}
     >
-      <ZoruRadioGroupItem value={value} id={id} className="sr-only" />
-      <span className="text-zoru-ink mb-1">{icon}</span>
+      <Radio value={value} id={id} className="sr-only" />
+      <span style={{ color: 'var(--st-text)', marginBottom: 4 }}>{icon}</span>
       <div className="text-center space-y-1">
-        <div className="text-zoru-ink">{title}</div>
-        <div className="text-xs text-zoru-ink-muted">{description}</div>
+        <div style={{ color: 'var(--st-text)' }}>{title}</div>
+        <div
+          style={{
+            fontSize: 'var(--st-font-size-xs)',
+            color: 'var(--st-text-muted)',
+          }}
+        >
+          {description}
+        </div>
       </div>
     </label>
   );

@@ -4,22 +4,17 @@ import {
   Input,
   Button,
   Popover,
-  ZoruPopoverAnchor,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverAnchor,
+  PopoverContent,
   ScrollArea,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Select,
-} from '@/components/zoruui';
+  Modal,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -42,8 +37,11 @@ import { SendCatalogDialog } from './send-catalog-dialog';
 import { ChatAttachmentMenu } from './chat-attachment-menu';
 
 import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { SabFileToFileButton } from '@/components/sabfiles';
+
+function cx(...a: (string | false | null | undefined)[]) {
+  return a.filter(Boolean).join(' ');
+}
 
 interface ChatMessageInputProps {
     project: WithId<Project>;
@@ -61,7 +59,14 @@ const sendInitialState = {
 function SubmitButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="button" size="icon" onClick={onClick} disabled={pending || disabled}>
+        <Button
+            type="button"
+            variant="primary"
+            onClick={onClick}
+            disabled={pending || disabled}
+            aria-label="Send Message"
+            className="u-icon-btn u-icon-btn--md"
+        >
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
         </Button>
@@ -235,36 +240,36 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                 />
             )}
 
-            <Dialog open={isTemplateSelectorOpen} onOpenChange={setIsTemplateSelectorOpen}>
-                <ZoruDialogContent className="p-0">
-                    <ZoruDialogHeader className="px-4 pt-4 pb-2">
-                        <ZoruDialogTitle>Select a Template</ZoruDialogTitle>
-                    </ZoruDialogHeader>
-                    <ZoruCommand>
-                        <ZoruCommandInput placeholder="Search templates..." />
-                        <ZoruCommandList>
-                            <ZoruCommandEmpty>No templates found.</ZoruCommandEmpty>
-                            <ZoruCommandGroup>
-                                {templates.map((template) => (
-                                    <ZoruCommandItem
-                                        key={template._id.toString()}
-                                        value={template.name}
-                                        onSelect={() => {
-                                            setTemplateToSend(template);
-                                            setIsTemplateSelectorOpen(false);
-                                        }}
-                                    >
-                                        <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
-                                        {template.name}
-                                    </ZoruCommandItem>
-                                ))}
-                            </ZoruCommandGroup>
-                        </ZoruCommandList>
-                    </ZoruCommand>
-                </ZoruDialogContent>
-            </Dialog>
+            <Modal
+                open={isTemplateSelectorOpen}
+                onClose={() => setIsTemplateSelectorOpen(false)}
+                title="Select a Template"
+                className="p-0"
+            >
+                <Command>
+                    <CommandInput placeholder="Search templates..." />
+                    <CommandList>
+                        <CommandEmpty>No templates found.</CommandEmpty>
+                        <CommandGroup>
+                            {templates.map((template) => (
+                                <CommandItem
+                                    key={template._id.toString()}
+                                    value={template.name}
+                                    onSelect={() => {
+                                        setTemplateToSend(template);
+                                        setIsTemplateSelectorOpen(false);
+                                    }}
+                                >
+                                    <Check className={cx("mr-2 h-4 w-4 opacity-0")} />
+                                    {template.name}
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </Modal>
 
-            <div className="flex w-full items-center gap-2 p-2 relative">
+            <div className="ui20 flex w-full items-center gap-2 p-2 relative">
                 <ChatAttachmentMenu
                     disabled={disabled || isUploading}
                     onMediaSelect={(type) => setTimeout(() => handleMediaClick(type), 0)}
@@ -286,29 +291,33 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
 
                 {/* Template Selection Dialog (Quick Fix: Reuse the popover logic but in a dialog or just a command palette?) */}
                 {/* For now, I will use a simple logical trick:
-                    If the user clicks "Template", I'll show a ZoruCommandDialog to pick a template.
+                    If the user clicks "Template", I'll show a Command palette to pick a template.
                     Then clicking one sets `templateToSend`.
                 */}
 
                 <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
-                    <ZoruPopoverAnchor asChild>
-                        <div className="flex-1 bg-zoru-surface-2/50 focus-within:bg-zoru-surface-2 rounded-2xl transition-colors border border-transparent focus-within:border-primary/20">
+                    <PopoverAnchor asChild>
+                        <div
+                            className="flex-1 rounded-2xl transition-colors border border-transparent"
+                            style={{ background: 'var(--st-surface-muted)' }}
+                        >
                             <Input
                                 name="messageText"
                                 placeholder={isUploading ? "Uploading..." : "Type a message"}
                                 autoComplete="off"
-                                className="border-none shadow-none focus-visible:ring-0 bg-transparent min-h-[44px] py-3"
+                                className="min-h-[44px] py-3"
+                                style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}
                                 value={inputValue}
                                 onChange={handleInputChange}
                                 onKeyDown={(e) => { if (e.key === 'Enter') handleTextSend(); }}
                                 disabled={disabled || isUploading}
                             />
                         </div>
-                    </ZoruPopoverAnchor>
+                    </PopoverAnchor>
                     {/* Hidden file input */}
                     <input type="file" id="media-file-input" className="hidden" onChange={handleFileChange} />
 
-                    <ZoruPopoverContent
+                    <PopoverContent
                         className="w-[--radix-popover-trigger-width] p-0"
                         onOpenAutoFocus={(e) => e.preventDefault()}
                         align="end" side="top"
@@ -320,24 +329,32 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
                                         <button
                                             key={msg._id.toString()}
                                             type="button"
-                                            className="w-full text-left p-2 rounded-sm hover:bg-zoru-surface-2 flex flex-col"
+                                            className="w-full text-left p-2 rounded-sm flex flex-col"
+                                            style={{ background: 'transparent' }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--st-surface-hover)'; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                                             onClick={() => handleSelectCanned(msg)}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <p className="font-semibold">{msg.name}</p>
-                                                {msg.isFavourite && <Star className="h-4 w-4 text-zoru-ink-muted fill-zoru-ink-muted" />}
+                                                {msg.isFavourite && (
+                                                    <Star
+                                                        className="h-4 w-4"
+                                                        style={{ color: 'var(--st-text-muted)', fill: 'var(--st-text-muted)' }}
+                                                    />
+                                                )}
                                             </div>
-                                            <p className="text-zoru-ink-muted truncate text-xs">{msg.content.text}</p>
+                                            <p className="truncate text-xs" style={{ color: 'var(--st-text-muted)' }}>{msg.content.text}</p>
                                         </button>
                                     ))
                                 ) : (
-                                    <p className="p-4 text-center text-sm text-zoru-ink-muted">
+                                    <p className="p-4 text-center text-sm" style={{ color: 'var(--st-text-muted)' }}>
                                         {inputValue.length > 1 ? "No matches found." : "Start typing to search..."}
                                     </p>
                                 )}
                             </div>
                         </ScrollArea>
-                    </ZoruPopoverContent>
+                    </PopoverContent>
                 </Popover>
 
                 <div className="flex-shrink-0">

@@ -1,5 +1,8 @@
 import * as React from 'react';
-import { Label } from '@/components/zoruui';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 export function Field({
   label,
@@ -14,12 +17,22 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle">
-        {label} {required && <span className="text-zoru-danger">*</span>}
-      </Label>
+      <label
+        className={cx('block text-[11px] font-medium uppercase tracking-wide')}
+        style={{ color: 'var(--st-text-secondary)' }}
+      >
+        {label}{' '}
+        {required && (
+          <span style={{ color: 'var(--st-danger)' }} aria-hidden="true">
+            *
+          </span>
+        )}
+      </label>
       {children}
       {hint && (
-        <p className="text-[11px] text-zoru-ink-muted">{hint}</p>
+        <p className="text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+          {hint}
+        </p>
       )}
     </div>
   );

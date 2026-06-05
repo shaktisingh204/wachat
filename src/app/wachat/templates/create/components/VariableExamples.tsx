@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Input } from '@/components/zoruui';
 
 export function VariableExamples({
   text,
@@ -28,26 +27,65 @@ export function VariableExamples({
   };
 
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-      <p className="text-[11px] font-semibold text-zoru-ink">
+    <div
+      className="space-y-2 p-3"
+      style={{
+        borderRadius: 'var(--st-radius)',
+        border: '1px solid var(--st-border)',
+        background: 'var(--st-bg-secondary)',
+      }}
+    >
+      <p
+        className="text-[11px]"
+        style={{
+          fontWeight: 'var(--st-fw-semibold)',
+          color: 'var(--st-text)',
+        }}
+      >
         Variable examples required
       </p>
       <div className="space-y-1.5">
-        {vars.map((v) => (
-          <div key={v} className="flex items-center gap-2">
-            <span className="w-12 font-mono text-[11px] text-zoru-ink-muted">
-              {`{{${v}}}`}
-            </span>
-            <Input
-              name={`${prefix}_example_${v}`}
-              placeholder={
-                suggestions[v] || `Example for variable ${v}`
-              }
-              required
-              className="h-8 text-[12px]"
-            />
-          </div>
-        ))}
+        {vars.map((v) => {
+          const fieldId = `${prefix}_example_${v}`;
+          return (
+            <div key={v} className="flex items-center gap-2">
+              <label
+                htmlFor={fieldId}
+                className="w-12 text-[11px]"
+                style={{
+                  fontFamily: 'var(--st-font-mono)',
+                  color: 'var(--st-text-tertiary)',
+                }}
+              >
+                {`{{${v}}}`}
+              </label>
+              <input
+                id={fieldId}
+                name={fieldId}
+                placeholder={
+                  suggestions[v] || `Example for variable ${v}`
+                }
+                required
+                className="h-8 flex-1 px-2.5 text-[12px] outline-none"
+                style={{
+                  borderRadius: 'var(--st-radius-sm)',
+                  border: '1px solid var(--st-border)',
+                  background: 'var(--st-bg)',
+                  color: 'var(--st-text)',
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--st-accent)';
+                  e.currentTarget.style.boxShadow =
+                    '0 0 0 3px var(--st-accent-soft)';
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--st-border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

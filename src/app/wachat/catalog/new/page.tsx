@@ -1,25 +1,12 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
-import {
-  ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
-
-import { ProductForm } from '@/components/zoruui-domain/product-form';
-
 import Link from 'next/link';
+
+import { Button } from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+import { ProductForm } from '@/components/zoruui-domain/product-form';
 
 export default function NewProductPage() {
   const searchParams = useSearchParams();
@@ -27,43 +14,26 @@ export default function NewProductPage() {
   const backHref = catalogId ? `/wachat/catalog/${catalogId}` : '/wachat/catalog';
 
   return (
-    <div className="space-y-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href={backHref}>Catalog</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>New product</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Add new product</ZoruPageTitle>
-          <ZoruPageDescription>
-            Fill in the details to add a new product to your catalog.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Catalog', href: backHref },
+        { label: 'New product' },
+      ]}
+      title="Add new product"
+      description="Fill in the details to add a new product to your catalog."
+      width="narrow"
+    >
+      <div className="space-y-6">
         <Link href={backHref}>
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
+          <Button variant="ghost" size="sm" iconLeft={ArrowLeft} className="-ml-2">
+            Back to products
+          </Button>
         </Link>
-      </Button>
 
-      <ProductForm />
-    </div>
+        <ProductForm />
+      </div>
+    </WachatPage>
   );
 }

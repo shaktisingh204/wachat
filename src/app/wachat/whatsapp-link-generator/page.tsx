@@ -1,32 +1,23 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   Card,
+  EmptyState,
+  Field,
+  IconButton,
   Input,
-  Label,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useMemo,
@@ -39,20 +30,19 @@ import { Link as LinkIcon,
 import { useProject } from '@/context/project-context';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { shortenUrlAction } from './actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat WhatsApp Link Generator (ZoruUI).
+ * Wachat WhatsApp Link Generator (20ui).
  *
  * Generate wa.me links with pre-filled messages. Self-contained
  * client-side tool. Uses project phone number as default. Includes
  * copy-link confirmation alert dialog and live QR preview.
  */
 
-import * as React from 'react';
-
 export default function WhatsAppLinkGeneratorPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const projectPhone =
     (activeProject as unknown as { phoneNumber?: string; whatsappNumber?: string })
@@ -103,12 +93,12 @@ export default function WhatsAppLinkGeneratorPage() {
       const res = await shortenUrlAction(generatedLink);
       if (res) {
         setShortUrl(res);
-        toast({ title: 'Success', description: 'Link shortened successfully.' });
+        toast({ title: 'Success', description: 'Link shortened successfully.', tone: 'success' });
       } else {
-        toast({ title: 'Error', description: 'Failed to shorten link.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'Failed to shorten link.', tone: 'danger' });
       }
     } catch (error) {
-      toast({ title: 'Error', description: 'An error occurred while shortening.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'An error occurred while shortening.', tone: 'danger' });
     } finally {
       setIsShortening(false);
     }
@@ -127,45 +117,37 @@ export default function WhatsAppLinkGeneratorPage() {
     if (!linkToCopy) return;
     await navigator.clipboard.writeText(linkToCopy);
     setCopied(true);
-    toast({ title: 'Copied', description: 'Link copied to clipboard.' });
+    toast({ title: 'Copied', description: 'Link copied to clipboard.', tone: 'success' });
     window.setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Link Generator</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-2">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
-          <ZoruPageTitle>WhatsApp Link Generator</ZoruPageTitle>
-          <ZoruPageDescription>
-            Generate wa.me links with pre-filled messages for easy sharing.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Link Generator' },
+      ]}
+      eyebrow="WaChat · Tools"
+      title="WhatsApp Link Generator"
+      description="Generate wa.me links with pre-filled messages for easy sharing."
+    >
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Form column */}
-        <Card className="flex flex-col gap-4 p-6">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="link-phone">
-              Phone Number (with country code)
-            </Label>
+        <Card className="flex flex-col gap-4" padding="lg">
+          <Field
+            label="Phone Number (with country code)"
+            error={
+              phone.length > 0 && !isValid
+                ? 'Invalid phone number. Check country code.'
+                : undefined
+            }
+            help={
+              phone && isValid ? (
+                <span style={{ color: 'var(--st-status-ok)' }}>Valid: {formattedPhone}</span>
+              ) : undefined
+            }
+          >
             <Input
               id="link-phone"
               type="tel"
@@ -175,30 +157,29 @@ export default function WhatsAppLinkGeneratorPage() {
               className="font-mono"
               invalid={phone.length > 0 && !isValid}
             />
-            <div className="flex items-start justify-between mt-0.5 min-h-[20px]">
-              <div className="text-[11px]">
-                {phone && !isValid ? (
-                  <span className="text-zoru-danger">Invalid phone number. Check country code.</span>
-                ) : phone && isValid ? (
-                  <span className="text-zoru-success">Valid: {formattedPhone}</span>
-                ) : null}
-              </div>
-              {projectPhone ? (
-                <button
-                  type="button"
-                  onClick={() => setPhone(projectPhone)}
-                  className="shrink-0 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink hover:underline ml-2"
-                >
-                  Use project number
-                </button>
-              ) : null}
-            </div>
-          </div>
+          </Field>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="link-message">
-              Pre-filled Message (optional)
-            </Label>
+          {projectPhone ? (
+            <div className="-mt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setPhone(projectPhone)}
+                className="shrink-0 text-[11px] transition-colors hover:underline"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
+                Use project number
+              </button>
+            </div>
+          ) : null}
+
+          <Field
+            label="Pre-filled Message (optional)"
+            help={
+              <span className="block text-right">
+                {message.length}/1024
+              </span>
+            }
+          >
             <Textarea
               id="link-message"
               value={message}
@@ -207,21 +188,28 @@ export default function WhatsAppLinkGeneratorPage() {
               placeholder="Hi! I am interested in your services..."
               maxLength={1024}
             />
-            <div className="text-right text-[11px] text-zoru-ink-muted">
-              {message.length}/1024
-            </div>
-          </div>
+          </Field>
 
           {generatedLink ? (
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+            <div
+              className="p-4"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                border: '1px solid var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+              }}
+            >
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-[12px] text-zoru-ink-muted">Generated Link</span>
+                <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+                  Generated Link
+                </span>
                 {!shortUrl && (
                   <button
                     type="button"
                     onClick={handleShortenLink}
                     disabled={isShortening}
-                    className="text-[11px] font-medium text-zoru-ink transition-colors hover:underline disabled:opacity-50"
+                    className="text-[11px] font-medium transition-colors hover:underline disabled:opacity-50"
+                    style={{ color: 'var(--st-text)' }}
                   >
                     {isShortening ? 'Shortening...' : 'Shorten link'}
                   </button>
@@ -233,24 +221,24 @@ export default function WhatsAppLinkGeneratorPage() {
                   value={shortUrl || generatedLink}
                   className="font-mono text-[12px]"
                 />
-                <Button
+                <IconButton
                   variant="outline"
-                  size="icon-sm"
-                  aria-label="Copy link"
+                  size="sm"
+                  label="Copy link"
+                  icon={copied ? Check : Copy}
                   onClick={performCopy}
-                >
-                  {copied ? <Check /> : <Copy />}
-                </Button>
+                />
               </div>
             </div>
           ) : null}
 
           <div className="flex flex-wrap gap-3">
             <Button
+              variant="primary"
+              iconLeft={LinkIcon}
               onClick={() => setConfirmOpen(true)}
               disabled={!generatedLink}
             >
-              <LinkIcon />
               {copied ? 'Copied!' : 'Copy Link'}
             </Button>
             {generatedLink ? (
@@ -265,10 +253,10 @@ export default function WhatsAppLinkGeneratorPage() {
         </Card>
 
         {/* QR preview column */}
-        <Card className="flex flex-col items-center justify-center p-6">
+        <Card className="flex flex-col items-center justify-center" padding="lg">
           {qrUrl ? (
             <>
-              <div className="mb-4 text-[12px] text-zoru-ink-muted">
+              <div className="mb-4 text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
                 Scan to open chat
               </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -277,9 +265,15 @@ export default function WhatsAppLinkGeneratorPage() {
                 alt="QR Code for WhatsApp link"
                 width={200}
                 height={200}
-                className="rounded-[var(--zoru-radius)] border border-zoru-line"
+                style={{
+                  borderRadius: 'var(--st-radius)',
+                  border: '1px solid var(--st-border)',
+                }}
               />
-              <p className="mt-4 max-w-[260px] text-center text-[12px] text-zoru-ink-muted">
+              <p
+                className="mt-4 max-w-[260px] text-center text-[12px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 Share this QR code so customers can start chatting with you
                 instantly.
               </p>
@@ -293,42 +287,49 @@ export default function WhatsAppLinkGeneratorPage() {
               </Button>
             </>
           ) : (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <QrCode className="h-16 w-16 text-zoru-ink-subtle" />
-              <p className="text-[13px] text-zoru-ink-muted">
-                Enter a phone number to generate a QR code
-              </p>
-            </div>
+            <EmptyState
+              icon={QrCode}
+              title="Enter a phone number to generate a QR code"
+            />
           )}
         </Card>
       </div>
 
       {/* Copy-link confirmation */}
-      <ZoruAlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Copy this link?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Copy this link?</AlertDialogTitle>
+            <AlertDialogDescription>
               Anyone with this link can open a WhatsApp chat with the configured
               number and pre-filled message.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 font-mono text-[12px] text-zoru-ink break-all">
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div
+            className="px-3 py-2 font-mono text-[12px] break-all"
+            style={{
+              borderRadius: 'var(--st-radius)',
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-bg-secondary)',
+              color: 'var(--st-text)',
+            }}
+          >
             {shortUrl || generatedLink}
           </div>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              intent="primary"
               onClick={async () => {
                 await performCopy();
                 setConfirmOpen(false);
               }}
             >
               Copy link
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }

@@ -2,21 +2,12 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   useCallback,
   useEffect,
@@ -48,38 +39,62 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 import * as React from 'react';
 
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Catalog' },
+];
+
 function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
   return (
-    <Card className="flex flex-col p-5">
+    <Card padding="none" className="flex flex-col p-5">
       <div className="flex items-center gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
+        <span
+          className="flex h-10 w-10 items-center justify-center"
+          style={{
+            borderRadius: 'var(--st-radius)',
+            background: 'var(--st-bg-secondary)',
+            color: 'var(--st-text)',
+          }}
+          aria-hidden="true"
+        >
           <ShoppingBag className="h-[18px] w-[18px]" />
         </span>
-        <span className="min-w-0 flex-1 truncate text-[15px] text-zoru-ink">
+        <span
+          className="min-w-0 flex-1 truncate text-[15px]"
+          style={{ color: 'var(--st-text)' }}
+        >
           {catalog.name}
         </span>
       </div>
 
       <div className="mt-5">
-        <div className="text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+        <div
+          className="text-[10px] uppercase tracking-wide"
+          style={{ color: 'var(--st-text-tertiary)' }}
+        >
           Meta catalog ID
         </div>
-        <div className="mt-1 break-all font-mono text-[11.5px] tabular-nums text-zoru-ink-muted">
+        <div
+          className="mt-1 break-all font-mono text-[11.5px] tabular-nums"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           {catalog.metaCatalogId}
         </div>
       </div>
 
-      <div className="mt-4 text-[11px] text-zoru-ink-muted">
+      <div className="mt-4 text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
         Created {fmtDate(catalog.createdAt)}
       </div>
 
       <div className="mt-auto pt-5">
-        <Button asChild block>
-          <Link href={`/wachat/catalog/${catalog.metaCatalogId}`}>
-            <ShoppingBag className="h-3.5 w-3.5" />
-            View products
-          </Link>
-        </Button>
+        <Link
+          href={`/wachat/catalog/${catalog.metaCatalogId}`}
+          className="u-btn u-btn--secondary u-btn--md u-btn--block"
+        >
+          <ShoppingBag className="h-3.5 w-3.5" aria-hidden="true" />
+          <span className="u-btn__label">View products</span>
+        </Link>
       </div>
     </Card>
   );
@@ -112,94 +127,99 @@ export default function CatalogPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
   const configId = process.env.NEXT_PUBLIC_META_ONBOARDING_CONFIG_ID;
 
-  const header = (
-    <>
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Catalog</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Ecomm + catalog</ZoruPageTitle>
-            <ZoruPageDescription>
-              Manage product catalogs that power WhatsApp interactive messages — single-product and
-              multi-product carousels.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-        </PageHeader>
-        {hasCatalogAccess && activeProjectId ? (
-          <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
-        ) : null}
-      </div>
-    </>
-  );
+  const actions =
+    hasCatalogAccess && activeProjectId ? (
+      <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
+    ) : null;
 
   if (isLoadingProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {header}
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Ecomm + catalog"
+        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        width="wide"
+      >
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[220px]" />
+            <Skeleton key={i} height={220} radius="var(--st-radius-lg)" />
           ))}
         </div>
-      </div>
+      </WachatPage>
     );
   }
 
   if (!activeProjectId) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {header}
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Ecomm + catalog"
+        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        width="wide"
+      >
         <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
+          icon={CircleAlert}
           title="No project selected"
           description="Please select a WhatsApp project from the main dashboard to manage its catalog."
-          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
+          action={
+            <Button variant="primary" onClick={() => router.push('/wachat')}>
+              Choose a project
+            </Button>
+          }
         />
-      </div>
+      </WachatPage>
     );
   }
 
   if (!isWhatsAppProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {header}
+      <WachatPage
+        breadcrumb={BREADCRUMB}
+        title="Ecomm + catalog"
+        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        width="wide"
+      >
         <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
+          icon={CircleAlert}
           title="Invalid project type"
           description="This section is for WhatsApp projects. The selected project is not a WhatsApp project."
         />
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {header}
-
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="Ecomm + catalog"
+      description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+      actions={actions}
+      width="wide"
+    >
       {!hasCatalogAccess ? (
-        <Card className="p-8">
+        <Card padding="lg">
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <span className="flex h-16 w-16 items-center justify-center rounded-[var(--zoru-radius-lg)] bg-zoru-danger/10 text-zoru-danger-ink">
+            <span
+              className="flex h-16 w-16 items-center justify-center"
+              style={{
+                borderRadius: 'var(--st-radius-lg)',
+                background: 'color-mix(in oklab, var(--st-danger) 10%, transparent)',
+                color: 'var(--st-danger)',
+              }}
+              aria-hidden="true"
+            >
               <Lock className="h-7 w-7" />
             </span>
-            <h2 className="text-[22px] tracking-[-0.01em] text-zoru-ink">
+            <h2
+              className="text-[22px] tracking-[-0.01em]"
+              style={{ color: 'var(--st-text)' }}
+            >
               Catalog management locked
             </h2>
-            <p className="max-w-md text-sm leading-relaxed text-zoru-ink-muted">
+            <p
+              className="max-w-md text-sm leading-relaxed"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               This project was set up without catalog management permissions. Re-authorize the
               application with <Code>catalog_management</Code> and{' '}
               <Code>business_management</Code> scopes to unlock.
@@ -214,7 +234,7 @@ export default function CatalogPage() {
                   reauthorize={true}
                 />
               ) : (
-                <p className="text-[12.5px] text-zoru-danger-ink">
+                <p className="text-[12.5px]" style={{ color: 'var(--st-danger)' }}>
                   Admin has not configured the Facebook App ID.
                 </p>
               )}
@@ -224,7 +244,10 @@ export default function CatalogPage() {
       ) : catalogs.length > 0 ? (
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+            <div
+              className="text-[11px] uppercase tracking-wide"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
               {catalogs.length} {catalogs.length === 1 ? 'catalog' : 'catalogs'}
             </div>
           </div>
@@ -235,16 +258,27 @@ export default function CatalogPage() {
           </div>
         </div>
       ) : (
-        <Card className="p-6">
+        <Card>
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
+            <span
+              className="flex h-8 w-8 items-center justify-center"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                background: 'var(--st-bg-secondary)',
+                color: 'var(--st-text)',
+              }}
+              aria-hidden="true"
+            >
               <GitBranch className="h-4 w-4" />
             </span>
             <div>
-              <div className="text-[15px] leading-tight text-zoru-ink">
+              <div className="text-[15px] leading-tight" style={{ color: 'var(--st-text)' }}>
                 Get started with catalogs
               </div>
-              <div className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+              <div
+                className="mt-0.5 text-[11.5px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 Create a catalog in Meta Commerce Manager, then sync it here.
               </div>
             </div>
@@ -252,37 +286,42 @@ export default function CatalogPage() {
 
           <div className="mt-8 flex flex-col gap-10">
             <GuideStep step="Step 1" title="Create a catalog" image={step1}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-zoru-ink-muted">
+              <ol
+                className="list-inside list-decimal space-y-2 pl-4 text-sm"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 <li>
                   Open the{' '}
                   <a
                     href="https://business.facebook.com/commerce"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-zoru-ink hover:underline"
+                    className="inline-flex items-center gap-1 hover:underline"
+                    style={{ color: 'var(--st-text)' }}
                   >
-                    Meta Commerce Manager <ExternalLink className="h-3 w-3" />
+                    Meta Commerce Manager <ExternalLink className="h-3 w-3" aria-hidden="true" />
                   </a>
                   .
                 </li>
                 <li>Make sure you have the correct Business Manager account selected.</li>
                 <li>
-                  Click <strong className="text-zoru-ink">Add Catalog</strong>, choose{' '}
-                  <strong className="text-zoru-ink">E-commerce</strong> as the type, and follow the
-                  prompts.
+                  Click <Strong>Add Catalog</Strong>, choose <Strong>E-commerce</Strong> as the
+                  type, and follow the prompts.
                 </li>
               </ol>
             </GuideStep>
 
             <GuideStep step="Step 2" title="Assign partner" image={step2}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-zoru-ink-muted">
+              <ol
+                className="list-inside list-decimal space-y-2 pl-4 text-sm"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 <li>
-                  In Business Settings, go to{' '}
-                  <strong className="text-zoru-ink">Data Sources → Catalogs</strong>.
+                  In Business Settings, go to <Strong>Data Sources → Catalogs</Strong>.
                 </li>
                 <li>Select your newly created catalog.</li>
                 <li>
-                  Click <strong className="text-zoru-ink">Assign Partners</strong>.
+                  Click <Strong>Assign Partners</Strong>.
                 </li>
                 <li>Assign your BSP as a partner with Full Access permissions.</li>
               </ol>
@@ -293,47 +332,71 @@ export default function CatalogPage() {
               title="Add your first product (mandatory)"
               image={step2}
             >
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-zoru-ink-muted">
+              <ol
+                className="list-inside list-decimal space-y-2 pl-4 text-sm"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 <li>
-                  In your new catalog, go to the <strong className="text-zoru-ink">Items</strong>{' '}
-                  tab and click <strong className="text-zoru-ink">Add Items</strong>.
+                  In your new catalog, go to the <Strong>Items</Strong> tab and click{' '}
+                  <Strong>Add Items</Strong>.
                 </li>
                 <li>
-                  Choose the <strong className="text-zoru-ink">Manual</strong> option.
+                  Choose the <Strong>Manual</Strong> option.
                 </li>
                 <li>
                   Fill in all required details for at least one product (image, price, currency,
                   availability, description).
                 </li>
-                <li className="text-zoru-ink">
+                <li style={{ color: 'var(--st-text)' }}>
                   This step is mandatory to activate the catalog for WhatsApp.
                 </li>
               </ol>
             </GuideStep>
 
             <GuideStep step="Step 4" title="Assign to WABA" image={step3}>
-              <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-zoru-ink-muted">
+              <ol
+                className="list-inside list-decimal space-y-2 pl-4 text-sm"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 <li>
-                  Navigate to <strong className="text-zoru-ink">WhatsApp Manager</strong> from your
-                  Business Suite.
+                  Navigate to <Strong>WhatsApp Manager</Strong> from your Business Suite.
                 </li>
                 <li>
-                  Go to <strong className="text-zoru-ink">Account tools → Catalog</strong>.
+                  Go to <Strong>Account tools → Catalog</Strong>.
                 </li>
                 <li>
-                  Click <strong className="text-zoru-ink">Choose a catalog</strong>.
+                  Click <Strong>Choose a catalog</Strong>.
                 </li>
                 <li>
-                  Select the catalog you just created and click{' '}
-                  <strong className="text-zoru-ink">Connect catalog</strong>.
+                  Select the catalog you just created and click <Strong>Connect catalog</Strong>.
                 </li>
               </ol>
             </GuideStep>
 
-            <div className="flex flex-col items-center gap-3 rounded-[var(--zoru-radius-lg)] border-2 border-dashed border-zoru-line-strong bg-zoru-surface px-6 py-8 text-center">
-              <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Step 5</div>
-              <h3 className="text-[22px] tracking-[-0.01em] text-zoru-ink">Sync your catalog</h3>
-              <p className="max-w-xl text-sm text-zoru-ink-muted">
+            <div
+              className="flex flex-col items-center gap-3 border-2 border-dashed px-6 py-8 text-center"
+              style={{
+                borderRadius: 'var(--st-radius-lg)',
+                borderColor: 'var(--st-border)',
+                background: 'var(--st-bg)',
+              }}
+            >
+              <div
+                className="text-[11px] uppercase tracking-wide"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
+                Step 5
+              </div>
+              <h3
+                className="text-[22px] tracking-[-0.01em]"
+                style={{ color: 'var(--st-text)' }}
+              >
+                Sync your catalog
+              </h3>
+              <p
+                className="max-w-xl text-sm"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 Once your catalog is created, has at least one product, and is connected to your
                 WABA, return here and click sync.
               </p>
@@ -348,23 +411,38 @@ export default function CatalogPage() {
               image={step6}
               imageFirst
             >
-              <p className="text-sm leading-relaxed text-zoru-ink-muted">
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 After a successful sync, reference your products inside interactive messages —
                 multi-product and single-product messages. Use the{' '}
-                <strong className="text-zoru-ink">Product Catalog</strong> template type to get
-                started. <ArrowRight className="ml-1 inline h-3 w-3" />
+                <Strong>Product Catalog</Strong> template type to get started.{' '}
+                <ArrowRight className="ml-1 inline h-3 w-3" aria-hidden="true" />
               </p>
             </GuideStep>
           </div>
         </Card>
       )}
-    </div>
+    </WachatPage>
   );
+}
+
+function Strong({ children }: { children: React.ReactNode }) {
+  return <strong style={{ color: 'var(--st-text)' }}>{children}</strong>;
 }
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="inline-flex items-center rounded-[4px] border border-zoru-line bg-zoru-surface px-1.5 py-0.5 font-mono text-[11px] text-zoru-ink">
+    <code
+      className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px]"
+      style={{
+        borderRadius: '4px',
+        border: '1px solid var(--st-border)',
+        background: 'var(--st-bg)',
+        color: 'var(--st-text)',
+      }}
+    >
       {children}
     </code>
   );
@@ -384,7 +462,14 @@ function GuideStep({
   children: React.ReactNode;
 }) {
   const imageBlock = image ? (
-    <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line shadow-[var(--zoru-shadow-sm)]">
+    <div
+      className="overflow-hidden"
+      style={{
+        borderRadius: 'var(--st-radius-lg)',
+        border: '1px solid var(--st-border)',
+        boxShadow: 'var(--st-shadow-sm)',
+      }}
+    >
       <Image
         src={image.imageUrl}
         alt={image.description}
@@ -399,10 +484,18 @@ function GuideStep({
     <div className="grid items-center gap-6 md:grid-cols-2">
       {imageFirst ? imageBlock : null}
       <div>
-        <div className="mb-1.5 text-[10px] uppercase tracking-wide text-zoru-ink-muted">
+        <div
+          className="mb-1.5 text-[10px] uppercase tracking-wide"
+          style={{ color: 'var(--st-text-tertiary)' }}
+        >
           {step}
         </div>
-        <h3 className="mb-3 text-[18px] tracking-[-0.01em] text-zoru-ink">{title}</h3>
+        <h3
+          className="mb-3 text-[18px] tracking-[-0.01em]"
+          style={{ color: 'var(--st-text)' }}
+        >
+          {title}
+        </h3>
         {children}
       </div>
       {!imageFirst ? imageBlock : null}

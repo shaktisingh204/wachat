@@ -1,6 +1,6 @@
 'use client';
 
-import { Skeleton } from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
 
 import { getProjects } from '@/app/actions/project.actions';

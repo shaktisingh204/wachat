@@ -1,40 +1,15 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   EmptyState,
-  ZoruFileInput,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Skeleton,
-  Textarea,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   Suspense,
   useState,
@@ -50,36 +25,27 @@ import {
   Video,
   FileText,
   Type,
-  Plus,
-  Trash2,
-  RefreshCw,
   Sparkles,
   Smartphone,
   Globe,
-  ShoppingBag,
-  LayoutGrid,
-  MessageSquare,
-  Shield,
-  Clock,
   MapPin,
   Copy,
   ExternalLink,
   Phone,
-  Hash,
   CircleAlert,
-  Wand,
   Eye,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
 import { useTemplateStore } from '../template-store';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * Template Creator — full-featured WhatsApp Cloud API template builder,
- * rebuilt on ZoruUI primitives.
+ * rebuilt on 20ui primitives.
  *
- * Same data flow as before. Submit-for-review uses Dialog confirm.
+ * Same data flow as before. Submit-for-review uses Modal confirm.
  * Live preview lives in a Card on the right pane.
  */
 
@@ -97,6 +63,10 @@ import {
   BUTTON_TYPES,
   ButtonData,
 } from './constants';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ── Live Phone Preview ────────────────────────── */
 
@@ -117,50 +87,111 @@ function PhonePreview({
 }) {
   return (
     <div className="mx-auto w-[280px]">
-      <div className="rounded-[24px] border border-zoru-line-strong bg-zoru-surface-2 p-3 shadow-[var(--zoru-shadow-md)]">
-        <div className="flex items-center justify-between px-2 py-1 text-[9px] text-zoru-ink-muted">
+      <div
+        className="rounded-[18px] border p-3"
+        style={{
+          borderColor: 'var(--st-border)',
+          background: 'var(--st-bg-secondary)',
+        }}
+      >
+        <div
+          className="flex items-center justify-between px-2 py-1 text-[9px]"
+          style={{ color: 'var(--st-text-tertiary)' }}
+        >
           <span>WhatsApp</span>
           <span>Preview</span>
         </div>
 
-        <div className="mt-2 max-w-[240px] rounded-lg bg-zoru-bg p-3 shadow-[var(--zoru-shadow-sm)]">
+        <div
+          className="mt-2 max-w-[240px] rounded-lg p-3"
+          style={{ background: 'var(--st-bg)' }}
+        >
           {headerFormat === 'IMAGE' && (
-            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-zoru-surface">
-              <ImageIcon className="h-8 w-8 text-zoru-ink-subtle" />
+            <div
+              className="mb-2 flex h-[120px] items-center justify-center rounded"
+              style={{ background: 'var(--st-bg-secondary)' }}
+            >
+              <ImageIcon
+                className="h-8 w-8"
+                style={{ color: 'var(--st-text-tertiary)' }}
+                aria-hidden="true"
+              />
             </div>
           )}
           {headerFormat === 'VIDEO' && (
-            <div className="mb-2 flex h-[120px] items-center justify-center rounded bg-zoru-surface">
-              <Video className="h-8 w-8 text-zoru-ink-subtle" />
+            <div
+              className="mb-2 flex h-[120px] items-center justify-center rounded"
+              style={{ background: 'var(--st-bg-secondary)' }}
+            >
+              <Video
+                className="h-8 w-8"
+                style={{ color: 'var(--st-text-tertiary)' }}
+                aria-hidden="true"
+              />
             </div>
           )}
           {headerFormat === 'DOCUMENT' && (
-            <div className="mb-2 flex items-center gap-2 rounded bg-zoru-surface p-2">
-              <FileText className="h-5 w-5 text-zoru-ink-subtle" />
-              <span className="text-[10px] text-zoru-ink-muted">Document</span>
+            <div
+              className="mb-2 flex items-center gap-2 rounded p-2"
+              style={{ background: 'var(--st-bg-secondary)' }}
+            >
+              <FileText
+                className="h-5 w-5"
+                style={{ color: 'var(--st-text-tertiary)' }}
+                aria-hidden="true"
+              />
+              <span
+                className="text-[10px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                Document
+              </span>
             </div>
           )}
           {headerFormat === 'LOCATION' && (
-            <div className="mb-2 flex h-[80px] items-center justify-center rounded bg-zoru-surface">
-              <MapPin className="h-6 w-6 text-zoru-ink-muted" />
+            <div
+              className="mb-2 flex h-[80px] items-center justify-center rounded"
+              style={{ background: 'var(--st-bg-secondary)' }}
+            >
+              <MapPin
+                className="h-6 w-6"
+                style={{ color: 'var(--st-text-secondary)' }}
+                aria-hidden="true"
+              />
             </div>
           )}
           {headerFormat === 'TEXT' && headerText && (
-            <p className="mb-1 text-[12px] font-bold text-zoru-ink">
+            <p
+              className="mb-1 text-[12px] font-bold"
+              style={{ color: 'var(--st-text)' }}
+            >
               {headerText}
             </p>
           )}
 
-          <p className="whitespace-pre-wrap text-[11px] leading-relaxed text-zoru-ink">
+          <p
+            className="whitespace-pre-wrap text-[11px] leading-relaxed"
+            style={{ color: 'var(--st-text)' }}
+          >
             {body || 'Your message body will appear here…'}
           </p>
 
           {footer && (
-            <p className="mt-1.5 text-[9px] text-zoru-ink-muted">{footer}</p>
+            <p
+              className="mt-1.5 text-[9px]"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
+              {footer}
+            </p>
           )}
 
           <div className="mt-1 flex justify-end">
-            <span className="text-[8px] text-zoru-ink-subtle">12:00 PM</span>
+            <span
+              className="text-[8px]"
+              style={{ color: 'var(--st-text-tertiary)' }}
+            >
+              12:00 PM
+            </span>
           </div>
         </div>
 
@@ -169,15 +200,18 @@ function PhonePreview({
             {buttons.map((btn, i) => (
               <div
                 key={i}
-                className="flex items-center justify-center rounded-lg bg-zoru-bg py-1.5 text-[11px] font-medium text-zoru-ink shadow-[var(--zoru-shadow-sm)]"
+                className="flex items-center justify-center rounded-lg py-1.5 text-[11px] font-medium"
+                style={{ background: 'var(--st-bg)', color: 'var(--st-text)' }}
               >
                 {btn.type === 'URL' && (
-                  <ExternalLink className="mr-1 h-3 w-3" />
+                  <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
                 )}
                 {btn.type === 'PHONE_NUMBER' && (
-                  <Phone className="mr-1 h-3 w-3" />
+                  <Phone className="mr-1 h-3 w-3" aria-hidden="true" />
                 )}
-                {btn.type === 'COPY_CODE' && <Copy className="mr-1 h-3 w-3" />}
+                {btn.type === 'COPY_CODE' && (
+                  <Copy className="mr-1 h-3 w-3" aria-hidden="true" />
+                )}
                 {btn.text || `Button ${i + 1}`}
               </div>
             ))}
@@ -185,8 +219,11 @@ function PhonePreview({
         )}
 
         {templateType === 'AUTH' && (
-          <div className="mt-1 flex items-center justify-center rounded-lg bg-zoru-bg py-1.5 text-[11px] font-medium text-zoru-ink shadow-[var(--zoru-shadow-sm)]">
-            <Copy className="mr-1 h-3 w-3" />
+          <div
+            className="mt-1 flex items-center justify-center rounded-lg py-1.5 text-[11px] font-medium"
+            style={{ background: 'var(--st-bg)', color: 'var(--st-text)' }}
+          >
+            <Copy className="mr-1 h-3 w-3" aria-hidden="true" />
             Copy Code
           </div>
         )}
@@ -211,28 +248,39 @@ function MultiLanguageSelector({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+        className="flex items-center gap-1.5 text-[11px] transition-colors"
+        style={{ color: 'var(--st-text-secondary)' }}
       >
-        <Globe className="h-3 w-3" /> Clone to multiple languages
+        <Globe className="h-3 w-3" aria-hidden="true" /> Clone to multiple languages
       </button>
     );
   }
 
   return (
-    <div className="space-y-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+    <div
+      className="space-y-2 rounded-[var(--st-radius)] border p-3"
+      style={{
+        borderColor: 'var(--st-border)',
+        background: 'var(--st-bg-secondary)',
+      }}
+    >
       <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold text-zoru-ink">
-          <Globe className="mr-1 inline h-3 w-3" /> Multi-language cloning
+        <p
+          className="text-[11px] font-semibold"
+          style={{ color: 'var(--st-text)' }}
+        >
+          <Globe className="mr-1 inline h-3 w-3" aria-hidden="true" /> Multi-language cloning
         </p>
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-[10px] text-zoru-ink-muted hover:text-zoru-ink"
+          className="text-[10px]"
+          style={{ color: 'var(--st-text-secondary)' }}
         >
           Close
         </button>
       </div>
-      <p className="text-[10px] text-zoru-ink-muted">
+      <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
         After creating the primary template, clones will be auto-created for
         selected languages.
       </p>
@@ -250,12 +298,19 @@ function MultiLanguageSelector({
                     : [...selected, l.code],
                 )
               }
-              className={cn(
-                'rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors',
+              className="rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors"
+              style={
                 isSelected
-                  ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                  : 'border-zoru-line text-zoru-ink-muted hover:border-zoru-line-strong hover:text-zoru-ink',
-              )}
+                  ? {
+                      borderColor: 'var(--st-text)',
+                      background: 'var(--st-text)',
+                      color: 'var(--st-bg)',
+                    }
+                  : {
+                      borderColor: 'var(--st-border)',
+                      color: 'var(--st-text-secondary)',
+                    }
+              }
             >
               {l.name}
             </button>
@@ -263,7 +318,10 @@ function MultiLanguageSelector({
         })}
       </div>
       {selected.length > 0 && (
-        <p className="text-[10px] font-medium text-zoru-ink">
+        <p
+          className="text-[10px] font-medium"
+          style={{ color: 'var(--st-text)' }}
+        >
           {selected.length} language(s) selected for cloning
         </p>
       )}
@@ -275,7 +333,7 @@ function MultiLanguageSelector({
 
 function CreateTemplateContent() {
   const router = useRouter();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const { activeProject } = useProject();
   const searchParams = useSearchParams();
   const action = searchParams.get('action');
@@ -315,18 +373,18 @@ function CreateTemplateContent() {
       setCategory(templateToAction.category);
       setLanguage(templateToAction.language);
       setBody(templateToAction.body);
-      
+
       const header = templateToAction.components.find((c: any) => c.type === 'HEADER');
       if (header) {
         setHeaderFormat(header.format || 'NONE');
         if (header.text) setHeaderText(header.text);
       }
-      
+
       const footerComp = templateToAction.components.find((c: any) => c.type === 'FOOTER');
       if (footerComp) {
         setFooter(footerComp.text || '');
       }
-      
+
       const btns = templateToAction.components.find((c: any) => c.type === 'BUTTONS');
       if (btns && btns.buttons) {
         setButtons(btns.buttons);
@@ -346,7 +404,7 @@ function CreateTemplateContent() {
       toast({
         title: 'Missing fields',
         description: 'Name and body are required.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -427,384 +485,369 @@ function CreateTemplateContent() {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         toast({
           title: 'Success',
           description: result.message || 'Template submitted for approval.',
+          tone: 'success',
         });
         router.push('/wachat/templates');
       }
     });
   };
 
+  const breadcrumb = [
+    { label: 'SabNode', href: '/dashboard' },
+    { label: 'WaChat', href: '/wachat' },
+    { label: 'Templates', href: '/wachat/templates' },
+    { label: action === 'clone' ? 'Clone' : 'Create' },
+  ];
+
   if (!activeProject) {
     return (
-      <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-        <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/wachat/templates">
-                Templates
-              </ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Create</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
-        </Breadcrumb>
+      <WachatPage
+        breadcrumb={breadcrumb}
+        title={action === 'clone' ? 'Clone template' : 'Create template'}
+        description="Compose a WhatsApp Cloud API template. Submit for Meta approval once it's ready."
+      >
         <EmptyState
-          icon={<CircleAlert />}
+          icon={CircleAlert}
           title="Select a project first"
           description="Choose a project from the dashboard to create templates."
           action={
-            <Button size="sm" onClick={() => router.push('/wachat')}>
+            <Button size="sm" variant="primary" onClick={() => router.push('/wachat')}>
               Choose a project
             </Button>
           }
         />
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/templates">
-              Templates
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
-              {action === 'clone' ? 'Clone' : 'Create'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+    <WachatPage
+      breadcrumb={breadcrumb}
+      title={action === 'clone' ? 'Clone template' : 'Create template'}
+      description="Compose a WhatsApp Cloud API template. Submit for Meta approval once it's ready."
+      actions={
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={Eye}
+          onClick={() => setShowPreview(!showPreview)}
+        >
+          {showPreview ? 'Hide preview' : 'Show preview'}
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        <button
+          type="button"
+          onClick={() => router.push('/wachat/templates')}
+          className="flex items-center gap-1 self-start text-[12px] transition-colors"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
+          <ArrowLeft className="h-3 w-3" aria-hidden="true" /> Back to templates
+        </button>
 
-      {/* Header */}
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <button
-            type="button"
-            onClick={() => router.push('/wachat/templates')}
-            className="mb-1 flex items-center gap-1 text-[12px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
-          >
-            <ArrowLeft className="h-3 w-3" /> Back to templates
-          </button>
-          <ZoruPageTitle>
-            {action === 'clone' ? 'Clone template' : 'Create template'}
-          </ZoruPageTitle>
-          <ZoruPageDescription>
-            Compose a WhatsApp Cloud API template. Submit for Meta approval
-            once it&apos;s ready.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowPreview(!showPreview)}
-          >
-            <Eye /> {showPreview ? 'Hide preview' : 'Show preview'}
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      {/* Template Type Selector */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-        {TEMPLATE_TYPES.map((t) => {
-          const Icon = t.icon;
-          const isActive = templateType === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => {
-                setTemplateType(t.id);
-                setButtons([]);
-                setHeaderFormat('NONE');
-              }}
-              className={cn(
-                'flex flex-col items-center gap-1.5 rounded-[var(--zoru-radius-lg)] border p-3 text-center transition-colors',
-                isActive
-                  ? 'border-zoru-ink bg-zoru-surface-2'
-                  : 'border-zoru-line hover:border-zoru-line-strong',
-              )}
-            >
-              <Icon
-                className={cn(
-                  'h-5 w-5',
-                  isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted',
-                )}
-              />
-              <span
-                className={cn(
-                  'text-[11px] font-semibold',
-                  isActive ? 'text-zoru-ink' : 'text-zoru-ink-muted',
-                )}
+        {/* Template Type Selector */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+          {TEMPLATE_TYPES.map((t) => {
+            const Icon = t.icon;
+            const isActive = templateType === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => {
+                  setTemplateType(t.id);
+                  setButtons([]);
+                  setHeaderFormat('NONE');
+                }}
+                className="flex flex-col items-center gap-1.5 rounded-[var(--st-radius-lg)] border p-3 text-center transition-colors"
+                style={
+                  isActive
+                    ? {
+                        borderColor: 'var(--st-text)',
+                        background: 'var(--st-bg-secondary)',
+                      }
+                    : { borderColor: 'var(--st-border)' }
+                }
               >
-                {t.name}
-              </span>
-              <span className="text-[9px] leading-tight text-zoru-ink-subtle">
-                {t.desc}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div
-        className={cn(
-          'grid gap-6',
-          showPreview ? 'lg:grid-cols-[1fr_320px]' : 'lg:grid-cols-1',
-        )}
-      >
-        {/* ── Editor Column ── */}
-        <div className="space-y-5">
-          {/* Details */}
-          <Card>
-            <ZoruCardContent className="space-y-4 pt-6">
-              <h3 className="text-[13px] font-semibold text-zoru-ink">
-                Template details
-              </h3>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Field label="Name" required>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., order_confirmation"
-                    required
-                  />
-                </Field>
-                {templateType !== 'AUTH' && (
-                  <Field label="Category" required>
-                    <Select value={category} onValueChange={setCategory}>
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {CATEGORIES.map((c) => (
-                          <ZoruSelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </Select>
-                  </Field>
-                )}
-                <Field label="Language" required>
-                  <Select value={language} onValueChange={setLanguage}>
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent className="max-h-72">
-                      {LANGUAGES.map((l) => (
-                        <ZoruSelectItem key={l.code} value={l.code}>
-                          {l.name}
-                        </ZoruSelectItem>
-                      ))}
-                    </ZoruSelectContent>
-                  </Select>
-                </Field>
-              </div>
-            </ZoruCardContent>
-          </Card>
-
-          {/* AUTH */}
-          {templateType === 'AUTH' && (
-            <Card>
-              <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
-                  Authentication settings
-                </h3>
-                <Field label="OTP type">
-                  <Select
-                    value={otpType}
-                    onValueChange={(v) => setOtpType(v as any)}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="COPY_CODE">
-                        Copy code button
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="ONE_TAP">
-                        One-tap autofill
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="ZERO_TAP">
-                        Zero-tap (auto-verify)
-                      </ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </Field>
-                <Field label="Code expiry (minutes)">
-                  <Input
-                    value={codeExpiry}
-                    onChange={(e) => setCodeExpiry(e.target.value)}
-                    placeholder="10"
-                  />
-                </Field>
-                <div className="rounded-[var(--zoru-radius)] bg-zoru-surface p-3 text-[11px] text-zoru-ink-muted">
-                  <p className="mb-1 font-medium text-zoru-ink">
-                    Auto-generated body:
-                  </p>
-                  <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
-                </div>
-              </ZoruCardContent>
-            </Card>
-          )}
-
-          {/* LTO */}
-          {templateType === 'LTO' && (
-            <Card>
-              <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
-                  Limited time offer
-                </h3>
-                <Field
-                  label="Offer expiry"
-                  hint="When the offer expires (shown as countdown)"
+                <Icon
+                  className="h-5 w-5"
+                  style={{
+                    color: isActive
+                      ? 'var(--st-text)'
+                      : 'var(--st-text-secondary)',
+                  }}
+                  aria-hidden="true"
+                />
+                <span
+                  className="text-[11px] font-semibold"
+                  style={{
+                    color: isActive
+                      ? 'var(--st-text)'
+                      : 'var(--st-text-secondary)',
+                  }}
                 >
-                  <Input
-                    type="datetime-local"
-                    value={ltoExpiry}
-                    onChange={(e) => setLtoExpiry(e.target.value)}
-                  />
-                </Field>
-                <Field label="Coupon code">
-                  <Input
-                    value={ltoCoupon}
-                    onChange={(e) => setLtoCoupon(e.target.value)}
-                    placeholder="SAVE20"
-                  />
-                </Field>
-              </ZoruCardContent>
-            </Card>
-          )}
-
-          {/* Standard / LTO / Carousel content */}
-          {(templateType === 'STANDARD' ||
-            templateType === 'LTO' ||
-            templateType === 'CAROUSEL') && (
-            <Card>
-              <ZoruCardContent className="space-y-4 pt-6">
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
-                  {templateType === 'CAROUSEL'
-                    ? 'Carousel introduction'
-                    : 'Message content'}
-                </h3>
-
-                {templateType === 'STANDARD' && (
-                  <HeaderEditor
-                    headerFormat={headerFormat}
-                    setHeaderFormat={setHeaderFormat}
-                    headerText={headerText}
-                    setHeaderText={setHeaderText}
-                    headerMediaUrl={headerMediaUrl}
-                    setHeaderMediaUrl={setHeaderMediaUrl}
-                  />
-                )}
-
-                <BodyEditor
-                  body={body}
-                  setBody={setBody}
-                  footer={footer}
-                  setFooter={setFooter}
-                />
-              </ZoruCardContent>
-            </Card>
-          )}
-
-          {/* Buttons */}
-          {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
-            <Card>
-              <ZoruCardContent className="space-y-3 pt-6">
-                <ButtonManager
-                  buttons={buttons}
-                  setButtons={setButtons}
-                />
-              </ZoruCardContent>
-            </Card>
-          )}
-
-          {/* SabNode features */}
-          <Card>
-            <ZoruCardContent className="space-y-3 pt-6">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-zoru-ink" />
-                <h3 className="text-[13px] font-semibold text-zoru-ink">
-                  SabNode features
-                </h3>
-              </div>
-              <MultiLanguageSelector
-                selected={cloneLanguages}
-                onChange={setCloneLanguages}
-              />
-            </ZoruCardContent>
-          </Card>
-
-          {/* Submit */}
-          <div className="flex items-center gap-3">
-            <Button
-              onClick={() => setConfirmOpen(true)}
-              disabled={
-                isPending ||
-                !name.trim() ||
-                (!body.trim() && templateType !== 'AUTH')
-              }
-            >
-              {isPending ? (
-                <>
-                  <RefreshCw className="animate-spin" /> Submitting…
-                </>
-              ) : (
-                <>
-                  <Send /> Submit for approval
-                </>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.push('/wachat/templates')}
-            >
-              Cancel
-            </Button>
-          </div>
+                  {t.name}
+                </span>
+                <span
+                  className="text-[9px] leading-tight"
+                  style={{ color: 'var(--st-text-tertiary)' }}
+                >
+                  {t.desc}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* Preview Column */}
-        {showPreview && (
-          <div className="hidden lg:block">
-            <div className="sticky top-6 space-y-4">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-zoru-ink-muted">
-                <Smartphone className="h-3.5 w-3.5" /> Live preview
+        <div
+          className={cx(
+            'grid gap-6',
+            showPreview ? 'lg:grid-cols-[1fr_320px]' : 'lg:grid-cols-1',
+          )}
+        >
+          {/* ── Editor Column ── */}
+          <div className="space-y-5">
+            {/* Details */}
+            <Card>
+              <div className="space-y-4">
+                <h3
+                  className="text-[13px] font-semibold"
+                  style={{ color: 'var(--st-text)' }}
+                >
+                  Template details
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <Field label="Name" required>
+                    <Input
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g., order_confirmation"
+                      required
+                    />
+                  </Field>
+                  {templateType !== 'AUTH' && (
+                    <Field label="Category" required>
+                      <Select
+                        value={category}
+                        onChange={(v) => v && setCategory(v)}
+                        aria-label="Category"
+                        options={CATEGORIES.map((c) => ({
+                          value: c.id,
+                          label: c.name,
+                        }))}
+                      />
+                    </Field>
+                  )}
+                  <Field label="Language" required>
+                    <Select
+                      value={language}
+                      onChange={(v) => v && setLanguage(v)}
+                      searchable
+                      aria-label="Language"
+                      options={LANGUAGES.map((l) => ({
+                        value: l.code,
+                        label: l.name,
+                      }))}
+                    />
+                  </Field>
+                </div>
               </div>
-              <Card variant="elevated">
-                <ZoruCardContent className="pt-6">
+            </Card>
+
+            {/* AUTH */}
+            {templateType === 'AUTH' && (
+              <Card>
+                <div className="space-y-4">
+                  <h3
+                    className="text-[13px] font-semibold"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    Authentication settings
+                  </h3>
+                  <Field label="OTP type">
+                    <Select
+                      value={otpType}
+                      onChange={(v) => v && setOtpType(v as any)}
+                      aria-label="OTP type"
+                      options={[
+                        { value: 'COPY_CODE', label: 'Copy code button' },
+                        { value: 'ONE_TAP', label: 'One-tap autofill' },
+                        { value: 'ZERO_TAP', label: 'Zero-tap (auto-verify)' },
+                      ]}
+                    />
+                  </Field>
+                  <Field label="Code expiry (minutes)">
+                    <Input
+                      value={codeExpiry}
+                      onChange={(e) => setCodeExpiry(e.target.value)}
+                      placeholder="10"
+                    />
+                  </Field>
+                  <div
+                    className="rounded-[var(--st-radius)] p-3 text-[11px]"
+                    style={{
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text-secondary)',
+                    }}
+                  >
+                    <p
+                      className="mb-1 font-medium"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      Auto-generated body:
+                    </p>
+                    <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* LTO */}
+            {templateType === 'LTO' && (
+              <Card>
+                <div className="space-y-4">
+                  <h3
+                    className="text-[13px] font-semibold"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    Limited time offer
+                  </h3>
+                  <Field
+                    label="Offer expiry"
+                    hint="When the offer expires (shown as countdown)"
+                  >
+                    <Input
+                      type="datetime-local"
+                      value={ltoExpiry}
+                      onChange={(e) => setLtoExpiry(e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Coupon code">
+                    <Input
+                      value={ltoCoupon}
+                      onChange={(e) => setLtoCoupon(e.target.value)}
+                      placeholder="SAVE20"
+                    />
+                  </Field>
+                </div>
+              </Card>
+            )}
+
+            {/* Standard / LTO / Carousel content */}
+            {(templateType === 'STANDARD' ||
+              templateType === 'LTO' ||
+              templateType === 'CAROUSEL') && (
+              <Card>
+                <div className="space-y-4">
+                  <h3
+                    className="text-[13px] font-semibold"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    {templateType === 'CAROUSEL'
+                      ? 'Carousel introduction'
+                      : 'Message content'}
+                  </h3>
+
+                  {templateType === 'STANDARD' && (
+                    <HeaderEditor
+                      headerFormat={headerFormat}
+                      setHeaderFormat={setHeaderFormat}
+                      headerText={headerText}
+                      setHeaderText={setHeaderText}
+                      headerMediaUrl={headerMediaUrl}
+                      setHeaderMediaUrl={setHeaderMediaUrl}
+                    />
+                  )}
+
+                  <BodyEditor
+                    body={body}
+                    setBody={setBody}
+                    footer={footer}
+                    setFooter={setFooter}
+                  />
+                </div>
+              </Card>
+            )}
+
+            {/* Buttons */}
+            {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
+              <Card>
+                <div className="space-y-3">
+                  <ButtonManager
+                    buttons={buttons}
+                    setButtons={setButtons}
+                  />
+                </div>
+              </Card>
+            )}
+
+            {/* SabNode features */}
+            <Card>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles
+                    className="h-4 w-4"
+                    style={{ color: 'var(--st-text)' }}
+                    aria-hidden="true"
+                  />
+                  <h3
+                    className="text-[13px] font-semibold"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    SabNode features
+                  </h3>
+                </div>
+                <MultiLanguageSelector
+                  selected={cloneLanguages}
+                  onChange={setCloneLanguages}
+                />
+              </div>
+            </Card>
+
+            {/* Submit */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="primary"
+                iconLeft={isPending ? undefined : Send}
+                loading={isPending}
+                onClick={() => setConfirmOpen(true)}
+                disabled={
+                  isPending ||
+                  !name.trim() ||
+                  (!body.trim() && templateType !== 'AUTH')
+                }
+              >
+                {isPending ? 'Submitting…' : 'Submit for approval'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/wachat/templates')}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+
+          {/* Preview Column */}
+          {showPreview && (
+            <div className="hidden lg:block">
+              <div className="sticky top-6 space-y-4">
+                <div
+                  className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  <Smartphone className="h-3.5 w-3.5" aria-hidden="true" /> Live preview
+                </div>
+                <Card variant="elevated">
                   <PhonePreview
                     headerFormat={headerFormat}
                     headerText={headerText}
@@ -817,37 +860,43 @@ function CreateTemplateContent() {
                     buttons={buttons}
                     templateType={templateType}
                   />
-                </ZoruCardContent>
-              </Card>
-              <div className="space-y-1 text-center">
-                <p className="text-[10px] text-zoru-ink-muted">
-                  {charCount}/1024 characters
-                </p>
-                <p className="text-[10px] text-zoru-ink-muted">
-                  {varCount} variable(s) detected
-                </p>
-                {cloneLanguages.length > 0 && (
-                  <p className="text-[10px] text-zoru-ink">
-                    {cloneLanguages.length} language clone(s)
+                </Card>
+                <div className="space-y-1 text-center">
+                  <p
+                    className="text-[10px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    {charCount}/1024 characters
                   </p>
-                )}
+                  <p
+                    className="text-[10px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    {varCount} variable(s) detected
+                  </p>
+                  {cloneLanguages.length > 0 && (
+                    <p
+                      className="text-[10px]"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      {cloneLanguages.length} language clone(s)
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Submit-for-review confirm dialog */}
-      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Submit for Meta approval?</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Once submitted, this template will be reviewed by Meta. You will
-              not be able to edit it until approved or rejected.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+      <Modal
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Submit for Meta approval?"
+        description="Once submitted, this template will be reviewed by Meta. You will not be able to edit it until approved or rejected."
+        footer={
+          <>
             <Button
               variant="ghost"
               onClick={() => setConfirmOpen(false)}
@@ -856,18 +905,20 @@ function CreateTemplateContent() {
               Cancel
             </Button>
             <Button
+              variant="primary"
+              iconLeft={Send}
               onClick={() => {
                 setConfirmOpen(false);
                 handleSubmit();
               }}
               disabled={isPending}
             >
-              <Send /> Submit
+              Submit
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }
 
@@ -875,9 +926,9 @@ export default function CreateTemplatePage() {
   return (
     <Suspense
       fallback={
-        <div className="mx-auto w-full max-w-[1320px] px-6 pt-6">
-          <Skeleton className="h-[400px] w-full" />
-        </div>
+        <WachatPage>
+          <Skeleton height={400} width="100%" />
+        </WachatPage>
       }
     >
       <CreateTemplateContent />

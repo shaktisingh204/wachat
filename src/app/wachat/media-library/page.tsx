@@ -1,18 +1,14 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  EmptyState,
   ZoruFilesPage,
-  Skeleton,
-  useZoruToast,
   type ZoruFileEntity,
 } from '@/components/zoruui';
+import {
+  EmptyState,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -26,9 +22,10 @@ import {
   getMediaLibrary,
   saveMediaItem,
   } from '@/app/actions/wachat-features.actions';
+import WachatPage from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Media Library — ZoruUI migration.
+ * Wachat Media Library — 20ui migration.
  * Uses the composed `ZoruFilesPage` (toolbar + grid/list + 5 dialogs:
  * preview, rename, delete, share, upload). Same data + handlers as the
  * legacy version — all wired through `wachat-features.actions`.
@@ -68,7 +65,7 @@ const inferType = (file: File): string => {
 
 export default function MediaLibraryPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [media, setMedia] = useState<MediaItem[]>([]);
 
@@ -80,7 +77,7 @@ export default function MediaLibraryPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         setMedia((res.media as MediaItem[]) ?? []);
@@ -162,7 +159,7 @@ export default function MediaLibraryPage() {
         toast({
           title: 'Rename failed',
           description: save.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -184,71 +181,55 @@ export default function MediaLibraryPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Media library</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Media library
-        </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Media library' },
+      ]}
+      title="Media library"
+      description={
+        <>
           Store images, videos, documents, and audio for{' '}
           {activeProject?.name || 'this project'} — reuse them across
           broadcasts, templates, and chat.
-        </p>
-      </div>
-
-      <div className="mt-6">
-        {isPending && media.length === 0 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <Skeleton key={i} className="aspect-[4/3]" />
-            ))}
-          </div>
-        ) : (
-          <ZoruFilesPage
-            files={files}
-            onUpload={handleUpload}
-            onDelete={handleDelete}
-            onRename={handleRename}
-            onDownload={handleDownload}
-            shareUrlFor={(f) => f.url}
-            onCopyShareLink={(url) => {
-              navigator.clipboard?.writeText(url).catch(() => {});
-              toast({ title: 'Link copied' });
-            }}
-            onShareInvite={(file, email, access) => {
-              toast({
-                title: 'Invite sent',
-                description: `${email} now has ${access} access to ${file.name}.`,
-              });
-            }}
-            empty={
-              <EmptyState
-                icon={<ImageIcon />}
-                title="No media yet"
-                description="Upload images, videos, documents, or audio to reuse across messages."
-              />
-            }
-          />
-        )}
-      </div>
-
-      <div className="h-6" />
-    </div>
+        </>
+      }
+      width="wide"
+    >
+      {isPending && media.length === 0 ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[4/3]" />
+          ))}
+        </div>
+      ) : (
+        <ZoruFilesPage
+          files={files}
+          onUpload={handleUpload}
+          onDelete={handleDelete}
+          onRename={handleRename}
+          onDownload={handleDownload}
+          shareUrlFor={(f) => f.url}
+          onCopyShareLink={(url) => {
+            navigator.clipboard?.writeText(url).catch(() => {});
+            toast({ title: 'Link copied' });
+          }}
+          onShareInvite={(file, email, access) => {
+            toast({
+              title: 'Invite sent',
+              description: `${email} now has ${access} access to ${file.name}.`,
+            });
+          }}
+          empty={
+            <EmptyState
+              icon={ImageIcon}
+              title="No media yet"
+              description="Upload images, videos, documents, or audio to reuse across messages."
+            />
+          }
+        />
+      )}
+    </WachatPage>
   );
 }

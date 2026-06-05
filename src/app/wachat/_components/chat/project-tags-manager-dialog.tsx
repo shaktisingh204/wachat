@@ -1,22 +1,18 @@
 'use client';
 
 import {
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   Button,
+  IconButton,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-import { LoaderCircle, Save, Trash2, Plus } from 'lucide-react';
+import { Save, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleUpdateProjectTags } from '@/app/actions/index'; // Ensure this export exists
 import type { WithId, Project, Tag } from '@/lib/definitions';
@@ -27,8 +23,7 @@ const initialState: { message?: string; error?: string } = { message: undefined,
 function SubmitButton({ disabled }: { disabled: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending || disabled}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+        <Button type="submit" variant="primary" loading={pending} disabled={disabled} iconLeft={Save}>
             Save Tags
         </Button>
     );
@@ -101,53 +96,64 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <ZoruDialogContent className="sm:max-w-lg">
-                <form action={validateAndSubmit}>
-                    <input type="hidden" name="projectId" value={project._id.toString()} />
-                    <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
-                    <ZoruDialogHeader>
-                        <ZoruDialogTitle>Manage Project Tags</ZoruDialogTitle>
-                        <ZoruDialogDescription>Create, edit, or delete tags for this project.</ZoruDialogDescription>
-                    </ZoruDialogHeader>
-                    <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                        <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-zoru-ink-muted">
-                            <span>Tag Name</span>
-                            <span className="text-center">Color</span>
-                            <span className="w-10"></span>
-                        </div>
-                        <div className="space-y-2">
-                            {tags.map(tag => (
-                                <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                                    <Input
-                                        value={tag.name}
-                                        onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
-                                        placeholder="Enter tag name"
-                                    />
-                                    <Input
-                                        type="color"
-                                        value={tag.color}
-                                        onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
-                                        className="h-9 w-14 p-1"
-                                    />
-                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
-                                        <Trash2 className="h-4 w-4 text-zoru-ink" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                        <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Tag
-                        </Button>
-                        {validationError && <p className="text-sm text-zoru-ink">{validationError}</p>}
+        <Modal
+            open={isOpen}
+            onClose={() => onOpenChange(false)}
+            size="lg"
+            title="Manage Project Tags"
+            description="Create, edit, or delete tags for this project."
+        >
+            <form action={validateAndSubmit}>
+                <input type="hidden" name="projectId" value={project._id.toString()} />
+                <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
+                <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    <div
+                        className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm"
+                        style={{ color: 'var(--st-text-muted)' }}
+                    >
+                        <span>Tag Name</span>
+                        <span className="text-center">Color</span>
+                        <span className="w-10"></span>
                     </div>
-                    <ZoruDialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <SubmitButton disabled={!!validationError} />
-                    </ZoruDialogFooter>
-                </form>
-            </ZoruDialogContent>
-        </Dialog>
+                    <div className="space-y-2">
+                        {tags.map(tag => (
+                            <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
+                                <Input
+                                    value={tag.name}
+                                    onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
+                                    placeholder="Enter tag name"
+                                />
+                                <Input
+                                    type="color"
+                                    value={tag.color}
+                                    onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
+                                    className="h-9 w-14 p-1"
+                                />
+                                <IconButton
+                                    type="button"
+                                    variant="ghost"
+                                    label="Remove tag"
+                                    icon={Trash2}
+                                    onClick={() => handleRemoveTag(tag._id)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <Button type="button" variant="outline" block iconLeft={Plus} onClick={handleAddTag}>
+                        Add Tag
+                    </Button>
+                    {validationError && (
+                        <p className="text-sm" style={{ color: 'var(--st-danger)' }}>{validationError}</p>
+                    )}
+                </div>
+                <div
+                    className="flex items-center justify-end gap-2 pt-4"
+                    style={{ borderTop: '1px solid var(--st-border)' }}
+                >
+                    <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <SubmitButton disabled={!!validationError} />
+                </div>
+            </form>
+        </Modal>
     );
 }

@@ -1,61 +1,47 @@
 'use client';
 
 import {
-  useZoruToast,
-  ZORU_CHART_PALETTE,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuTrigger,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  type ChartConfig,
+  Modal,
+  SegmentedControl,
   EmptyState,
   Skeleton,
+  Spinner,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+} from '@/components/sabcrm/20ui';
+import WachatPage from '@/app/wachat/_components/wachat-page';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback
 } from 'react';
-import { formatUTC } from '@/lib/utils';
+import * as Recharts from 'recharts';
 import {
   ArrowDownLeft,
   ArrowUpRight,
   BarChart3,
-  ChevronDown,
   Clock,
   Download,
   Inbox,
-  Loader2,
   MessageSquare,
 } from 'lucide-react';
 
@@ -66,19 +52,38 @@ import * as React from 'react';
 
 type Period = 'daily' | 'weekly' | 'monthly';
 
-const PERIOD_LABELS: Record<Period, string> = {
-  daily: 'Last 24 Hours',
-  weekly: 'Last 7 Days',
-  monthly: 'Last 30 Days',
+const PERIOD_ITEMS: Array<{ value: Period; label: string }> = [
+  { value: 'daily', label: 'Last 24 Hours' },
+  { value: 'weekly', label: 'Last 7 Days' },
+  { value: 'monthly', label: 'Last 30 Days' },
+];
+
+const VOLUME_CONFIG: ChartConfig = {
+  value: { label: 'Messages', color: 'var(--st-accent)' },
+};
+
+const TREND_CONFIG: ChartConfig = {
+  outgoing: { label: 'Outgoing', color: 'var(--st-accent)' },
+  incoming: { label: 'Incoming', color: 'var(--st-status-ok)' },
 };
 
 type DailyRow = { date: string; outgoing: number; incoming: number };
 
+/** Render a delta percentage into the StatCard delta shape (signed string + tone). */
+function deltaProps(value: number): { value: string; tone: 'up' | 'down' | 'neutral' } {
+  const rounded = Math.round(value * 10) / 10;
+  const sign = rounded > 0 ? '+' : '';
+  return {
+    value: `${sign}${rounded}%`,
+    tone: rounded > 0 ? 'up' : rounded < 0 ? 'down' : 'neutral',
+  };
+}
+
 export default function MessageStatisticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
-  
+
   const [period, setPeriod] = useState<Period>('weekly');
   const [stats, setStats] = useState({ total: 0, incoming: 0, outgoing: 0, media: 0 });
   const [deltas, setDeltas] = useState({ total: 0, incoming: 0, outgoing: 0 });
@@ -99,7 +104,7 @@ export default function MessageStatisticsPage() {
       ]);
 
       if (statsRes.error || currentRes.error || prevRes.error) {
-        toast({ title: 'Error', description: 'Failed to load analytics data.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'Failed to load analytics data.', tone: 'danger' });
         return;
       }
 
@@ -187,294 +192,263 @@ export default function MessageStatisticsPage() {
   }, [dailyRows]);
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Dashboard</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Dashboard
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Monitor your message volume and track trends over time.
-          </p>
-        </div>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Dashboard' },
+      ]}
+      title="Dashboard"
+      description="Monitor your message volume and track trends over time."
+      width="wide"
+      actions={
         <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <ZoruDropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                {PERIOD_LABELS[period]}
-                <ChevronDown className="opacity-60" />
-              </Button>
-            </ZoruDropdownMenuTrigger>
-            <ZoruDropdownMenuContent align="end">
-              <ZoruDropdownMenuLabel>Time range</ZoruDropdownMenuLabel>
-              <ZoruDropdownMenuRadioGroup
-                value={period}
-                onValueChange={(v) => setPeriod(v as Period)}
-              >
-                <ZoruDropdownMenuRadioItem value="daily">Last 24 Hours</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="weekly">Last 7 Days</ZoruDropdownMenuRadioItem>
-                <ZoruDropdownMenuRadioItem value="monthly">Last 30 Days</ZoruDropdownMenuRadioItem>
-              </ZoruDropdownMenuRadioGroup>
-            </ZoruDropdownMenuContent>
-          </DropdownMenu>
+          <SegmentedControl
+            items={PERIOD_ITEMS}
+            value={period}
+            onChange={(v) => setPeriod(v)}
+            size="sm"
+            aria-label="Time range"
+          />
           <Button
             variant="outline"
             size="sm"
+            iconLeft={Download}
             onClick={() => setExportOpen(true)}
             disabled={dailyRows.length === 0}
           >
-            <Download className="mr-2 h-4 w-4" /> Export
+            Export
           </Button>
         </div>
-      </div>
-
-      {isLoading && stats.total === 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
-          ))}
-        </div>
-      ) : (
-        <>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {isLoading && stats.total === 0 ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard
-              label="Total Messages"
-              value={stats.total.toLocaleString()}
-              delta={deltas.total}
-              period="vs previous period"
-              icon={<MessageSquare />}
-            />
-            <StatCard
-              label="Incoming"
-              value={stats.incoming.toLocaleString()}
-              delta={deltas.incoming}
-              period="vs previous period"
-              icon={<ArrowDownLeft />}
-            />
-            <StatCard
-              label="Outgoing"
-              value={stats.outgoing.toLocaleString()}
-              delta={deltas.outgoing}
-              period="vs previous period"
-              icon={<ArrowUpRight />}
-            />
-            <StatCard
-              label="Avg Response Time"
-              value={fmtTime(avgMs)}
-              period="Lower is better"
-              icon={<Clock />}
-            />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height={120} radius="var(--st-radius-lg)" />
+            ))}
           </div>
+        ) : (
+          <>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <StatCard
+                label="Total Messages"
+                value={stats.total.toLocaleString()}
+                delta={deltaProps(deltas.total)}
+                icon={MessageSquare}
+              />
+              <StatCard
+                label="Incoming"
+                value={stats.incoming.toLocaleString()}
+                delta={deltaProps(deltas.incoming)}
+                icon={ArrowDownLeft}
+              />
+              <StatCard
+                label="Outgoing"
+                value={stats.outgoing.toLocaleString()}
+                delta={deltaProps(deltas.outgoing)}
+                icon={ArrowUpRight}
+              />
+              <StatCard
+                label="Avg Response Time"
+                value={fmtTime(avgMs)}
+                icon={Clock}
+              />
+            </div>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            {/* Volume Breakdown */}
-            <Card className="lg:col-span-1 flex flex-col">
-              <ZoruCardHeader>
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-zoru-ink-muted" />
-                  <ZoruCardTitle>Volume Breakdown</ZoruCardTitle>
-                </div>
-                <ZoruCardDescription>
-                  Distribution across incoming, outgoing, and media.
-                </ZoruCardDescription>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex-1">
-                {isEmpty ? (
-                  <EmptyState
-                    icon={<Inbox />}
-                    title="No messages"
-                    description="No data available for this period."
-                  />
-                ) : (
-                  <ZoruChartContainer height={240}>
-                    <ZoruChart.BarChart
-                      data={histogramData}
-                      margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
-                    >
-                      <ZoruChart.CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="hsl(var(--zoru-line))"
-                        vertical={false}
-                      />
-                      <ZoruChart.XAxis
-                        dataKey="name"
-                        tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                        tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
-                      />
-                      <ZoruChart.YAxis
-                        tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
-                      <ZoruChart.Bar
-                        dataKey="value"
-                        fill={ZORU_CHART_PALETTE[1]}
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </ZoruChart.BarChart>
-                  </ZoruChartContainer>
-                )}
-              </ZoruCardContent>
-            </Card>
-
-            {/* Daily Volume Trend */}
-            <Card className="lg:col-span-2 flex flex-col">
-              <ZoruCardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <ZoruCardTitle>Daily Trend</ZoruCardTitle>
-                    <ZoruCardDescription>
-                      Outgoing vs incoming volume per day.
-                    </ZoruCardDescription>
+            <div className="grid gap-4 lg:grid-cols-3">
+              {/* Volume Breakdown */}
+              <Card padding="none" className="lg:col-span-1 flex flex-col">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <BarChart3
+                      className="h-4 w-4"
+                      style={{ color: 'var(--st-text-tertiary)' }}
+                      aria-hidden="true"
+                    />
+                    <CardTitle>Volume Breakdown</CardTitle>
                   </div>
-                  {isLoading && (
-                    <Loader2 className="h-4 w-4 animate-spin text-zoru-ink-muted" />
+                  <CardDescription>
+                    Distribution across incoming, outgoing, and media.
+                  </CardDescription>
+                </CardHeader>
+                <CardBody className="flex-1">
+                  {isEmpty ? (
+                    <EmptyState
+                      icon={Inbox}
+                      title="No messages"
+                      description="No data available for this period."
+                    />
+                  ) : (
+                    <ChartContainer config={VOLUME_CONFIG} style={{ height: 240 }}>
+                      <Recharts.BarChart
+                        data={histogramData}
+                        margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+                      >
+                        <Recharts.CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="var(--st-border)"
+                          vertical={false}
+                        />
+                        <Recharts.XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                          tickLine={false}
+                          axisLine={{ stroke: 'var(--st-border)' }}
+                        />
+                        <Recharts.YAxis
+                          tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Recharts.Bar
+                          dataKey="value"
+                          fill="var(--color-value)"
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </Recharts.BarChart>
+                    </ChartContainer>
                   )}
-                </div>
-              </ZoruCardHeader>
-              <ZoruCardContent className="flex-1">
+                </CardBody>
+              </Card>
+
+              {/* Daily Volume Trend */}
+              <Card padding="none" className="lg:col-span-2 flex flex-col">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Daily Trend</CardTitle>
+                      <CardDescription>
+                        Outgoing vs incoming volume per day.
+                      </CardDescription>
+                    </div>
+                    {isLoading && <Spinner size="sm" label="Refreshing" />}
+                  </div>
+                </CardHeader>
+                <CardBody className="flex-1">
+                  {dailyRows.length === 0 ? (
+                    <EmptyState
+                      icon={Inbox}
+                      title="No data"
+                      description="No daily volume available for this period."
+                    />
+                  ) : (
+                    <ChartContainer config={TREND_CONFIG} style={{ height: 240 }}>
+                      <Recharts.LineChart
+                        data={dailyRows}
+                        margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
+                      >
+                        <Recharts.CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="var(--st-border)"
+                        />
+                        <Recharts.XAxis
+                          dataKey="date"
+                          tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                          tickLine={false}
+                          axisLine={{ stroke: 'var(--st-border)' }}
+                        />
+                        <Recharts.YAxis
+                          tick={{ fontSize: 11, fill: 'var(--st-text-tertiary)' }}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <ChartLegend content={<ChartLegendContent />} />
+                        <Recharts.Line
+                          type="monotone"
+                          dataKey="outgoing"
+                          name="Outgoing"
+                          stroke="var(--color-outgoing)"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                        <Recharts.Line
+                          type="monotone"
+                          dataKey="incoming"
+                          name="Incoming"
+                          stroke="var(--color-incoming)"
+                          strokeWidth={2}
+                          strokeDasharray="4 4"
+                          dot={false}
+                        />
+                      </Recharts.LineChart>
+                    </ChartContainer>
+                  )}
+                </CardBody>
+              </Card>
+            </div>
+
+            <Card padding="none">
+              <CardHeader>
+                <CardTitle>Daily Breakdown</CardTitle>
+                <CardDescription>
+                  Detailed outgoing vs incoming message counts.
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
                 {dailyRows.length === 0 ? (
                   <EmptyState
-                    icon={<Inbox />}
-                    title="No data"
-                    description="No daily volume available for this period."
+                    icon={Inbox}
+                    title="No tabular data"
+                    description="Detailed numbers will appear here once messages are sent."
                   />
                 ) : (
-                  <ZoruChartContainer height={240}>
-                    <ZoruChart.LineChart
-                      data={dailyRows}
-                      margin={{ top: 5, right: 12, left: 0, bottom: 0 }}
-                    >
-                      <ZoruChart.CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="hsl(var(--zoru-line))"
-                      />
-                      <ZoruChart.XAxis
-                        dataKey="date"
-                        tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                        tickLine={false}
-                        axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
-                      />
-                      <ZoruChart.YAxis
-                        tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
-                      <ZoruChart.Legend wrapperStyle={{ fontSize: 11 }} />
-                      <ZoruChart.Line
-                        type="monotone"
-                        dataKey="outgoing"
-                        name="Outgoing"
-                        stroke={ZORU_CHART_PALETTE[0]}
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      <ZoruChart.Line
-                        type="monotone"
-                        dataKey="incoming"
-                        name="Incoming"
-                        stroke={ZORU_CHART_PALETTE[2]}
-                        strokeWidth={2}
-                        strokeDasharray="4 4"
-                        dot={false}
-                      />
-                    </ZoruChart.LineChart>
-                  </ZoruChartContainer>
+                  <Table>
+                    <THead>
+                      <Tr>
+                        <Th>Date</Th>
+                        <Th align="right">Outgoing</Th>
+                        <Th align="right">Incoming</Th>
+                        <Th align="right">Total</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
+                      {dailyRows.map((r) => {
+                        const total = r.outgoing + r.incoming;
+                        return (
+                          <Tr key={r.date}>
+                            <Td className="font-medium">{r.date}</Td>
+                            <Td align="right" className="tabular-nums">
+                              {r.outgoing.toLocaleString()}
+                            </Td>
+                            <Td align="right" className="tabular-nums">
+                              {r.incoming.toLocaleString()}
+                            </Td>
+                            <Td align="right" className="font-semibold tabular-nums">
+                              {total.toLocaleString()}
+                            </Td>
+                          </Tr>
+                        );
+                      })}
+                    </TBody>
+                  </Table>
                 )}
-              </ZoruCardContent>
+              </CardBody>
             </Card>
-          </div>
-          
-          <Card>
-             <ZoruCardHeader>
-               <ZoruCardTitle>Daily Breakdown</ZoruCardTitle>
-               <ZoruCardDescription>
-                 Detailed outgoing vs incoming message counts.
-               </ZoruCardDescription>
-             </ZoruCardHeader>
-             <ZoruCardContent>
-              {dailyRows.length === 0 ? (
-                <EmptyState
-                  icon={<Inbox />}
-                  title="No tabular data"
-                  description="Detailed numbers will appear here once messages are sent."
-                />
-              ) : (
-                <Table>
-                  <ZoruTableHeader>
-                    <ZoruTableRow className="hover:bg-transparent">
-                      <ZoruTableHead>Date</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Outgoing</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Incoming</ZoruTableHead>
-                      <ZoruTableHead className="text-right">Total</ZoruTableHead>
-                    </ZoruTableRow>
-                  </ZoruTableHeader>
-                  <ZoruTableBody>
-                    {dailyRows.map((r) => {
-                      const total = r.outgoing + r.incoming;
-                      return (
-                        <ZoruTableRow key={r.date}>
-                          <ZoruTableCell className="font-medium">{r.date}</ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
-                            {r.outgoing.toLocaleString()}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right tabular-nums">
-                            {r.incoming.toLocaleString()}
-                          </ZoruTableCell>
-                          <ZoruTableCell className="text-right font-semibold tabular-nums">
-                            {total.toLocaleString()}
-                          </ZoruTableCell>
-                        </ZoruTableRow>
-                      );
-                    })}
-                  </ZoruTableBody>
-                </Table>
-              )}
-             </ZoruCardContent>
-          </Card>
-        </>
-      )}
+          </>
+        )}
+      </div>
 
       {/* Export CSV dialog */}
-      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Export analytics</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Download the daily breakdown as a CSV file ({dailyRows.length} rows).
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+      <Modal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        title="Export analytics"
+        description={`Download the daily breakdown as a CSV file (${dailyRows.length} rows).`}
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setExportOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" /> Download CSV
+            <Button variant="primary" iconLeft={Download} onClick={handleExport}>
+              Download CSV
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }

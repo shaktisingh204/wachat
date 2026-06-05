@@ -1,32 +1,18 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   EmptyState,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Switch,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -43,9 +29,10 @@ import {
   getBusinessHours,
   saveBusinessHours,
   } from '@/app/actions/wachat-features.actions';
+import WachatPage from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Business Hours — ZoruUI migration.
+ * Wachat Business Hours — 20ui migration.
  * Weekly schedule + holiday list + offline auto-reply config.
  */
 
@@ -65,12 +52,11 @@ const TIMEZONES = [
 
 // 30-min increments for the schedule grid time pickers
 const TIME_OPTIONS = (() => {
-  const arr: string[] = [];
+  const arr: { value: string; label: string }[] = [];
   for (let h = 0; h < 24; h++) {
     for (const m of [0, 30]) {
-      arr.push(
-        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
-      );
+      const t = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      arr.push({ value: t, label: t });
     }
   }
   return arr;
@@ -104,7 +90,7 @@ const defaultSchedule = (): WeekSchedule =>
 
 export default function BusinessHoursPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [timezone, setTimezone] = useState('UTC');
   const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule);
@@ -124,7 +110,7 @@ export default function BusinessHoursPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -162,7 +148,7 @@ export default function BusinessHoursPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -201,103 +187,89 @@ export default function BusinessHoursPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Business hours</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Business hours
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Set your operating hours, holidays, and offline auto-reply message.
-        </p>
-      </div>
-
-      <form onSubmit={handleSave} className="mt-6 flex flex-col gap-6">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Business hours' },
+      ]}
+      title="Business hours"
+      description="Set your operating hours, holidays, and offline auto-reply message."
+      width="narrow"
+    >
+      <form onSubmit={handleSave} className="flex flex-col gap-6">
         {/* Timezone */}
-        <Card className="p-5">
-          <Label>Timezone</Label>
-          <Select value={timezone} onValueChange={setTimezone}>
-            <ZoruSelectTrigger className="mt-2 w-72">
-              <ZoruSelectValue placeholder="Select timezone" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {TIMEZONES.map((tz) => (
-                <ZoruSelectItem key={tz.value} value={tz.value}>
-                  {tz.label}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
+        <Card padding="lg">
+          <Field label="Timezone">
+            <Select
+              value={timezone}
+              onChange={(v) => setTimezone(v ?? 'UTC')}
+              options={TIMEZONES}
+              placeholder="Select timezone"
+              className="mt-2 w-72"
+            />
+          </Field>
         </Card>
 
         {/* Weekly schedule */}
-        <Card className="p-5">
-          <h2 className="mb-4 text-[15px] text-zoru-ink">Weekly schedule</h2>
+        <Card padding="lg">
+          <h2
+            className="mb-4 text-[15px]"
+            style={{ color: 'var(--st-text)' }}
+          >
+            Weekly schedule
+          </h2>
           <div className="space-y-3">
             {DAYS.map((day) => {
               const d = schedule[day];
               return (
                 <div
                   key={day}
-                  className="flex flex-wrap items-center gap-4 rounded-[var(--zoru-radius)] border border-zoru-line p-3"
+                  className="flex flex-wrap items-center gap-4 p-3"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                  }}
                 >
-                  <span className="w-24 text-[13px] text-zoru-ink">{day}</span>
+                  <span
+                    className="w-24 text-[13px]"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    {day}
+                  </span>
                   <Switch
                     checked={d.open}
                     onCheckedChange={(v) => updateDay(day, { open: v })}
                     aria-label={`${day} open`}
                   />
-                  <span className="text-[12px] text-zoru-ink-muted">
+                  <span
+                    className="text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
                     {d.open ? 'Open' : 'Closed'}
                   </span>
                   {d.open && (
                     <>
                       <Select
                         value={d.start}
-                        onValueChange={(v) => updateDay(day, { start: v })}
+                        onChange={(v) => updateDay(day, { start: v ?? d.start })}
+                        options={TIME_OPTIONS}
+                        aria-label={`${day} opening time`}
+                        className="w-28"
+                      />
+                      <span
+                        className="text-[12px]"
+                        style={{ color: 'var(--st-text-secondary)' }}
                       >
-                        <ZoruSelectTrigger className="w-28">
-                          <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          {TIME_OPTIONS.map((t) => (
-                            <ZoruSelectItem key={t} value={t}>
-                              {t}
-                            </ZoruSelectItem>
-                          ))}
-                        </ZoruSelectContent>
-                      </Select>
-                      <span className="text-[12px] text-zoru-ink-muted">to</span>
+                        to
+                      </span>
                       <Select
                         value={d.end}
-                        onValueChange={(v) => updateDay(day, { end: v })}
-                      >
-                        <ZoruSelectTrigger className="w-28">
-                          <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                          {TIME_OPTIONS.map((t) => (
-                            <ZoruSelectItem key={t} value={t}>
-                              {t}
-                            </ZoruSelectItem>
-                          ))}
-                        </ZoruSelectContent>
-                      </Select>
+                        onChange={(v) => updateDay(day, { end: v ?? d.end })}
+                        options={TIME_OPTIONS}
+                        aria-label={`${day} closing time`}
+                        className="w-28"
+                      />
                     </>
                   )}
                 </div>
@@ -307,22 +279,25 @@ export default function BusinessHoursPage() {
         </Card>
 
         {/* Holidays */}
-        <Card className="p-5">
+        <Card padding="lg">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[15px] text-zoru-ink">Holidays</h2>
+            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+              Holidays
+            </h2>
             <Button
               type="button"
               size="sm"
               variant="outline"
+              iconLeft={Plus}
               onClick={() => openHolidayDialog(null)}
             >
-              <Plus /> Add holiday
+              Add holiday
             </Button>
           </div>
           {holidays.length === 0 ? (
             <EmptyState
-              compact
-              icon={<CalendarOff />}
+              size="sm"
+              icon={CalendarOff}
               title="No holidays added"
               description="Add observed holidays so auto-replies kick in even on closed days."
             />
@@ -331,11 +306,23 @@ export default function BusinessHoursPage() {
               {holidays.map((h) => (
                 <li
                   key={h.id}
-                  className="flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2"
+                  className="flex items-center justify-between gap-3 px-3 py-2"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                  }}
                 >
                   <div className="min-w-0">
-                    <div className="text-[13px] text-zoru-ink">{h.name}</div>
-                    <div className="text-[11.5px] text-zoru-ink-muted">
+                    <div
+                      className="text-[13px]"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      {h.name}
+                    </div>
+                    <div
+                      className="text-[11.5px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       {h.date}
                     </div>
                   </div>
@@ -348,15 +335,14 @@ export default function BusinessHoursPage() {
                     >
                       Edit
                     </Button>
-                    <Button
+                    <IconButton
                       type="button"
                       variant="ghost"
-                      size="icon-sm"
-                      aria-label="Remove holiday"
+                      size="sm"
+                      label="Remove holiday"
+                      icon={Trash2}
                       onClick={() => removeHoliday(h.id)}
-                    >
-                      <Trash2 />
-                    </Button>
+                    />
                   </div>
                 </li>
               ))}
@@ -365,85 +351,81 @@ export default function BusinessHoursPage() {
         </Card>
 
         {/* Offline message */}
-        <Card className="p-5">
-          <Label htmlFor="offline-msg">Offline message</Label>
-          <Textarea
-            id="offline-msg"
-            value={offlineMsg}
-            onChange={(e) => setOfflineMsg(e.target.value)}
-            rows={3}
-            placeholder="e.g. Thanks for reaching out! We are currently offline and will get back to you during business hours."
-            className="mt-2"
-          />
+        <Card padding="lg">
+          <Field label="Offline message">
+            <Textarea
+              id="offline-msg"
+              value={offlineMsg}
+              onChange={(e) => setOfflineMsg(e.target.value)}
+              rows={3}
+              placeholder="e.g. Thanks for reaching out! We are currently offline and will get back to you during business hours."
+              className="mt-2"
+            />
+          </Field>
         </Card>
 
         <div className="flex items-center gap-3">
-          <Button type="submit" disabled={isPending}>
-            {isPending ? <Loader2 className="animate-spin" /> : <Save />}
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isPending}
+            iconLeft={isPending ? Loader2 : Save}
+          >
             {isPending ? 'Saving…' : 'Save business hours'}
           </Button>
         </div>
       </form>
 
       {/* ── Edit holiday dialog ── */}
-      <Dialog
+      <Modal
         open={!!editingHoliday}
-        onOpenChange={(o) => !o && setEditingHoliday(null)}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              {editingHoliday?.id ? 'Edit holiday' : 'Add holiday'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Holidays apply across every connected WhatsApp number.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="holiday-name">Name</Label>
-              <Input
-                id="holiday-name"
-                value={holidayDraft.name}
-                onChange={(e) =>
-                  setHolidayDraft((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                  }))
-                }
-                placeholder="New Year's Day"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="holiday-date">Date</Label>
-              <Input
-                id="holiday-date"
-                type="date"
-                value={holidayDraft.date}
-                onChange={(e) =>
-                  setHolidayDraft((prev) => ({
-                    ...prev,
-                    date: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </div>
-          <ZoruDialogFooter>
+        onClose={() => setEditingHoliday(null)}
+        title={editingHoliday?.id ? 'Edit holiday' : 'Add holiday'}
+        description="Holidays apply across every connected WhatsApp number."
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setEditingHoliday(null)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={saveHoliday}
               disabled={!holidayDraft.name.trim() || !holidayDraft.date}
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field label="Name">
+            <Input
+              id="holiday-name"
+              value={holidayDraft.name}
+              onChange={(e) =>
+                setHolidayDraft((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }))
+              }
+              placeholder="New Year's Day"
+            />
+          </Field>
+          <Field label="Date">
+            <Input
+              id="holiday-date"
+              type="date"
+              value={holidayDraft.date}
+              onChange={(e) =>
+                setHolidayDraft((prev) => ({
+                  ...prev,
+                  date: e.target.value,
+                }))
+              }
+            />
+          </Field>
+        </div>
+      </Modal>
+    </WachatPage>
   );
 }

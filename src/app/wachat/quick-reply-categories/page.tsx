@@ -1,47 +1,29 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   DataTable,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  type DataTableColumn,
   EmptyState,
+  Field,
+  IconButton,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Modal,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  type SelectOption,
   Skeleton,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -51,9 +33,10 @@ import {
 import { Plus,
   Pencil,
   Trash2,
-  Tag } from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
+  Tag,
+  Search } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import {
   getQuickReplyCategories,
@@ -63,11 +46,9 @@ import {
 
 /**
  * /wachat/quick-reply-categories — organize quick replies into categories.
- * ZoruUI: header + breadcrumb, DataTable for list, dialogs for
- * create/edit/delete. Empty state via EmptyState.
+ * 20ui: WachatPage frame (title/description/breadcrumb), DataTable for list,
+ * Modal for create/edit, AlertDialog for delete. Empty state via EmptyState.
  */
-
-import * as React from 'react';
 
 interface Category {
   _id: string;
@@ -82,7 +63,7 @@ interface UI_Category extends Category {
 
 export default function QuickReplyCategoriesPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [categories, setCategories] = useState<Category[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -90,6 +71,7 @@ export default function QuickReplyCategoriesPage() {
   const [deleting, setDeleting] = useState<Category | null>(null);
   const [name, setName] = useState('');
   const [parentId, setParentId] = useState('');
+  const [search, setSearch] = useState('');
 
   const uiCategories = useMemo<UI_Category[]>(() => {
     const map = new Map<string, Category>(categories.map(c => [c._id, c]));
@@ -104,6 +86,12 @@ export default function QuickReplyCategoriesPage() {
       return { ...c, displayName };
     }).sort((a, b) => a.displayName.localeCompare(b.displayName));
   }, [categories]);
+
+  const filteredCategories = useMemo<UI_Category[]>(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return uiCategories;
+    return uiCategories.filter(c => c.displayName.toLowerCase().includes(q));
+  }, [uiCategories, search]);
 
   const validParents = useMemo(() => {
     if (!editing) return uiCategories;
@@ -122,12 +110,20 @@ export default function QuickReplyCategoriesPage() {
     return uiCategories.filter(c => !invalidIds.has(c._id));
   }, [uiCategories, editing, categories]);
 
+  const parentOptions = useMemo<SelectOption[]>(
+    () => [
+      { value: 'none', label: 'None (Top-level)' },
+      ...validParents.map(c => ({ value: c._id, label: c.displayName })),
+    ],
+    [validParents],
+  );
+
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
     startTransition(async () => {
       const res = await getQuickReplyCategories(activeProjectId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
         setCategories((res.categories ?? []) as Category[]);
       }
@@ -143,11 +139,12 @@ export default function QuickReplyCategoriesPage() {
     startTransition(async () => {
       const res = await saveQuickReplyCategory(activeProjectId, name.trim(), editing?._id, parentId || null);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
         toast({
           title: editing ? 'Category updated' : 'Category created',
           description: res.message ?? 'Saved.',
+          tone: 'success',
         });
         setName('');
         setParentId('');
@@ -163,9 +160,9 @@ export default function QuickReplyCategoriesPage() {
     startTransition(async () => {
       const res = await deleteQuickReplyCategory(deleting._id);
       if (res.error) {
-         toast({ title: 'Error', description: res.error, variant: 'destructive' });
+         toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
-         toast({ title: 'Deleted', description: 'Category deleted successfully.' });
+         toast({ title: 'Deleted', description: 'Category deleted successfully.', tone: 'success' });
          setDeleting(null);
          fetchData();
       }
@@ -185,43 +182,52 @@ export default function QuickReplyCategoriesPage() {
     setCreateOpen(true);
   };
 
-  const columns = useMemo<ColumnDef<UI_Category>[]>(
+  const closeCreate = () => {
+    setCreateOpen(false);
+    setEditing(null);
+    setName('');
+    setParentId('');
+  };
+
+  const columns = useMemo<DataTableColumn<UI_Category>[]>(
     () => [
       {
-        accessorKey: 'displayName',
+        key: 'displayName',
         header: 'Name',
-        cell: ({ row }) => (
-          <span className="text-zoru-ink">{row.original.displayName}</span>
+        sortable: true,
+        render: (row) => (
+          <span style={{ color: 'var(--st-text)' }}>{row.displayName}</span>
         ),
       },
       {
-        id: 'count',
+        key: 'count',
         header: 'Replies',
-        cell: ({ row }) => (
-          <Badge variant="outline">{row.original.count ?? 0}</Badge>
+        sortable: true,
+        sortValue: (row) => row.count ?? 0,
+        render: (row) => (
+          <Badge kind="outline">{row.count ?? 0}</Badge>
         ),
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
-        cell: ({ row }) => (
+        align: 'right',
+        render: (row) => (
           <div className="flex items-center justify-end gap-1">
-            <Button
+            <IconButton
               variant="ghost"
-              size="icon-sm"
-              aria-label="Edit"
-              onClick={() => openEdit(row.original)}
-            >
-              <Pencil />
-            </Button>
-            <Button
+              size="sm"
+              label="Edit"
+              icon={Pencil}
+              onClick={() => openEdit(row)}
+            />
+            <IconButton
               variant="ghost"
-              size="icon-sm"
-              aria-label="Delete"
-              onClick={() => setDeleting(row.original)}
-            >
-              <Trash2 />
-            </Button>
+              size="sm"
+              label="Delete"
+              icon={Trash2}
+              onClick={() => setDeleting(row)}
+            />
           </div>
         ),
       },
@@ -230,174 +236,141 @@ export default function QuickReplyCategoriesPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Quick Reply Categories</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat · {activeProject?.name ?? 'Project'}</ZoruPageEyebrow>
-          <ZoruPageTitle>Quick Reply Categories</ZoruPageTitle>
-          <ZoruPageDescription>
-            Organize your quick replies into categories for faster access during
-            conversations.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button onClick={openCreate}>
-            <Plus /> New category
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <div className="mt-6">
-        {isPending && categories.length === 0 ? (
-          <div className="flex flex-col gap-2">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-12" />
-            ))}
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Quick Reply Categories' },
+      ]}
+      eyebrow={`WaChat · ${activeProject?.name ?? 'Project'}`}
+      title="Quick Reply Categories"
+      description="Organize your quick replies into categories for faster access during conversations."
+      actions={
+        <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+          New category
+        </Button>
+      }
+    >
+      {isPending && categories.length === 0 ? (
+        <div className="flex flex-col gap-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} height={48} />
+          ))}
+        </div>
+      ) : categories.length === 0 ? (
+        <EmptyState
+          icon={Tag}
+          title="No categories yet"
+          description="Group your quick replies under categories to make them easier to find."
+          action={
+            <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+              New category
+            </Button>
+          }
+        />
+      ) : (
+        <Card padding="md">
+          <div className="mb-3">
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search categories…"
+              iconLeft={Search}
+              aria-label="Search categories"
+            />
           </div>
-        ) : categories.length === 0 ? (
-          <EmptyState
-            icon={<Tag />}
-            title="No categories yet"
-            description="Group your quick replies under categories to make them easier to find."
-            action={
-              <Button onClick={openCreate}>
-                <Plus /> New category
-              </Button>
+          <DataTable
+            columns={columns}
+            rows={filteredCategories}
+            getRowId={(row) => row._id}
+            empty={
+              <EmptyState
+                size="sm"
+                icon={Search}
+                title="No matches"
+                description="No categories match your search."
+              />
             }
           />
-        ) : (
-          <Card className="p-4">
-            <DataTable
-              columns={columns}
-              data={uiCategories}
-              filterColumn="displayName"
-              filterPlaceholder="Search categories…"
-            />
-          </Card>
-        )}
-      </div>
+        </Card>
+      )}
 
-      {/* Create / edit category dialog */}
-      <Dialog
+      {/* Create / edit category modal */}
+      <Modal
         open={createOpen}
-        onOpenChange={(open) => {
-          setCreateOpen(open);
-          if (!open) {
-            setEditing(null);
-            setName('');
-            setParentId('');
-          }
-        }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              {editing ? 'Edit category' : 'New category'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Give the category a short, recognizable name.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="category-name">Name</Label>
-              <Input
-                id="category-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSave();
-                }}
-                placeholder="e.g. Sales"
-                autoFocus
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="parent-category">Parent Category</Label>
-              <Select
-                value={parentId || 'none'}
-                onValueChange={(val) => setParentId(val === 'none' ? '' : val)}
-              >
-                <SelectTrigger id="parent-category">
-                  <SelectValue placeholder="Select parent category (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None (Top-level)</SelectItem>
-                  {validParents.map(c => (
-                    <SelectItem key={c._id} value={c._id}>{c.displayName}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <ZoruDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCreateOpen(false);
-                setEditing(null);
-                setName('');
-                setParentId('');
-              }}
-            >
+        onClose={closeCreate}
+        title={editing ? 'Edit category' : 'New category'}
+        description="Give the category a short, recognizable name."
+        footer={
+          <>
+            <Button variant="outline" onClick={closeCreate}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isPending || !name.trim()}>
+            <Button
+              variant="primary"
+              onClick={handleSave}
+              disabled={isPending || !name.trim()}
+            >
               {editing ? 'Save changes' : 'Create category'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <Field label="Name">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+              }}
+              placeholder="e.g. Sales"
+              autoFocus
+            />
+          </Field>
+          <Field label="Parent Category">
+            <Select
+              value={parentId || 'none'}
+              onChange={(val) => setParentId(val === 'none' || val == null ? '' : val)}
+              options={parentOptions}
+              placeholder="Select parent category (optional)"
+              searchable
+            />
+          </Field>
+        </div>
+      </Modal>
 
       {/* Delete category alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!deleting}
         onOpenChange={(open) => {
           if (!open) setDeleting(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete &ldquo;{deleting?.name}&rdquo;?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               {deleting?.count ? (
                 <>
-                  This category contains <strong>{deleting.count} quick repl{deleting.count === 1 ? 'y' : 'ies'}</strong>. 
+                  This category contains <strong>{deleting.count} quick repl{deleting.count === 1 ? 'y' : 'ies'}</strong>.
                   Deleting it will leave these replies without a category, but they will not be deleted.
                 </>
               ) : (
                 'This removes the category but leaves any underlying replies intact.'
               )}
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }

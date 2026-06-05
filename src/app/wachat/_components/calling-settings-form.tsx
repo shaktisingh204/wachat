@@ -2,22 +2,18 @@
 
 import {
   Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Button,
   Card,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Skeleton,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useCallback,
@@ -45,11 +41,15 @@ import { recordApiCall } from '@/lib/calls/api-log';
 import { timezones } from '@/lib/timezones';
 
 /**
- * CallingSettingsForm (wachat-local, ZoruUI).
+ * CallingSettingsForm (wachat-local, 20ui).
  *
  * Replaces the legacy calling-settings-form. Same server
  * actions (getPhoneNumberCallingSettings, savePhoneNumberCallingSettings),
  * same hidden form fields, same recordApiCall side-effects.
+ *
+ * The 20ui Select is a custom button-based widget (not a native <select>), so
+ * each select is driven by controlled state and mirrored into a hidden <input>
+ * to preserve the exact form-submission contract of the original.
  */
 
 import * as React from 'react';
@@ -57,15 +57,36 @@ import * as React from 'react';
 import { HolidayScheduleEditor } from './holiday-schedule-editor';
 import { WeeklyHoursEditor } from './weekly-hours-editor';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 const saveInitialState: { success: boolean; error?: string } = {
   success: false,
   error: undefined,
 };
 
+const STATUS_OPTIONS = [
+  { value: 'ENABLED', label: 'Enabled' },
+  { value: 'DISABLED', label: 'Disabled' },
+];
+
+const CALL_ICON_VISIBILITY_OPTIONS = [
+  { value: 'DEFAULT', label: 'Default (Visible to all)' },
+  { value: 'DISABLE_ALL', label: 'Disable All (Hidden)' },
+];
+
+const CALLBACK_PERMISSION_OPTIONS = [
+  { value: 'ENABLED', label: 'Enabled (Show Prompt)' },
+  { value: 'DISABLED', label: 'Disabled' },
+];
+
+const TIMEZONE_OPTIONS = timezones.map((tz) => ({ value: tz, label: tz }));
+
 function SaveButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="lg" disabled={pending}>
+    <Button type="submit" size="lg" variant="primary" disabled={pending}>
       {pending ? (
         <Loader2 className="animate-spin" />
       ) : (
@@ -93,10 +114,20 @@ export function CallingSettingsForm({
     savePhoneNumberCallingSettings,
     saveInitialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [weeklyHours, setWeeklyHours] = useState<WeeklyOperatingHours[]>([]);
   const [holidaySchedule, setHolidaySchedule] = useState<HolidaySchedule[]>([]);
+
+  // Controlled values for the 20ui Select widgets (which don't post via `name`).
+  // Each is mirrored into a hidden <input> below to preserve the form contract.
+  const [status, setStatus] = useState<string>('DISABLED');
+  const [callIconVisibility, setCallIconVisibility] = useState<string>('DEFAULT');
+  const [callbackPermissionStatus, setCallbackPermissionStatus] =
+    useState<string>('DISABLED');
+  const [callHoursStatus, setCallHoursStatus] = useState<string>('DISABLED');
+  const [timezoneId, setTimezoneId] = useState<string>('');
+  const [sipStatus, setSipStatus] = useState<string>('DISABLED');
 
   const fetchSettings = useCallback(() => {
     startLoading(async () => {
@@ -108,7 +139,7 @@ export function CallingSettingsForm({
         toast({
           title: 'Error',
           description: `Could not fetch settings: ${result.error}`,
-          variant: 'destructive',
+          tone: 'danger',
         });
         recordApiCall({
           method: 'GET',
@@ -117,13 +148,16 @@ export function CallingSettingsForm({
           errorMessage: result.error,
         });
       } else {
-        setSettings(result.settings || {});
-        setWeeklyHours(
-          result.settings?.call_hours?.weekly_operating_hours || [],
-        );
-        setHolidaySchedule(
-          result.settings?.call_hours?.holiday_schedule || [],
-        );
+        const s = result.settings || {};
+        setSettings(s);
+        setWeeklyHours(s.call_hours?.weekly_operating_hours || []);
+        setHolidaySchedule(s.call_hours?.holiday_schedule || []);
+        setStatus(s.status || 'DISABLED');
+        setCallIconVisibility(s.call_icon_visibility || 'DEFAULT');
+        setCallbackPermissionStatus(s.callback_permission_status || 'DISABLED');
+        setCallHoursStatus(s.call_hours?.status || 'DISABLED');
+        setTimezoneId(s.call_hours?.timezone_id || '');
+        setSipStatus(s.sip?.status || 'DISABLED');
         recordApiCall({
           method: 'GET',
           status: 'SUCCESS',
@@ -142,6 +176,7 @@ export function CallingSettingsForm({
       toast({
         title: 'Success!',
         description: 'Calling settings saved successfully.',
+        tone: 'success',
       });
       onSuccess();
     }
@@ -149,7 +184,7 @@ export function CallingSettingsForm({
       toast({
         title: 'Error Saving Settings',
         description: saveState.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
       recordApiCall({
         method: 'POST',
@@ -161,7 +196,7 @@ export function CallingSettingsForm({
   }, [saveState, toast, onSuccess, phone.display_phone_number]);
 
   if (isLoading) {
-    return <Skeleton className="h-96 w-full" />;
+    return <Skeleton className="h-96 w-full" height="24rem" width="100%" />;
   }
 
   return (
@@ -178,55 +213,51 @@ export function CallingSettingsForm({
         name="holiday_schedule"
         value={JSON.stringify(holidaySchedule)}
       />
+      <input type="hidden" name="status" value={status} />
+      <input
+        type="hidden"
+        name="call_icon_visibility"
+        value={callIconVisibility}
+      />
+      <input
+        type="hidden"
+        name="callback_permission_status"
+        value={callbackPermissionStatus}
+      />
+      <input type="hidden" name="call_hours_status" value={callHoursStatus} />
+      <input type="hidden" name="timezone_id" value={timezoneId} />
+      <input type="hidden" name="sip_status" value={sipStatus} />
 
       <Accordion
         type="multiple"
         defaultValue={['general']}
         className="flex w-full flex-col gap-4"
       >
-        <ZoruAccordionItem value="general">
-          <ZoruAccordionTrigger>General Settings</ZoruAccordionTrigger>
-          <ZoruAccordionContent className="pt-2">
+        <AccordionItem value="general">
+          <AccordionTrigger>General Settings</AccordionTrigger>
+          <AccordionContent className="pt-2">
             <Card className="p-5">
               <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-1.5">
-                  <Label>Calling Status</Label>
+                <Field label="Calling Status">
                   <Select
-                    name="status"
-                    defaultValue={settings.status || 'DISABLED'}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
-                      <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Call Icon Visibility</Label>
+                    aria-label="Calling Status"
+                    value={status}
+                    onChange={(v) => setStatus(v ?? 'DISABLED')}
+                    options={STATUS_OPTIONS}
+                  />
+                </Field>
+                <Field label="Call Icon Visibility">
                   <Select
-                    name="call_icon_visibility"
-                    defaultValue={settings.call_icon_visibility || 'DEFAULT'}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="DEFAULT">
-                        Default (Visible to all)
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="DISABLE_ALL">
-                        Disable All (Hidden)
-                      </ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="restrict_to_user_countries">
-                    Restrict to Countries (Optional)
-                  </Label>
+                    aria-label="Call Icon Visibility"
+                    value={callIconVisibility}
+                    onChange={(v) => setCallIconVisibility(v ?? 'DEFAULT')}
+                    options={CALL_ICON_VISIBILITY_OPTIONS}
+                  />
+                </Field>
+                <Field
+                  label="Restrict to Countries (Optional)"
+                  help="Comma-separated list of ISO 3166-1 alpha-2 country codes where the call icon should appear."
+                >
                   <Input
                     id="restrict_to_user_countries"
                     name="restrict_to_user_countries"
@@ -235,73 +266,45 @@ export function CallingSettingsForm({
                     )}
                     placeholder="e.g. US, BR, IN"
                   />
-                  <p className="text-[11.5px] text-zoru-ink-muted">
-                    Comma-separated list of ISO 3166-1 alpha-2 country codes
-                    where the call icon should appear.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Callback Permission Prompt</Label>
+                </Field>
+                <Field label="Callback Permission Prompt">
                   <Select
-                    name="callback_permission_status"
-                    defaultValue={
-                      settings.callback_permission_status || 'DISABLED'
+                    aria-label="Callback Permission Prompt"
+                    value={callbackPermissionStatus}
+                    onChange={(v) =>
+                      setCallbackPermissionStatus(v ?? 'DISABLED')
                     }
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="ENABLED">
-                        Enabled (Show Prompt)
-                      </ZoruSelectItem>
-                      <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
+                    options={CALLBACK_PERMISSION_OPTIONS}
+                  />
+                </Field>
               </div>
             </Card>
-          </ZoruAccordionContent>
-        </ZoruAccordionItem>
+          </AccordionContent>
+        </AccordionItem>
 
-        <ZoruAccordionItem value="hours">
-          <ZoruAccordionTrigger>Business Hours</ZoruAccordionTrigger>
-          <ZoruAccordionContent className="pt-2">
+        <AccordionItem value="hours">
+          <AccordionTrigger>Business Hours</AccordionTrigger>
+          <AccordionContent className="pt-2">
             <Card className="p-5">
               <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-1.5">
-                  <Label>Business Hours Status</Label>
+                <Field label="Business Hours Status">
                   <Select
-                    name="call_hours_status"
-                    defaultValue={settings.call_hours?.status || 'DISABLED'}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
-                      <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Timezone</Label>
+                    aria-label="Business Hours Status"
+                    value={callHoursStatus}
+                    onChange={(v) => setCallHoursStatus(v ?? 'DISABLED')}
+                    options={STATUS_OPTIONS}
+                  />
+                </Field>
+                <Field label="Timezone">
                   <Select
-                    name="timezone_id"
-                    defaultValue={settings.call_hours?.timezone_id}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue placeholder="Select a timezone..." />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      {timezones.map((tz) => (
-                        <ZoruSelectItem key={tz} value={tz}>
-                          {tz}
-                        </ZoruSelectItem>
-                      ))}
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
+                    aria-label="Timezone"
+                    value={timezoneId || null}
+                    onChange={(v) => setTimezoneId(v ?? '')}
+                    placeholder="Select a timezone..."
+                    searchable
+                    options={TIMEZONE_OPTIONS}
+                  />
+                </Field>
                 <WeeklyHoursEditor
                   hours={weeklyHours}
                   onChange={setWeeklyHours}
@@ -312,46 +315,36 @@ export function CallingSettingsForm({
                 />
               </div>
             </Card>
-          </ZoruAccordionContent>
-        </ZoruAccordionItem>
+          </AccordionContent>
+        </AccordionItem>
 
-        <ZoruAccordionItem value="sip">
-          <ZoruAccordionTrigger>SIP Integration</ZoruAccordionTrigger>
-          <ZoruAccordionContent className="pt-2">
+        <AccordionItem value="sip">
+          <AccordionTrigger>SIP Integration</AccordionTrigger>
+          <AccordionContent className="pt-2">
             <Card className="p-5">
               <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-1.5">
-                  <Label>SIP Status</Label>
+                <Field label="SIP Status">
                   <Select
-                    name="sip_status"
-                    defaultValue={settings.sip?.status || 'DISABLED'}
-                  >
-                    <ZoruSelectTrigger>
-                      <ZoruSelectValue />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                      <ZoruSelectItem value="ENABLED">Enabled</ZoruSelectItem>
-                      <ZoruSelectItem value="DISABLED">Disabled</ZoruSelectItem>
-                    </ZoruSelectContent>
-                  </Select>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>SIP Hostname</Label>
+                    aria-label="SIP Status"
+                    value={sipStatus}
+                    onChange={(v) => setSipStatus(v ?? 'DISABLED')}
+                    options={STATUS_OPTIONS}
+                  />
+                </Field>
+                <Field label="SIP Hostname">
                   <Input
                     name="sip_hostname"
                     defaultValue={settings.sip?.servers?.[0]?.hostname || ''}
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>SIP Port</Label>
+                </Field>
+                <Field label="SIP Port">
                   <Input
                     type="number"
                     name="sip_port"
                     defaultValue={settings.sip?.servers?.[0]?.port || ''}
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>SIP URI Params (JSON)</Label>
+                </Field>
+                <Field label="SIP URI Params (JSON)">
                   <Textarea
                     name="sip_params"
                     placeholder='{ "transport": "tcp" }'
@@ -365,14 +358,14 @@ export function CallingSettingsForm({
                         : ''
                     }
                   />
-                </div>
+                </Field>
               </div>
             </Card>
-          </ZoruAccordionContent>
-        </ZoruAccordionItem>
+          </AccordionContent>
+        </AccordionItem>
       </Accordion>
 
-      <div className="mt-8 flex justify-end">
+      <div className={cx('mt-8', 'flex', 'justify-end')}>
         <SaveButton />
       </div>
     </form>

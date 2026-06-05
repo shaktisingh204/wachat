@@ -2,39 +2,20 @@
 
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   DataTable,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  type DataTableColumn,
   EmptyState,
+  Field,
+  IconButton,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Modal,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Skeleton,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -51,7 +32,6 @@ import {
   Wand2,
   Search,
 } from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -60,8 +40,7 @@ import {
   deleteSavedReply,
 } from '@/app/actions/wachat-features.actions';
 
-import * as React from 'react';
-
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 const FILTER_CATEGORIES = [
@@ -107,13 +86,14 @@ function fuzzyMatch(str: string, pattern: string): boolean {
 
 export default function SavedRepliesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [replies, setReplies] = useState<Reply[]>([]);
-  
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<Reply> | null>(null);
   const [mediaUrl, setMediaUrl] = useState('');
+  const [formCategory, setFormCategory] = useState('General');
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -128,6 +108,7 @@ export default function SavedRepliesPage() {
   useEffect(() => {
     if (dialogOpen) {
       setMediaUrl(editing?.mediaUrl ?? '');
+      setFormCategory(editing?.category ?? 'General');
     }
   }, [dialogOpen, editing]);
 
@@ -136,7 +117,7 @@ export default function SavedRepliesPage() {
     startTransition(async () => {
       const res = await getSavedReplies(String(activeProject._id));
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       setReplies((res.replies ?? []) as Reply[]);
@@ -187,10 +168,10 @@ export default function SavedRepliesPage() {
     if (editing?._id) fd.set('replyId', editing._id);
     const res = await saveSavedReply(null, fd);
     if (res.error) {
-      toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      toast({ title: 'Error', description: res.error, tone: 'danger' });
       return;
     }
-    toast({ title: res.message ?? 'Reply saved.' });
+    toast({ title: res.message ?? 'Reply saved.', tone: 'success' });
     setDialogOpen(false);
     setEditing(null);
     load();
@@ -200,17 +181,17 @@ export default function SavedRepliesPage() {
     startTransition(async () => {
       const res = await deleteSavedReply(id);
       if (!res.success) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
-      toast({ title: 'Reply deleted.' });
+      toast({ title: 'Reply deleted.', tone: 'success' });
       load();
     });
   };
 
   const handleGenerateAI = () => {
     if (!incomingMsg.trim()) {
-      toast({ title: 'Please enter an incoming message.', variant: 'destructive' });
+      toast({ title: 'Please enter an incoming message.', tone: 'danger' });
       return;
     }
     setIsGenerating(true);
@@ -227,65 +208,60 @@ export default function SavedRepliesPage() {
       setDialogOpen(true);
       setIsGenerating(false);
       setIncomingMsg('');
-      toast({ title: 'AI suggestion generated successfully.' });
+      toast({ title: 'AI suggestion generated successfully.', tone: 'success' });
     }, 1500);
   };
 
-  const columns = useMemo<ColumnDef<Reply>[]>(
+  const columns = useMemo<DataTableColumn<Reply>[]>(
     () => [
       {
-        accessorKey: 'shortcut',
+        key: 'shortcut',
         header: 'Shortcut',
-        cell: ({ row }) => (
-          <span className="font-mono text-[12px] text-zoru-ink">
-            {row.original.shortcut}
+        render: (row) => (
+          <span className="font-mono text-[12px]" style={{ color: 'var(--st-text)' }}>
+            {row.shortcut}
           </span>
         ),
       },
       {
-        accessorKey: 'title',
+        key: 'title',
         header: 'Title',
-        cell: ({ row }) => (
-          <span className="truncate text-zoru-ink">{row.original.title}</span>
+        render: (row) => (
+          <span className="truncate" style={{ color: 'var(--st-text)' }}>{row.title}</span>
         ),
       },
       {
-        accessorKey: 'body',
+        key: 'body',
         header: 'Body',
-        cell: ({ row }) => (
-          <span className="line-clamp-1 text-zoru-ink-muted">
-            {row.original.body}
+        render: (row) => (
+          <span className="line-clamp-1" style={{ color: 'var(--st-text-secondary)' }}>
+            {row.body}
           </span>
         ),
       },
       {
-        accessorKey: 'category',
+        key: 'category',
         header: 'Category',
-        cell: ({ row }) => (
-          <Badge variant="outline">{row.original.category}</Badge>
-        ),
+        render: (row) => <Badge kind="outline">{row.category}</Badge>,
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
-        cell: ({ row }) => (
+        align: 'right',
+        render: (row) => (
           <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Edit"
-              onClick={() => openEdit(row.original as Reply)}
-            >
-              <Pencil />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Delete"
-              onClick={() => handleDelete(row.original._id)}
-            >
-              <Trash2 />
-            </Button>
+            <IconButton
+              label="Edit reply"
+              icon={Pencil}
+              size="sm"
+              onClick={() => openEdit(row)}
+            />
+            <IconButton
+              label="Delete reply"
+              icon={Trash2}
+              size="sm"
+              onClick={() => handleDelete(row._id)}
+            />
           </div>
         ),
       },
@@ -295,190 +271,122 @@ export default function SavedRepliesPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Saved Replies</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
-          <ZoruPageTitle>Saved Replies</ZoruPageTitle>
-          <ZoruPageDescription>
-            Create shortcut replies your team can use in conversations. Press <kbd className="rounded border bg-zoru-surface px-1 font-mono text-[10px] text-zoru-ink-muted shadow-sm">Cmd+K</kbd> to search or <kbd className="rounded border bg-zoru-surface px-1 font-mono text-[10px] text-zoru-ink-muted shadow-sm">Cmd+N</kbd> for a new reply.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button variant="outline" onClick={() => setAiDialogOpen(true)}>
-            <Wand2 className="mr-2 h-4 w-4" /> AI Suggest
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Saved Replies' },
+      ]}
+      eyebrow="WaChat"
+      title="Saved Replies"
+      description={
+        <>
+          Create shortcut replies your team can use in conversations. Press{' '}
+          <kbd
+            className="rounded px-1 font-mono text-[10px]"
+            style={{
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-bg-secondary)',
+              color: 'var(--st-text-secondary)',
+            }}
+          >
+            Cmd+K
+          </kbd>{' '}
+          to search or{' '}
+          <kbd
+            className="rounded px-1 font-mono text-[10px]"
+            style={{
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-bg-secondary)',
+              color: 'var(--st-text-secondary)',
+            }}
+          >
+            Cmd+N
+          </kbd>{' '}
+          for a new reply.
+        </>
+      }
+      actions={
+        <>
+          <Button variant="outline" iconLeft={Wand2} onClick={() => setAiDialogOpen(true)}>
+            AI Suggest
           </Button>
-          <Button onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> New reply
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+            New reply
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
-        <div className="relative w-full sm:w-[300px]">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
+        </>
+      }
+    >
+      <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="w-full sm:w-[300px]">
           <Input
             ref={searchInputRef}
+            iconLeft={Search}
             placeholder="Search replies..."
+            aria-label="Search saved replies"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 w-full"
+            className="w-full"
           />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <ZoruSelectTrigger className="w-full sm:w-[180px]">
-            <ZoruSelectValue placeholder="Category" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            {FILTER_CATEGORIES.map((c) => (
-              <ZoruSelectItem key={c.value} value={c.value}>
-                {c.label}
-              </ZoruSelectItem>
-            ))}
-          </ZoruSelectContent>
-        </Select>
+        <div className="w-full sm:w-[180px]">
+          <Select
+            value={categoryFilter}
+            onChange={(v) => setCategoryFilter(v ?? 'All')}
+            options={FILTER_CATEGORIES}
+            placeholder="Category"
+            aria-label="Filter by category"
+            className="w-full"
+          />
+        </div>
       </div>
 
       <div className="mt-6">
         {isPending && replies.length === 0 ? (
           <div className="flex flex-col gap-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-12" />
+              <Skeleton key={i} height={48} radius={8} />
             ))}
           </div>
         ) : replies.length === 0 ? (
           <EmptyState
-            icon={<MessageSquare />}
+            icon={MessageSquare}
             title="No saved replies yet"
             description="Create shortcuts your team can drop into any conversation."
             action={
-              <Button onClick={openCreate}>
-                <Plus className="mr-2 h-4 w-4" /> New reply
+              <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+                New reply
               </Button>
             }
           />
         ) : filteredReplies.length === 0 ? (
-           <EmptyState
-             icon={<Search />}
-             title="No results found"
-             description="No saved replies match your current search and filters."
-           />
+          <EmptyState
+            icon={Search}
+            title="No results found"
+            description="No saved replies match your current search and filters."
+          />
         ) : (
-          <Card className="p-4">
+          <Card padding="sm">
             <DataTable
               columns={columns}
-              data={filteredReplies}
+              rows={filteredReplies}
+              getRowId={(row) => row._id}
             />
           </Card>
         )}
       </div>
 
       {/* Create / edit dialog */}
-      <Dialog
+      <Modal
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) setEditing(null);
+        onClose={() => {
+          setDialogOpen(false);
+          setEditing(null);
         }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              {editing?._id ? 'Edit reply' : 'New reply'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Fill in the shortcut and body. Optional media URL is supported.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-
-          <form
-            action={handleSave}
-            className="flex flex-col gap-4"
-            id="saved-reply-form"
-          >
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="shortcut">Shortcut</Label>
-                <Input
-                  id="shortcut"
-                  name="shortcut"
-                  placeholder="/greeting"
-                  required
-                  defaultValue={editing?.shortcut ?? ''}
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  placeholder="Quick hello"
-                  defaultValue={editing?.title ?? ''}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                name="category"
-                defaultValue={editing?.category ?? 'General'}
-              >
-                <ZoruSelectTrigger id="category">
-                  <ZoruSelectValue placeholder="Pick a category" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {CATEGORIES.map((c) => (
-                    <ZoruSelectItem key={c.value} value={c.value}>
-                      {c.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="body">Body</Label>
-              <Textarea
-                id="body"
-                name="body"
-                rows={4}
-                required
-                defaultValue={editing?.body ?? ''}
-                placeholder="Type the reply body…"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="mediaUrl">Media URL (optional)</Label>
-              <SabFileUrlInput
-                id="mediaUrl"
-                name="mediaUrl"
-                placeholder="https://…"
-                accept="all"
-                value={mediaUrl}
-                onChange={(v) => setMediaUrl(v)}
-              />
-            </div>
-          </form>
-
-          <ZoruDialogFooter>
+        title={editing?._id ? 'Edit reply' : 'New reply'}
+        description="Fill in the shortcut and body. Optional media URL is supported."
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => {
@@ -488,45 +396,100 @@ export default function SavedRepliesPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" form="saved-reply-form">
+            <Button variant="primary" type="submit" form="saved-reply-form">
               {editing?._id ? 'Save changes' : 'Create reply'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <form
+          action={handleSave}
+          className="flex flex-col gap-4"
+          id="saved-reply-form"
+        >
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field label="Shortcut" required>
+              <Input
+                name="shortcut"
+                placeholder="/greeting"
+                required
+                defaultValue={editing?.shortcut ?? ''}
+              />
+            </Field>
+            <Field label="Title">
+              <Input
+                name="title"
+                placeholder="Quick hello"
+                defaultValue={editing?.title ?? ''}
+              />
+            </Field>
+          </div>
+
+          <Field label="Category">
+            <Select
+              value={formCategory}
+              onChange={(v) => setFormCategory(v ?? 'General')}
+              options={CATEGORIES}
+              placeholder="Pick a category"
+              aria-label="Category"
+            />
+            <input type="hidden" name="category" value={formCategory} />
+          </Field>
+
+          <Field label="Body" required>
+            <Textarea
+              name="body"
+              rows={4}
+              required
+              defaultValue={editing?.body ?? ''}
+              placeholder="Type the reply body…"
+            />
+          </Field>
+
+          <Field label="Media URL (optional)">
+            <SabFileUrlInput
+              id="mediaUrl"
+              name="mediaUrl"
+              placeholder="https://…"
+              accept="all"
+              value={mediaUrl}
+              onChange={(v) => setMediaUrl(v)}
+            />
+          </Field>
+        </form>
+      </Modal>
 
       {/* AI Auto-Suggest dialog */}
-      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>AI Auto-Suggest</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Paste an incoming message to generate a relevant saved reply context.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-4 py-2">
-             <div className="flex flex-col gap-1.5">
-                <Label htmlFor="incoming-msg">Incoming Message Context</Label>
-                <Textarea
-                  id="incoming-msg"
-                  rows={4}
-                  placeholder="e.g. Hi, what are your pricing plans for the enterprise edition?"
-                  value={incomingMsg}
-                  onChange={(e) => setIncomingMsg(e.target.value)}
-                />
-             </div>
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={aiDialogOpen}
+        onClose={() => setAiDialogOpen(false)}
+        title="AI Auto-Suggest"
+        description="Paste an incoming message to generate a relevant saved reply context."
+        footer={
+          <>
             <Button variant="outline" onClick={() => setAiDialogOpen(false)} disabled={isGenerating}>
               Cancel
             </Button>
-            <Button onClick={handleGenerateAI} disabled={isGenerating || !incomingMsg.trim()}>
+            <Button
+              variant="primary"
+              onClick={handleGenerateAI}
+              loading={isGenerating}
+              disabled={isGenerating || !incomingMsg.trim()}
+            >
               {isGenerating ? 'Generating...' : 'Generate Reply'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-    </div>
+          </>
+        }
+      >
+        <Field label="Incoming Message Context">
+          <Textarea
+            rows={4}
+            placeholder="e.g. Hi, what are your pricing plans for the enterprise edition?"
+            value={incomingMsg}
+            onChange={(e) => setIncomingMsg(e.target.value)}
+          />
+        </Field>
+      </Modal>
+    </WachatPage>
   );
 }
-

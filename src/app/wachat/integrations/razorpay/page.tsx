@@ -2,24 +2,16 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Skeleton,
   EmptyState,
   Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
   Badge,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -32,7 +24,13 @@ import { getRazorpayLogs } from '@/app/actions/integrations.actions';
 import type { Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 import { RazorpaySettingsForm } from '@/components/zoruui-domain/razorpay-settings-form';
-import { FolderX, LinkIcon, Receipt, AlertCircle } from 'lucide-react';
+import { FolderX, LinkIcon, Receipt } from 'lucide-react';
+
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 function RazorpayLogs({ projectId }: { projectId: string }) {
   const [logs, setLogs] = useState<{ paymentLinks: any[], transactions: any[] } | null>(null);
@@ -69,10 +67,8 @@ function RazorpayLogs({ projectId }: { projectId: string }) {
   if (error) {
     return (
       <div className="mt-8">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>Error loading logs</ZoruAlertTitle>
-          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        <Alert tone="danger" title="Error loading logs">
+          {error}
         </Alert>
       </div>
     );
@@ -83,81 +79,85 @@ function RazorpayLogs({ projectId }: { projectId: string }) {
   return (
     <div className="mt-8 flex flex-col gap-10">
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-zoru-ink">Recent Transactions</h3>
+        <h3 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+          Recent Transactions
+        </h3>
         {logs.transactions.length === 0 ? (
           <EmptyState
             title="No transactions yet"
             description="You haven't processed any transactions through WhatsApp yet."
-            icon={<Receipt className="h-6 w-6" />}
+            icon={Receipt}
           />
         ) : (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>ID</Th>
+                <Th>Amount</Th>
+                <Th>Status</Th>
+                <Th>Method</Th>
+                <Th>Date</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {logs.transactions.map((txn) => (
-                <TableRow key={txn.id}>
-                  <TableCell className="font-medium">{txn.id}</TableCell>
-                  <TableCell>{fmtINR(txn.amount / 100)}</TableCell>
-                  <TableCell>
-                    <Badge variant={txn.status === 'captured' ? 'default' : 'secondary'}>
+                <Tr key={txn.id}>
+                  <Td className="font-medium">{txn.id}</Td>
+                  <Td>{fmtINR(txn.amount / 100)}</Td>
+                  <Td>
+                    <Badge tone={txn.status === 'captured' ? 'success' : 'neutral'}>
                       {txn.status}
                     </Badge>
-                  </TableCell>
-                  <TableCell>{txn.method || 'N/A'}</TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>{txn.method || 'N/A'}</Td>
+                  <Td>
                     {formatUTC(txn.created_at * 1000, true)}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         )}
       </div>
 
       <div className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-zoru-ink">Payment Links</h3>
+        <h3 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+          Payment Links
+        </h3>
         {logs.paymentLinks.length === 0 ? (
           <EmptyState
             title="No payment links"
             description="You haven't generated any payment links yet."
-            icon={<LinkIcon className="h-6 w-6" />}
+            icon={LinkIcon}
           />
         ) : (
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+            <THead>
+              <Tr>
+                <Th>ID</Th>
+                <Th>Amount</Th>
+                <Th>Status</Th>
+                <Th>Description</Th>
+                <Th>Date</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {logs.paymentLinks.map((link) => (
-                <TableRow key={link.id}>
-                  <TableCell className="font-medium">{link.id}</TableCell>
-                  <TableCell>{fmtINR(link.amount / 100)}</TableCell>
-                  <TableCell>
-                    <Badge variant={link.status === 'paid' ? 'default' : 'secondary'}>
+                <Tr key={link.id}>
+                  <Td className="font-medium">{link.id}</Td>
+                  <Td>{fmtINR(link.amount / 100)}</Td>
+                  <Td>
+                    <Badge tone={link.status === 'paid' ? 'success' : 'neutral'}>
                       {link.status}
                     </Badge>
-                  </TableCell>
-                  <TableCell>{link.description || 'N/A'}</TableCell>
-                  <TableCell>
+                  </Td>
+                  <Td>{link.description || 'N/A'}</Td>
+                  <Td>
                     {formatUTC(link.created_at * 1000, true)}
-                  </TableCell>
-                </TableRow>
+                  </Td>
+                </Tr>
               ))}
-            </TableBody>
+            </TBody>
           </Table>
         )}
       </div>
@@ -181,50 +181,38 @@ export default function RazorpayIntegrationPage() {
   }, [activeProject]);
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Razorpay</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex-1 pb-10">
-        {isLoading ? (
-          <Skeleton className="h-64 w-full" />
-        ) : !project ? (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Integrations', href: '/wachat/integrations' },
+        { label: 'Razorpay' },
+      ]}
+      title="Razorpay"
+      description="Connect Razorpay to collect payments and share payment links over WhatsApp."
+      width="wide"
+    >
+      {isLoading ? (
+        <Skeleton className="h-64 w-full" />
+      ) : !project ? (
+        <div className="max-w-2xl">
+          <EmptyState
+            title="No project selected"
+            description="Please select a project from the main dashboard to view and manage Razorpay settings."
+            icon={FolderX}
+          />
+        </div>
+      ) : (
+        <div className={cx('max-w-4xl', 'flex', 'flex-col', 'gap-6')}>
           <div className="max-w-2xl">
-            <EmptyState
-              title="No project selected"
-              description="Please select a project from the main dashboard to view and manage Razorpay settings."
-              icon={<FolderX className="h-6 w-6" />}
-            />
+            <RazorpaySettingsForm project={project} />
           </div>
-        ) : (
-          <div className="max-w-4xl flex flex-col gap-6">
-            <div className="max-w-2xl">
-              <RazorpaySettingsForm project={project} />
-            </div>
-            
-            {project.razorpaySettings?.keyId && project.razorpaySettings?.keySecret && (
-              <RazorpayLogs projectId={project._id.toString()} />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+
+          {project.razorpaySettings?.keyId && project.razorpaySettings?.keySecret && (
+            <RazorpayLogs projectId={project._id.toString()} />
+          )}
+        </div>
+      )}
+    </WachatPage>
   );
 }

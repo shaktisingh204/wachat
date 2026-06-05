@@ -1,48 +1,34 @@
 'use client';
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
+  CardHeader,
+  CardTitle,
+  CardBody,
   EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
   Skeleton,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
+  Modal,
+  Field,
   Input,
-  Label,
   Switch,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
+  type BadgeTone,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -51,7 +37,6 @@ import {
 import {
   BarChart3,
   CircleCheck,
-  CircleX,
   Eye,
   RefreshCw,
   TriangleAlert,
@@ -71,15 +56,20 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Response Time Tracker — ZoruUI rebuild.
+ * Wachat Response Time Tracker — 20ui rebuild.
  *
- * Stat strip + agent leaderboard table + per-agent drill-in sheet.
- * Response-time deltas use invertDelta=true (lower is better).
+ * Stat strip + agent leaderboard table + per-agent drill-in drawer.
+ * Response times: lower is better.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 function fmtMs(ms: number | undefined) {
   if (!ms || !Number.isFinite(ms)) return '--';
@@ -88,11 +78,11 @@ function fmtMs(ms: number | undefined) {
   return `${Math.floor(sec / 60)}m ${sec % 60}s`;
 }
 
-function speedTone(ms: number) {
-  if (!ms) return 'ghost' as const;
-  if (ms < 60_000) return 'success' as const;
-  if (ms < 300_000) return 'warning' as const;
-  return 'danger' as const;
+function speedTone(ms: number): BadgeTone {
+  if (!ms) return 'neutral';
+  if (ms < 60_000) return 'success';
+  if (ms < 300_000) return 'warning';
+  return 'danger';
 }
 
 function speedLabel(ms: number) {
@@ -114,11 +104,11 @@ function generateMockHourlyData(avgMs: number) {
 
 export default function ResponseTimeTrackerPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [agents, setAgents] = useState<any[]>([]);
   const [drillAgent, setDrillAgent] = useState<any | null>(null);
-  
+
   const [timezone, setTimezone] = useState<'utc' | 'local'>('local');
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [scheduleEmail, setScheduleEmail] = useState('');
@@ -129,7 +119,7 @@ export default function ResponseTimeTrackerPage() {
     startTransition(async () => {
       const res = await getAgentPerformance(String(activeProject._id));
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       const withHourly = (res.performance ?? []).map((a: any) => ({
@@ -160,10 +150,10 @@ export default function ResponseTimeTrackerPage() {
     return drillAgent.hourlyAverages.map((d: any) => {
       const dt = new Date();
       dt.setUTCHours(d.hourUtc, 0, 0, 0);
-      const hourLabel = dt.toLocaleTimeString([], { 
-        hour: 'numeric', 
+      const hourLabel = dt.toLocaleTimeString([], {
+        hour: 'numeric',
         minute: '2-digit',
-        timeZone: timezone === 'utc' ? 'UTC' : undefined 
+        timeZone: timezone === 'utc' ? 'UTC' : undefined
       });
       const sortKey = timezone === 'utc' ? dt.getUTCHours() : dt.getHours();
       return {
@@ -176,57 +166,49 @@ export default function ResponseTimeTrackerPage() {
   }, [drillAgent, timezone]);
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Response Time Tracker</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Response Time Tracker
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Monitor how quickly your team responds to customer messages.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 mr-4 border-r pr-4">
-            <Label htmlFor="tz-switch" className="text-sm font-medium">Show Local Time</Label>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Response Time Tracker' },
+      ]}
+      title="Response Time Tracker"
+      description="Monitor how quickly your team responds to customer messages."
+      width="wide"
+      actions={
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="flex items-center gap-2 mr-2 pr-3"
+            style={{ borderRight: '1px solid var(--st-border)' }}
+          >
             <Switch
-              id="tz-switch"
               checked={timezone === 'local'}
               onCheckedChange={(c) => setTimezone(c ? 'local' : 'utc')}
+              label="Show Local Time"
             />
           </div>
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            <Download className="mr-2 h-4 w-4" /> Export PDF
+          <Button variant="outline" size="sm" iconLeft={Download} onClick={() => window.print()}>
+            Export PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setIsScheduleOpen(true)}>
-            <Mail className="mr-2 h-4 w-4" /> Schedule Report
+          <Button variant="outline" size="sm" iconLeft={Mail} onClick={() => setIsScheduleOpen(true)}>
+            Schedule Report
           </Button>
-          <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isPending ? 'animate-spin' : ''}`} /> Refresh
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            onClick={load}
+            loading={isPending}
+          >
+            Refresh
           </Button>
         </div>
-      </div>
-
+      }
+    >
       {isPending && agents.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
+            <Skeleton key={i} height={120} radius="var(--st-radius-lg)" />
           ))}
         </div>
       ) : (
@@ -234,108 +216,108 @@ export default function ResponseTimeTrackerPage() {
           <StatCard
             label="Total Messages"
             value={totalMsgs.toLocaleString()}
-            icon={<BarChart3 />}
+            icon={BarChart3}
           />
           <StatCard
-            label="Avg Response"
+            label="Avg Response (lower is better)"
             value={fmtMs(avgResp)}
-            icon={<CircleCheck />}
-            period="Lower is better"
+            icon={CircleCheck}
           />
           <StatCard
             label="Fastest Agent"
             value={fmtMs(fastest)}
-            icon={<CircleCheck />}
+            icon={CircleCheck}
           />
           <StatCard
             label="Slowest Agent"
             value={fmtMs(slowest)}
-            icon={<TriangleAlert />}
+            icon={TriangleAlert}
           />
         </div>
       )}
 
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Per-Agent Breakdown</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
+      <Card padding="none">
+        <CardHeader>
+          <CardTitle>Per-Agent Breakdown</CardTitle>
+        </CardHeader>
+        <CardBody>
           {isPending && agents.length === 0 ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton key={i} className="h-10" />
+                <Skeleton key={i} height={40} />
               ))}
             </div>
           ) : agents.length === 0 ? (
             <EmptyState
-              icon={<Users />}
+              icon={Users}
               title="No agent performance yet"
               description="Performance data will appear once agents start responding to chats."
             />
           ) : (
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead>Agent</ZoruTableHead>
-                  <ZoruTableHead>Avg Response</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Messages Sent</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Status</ZoruTableHead>
-                  <ZoruTableHead className="w-[1%]" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Agent</Th>
+                  <Th>Avg Response</Th>
+                  <Th align="right">Messages Sent</Th>
+                  <Th align="right">Status</Th>
+                  <Th width="1%" />
+                </Tr>
+              </THead>
+              <TBody>
                 {agents.map((a: any) => (
-                  <ZoruTableRow key={a._id}>
-                    <ZoruTableCell className="font-medium">{a.agentName}</ZoruTableCell>
-                    <ZoruTableCell className="tabular-nums">
+                  <Tr key={a._id}>
+                    <Td className="font-medium">{a.agentName}</Td>
+                    <Td className="tabular-nums">
                       {fmtMs(a.avgResponseMs)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right tabular-nums">
+                    </Td>
+                    <Td align="right" className="tabular-nums">
                       {(a.messagesSent ?? 0).toLocaleString()}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <Badge variant={speedTone(a.avgResponseMs || 0)}>
+                    </Td>
+                    <Td align="right">
+                      <Badge tone={speedTone(a.avgResponseMs || 0)}>
                         {speedLabel(a.avgResponseMs || 0)}
                       </Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell>
+                    </Td>
+                    <Td>
                       <Button
                         variant="ghost"
                         size="sm"
+                        iconLeft={Eye}
                         onClick={() => setDrillAgent(a)}
                       >
-                        <Eye /> View
+                        View
                       </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 ))}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           )}
-        </ZoruCardContent>
+        </CardBody>
       </Card>
 
-      {/* Per-agent drill-in sheet */}
-      <Sheet
+      {/* Per-agent drill-in drawer */}
+      <Drawer
+        side="right"
         open={!!drillAgent}
         onOpenChange={(open) => {
           if (!open) setDrillAgent(null);
         }}
       >
-        <ZoruSheetContent side="right">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>{drillAgent?.agentName ?? 'Agent'}</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <DrawerContent side="right">
+          <DrawerHeader>
+            <DrawerTitle>{drillAgent?.agentName ?? 'Agent'}</DrawerTitle>
+            <DrawerDescription>
               Activity and response performance for this agent.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           {drillAgent && (
-            <div className="mt-6 flex-1 overflow-y-auto">
+            <div className="mt-6 flex-1 overflow-y-auto px-4 pb-4">
               <div className="grid grid-cols-2 gap-3 mb-6">
                 <StatCard
-                  label="Avg Response"
+                  label="Avg Response (lower is better)"
                   value={fmtMs(drillAgent.avgResponseMs)}
-                  period="Lower is better"
                 />
                 <StatCard
                   label="Messages Sent"
@@ -354,75 +336,77 @@ export default function ResponseTimeTrackerPage() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium mb-4">Hourly Response Time (Seconds)</h3>
+                <h3
+                  className="text-sm font-medium mb-4"
+                  style={{ color: 'var(--st-text)' }}
+                >
+                  Hourly Response Time (Seconds)
+                </h3>
                 <div className="h-[250px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="hourLabel" fontSize={12} tickLine={false} axisLine={false} />
                       <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                      <Tooltip 
+                      <Tooltip
                         formatter={(value: any) => [`${value}s`, 'Avg Response']}
-                        labelStyle={{ color: '#000' }}
+                        labelStyle={{ color: 'var(--st-text)' }}
                       />
-                      <Bar dataKey="seconds" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="seconds" fill="var(--st-accent)" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
               </div>
             </div>
           )}
-        </ZoruSheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
-      <Dialog open={isScheduleOpen} onOpenChange={setIsScheduleOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Schedule Email Report</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Automatically send response time analytics to managers.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Email Address</Label>
-              <Input
-                placeholder="manager@example.com"
-                value={scheduleEmail}
-                onChange={(e) => setScheduleEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Frequency</Label>
-              <Select value={scheduleFreq} onValueChange={setScheduleFreq}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Select frequency" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="daily">Daily</ZoruSelectItem>
-                  <ZoruSelectItem value="weekly">Weekly</ZoruSelectItem>
-                  <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                </ZoruSelectContent>
-              </Select>
-            </div>
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={isScheduleOpen}
+        onClose={() => setIsScheduleOpen(false)}
+        title="Schedule Email Report"
+        description="Automatically send response time analytics to managers."
+        footer={
+          <>
             <Button variant="outline" onClick={() => setIsScheduleOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
-                toast({ title: 'Success', description: 'Report scheduled successfully!' });
+                toast({ title: 'Report scheduled successfully!', tone: 'success' });
                 setIsScheduleOpen(false);
               }}
             >
               Schedule
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Field label="Email Address">
+            <Input
+              type="email"
+              placeholder="manager@example.com"
+              value={scheduleEmail}
+              onChange={(e) => setScheduleEmail(e.target.value)}
+            />
+          </Field>
+          <Field label="Frequency">
+            <Select
+              value={scheduleFreq}
+              onChange={(v) => setScheduleFreq(v ?? 'weekly')}
+              placeholder="Select frequency"
+              options={[
+                { value: 'daily', label: 'Daily' },
+                { value: 'weekly', label: 'Weekly' },
+                { value: 'monthly', label: 'Monthly' },
+              ]}
+            />
+          </Field>
+        </div>
+      </Modal>
+    </WachatPage>
   );
 }

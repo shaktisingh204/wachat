@@ -3,24 +3,19 @@ import { fmtDate } from "@/lib/utils";
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  IconButton,
+  Modal,
   Input,
   Skeleton,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
+  TBody,
+  Td,
+  Th,
+  THead,
+  Tr,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -47,7 +42,7 @@ import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
 import type { WebhookLogListItem } from '@/lib/definitions';
 
 /**
- * WebhookLogs (wachat-local, ZoruUI).
+ * WebhookLogs (wachat-local, 20ui).
  *
  * Replaces the legacy webhook-logs. Same server actions
  * (getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook,
@@ -67,7 +62,7 @@ function ReprocessButton({
   onReprocessComplete: () => void;
 }) {
   const [isProcessing, startTransition] = useTransition();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const onReprocess = () => {
     startTransition(async () => {
@@ -76,7 +71,7 @@ function ReprocessButton({
         toast({
           title: 'Error Re-processing',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         toast({ title: 'Success', description: result.message });
@@ -85,16 +80,27 @@ function ReprocessButton({
     });
   };
 
+  if (isProcessing) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        disabled
+        aria-label="Re-processing webhook"
+      >
+        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+      </Button>
+    );
+  }
+
   return (
-    <Button
+    <IconButton
+      label="Re-process Webhook"
+      icon={RotateCw}
       variant="ghost"
-      size="icon-sm"
+      size="sm"
       onClick={onReprocess}
-      disabled={isProcessing}
-      aria-label="Re-process Webhook"
-    >
-      {isProcessing ? <Loader2 className="animate-spin" /> : <RotateCw />}
-    </Button>
+    />
   );
 }
 
@@ -109,7 +115,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [selectedLog, setSelectedLog] = useState<WebhookLogListItem | null>(
     null,
   );
@@ -156,7 +162,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
           toast({
             title: 'Error',
             description: 'Failed to fetch webhook logs.',
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       });
@@ -183,7 +189,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         toast({ title: 'Success', description: result.message });
@@ -209,7 +215,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         title: 'Failed to copy',
         description:
           'Clipboard API is not available. Please use a secure (HTTPS) connection.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -227,7 +233,7 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
           title: 'Failed to copy',
           description:
             'Could not copy to clipboard. Check browser permissions.',
-          variant: 'destructive',
+          tone: 'danger',
         });
       },
     );
@@ -237,8 +243,13 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-[15px] text-zoru-ink">Webhook Event Logs</h3>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+            Webhook Event Logs
+          </h3>
+          <p
+            className="mt-0.5 text-[12px]"
+            style={{ color: 'var(--st-text-muted)' }}
+          >
             {filterByProject
               ? 'Real-time log of events for the selected project.'
               : 'A log of all webhook events received by the system.'}
@@ -247,8 +258,9 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         <div className="flex flex-wrap items-center gap-2">
           <div className="w-full sm:w-64">
             <Input
-              leadingSlot={<Search />}
+              iconLeft={Search}
               placeholder="Search logs…"
+              aria-label="Search logs"
               onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
@@ -258,7 +270,11 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
             variant="outline"
             size="sm"
           >
-            {isClearing ? <Loader2 className="animate-spin" /> : <Trash2 />}
+            {isClearing ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
             Clear Processed Logs
           </Button>
           <Button
@@ -267,53 +283,53 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
             variant="outline"
             size="sm"
           >
-            <RefreshCw className={isLoading ? 'animate-spin' : ''} />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${isLoading ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
         </div>
       </div>
 
       {isClient && filterByProject && !projectId && !isLoading ? (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
-            Please select a project from the main dashboard page to view its
-            webhook logs.
-          </ZoruAlertDescription>
+        <Alert tone="danger" icon={AlertCircle} title="No Project Selected">
+          Please select a project from the main dashboard page to view its
+          webhook logs.
         </Alert>
       ) : (
         <>
-          <div className="overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+          <div
+            className="overflow-hidden"
+            style={{
+              borderRadius: 'var(--st-radius-lg)',
+              border: '1px solid var(--st-border)',
+            }}
+          >
             <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead>Timestamp</ZoruTableHead>
-                  <ZoruTableHead>Event Field</ZoruTableHead>
-                  <ZoruTableHead>Details</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
+              <THead>
+                <Tr>
+                  <Th>Timestamp</Th>
+                  <Th>Event Field</Th>
+                  <Th>Details</Th>
+                  <Th align="right">Actions</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {isLoading ? (
                   Array.from({ length: 5 }).map((_, i) => (
-                    <ZoruTableRow key={i}>
-                      <ZoruTableCell colSpan={4}>
-                        <Skeleton className="h-5 w-full" />
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                    <Tr key={i}>
+                      <Td colSpan={4}>
+                        <Skeleton height={20} />
+                      </Td>
+                    </Tr>
                   ))
                 ) : logs.length > 0 ? (
                   logs.map((log) => (
-                    <ZoruTableRow key={log._id.toString()}>
-                      <ZoruTableCell>
-                        {fmtDate(log.createdAt)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="font-mono">
-                        {log.eventField}
-                      </ZoruTableCell>
-                      <ZoruTableCell>{log.eventSummary}</ZoruTableCell>
-                      <ZoruTableCell className="text-right">
+                    <Tr key={log._id.toString()}>
+                      <Td>{fmtDate(log.createdAt)}</Td>
+                      <Td className="font-mono">{log.eventField}</Td>
+                      <Td>{log.eventSummary}</Td>
+                      <Td align="right">
                         <div className="flex items-center justify-end gap-1">
                           <ReprocessButton
                             logId={log._id.toString()}
@@ -321,33 +337,37 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                               fetchLogs(currentPage, searchQuery, false)
                             }
                           />
-                          <Button
+                          <IconButton
+                            label="View Payload"
+                            icon={Eye}
                             variant="ghost"
-                            size="icon-sm"
+                            size="sm"
                             onClick={() => handleViewLog(log)}
-                            aria-label="View Payload"
-                          >
-                            <Eye />
-                          </Button>
+                          />
                         </div>
-                      </ZoruTableCell>
-                    </ZoruTableRow>
+                      </Td>
+                    </Tr>
                   ))
                 ) : (
-                  <ZoruTableRow>
-                    <ZoruTableCell
+                  <Tr>
+                    <Td
                       colSpan={4}
-                      className="h-24 text-center text-zoru-ink-muted"
+                      align="center"
+                      className="h-24"
+                      style={{ color: 'var(--st-text-muted)' }}
                     >
                       No webhook logs found.
-                    </ZoruTableCell>
-                  </ZoruTableRow>
+                    </Td>
+                  </Tr>
                 )}
-              </ZoruTableBody>
+              </TBody>
             </Table>
           </div>
           <div className="flex items-center justify-end gap-2 py-2">
-            <span className="text-[12px] text-zoru-ink-muted">
+            <span
+              className="text-[12px]"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               Page {currentPage} of {totalPages > 0 ? totalPages : 1}
             </span>
             <Button
@@ -370,51 +390,55 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         </>
       )}
 
-      <Dialog
+      <Modal
         open={!!selectedLog}
-        onOpenChange={(open) => !open && setSelectedLog(null)}
+        onClose={() => setSelectedLog(null)}
+        size="lg"
+        title="Webhook Payload"
+        description={`Full JSON payload received from Meta at ${
+          selectedLog ? fmtDate(selectedLog.createdAt) : ''
+        }`}
+        footer={
+          selectedLogPayload ? (
+            <Button
+              variant="outline"
+              iconLeft={Copy}
+              onClick={() => handleCopyPayload(selectedLogPayload)}
+            >
+              Copy Payload
+            </Button>
+          ) : undefined
+        }
       >
-        <ZoruDialogContent className="max-w-3xl">
-          <ZoruDialogHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <ZoruDialogTitle>Webhook Payload</ZoruDialogTitle>
-                <ZoruDialogDescription>
-                  Full JSON payload received from Meta at{' '}
-                  {selectedLog
-                    ? fmtDate(selectedLog.createdAt)
-                    : ''}
-                </ZoruDialogDescription>
-              </div>
-              {selectedLogPayload && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleCopyPayload(selectedLogPayload)}
-                  aria-label="Copy Payload"
-                >
-                  <Copy />
-                </Button>
-              )}
+        <div className="max-h-[60vh] overflow-y-auto text-[13px]">
+          {loadingPayload ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2
+                className="h-6 w-6 animate-spin"
+                style={{ color: 'var(--st-text-muted)' }}
+              />
             </div>
-          </ZoruDialogHeader>
-          <div className="mt-2 max-h-[60vh] overflow-y-auto text-[13px]">
-            {loadingPayload ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-6 w-6 animate-spin text-zoru-ink-muted" />
-              </div>
-            ) : selectedLogPayload ? (
-              <pre className="whitespace-pre-wrap rounded-[var(--zoru-radius)] bg-zoru-surface p-4 font-mono text-[11.5px] text-zoru-ink">
-                {JSON.stringify(selectedLogPayload, null, 2)}
-              </pre>
-            ) : (
-              <div className="p-8 text-center text-zoru-ink-muted">
-                Could not load payload.
-              </div>
-            )}
-          </div>
-        </ZoruDialogContent>
-      </Dialog>
+          ) : selectedLogPayload ? (
+            <pre
+              className="whitespace-pre-wrap p-4 font-mono text-[11.5px]"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                background: 'var(--st-bg-secondary)',
+                color: 'var(--st-text)',
+              }}
+            >
+              {JSON.stringify(selectedLogPayload, null, 2)}
+            </pre>
+          ) : (
+            <div
+              className="p-8 text-center"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
+              Could not load payload.
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 }

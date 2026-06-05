@@ -2,39 +2,41 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZORU_CHART_PALETTE,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-  ZoruDrawer,
-  ZoruDrawerContent,
-  ZoruDrawerDescription,
-  ZoruDrawerHeader,
-  ZoruDrawerTitle,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
   EmptyState,
   Skeleton,
   StatCard,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback,
   useMemo } from 'react';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import {
   CircleCheck,
   CircleX,
@@ -48,13 +50,11 @@ import { useProject } from '@/context/project-context';
 import { getChatRatings } from '@/app/actions/wachat-features.actions';
 
 /**
- * Wachat Customer Satisfaction — ZoruUI rebuild.
+ * Wachat Customer Satisfaction — 20ui rebuild.
  *
- * NPS-style dashboard: CSAT score card + rating histogram (greyscale bars)
- * + recent low-rating drawer. Differentiation by neutral fill, no hue.
+ * NPS-style dashboard: CSAT score card + rating histogram (neutral bars)
+ * + recent low-rating drawer.
  */
-
-import * as React from 'react';
 
 function Stars({ count }: { count: number }) {
   return (
@@ -62,17 +62,26 @@ function Stars({ count }: { count: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`h-3.5 w-3.5 ${i <= count ? 'fill-zoru-ink text-zoru-ink' : 'text-zoru-line-strong'}`}
+          className="h-3.5 w-3.5"
+          style={{
+            fill: i <= count ? 'var(--st-accent)' : 'transparent',
+            color: i <= count ? 'var(--st-accent)' : 'var(--st-text-tertiary)',
+          }}
           strokeWidth={1.75}
+          aria-hidden="true"
         />
       ))}
     </span>
   );
 }
 
+const CHART_CONFIG: ChartConfig = {
+  count: { label: 'Responses', color: 'var(--st-accent)' },
+};
+
 export default function CustomerSatisfactionPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [ratings, setRatings] = useState<any[]>([]);
   const [summary, setSummary] = useState<any>({});
@@ -83,7 +92,7 @@ export default function CustomerSatisfactionPage() {
     startTransition(async () => {
       const res = await getChatRatings(String(activeProject._id));
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       setRatings(res.ratings ?? []);
@@ -120,203 +129,214 @@ export default function CustomerSatisfactionPage() {
     [ratings],
   );
 
-  return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Customer Satisfaction</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+  const npsPeriod = total
+    ? nps >= 50
+      ? 'Excellent'
+      : nps >= 0
+        ? 'Good'
+        : 'Needs work'
+    : 'No ratings yet';
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Customer Satisfaction
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Track NPS scores and customer feedback from conversations.
-          </p>
-        </div>
+  return (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Customer Satisfaction' },
+      ]}
+      title="Customer Satisfaction"
+      description="Track NPS scores and customer feedback from conversations."
+      actions={
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
+            iconLeft={TriangleAlert}
             onClick={() => setDrawerOpen(true)}
             disabled={lowRatings.length === 0}
           >
-            <TriangleAlert /> Low ratings ({lowRatings.length})
+            Low ratings ({lowRatings.length})
           </Button>
-          <Button variant="outline" size="sm" onClick={load} disabled={isPending}>
-            <RefreshCw className={isPending ? 'animate-spin' : ''} /> Refresh
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={RefreshCw}
+            onClick={load}
+            loading={isPending}
+          >
+            Refresh
           </Button>
         </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {isPending && total === 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[120px]" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              label="NPS Score"
+              value={total ? nps.toString() : '--'}
+              delta={{
+                value: npsPeriod,
+                tone:
+                  !total || nps < 0 ? 'down' : nps >= 50 ? 'up' : 'neutral',
+              }}
+            />
+            <StatCard
+              label="Promoters (4-5)"
+              value={`${promPct}%`}
+              icon={CircleCheck}
+            />
+            <StatCard
+              label="Passives (3)"
+              value={`${passPct}%`}
+              icon={TriangleAlert}
+            />
+            <StatCard
+              label="Detractors (1-2)"
+              value={`${detPct}%`}
+              icon={CircleX}
+            />
+          </div>
+        )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Rating Distribution</CardTitle>
+            <CardDescription>
+              Count of responses for each star rating.
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            {total === 0 ? (
+              <EmptyState
+                icon={Star}
+                title="No ratings yet"
+                description="Once customers rate their conversations, the distribution will appear here."
+              />
+            ) : (
+              <ChartContainer
+                config={CHART_CONFIG}
+                style={{ height: 240, aspectRatio: 'auto' }}
+              >
+                <BarChart
+                  data={histogramData}
+                  margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="rating"
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar
+                    dataKey="count"
+                    name="Responses"
+                    fill="var(--st-accent)"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ChartContainer>
+            )}
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Feedback ({ratings.length})</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {ratings.length === 0 ? (
+              <EmptyState
+                icon={Inbox}
+                title="No feedback yet"
+                description="Customer feedback will show up here as it arrives."
+              />
+            ) : (
+              <ul style={{ borderTop: '1px solid var(--st-border)' }}>
+                {ratings.slice(0, 20).map((r: any, i: number) => (
+                  <li
+                    key={r._id || i}
+                    className="flex items-start gap-4 py-3"
+                    style={{ borderBottom: '1px solid var(--st-border)' }}
+                  >
+                    <Stars count={r.rating} />
+                    <div className="min-w-0 flex-1">
+                      <span
+                        className="text-[11px]"
+                        style={{ color: 'var(--st-text-tertiary)' }}
+                      >
+                        {r.createdAt ? fmtDate(r.createdAt) : ''}
+                      </span>
+                      {r.feedback && (
+                        <p
+                          className="mt-0.5 text-[12.5px] leading-relaxed"
+                          style={{ color: 'var(--st-text-secondary)' }}
+                        >
+                          {r.feedback}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardBody>
+        </Card>
       </div>
 
-      {isPending && total === 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="NPS Score"
-            value={total ? nps.toString() : '--'}
-            period={
-              total
-                ? nps >= 50
-                  ? 'Excellent'
-                  : nps >= 0
-                    ? 'Good'
-                    : 'Needs work'
-                : 'No ratings yet'
-            }
-          />
-          <StatCard
-            label="Promoters (4-5)"
-            value={`${promPct}%`}
-            icon={<CircleCheck />}
-          />
-          <StatCard
-            label="Passives (3)"
-            value={`${passPct}%`}
-            icon={<TriangleAlert />}
-          />
-          <StatCard
-            label="Detractors (1-2)"
-            value={`${detPct}%`}
-            icon={<CircleX />}
-          />
-        </div>
-      )}
-
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Rating Distribution</ZoruCardTitle>
-          <ZoruCardDescription>
-            Count of responses for each star rating.
-          </ZoruCardDescription>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          {total === 0 ? (
-            <EmptyState
-              icon={<Star />}
-              title="No ratings yet"
-              description="Once customers rate their conversations, the distribution will appear here."
-            />
-          ) : (
-            <ZoruChartContainer height={240}>
-              <ZoruChart.BarChart
-                data={histogramData}
-                margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
-              >
-                <ZoruChart.CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--zoru-line))"
-                  vertical={false}
-                />
-                <ZoruChart.XAxis
-                  dataKey="rating"
-                  tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                  tickLine={false}
-                  axisLine={{ stroke: 'hsl(var(--zoru-line))' }}
-                />
-                <ZoruChart.YAxis
-                  tick={{ fontSize: 11, fill: 'hsl(var(--zoru-ink-muted))' }}
-                  tickLine={false}
-                  axisLine={false}
-                  allowDecimals={false}
-                />
-                <ZoruChart.Tooltip content={<ZoruChartTooltip />} />
-                <ZoruChart.Bar
-                  dataKey="count"
-                  name="Responses"
-                  fill={ZORU_CHART_PALETTE[1]}
-                  radius={[4, 4, 0, 0]}
-                />
-              </ZoruChart.BarChart>
-            </ZoruChartContainer>
-          )}
-        </ZoruCardContent>
-      </Card>
-
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recent Feedback ({ratings.length})</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          {ratings.length === 0 ? (
-            <EmptyState
-              icon={<Inbox />}
-              title="No feedback yet"
-              description="Customer feedback will show up here as it arrives."
-            />
-          ) : (
-            <ul className="divide-y divide-zoru-line">
-              {ratings.slice(0, 20).map((r: any, i: number) => (
-                <li key={r._id || i} className="flex items-start gap-4 py-3">
-                  <Stars count={r.rating} />
-                  <div className="min-w-0 flex-1">
-                    <span className="text-[11px] text-zoru-ink-subtle">
-                      {r.createdAt ? fmtDate(r.createdAt) : ''}
-                    </span>
-                    {r.feedback && (
-                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                        {r.feedback}
-                      </p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </ZoruCardContent>
-      </Card>
-
       {/* Low-rating drawer */}
-      <ZoruDrawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <ZoruDrawerContent>
-          <ZoruDrawerHeader>
-            <ZoruDrawerTitle>Low ratings ({lowRatings.length})</ZoruDrawerTitle>
-            <ZoruDrawerDescription>
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Low ratings ({lowRatings.length})</DrawerTitle>
+            <DrawerDescription>
               Conversations rated 1 or 2 stars — review and follow up.
-            </ZoruDrawerDescription>
-          </ZoruDrawerHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           <div className="max-h-[60vh] overflow-y-auto px-4 pb-6 sm:px-6">
             {lowRatings.length === 0 ? (
               <EmptyState
-                icon={<CircleCheck />}
+                icon={CircleCheck}
                 title="No low ratings"
                 description="Nothing to follow up on right now."
-                compact
+                size="sm"
               />
             ) : (
-              <ul className="divide-y divide-zoru-line">
+              <ul style={{ borderTop: '1px solid var(--st-border)' }}>
                 {lowRatings.map((r: any, i: number) => (
-                  <li key={r._id || i} className="flex items-start gap-4 py-3">
+                  <li
+                    key={r._id || i}
+                    className="flex items-start gap-4 py-3"
+                    style={{ borderBottom: '1px solid var(--st-border)' }}
+                  >
                     <Stars count={r.rating} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <Badge variant="danger">{r.rating} stars</Badge>
-                        <span className="text-[11px] text-zoru-ink-subtle">
-                          {r.createdAt
-                            ? fmtDate(r.createdAt)
-                            : ''}
+                        <Badge tone="danger">{r.rating} stars</Badge>
+                        <span
+                          className="text-[11px]"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                        >
+                          {r.createdAt ? fmtDate(r.createdAt) : ''}
                         </span>
                       </div>
                       {r.feedback && (
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
+                        <p
+                          className="mt-1 text-[12.5px] leading-relaxed"
+                          style={{ color: 'var(--st-text-secondary)' }}
+                        >
                           {r.feedback}
                         </p>
                       )}
@@ -326,10 +346,8 @@ export default function CustomerSatisfactionPage() {
               </ul>
             )}
           </div>
-        </ZoruDrawerContent>
-      </ZoruDrawer>
-
-      <div className="h-6" />
-    </div>
+        </DrawerContent>
+      </Drawer>
+    </WachatPage>
   );
 }

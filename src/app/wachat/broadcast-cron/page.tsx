@@ -1,36 +1,37 @@
 'use client';
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
+  Checkbox,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   EmptyState,
-  Label,
+  Alert,
+  Field,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   RadioGroup,
-  ZoruRadioGroupItem,
+  Radio,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-} from '@/components/zoruui';
+  Spinner,
+  Tag,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+} from '@/components/sabcrm/20ui';
+import type { BadgeTone } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -38,24 +39,21 @@ import {
   useState,
   useTransition } from 'react';
 import {
-  AlertCircle,
   Check,
   ChevronsUpDown,
   FileText,
-  Loader2,
   Play,
   Tag as TagIcon,
   Timer,
   Trash2,
   Upload,
-  X,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getTemplates } from '@/app/actions/template.actions';
 import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
 import type { Template,
-  Tag } from '@/lib/definitions';
+  Tag as TagType } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 /**
@@ -73,9 +71,14 @@ import type { WithId } from 'mongodb';
 
 import * as React from 'react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 import { TemplateInputRenderer } from '../_components/template-input-renderer';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -100,8 +103,8 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-function statusVariant(s: EntryStatus): 'secondary' | 'info' | 'success' | 'danger' {
-  if (s === 'pending') return 'secondary';
+function statusTone(s: EntryStatus): BadgeTone {
+  if (s === 'pending') return 'neutral';
   if (s === 'starting') return 'info';
   if (s === 'started') return 'success';
   return 'danger';
@@ -129,7 +132,7 @@ const TAG_VARIABLE_HINTS = [
 
 export default function BroadcastCronPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const composerRef = useRef<HTMLFormElement>(null);
 
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
@@ -200,7 +203,7 @@ export default function BroadcastCronPage() {
     const phone = (activeProject?.phoneNumbers || []).find(
       (p) => p.id === phoneNumberId,
     );
-    const tags = (activeProject?.tags || []) as Tag[];
+    const tags = (activeProject?.tags || []) as TagType[];
 
     setQueue((prev) => [
       ...prev,
@@ -311,19 +314,20 @@ export default function BroadcastCronPage() {
       toast({
         title: 'Cron started',
         description: `${successCount} broadcast${successCount === 1 ? '' : 's'} queued successfully.`,
+        tone: 'success',
       });
     } else if (successCount > 0) {
       toast({
         title: 'Partial success',
         description: `${successCount} queued, ${failCount} failed.`,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       toast({
         title: 'All failed',
         description:
           'None of the broadcasts could be queued. Check the errors below.',
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   };
@@ -334,46 +338,35 @@ export default function BroadcastCronPage() {
   };
 
   const pendingCount = queue.filter((e) => e.status === 'pending').length;
-  const tags = (activeProject?.tags || []) as Tag[];
+  const tags = (activeProject?.tags || []) as TagType[];
 
   const templateLocked = queue.length > 0;
 
-  const handleTemplateChange = (templateId: string) => {
+  const handleTemplateChange = (templateId: string | null) => {
     if (templateLocked) return;
     const t = templates.find((tt) => tt._id.toString() === templateId);
     setSelectedTemplate(t || null);
   };
 
-  return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Broadcast Cron</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+  const phoneOptions = (activeProject?.phoneNumbers || []).map((phone) => ({
+    value: phone.id,
+    label: `${phone.display_phone_number} · ${phone.verified_name}`,
+  }));
+  const templateOptions = approvedTemplates.map((t) => ({
+    value: t._id.toString(),
+    label: t.name,
+  }));
 
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Broadcast Cron
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Pick one template, fill its variables once, then queue any number of
-            phone + audience pairs and fire them all together.
-          </p>
-        </div>
+  return (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Broadcast Cron' },
+      ]}
+      title="Broadcast Cron"
+      description="Pick one template, fill its variables once, then queue any number of phone + audience pairs and fire them all together."
+      actions={
         <div className="flex items-center gap-2">
           {queue.some((e) => e.status === 'started' || e.status === 'failed') && (
             <Button variant="outline" size="sm" onClick={handleClearDone}>
@@ -381,471 +374,510 @@ export default function BroadcastCronPage() {
             </Button>
           )}
           <Button
+            variant="primary"
             size="sm"
+            iconLeft={isStarting ? undefined : Play}
+            loading={isStarting}
             onClick={handleStartCron}
             disabled={isStarting || pendingCount === 0 || !selectedTemplate}
           >
-            {isStarting ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Play className="h-3.5 w-3.5" />
-            )}
             {isStarting
               ? 'Starting…'
               : `Start Cron${pendingCount > 0 ? ` (${pendingCount})` : ''}`}
           </Button>
         </div>
-      </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {/* ── Add Entry ─────────────────────────────────────────────── */}
+        <section className="flex flex-col gap-3">
+          <div>
+            <h2
+              className="text-[16px] font-medium leading-none"
+              style={{ color: 'var(--st-text)' }}
+            >
+              1 · Add entry
+            </h2>
+            <p
+              className="mt-1.5 text-[12px]"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
+              Pick a phone number, then the template, then this entry's audience.
+            </p>
+          </div>
+          <Card padding="lg">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {/* Phone number */}
+              <Field label="Phone Number" required>
+                <Select
+                  value={phoneNumberId || null}
+                  onChange={(v) => setPhoneNumberId(v ?? '')}
+                  options={phoneOptions}
+                  placeholder={
+                    phoneOptions.length === 0
+                      ? 'No phone numbers on this project'
+                      : 'Choose a number…'
+                  }
+                  disabled={phoneOptions.length === 0}
+                  aria-label="Phone Number"
+                />
+              </Field>
 
-      {/* ── Add Entry ─────────────────────────────────────────────── */}
-      <section className="flex flex-col gap-3">
-        <div>
-          <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
-            1 · Add entry
-          </h2>
-          <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
-            Pick a phone number, then the template, then this entry's audience.
-          </p>
-        </div>
-        <Card className="p-6">
-          <div className="grid gap-5 sm:grid-cols-2">
-            {/* Phone number */}
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Phone Number <span className="text-zoru-danger">*</span>
-              </Label>
-              <Select value={phoneNumberId} onValueChange={setPhoneNumberId}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Choose a number…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {(activeProject?.phoneNumbers || []).length === 0 ? (
-                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                      No phone numbers on this project.
-                    </div>
-                  ) : (
-                    (activeProject?.phoneNumbers || []).map((phone) => (
-                      <ZoruSelectItem key={phone.id} value={phone.id}>
-                        {phone.display_phone_number} · {phone.verified_name}
-                      </ZoruSelectItem>
-                    ))
-                  )}
-                </ZoruSelectContent>
-              </Select>
-            </div>
-
-            {/* Template — global; locks once any row is queued. */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                  Template <span className="text-zoru-danger">*</span>
-                </Label>
+              {/* Template — global; locks once any row is queued. */}
+              <div className="flex flex-col gap-1.5">
                 {templateLocked && (
-                  <span className="text-[10px] text-zoru-ink-muted">
-                    Locked · clear queue to switch
-                  </span>
+                  <div className="flex items-center justify-end">
+                    <span
+                      className="text-[10px]"
+                      style={{ color: 'var(--st-text-tertiary)' }}
+                    >
+                      Locked · clear queue to switch
+                    </span>
+                  </div>
                 )}
-              </div>
-              <Select
-                value={selectedTemplate?._id.toString()}
-                onValueChange={handleTemplateChange}
-                disabled={isLoadingTemplates || templateLocked}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue
+                <Field label="Template" required>
+                  <Select
+                    value={selectedTemplate?._id.toString() ?? null}
+                    onChange={handleTemplateChange}
+                    options={templateOptions}
                     placeholder={
                       isLoadingTemplates
                         ? 'Loading templates…'
-                        : 'Choose an approved template…'
+                        : templateOptions.length === 0
+                          ? 'No approved templates'
+                          : 'Choose an approved template…'
                     }
+                    disabled={
+                      isLoadingTemplates ||
+                      templateLocked ||
+                      templateOptions.length === 0
+                    }
+                    searchable
+                    aria-label="Template"
                   />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {approvedTemplates.length === 0 ? (
-                    <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                      No approved templates. Sync with Meta or create one.
-                    </div>
-                  ) : (
-                    approvedTemplates.map((t) => (
-                      <ZoruSelectItem
-                        key={t._id.toString()}
-                        value={t._id.toString()}
-                      >
-                        {t.name}
-                      </ZoruSelectItem>
-                    ))
-                  )}
-                </ZoruSelectContent>
-              </Select>
+                </Field>
+              </div>
             </div>
-          </div>
 
-          {/* Audience type */}
-          <div className="mt-5 flex flex-col gap-1.5">
-            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-              Audience <span className="text-zoru-danger">*</span>
-            </Label>
-            <RadioGroup
-              value={audienceType}
-              onValueChange={(v) => setAudienceType(v as AudienceKind)}
-              className="flex gap-2"
-            >
-              <AudienceOption
-                value="tags"
-                id="cron-aud-tags"
-                label="From tags"
-                description="Existing segments"
-                active={audienceType === 'tags'}
-              />
-              <AudienceOption
-                value="file"
-                id="cron-aud-file"
-                label="Upload file"
-                description="CSV or XLSX"
-                active={audienceType === 'file'}
-              />
-            </RadioGroup>
-          </div>
-
-          {/* Audience inputs */}
-          <div className="mt-5">
-            {audienceType === 'tags' ? (
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                  Audience Tags <span className="text-zoru-danger">*</span>
-                </Label>
-                <Popover
-                  open={tagPopoverOpen}
-                  onOpenChange={setTagPopoverOpen}
+            {/* Audience type */}
+            <div className="mt-5">
+              <Field label="Audience" required>
+                <RadioGroup
+                  value={audienceType}
+                  onValueChange={(v) => setAudienceType(v as AudienceKind)}
+                  orientation="horizontal"
+                  className="flex gap-2"
+                  aria-label="Audience"
                 >
-                  <ZoruPopoverTrigger asChild>
-                    <button
-                      type="button"
-                      role="combobox"
-                      aria-expanded={tagPopoverOpen}
-                      className={cn(
-                        'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] transition-colors hover:bg-zoru-surface',
-                        selectedTagIds.length === 0 && 'text-zoru-ink-muted',
-                      )}
-                    >
-                      <span className="inline-flex items-center gap-1.5 truncate">
-                        <TagIcon className="h-3.5 w-3.5" />
-                        {selectedTagIds.length > 0
-                          ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                          : 'Select tags…'}
-                      </span>
-                      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                    </button>
-                  </ZoruPopoverTrigger>
-                  <ZoruPopoverContent
-                    className="w-[--radix-popover-trigger-width] p-0"
-                    align="start"
+                  <AudienceOption
+                    value="tags"
+                    label="From tags"
+                    description="Existing segments"
+                    active={audienceType === 'tags'}
+                  />
+                  <AudienceOption
+                    value="file"
+                    label="Upload file"
+                    description="CSV or XLSX"
+                    active={audienceType === 'file'}
+                  />
+                </RadioGroup>
+              </Field>
+            </div>
+
+            {/* Audience inputs */}
+            <div className="mt-5">
+              {audienceType === 'tags' ? (
+                <Field label="Audience Tags" required>
+                  <Popover
+                    open={tagPopoverOpen}
+                    onOpenChange={setTagPopoverOpen}
                   >
-                    <ZoruCommand>
-                      <ZoruCommandInput placeholder="Search tags…" />
-                      <ZoruCommandList>
-                        <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-                        <ZoruCommandGroup>
-                          {tags.map((tag) => {
-                            const isSelected = selectedTagIds.includes(tag._id);
-                            return (
-                              <ZoruCommandItem
-                                key={tag._id}
-                                value={tag.name}
-                                onSelect={() => {
-                                  const next = isSelected
-                                    ? selectedTagIds.filter(
-                                        (id) => id !== tag._id,
-                                      )
-                                    : [...selectedTagIds, tag._id];
-                                  setSelectedTagIds(next);
-                                }}
-                              >
-                                <span
-                                  className={cn(
-                                    'mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border',
-                                    isSelected
-                                      ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                                      : 'border-zoru-line',
-                                  )}
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        role="combobox"
+                        aria-expanded={tagPopoverOpen}
+                        aria-label="Select audience tags"
+                        className="inline-flex h-10 w-full items-center justify-between gap-2 px-3 text-[13px] transition-colors"
+                        style={{
+                          borderRadius: 'var(--st-radius)',
+                          border: '1px solid var(--st-border)',
+                          background: 'var(--st-bg)',
+                          color:
+                            selectedTagIds.length === 0
+                              ? 'var(--st-text-tertiary)'
+                              : 'var(--st-text)',
+                        }}
+                      >
+                        <span className="inline-flex items-center gap-1.5 truncate">
+                          <TagIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                          {selectedTagIds.length > 0
+                            ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
+                            : 'Select tags…'}
+                        </span>
+                        <ChevronsUpDown
+                          className="h-4 w-4 shrink-0 opacity-50"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-[--radix-popover-trigger-width] p-0"
+                      align="start"
+                    >
+                      <Command>
+                        <CommandInput placeholder="Search tags…" />
+                        <CommandList>
+                          <CommandEmpty>No tags found.</CommandEmpty>
+                          <CommandGroup>
+                            {tags.map((tag) => {
+                              const isSelected = selectedTagIds.includes(tag._id);
+                              return (
+                                <CommandItem
+                                  key={tag._id}
+                                  value={tag.name}
+                                  onSelect={() => {
+                                    const next = isSelected
+                                      ? selectedTagIds.filter(
+                                          (id) => id !== tag._id,
+                                        )
+                                      : [...selectedTagIds, tag._id];
+                                    setSelectedTagIds(next);
+                                  }}
                                 >
-                                  {isSelected ? (
-                                    <Check className="h-3 w-3" />
-                                  ) : null}
-                                </span>
-                                <span
-                                  className="mr-2 h-2 w-2 shrink-0 rounded-full"
-                                  style={{ backgroundColor: tag.color }}
-                                />
-                                <span>{tag.name}</span>
-                              </ZoruCommandItem>
-                            );
-                          })}
-                        </ZoruCommandGroup>
-                      </ZoruCommandList>
-                    </ZoruCommand>
-                  </ZoruPopoverContent>
-                </Popover>
-                {selectedTagIds.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {selectedTagIds.map((id) => {
-                      const tag = tags.find((t) => t._id === id);
-                      return (
-                        <span
-                          key={id}
-                          className="inline-flex items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-0.5 text-[12px] text-zoru-ink"
-                        >
-                          <span
-                            className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: tag?.color }}
-                          />
-                          {tag?.name ?? id}
-                          <button
-                            type="button"
-                            onClick={() =>
+                                  <span
+                                    className="mr-2 flex h-4 w-4 items-center justify-center"
+                                    style={{
+                                      borderRadius: '3px',
+                                      border: isSelected
+                                        ? '1px solid var(--st-accent)'
+                                        : '1px solid var(--st-border)',
+                                      background: isSelected
+                                        ? 'var(--st-accent)'
+                                        : 'transparent',
+                                      color: isSelected ? '#fff' : 'transparent',
+                                    }}
+                                    aria-hidden="true"
+                                  >
+                                    {isSelected ? (
+                                      <Check className="h-3 w-3" />
+                                    ) : null}
+                                  </span>
+                                  <span
+                                    className="mr-2 h-2 w-2 shrink-0 rounded-full"
+                                    style={{ backgroundColor: tag.color }}
+                                    aria-hidden="true"
+                                  />
+                                  <span>{tag.name}</span>
+                                </CommandItem>
+                              );
+                            })}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {selectedTagIds.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {selectedTagIds.map((id) => {
+                        const tag = tags.find((t) => t._id === id);
+                        return (
+                          <Tag
+                            key={id}
+                            color={tag?.color}
+                            onRemove={() =>
                               setSelectedTagIds((prev) =>
                                 prev.filter((x) => x !== id),
                               )
                             }
-                            className="ml-0.5 text-zoru-ink-muted hover:text-zoru-danger"
+                            removeLabel={`Remove ${tag?.name ?? id}`}
                           >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                  Contact file <span className="text-zoru-danger">*</span>
-                </Label>
-                <div
-                  className={cn(
-                    'flex items-center justify-between gap-3 rounded-[var(--zoru-radius)] border border-dashed px-4 py-3',
-                    csvFile
-                      ? 'border-zoru-accent bg-zoru-surface'
-                      : 'border-zoru-line bg-zoru-bg',
+                            {tag?.name ?? id}
+                          </Tag>
+                        );
+                      })}
+                    </div>
                   )}
+                </Field>
+              ) : (
+                <Field
+                  label="Contact file"
+                  required
+                  help={
+                    <>
+                      Required columns: <code>phone</code>, plus a column per
+                      template variable (e.g. <code>variable1</code>).
+                    </>
+                  }
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    {csvFile ? (
-                      <FileText className="h-4 w-4 text-zoru-accent" />
-                    ) : (
-                      <Upload className="h-4 w-4 text-zoru-ink-muted" />
-                    )}
-                    <span className="truncate text-[13px] text-zoru-ink">
-                      {csvFile?.name ?? 'Pick a CSV or XLSX file from SabFiles'}
-                    </span>
-                  </div>
-                  <SabFileToFileButton
-                    accept="document"
-                    onPickFile={(file) => setCsvFile(file)}
-                    onError={(err) =>
-                      toast({
-                        title: 'Pick failed',
-                        description: err.message,
-                        variant: 'destructive',
-                      })
-                    }
+                  <div
+                    className="flex items-center justify-between gap-3 px-4 py-3"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      border: csvFile
+                        ? '1px dashed var(--st-accent)'
+                        : '1px dashed var(--st-border)',
+                      background: csvFile
+                        ? 'var(--st-bg-secondary)'
+                        : 'var(--st-bg)',
+                    }}
                   >
-                    {csvFile ? 'Replace' : 'Pick from SabFiles'}
-                  </SabFileToFileButton>
-                </div>
-                <p className="text-[11px] text-zoru-ink-muted">
-                  Required columns: <code>phone</code>, plus a column per
-                  template variable (e.g. <code>variable1</code>).
-                </p>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {csvFile ? (
+                        <FileText
+                          className="h-4 w-4"
+                          style={{ color: 'var(--st-accent)' }}
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <Upload
+                          className="h-4 w-4"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                          aria-hidden="true"
+                        />
+                      )}
+                      <span
+                        className="truncate text-[13px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {csvFile?.name ??
+                          'Pick a CSV or XLSX file from SabFiles'}
+                      </span>
+                    </div>
+                    <SabFileToFileButton
+                      accept="document"
+                      onPickFile={(file) => setCsvFile(file)}
+                      onError={(err) =>
+                        toast({
+                          title: 'Pick failed',
+                          description: err.message,
+                          tone: 'danger',
+                        })
+                      }
+                    >
+                      {csvFile ? 'Replace' : 'Pick from SabFiles'}
+                    </SabFileToFileButton>
+                  </div>
+                </Field>
+              )}
+            </div>
+
+            {/* Validation error */}
+            {addError && (
+              <div className="mt-3">
+                <Alert tone="danger">{addError}</Alert>
               </div>
             )}
-          </div>
 
-          {/* Validation error */}
-          {addError && (
-            <div className="mt-3 flex items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40 bg-zoru-danger/5 px-3 py-2 text-[12px] text-zoru-danger">
-              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-              {addError}
+            <div
+              className="mt-5 flex items-center justify-between pt-4"
+              style={{ borderTop: '1px solid var(--st-border)' }}
+            >
+              <p
+                className="text-[12px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                Each entry sends the chosen template (with variables and media
+                set in the cards below) from this number to the chosen audience.
+              </p>
+              <Button
+                variant="primary"
+                onClick={handleAdd}
+                disabled={!activeProjectId}
+              >
+                Add to Queue
+              </Button>
             </div>
-          )}
+          </Card>
+        </section>
 
-          <div className="mt-5 flex items-center justify-between border-t border-zoru-line pt-4">
-            <p className="text-[12px] text-zoru-ink-muted">
-              Each entry sends the chosen template (with variables and media
-              set in the cards below) from this number to the chosen audience.
-            </p>
-            <Button onClick={handleAdd} disabled={!activeProjectId}>
-              Add to Queue
-            </Button>
+        {/* ── Queue ────────────────────────────────────────────────── */}
+        <section className="flex flex-col gap-3">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2
+                className="text-[16px] font-medium leading-none"
+                style={{ color: 'var(--st-text)' }}
+              >
+                2 · Broadcast queue
+              </h2>
+              <p
+                className="mt-1.5 text-[12px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                Each entry fires the chosen template from its phone number to
+                its own audience.
+              </p>
+            </div>
+            {queue.length > 0 && (
+              <span
+                className="text-[11.5px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
+                {pendingCount} pending · {queue.length} total
+              </span>
+            )}
           </div>
-        </Card>
-      </section>
-
-      {/* ── Queue ────────────────────────────────────────────────── */}
-      <section className="flex flex-col gap-3">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
-              2 · Broadcast queue
-            </h2>
-            <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
-              Each entry fires the chosen template from its phone number to its
-              own audience.
-            </p>
-          </div>
-          {queue.length > 0 && (
-            <span className="text-[11.5px] text-zoru-ink-muted">
-              {pendingCount} pending · {queue.length} total
-            </span>
-          )}
-        </div>
-        {queue.length === 0 ? (
-          <EmptyState
-            icon={<Timer />}
-            title="Queue is empty"
-            description="Use the form above to add phone + audience pairs, then hit Start Cron."
-          />
-        ) : (
-          <Card className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                  <th className="px-5 py-3">Phone Number</th>
-                  <th className="px-5 py-3">Audience</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queue.map((entry) => (
-                  <tr
-                    key={entry.id}
-                    className="border-b border-zoru-line last:border-0"
-                  >
-                    <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                      {entry.phoneLabel}
-                    </td>
-                    <td className="px-5 py-3">
-                      {entry.audienceType === 'tags' ? (
-                        <div className="flex flex-wrap gap-1">
-                          {entry.tagNames.map((name) => (
-                            <span
-                              key={name}
-                              className="inline-flex items-center gap-1 rounded-full bg-zoru-surface-2 px-2 py-0.5 text-[11px] text-zoru-ink"
-                            >
-                              <TagIcon className="h-2.5 w-2.5" />
-                              {name}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 text-[12px] text-zoru-ink-muted">
-                          <FileText className="h-3 w-3" />
-                          {entry.csvFile?.name ?? 'file'}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-5 py-3">
-                      <div className="flex flex-col gap-0.5">
-                        <Badge variant={statusVariant(entry.status)}>
-                          {entry.status === 'starting' && (
-                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                          )}
-                          {statusLabel(entry.status)}
-                        </Badge>
-                        {entry.error && (
-                          <span className="text-[10.5px] text-zoru-danger leading-tight max-w-[260px]">
-                            {entry.error}
+          {queue.length === 0 ? (
+            <EmptyState
+              icon={Timer}
+              title="Queue is empty"
+              description="Use the form above to add phone + audience pairs, then hit Start Cron."
+            />
+          ) : (
+            <Card padding="none" className="overflow-x-auto">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Phone Number</Th>
+                    <Th>Audience</Th>
+                    <Th>Status</Th>
+                    <Th align="right">Action</Th>
+                  </Tr>
+                </THead>
+                <TBody>
+                  {queue.map((entry) => (
+                    <Tr key={entry.id}>
+                      <Td>{entry.phoneLabel}</Td>
+                      <Td>
+                        {entry.audienceType === 'tags' ? (
+                          <div className="flex flex-wrap gap-1">
+                            {entry.tagNames.map((name) => (
+                              <Badge key={name} tone="neutral">
+                                <TagIcon
+                                  className="h-2.5 w-2.5"
+                                  aria-hidden="true"
+                                />
+                                {name}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[12px]"
+                            style={{ color: 'var(--st-text-secondary)' }}
+                          >
+                            <FileText
+                              className="h-3 w-3"
+                              aria-hidden="true"
+                            />
+                            {entry.csvFile?.name ?? 'file'}
                           </span>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-right">
-                      {entry.status === 'pending' && (
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => handleRemove(entry.id)}
-                          aria-label="Remove"
-                          className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        )}
-      </section>
+                      </Td>
+                      <Td>
+                        <div className="flex flex-col gap-0.5">
+                          <Badge tone={statusTone(entry.status)}>
+                            {entry.status === 'starting' && (
+                              <Spinner size={10} label="Starting" />
+                            )}
+                            {statusLabel(entry.status)}
+                          </Badge>
+                          {entry.error && (
+                            <span
+                              className="text-[10.5px] leading-tight max-w-[260px]"
+                              style={{ color: 'var(--st-danger)' }}
+                            >
+                              {entry.error}
+                            </span>
+                          )}
+                        </div>
+                      </Td>
+                      <Td align="right">
+                        {entry.status === 'pending' && (
+                          <IconButton
+                            label="Remove"
+                            icon={Trash2}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleRemove(entry.id)}
+                          />
+                        )}
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            </Card>
+          )}
+        </section>
 
-      {/* ── Composer form: hidden plumbing + template variables + options ── */}
-      <form ref={composerRef} className="flex flex-col gap-5">
-        <input
-          type="hidden"
-          name="projectId"
-          value={activeProjectId ?? ''}
-        />
-        <input type="hidden" name="broadcastType" value="template" />
-        <input
-          type="hidden"
-          name="createContacts"
-          value={createContacts ? 'true' : 'false'}
-        />
-        <input
-          type="hidden"
-          name="templateId"
-          value={selectedTemplate?._id.toString() ?? ''}
-        />
+        {/* ── Composer form: hidden plumbing + template variables + options ── */}
+        <form ref={composerRef} className="flex flex-col gap-5">
+          <input
+            type="hidden"
+            name="projectId"
+            value={activeProjectId ?? ''}
+          />
+          <input type="hidden" name="broadcastType" value="template" />
+          <input
+            type="hidden"
+            name="createContacts"
+            value={createContacts ? 'true' : 'false'}
+          />
+          <input
+            type="hidden"
+            name="templateId"
+            value={selectedTemplate?._id.toString() ?? ''}
+          />
 
-        {/* Template variables — visible once a template is picked above. */}
-        {selectedTemplate && (
-          <Card className="p-6">
-            <div className="flex flex-col gap-4">
-              <div>
-                <h2 className="text-[16px] font-medium text-zoru-ink leading-none">
-                  Template variables
-                </h2>
-                <p className="mt-1.5 text-[12px] text-zoru-ink-muted">
-                  These values apply to every entry queued above.
-                </p>
+          {/* Template variables — visible once a template is picked above. */}
+          {selectedTemplate && (
+            <Card padding="lg">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <h2
+                    className="text-[16px] font-medium leading-none"
+                    style={{ color: 'var(--st-text)' }}
+                  >
+                    Template variables
+                  </h2>
+                  <p
+                    className="mt-1.5 text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    These values apply to every entry queued above.
+                  </p>
+                </div>
+                <TemplateInputRenderer
+                  template={selectedTemplate}
+                  variableOptions={TAG_VARIABLE_HINTS}
+                />
               </div>
-              <TemplateInputRenderer
-                template={selectedTemplate}
-                variableOptions={TAG_VARIABLE_HINTS}
+            </Card>
+          )}
+
+          {/* Options */}
+          <Card padding="md">
+            <label className="flex items-start gap-3 cursor-pointer select-none">
+              <Checkbox
+                checked={createContacts}
+                onChange={(e) => setCreateContacts(e.target.checked)}
+                className="mt-0.5"
+                aria-label="Create contacts in CRM"
               />
-            </div>
+              <div className="flex flex-col">
+                <span
+                  className="text-[13px] font-medium"
+                  style={{ color: 'var(--st-text)' }}
+                >
+                  Create contacts in CRM
+                </span>
+                <span
+                  className="mt-0.5 text-[11.5px]"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  {createContacts
+                    ? 'New recipients will be added to your CRM as they receive this broadcast.'
+                    : 'Off — only existing contacts will be updated.'}
+                </span>
+              </div>
+            </label>
           </Card>
-        )}
-
-        {/* Options */}
-        <Card className="p-5">
-          <label className="flex items-start gap-3 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              checked={createContacts}
-              onChange={(e) => setCreateContacts(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-zoru-line text-zoru-accent focus:ring-zoru-accent"
-            />
-            <div className="flex flex-col">
-              <span className="text-[13px] font-medium text-zoru-ink">
-                Create contacts in CRM
-              </span>
-              <span className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
-                {createContacts
-                  ? 'New recipients will be added to your CRM as they receive this broadcast.'
-                  : 'Off — only existing contacts will be updated.'}
-              </span>
-            </div>
-          </label>
-        </Card>
-      </form>
-
-      <div className="h-6" />
-    </div>
+        </form>
+      </div>
+    </WachatPage>
   );
 }
 
@@ -853,33 +885,40 @@ export default function BroadcastCronPage() {
 
 function AudienceOption({
   value,
-  id,
   label,
   description,
   active,
 }: {
   value: string;
-  id: string;
   label: string;
   description: string;
   active: boolean;
 }) {
   return (
     <label
-      htmlFor={id}
-      className={cn(
-        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--zoru-radius)] border px-3 py-2.5 transition-colors',
-        active
-          ? 'border-zoru-accent bg-zoru-surface'
-          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
+      className={cx(
+        'flex flex-1 cursor-pointer items-start gap-2.5 px-3 py-2.5 transition-colors',
       )}
+      style={{
+        borderRadius: 'var(--st-radius)',
+        border: active
+          ? '1px solid var(--st-accent)'
+          : '1px solid var(--st-border)',
+        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
+      }}
     >
-      <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
+      <Radio value={value} className="mt-0.5" />
       <div className="flex flex-col">
-        <span className="text-[13px] font-medium leading-tight text-zoru-ink">
+        <span
+          className="text-[13px] font-medium leading-tight"
+          style={{ color: 'var(--st-text)' }}
+        >
           {label}
         </span>
-        <span className="mt-0.5 text-[11px] leading-tight text-zoru-ink-muted">
+        <span
+          className="mt-0.5 text-[11px] leading-tight"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           {description}
         </span>
       </div>

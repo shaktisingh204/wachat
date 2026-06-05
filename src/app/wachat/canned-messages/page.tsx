@@ -1,10 +1,10 @@
 'use client';
 
-import { EmptyState } from '@/components/zoruui';
-import {
-  useEffect } from 'react';
+import { EmptyState, Spinner } from '@/components/sabcrm/20ui';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 export default function DeprecatedCannedMessagesPage() {
   const router = useRouter();
@@ -14,10 +14,19 @@ export default function DeprecatedCannedMessagesPage() {
   }, [router]);
 
   return (
-    <EmptyState
-      icon={<Loader2 className="h-6 w-6 animate-spin" strokeWidth={1.75} />}
-      title="This page has moved"
-      description="Redirecting you to Settings → Canned messages…"
-    />
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Canned messages' },
+      ]}
+      width="narrow"
+    >
+      <EmptyState
+        title="This page has moved"
+        description="Redirecting you to Settings → Canned messages…"
+        action={<Spinner size="lg" label="Redirecting" />}
+      />
+    </WachatPage>
   );
 }

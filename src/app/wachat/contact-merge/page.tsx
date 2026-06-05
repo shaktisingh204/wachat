@@ -1,30 +1,23 @@
 'use client';
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   EmptyState,
   Input,
   Skeleton,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -34,24 +27,28 @@ import {
   Search,
   GitMerge,
   Check,
-  Loader2,
   Users,
   } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { getContactsPageData, updateContactTags } from '@/app/actions/contact.actions';
 
 /**
- * Wachat Contact Merge — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Contact Merge — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 export default function ContactMergePage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [query, setQuery] = useState('');
@@ -111,6 +108,7 @@ export default function ContactMergePage() {
       toast({
         title: 'Merged',
         description: `Tags from "${contactB.name || contactB.waId}" merged into "${contactA.name || contactA.waId}".`,
+        tone: 'success',
       });
       setSelected([null, null]);
       load(query);
@@ -118,7 +116,7 @@ export default function ContactMergePage() {
       toast({
         title: 'Error',
         description: res.error || 'Merge failed.',
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
     setMerging(false);
@@ -126,21 +124,26 @@ export default function ContactMergePage() {
 
   const renderContact = (c: any, label: string) => (
     <div className="min-w-[200px] flex-1">
-      <p className="mb-2 text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+      <p
+        className="mb-2 text-[11px] uppercase tracking-wide"
+        style={{ color: 'var(--st-text-tertiary)' }}
+      >
         {label}
       </p>
       <div className="space-y-2 text-[13px]">
         <p>
-          <span className="text-zoru-ink-muted">Name: </span>
-          <span className="text-zoru-ink">{c.name || 'Unknown'}</span>
+          <span style={{ color: 'var(--st-text-secondary)' }}>Name: </span>
+          <span style={{ color: 'var(--st-text)' }}>{c.name || 'Unknown'}</span>
         </p>
         <p>
-          <span className="text-zoru-ink-muted">Phone: </span>
-          <span className="font-mono text-zoru-ink">{c.waId || '—'}</span>
+          <span style={{ color: 'var(--st-text-secondary)' }}>Phone: </span>
+          <span className="font-mono" style={{ color: 'var(--st-text)' }}>
+            {c.waId || '—'}
+          </span>
         </p>
         <p>
-          <span className="text-zoru-ink-muted">Tags: </span>
-          <span className="text-zoru-ink">{c.tagIds?.length || 0}</span>
+          <span style={{ color: 'var(--st-text-secondary)' }}>Tags: </span>
+          <span style={{ color: 'var(--st-text)' }}>{c.tagIds?.length || 0}</span>
         </p>
       </div>
     </div>
@@ -149,174 +152,188 @@ export default function ContactMergePage() {
   const isLoadingInitial = isPending && contacts.length === 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Merge</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Contact Merge
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Find and merge duplicate contacts to keep your list clean.
-        </p>
-      </div>
-
-      <Card className="p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <Input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search contacts by name or phone…"
-              leadingSlot={<Search />}
-            />
-          </div>
-          <Button size="sm" onClick={handleSearch} disabled={isPending}>
-            {isPending ? <Loader2 className="animate-spin" /> : 'Search'}
-          </Button>
-        </div>
-      </Card>
-
-      {isLoadingInitial ? (
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
-        </div>
-      ) : contacts.length === 0 ? (
-        <EmptyState
-          icon={<Users />}
-          title="No contacts found"
-          description={
-            isPending
-              ? 'Loading…'
-              : 'Try a different search to surface duplicates.'
-          }
-        />
-      ) : (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="w-8 px-5 py-3" />
-                <th className="px-5 py-3">Name</th>
-                <th className="px-5 py-3">Phone</th>
-                <th className="px-5 py-3">Tags</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zoru-line">
-              {contacts.map((c: any) => {
-                const isSelected = selected.includes(c._id);
-                return (
-                  <tr
-                    key={c._id}
-                    onClick={() => selectContact(c._id)}
-                    className={cn(
-                      'cursor-pointer transition-colors',
-                      isSelected
-                        ? 'bg-zoru-surface-2'
-                        : 'hover:bg-zoru-surface',
-                    )}
-                  >
-                    <td className="px-5 py-3">
-                      <div
-                        className={cn(
-                          'flex h-5 w-5 items-center justify-center rounded-[4px] border-2 transition-colors',
-                          isSelected
-                            ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                            : 'border-zoru-line',
-                        )}
-                      >
-                        {isSelected && <Check className="h-3 w-3" />}
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                      {c.name || 'Unknown'}
-                    </td>
-                    <td className="px-5 py-3 font-mono text-[13px] text-zoru-ink-muted">
-                      {c.waId || '—'}
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge variant="secondary">
-                        {c.tagIds?.length || 0} tags
-                      </Badge>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
-      )}
-
-      {contactA && contactB && (
-        <Card className="p-5">
-          <h2 className="mb-4 text-[15px] text-zoru-ink">Compare & merge</h2>
-          <div className="flex flex-wrap gap-6">
-            {renderContact(contactA, 'Primary (keep)')}
-            <div className="hidden items-center sm:flex">
-              <GitMerge className="h-6 w-6 text-zoru-ink-muted" />
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Merge' },
+      ]}
+      title="Contact Merge"
+      description="Find and merge duplicate contacts to keep your list clean."
+      width="wide"
+    >
+      <div className="flex flex-col gap-6">
+        <Card padding="md">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <Input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Search contacts by name or phone…"
+                aria-label="Search contacts by name or phone"
+                iconLeft={Search}
+              />
             </div>
-            {renderContact(
-              contactB,
-              'Secondary (merge tags into primary)',
-            )}
-          </div>
-          <div className="mt-4">
-            <ZoruAlertDialog>
-              <ZoruAlertDialogTrigger asChild>
-                <Button disabled={merging}>
-                  {merging ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <GitMerge />
-                  )}
-                  {merging ? 'Merging…' : 'Merge contacts'}
-                </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>Merge contacts?</ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
-                    Tags from "{contactB.name || contactB.waId}" will be
-                    combined into "{contactA.name || contactA.waId}". This
-                    cannot be undone.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction onClick={handleMerge}>
-                    Merge
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleSearch}
+              loading={isPending}
+              disabled={isPending}
+            >
+              Search
+            </Button>
           </div>
         </Card>
-      )}
-      <div className="h-6" />
-    </div>
+
+        {isLoadingInitial ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} height="3rem" width="100%" />
+            ))}
+          </div>
+        ) : contacts.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title="No contacts found"
+            description={
+              isPending
+                ? 'Loading…'
+                : 'Try a different search to surface duplicates.'
+            }
+          />
+        ) : (
+          <Card padding="none" className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr
+                  className="text-[11px] uppercase tracking-wide"
+                  style={{
+                    borderBottom: '1px solid var(--st-border)',
+                    color: 'var(--st-text-tertiary)',
+                  }}
+                >
+                  <th className="w-8 px-5 py-3" />
+                  <th className="px-5 py-3">Name</th>
+                  <th className="px-5 py-3">Phone</th>
+                  <th className="px-5 py-3">Tags</th>
+                </tr>
+              </thead>
+              <tbody>
+                {contacts.map((c: any) => {
+                  const isSelected = selected.includes(c._id);
+                  return (
+                    <tr
+                      key={c._id}
+                      onClick={() => selectContact(c._id)}
+                      className="cursor-pointer transition-colors"
+                      style={{
+                        borderTop: '1px solid var(--st-border)',
+                        background: isSelected
+                          ? 'var(--st-bg-secondary)'
+                          : 'transparent',
+                      }}
+                    >
+                      <td className="px-5 py-3">
+                        <div
+                          className="flex h-5 w-5 items-center justify-center transition-colors"
+                          style={{
+                            borderRadius: '4px',
+                            border: isSelected
+                              ? '2px solid var(--st-accent)'
+                              : '2px solid var(--st-border)',
+                            background: isSelected
+                              ? 'var(--st-accent)'
+                              : 'transparent',
+                            color: isSelected ? '#fff' : 'transparent',
+                          }}
+                        >
+                          {isSelected && (
+                            <Check className="h-3 w-3" aria-hidden="true" />
+                          )}
+                        </div>
+                      </td>
+                      <td
+                        className="px-5 py-3 text-[13px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {c.name || 'Unknown'}
+                      </td>
+                      <td
+                        className="px-5 py-3 font-mono text-[13px]"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                      >
+                        {c.waId || '—'}
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge tone="neutral">{c.tagIds?.length || 0} tags</Badge>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </Card>
+        )}
+
+        {contactA && contactB && (
+          <Card padding="md">
+            <h2
+              className="mb-4 text-[15px] font-medium"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Compare &amp; merge
+            </h2>
+            <div className="flex flex-wrap gap-6">
+              {renderContact(contactA, 'Primary (keep)')}
+              <div className="hidden items-center sm:flex">
+                <GitMerge
+                  className="h-6 w-6"
+                  style={{ color: 'var(--st-text-tertiary)' }}
+                  aria-hidden="true"
+                />
+              </div>
+              {renderContact(
+                contactB,
+                'Secondary (merge tags into primary)',
+              )}
+            </div>
+            <div className="mt-4">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="primary"
+                    iconLeft={GitMerge}
+                    loading={merging}
+                    disabled={merging}
+                  >
+                    {merging ? 'Merging…' : 'Merge contacts'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Merge contacts?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tags from "{contactB.name || contactB.waId}" will be
+                      combined into "{contactA.name || contactA.waId}". This
+                      cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction intent="primary" onClick={handleMerge}>
+                      Merge
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </Card>
+        )}
+      </div>
+    </WachatPage>
   );
 }

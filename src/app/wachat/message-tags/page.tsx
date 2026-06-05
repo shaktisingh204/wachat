@@ -1,47 +1,28 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
+  IconButton,
   Card,
-  ZoruColorPicker,
+  ColorPicker,
   DataTable,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  type DataTableColumn,
+  Modal,
   EmptyState,
+  Field,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Skeleton,
-  useZoruToast,
+  useToast,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -56,8 +37,8 @@ import {
   Tag as TagIcon,
   Layers,
   BarChart2,
+  Search,
 } from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
 import {
   BarChart,
   Bar,
@@ -67,6 +48,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import {
   getMessageTags,
@@ -95,7 +77,7 @@ const COLOR_PRESETS = [
 
 export default function MessageTagsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
   const [tags, setTags] = useState<Tag[]>([]);
   const [isLoading, startTransition] = useTransition();
@@ -107,6 +89,9 @@ export default function MessageTagsPage() {
   const [color, setColor] = useState(COLOR_PRESETS[0]);
 
   const [deleting, setDeleting] = useState<Tag | null>(null);
+
+  // Search filter for the tags table
+  const [search, setSearch] = useState('');
 
   // Bulk Apply state
   const [bulkApplyOpen, setBulkApplyOpen] = useState(false);
@@ -122,7 +107,7 @@ export default function MessageTagsPage() {
     startTransition(async () => {
       const res = await getMessageTags(projectId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       setTags((res.tags ?? []) as Tag[]);
@@ -153,12 +138,13 @@ export default function MessageTagsPage() {
     startMutateTransition(async () => {
       const res = await saveMessageTag(projectId, name.trim(), color);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       toast({
         title: editing ? 'Tag updated' : 'Tag created',
         description: res.message ?? 'Saved.',
+        tone: 'success',
       });
       setName('');
       setDialogOpen(false);
@@ -172,7 +158,7 @@ export default function MessageTagsPage() {
     startMutateTransition(async () => {
       const res = await deleteMessageTag(deleting._id);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       toast({ title: 'Deleted', description: 'Tag removed.' });
@@ -191,6 +177,7 @@ export default function MessageTagsPage() {
     toast({
       title: 'Success',
       description: 'Tag has been bulk applied to past conversations.',
+      tone: 'success',
     });
     setSelectedBulkTag('');
   };
@@ -200,64 +187,75 @@ export default function MessageTagsPage() {
     setAnalyticsOpen(true);
   };
 
-  const columns = useMemo<ColumnDef<Tag>[]>(
+  const filteredTags = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return tags;
+    return tags.filter((t) => t.name.toLowerCase().includes(q));
+  }, [tags, search]);
+
+  const columns = useMemo<DataTableColumn<Tag>[]>(
     () => [
       {
-        id: 'swatch',
+        key: 'swatch',
         header: '',
-        cell: ({ row }) => (
+        width: 44,
+        render: (row) => (
           <span
-            className="block h-4 w-4 rounded-full border border-zoru-line"
-            style={{ backgroundColor: row.original.color }}
-            aria-label={`Tag color ${row.original.color}`}
+            className="block h-4 w-4 rounded-full"
+            style={{
+              backgroundColor: row.color,
+              border: '1px solid var(--st-border)',
+            }}
+            aria-label={`Tag color ${row.color}`}
           />
         ),
       },
       {
-        accessorKey: 'name',
+        key: 'name',
         header: 'Name',
-        cell: ({ row }) => (
-          <span className="text-zoru-ink">{row.original.name}</span>
+        sortable: true,
+        render: (row) => (
+          <span style={{ color: 'var(--st-text)' }}>{row.name}</span>
         ),
       },
       {
-        accessorKey: 'usageCount',
+        key: 'usageCount',
         header: 'Messages',
-        cell: ({ row }) => (
-          <span className="tabular-nums text-zoru-ink-muted">
-            {row.original.usageCount ?? 0}
+        sortable: true,
+        sortValue: (row) => row.usageCount ?? 0,
+        render: (row) => (
+          <span
+            className="tabular-nums"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
+            {row.usageCount ?? 0}
           </span>
         ),
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
-        cell: ({ row }) => (
+        align: 'right',
+        render: (row) => (
           <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Analytics"
-              onClick={() => openAnalytics(row.original)}
-            >
-              <BarChart2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Edit"
-              onClick={() => openEdit(row.original)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Delete"
-              onClick={() => setDeleting(row.original)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <IconButton
+              label="Analytics"
+              icon={BarChart2}
+              size="sm"
+              onClick={() => openAnalytics(row)}
+            />
+            <IconButton
+              label="Edit"
+              icon={Pencil}
+              size="sm"
+              onClick={() => openEdit(row)}
+            />
+            <IconButton
+              label="Delete"
+              icon={Trash2}
+              size="sm"
+              onClick={() => setDeleting(row)}
+            />
           </div>
         ),
       },
@@ -274,130 +272,92 @@ export default function MessageTagsPage() {
     }));
   }, [analyticsTag]);
 
+  const breadcrumb = [
+    { label: 'SabNode', href: '/dashboard' },
+    { label: 'WaChat', href: '/wachat' },
+    { label: 'Message Tags' },
+  ];
+
   if (isLoading && tags.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <Skeleton className="h-3 w-52" />
-        <div className="mt-5 space-y-3">
-          <Skeleton className="h-9 w-72" />
-          <Skeleton className="h-4 w-96" />
-        </div>
-        <div className="mt-8 grid gap-2">
+      <WachatPage
+        breadcrumb={breadcrumb}
+        eyebrow={`WaChat · ${activeProject?.name ?? 'Project'}`}
+        title="Message Tags"
+        description="Create and manage tags to organize your conversations."
+      >
+        <div className="grid gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-12" />
+            <Skeleton key={i} height={48} radius={8} />
           ))}
         </div>
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Message Tags</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>
-            WaChat · {activeProject?.name ?? 'Project'}
-          </ZoruPageEyebrow>
-          <ZoruPageTitle>Message Tags</ZoruPageTitle>
-          <ZoruPageDescription>
-            Create and manage tags to organize your conversations.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button variant="outline" onClick={() => setBulkApplyOpen(true)}>
-            <Layers className="mr-2 h-4 w-4" /> Bulk Apply
+    <WachatPage
+      breadcrumb={breadcrumb}
+      eyebrow={`WaChat · ${activeProject?.name ?? 'Project'}`}
+      title="Message Tags"
+      description="Create and manage tags to organize your conversations."
+      actions={
+        <>
+          <Button
+            variant="outline"
+            iconLeft={Layers}
+            onClick={() => setBulkApplyOpen(true)}
+          >
+            Bulk Apply
           </Button>
-          <Button onClick={openCreate}>
-            <Plus className="mr-2 h-4 w-4" /> New tag
+          <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+            New tag
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <div className="mt-6">
-        {tags.length === 0 ? (
-          <EmptyState
-            icon={<TagIcon />}
-            title="No tags yet"
-            description="Create tags to keep conversations organized and easy to filter."
-            action={
-              <Button onClick={openCreate}>
-                <Plus className="mr-2 h-4 w-4" /> New tag
-              </Button>
-            }
-          />
-        ) : (
-          <Card className="p-4">
-            <DataTable
-              columns={columns}
-              data={tags}
-              filterColumn="name"
-              filterPlaceholder="Search tags…"
+        </>
+      }
+    >
+      {tags.length === 0 ? (
+        <EmptyState
+          icon={TagIcon}
+          title="No tags yet"
+          description="Create tags to keep conversations organized and easy to filter."
+          action={
+            <Button variant="primary" iconLeft={Plus} onClick={openCreate}>
+              New tag
+            </Button>
+          }
+        />
+      ) : (
+        <Card padding="md">
+          <div className="mb-3 max-w-xs">
+            <Input
+              iconLeft={Search}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search tags…"
+              aria-label="Search tags"
             />
-          </Card>
-        )}
-      </div>
+          </div>
+          <DataTable<Tag>
+            columns={columns}
+            rows={filteredTags}
+            getRowId={(row) => row._id}
+          />
+        </Card>
+      )}
 
       {/* Create / edit tag dialog */}
-      <Dialog
+      <Modal
         open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
-          if (!open) {
-            setEditing(null);
-            setName('');
-          }
+        onClose={() => {
+          setDialogOpen(false);
+          setEditing(null);
+          setName('');
         }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              {editing ? 'Edit tag' : 'New tag'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Pick a name and a distinct color to make this tag easy to spot.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="tag-name">Name</Label>
-            <Input
-              id="tag-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-              }}
-              placeholder="Tag name"
-              autoFocus
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Color</Label>
-            <ZoruColorPicker
-              value={color}
-              onChange={setColor}
-              presets={COLOR_PRESETS}
-            />
-          </div>
-
-          <ZoruDialogFooter>
+        title={editing ? 'Edit tag' : 'New tag'}
+        description="Pick a name and a distinct color to make this tag easy to spot."
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => {
@@ -409,145 +369,145 @@ export default function MessageTagsPage() {
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={handleSave}
               disabled={isMutating || !name.trim()}
             >
               {editing ? 'Save changes' : 'Create tag'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <Field label="Name">
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+              }}
+              placeholder="Tag name"
+              autoFocus
+            />
+          </Field>
+
+          <Field label="Color">
+            <ColorPicker
+              value={color}
+              onChange={setColor}
+              swatches={COLOR_PRESETS}
+            />
+          </Field>
+        </div>
+      </Modal>
 
       {/* Bulk Apply Dialog */}
-      <Dialog open={bulkApplyOpen} onOpenChange={setBulkApplyOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Bulk Apply Tags</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Apply a specific tag to past matching conversations.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-1.5">
-            <Label>Select Tag</Label>
-            <Select value={selectedBulkTag} onValueChange={setSelectedBulkTag}>
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a tag..." />
-              </SelectTrigger>
-              <SelectContent>
-                {tags.map((tag) => (
-                  <SelectItem key={tag._id} value={tag._id}>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="block h-3 w-3 rounded-full"
-                        style={{ backgroundColor: tag.color }}
-                      />
-                      {tag.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <ZoruDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setBulkApplyOpen(false)}
-            >
+      <Modal
+        open={bulkApplyOpen}
+        onClose={() => setBulkApplyOpen(false)}
+        title="Bulk Apply Tags"
+        description="Apply a specific tag to past matching conversations."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setBulkApplyOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={handleBulkApply}
               disabled={!selectedBulkTag || isBulkApplying}
+              loading={isBulkApplying}
             >
               {isBulkApplying ? 'Applying...' : 'Apply Tag'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <Field label="Select Tag">
+          <Select
+            value={selectedBulkTag || null}
+            onChange={(v) => setSelectedBulkTag(v ?? '')}
+            placeholder="Choose a tag..."
+            options={tags.map((tag) => ({ value: tag._id, label: tag.name }))}
+            aria-label="Select tag"
+          />
+        </Field>
+      </Modal>
 
       {/* Analytics Dialog */}
-      <Dialog open={analyticsOpen} onOpenChange={setAnalyticsOpen}>
-        <ZoruDialogContent className="max-w-xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              Analytics: {analyticsTag?.name}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Usage count over the last 7 days.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          
-          <div className="mt-4 h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mockChartData}>
-                <XAxis
-                  dataKey="name"
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <YAxis
-                  stroke="#888888"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `${value}`}
-                />
-                <RechartsTooltip
-                  cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }}
-                  contentStyle={{ borderRadius: '8px', border: '1px solid #eaeaea' }}
-                />
-                <Bar
-                  dataKey="usage"
-                  fill={analyticsTag?.color || '#3B82F6'}
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <ZoruDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setAnalyticsOpen(false)}
-            >
-              Close
-            </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+      <Modal
+        open={analyticsOpen}
+        onClose={() => setAnalyticsOpen(false)}
+        size="lg"
+        title={`Analytics: ${analyticsTag?.name ?? ''}`}
+        description="Usage count over the last 7 days."
+        footer={
+          <Button variant="outline" onClick={() => setAnalyticsOpen(false)}>
+            Close
+          </Button>
+        }
+      >
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={mockChartData}>
+              <XAxis
+                dataKey="name"
+                stroke="var(--st-text-tertiary)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                stroke="var(--st-text-tertiary)"
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `${value}`}
+              />
+              <RechartsTooltip
+                cursor={{ fill: 'var(--st-bg-secondary)' }}
+                contentStyle={{
+                  borderRadius: 'var(--st-radius)',
+                  border: '1px solid var(--st-border)',
+                  background: 'var(--st-bg)',
+                  color: 'var(--st-text)',
+                }}
+              />
+              <Bar
+                dataKey="usage"
+                fill={analyticsTag?.color || '#3B82F6'}
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Modal>
 
       {/* Delete tag alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!deleting}
         onOpenChange={(open) => {
           if (!open) setDeleting(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
               Delete &ldquo;{deleting?.name}&rdquo;?
-            </ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               This removes the tag and detaches it from any conversations using
               it. This cannot be undone.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              onClick={handleDelete}
-              disabled={isMutating}
-            >
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isMutating}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }

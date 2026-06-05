@@ -1,42 +1,36 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-} from '@/components/zoruui';
-import {
-  usePathname } from 'next/navigation';
-import { History,
-  Phone,
-  Settings } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { History, Settings } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 
 /**
- * Wachat Calls — ZoruUI layout.
+ * Wachat Calls — 20ui layout.
  *
- * Two sub-pages: Call Logs · Call Setup. Sub-nav uses Button
- * variants (no tab UI per the no-tab-ui directive). Each sub-page's
- * content is rendered by its child route.
+ * Two sub-pages: Call Logs · Call Setup. Sub-nav uses 20ui button-styled
+ * route links (no tab UI per the no-tab-ui directive). Each sub-page's
+ * content is rendered by its child route. The WachatPage container owns the
+ * width, gutters, breadcrumb, and the single page <h1>.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 const SECTIONS = [
   {
     href: '/wachat/calls/logs',
     label: 'Call Logs',
-    icon: <History />,
+    icon: History,
   },
   {
     href: '/wachat/calls/settings',
     label: 'Call Setup',
-    icon: <Settings />,
+    icon: Settings,
   },
 ];
 
@@ -49,62 +43,40 @@ export default function CallsLayout({
   const { activeProject } = useProject();
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>
-              {activeProject?.name ? `${activeProject.name} · Calls` : 'Calls'}
-            </ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="flex items-center gap-3 text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          <span className="flex h-10 w-10 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-            <Phone className="h-5 w-5" />
-          </span>
-          WhatsApp Calling
-        </h1>
-        <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
-          Configure and monitor your WhatsApp calling features — review call
-          logs, tweak voicemail prompts, and enable business calling on
-          specific numbers.
-        </p>
-      </div>
-
-      {/* Sub-page nav (no tab UI). Active section uses solid button,
-          inactive uses outline. */}
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: activeProject?.name ? `${activeProject.name} · Calls` : 'Calls' },
+      ]}
+      title="WhatsApp Calling"
+      description="Configure and monitor your WhatsApp calling features — review call logs, tweak voicemail prompts, and enable business calling on specific numbers."
+    >
+      {/* Sub-page nav (no tab UI). Active section uses the primary button
+          style, inactive uses outline. Anchors preserve route navigation. */}
       <nav className="flex flex-wrap gap-2">
         {SECTIONS.map((s) => {
           const active =
             pathname === s.href || pathname.startsWith(s.href + '/');
+          const Icon = s.icon;
           return (
-            <Button
+            <a
               key={s.href}
-              variant={active ? 'default' : 'outline'}
-              size="sm"
-              asChild
+              href={s.href}
+              className={cx(
+                'u-btn',
+                'u-btn--sm',
+                active ? 'u-btn--primary' : 'u-btn--outline',
+              )}
             >
-              <a href={s.href}>
-                {s.icon}
-                {s.label}
-              </a>
-            </Button>
+              <Icon size={13} aria-hidden="true" />
+              <span className="u-btn__label">{s.label}</span>
+            </a>
           );
         })}
       </nav>
 
       <div>{children}</div>
-    </div>
+    </WachatPage>
   );
 }

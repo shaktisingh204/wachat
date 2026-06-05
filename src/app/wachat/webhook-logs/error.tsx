@@ -1,8 +1,9 @@
 'use client';
 
-import { EmptyState, Button } from '@/components/zoruui';
+import { EmptyState, Button } from '@/components/sabcrm/20ui';
 import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 export default function ErrorBoundary({
   error,
@@ -16,13 +17,16 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex h-[80vh] items-center justify-center p-6">
-      <EmptyState
-        icon={<AlertCircle className="h-10 w-10 text-zoru-danger" />}
-        title="Something went wrong"
-        description={error.message || 'An unexpected error occurred while loading this module.'}
-        action={<Button onClick={() => reset()}>Try again</Button>}
-      />
-    </div>
+    <WachatPage>
+      <div className="flex h-[80vh] items-center justify-center">
+        <EmptyState
+          icon={AlertCircle}
+          tone="danger"
+          title="Something went wrong"
+          description={error.message || 'An unexpected error occurred while loading this module.'}
+          action={<Button onClick={() => reset()}>Try again</Button>}
+        />
+      </div>
+    </WachatPage>
   );
 }

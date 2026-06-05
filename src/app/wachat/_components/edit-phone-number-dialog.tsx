@@ -2,23 +2,14 @@
 
 import {
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   Separator,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -26,7 +17,6 @@ import {
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Camera,
-  Loader2,
   Save,
   UserRound } from 'lucide-react';
 import type { WithId } from 'mongodb';
@@ -36,11 +26,11 @@ import type { PhoneNumber,
   Project } from '@/lib/definitions';
 
 /**
- * EditPhoneNumberDialog (wachat-local, ZoruUI).
+ * EditPhoneNumberDialog (wachat-local, 20ui).
  *
  * Replaces the legacy edit-phone-number-dialog. Same
  * server action (handleUpdatePhoneNumberProfile), same form fields and
- * file-upload behaviour. Visual-only swap to neutral zoru tokens.
+ * file-upload behaviour. Visual-only swap to neutral 20ui tokens.
  */
 
 import * as React from 'react';
@@ -74,11 +64,20 @@ const verticals = [
   'NOT_A_BIZ',
 ];
 
+const verticalOptions = verticals.map((v) => ({
+  value: v,
+  label: v.replace(/_/g, ' ').toLowerCase(),
+}));
+
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : <Save />}
+    <Button
+      type="submit"
+      variant="primary"
+      loading={pending}
+      iconLeft={Save}
+    >
       {pending ? 'Saving…' : 'Save changes'}
     </Button>
   );
@@ -103,16 +102,19 @@ export function EditPhoneNumberDialog({
     handleUpdatePhoneNumberProfile,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const profilePictureInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     phone.profile?.profile_picture_url || null,
   );
+  const [vertical, setVertical] = useState<string | null>(
+    phone.profile?.vertical ?? null,
+  );
 
   useEffect(() => {
     if (profileState.message) {
-      toast({ title: 'Success!', description: profileState.message });
+      toast({ title: 'Success!', description: profileState.message, tone: 'success' });
       onUpdateSuccess();
       onOpenChange(false);
     }
@@ -120,7 +122,7 @@ export function EditPhoneNumberDialog({
       toast({
         title: 'Error Updating Profile',
         description: profileState.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [profileState, toast, onOpenChange, onUpdateSuccess]);
@@ -147,204 +149,225 @@ export function EditPhoneNumberDialog({
     acceptProfileImage(file);
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-h-[85vh] max-w-[680px] overflow-hidden p-0">
-        <form
-          action={profileFormAction}
-          ref={formRef}
-          className="flex h-full flex-col overflow-hidden"
+  const title = (
+    <span className="flex flex-row items-start gap-3">
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)]"
+        style={{ background: 'var(--st-bg-muted)', color: 'var(--st-text)' }}
+      >
+        <UserRound className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[16px]">Edit phone number profile</span>
+        <span
+          className="mt-0.5 block text-[12px] font-normal"
+          style={{ color: 'var(--st-text-secondary)' }}
         >
-          <input type="hidden" name="projectId" value={project._id.toString()} />
-          <input type="hidden" name="phoneNumberId" value={phone.id} />
+          Update the public business profile details for{' '}
+          {phone.display_phone_number}.
+        </span>
+      </span>
+    </span>
+  );
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-              <UserRound className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] text-zoru-ink">
-                Edit phone number profile
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted">
-                Update the public business profile details for{' '}
-                {phone.display_phone_number}.
-              </ZoruDialogDescription>
-            </div>
-          </ZoruDialogHeader>
+  return (
+    <Modal
+      open={isOpen}
+      onClose={() => onOpenChange(false)}
+      title={title}
+      size="lg"
+      className="max-h-[85vh] max-w-[680px] overflow-hidden p-0"
+    >
+      <form
+        action={profileFormAction}
+        ref={formRef}
+        className="flex h-full flex-col overflow-hidden"
+      >
+        <input type="hidden" name="projectId" value={project._id.toString()} />
+        <input type="hidden" name="phoneNumberId" value={phone.id} />
+        <input type="hidden" name="vertical" value={vertical ?? ''} />
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="grid gap-6">
-              {/* Top: profile pic + basic info */}
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-[180px_1fr]">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-zoru-line bg-zoru-surface transition-colors hover:bg-zoru-surface-2">
-                    {previewUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={previewUrl}
-                        alt="Profile preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-1.5 text-zoru-ink-muted">
-                        <Camera className="h-6 w-6" />
-                        <span className="text-[11px]">Upload photo</span>
-                      </div>
-                    )}
-                    <label
-                      htmlFor="profilePicture"
-                      className="absolute inset-0 flex cursor-pointer items-center justify-center bg-zoru-ink/60 text-[13px] text-zoru-on-primary opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      Change
-                    </label>
-                    <input
-                      ref={profilePictureInputRef}
-                      id="profilePicture"
-                      name="profilePicture"
-                      type="file"
-                      accept="image/jpeg,image/png"
-                      className="hidden"
-                      onChange={handleImageChange}
+        <div className="flex-1 overflow-y-auto px-1 py-1">
+          <div className="grid gap-6">
+            {/* Top: profile pic + basic info */}
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-[180px_1fr]">
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="group relative flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-2 border-dashed transition-colors"
+                  style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-secondary)' }}
+                >
+                  {previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={previewUrl}
+                      alt="Profile preview"
+                      className="h-full w-full object-cover"
                     />
-                  </div>
-                  <p className="px-2 text-center text-[10.5px] text-zoru-ink-muted">
-                    Recommended: 500x500 px, JPG or PNG.
-                  </p>
-                  <SabFileToFileButton
-                    accept="image"
-                    onPickFile={handleSabFilePick}
-                    onError={(err) =>
-                      toast({
-                        title: 'Pick failed',
-                        description: err.message,
-                        variant: 'destructive',
-                      })
-                    }
+                  ) : (
+                    <div
+                      className="flex flex-col items-center gap-1.5"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
+                      <Camera className="h-6 w-6" />
+                      <span className="text-[11px]">Upload photo</span>
+                    </div>
+                  )}
+                  <label
+                    htmlFor="profilePicture"
+                    className="absolute inset-0 flex cursor-pointer items-center justify-center text-[13px] opacity-0 transition-opacity group-hover:opacity-100"
+                    style={{ background: 'rgba(0, 0, 0, 0.6)', color: 'var(--st-text-inverted)' }}
                   >
-                    Pick from SabFiles
-                  </SabFileToFileButton>
+                    Change
+                  </label>
+                  <input
+                    ref={profilePictureInputRef}
+                    id="profilePicture"
+                    name="profilePicture"
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    className="hidden"
+                    onChange={handleImageChange}
+                  />
                 </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="vertical">Business Category</Label>
-                    <Select
-                      name="vertical"
-                      defaultValue={phone.profile?.vertical}
-                    >
-                      <ZoruSelectTrigger>
-                        <ZoruSelectValue placeholder="Select a category..." />
-                      </ZoruSelectTrigger>
-                      <ZoruSelectContent>
-                        {verticals.map((v) => (
-                          <ZoruSelectItem
-                            key={v}
-                            value={v}
-                            className="capitalize"
-                          >
-                            {v.replace(/_/g, ' ').toLowerCase()}
-                          </ZoruSelectItem>
-                        ))}
-                      </ZoruSelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="email">Business Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="contact@example.com"
-                      defaultValue={phone.profile?.email}
-                    />
-                  </div>
-                </div>
+                <p
+                  className="px-2 text-center text-[10.5px]"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
+                  Recommended: 500x500 px, JPG or PNG.
+                </p>
+                <SabFileToFileButton
+                  accept="image"
+                  onPickFile={handleSabFilePick}
+                  onError={(err) =>
+                    toast({
+                      title: 'Pick failed',
+                      description: err.message,
+                      tone: 'danger',
+                    })
+                  }
+                >
+                  Pick from SabFiles
+                </SabFileToFileButton>
               </div>
 
-              <Separator />
+              <div className="flex flex-col gap-4">
+                <Field label="Business Category">
+                  <Select
+                    aria-label="Business Category"
+                    value={vertical}
+                    onChange={setVertical}
+                    options={verticalOptions}
+                    placeholder="Select a category..."
+                    searchable
+                  />
+                </Field>
+                <Field label="Business Email">
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="contact@example.com"
+                    defaultValue={phone.profile?.email}
+                  />
+                </Field>
+              </div>
+            </div>
 
-              {/* Middle: text fields */}
-              <div className="grid gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between">
-                    <Label htmlFor="about">Status (About)</Label>
-                    <span className="text-[11px] text-zoru-ink-muted">
+            <Separator />
+
+            {/* Middle: text fields */}
+            <div className="grid gap-4">
+              <Field
+                label={
+                  <span className="flex w-full justify-between">
+                    <span>Status (About)</span>
+                    <span
+                      className="text-[11px] font-normal"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       Max 139 chars
                     </span>
-                  </div>
-                  <Input
-                    id="about"
-                    name="about"
-                    defaultValue={phone.profile?.about}
-                    maxLength={139}
-                    placeholder="Hey there! I am using WhatsApp."
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between">
-                    <Label htmlFor="description">
-                      Business Description
-                    </Label>
-                    <span className="text-[11px] text-zoru-ink-muted">
+                  </span>
+                }
+              >
+                <Input
+                  id="about"
+                  name="about"
+                  defaultValue={phone.profile?.about}
+                  maxLength={139}
+                  placeholder="Hey there! I am using WhatsApp."
+                />
+              </Field>
+              <Field
+                label={
+                  <span className="flex w-full justify-between">
+                    <span>Business Description</span>
+                    <span
+                      className="text-[11px] font-normal"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       Max 256 chars
                     </span>
-                  </div>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    defaultValue={phone.profile?.description}
-                    maxLength={256}
-                    className="h-24 resize-none"
-                    placeholder="Tell your customers about your business..."
-                  />
-                </div>
-              </div>
+                  </span>
+                }
+              >
+                <Textarea
+                  id="description"
+                  name="description"
+                  defaultValue={phone.profile?.description}
+                  maxLength={256}
+                  className="h-24 resize-none"
+                  placeholder="Tell your customers about your business..."
+                />
+              </Field>
+            </div>
 
-              <Separator />
+            <Separator />
 
-              {/* Bottom: contact & socials */}
-              <div className="grid gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="address">Business Address</Label>
+            {/* Bottom: contact & socials */}
+            <div className="grid gap-4">
+              <Field label="Business Address">
+                <Input
+                  id="address"
+                  name="address"
+                  defaultValue={phone.profile?.address}
+                  placeholder="1234 Main St, City, Country"
+                />
+              </Field>
+              <Field label="Websites">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <Input
-                    id="address"
-                    name="address"
-                    defaultValue={phone.profile?.address}
-                    placeholder="1234 Main St, City, Country"
+                    name="websites"
+                    aria-label="Primary website"
+                    placeholder="https://www.example.com"
+                    defaultValue={phone.profile?.websites?.[0]}
+                  />
+                  <Input
+                    name="websites"
+                    aria-label="Secondary website"
+                    placeholder="https://shop.example.com"
+                    defaultValue={phone.profile?.websites?.[1]}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>Websites</Label>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <Input
-                      name="websites"
-                      placeholder="https://www.example.com"
-                      defaultValue={phone.profile?.websites?.[0]}
-                    />
-                    <Input
-                      name="websites"
-                      placeholder="https://shop.example.com"
-                      defaultValue={phone.profile?.websites?.[1]}
-                    />
-                  </div>
-                </div>
-              </div>
+              </Field>
             </div>
           </div>
+        </div>
 
-          <ZoruDialogFooter className="gap-2 border-t border-zoru-line px-6 py-4 sm:justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton />
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
+        <div
+          className="mt-4 flex gap-2 border-t px-1 pt-4 sm:justify-end"
+          style={{ borderColor: 'var(--st-border)' }}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <SubmitButton />
+        </div>
+      </form>
+    </Modal>
   );
 }

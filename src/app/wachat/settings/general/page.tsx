@@ -1,66 +1,38 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
 
+import { Button, EmptyState, Skeleton } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import { ProjectSettingsForm } from '@/components/zoruui-domain/project-settings-form';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 import * as React from 'react';
+
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'General settings' },
+];
 
 export default function GeneralSettingsPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>General settings</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   if (isLoadingProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <Skeleton className="h-[420px] w-full" />
-      </div>
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
+        <Skeleton height={420} width="100%" />
+      </WachatPage>
     );
   }
 
   if (!activeProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
         <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
+          icon={CircleAlert}
           title="Select a project first"
           description="Pick a project from the WaChat home page to manage its settings."
           action={
@@ -69,24 +41,18 @@ export default function GeneralSettingsPage() {
             </Button>
           }
         />
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>General settings</ZoruPageTitle>
-          <ZoruPageDescription>
-            Project name, WABA ID, tags, and basic configuration.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="General settings"
+      description="Project name, WABA ID, tags, and basic configuration."
+      width="narrow"
+    >
       <ProjectSettingsForm project={activeProject} />
-    </div>
+    </WachatPage>
   );
 }

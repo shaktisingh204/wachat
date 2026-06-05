@@ -1,7 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/zoruui';
+import { AlertCircle } from 'lucide-react';
+
+import { Button, EmptyState } from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 export default function ErrorBoundary({
   error,
@@ -15,14 +22,19 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] p-8 space-y-4">
-      <h2 className="text-xl font-semibold text-zoru-ink">Something went wrong!</h2>
-      <p className="text-zoru-ink-muted text-sm max-w-[500px] text-center">
-        {error.message || 'An unexpected error occurred while loading this page.'}
-      </p>
-      <Button onClick={() => reset()} variant="outline">
-        Try again
-      </Button>
-    </div>
+    <WachatPage>
+      <div className={cx('flex min-h-[400px] flex-col items-center justify-center')}>
+        <EmptyState
+          icon={AlertCircle}
+          title="Something went wrong!"
+          description={error.message || 'An unexpected error occurred while loading this page.'}
+          action={
+            <Button variant="outline" onClick={() => reset()}>
+              Try again
+            </Button>
+          }
+        />
+      </div>
+    </WachatPage>
   );
 }

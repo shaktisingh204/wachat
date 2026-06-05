@@ -1,19 +1,6 @@
 'use client';
 
-import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Button,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Skeleton,
-} from '@/components/zoruui';
+import { Skeleton } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -23,6 +10,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
+import WachatPage from '@/app/wachat/_components/wachat-page';
 import { ProductForm } from '@/components/zoruui-domain/product-form';
 import { useProject } from '@/context/project-context';
 import { getProductsForCatalog } from '@/app/actions/catalog.actions';
@@ -49,48 +37,47 @@ export default function EditProductPage() {
     }
   }, [productId, catalogId, activeProjectId]);
 
-  if (isLoading || !product) {
-    return <Skeleton className="h-96 w-full" />;
-  }
-
   const backHref = `/wachat/catalog/${catalogId}`;
 
+  if (isLoading || !product) {
+    return (
+      <WachatPage
+        breadcrumb={[
+          { label: 'SabNode', href: '/dashboard' },
+          { label: 'WaChat', href: '/wachat' },
+          { label: 'Catalog', href: backHref },
+          { label: 'Edit product' },
+        ]}
+        title="Edit product"
+        description="Modify the details for this product."
+        width="narrow"
+      >
+        <Skeleton className="h-96 w-full" />
+      </WachatPage>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href={backHref}>Catalog</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Edit product</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Edit product: {product.name}</ZoruPageTitle>
-          <ZoruPageDescription>Modify the details for this product.</ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link href={backHref}>
-          <ArrowLeft className="mr-1 h-4 w-4" /> Back to products
-        </Link>
-      </Button>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Catalog', href: backHref },
+        { label: 'Edit product' },
+      ]}
+      title={`Edit product: ${product.name}`}
+      description="Modify the details for this product."
+      width="narrow"
+    >
+      <Link
+        href={backHref}
+        className="-ml-1 inline-flex items-center gap-1 text-sm font-medium"
+        style={{ color: 'var(--st-text-secondary)' }}
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to products
+      </Link>
 
       <ProductForm product={product} />
-    </div>
+    </WachatPage>
   );
 }

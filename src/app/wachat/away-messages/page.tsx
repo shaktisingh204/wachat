@@ -1,29 +1,17 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
+  Field,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  ZoruRadioCard,
-  RadioGroup,
+  RadioCard,
+  RadioCardGroup,
   Skeleton,
   Switch,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -31,6 +19,7 @@ import {
   useCallback } from 'react';
 import { Save } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import {
   getAwayMessage,
@@ -39,11 +28,15 @@ import {
 
 /**
  * /wachat/away-messages — auto-reply for offline / outside-hours.
- * ZoruUI: header + breadcrumb, Switch + ZoruRadioCard for schedule,
+ * 20ui: WachatPage frame + Switch + RadioCard for schedule,
  * Textarea for body. Skeleton on initial load.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 type Schedule = 'always' | 'outside_hours' | 'custom';
 
@@ -65,9 +58,15 @@ const SCHEDULE_OPTIONS: { value: Schedule; label: string; desc: string }[] = [
   },
 ];
 
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Away Messages' },
+];
+
 export default function AwayMessagesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
   const [enabled, setEnabled] = useState(false);
   const [message, setMessage] = useState('');
@@ -82,7 +81,7 @@ export default function AwayMessagesPage() {
     startTransition(async () => {
       const res = await getAwayMessage(projectId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       if (res.config) {
@@ -112,16 +111,16 @@ export default function AwayMessagesPage() {
         customEnd,
       );
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
-      toast({ title: 'Saved', description: 'Away message settings updated.' });
+      toast({ title: 'Saved', description: 'Away message settings updated.', tone: 'success' });
     });
   };
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+      <WachatPage width="narrow">
         <Skeleton className="h-3 w-52" />
         <div className="mt-5 space-y-3">
           <Skeleton className="h-9 w-72" />
@@ -132,51 +131,35 @@ export default function AwayMessagesPage() {
           <Skeleton className="h-40" />
           <Skeleton className="h-56" />
         </div>
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Away Messages</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
-          <ZoruPageTitle>Away Messages</ZoruPageTitle>
-          <ZoruPageDescription>
-            Set an auto-reply for when you are unavailable or outside business
-            hours.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save /> {isSaving ? 'Saving…' : 'Save'}
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <div className="mt-6 grid gap-4">
+    <WachatPage
+      width="narrow"
+      breadcrumb={BREADCRUMB}
+      eyebrow="WaChat"
+      title="Away Messages"
+      description="Set an auto-reply for when you are unavailable or outside business hours."
+      actions={
+        <Button variant="primary" onClick={handleSave} loading={isSaving} iconLeft={Save}>
+          {isSaving ? 'Saving…' : 'Save'}
+        </Button>
+      }
+    >
+      <div className="grid gap-4">
         {/* Activate switch */}
-        <Card className="p-5">
+        <Card padding="lg">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-[15px] text-zoru-ink">Enable away message</h2>
-              <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                Enable away message
+              </h2>
+              <p
+                className="mt-0.5 text-[12.5px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 Automatically reply when you are not available.
               </p>
             </div>
@@ -189,64 +172,61 @@ export default function AwayMessagesPage() {
         </Card>
 
         {/* Message body */}
-        <Card className="p-5">
-          <div className="flex flex-col gap-3">
-            <Label htmlFor="away-body">Message</Label>
+        <Card padding="lg">
+          <Field label="Message">
             <Textarea
-              id="away-body"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               placeholder="Type your away message…"
               className="min-h-[96px]"
             />
-          </div>
+          </Field>
         </Card>
 
         {/* Schedule */}
-        <Card className="p-5">
+        <Card padding="lg">
           <div className="flex flex-col gap-3">
-            <h2 className="text-[15px] text-zoru-ink">Schedule</h2>
-            <RadioGroup
+            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+              Schedule
+            </h2>
+            <RadioCardGroup
               value={schedule}
-              onValueChange={(v) => setSchedule(v as Schedule)}
+              onChange={(v) => setSchedule(v as Schedule)}
+              label="Away message schedule"
               className="grid gap-2"
             >
               {SCHEDULE_OPTIONS.map((opt) => (
-                <ZoruRadioCard
+                <RadioCard
                   key={opt.value}
                   value={opt.value}
                   label={opt.label}
                   description={opt.desc}
                 />
               ))}
-            </RadioGroup>
+            </RadioCardGroup>
 
             {schedule === 'custom' && (
               <div className="mt-2 grid grid-cols-2 gap-3 sm:max-w-md">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="time-from">From</Label>
+                <Field label="From">
                   <Input
-                    id="time-from"
                     type="time"
                     value={customStart}
                     onChange={(e) => setCustomStart(e.target.value)}
                   />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="time-to">To</Label>
+                </Field>
+                <Field label="To">
                   <Input
-                    id="time-to"
                     type="time"
                     value={customEnd}
                     onChange={(e) => setCustomEnd(e.target.value)}
                   />
-                </div>
+                </Field>
               </div>
             )}
           </div>
         </Card>
       </div>
-    </div>
+    </WachatPage>
   );
 }

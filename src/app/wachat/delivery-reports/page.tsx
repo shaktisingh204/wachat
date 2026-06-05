@@ -2,40 +2,29 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Modal,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
   EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
   Skeleton,
   StatCard,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+  THead,
+  TBody,
+  Th,
+  Td,
+  Tr,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -52,15 +41,20 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { getDeliveryReport } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Delivery Reports — ZoruUI rebuild.
+ * Wachat Delivery Reports — 20ui rebuild.
  *
- * KPI strip + per-message delivery table with row-detail sheet
- * + export-CSV dialog. Greyscale only.
+ * KPI strip + per-message delivery table with row-detail drawer
+ * + export-CSV modal.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 const STAT_META = [
   { key: 'sent', label: 'Sent', icon: Send },
@@ -71,7 +65,7 @@ const STAT_META = [
 
 export default function DeliveryReportsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
   const [stats, setStats] = useState<any[]>([]);
   const [failedMessages, setFailedMessages] = useState<any[]>([]);
@@ -84,7 +78,7 @@ export default function DeliveryReportsPage() {
     startTransition(async () => {
       const res = await getDeliveryReport(projectId, 7);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       setStats(res.stats ?? []);
@@ -129,145 +123,136 @@ export default function DeliveryReportsPage() {
   }, [failedMessages]);
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Delivery Reports</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Delivery Reports
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            View message delivery status breakdown and failed message details.
-          </p>
-        </div>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Delivery Reports' },
+      ]}
+      title="Delivery Reports"
+      description="View message delivery status breakdown and failed message details."
+      width="wide"
+      actions={
         <Button
           variant="outline"
           size="sm"
+          iconLeft={Download}
           onClick={() => setExportOpen(true)}
           disabled={failedMessages.length === 0}
         >
-          <Download /> Export CSV
+          Export CSV
         </Button>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {isLoading && stats.length === 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height={120} radius="var(--st-radius-lg)" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {STAT_META.map((m) => {
+              const value = statMap[m.key] ?? 0;
+              const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+              return (
+                <StatCard
+                  key={m.key}
+                  label={m.label}
+                  value={value.toLocaleString()}
+                  icon={m.icon}
+                  delta={{ value: `${pct}% of total`, tone: 'neutral' }}
+                />
+              );
+            })}
+          </div>
+        )}
+
+        <Card padding="none">
+          <CardHeader>
+            <CardTitle>Recent Failed Messages</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {isLoading && failedMessages.length === 0 ? (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} height={40} />
+                ))}
+              </div>
+            ) : failedMessages.length === 0 ? (
+              <EmptyState
+                icon={Inbox}
+                title="No failed messages"
+                description="Nothing failed in the last 7 days."
+              />
+            ) : (
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>Recipient</Th>
+                    <Th>Type</Th>
+                    <Th>Status</Th>
+                    <Th>Date</Th>
+                    <Th width="1%" />
+                  </Tr>
+                </THead>
+                <TBody>
+                  {failedMessages.map((m) => (
+                    <Tr key={m._id}>
+                      <Td className="font-mono text-[13px]">
+                        {m.recipientPhone || m.contactId || '-'}
+                      </Td>
+                      <Td>{m.type || 'text'}</Td>
+                      <Td>
+                        <Badge tone="danger">{m.status}</Badge>
+                      </Td>
+                      <Td
+                        className="whitespace-nowrap"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                      >
+                        {m.timestamp ? fmtDate(m.timestamp) : '-'}
+                      </Td>
+                      <Td>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Eye}
+                          onClick={() => setDetailRow(m)}
+                        >
+                          View
+                        </Button>
+                      </Td>
+                    </Tr>
+                  ))}
+                </TBody>
+              </Table>
+            )}
+          </CardBody>
+        </Card>
       </div>
 
-      {isLoading && stats.length === 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[120px]" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STAT_META.map((m) => {
-            const value = statMap[m.key] ?? 0;
-            const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-            return (
-              <StatCard
-                key={m.key}
-                label={m.label}
-                value={value.toLocaleString()}
-                icon={<m.icon />}
-                period={`${pct}% of total`}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <Card>
-        <ZoruCardHeader>
-          <ZoruCardTitle>Recent Failed Messages</ZoruCardTitle>
-        </ZoruCardHeader>
-        <ZoruCardContent>
-          {isLoading && failedMessages.length === 0 ? (
-            <div className="space-y-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <Skeleton key={i} className="h-10" />
-              ))}
-            </div>
-          ) : failedMessages.length === 0 ? (
-            <EmptyState
-              icon={<Inbox />}
-              title="No failed messages"
-              description="Nothing failed in the last 7 days."
-            />
-          ) : (
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow className="hover:bg-transparent">
-                  <ZoruTableHead>Recipient</ZoruTableHead>
-                  <ZoruTableHead>Type</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead>Date</ZoruTableHead>
-                  <ZoruTableHead className="w-[1%]" />
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                {failedMessages.map((m) => (
-                  <ZoruTableRow key={m._id}>
-                    <ZoruTableCell className="font-mono text-[13px]">
-                      {m.recipientPhone || m.contactId || '-'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>{m.type || 'text'}</ZoruTableCell>
-                    <ZoruTableCell>
-                      <Badge variant="danger">{m.status}</Badge>
-                    </ZoruTableCell>
-                    <ZoruTableCell className="whitespace-nowrap text-zoru-ink-muted">
-                      {m.timestamp ? fmtDate(m.timestamp) : '-'}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDetailRow(m)}
-                      >
-                        <Eye /> View
-                      </Button>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))}
-              </ZoruTableBody>
-            </Table>
-          )}
-        </ZoruCardContent>
-      </Card>
-
-      {/* View delivery detail sheet */}
-      <Sheet
+      {/* View delivery detail drawer */}
+      <Drawer
         open={!!detailRow}
         onOpenChange={(open) => {
           if (!open) setDetailRow(null);
         }}
       >
-        <ZoruSheetContent side="right">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>Delivery Detail</ZoruSheetTitle>
-            <ZoruSheetDescription>
+        <DrawerContent side="right">
+          <DrawerHeader>
+            <DrawerTitle>Delivery Detail</DrawerTitle>
+            <DrawerDescription>
               Full delivery payload for the selected message.
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           {detailRow && (
             <div className="mt-6 space-y-3 text-sm">
               <DetailRow label="Recipient" value={detailRow.recipientPhone || detailRow.contactId || '-'} />
               <DetailRow label="Type" value={detailRow.type || 'text'} />
               <DetailRow
                 label="Status"
-                value={<Badge variant="danger">{detailRow.status}</Badge>}
+                value={<Badge tone="danger">{detailRow.status}</Badge>}
               />
               <DetailRow
                 label="Timestamp"
@@ -281,50 +266,65 @@ export default function DeliveryReportsPage() {
                 <DetailRow label="Error" value={detailRow.errorMessage} />
               )}
               <div>
-                <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+                <p
+                  className="mb-1.5 text-xs font-medium uppercase tracking-wide"
+                  style={{ color: 'var(--st-text-tertiary)' }}
+                >
                   Raw payload
                 </p>
-                <pre className="overflow-x-auto rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-3 text-[11.5px] leading-relaxed text-zoru-ink-muted">
+                <pre
+                  className="overflow-x-auto p-3 text-[11.5px] leading-relaxed"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                    background: 'var(--st-bg-secondary)',
+                    color: 'var(--st-text-secondary)',
+                  }}
+                >
                   {JSON.stringify(detailRow, null, 2)}
                 </pre>
               </div>
             </div>
           )}
-        </ZoruSheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
-      {/* Export CSV dialog */}
-      <Dialog open={exportOpen} onOpenChange={setExportOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Export delivery report</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Download {failedMessages.length} failed message rows as CSV.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+      {/* Export CSV modal */}
+      <Modal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        title="Export delivery report"
+        description={`Download ${failedMessages.length} failed message rows as CSV.`}
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setExportOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleExport}>
-              <Download /> Download CSV
+            <Button variant="primary" iconLeft={Download} onClick={handleExport}>
+              Download CSV
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-zoru-line pb-2 last:border-0">
-      <span className="text-xs font-medium uppercase tracking-wide text-zoru-ink-subtle">
+    <div
+      className="flex items-start justify-between gap-4 pb-2 last:border-0"
+      style={{ borderBottom: '1px solid var(--st-border)' }}
+    >
+      <span
+        className="text-xs font-medium uppercase tracking-wide"
+        style={{ color: 'var(--st-text-tertiary)' }}
+      >
         {label}
       </span>
-      <span className="text-right text-zoru-ink">{value}</span>
+      <span className="text-right" style={{ color: 'var(--st-text)' }}>
+        {value}
+      </span>
     </div>
   );
 }

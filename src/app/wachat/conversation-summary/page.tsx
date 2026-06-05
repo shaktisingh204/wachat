@@ -2,45 +2,42 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   Input,
   Badge,
   EmptyState,
-} from '@/components/zoruui';
+  Spinner,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
   useTransition,
   useCallback } from 'react';
 import {
-  CircleX,
   Search,
-  Loader2,
   MessageSquare,
   } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { getContactTimeline } from '@/app/actions/wachat-features.actions';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 
 /**
  * /wachat/conversation-summary — AI-aggregated timeline summary,
- * rebuilt on ZoruUI primitives.
+ * rebuilt on the 20ui design system inside the standard WachatPage frame.
  */
 
 import * as React from 'react';
 
 export default function ConversationSummaryPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [searchQ, setSearchQ] = useState('');
@@ -76,7 +73,7 @@ export default function ConversationSummaryPage() {
     startTransition(async () => {
       const res = await getContactTimeline(String(activeProject._id), contactId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
         return;
       }
       setEvents(res.events ?? []);
@@ -94,185 +91,239 @@ export default function ConversationSummaryPage() {
   const notes = events.filter((e: any) => e.type === 'note');
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Conversation Summary</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Conversation Summary
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Select a contact to see an aggregated summary of their conversation timeline.
-        </p>
-      </div>
-
-      <Card className="p-5">
-        <h2 className="mb-3 text-[15px] text-zoru-ink">Select Contact</h2>
-        <div className="mb-3 flex gap-3">
-          <div className="flex-1">
-            <Input
-              value={searchQ}
-              onChange={(e) => setSearchQ(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Search by name or phone..."
-            />
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleSearch}
-            disabled={isPending}
-          >
-            {isPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Search />
-            )}
-          </Button>
-        </div>
-        {contacts.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {contacts.slice(0, 10).map((c: any) => (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Conversation Summary' },
+      ]}
+      title="Conversation Summary"
+      description="Select a contact to see an aggregated summary of their conversation timeline."
+    >
+      <div className="flex flex-col gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Contact</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="mb-3 flex gap-3">
+              <div className="flex-1">
+                <Input
+                  value={searchQ}
+                  onChange={(e) => setSearchQ(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Search by name or phone..."
+                  iconLeft={Search}
+                  aria-label="Search contacts by name or phone"
+                />
+              </div>
               <Button
-                key={c._id}
-                variant={selectedId === c._id ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => loadTimeline(c._id)}
+                variant="outline"
+                onClick={handleSearch}
+                loading={isPending}
+                iconLeft={Search}
               >
-                {c.name || c.waId || 'Unknown'}
+                Search
               </Button>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {isPending && selectedId && (
-        <div className="flex h-32 items-center justify-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-          <p className="text-[13px] text-zoru-ink-muted">Loading timeline...</p>
-        </div>
-      )}
-
-      {loaded && !isPending && (
-        <>
-          <Card className="p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <h2 className="text-[15px] text-zoru-ink">
-                  {selectedContact?.name || selectedContact?.waId || 'Contact'}
-                </h2>
-                <p className="font-mono text-[12px] text-zoru-ink-muted">
-                  {selectedContact?.waId}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-zoru-ink-muted" />
-                <span className="text-[13px] text-zoru-ink">
-                  {events.length} events
-                </span>
-              </div>
             </div>
-            <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4">
-              {events.length === 0 ? (
-                <p className="text-[13px] text-zoru-ink-muted">
-                  No messages found for this contact.
-                </p>
-              ) : (
-                <p className="text-[13px] leading-relaxed text-zoru-ink">
-                  This conversation has {inbound.length} inbound and{' '}
-                  {outbound.length} outbound messages
-                  {notes.length > 0
-                    ? `, plus ${notes.length} internal note(s)`
-                    : ''}
-                  .
-                  {events[0]?.timestamp &&
-                    ` Most recent activity: ${fmtDate(events[0].timestamp)}.`}
-                  {events[events.length - 1]?.timestamp &&
-                    ` First recorded activity: ${fmtDate(events[events.length - 1].timestamp)}.`}
-                </p>
-              )}
-            </div>
-          </Card>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="p-5 text-center">
-              <div className="mb-1 text-[12px] text-zoru-ink-muted">Inbound</div>
-              <div className="text-[28px] text-zoru-ink">{inbound.length}</div>
-              <Badge variant="info">Customer</Badge>
-            </Card>
-            <Card className="p-5 text-center">
-              <div className="mb-1 text-[12px] text-zoru-ink-muted">Outbound</div>
-              <div className="text-[28px] text-zoru-ink">{outbound.length}</div>
-              <Badge variant="success">Agent</Badge>
-            </Card>
-            <Card className="p-5 text-center">
-              <div className="mb-1 text-[12px] text-zoru-ink-muted">Notes</div>
-              <div className="text-[28px] text-zoru-ink">{notes.length}</div>
-              <Badge variant="warning">Internal</Badge>
-            </Card>
-          </div>
-
-          {events.length > 0 && (
-            <Card className="overflow-x-auto p-0">
-              <div className="border-b border-zoru-line px-5 py-4">
-                <h2 className="text-[15px] text-zoru-ink">Recent Activity</h2>
-              </div>
-              <div className="divide-y divide-zoru-line">
-                {events.slice(0, 15).map((e: any, i: number) => (
-                  <div key={i} className="flex items-start gap-3 px-5 py-3">
-                    <Badge
-                      variant={
-                        e.type === 'note'
-                          ? 'warning'
-                          : e.direction === 'in'
-                            ? 'info'
-                            : 'success'
-                      }
-                    >
-                      {e.type === 'note'
-                        ? 'Note'
-                        : e.direction === 'in'
-                          ? 'In'
-                          : 'Out'}
-                    </Badge>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[12.5px] text-zoru-ink">
-                        {e.content || '--'}
-                      </p>
-                      <span className="text-[11px] text-zoru-ink-muted">
-                        {e.timestamp ? fmtDate(e.timestamp) : ''}
-                      </span>
-                    </div>
-                  </div>
+            {contacts.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {contacts.slice(0, 10).map((c: any) => (
+                  <Button
+                    key={c._id}
+                    variant={selectedId === c._id ? 'primary' : 'outline'}
+                    size="sm"
+                    onClick={() => loadTimeline(c._id)}
+                  >
+                    {c.name || c.waId || 'Unknown'}
+                  </Button>
                 ))}
               </div>
-            </Card>
-          )}
-        </>
-      )}
+            )}
+          </CardBody>
+        </Card>
 
-      {!loaded && !isPending && (
-        <EmptyState
-          icon={<CircleX />}
-          title="Select a contact"
-          description="Choose a contact above to generate a conversation summary."
-        />
-      )}
-      <div className="h-6" />
-    </div>
+        {isPending && selectedId && (
+          <div className="flex h-32 items-center justify-center gap-3">
+            <Spinner size="sm" />
+            <p className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+              Loading timeline...
+            </p>
+          </div>
+        )}
+
+        {loaded && !isPending && (
+          <>
+            <Card>
+              <CardBody>
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                      {selectedContact?.name || selectedContact?.waId || 'Contact'}
+                    </h2>
+                    <p
+                      className="font-mono text-[12px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
+                      {selectedContact?.waId}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MessageSquare
+                      className="h-4 w-4"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                      aria-hidden="true"
+                    />
+                    <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                      {events.length} events
+                    </span>
+                  </div>
+                </div>
+                <div
+                  className="p-4"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                    background: 'var(--st-bg-secondary)',
+                  }}
+                >
+                  {events.length === 0 ? (
+                    <p
+                      className="text-[13px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
+                      No messages found for this contact.
+                    </p>
+                  ) : (
+                    <p
+                      className="text-[13px] leading-relaxed"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      This conversation has {inbound.length} inbound and{' '}
+                      {outbound.length} outbound messages
+                      {notes.length > 0
+                        ? `, plus ${notes.length} internal note(s)`
+                        : ''}
+                      .
+                      {events[0]?.timestamp &&
+                        ` Most recent activity: ${fmtDate(events[0].timestamp)}.`}
+                      {events[events.length - 1]?.timestamp &&
+                        ` First recorded activity: ${fmtDate(events[events.length - 1].timestamp)}.`}
+                    </p>
+                  )}
+                </div>
+              </CardBody>
+            </Card>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <Card>
+                <CardBody className="text-center">
+                  <div
+                    className="mb-1 text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    Inbound
+                  </div>
+                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
+                    {inbound.length}
+                  </div>
+                  <Badge tone="info">Customer</Badge>
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody className="text-center">
+                  <div
+                    className="mb-1 text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    Outbound
+                  </div>
+                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
+                    {outbound.length}
+                  </div>
+                  <Badge tone="success">Agent</Badge>
+                </CardBody>
+              </Card>
+              <Card>
+                <CardBody className="text-center">
+                  <div
+                    className="mb-1 text-[12px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
+                    Notes
+                  </div>
+                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
+                    {notes.length}
+                  </div>
+                  <Badge tone="warning">Internal</Badge>
+                </CardBody>
+              </Card>
+            </div>
+
+            {events.length > 0 && (
+              <Card className="overflow-x-auto">
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                </CardHeader>
+                <div
+                  style={{ borderTop: '1px solid var(--st-border)' }}
+                >
+                  {events.slice(0, 15).map((e: any, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-start gap-3 px-5 py-3"
+                      style={
+                        i > 0
+                          ? { borderTop: '1px solid var(--st-border)' }
+                          : undefined
+                      }
+                    >
+                      <Badge
+                        tone={
+                          e.type === 'note'
+                            ? 'warning'
+                            : e.direction === 'in'
+                              ? 'info'
+                              : 'success'
+                        }
+                      >
+                        {e.type === 'note'
+                          ? 'Note'
+                          : e.direction === 'in'
+                            ? 'In'
+                            : 'Out'}
+                      </Badge>
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className="truncate text-[12.5px]"
+                          style={{ color: 'var(--st-text)' }}
+                        >
+                          {e.content || '--'}
+                        </p>
+                        <span
+                          className="text-[11px]"
+                          style={{ color: 'var(--st-text-secondary)' }}
+                        >
+                          {e.timestamp ? fmtDate(e.timestamp) : ''}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            )}
+          </>
+        )}
+
+        {!loaded && !isPending && (
+          <EmptyState
+            icon={MessageSquare}
+            title="Select a contact"
+            description="Choose a contact above to generate a conversation summary."
+          />
+        )}
+      </div>
+    </WachatPage>
   );
 }

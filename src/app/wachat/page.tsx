@@ -1,20 +1,12 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
-  Card,
   Input,
   Badge,
-  ZoruEmptyState,
+  EmptyState,
   Skeleton,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useMemo,
@@ -39,15 +31,20 @@ import {
 import { useProject } from '@/context/project-context';
 import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
 import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * /wachat — WhatsApp project picker, rebuilt on ZoruUI primitives.
+ * /wachat — WhatsApp project picker, rebuilt on 20ui primitives.
  *
  * Same project data, same select handler, same recent/health logic.
  * Visual swap only — neutral palette, no clay-* utilities.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ── helpers ───────────────────────────────────────────────────── */
 
@@ -67,22 +64,13 @@ function HealthPill({ status }: { status?: string }) {
   const isAmber = s === 'limited' || s === 'flagged';
   const isRed = s === 'blocked' || s === 'restricted';
 
-  let variant: 'success' | 'warning' | 'danger' | 'ghost' = 'ghost';
-  if (isGreen) variant = 'success';
-  else if (isAmber) variant = 'warning';
-  else if (isRed) variant = 'danger';
+  let tone: 'success' | 'warning' | 'danger' | 'neutral' = 'neutral';
+  if (isGreen) tone = 'success';
+  else if (isAmber) tone = 'warning';
+  else if (isRed) tone = 'danger';
 
   return (
-    <Badge variant={variant} className="text-[9.5px] uppercase tracking-wider">
-      <span
-        className={cn(
-          'h-1.5 w-1.5 rounded-full',
-          isGreen && 'bg-zoru-success',
-          isAmber && 'bg-zoru-warning',
-          isRed && 'bg-zoru-danger',
-          !isGreen && !isAmber && !isRed && 'bg-zoru-ink-muted',
-        )}
-      />
+    <Badge tone={tone} dot className="text-[9.5px] uppercase tracking-wider">
       {status}
     </Badge>
   );
@@ -94,7 +82,7 @@ function ProjectsSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <Skeleton key={i} className="h-[120px]" />
+        <Skeleton key={i} height={120} />
       ))}
     </div>
   );
@@ -102,7 +90,7 @@ function ProjectsSkeleton() {
 
 /* ── empty state ───────────────────────────────────────────────── */
 
-function EmptyState({
+function ProjectsEmptyState({
   query,
   reloadProjects,
 }: {
@@ -111,8 +99,8 @@ function EmptyState({
 }) {
   if (query) {
     return (
-      <ZoruEmptyState
-        icon={<Search />}
+      <EmptyState
+        icon={Search}
         title="No projects matched"
         description="Try a different search term or clear the filter."
       />
@@ -120,15 +108,14 @@ function EmptyState({
   }
 
   return (
-    <ZoruEmptyState
-      icon={<Sparkles />}
+    <EmptyState
+      icon={Sparkles}
       title="Connect your first project"
       description="Link your WhatsApp Business Account to start messaging, automating, and tracking performance."
       action={
         <div className="flex items-center gap-2.5">
           <Link href="/wachat/setup">
-            <Button size="md">
-              <Plus />
+            <Button variant="primary" iconLeft={Plus}>
               Connect account
             </Button>
           </Link>
@@ -159,54 +146,62 @@ function ProjectRow({
     <button
       type="button"
       onClick={() => onSelect(project._id.toString())}
-      className={cn(
-        'group flex items-center gap-4 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4 text-left transition',
-        'hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-sm)]',
-      )}
+      className="group flex items-center gap-4 rounded-[var(--st-radius-lg)] border p-4 text-left transition"
+      style={{
+        borderColor: 'var(--st-border)',
+        background: 'var(--st-bg)',
+      }}
     >
       <div
-        className={cn(
-          'flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius)]',
-          connected ? 'bg-zoru-surface-2 text-zoru-ink' : 'bg-zoru-surface text-zoru-ink-muted',
-        )}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
+        style={{
+          background: connected ? 'var(--st-surface-muted)' : 'var(--st-surface)',
+          color: connected ? 'var(--st-text)' : 'var(--st-text-muted)',
+        }}
       >
         <MessageSquare className="h-4 w-4" />
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-[14px] text-zoru-ink">
+          <p className="truncate text-[14px]" style={{ color: 'var(--st-text)' }}>
             {project.name || 'Untitled project'}
           </p>
           <HealthPill status={healthStatus} />
           {isRecent && (
-            <Badge variant="ghost" className="text-[10px]">
+            <Badge tone="neutral" className="text-[10px]">
               <Clock className="h-2.5 w-2.5" /> Recent
             </Badge>
           )}
         </div>
-        <div className="mt-0.5 flex items-center gap-2 text-[12px] text-zoru-ink-muted">
+        <div
+          className="mt-0.5 flex items-center gap-2 text-[12px]"
+          style={{ color: 'var(--st-text-muted)' }}
+        >
           {connected ? (
             <>
-              <Wifi className="h-3 w-3 text-zoru-success" />
+              <Wifi className="h-3 w-3" style={{ color: 'var(--st-success)' }} />
               <span>{formatPhone(phone)}</span>
             </>
           ) : (
             <>
-              <WifiOff className="h-3 w-3 text-zoru-ink-subtle" />
+              <WifiOff className="h-3 w-3" style={{ color: 'var(--st-text-light)' }} />
               <span>Not connected</span>
             </>
           )}
           {project.groupName && (
             <>
-              <span className="text-zoru-ink-subtle">·</span>
+              <span style={{ color: 'var(--st-text-light)' }}>·</span>
               <span>{project.groupName}</span>
             </>
           )}
         </div>
       </div>
 
-      <ArrowRight className="h-4 w-4 shrink-0 text-zoru-ink-subtle transition group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
+      <ArrowRight
+        className="h-4 w-4 shrink-0 transition group-hover:translate-x-0.5"
+        style={{ color: 'var(--st-text-light)' }}
+      />
     </button>
   );
 }
@@ -319,50 +314,35 @@ export default function SelectProjectPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Projects</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-[26px] tracking-[-0.015em] text-zoru-ink leading-[1.15]">
-            Your projects
-          </h1>
-          <p className="mt-1 text-[13px] text-zoru-ink-muted">
-            {projects.length} connected account
-            {projects.length !== 1 ? 's' : ''} — select one to open.
-          </p>
-        </div>
+    <WachatPage
+      width="wide"
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Projects' },
+      ]}
+      title="Your projects"
+      description={`${projects.length} connected account${
+        projects.length !== 1 ? 's' : ''
+      } — select one to open.`}
+      actions={
         <div className="flex items-center gap-2">
           <SyncProjectsDialog onSuccess={reloadProjects} />
           <Link href="/wachat/setup">
-            <Button size="md">
-              <Plus />
+            <Button variant="primary" iconLeft={Plus}>
               Connect new
             </Button>
           </Link>
         </div>
-      </div>
-
+      }
+    >
       {projects.length > 0 && (
-        <div className="mt-5 flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <div className="max-w-md flex-1">
             <Input
-              leadingSlot={<Search />}
+              iconLeft={Search}
               placeholder="Search projects..."
+              aria-label="Search projects"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -375,7 +355,10 @@ export default function SelectProjectPage() {
 
       {recentProjects.length > 0 && !search && (
         <div className="mt-6">
-          <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+          <p
+            className="mb-2.5 text-[11px] uppercase tracking-[0.12em]"
+            style={{ color: 'var(--st-text-muted)' }}
+          >
             Recently accessed
           </p>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -396,7 +379,10 @@ export default function SelectProjectPage() {
         {recentProjects.length > 0 &&
           !search &&
           projects.length > recentProjects.length && (
-            <p className="mb-2.5 text-[11px] uppercase tracking-[0.12em] text-zoru-ink-muted">
+            <p
+              className="mb-2.5 text-[11px] uppercase tracking-[0.12em]"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               All projects
             </p>
           )}
@@ -404,9 +390,9 @@ export default function SelectProjectPage() {
         {isLoadingProject ? (
           <ProjectsSkeleton />
         ) : projects.length === 0 ? (
-          <EmptyState query={search} reloadProjects={reloadProjects} />
+          <ProjectsEmptyState query={search} reloadProjects={reloadProjects} />
         ) : filtered.length === 0 ? (
-          <EmptyState query={search} reloadProjects={reloadProjects} />
+          <ProjectsEmptyState query={search} reloadProjects={reloadProjects} />
         ) : (
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {paginated.map((p) => (
@@ -422,33 +408,37 @@ export default function SelectProjectPage() {
       </div>
 
       {totalPages > 1 && (
-        <div className="mt-6 flex items-center justify-between border-t border-zoru-line pt-4">
-          <p className="text-[12px] text-zoru-ink-muted tabular-nums">
+        <div
+          className="mt-6 flex items-center justify-between border-t pt-4"
+          style={{ borderColor: 'var(--st-border)' }}
+        >
+          <p
+            className="text-[12px] tabular-nums"
+            style={{ color: 'var(--st-text-muted)' }}
+          >
             Page {page} of {totalPages} · {filtered.length} project
             {filtered.length !== 1 ? 's' : ''}
           </p>
           <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
-              size="icon-sm"
+              size="sm"
               aria-label="Previous page"
+              iconLeft={ChevronLeft}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-            >
-              <ChevronLeft />
-            </Button>
+            />
             <Button
               variant="outline"
-              size="icon-sm"
+              size="sm"
               aria-label="Next page"
+              iconLeft={ChevronRight}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-            >
-              <ChevronRight />
-            </Button>
+            />
           </div>
         </div>
       )}
-    </div>
+    </WachatPage>
   );
 }

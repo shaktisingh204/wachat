@@ -1,39 +1,27 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Alert,
-  ZoruAlertTitle,
-  ZoruAlertDescription,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  type BadgeTone,
   Button,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
   EmptyState,
+  Field,
   Input,
-  Label,
+  Modal,
   Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  StatCard,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -60,50 +48,46 @@ import type { PhoneNumber,
   Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { EditPhoneNumberDialog } from '@/app/wachat/_components/edit-phone-number-dialog';
 import { RegisterPhoneButton } from '@/app/wachat/_components/register-phone-button';
 import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
 
 /**
- * Wachat Numbers — ZoruUI migration.
+ * Wachat Numbers — 20ui migration.
  *
  * Lists every WhatsApp Business phone number on the active project:
  * verification status, quality rating, profile, and the legacy
  * actions (edit profile, flows-encryption setup, register number).
- * Same data + handlers as the previous Clay version.
+ * Same data + handlers as the previous version.
  */
 
 import * as React from 'react';
 
-type Tone = 'success' | 'warning' | 'ghost' | 'danger';
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
-function statusTone(status?: string): { tone: Tone; label: string } {
+function statusTone(status?: string): { tone: BadgeTone; label: string } {
   const s = (status ?? '').toLowerCase();
   if (s.includes('verified')) return { tone: 'success', label: 'Verified' };
   if (s.includes('pending')) return { tone: 'warning', label: 'Pending' };
-  if (!s) return { tone: 'ghost', label: 'Unknown' };
+  if (!s) return { tone: 'neutral', label: 'Unknown' };
   return { tone: 'danger', label: status!.replace(/_/g, ' ').toLowerCase() };
 }
 
-function qualityTone(q?: string): { tone: Tone; label: string } {
+function qualityTone(q?: string): { tone: BadgeTone; label: string } {
   const v = (q ?? '').toLowerCase();
   if (v === 'green' || v === 'high') return { tone: 'success', label: 'Green' };
   if (v === 'yellow' || v === 'medium') return { tone: 'warning', label: 'Yellow' };
-  if (!v || v === 'unknown') return { tone: 'ghost', label: 'Unknown' };
+  if (!v || v === 'unknown') return { tone: 'neutral', label: 'Unknown' };
   return { tone: 'danger', label: q! };
 }
-
-const toneToVariant: Record<Tone, 'success' | 'warning' | 'ghost' | 'danger'> = {
-  success: 'success',
-  warning: 'warning',
-  ghost: 'ghost',
-  danger: 'danger',
-};
 
 export default function NumbersPage() {
   const router = useRouter();
   const { activeProject: sessionProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [isSyncing, startSyncTransition] = useTransition();
@@ -134,7 +118,7 @@ export default function NumbersPage() {
             toast({
               title: 'Error',
               description: 'Failed to load project numbers. Please try again.',
-              variant: 'destructive',
+              tone: 'danger',
             });
           }
         }
@@ -167,7 +151,7 @@ export default function NumbersPage() {
       toast({
         title: 'Error',
         description: 'No active project selected.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -179,22 +163,22 @@ export default function NumbersPage() {
             setTimeout(() => resolve({ error: 'Sync is taking too long. Meta API might be slow. Please try again later.' }), 10000)
           ),
         ]);
-        
+
         if (result.error) {
           toast({
             title: 'Sync failed or timed out',
             description: result.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         } else {
-          toast({ title: 'Sync successful', description: result.message });
+          toast({ title: 'Sync successful', description: result.message, tone: 'success' });
           await fetchProjectData(activeProjectId);
         }
       } catch (err) {
         toast({
           title: 'Sync error',
           description: 'An unexpected error occurred during sync.',
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
     });
@@ -218,15 +202,49 @@ export default function NumbersPage() {
     );
   }, [phoneNumbers]);
 
-  const alertVariant = React.useMemo(() => {
+  const alertTone = React.useMemo(() => {
     if (badQualityNumbers.some(p => ['red', 'low'].includes((p.quality_rating ?? '').toLowerCase()))) {
-      return 'destructive';
+      return 'danger' as const;
     }
-    return 'warning';
+    return 'warning' as const;
   }, [badQualityNumbers]);
 
+  const description = project
+    ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
+    : "Manage your project's WhatsApp phone numbers.";
+
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Numbers' },
+      ]}
+      title="Phone numbers"
+      description={description}
+      actions={
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            iconLeft={Phone}
+            onClick={() => setAddOpen(true)}
+            disabled={!project}
+          >
+            Add number
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            iconLeft={RefreshCw}
+            onClick={onSync}
+            disabled={!project || isLoading || isSyncing}
+          >
+            {isSyncing ? 'Syncing…' : 'Sync with Meta'}
+          </Button>
+        </div>
+      }
+    >
       {editingPhone && project && (
         <EditPhoneNumberDialog
           isOpen={!!editingPhone}
@@ -237,100 +255,47 @@ export default function NumbersPage() {
         />
       )}
 
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Numbers</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Phone numbers
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            {project
-              ? `${phoneNumbers.length} registered WhatsApp number${phoneNumbers.length === 1 ? '' : 's'} for ${project.name}.`
-              : "Manage your project's WhatsApp phone numbers."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setAddOpen(true)}
-            disabled={!project}
-          >
-            <Phone /> Add number
-          </Button>
-          <Button
-            size="sm"
-            onClick={onSync}
-            disabled={!project || isLoading || isSyncing}
-          >
-            <RefreshCw />
-            {isSyncing ? 'Syncing…' : 'Sync with Meta'}
-          </Button>
-        </div>
-      </div>
-
       {badQualityNumbers.length > 0 && (
-        <div className="mt-6">
-          <Alert variant={alertVariant}>
-            <AlertCircle className="h-4 w-4" />
-            <ZoruAlertTitle>Action Required: Low Number Quality</ZoruAlertTitle>
-            <ZoruAlertDescription>
-              {badQualityNumbers.length === 1 
-                ? `The number ${badQualityNumbers[0].display_phone_number} has dropped to a ${badQualityNumbers[0].quality_rating} quality rating. Your messaging limits might be affected.` 
-                : `${badQualityNumbers.length} numbers have low quality ratings. Your messaging limits might be affected.`}
-            </ZoruAlertDescription>
-          </Alert>
-        </div>
+        <Alert tone={alertTone} title="Action Required: Low Number Quality">
+          {badQualityNumbers.length === 1
+            ? `The number ${badQualityNumbers[0].display_phone_number} has dropped to a ${badQualityNumbers[0].quality_rating} quality rating. Your messaging limits might be affected.`
+            : `${badQualityNumbers.length} numbers have low quality ratings. Your messaging limits might be affected.`}
+        </Alert>
       )}
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Stat
+        <StatCard
           label="Registered numbers"
           value={String(phoneNumbers.length)}
-          icon={<Phone className="h-4 w-4" />}
+          icon={Phone}
         />
-        <Stat
+        <StatCard
           label="Verified"
           value={String(stats.verified)}
-          hint={
+          icon={ShieldCheck}
+          delta={
             phoneNumbers.length > 0
-              ? `${Math.round((stats.verified / phoneNumbers.length) * 100)}% verified`
-              : 'none yet'
+              ? { value: `${Math.round((stats.verified / phoneNumbers.length) * 100)}% verified` }
+              : { value: 'none yet' }
           }
-          icon={<ShieldCheck className="h-4 w-4" />}
         />
-        <Stat
+        <StatCard
           label="Quality — Green"
           value={String(stats.green)}
-          hint="high-quality signal"
-          icon={<Shield className="h-4 w-4" />}
+          icon={Shield}
+          delta={{ value: 'high-quality signal' }}
         />
       </div>
 
       {!activeProjectId ? (
         <div className="mt-6">
           <EmptyState
-            icon={<AlertCircle />}
+            icon={AlertCircle}
             title="No project selected"
             description="Please select a project from the main dashboard to see its phone numbers."
             action={
-              <Button onClick={() => router.push('/wachat')}>
+              <Button variant="primary" onClick={() => router.push('/wachat')}>
                 Choose a project
               </Button>
             }
@@ -339,18 +304,18 @@ export default function NumbersPage() {
       ) : isLoading && !project ? (
         <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[260px]" />
+            <Skeleton key={i} height={260} radius={14} />
           ))}
         </div>
       ) : phoneNumbers.length === 0 ? (
         <div className="mt-6">
           <EmptyState
-            icon={<Phone />}
+            icon={Phone}
             title="No phone numbers yet"
             description="Sync with Meta to pull the phone numbers from your WhatsApp Business Account."
             action={
-              <Button onClick={onSync} disabled={isSyncing}>
-                <RefreshCw /> Sync now
+              <Button variant="primary" iconLeft={RefreshCw} onClick={onSync} disabled={isSyncing}>
+                Sync now
               </Button>
             }
           />
@@ -361,7 +326,7 @@ export default function NumbersPage() {
             const status = statusTone(phone.code_verification_status);
             const quality = qualityTone(phone.quality_rating);
             return (
-              <Card key={phone.id} className="flex flex-col p-5">
+              <Card key={phone.id} padding="lg" className="flex flex-col">
                 <div className="flex items-center gap-3">
                   <div className="shrink-0">
                     {phone.profile?.profile_picture_url ? (
@@ -370,19 +335,23 @@ export default function NumbersPage() {
                         alt={phone.verified_name}
                         width={56}
                         height={56}
-                        className="rounded-full border-2 border-zoru-line"
+                        className="rounded-full"
+                        style={{ border: '2px solid var(--st-border)' }}
                       />
                     ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                        <UserRound className="h-6 w-6" />
+                      <div
+                        className="flex h-14 w-14 items-center justify-center rounded-full"
+                        style={{ background: 'var(--st-bg-secondary)', color: 'var(--st-text-tertiary)' }}
+                      >
+                        <UserRound className="h-6 w-6" aria-hidden="true" />
                       </div>
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[15px] text-zoru-ink leading-tight">
+                    <div className="truncate text-[15px] leading-tight" style={{ color: 'var(--st-text)' }}>
                       {phone.verified_name}
                     </div>
-                    <div className="mt-0.5 font-mono text-[12px] tabular-nums text-zoru-ink-muted">
+                    <div className="mt-0.5 font-mono text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
                       {phone.display_phone_number}
                     </div>
                   </div>
@@ -390,18 +359,15 @@ export default function NumbersPage() {
 
                 <div className="mt-5 flex flex-col gap-2.5">
                   <DetailRow label="Status">
-                    <Badge variant={toneToVariant[status.tone]}>
-                      {status.label}
-                    </Badge>
+                    <Badge tone={status.tone}>{status.label}</Badge>
                   </DetailRow>
                   <DetailRow label="Quality">
-                    <Badge variant={toneToVariant[quality.tone]}>
-                      {quality.label}
-                    </Badge>
+                    <Badge tone={quality.tone}>{quality.label}</Badge>
                   </DetailRow>
                   <DetailRow label="About">
                     <span
-                      className="max-w-[180px] truncate text-[12.5px] text-zoru-ink"
+                      className="max-w-[180px] truncate text-[12.5px]"
+                      style={{ color: 'var(--st-text)' }}
                       title={phone.profile?.about || 'Not set'}
                     >
                       {phone.profile?.about || 'Not set'}
@@ -413,22 +379,24 @@ export default function NumbersPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    iconLeft={Pencil}
                     onClick={() => setEditingPhone(phone)}
                     block
                   >
-                    <Pencil /> Edit profile &amp; settings
+                    Edit profile &amp; settings
                   </Button>
                   {phone.code_verification_status !== 'VERIFIED' && (
                     <Button
                       variant="outline"
                       size="sm"
+                      iconLeft={CheckCircle2}
                       onClick={() => {
                         setVerifyPhone(phone);
                         setVerifyCode('');
                       }}
                       block
                     >
-                      <CheckCircle2 /> Verify number
+                      Verify number
                     </Button>
                   )}
                   {project ? (
@@ -443,11 +411,12 @@ export default function NumbersPage() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    iconLeft={Trash2}
                     onClick={() => setRemoveTarget(phone)}
                     block
-                    className="text-zoru-danger hover:bg-zoru-danger/10"
+                    style={{ color: 'var(--st-danger)' }}
                   >
-                    <Trash2 /> Remove number
+                    Remove number
                   </Button>
                 </div>
               </Card>
@@ -457,59 +426,29 @@ export default function NumbersPage() {
       )}
 
       {/* ── Add-number multi-step dialog ── */}
-      <Dialog
+      <Modal
         open={addOpen}
-        onOpenChange={(o) => {
-          setAddOpen(o);
-          if (!o) {
-            setAddStep(1);
-            setAddPhone('');
-            setAddName('');
-          }
+        onClose={() => {
+          setAddOpen(false);
+          setAddStep(1);
+          setAddPhone('');
+          setAddName('');
         }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>
-              {addStep === 1 ? 'Add a number — step 1 of 2' : 'Add a number — step 2 of 2'}
-            </ZoruDialogTitle>
-            <ZoruDialogDescription>
-              {addStep === 1
-                ? 'Enter the phone number you want to connect to WhatsApp Business.'
-                : 'Add a display name for the number.'}
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-3">
-            {addStep === 1 ? (
-              <>
-                <Label htmlFor="add-phone">Phone number</Label>
-                <Input
-                  id="add-phone"
-                  type="tel"
-                  placeholder="+1 234 567 8900"
-                  value={addPhone}
-                  onChange={(e) => setAddPhone(e.target.value)}
-                />
-              </>
-            ) : (
-              <>
-                <Label htmlFor="add-name">Display name</Label>
-                <Input
-                  id="add-name"
-                  placeholder="Acme Inc."
-                  value={addName}
-                  onChange={(e) => setAddName(e.target.value)}
-                />
-              </>
-            )}
-          </div>
-          <ZoruDialogFooter>
+        title={addStep === 1 ? 'Add a number — step 1 of 2' : 'Add a number — step 2 of 2'}
+        description={
+          addStep === 1
+            ? 'Enter the phone number you want to connect to WhatsApp Business.'
+            : 'Add a display name for the number.'
+        }
+        footer={
+          <>
             {addStep === 2 && (
               <Button variant="ghost" onClick={() => setAddStep(1)}>
                 Back
               </Button>
             )}
             <Button
+              variant="primary"
               onClick={() => {
                 if (addStep === 1) {
                   if (!addPhone.trim()) return;
@@ -518,6 +457,7 @@ export default function NumbersPage() {
                   toast({
                     title: 'Number added',
                     description: `${addName || addPhone} queued for verification.`,
+                    tone: 'success',
                   });
                   setAddOpen(false);
                   setAddStep(1);
@@ -529,45 +469,47 @@ export default function NumbersPage() {
             >
               {addStep === 1 ? 'Continue' : 'Submit'}
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        {addStep === 1 ? (
+          <Field label="Phone number">
+            <Input
+              type="tel"
+              placeholder="+1 234 567 8900"
+              value={addPhone}
+              onChange={(e) => setAddPhone(e.target.value)}
+            />
+          </Field>
+        ) : (
+          <Field label="Display name">
+            <Input
+              placeholder="Acme Inc."
+              value={addName}
+              onChange={(e) => setAddName(e.target.value)}
+            />
+          </Field>
+        )}
+      </Modal>
 
       {/* ── Verify-number dialog ── */}
-      <Dialog
+      <Modal
         open={!!verifyPhone}
-        onOpenChange={(o) => {
-          if (!o) {
-            setVerifyPhone(null);
-            setVerifyCode('');
-          }
+        onClose={() => {
+          setVerifyPhone(null);
+          setVerifyCode('');
         }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Verify number</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Enter the 6-digit code sent to {verifyPhone?.display_phone_number}.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="verify-code">Verification code</Label>
-            <Input
-              id="verify-code"
-              inputMode="numeric"
-              maxLength={6}
-              value={verifyCode}
-              onChange={(e) => setVerifyCode(e.target.value)}
-              placeholder="••••••"
-            />
-          </div>
-          <ZoruDialogFooter>
+        title="Verify number"
+        description={`Enter the 6-digit code sent to ${verifyPhone?.display_phone_number ?? ''}.`}
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setVerifyPhone(null)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
-                toast({ title: 'Verification submitted' });
+                toast({ title: 'Verification submitted', tone: 'success' });
                 setVerifyPhone(null);
                 setVerifyCode('');
               }}
@@ -575,42 +517,51 @@ export default function NumbersPage() {
             >
               Verify
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <Field label="Verification code">
+          <Input
+            inputMode="numeric"
+            maxLength={6}
+            value={verifyCode}
+            onChange={(e) => setVerifyCode(e.target.value)}
+            placeholder="••••••"
+          />
+        </Field>
+      </Modal>
 
       {/* ── Remove-number alert dialog ── */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={!!removeTarget}
         onOpenChange={(o) => !o && setRemoveTarget(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Remove this number?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove this number?</AlertDialogTitle>
+            <AlertDialogDescription>
               This unlinks {removeTarget?.display_phone_number} from your project.
               You can re-add it later by syncing with Meta.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
               onClick={() => {
                 toast({
                   title: 'Number removed',
                   description: `${removeTarget?.display_phone_number} unlinked from project.`,
+                  tone: 'success',
                 });
                 setRemoveTarget(null);
               }}
             >
               Remove
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-
-      <div className="h-6" />
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }
 
@@ -623,45 +574,13 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[10.5px] uppercase tracking-wide text-zoru-ink-muted">
+      <span
+        className="text-[10.5px] uppercase tracking-wide"
+        style={{ color: 'var(--st-text-tertiary)' }}
+      >
         {label}
       </span>
       {children}
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  hint,
-  icon,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        'rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-bg p-4',
-      )}
-    >
-      <div className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-        {icon}
-      </div>
-      <div className="mt-3 text-[11px] uppercase tracking-wide text-zoru-ink-muted leading-none">
-        {label}
-      </div>
-      <div className="mt-1.5 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
-        {value}
-      </div>
-      {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
-          {hint}
-        </div>
-      ) : null}
     </div>
   );
 }

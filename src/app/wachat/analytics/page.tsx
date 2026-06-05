@@ -1,27 +1,15 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Field,
   Select,
-  SelectValue,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  SegmentedControl,
+  StatCard,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -53,12 +41,17 @@ import {
   getLocalMessageAnalytics,
   getBroadcastAnalytics,
   } from '@/app/actions/whatsapp-analytics.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * Wachat Analytics — WhatsApp messaging analytics dashboard.
  */
 
 import * as React from 'react';
+
+function cx(...parts: Array<string | false | null | undefined>): string {
+  return parts.filter(Boolean).join(' ');
+}
 
 type AnalyticsData = {
   totalSent: number;
@@ -95,8 +88,16 @@ type BroadcastData = {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="rounded-lg border border-zoru-line bg-zoru-surface p-3 shadow-sm">
-        <p className="mb-2 text-sm font-medium text-zoru-ink">{label}</p>
+      <div
+        className="p-3"
+        style={{
+          borderRadius: 'var(--st-radius)',
+          border: '1px solid var(--st-border)',
+          background: 'var(--st-bg)',
+          boxShadow: 'var(--st-shadow-sm, 0 1px 2px rgba(0,0,0,0.06))',
+        }}
+      >
+        <p className="mb-2 text-sm font-medium" style={{ color: 'var(--st-text)' }}>{label}</p>
         <div className="flex flex-col gap-1.5">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 text-xs">
@@ -104,8 +105,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-zoru-ink-muted">{entry.name}:</span>
-              <span className="font-medium text-zoru-ink">{entry.value}</span>
+              <span style={{ color: 'var(--st-text-secondary)' }}>{entry.name}:</span>
+              <span className="font-medium" style={{ color: 'var(--st-text)' }}>{entry.value}</span>
             </div>
           ))}
         </div>
@@ -117,7 +118,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function AnalyticsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [broadcastData, setBroadcastData] = useState<BroadcastData | null>(null);
@@ -142,7 +143,7 @@ export default function AnalyticsPage() {
       ]);
 
       if (localResult.error) {
-        toast({ title: 'Error', description: localResult.error, variant: 'destructive' });
+        toast({ title: 'Error', description: localResult.error, tone: 'danger' });
       } else {
         setAnalytics(localResult);
       }
@@ -185,276 +186,267 @@ export default function AnalyticsPage() {
     { label: 'Broadcasts', value: displayBroadcastData?.totalBroadcasts ?? 0, Icon: MessageSquare },
   ];
 
+  const campaignOptions = React.useMemo(
+    () => [
+      { value: 'all', label: 'All Campaigns' },
+      ...Array.from(new Set(broadcastData?.broadcasts.map((b) => b.name) || [])).map((name) => ({
+        value: name,
+        label: name,
+      })),
+    ],
+    [broadcastData],
+  );
+
+  const templateOptions = React.useMemo(
+    () => [
+      { value: 'all', label: 'All Templates' },
+      ...Array.from(new Set(broadcastData?.broadcasts.map((b) => b.templateName) || [])).map((name) => ({
+        value: name,
+        label: name,
+      })),
+    ],
+    [broadcastData],
+  );
+
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Analytics</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <PageHeader>
-          <ZoruPageHeading>
-            <ZoruPageTitle>Message analytics</ZoruPageTitle>
-            <ZoruPageDescription>
-              Track your messaging performance, delivery rates, and broadcast metrics.
-            </ZoruPageDescription>
-          </ZoruPageHeading>
-        </PageHeader>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Analytics' },
+      ]}
+      title="Message analytics"
+      description="Track your messaging performance, delivery rates, and broadcast metrics."
+      width="wide"
+      actions={
         <div className="flex items-center gap-2">
-          <div className="flex overflow-hidden rounded-[var(--zoru-radius-sm)] border border-zoru-line text-xs">
-            {(['7d', '30d', '90d'] as const).map((range) => (
-              <button
-                key={range}
-                onClick={() => setDateRange(range)}
-                className={cn(
-                  'px-3 py-1.5 transition-colors',
-                  dateRange === range
-                    ? 'bg-zoru-surface-2 text-zoru-ink'
-                    : 'text-zoru-ink-muted hover:bg-zoru-surface',
-                )}
-              >
-                {range === '7d' ? '7 days' : range === '30d' ? '30 days' : '90 days'}
-              </button>
-            ))}
-          </div>
+          <SegmentedControl
+            aria-label="Date range"
+            size="sm"
+            value={dateRange}
+            onChange={setDateRange}
+            items={[
+              { value: '7d', label: '7 days' },
+              { value: '30d', label: '30 days' },
+              { value: '90d', label: '90 days' },
+            ]}
+          />
           <Button size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}>
-            <RefreshCw className={cn('h-3.5 w-3.5', isPending && 'animate-spin')} />
+            <RefreshCw className={cx('h-3.5 w-3.5', isPending && 'animate-spin')} aria-hidden="true" />
             Refresh
           </Button>
         </div>
-      </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {/* Advanced Filters */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Field label="Agent">
+            <Select
+              value={selectedAgent}
+              onChange={(v) => setSelectedAgent(v ?? 'all')}
+              placeholder="All Agents"
+              options={[
+                { value: 'all', label: 'All Agents' },
+                { value: 'agent-1', label: 'Agent 1 (No data)', disabled: true },
+                { value: 'agent-2', label: 'Agent 2 (No data)', disabled: true },
+              ]}
+            />
+          </Field>
+          <Field label="Campaign">
+            <Select
+              value={selectedCampaign}
+              onChange={(v) => setSelectedCampaign(v ?? 'all')}
+              placeholder="All Campaigns"
+              options={campaignOptions}
+            />
+          </Field>
+          <Field label="Template">
+            <Select
+              value={selectedTemplate}
+              onChange={(v) => setSelectedTemplate(v ?? 'all')}
+              placeholder="All Templates"
+              options={templateOptions}
+            />
+          </Field>
+          <Field label="Chart Y-Axis Limit">
+            <Select
+              value={yAxisLimit}
+              onChange={(v) => setYAxisLimit(v ?? 'auto')}
+              placeholder="Auto"
+              options={[
+                { value: 'auto', label: 'Auto' },
+                { value: '100', label: '100' },
+                { value: '500', label: '500' },
+                { value: '1000', label: '1,000' },
+                { value: '5000', label: '5,000' },
+                { value: '10000', label: '10,000' },
+              ]}
+            />
+          </Field>
+        </div>
 
-      {/* Advanced Filters */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Agent</label>
-          <Select value={selectedAgent} onValueChange={setSelectedAgent}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Agents" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Agents</SelectItem>
-              <SelectItem value="agent-1" disabled>Agent 1 (No data)</SelectItem>
-              <SelectItem value="agent-2" disabled>Agent 2 (No data)</SelectItem>
-            </SelectContent>
-          </Select>
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {statCards.map((stat) => (
+            <StatCard
+              key={stat.label}
+              icon={stat.Icon}
+              label={stat.label}
+              value={stat.value.toLocaleString()}
+            />
+          ))}
         </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Campaign</label>
-          <Select value={selectedCampaign} onValueChange={setSelectedCampaign}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Campaigns" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Campaigns</SelectItem>
-              {Array.from(new Set(broadcastData?.broadcasts.map((b) => b.name) || [])).map((name) => (
-                <SelectItem key={name} value={name}>{name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Template</label>
-          <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-            <SelectTrigger>
-              <SelectValue placeholder="All Templates" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Templates</SelectItem>
-              {Array.from(new Set(broadcastData?.broadcasts.map((b) => b.templateName) || [])).map((name) => (
-                <SelectItem key={name} value={name}>{name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-zoru-ink-muted">Chart Y-Axis Limit</label>
-          <Select value={yAxisLimit} onValueChange={setYAxisLimit}>
-            <SelectTrigger>
-              <SelectValue placeholder="Auto" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auto">Auto</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-              <SelectItem value="500">500</SelectItem>
-              <SelectItem value="1000">1,000</SelectItem>
-              <SelectItem value="5000">5,000</SelectItem>
-              <SelectItem value="10000">10,000</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-        {statCards.map((stat) => (
-          <Card key={stat.label} className="p-4">
-            <div className="mb-2 flex items-center gap-2">
-              <stat.Icon className="h-4 w-4 text-zoru-ink-muted" />
-              <span className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
-                {stat.label}
-              </span>
+        {/* Delivery rate */}
+        {analytics && analytics.totalSent > 0 && (
+          <Card padding="lg">
+            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Delivery performance</h2>
+            <div className="grid grid-cols-3 gap-6">
+              {[
+                {
+                  label: 'Delivery rate',
+                  value: ((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1),
+                  tone: 'var(--st-status-ok)',
+                },
+                {
+                  label: 'Read rate',
+                  value: ((analytics.totalRead / analytics.totalSent) * 100).toFixed(1),
+                  tone: 'var(--st-status-ok)',
+                },
+                {
+                  label: 'Failure rate',
+                  value: ((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1),
+                  tone: 'var(--st-danger)',
+                },
+              ].map((metric) => (
+                <div key={metric.label}>
+                  <p
+                    className="mb-1 text-[11px] uppercase tracking-wider"
+                    style={{ color: 'var(--st-text-tertiary)' }}
+                  >
+                    {metric.label}
+                  </p>
+                  <p className="text-3xl tabular-nums" style={{ color: metric.tone }}>{metric.value}%</p>
+                </div>
+              ))}
             </div>
-            <p className="text-2xl tabular-nums text-zoru-ink">{stat.value.toLocaleString()}</p>
           </Card>
-        ))}
+        )}
+
+        {/* Daily trend chart */}
+        {analytics && analytics.dailyBreakdown.length > 0 && (
+          <Card padding="lg">
+            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Daily trend</h2>
+            <div className="h-[260px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                  <XAxis dataKey="date" stroke="var(--st-text-tertiary)" tick={{ fontSize: 10 }} />
+                  <YAxis
+                    stroke="var(--st-text-tertiary)"
+                    tick={{ fontSize: 10 }}
+                    domain={[0, yAxisLimit === 'auto' ? 'auto' : parseInt(yAxisLimit)]}
+                    allowDataOverflow={true}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line type="monotone" dataKey="sent" stroke="var(--st-text)" strokeWidth={2} dot={false} name="Sent" />
+                  <Line type="monotone" dataKey="delivered" stroke="var(--st-status-ok)" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
+                  <Line type="monotone" dataKey="read" stroke="var(--st-warn)" strokeWidth={2} strokeDasharray="3 3" dot={false} name="Read" />
+                  <Line type="monotone" dataKey="failed" stroke="var(--st-danger)" strokeWidth={2} dot={false} name="Failed" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        )}
+
+        {/* Daily breakdown table */}
+        {analytics && analytics.dailyBreakdown.length > 0 && (
+          <Card padding="none">
+            <div className="p-4" style={{ borderBottom: '1px solid var(--st-border)' }}>
+              <h2 className="text-sm" style={{ color: 'var(--st-text)' }}>Daily breakdown</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--st-border)', color: 'var(--st-text-tertiary)' }}>
+                    <th className="px-4 py-2.5 text-left">Date</th>
+                    <th className="px-4 py-2.5 text-right">Sent</th>
+                    <th className="px-4 py-2.5 text-right">Delivered</th>
+                    <th className="px-4 py-2.5 text-right">Read</th>
+                    <th className="px-4 py-2.5 text-right">Failed</th>
+                    <th className="px-4 py-2.5 text-right">Incoming</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {analytics.dailyBreakdown
+                    .slice()
+                    .reverse()
+                    .map((day) => (
+                      <tr
+                        key={day.date}
+                        style={{ borderBottom: '1px solid var(--st-border)' }}
+                      >
+                        <td className="px-4 py-2" style={{ color: 'var(--st-text)' }}>{day.date}</td>
+                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-text)' }}>{day.sent}</td>
+                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-status-ok)' }}>{day.delivered}</td>
+                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-status-ok)' }}>{day.read}</td>
+                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-danger)' }}>{day.failed}</td>
+                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-warn)' }}>{day.incoming}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+
+        {/* Broadcast performance */}
+        {displayBroadcastData && displayBroadcastData.totalBroadcasts > 0 && (
+          <Card padding="lg">
+            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Broadcast performance</h2>
+            <div className="grid grid-cols-4 gap-6">
+              {[
+                { label: 'Total campaigns', value: displayBroadcastData.totalBroadcasts, tone: 'var(--st-text)' },
+                {
+                  label: 'Total recipients',
+                  value: displayBroadcastData.totalContacts.toLocaleString(),
+                  tone: 'var(--st-text)',
+                },
+                {
+                  label: 'Successful',
+                  value: displayBroadcastData.totalSuccess.toLocaleString(),
+                  tone: 'var(--st-status-ok)',
+                },
+                {
+                  label: 'Failed',
+                  value: displayBroadcastData.totalFailed.toLocaleString(),
+                  tone: 'var(--st-danger)',
+                },
+              ].map((metric) => (
+                <div key={metric.label}>
+                  <p
+                    className="mb-1 text-[11px] uppercase tracking-wider"
+                    style={{ color: 'var(--st-text-tertiary)' }}
+                  >
+                    {metric.label}
+                  </p>
+                  <p className="text-2xl tabular-nums" style={{ color: metric.tone }}>{metric.value}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {!analytics && !isPending && (
+          <EmptyState
+            icon={Activity}
+            title="No analytics yet"
+            description="Select a project to view analytics."
+          />
+        )}
       </div>
-
-      {/* Delivery rate */}
-      {analytics && analytics.totalSent > 0 && (
-        <Card className="p-6">
-          <h2 className="mb-4 text-sm text-zoru-ink">Delivery performance</h2>
-          <div className="grid grid-cols-3 gap-6">
-            {[
-              {
-                label: 'Delivery rate',
-                value: ((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1),
-                tone: 'text-zoru-success-ink',
-              },
-              {
-                label: 'Read rate',
-                value: ((analytics.totalRead / analytics.totalSent) * 100).toFixed(1),
-                tone: 'text-zoru-success-ink',
-              },
-              {
-                label: 'Failure rate',
-                value: ((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1),
-                tone: 'text-zoru-danger-ink',
-              },
-            ].map((metric) => (
-              <div key={metric.label}>
-                <p className="mb-1 text-[11px] uppercase tracking-wider text-zoru-ink-muted">
-                  {metric.label}
-                </p>
-                <p className={cn('text-3xl tabular-nums', metric.tone)}>{metric.value}%</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {/* Daily trend chart */}
-      {analytics && analytics.dailyBreakdown.length > 0 && (
-        <Card className="p-6">
-          <h2 className="mb-4 text-sm text-zoru-ink">Daily trend</h2>
-          <div className="h-[260px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--zoru-line))" />
-                <XAxis dataKey="date" stroke="hsl(var(--zoru-ink-muted))" tick={{ fontSize: 10 }} />
-                <YAxis 
-                  stroke="hsl(var(--zoru-ink-muted))" 
-                  tick={{ fontSize: 10 }} 
-                  domain={[0, yAxisLimit === 'auto' ? 'auto' : parseInt(yAxisLimit)]}
-                  allowDataOverflow={true}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="sent" stroke="hsl(var(--zoru-ink))" strokeWidth={2} dot={false} name="Sent" />
-                <Line type="monotone" dataKey="delivered" stroke="hsl(var(--zoru-success))" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
-                <Line type="monotone" dataKey="read" stroke="hsl(var(--zoru-warning))" strokeWidth={2} strokeDasharray="3 3" dot={false} name="Read" />
-                <Line type="monotone" dataKey="failed" stroke="hsl(var(--zoru-danger))" strokeWidth={2} dot={false} name="Failed" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      )}
-
-      {/* Daily breakdown table */}
-      {analytics && analytics.dailyBreakdown.length > 0 && (
-        <Card>
-          <div className="border-b border-zoru-line p-4">
-            <h2 className="text-sm text-zoru-ink">Daily breakdown</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-zoru-line text-zoru-ink-muted">
-                  <th className="px-4 py-2.5 text-left">Date</th>
-                  <th className="px-4 py-2.5 text-right">Sent</th>
-                  <th className="px-4 py-2.5 text-right">Delivered</th>
-                  <th className="px-4 py-2.5 text-right">Read</th>
-                  <th className="px-4 py-2.5 text-right">Failed</th>
-                  <th className="px-4 py-2.5 text-right">Incoming</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analytics.dailyBreakdown
-                  .slice()
-                  .reverse()
-                  .map((day) => (
-                    <tr
-                      key={day.date}
-                      className="border-b border-zoru-line/50 hover:bg-zoru-surface-2"
-                    >
-                      <td className="px-4 py-2 text-zoru-ink">{day.date}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-zoru-ink">{day.sent}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-zoru-success-ink">{day.delivered}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-zoru-success-ink">{day.read}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-zoru-danger-ink">{day.failed}</td>
-                      <td className="px-4 py-2 text-right tabular-nums text-zoru-warning-ink">{day.incoming}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-      )}
-
-      {/* Broadcast performance */}
-      {displayBroadcastData && displayBroadcastData.totalBroadcasts > 0 && (
-        <Card className="p-6">
-          <h2 className="mb-4 text-sm text-zoru-ink">Broadcast performance</h2>
-          <div className="grid grid-cols-4 gap-6">
-            {[
-              { label: 'Total campaigns', value: displayBroadcastData.totalBroadcasts, tone: 'text-zoru-ink' },
-              {
-                label: 'Total recipients',
-                value: displayBroadcastData.totalContacts.toLocaleString(),
-                tone: 'text-zoru-ink',
-              },
-              {
-                label: 'Successful',
-                value: displayBroadcastData.totalSuccess.toLocaleString(),
-                tone: 'text-zoru-success-ink',
-              },
-              {
-                label: 'Failed',
-                value: displayBroadcastData.totalFailed.toLocaleString(),
-                tone: 'text-zoru-danger-ink',
-              },
-            ].map((metric) => (
-              <div key={metric.label}>
-                <p className="mb-1 text-[11px] uppercase tracking-wider text-zoru-ink-muted">
-                  {metric.label}
-                </p>
-                <p className={cn('text-2xl tabular-nums', metric.tone)}>{metric.value}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
-
-      {!analytics && !isPending && (
-        <EmptyState
-          icon={<Activity className="h-12 w-12" />}
-          title="No analytics yet"
-          description="Select a project to view analytics."
-        />
-      )}
-    </div>
+    </WachatPage>
   );
 }

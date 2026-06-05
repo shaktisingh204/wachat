@@ -2,41 +2,33 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
   EmptyState,
+  Field,
   Input,
-  Label,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetFooter,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
-} from '@/components/zoruui';
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+  Spinner,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -44,7 +36,7 @@ import {
   useCallback,
   useActionState,
   } from 'react';
-import { Loader2,
+import {
   Pencil,
   Plus,
   Trash2,
@@ -52,9 +44,11 @@ import { Loader2,
 
 import { useProject } from '@/context/project-context';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
 /**
- * Wachat Broadcast Segments — saved audience segments, ZoruUI rebuild.
- * Save / edit segments via ZoruSheet; delete via ZoruAlertDialog.
+ * Wachat Broadcast Segments — saved audience segments, 20ui rebuild.
+ * Save / edit segments via Drawer; delete via AlertDialog.
  */
 
 import * as React from 'react';
@@ -65,9 +59,20 @@ import {
   deleteBroadcastSegment,
 } from '@/app/actions/wachat-features.actions';
 
-/* ── save / edit segment sheet ──────────────────────────────────── */
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
-function SegmentSheet({
+const LAST_ACTIVE_OPTIONS = [
+  { value: '7d', label: 'Last 7 days' },
+  { value: '30d', label: 'Last 30 days' },
+  { value: '90d', label: 'Last 90 days' },
+  { value: 'all', label: 'All time' },
+];
+
+/* ── save / edit segment drawer ─────────────────────────────────── */
+
+function SegmentDrawer({
   trigger,
   title,
   description,
@@ -95,13 +100,13 @@ function SegmentSheet({
   );
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <ZoruSheetTrigger asChild>{trigger}</ZoruSheetTrigger>
-      <ZoruSheetContent side="right" className="sm:max-w-md">
-        <ZoruSheetHeader>
-          <ZoruSheetTitle>{title}</ZoruSheetTitle>
-          <ZoruSheetDescription>{description}</ZoruSheetDescription>
-        </ZoruSheetHeader>
+    <Drawer open={open} onOpenChange={setOpen} side="right">
+      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      <DrawerContent side="right">
+        <DrawerHeader>
+          <DrawerTitle>{title}</DrawerTitle>
+          <DrawerDescription>{description}</DrawerDescription>
+        </DrawerHeader>
         <form
           action={(fd) => {
             formAction(fd);
@@ -111,49 +116,38 @@ function SegmentSheet({
         >
           <input type="hidden" name="projectId" value={projectId || ''} />
           <input type="hidden" name="filterLastActive" value={lastActive} />
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="seg-name">Segment name</Label>
+          <Field label="Segment name">
             <Input
-              id="seg-name"
               name="name"
               defaultValue={initial?.name}
               placeholder="High-value customers"
               required
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="seg-tags">Filter tags</Label>
+          </Field>
+          <Field label="Filter tags">
             <Input
-              id="seg-tags"
               name="filterTags"
               defaultValue={initial?.filterTags}
               placeholder="Comma-separated, e.g. vip, returning"
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Last active</Label>
-            <Select value={lastActive} onValueChange={setLastActive}>
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="Last active" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="7d">Last 7 days</ZoruSelectItem>
-                <ZoruSelectItem value="30d">Last 30 days</ZoruSelectItem>
-                <ZoruSelectItem value="90d">Last 90 days</ZoruSelectItem>
-                <ZoruSelectItem value="all">All time</ZoruSelectItem>
-              </ZoruSelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="seg-city">City</Label>
+          </Field>
+          <Field label="Last active">
+            <Select
+              value={lastActive}
+              onChange={(v) => setLastActive(v ?? 'all')}
+              options={LAST_ACTIVE_OPTIONS}
+              placeholder="Last active"
+              aria-label="Last active"
+            />
+          </Field>
+          <Field label="City">
             <Input
-              id="seg-city"
               name="filterCity"
               defaultValue={initial?.filterCity}
               placeholder="Optional"
             />
-          </div>
-          <ZoruSheetFooter>
+          </Field>
+          <DrawerFooter>
             <Button
               type="button"
               variant="outline"
@@ -161,13 +155,17 @@ function SegmentSheet({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending || !projectId}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isPending || !projectId}
+            >
               {isPending ? 'Saving…' : 'Save Segment'}
             </Button>
-          </ZoruSheetFooter>
+          </DrawerFooter>
         </form>
-      </ZoruSheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
@@ -175,7 +173,7 @@ function SegmentSheet({
 
 export default function BroadcastSegmentsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [segments, setSegments] = useState<any[]>([]);
@@ -195,7 +193,7 @@ export default function BroadcastSegmentsPage() {
           toast({
             title: 'Error',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         } else {
           setSegments(res.segments || []);
@@ -211,14 +209,14 @@ export default function BroadcastSegmentsPage() {
 
   useEffect(() => {
     if (formState?.message) {
-      toast({ title: 'Success', description: formState.message });
+      toast({ title: 'Success', description: formState.message, tone: 'success' });
       if (projectId) fetchSegments(projectId);
     }
     if (formState?.error) {
       toast({
         title: 'Error',
         description: formState.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [formState, toast, projectId, fetchSegments]);
@@ -231,46 +229,28 @@ export default function BroadcastSegmentsPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       setSegments((prev) => prev.filter((s) => s._id !== segmentId));
-      toast({ title: 'Deleted', description: 'Segment removed.' });
+      toast({ title: 'Deleted', description: 'Segment removed.', tone: 'success' });
     }
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Broadcast Segments</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Broadcast Segments
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Create audience segments to target specific groups in your
-            broadcast campaigns.
-          </p>
-        </div>
-        <SegmentSheet
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Broadcast Segments' },
+      ]}
+      title="Broadcast Segments"
+      description="Create audience segments to target specific groups in your broadcast campaigns."
+      actions={
+        <SegmentDrawer
           trigger={
-            <Button size="sm">
-              <Plus className="h-3.5 w-3.5" /> Create segment
+            <Button size="sm" variant="primary" iconLeft={Plus}>
+              Create segment
             </Button>
           }
           title="Create a segment"
@@ -279,139 +259,155 @@ export default function BroadcastSegmentsPage() {
           formAction={formAction}
           isPending={isPending}
         />
-      </div>
-
-      {/* Segments grid */}
-      <div>
-        <h2 className="text-[18px] tracking-tight text-zoru-ink leading-none">
-          Your Segments ({segments.length})
-        </h2>
-        <p className="mt-1.5 text-[12.5px] text-zoru-ink-muted">
-          Manage saved audience segments for broadcast targeting.
-        </p>
-      </div>
-
-      {isLoading && segments.length === 0 ? (
-        <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+      }
+    >
+      <div className="flex flex-col gap-6">
+        {/* Segments grid */}
+        <div>
+          <h2
+            className="text-[18px] tracking-tight leading-none"
+            style={{ color: 'var(--st-text)' }}
+          >
+            Your Segments ({segments.length})
+          </h2>
+          <p
+            className="mt-1.5 text-[12.5px]"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
+            Manage saved audience segments for broadcast targeting.
+          </p>
         </div>
-      ) : segments.length === 0 ? (
-        <EmptyState
-          icon={<Users />}
-          title="No segments yet"
-          description="Create your first segment to target subsets of your contacts."
-          action={
-            <SegmentSheet
-              trigger={
-                <Button size="sm">
-                  <Plus className="h-3.5 w-3.5" /> Create segment
-                </Button>
-              }
-              title="Create a segment"
-              description="Define audience criteria for future broadcasts."
-              projectId={projectId}
-              formAction={formAction}
-              isPending={isPending}
-            />
-          }
-        />
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {segments.map((seg) => {
-            const filters = seg.filters || {};
-            return (
-              <Card key={seg._id} className="p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="text-sm text-zoru-ink">{seg.name}</h3>
-                  <div className="flex items-center gap-1">
-                    <SegmentSheet
-                      trigger={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Edit ${seg.name}`}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                      }
-                      title="Edit segment"
-                      description="Update audience criteria."
-                      initial={{
-                        name: seg.name,
-                        filterTags: (filters.tags || []).join(', '),
-                        filterCity: filters.city || '',
-                        filterLastActive: filters.lastActive || 'all',
-                      }}
-                      projectId={projectId}
-                      formAction={formAction}
-                      isPending={isPending}
-                    />
-                    <ZoruAlertDialog>
-                      <ZoruAlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          aria-label={`Delete ${seg.name}`}
-                          disabled={deletingId === seg._id}
-                          className="text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </ZoruAlertDialogTrigger>
-                      <ZoruAlertDialogContent>
-                        <ZoruAlertDialogHeader>
-                          <ZoruAlertDialogTitle>
-                            Delete segment?
-                          </ZoruAlertDialogTitle>
-                          <ZoruAlertDialogDescription>
-                            &ldquo;{seg.name}&rdquo; will be removed. Broadcasts
-                            already using it will keep their audience.
-                          </ZoruAlertDialogDescription>
-                        </ZoruAlertDialogHeader>
-                        <ZoruAlertDialogFooter>
-                          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                          <ZoruAlertDialogAction
-                            onClick={() => handleDelete(seg._id)}
-                          >
-                            Delete
-                          </ZoruAlertDialogAction>
-                        </ZoruAlertDialogFooter>
-                      </ZoruAlertDialogContent>
-                    </ZoruAlertDialog>
+
+        {isLoading && segments.length === 0 ? (
+          <div className="flex h-20 items-center justify-center">
+            <Spinner label="Loading segments" />
+          </div>
+        ) : segments.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title="No segments yet"
+            description="Create your first segment to target subsets of your contacts."
+            action={
+              <SegmentDrawer
+                trigger={
+                  <Button size="sm" variant="primary" iconLeft={Plus}>
+                    Create segment
+                  </Button>
+                }
+                title="Create a segment"
+                description="Define audience criteria for future broadcasts."
+                projectId={projectId}
+                formAction={formAction}
+                isPending={isPending}
+              />
+            }
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {segments.map((seg) => {
+              const filters = seg.filters || {};
+              return (
+                <Card key={seg._id} padding="lg">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3
+                      className="text-sm"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      {seg.name}
+                    </h3>
+                    <div className="flex items-center gap-1">
+                      <SegmentDrawer
+                        trigger={
+                          <IconButton
+                            label={`Edit ${seg.name}`}
+                            icon={Pencil}
+                            variant="ghost"
+                            size="sm"
+                          />
+                        }
+                        title="Edit segment"
+                        description="Update audience criteria."
+                        initial={{
+                          name: seg.name,
+                          filterTags: (filters.tags || []).join(', '),
+                          filterCity: filters.city || '',
+                          filterLastActive: filters.lastActive || 'all',
+                        }}
+                        projectId={projectId}
+                        formAction={formAction}
+                        isPending={isPending}
+                      />
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <IconButton
+                            label={`Delete ${seg.name}`}
+                            icon={Trash2}
+                            variant="ghost"
+                            size="sm"
+                            disabled={deletingId === seg._id}
+                          />
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete segment?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              &ldquo;{seg.name}&rdquo; will be removed. Broadcasts
+                              already using it will keep their audience.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(seg._id)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {(filters.tags || []).map((tag: string) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {filters.lastActive && (
-                    <Badge variant="outline">
-                      Active: {filters.lastActive}
-                    </Badge>
-                  )}
-                  {filters.city && (
-                    <Badge variant="outline">City: {filters.city}</Badge>
-                  )}
-                  {!filters.tags?.length &&
-                    !filters.lastActive &&
-                    !filters.city && (
-                      <span className="text-[11.5px] text-zoru-ink-muted">
-                        No filters
-                      </span>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {(filters.tags || []).map((tag: string) => (
+                      <Badge key={tag} tone="neutral" kind="soft">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {filters.lastActive && (
+                      <Badge tone="neutral" kind="outline">
+                        Active: {filters.lastActive}
+                      </Badge>
                     )}
-                </div>
-                <p className="mt-3 text-[11px] text-zoru-ink-muted">
-                  Created {fmtDate(seg.createdAt)}
-                </p>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="h-6" />
-    </div>
+                    {filters.city && (
+                      <Badge tone="neutral" kind="outline">
+                        City: {filters.city}
+                      </Badge>
+                    )}
+                    {!filters.tags?.length &&
+                      !filters.lastActive &&
+                      !filters.city && (
+                        <span
+                          className="text-[11.5px]"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                        >
+                          No filters
+                        </span>
+                      )}
+                  </div>
+                  <p
+                    className="mt-3 text-[11px]"
+                    style={{ color: 'var(--st-text-tertiary)' }}
+                  >
+                    Created {fmtDate(seg.createdAt)}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </WachatPage>
   );
 }

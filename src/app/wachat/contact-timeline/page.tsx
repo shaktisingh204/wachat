@@ -2,29 +2,19 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuTrigger,
+  Menu,
+  MenuItem,
+  MenuLabel,
   EmptyState,
+  Field,
   Input,
-  Label,
   ScrollArea,
   Skeleton,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useTransition,
@@ -34,17 +24,18 @@ import {
   Search,
   MessageSquare,
   StickyNote,
-  Loader2,
   Filter,
+  Check,
   } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getContactTimeline } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Contact Timeline — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Contact Timeline — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
@@ -57,9 +48,11 @@ const FILTER_LABELS: Record<FilterMode, string> = {
   note: 'Notes only',
 };
 
+const FILTER_ORDER: FilterMode[] = ['all', 'message', 'note'];
+
 export default function ContactTimelinePage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [contactId, setContactId] = useState('');
@@ -72,7 +65,7 @@ export default function ContactTimelinePage() {
       toast({
         title: 'Required',
         description: 'Enter a contact ID or phone.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -82,7 +75,7 @@ export default function ContactTimelinePage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         setEvents([]);
       } else {
@@ -100,165 +93,148 @@ export default function ContactTimelinePage() {
   }, [events, filter]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Timeline</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Contact Timeline
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          View the full interaction history of any contact.
-        </p>
-      </div>
-
-      <Card className="p-5">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="flex min-w-[260px] flex-1 flex-col gap-1.5">
-            <Label htmlFor="ct-contact">
-              Contact ID or phone number
-            </Label>
-            <Input
-              id="ct-contact"
-              type="text"
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              placeholder="Contact ID or phone number…"
-              leadingSlot={<Search />}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={handleSearch} disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                <Search />
-              )}
-              Load timeline
-            </Button>
-            <DropdownMenu>
-              <ZoruDropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Filter /> {FILTER_LABELS[filter]}
-                </Button>
-              </ZoruDropdownMenuTrigger>
-              <ZoruDropdownMenuContent align="end">
-                <ZoruDropdownMenuLabel>Filter by type</ZoruDropdownMenuLabel>
-                <ZoruDropdownMenuRadioGroup
-                  value={filter}
-                  onValueChange={(v) => setFilter(v as FilterMode)}
-                >
-                  <ZoruDropdownMenuRadioItem value="all">
-                    All events
-                  </ZoruDropdownMenuRadioItem>
-                  <ZoruDropdownMenuRadioItem value="message">
-                    Messages only
-                  </ZoruDropdownMenuRadioItem>
-                  <ZoruDropdownMenuRadioItem value="note">
-                    Notes only
-                  </ZoruDropdownMenuRadioItem>
-                </ZoruDropdownMenuRadioGroup>
-              </ZoruDropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </Card>
-
-      {isLoading && (
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full" />
-          ))}
-        </div>
-      )}
-
-      {filteredEvents && !isLoading && filteredEvents.length > 0 && (
-        <ScrollArea className="max-h-[640px]">
-          <div className="relative pl-8">
-            <div className="absolute left-3.5 bottom-0 top-0 w-px bg-zoru-line" />
-            <div className="space-y-4">
-              {filteredEvents.map((ev, i) => {
-                const isNote = ev.type === 'note';
-                const isIn = ev.direction === 'in';
-                const Icon = isNote ? StickyNote : MessageSquare;
-                return (
-                  <div key={i} className="relative flex gap-4">
-                    <div
-                      className={cn(
-                        'absolute -left-4.5 z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
-                        'bg-zoru-surface-2 text-zoru-ink',
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                    </div>
-                    <Card className="ml-4 flex-1 p-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <Badge
-                          variant={
-                            isNote ? 'warning' : isIn ? 'success' : 'info'
-                          }
-                        >
-                          {isNote ? 'Note' : isIn ? 'Received' : 'Sent'}
-                        </Badge>
-                        <span className="whitespace-nowrap text-[11px] text-zoru-ink-muted">
-                          {ev.timestamp
-                            ? fmtDate(ev.timestamp)
-                            : ''}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-[12px] text-zoru-ink-muted">
-                        {ev.content || '—'}
-                      </p>
-                    </Card>
-                  </div>
-                );
-              })}
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Timeline' },
+      ]}
+      title="Contact Timeline"
+      description="View the full interaction history of any contact."
+    >
+      <div className="flex flex-col gap-6">
+        <Card padding="md">
+          <div className="flex flex-wrap items-end gap-3">
+            <Field label="Contact ID or phone number" className="min-w-[260px] flex-1">
+              <Input
+                id="ct-contact"
+                type="text"
+                value={contactId}
+                onChange={(e) => setContactId(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Contact ID or phone number…"
+                iconLeft={Search}
+              />
+            </Field>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="primary"
+                onClick={handleSearch}
+                loading={isLoading}
+                iconLeft={Search}
+              >
+                Load timeline
+              </Button>
+              <Menu
+                align="end"
+                label="Filter by type"
+                trigger={
+                  <Button variant="outline" size="sm" iconLeft={Filter}>
+                    {FILTER_LABELS[filter]}
+                  </Button>
+                }
+              >
+                <MenuLabel>Filter by type</MenuLabel>
+                {FILTER_ORDER.map((mode) => (
+                  <MenuItem
+                    key={mode}
+                    onSelect={() => setFilter(mode)}
+                    hint={
+                      filter === mode ? (
+                        <Check size={14} aria-hidden="true" />
+                      ) : null
+                    }
+                  >
+                    {FILTER_LABELS[mode]}
+                  </MenuItem>
+                ))}
+              </Menu>
             </div>
           </div>
-        </ScrollArea>
-      )}
+        </Card>
 
-      {filteredEvents && !isLoading && filteredEvents.length === 0 && (
-        <EmptyState
-          icon={<History />}
-          title="No events found"
-          description={
-            events && events.length > 0
-              ? 'Try a different filter to surface events.'
-              : 'No events found for this contact.'
-          }
-        />
-      )}
+        {isLoading && (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height={64} width="100%" />
+            ))}
+          </div>
+        )}
 
-      {!events && !isLoading && (
-        <EmptyState
-          icon={<History />}
-          title="Enter a contact ID"
-          description="Type a contact ID or phone number above to view their interaction timeline."
-        />
-      )}
-      <div className="h-6" />
-    </div>
+        {filteredEvents && !isLoading && filteredEvents.length > 0 && (
+          <ScrollArea style={{ maxHeight: 640 }}>
+            <div className="relative pl-8">
+              <div
+                className="absolute left-3.5 bottom-0 top-0 w-px"
+                style={{ background: 'var(--st-border)' }}
+                aria-hidden="true"
+              />
+              <div className="space-y-4">
+                {filteredEvents.map((ev, i) => {
+                  const isNote = ev.type === 'note';
+                  const isIn = ev.direction === 'in';
+                  const Icon = isNote ? StickyNote : MessageSquare;
+                  return (
+                    <div key={i} className="relative flex gap-4">
+                      <div
+                        className="absolute -left-4.5 z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full"
+                        style={{
+                          background: 'var(--st-bg-secondary)',
+                          color: 'var(--st-text)',
+                        }}
+                      >
+                        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                      </div>
+                      <Card padding="sm" className="ml-4 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <Badge
+                            tone={isNote ? 'warning' : isIn ? 'success' : 'info'}
+                          >
+                            {isNote ? 'Note' : isIn ? 'Received' : 'Sent'}
+                          </Badge>
+                          <span
+                            className="whitespace-nowrap text-[11px]"
+                            style={{ color: 'var(--st-text-tertiary)' }}
+                          >
+                            {ev.timestamp ? fmtDate(ev.timestamp) : ''}
+                          </span>
+                        </div>
+                        <p
+                          className="mt-1 text-[12px]"
+                          style={{ color: 'var(--st-text-secondary)' }}
+                        >
+                          {ev.content || '—'}
+                        </p>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </ScrollArea>
+        )}
+
+        {filteredEvents && !isLoading && filteredEvents.length === 0 && (
+          <EmptyState
+            icon={History}
+            title="No events found"
+            description={
+              events && events.length > 0
+                ? 'Try a different filter to surface events.'
+                : 'No events found for this contact.'
+            }
+          />
+        )}
+
+        {!events && !isLoading && (
+          <EmptyState
+            icon={History}
+            title="Enter a contact ID"
+            description="Type a contact ID or phone number above to view their interaction timeline."
+          />
+        )}
+      </div>
+    </WachatPage>
   );
 }

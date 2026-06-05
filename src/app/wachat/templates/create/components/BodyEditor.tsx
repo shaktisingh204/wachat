@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Textarea, Input } from '@/components/zoruui';
+import { Textarea, Input } from '@/components/sabcrm/20ui';
 import { Field } from './Field';
 import { AIBodyGenerator } from './AIBodyGenerator';
 import { VariableExamples } from './VariableExamples';

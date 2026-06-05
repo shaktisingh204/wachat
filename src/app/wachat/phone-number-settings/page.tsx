@@ -1,27 +1,16 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Modal,
   EmptyState,
+  Field,
   Input,
-  Label,
-  Skeleton,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -32,6 +21,7 @@ import { Loader2,
   Save,
   Sparkles } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import {
   getPhoneNumberProfiles,
@@ -40,15 +30,19 @@ import {
 import { handleGenerateBusinessDescription } from '@/app/actions/ai-actions';
 
 /**
- * Wachat Phone Number Settings — ZoruUI migration.
+ * Wachat Phone Number Settings — 20ui migration.
  * Per-number business profile editor.
  */
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 export default function PhoneNumberSettingsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [phones, setPhones] = useState<any[]>([]);
@@ -70,7 +64,7 @@ export default function PhoneNumberSettingsPage() {
           toast({
             title: 'Error',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         } else {
           const nums = res.phoneNumbers || [];
@@ -131,7 +125,7 @@ export default function PhoneNumberSettingsPage() {
       const urls = typeof profile.websites === 'string'
         ? profile.websites.split(',').map((w) => w.trim()).filter(Boolean)
         : (profile.websites as unknown as string[]);
-      
+
       if (urls.length > 2) errors.push('Maximum 2 websites are allowed.');
       const urlRegex = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
       for (const url of urls) {
@@ -145,7 +139,7 @@ export default function PhoneNumberSettingsPage() {
       toast({
         title: 'Validation Error',
         description: errors.join('\n'),
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -163,12 +157,13 @@ export default function PhoneNumberSettingsPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       toast({
         title: 'Saved',
         description: `Profile for ${phone.display_phone_number || phone.number || 'phone'} updated.`,
+        tone: 'success',
       });
     }
   };
@@ -186,13 +181,14 @@ export default function PhoneNumberSettingsPage() {
       toast({
         title: 'Generation Failed',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else if (res.description) {
       setProfile((prev) => ({ ...prev, description: res.description }));
       toast({
         title: 'Success',
         description: 'Business description generated successfully.',
+        tone: 'success',
       });
     }
   };
@@ -208,72 +204,57 @@ export default function PhoneNumberSettingsPage() {
   const current = phones[selectedIdx];
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Phone number settings</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Phone number settings
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Manage business profile for each connected phone number.
-        </p>
-      </div>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Phone number settings' },
+      ]}
+      title="Phone number settings"
+      description="Manage business profile for each connected phone number."
+      width="narrow"
+    >
       {isLoading ? (
-        <div className="mt-6 grid gap-4">
-          <Skeleton className="h-9 w-64" />
-          <Skeleton className="h-72 w-full" />
+        <div className="grid gap-4">
+          <Skeleton height={36} width={256} radius="var(--st-radius)" />
+          <Skeleton height={288} width="100%" radius="var(--st-radius-lg)" />
         </div>
       ) : phones.length === 0 ? (
-        <div className="mt-6">
-          <EmptyState
-            icon={<Phone />}
-            title="No phone numbers connected"
-            description="Connect a WhatsApp Business number to manage its profile here."
-          />
-        </div>
+        <EmptyState
+          icon={Phone}
+          title="No phone numbers connected"
+          description="Connect a WhatsApp Business number to manage its profile here."
+        />
       ) : (
         <>
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             {phones.map((p, i) => (
               <Button
                 key={p.id || i}
-                variant={selectedIdx === i ? 'default' : 'outline'}
+                variant={selectedIdx === i ? 'primary' : 'outline'}
                 size="sm"
+                iconLeft={Phone}
                 onClick={() => selectPhone(i)}
               >
-                <Phone />
                 {p.display_phone_number || p.number || `Phone ${i + 1}`}
               </Button>
             ))}
           </div>
 
-          <Card className="mt-4 p-6">
+          <Card className="mt-4" padding="lg">
             <div className="mb-6 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2">
-                  <Phone className="h-6 w-6 text-zoru-ink-muted" />
+                <span
+                  className="flex h-12 w-12 items-center justify-center rounded-full"
+                  style={{ background: 'var(--st-bg-secondary)' }}
+                >
+                  <Phone className="h-6 w-6" style={{ color: 'var(--st-text-secondary)' }} aria-hidden="true" />
                 </span>
                 <div>
-                  <div className="text-[16px] text-zoru-ink">
+                  <div className="text-[16px]" style={{ color: 'var(--st-text)' }}>
                     {current?.display_phone_number || current?.number || '--'}
                   </div>
-                  <div className="text-[12px] text-zoru-ink-muted">
+                  <div className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
                     {current?.verified_name || current?.displayName || ''}
                   </div>
                 </div>
@@ -294,24 +275,24 @@ export default function PhoneNumberSettingsPage() {
 
             <div className="flex max-w-lg flex-col gap-5">
               {fields.map((f) => (
-                <div key={f.key} className="flex flex-col gap-1.5 relative">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor={`pn-${f.key}`}>{f.label}</Label>
-                    {f.key === 'description' && (
+                f.key === 'description' ? (
+                  <div key={f.key} className="flex flex-col gap-1.5 relative">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor={`pn-${f.key}`} className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                        {f.label}
+                      </label>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-6 px-2 text-[12px] text-zoru-brand"
+                        iconLeft={isGenerating ? undefined : Sparkles}
                         onClick={generateDescription}
                         disabled={isGenerating}
                       >
-                        {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Sparkles className="mr-1 h-3 w-3" />}
+                        {isGenerating ? <Loader2 className="mr-1 h-3 w-3 animate-spin" aria-hidden="true" /> : null}
                         {isGenerating ? 'Generating...' : 'AI Generate'}
                       </Button>
-                    )}
-                  </div>
-                  {f.multiline ? (
+                    </div>
                     <Textarea
                       id={`pn-${f.key}`}
                       value={profile[f.key] || ''}
@@ -322,9 +303,16 @@ export default function PhoneNumberSettingsPage() {
                         }))
                       }
                       rows={4}
-                      maxLength={f.key === 'description' ? 512 : undefined}
+                      maxLength={512}
                     />
-                  ) : (
+                    {f.helpText && (
+                      <span className="text-[11.5px] leading-tight" style={{ color: 'var(--st-text-tertiary)' }}>
+                        {f.helpText}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <Field key={f.key} label={f.label} help={f.helpText} id={`pn-${f.key}`}>
                     <Input
                       id={`pn-${f.key}`}
                       value={profile[f.key] || ''}
@@ -340,17 +328,17 @@ export default function PhoneNumberSettingsPage() {
                         f.key === 'email' ? 128 : undefined
                       }
                     />
-                  )}
-                  {f.helpText && (
-                    <span className="text-[11.5px] text-zoru-ink-muted leading-tight">
-                      {f.helpText}
-                    </span>
-                  )}
-                </div>
+                  </Field>
+                )
               ))}
               <div className="pt-2">
-                <Button onClick={handleSave} disabled={isSaving}>
-                  {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
+                <Button
+                  variant="primary"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  iconLeft={isSaving ? undefined : Save}
+                >
+                  {isSaving ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
                   {isSaving ? 'Saving…' : 'Save profile'}
                 </Button>
               </div>
@@ -360,32 +348,23 @@ export default function PhoneNumberSettingsPage() {
       )}
 
       {/* ── Edit display name dialog ── */}
-      <Dialog open={displayNameOpen} onOpenChange={setDisplayNameOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit display name</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Update the verified display name shown to your WhatsApp customers.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="display-name">Display name</Label>
-            <Input
-              id="display-name"
-              value={draftDisplayName}
-              onChange={(e) => setDraftDisplayName(e.target.value)}
-              placeholder="Acme Inc."
-            />
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={displayNameOpen}
+        onClose={() => setDisplayNameOpen(false)}
+        title="Edit display name"
+        description="Update the verified display name shown to your WhatsApp customers."
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setDisplayNameOpen(false)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={() => {
                 toast({
                   title: 'Display name updated',
                   description: `Submitted "${draftDisplayName}" for review.`,
+                  tone: 'success',
                 });
                 setDisplayNameOpen(false);
               }}
@@ -393,11 +372,18 @@ export default function PhoneNumberSettingsPage() {
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      >
+        <Field label="Display name" id="display-name">
+          <Input
+            id="display-name"
+            value={draftDisplayName}
+            onChange={(e) => setDraftDisplayName(e.target.value)}
+            placeholder="Acme Inc."
+          />
+        </Field>
+      </Modal>
+    </WachatPage>
   );
 }

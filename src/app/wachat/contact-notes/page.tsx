@@ -2,31 +2,26 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
+  IconButton,
   Card,
   EmptyState,
+  Field,
   Input,
-  Label,
   Skeleton,
   Textarea,
-  cn,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   useState,
   useTransition,
@@ -42,16 +37,20 @@ import { useProject } from '@/context/project-context';
 import { getContactNotes, addContactNote, deleteContactNote } from '@/app/actions/wachat-features.actions';
 
 /**
- * Wachat Contact Notes — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Contact Notes — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui.
  */
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 export default function ContactNotesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [contactId, setContactId] = useState('');
@@ -74,7 +73,7 @@ export default function ContactNotesPage() {
           toast({
             title: 'Error',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
           setNotes([]);
         } else {
@@ -92,14 +91,14 @@ export default function ContactNotesPage() {
 
   React.useEffect(() => {
     if (formState?.message) {
-      toast({ title: 'Success', description: formState.message });
+      toast({ title: 'Success', description: formState.message, tone: 'success' });
       if (contactId.trim()) fetchNotes(contactId.trim());
     }
     if (formState?.error) {
       toast({
         title: 'Error',
         description: formState.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [formState, toast, contactId, fetchNotes]);
@@ -112,186 +111,180 @@ export default function ContactNotesPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       setNotes((prev) => prev.filter((n) => n._id !== noteId));
-      toast({ title: 'Deleted', description: 'Note removed.' });
+      toast({ title: 'Deleted', description: 'Note removed.', tone: 'success' });
     }
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Notes</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="min-w-0">
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Contact Notes
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Look up a contact by ID or phone number and manage private notes.
-        </p>
-      </div>
-
-      {/* Search */}
-      <Card className="p-6">
-        <h2 className="mb-4 text-[15px] text-zoru-ink">Look up contact</h2>
-        <form
-          onSubmit={handleSearch}
-          className="flex max-w-md items-end gap-3"
-        >
-          <div className="flex flex-1 flex-col gap-1.5">
-            <Label htmlFor="cn-contact">
-              Contact ID or phone number
-            </Label>
-            <Input
-              id="cn-contact"
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              placeholder="Contact ID or phone number"
-              required
-            />
-          </div>
-          <Button
-            type="submit"
-            disabled={isSearching || !contactId.trim()}
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Notes' },
+      ]}
+      title="Contact Notes"
+      description="Look up a contact by ID or phone number and manage private notes."
+      width="narrow"
+    >
+      <div className="flex flex-col gap-6">
+        {/* Search */}
+        <Card padding="lg">
+          <h2 className="mb-4 text-[15px]" style={{ color: 'var(--st-text)' }}>
+            Look up contact
+          </h2>
+          <form
+            onSubmit={handleSearch}
+            className="flex max-w-md items-end gap-3"
           >
-            {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
-            {isSearching ? 'Searching…' : 'Search'}
-          </Button>
-        </form>
-      </Card>
-
-      {/* Notes list */}
-      {hasSearched && (
-        <Card className="p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[15px] text-zoru-ink">
-              Notes for {contactId} ({notes.length})
-            </h2>
-          </div>
-
-          {isSearching ? (
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          ) : notes.length === 0 ? (
-            <EmptyState
-              icon={<StickyNote />}
-              title="No notes yet"
-              description="Add your first note below."
-              compact
-              className="mb-6"
-            />
-          ) : (
-            <div className="mb-6 flex flex-col gap-3">
-              {notes.map((note) => (
-                <div
-                  key={note._id}
-                  className="flex items-start justify-between gap-3 rounded-[var(--zoru-radius-lg)] border border-zoru-line bg-zoru-surface p-4"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="whitespace-pre-wrap text-[13px] text-zoru-ink">
-                      {note.text}
-                    </p>
-                    <p className="mt-1.5 text-[11px] text-zoru-ink-muted">
-                      {fmtDate(note.createdAt)}
-                    </p>
-                  </div>
-                  <ZoruAlertDialog>
-                    <ZoruAlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={deletingId === note._id}
-                        aria-label="Delete note"
-                        className="text-zoru-danger hover:bg-zoru-danger/10"
-                      >
-                        <Trash2 />
-                      </Button>
-                    </ZoruAlertDialogTrigger>
-                    <ZoruAlertDialogContent>
-                      <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
-                          Delete note?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                          This note will be permanently removed.
-                        </ZoruAlertDialogDescription>
-                      </ZoruAlertDialogHeader>
-                      <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                          destructive
-                          onClick={() => handleDelete(note._id)}
-                        >
-                          Delete
-                        </ZoruAlertDialogAction>
-                      </ZoruAlertDialogFooter>
-                    </ZoruAlertDialogContent>
-                  </ZoruAlertDialog>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Add note form */}
-          <div className="border-t border-zoru-line pt-4">
-            <h3 className="mb-3 text-[14px] text-zoru-ink">Add a note</h3>
-            <form
-              action={formAction}
-              className="flex max-w-lg flex-col gap-3"
-            >
-              <input type="hidden" name="contactId" value={contactId} />
-              <input
-                type="hidden"
-                name="projectId"
-                value={projectId || ''}
-              />
-              <Textarea
-                name="text"
-                placeholder="Write a note…"
-                rows={3}
+            <Field label="Contact ID or phone number" className="flex-1">
+              <Input
+                id="cn-contact"
+                value={contactId}
+                onChange={(e) => setContactId(e.target.value)}
+                placeholder="Contact ID or phone number"
                 required
               />
-              <div>
-                <Button type="submit" disabled={isPending}>
-                  {isPending ? (
-                    <Loader2 className="animate-spin" />
-                  ) : (
-                    <Plus />
-                  )}
-                  {isPending ? 'Adding…' : 'Add note'}
-                </Button>
-              </div>
-            </form>
-          </div>
+            </Field>
+            <Button
+              type="submit"
+              variant="primary"
+              iconLeft={isSearching ? Loader2 : Search}
+              disabled={isSearching || !contactId.trim()}
+            >
+              {isSearching ? 'Searching…' : 'Search'}
+            </Button>
+          </form>
         </Card>
-      )}
 
-      <div className="h-6" />
-    </div>
+        {/* Notes list */}
+        {hasSearched && (
+          <Card padding="lg">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                Notes for {contactId} ({notes.length})
+              </h2>
+            </div>
+
+            {isSearching ? (
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Skeleton key={i} height={64} width="100%" />
+                ))}
+              </div>
+            ) : notes.length === 0 ? (
+              <div className="mb-6">
+                <EmptyState
+                  icon={StickyNote}
+                  title="No notes yet"
+                  description="Add your first note below."
+                  size="sm"
+                />
+              </div>
+            ) : (
+              <div className="mb-6 flex flex-col gap-3">
+                {notes.map((note) => (
+                  <div
+                    key={note._id}
+                    className="flex items-start justify-between gap-3 p-4"
+                    style={{
+                      borderRadius: 'var(--st-radius-lg)',
+                      border: '1px solid var(--st-border)',
+                      background: 'var(--st-bg-secondary)',
+                    }}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className="whitespace-pre-wrap text-[13px]"
+                        style={{ color: 'var(--st-text)' }}
+                      >
+                        {note.text}
+                      </p>
+                      <p
+                        className="mt-1.5 text-[11px]"
+                        style={{ color: 'var(--st-text-tertiary)' }}
+                      >
+                        {fmtDate(note.createdAt)}
+                      </p>
+                    </div>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <IconButton
+                          label="Delete note"
+                          icon={Trash2}
+                          variant="ghost"
+                          size="sm"
+                          disabled={deletingId === note._id}
+                        />
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Delete note?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This note will be permanently removed.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            intent="danger"
+                            onClick={() => handleDelete(note._id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add note form */}
+            <div
+              className="pt-4"
+              style={{ borderTop: '1px solid var(--st-border)' }}
+            >
+              <h3 className="mb-3 text-[14px]" style={{ color: 'var(--st-text)' }}>
+                Add a note
+              </h3>
+              <form
+                action={formAction}
+                className="flex max-w-lg flex-col gap-3"
+              >
+                <input type="hidden" name="contactId" value={contactId} />
+                <input
+                  type="hidden"
+                  name="projectId"
+                  value={projectId || ''}
+                />
+                <Textarea
+                  name="text"
+                  placeholder="Write a note…"
+                  rows={3}
+                  required
+                />
+                <div>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    iconLeft={isPending ? Loader2 : Plus}
+                    disabled={isPending}
+                  >
+                    {isPending ? 'Adding…' : 'Add note'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </Card>
+        )}
+      </div>
+    </WachatPage>
   );
 }

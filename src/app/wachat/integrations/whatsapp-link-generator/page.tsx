@@ -1,17 +1,6 @@
 'use client';
 
-import {
-  Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  Skeleton,
-} from '@/components/zoruui';
+import { Alert, Skeleton } from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -22,6 +11,7 @@ import type { WithId,
 import { getProjectById } from '@/app/actions/project.actions';
 import { useProject } from '@/context/project-context';
 import { WhatsappLinkGenerator } from '@/components/zoruui-domain/whatsapp-link-generator';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 export default function WhatsappLinkGeneratorPage() {
   const { activeProject } = useProject();
@@ -39,41 +29,26 @@ export default function WhatsappLinkGeneratorPage() {
   }, [activeProject]);
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/integrations">Integrations</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Link generator</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex-1">
-        {isLoading ? (
-          <Skeleton className="h-64 w-full" />
-        ) : !project ? (
-          <Alert variant="destructive">
-            <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-            <ZoruAlertDescription>
-              Please select a project from the main dashboard.
-            </ZoruAlertDescription>
-          </Alert>
-        ) : (
-          <WhatsappLinkGenerator project={project} />
-        )}
-      </div>
-    </div>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Integrations', href: '/wachat/integrations' },
+        { label: 'Link generator' },
+      ]}
+      title="Link generator"
+      description="Create click-to-chat WhatsApp links for this project."
+      width="narrow"
+    >
+      {isLoading ? (
+        <Skeleton height={256} className="w-full" />
+      ) : !project ? (
+        <Alert tone="danger" title="No project selected">
+          Please select a project from the main dashboard.
+        </Alert>
+      ) : (
+        <WhatsappLinkGenerator project={project} />
+      )}
+    </WachatPage>
   );
 }

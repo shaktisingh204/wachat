@@ -1,47 +1,30 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
   EmptyState,
+  Field,
+  IconButton,
   Input,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Modal,
   Skeleton,
   Textarea,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
   useState,
   useTransition,
-  useRef
 } from 'react';
 import {
   QrCode,
@@ -52,10 +35,11 @@ import {
   Copy,
   Download,
   BarChart3,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from 'lucide-react';
 import QRCode from 'qrcode';
 
+import WachatPage from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import {
   getQrCodes,
@@ -63,6 +47,10 @@ import {
   handleUpdateQrCode,
   handleDeleteQrCode,
 } from '@/app/actions/whatsapp.actions';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 type QrCodeRow = {
   code: string;
@@ -112,11 +100,11 @@ const generateCustomQrDataUrl = async (text: string, fgColor: string, bgColor: s
         const logoSize = 1024 * 0.2;
         const x = (1024 - logoSize) / 2;
         const y = (1024 - logoSize) / 2;
-        
+
         ctx.fillStyle = bgColor;
         ctx.fillRect(x - 10, y - 10, logoSize + 20, logoSize + 20);
         ctx.drawImage(logoImg, x, y, logoSize, logoSize);
-        
+
         resolve(canvas.toDataURL('image/png'));
       };
       logoImg.onerror = () => {
@@ -129,11 +117,11 @@ const generateCustomQrDataUrl = async (text: string, fgColor: string, bgColor: s
   });
 };
 
-function ClientQrPreview({ 
-  text, 
-  fgColor, 
-  bgColor, 
-  logoUrl, 
+function ClientQrPreview({
+  text,
+  fgColor,
+  bgColor,
+  logoUrl,
   size = 220,
   onDataUrlReady
 }: {
@@ -167,9 +155,17 @@ function ClientQrPreview({
 
   if (error) {
     return (
-      <div 
-        className="flex items-center justify-center bg-zoru-surface-2 text-zoru-ink-muted text-sm border border-zoru-line rounded-[var(--zoru-radius)]" 
-        style={{ width: '100%', maxWidth: size, aspectRatio: '1/1' }}
+      <div
+        className="flex items-center justify-center text-sm"
+        style={{
+          width: '100%',
+          maxWidth: size,
+          aspectRatio: '1/1',
+          background: 'var(--st-bg-secondary)',
+          color: 'var(--st-text-tertiary)',
+          border: '1px solid var(--st-border)',
+          borderRadius: 'var(--st-radius)',
+        }}
       >
         Failed to load QR
       </div>
@@ -177,23 +173,32 @@ function ClientQrPreview({
   }
 
   if (!dataUrl) {
-    return <Skeleton className="rounded-[var(--zoru-radius)]" style={{ width: '100%', maxWidth: size, aspectRatio: '1/1' }} />;
+    return (
+      <Skeleton
+        radius="var(--st-radius)"
+        style={{ width: '100%', maxWidth: size, aspectRatio: '1/1' }}
+      />
+    );
   }
 
   // eslint-disable-next-line @next/next/no-img-element
   return (
-    <img 
-      src={dataUrl} 
-      alt="QR code preview" 
-      className="w-full h-auto aspect-square rounded-[var(--zoru-radius)] border border-zoru-line"
-      style={{ maxWidth: size }} 
+    <img
+      src={dataUrl}
+      alt="QR code preview"
+      className="w-full h-auto aspect-square"
+      style={{
+        maxWidth: size,
+        borderRadius: 'var(--st-radius)',
+        border: '1px solid var(--st-border)',
+      }}
     />
   );
 }
 
 export default function QrCodesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [qrCodes, setQrCodes] = useState<QrCodeRow[]>([]);
 
@@ -225,7 +230,7 @@ export default function QrCodesPage() {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         setQrCodes(result.qrCodes as QrCodeRow[]);
@@ -249,10 +254,10 @@ export default function QrCodesPage() {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
-        toast({ title: 'QR code created', description: 'Your QR code is ready.' });
+        toast({ title: 'QR code created', description: 'Your QR code is ready.', tone: 'success' });
         setNewMessage('');
         setCreateOpen(false);
         fetchQrCodes();
@@ -274,10 +279,10 @@ export default function QrCodesPage() {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
-        toast({ title: 'QR code updated' });
+        toast({ title: 'QR code updated', tone: 'success' });
         setEditing(null);
         fetchQrCodes();
       }
@@ -297,10 +302,10 @@ export default function QrCodesPage() {
         toast({
           title: 'Error',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
-        toast({ title: 'QR code removed' });
+        toast({ title: 'QR code removed', tone: 'success' });
         setDeleteTarget(null);
         fetchQrCodes();
       }
@@ -309,86 +314,76 @@ export default function QrCodesPage() {
 
   // Helper to generate the tracking url which acts as redirection to deep_link_url
   const getTrackingUrl = (qr: QrCodeRow) => {
-    // In reality this would be an API endpoint in the system. 
+    // In reality this would be an API endpoint in the system.
     // E.g. https://api.sabnode.com/track/qr/{code}
     return `https://sabnode.com/r/qr/${qr.code}`;
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>QR Codes</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-2">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat · Tools</ZoruPageEyebrow>
-          <ZoruPageTitle>WhatsApp QR Codes</ZoruPageTitle>
-          <ZoruPageDescription>
-            Create QR codes that open WhatsApp with a prefilled message when
-            scanned. Track engagement and customize styling natively.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'QR Codes' },
+      ]}
+      eyebrow="WaChat · Tools"
+      title="WhatsApp QR Codes"
+      description="Create QR codes that open WhatsApp with a prefilled message when scanned. Track engagement and customize styling natively."
+      actions={
+        <>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={RefreshCw}
             onClick={fetchQrCodes}
             disabled={isPending}
           >
-            <RefreshCw className={isPending ? 'animate-spin' : ''} />
             Refresh
           </Button>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus />
+          <Button variant="primary" size="sm" iconLeft={Plus} onClick={() => setCreateOpen(true)}>
             Create QR Code
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
+        </>
+      }
+    >
       {/* QR Code grid */}
       {isPending && qrCodes.length === 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-44" />
+            <Skeleton key={i} height={176} radius="var(--st-radius-lg)" />
           ))}
         </div>
       ) : qrCodes.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {qrCodes.map((qr) => (
-            <Card key={qr.code} className="flex flex-col gap-3 p-5">
+            <Card key={qr.code} padding="lg" className="flex flex-col gap-3">
               <div className="flex items-start justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-                  <QrCode className="h-6 w-6" />
+                <div
+                  className="flex h-12 w-12 items-center justify-center"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    background: 'var(--st-bg-secondary)',
+                    color: 'var(--st-text)',
+                  }}
+                >
+                  <QrCode className="h-6 w-6" aria-hidden="true" />
                 </div>
                 <div className="flex gap-1">
-                  <Button
+                  <IconButton
                     variant="ghost"
-                    size="icon-sm"
-                    aria-label="Edit"
+                    size="sm"
+                    label="Edit"
+                    icon={Pencil}
                     onClick={() => {
                       setEditing(qr);
                       setEditMessage(qr.prefilled_message);
                     }}
-                  >
-                    <Pencil />
-                  </Button>
-                  <Button
+                  />
+                  <IconButton
                     variant="ghost"
-                    size="icon-sm"
-                    aria-label="Download"
+                    size="sm"
+                    label="Download"
+                    icon={Download}
                     onClick={() => {
                       setDownloadTarget(qr);
                       setQrFg('#000000');
@@ -396,35 +391,41 @@ export default function QrCodesPage() {
                       setQrLogo('');
                       setQrDataUrl('');
                     }}
-                  >
-                    <Download />
-                  </Button>
-                  <Button
+                  />
+                  <IconButton
                     variant="ghost"
-                    size="icon-sm"
-                    aria-label="Delete"
+                    size="sm"
+                    label="Delete"
+                    icon={Trash2}
                     onClick={() => setDeleteTarget(qr)}
-                  >
-                    <Trash2 />
-                  </Button>
+                  />
                 </div>
               </div>
 
               <div className="flex-1">
-                <p className="line-clamp-2 text-[13px] font-medium text-zoru-ink">
+                <p
+                  className="line-clamp-2 text-[13px] font-medium"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   {qr.prefilled_message}
                 </p>
-                
-                <div className="mt-3 flex items-center gap-3 text-xs text-zoru-ink-muted">
+
+                <div
+                  className="mt-3 flex items-center gap-3 text-xs"
+                  style={{ color: 'var(--st-text-tertiary)' }}
+                >
                   <div className="flex items-center gap-1.5" title="Total scans">
-                    <BarChart3 className="h-3.5 w-3.5 text-zoru-ink" />
-                    <span className="font-medium text-zoru-ink">{getMockScans(qr.code)}</span> scans
+                    <BarChart3 className="h-3.5 w-3.5" style={{ color: 'var(--st-text)' }} aria-hidden="true" />
+                    <span className="font-medium" style={{ color: 'var(--st-text)' }}>{getMockScans(qr.code)}</span> scans
                   </div>
                 </div>
               </div>
 
               {qr.deep_link_url ? (
-                <div className="mt-1 pt-3 border-t border-zoru-line flex items-center gap-3">
+                <div
+                  className="mt-1 pt-3 flex items-center gap-3"
+                  style={{ borderTop: '1px solid var(--st-border)' }}
+                >
                   <button
                     type="button"
                     onClick={() => {
@@ -432,19 +433,22 @@ export default function QrCodesPage() {
                       toast({
                         title: 'Copied tracking link',
                         description: 'Link copied to clipboard.',
+                        tone: 'success',
                       });
                     }}
-                    className="inline-flex items-center gap-1.5 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink hover:underline"
+                    className="inline-flex items-center gap-1.5 text-[11px] transition-colors hover:underline"
+                    style={{ color: 'var(--st-text-tertiary)' }}
                   >
-                    <Copy className="h-3 w-3" />
+                    <Copy className="h-3 w-3" aria-hidden="true" />
                     Copy tracking link
                   </button>
-                  <span className="text-[10px] text-zoru-ink-muted/50">•</span>
-                  <a 
-                    href={getTrackingUrl(qr)} 
-                    target="_blank" 
+                  <span className="text-[10px]" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true">•</span>
+                  <a
+                    href={getTrackingUrl(qr)}
+                    target="_blank"
                     rel="noreferrer"
-                    className="text-[11px] text-zoru-ink hover:underline truncate max-w-[120px]"
+                    className="text-[11px] hover:underline truncate max-w-[120px]"
+                    style={{ color: 'var(--st-text)' }}
                   >
                     {getTrackingUrl(qr).replace('https://', '')}
                   </a>
@@ -455,12 +459,11 @@ export default function QrCodesPage() {
         </div>
       ) : (
         <EmptyState
-          icon={<QrCode />}
+          icon={QrCode}
           title="No QR codes yet"
           description="Create one to let customers scan and open WhatsApp with a prefilled message."
           action={
-            <Button onClick={() => setCreateOpen(true)}>
-              <Plus />
+            <Button variant="primary" iconLeft={Plus} onClick={() => setCreateOpen(true)}>
               Create QR Code
             </Button>
           }
@@ -468,26 +471,13 @@ export default function QrCodesPage() {
       )}
 
       {/* Create dialog */}
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Generate QR code</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Enter the prefilled message that will appear in WhatsApp when
-              someone scans this QR. A trackable deep link will be generated automatically.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="qr-message">Prefilled message</Label>
-            <Textarea
-              id="qr-message"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Hi, I would like to know more about…"
-              rows={3}
-            />
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        title="Generate QR code"
+        description="Enter the prefilled message that will appear in WhatsApp when someone scans this QR. A trackable deep link will be generated automatically."
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => {
@@ -498,146 +488,71 @@ export default function QrCodesPage() {
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={handleCreate}
               disabled={isPending || !newMessage.trim()}
             >
               Generate
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <Field label="Prefilled message">
+          <Textarea
+            id="qr-message"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Hi, I would like to know more about…"
+            rows={3}
+          />
+        </Field>
+      </Modal>
 
       {/* Edit / regenerate dialog */}
-      <Dialog
+      <Modal
         open={editing !== null}
-        onOpenChange={(open) => {
-          if (!open) setEditing(null);
-        }}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Update QR code</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Change the prefilled message. The tracking URL and QR will update seamlessly.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="qr-edit-message">Prefilled message</Label>
-            <Input
-              id="qr-edit-message"
-              value={editMessage}
-              onChange={(e) => setEditMessage(e.target.value)}
-            />
-          </div>
-          <ZoruDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditing(null)}
-            >
+        onClose={() => setEditing(null)}
+        title="Update QR code"
+        description="Change the prefilled message. The tracking URL and QR will update seamlessly."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setEditing(null)}>
               Cancel
             </Button>
             <Button
+              variant="primary"
               onClick={handleUpdate}
               disabled={isPending || !editMessage.trim()}
             >
               Save
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <Field label="Prefilled message">
+          <Input
+            id="qr-edit-message"
+            value={editMessage}
+            onChange={(e) => setEditMessage(e.target.value)}
+          />
+        </Field>
+      </Modal>
 
       {/* Download and Customize dialog */}
-      <Dialog
+      <Modal
         open={downloadTarget !== null}
-        onOpenChange={(open) => {
-          if (!open) setDownloadTarget(null);
-        }}
-      >
-        <ZoruDialogContent className="max-w-2xl">
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Download & Customize QR Code</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Style your QR code locally. Analytics will automatically be tracked on scans.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          
-          {downloadTarget && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-2">
-              <div className="flex flex-col items-center justify-center bg-zoru-surface p-4 rounded-[var(--zoru-radius)] border border-zoru-line">
-                <ClientQrPreview 
-                  text={getTrackingUrl(downloadTarget)}
-                  fgColor={qrFg}
-                  bgColor={qrBg}
-                  logoUrl={qrLogo}
-                  size={220}
-                  onDataUrlReady={(url) => setQrDataUrl(url)}
-                />
-                <p className="mt-4 text-[11px] text-zoru-ink-muted text-center max-w-[220px] truncate">
-                  {getTrackingUrl(downloadTarget)}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Label className="text-[12px] font-medium">Foreground Color</Label>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
-                      value={qrFg}
-                      onChange={(e) => setQrFg(e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer border-0 p-0"
-                    />
-                    <Input 
-                      value={qrFg} 
-                      onChange={(e) => setQrFg(e.target.value)}
-                      className="font-mono text-xs uppercase"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label className="text-[12px] font-medium">Background Color</Label>
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="color" 
-                      value={qrBg}
-                      onChange={(e) => setQrBg(e.target.value)}
-                      className="w-8 h-8 rounded cursor-pointer border-0 p-0"
-                    />
-                    <Input 
-                      value={qrBg} 
-                      onChange={(e) => setQrBg(e.target.value)}
-                      className="font-mono text-xs uppercase"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label className="text-[12px] font-medium flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5" /> Logo URL (Optional)
-                  </Label>
-                  <Input 
-                    placeholder="https://example.com/logo.png"
-                    value={qrLogo}
-                    onChange={(e) => setQrLogo(e.target.value)}
-                    className="text-xs"
-                  />
-                  <span className="text-[10px] text-zoru-ink-muted">
-                    Must be a valid image URL supporting CORS.
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <ZoruDialogFooter className="mt-2">
-            <Button
-              variant="outline"
-              onClick={() => setDownloadTarget(null)}
-            >
+        onClose={() => setDownloadTarget(null)}
+        size="lg"
+        title="Download & Customize QR Code"
+        description="Style your QR code locally. Analytics will automatically be tracked on scans."
+        footer={
+          <>
+            <Button variant="outline" onClick={() => setDownloadTarget(null)}>
               Close
             </Button>
             <Button
+              variant="primary"
+              iconLeft={Download}
               disabled={!qrDataUrl}
               onClick={() => {
                 if (qrDataUrl) {
@@ -650,47 +565,129 @@ export default function QrCodesPage() {
                   toast({
                     title: 'Downloaded',
                     description: 'Your custom QR code has been downloaded.',
+                    tone: 'success',
                   });
                 }
               }}
             >
-              <Download />
               Download PNG
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        {downloadTarget && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div
+              className="flex flex-col items-center justify-center p-4"
+              style={{
+                background: 'var(--st-bg)',
+                borderRadius: 'var(--st-radius)',
+                border: '1px solid var(--st-border)',
+              }}
+            >
+              <ClientQrPreview
+                text={getTrackingUrl(downloadTarget)}
+                fgColor={qrFg}
+                bgColor={qrBg}
+                logoUrl={qrLogo}
+                size={220}
+                onDataUrlReady={(url) => setQrDataUrl(url)}
+              />
+              <p
+                className="mt-4 text-[11px] text-center max-w-[220px] truncate"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
+                {getTrackingUrl(downloadTarget)}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <Field label="Foreground Color">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    aria-label="Foreground color picker"
+                    value={qrFg}
+                    onChange={(e) => setQrFg(e.target.value)}
+                    className="w-8 h-8 cursor-pointer border-0 p-0"
+                    style={{ borderRadius: 'var(--st-radius)' }}
+                  />
+                  <Input
+                    value={qrFg}
+                    onChange={(e) => setQrFg(e.target.value)}
+                    className="font-mono text-xs uppercase"
+                  />
+                </div>
+              </Field>
+
+              <Field label="Background Color">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    aria-label="Background color picker"
+                    value={qrBg}
+                    onChange={(e) => setQrBg(e.target.value)}
+                    className="w-8 h-8 cursor-pointer border-0 p-0"
+                    style={{ borderRadius: 'var(--st-radius)' }}
+                  />
+                  <Input
+                    value={qrBg}
+                    onChange={(e) => setQrBg(e.target.value)}
+                    className="font-mono text-xs uppercase"
+                  />
+                </div>
+              </Field>
+
+              <Field
+                label={
+                  <span className="inline-flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" aria-hidden="true" /> Logo URL (Optional)
+                  </span>
+                }
+                help="Must be a valid image URL supporting CORS."
+              >
+                <Input
+                  placeholder="https://example.com/logo.png"
+                  value={qrLogo}
+                  onChange={(e) => setQrLogo(e.target.value)}
+                  className="text-xs"
+                />
+              </Field>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Delete (regenerate-qr-confirm) alert */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete this QR code?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this QR code?</AlertDialogTitle>
+            <AlertDialogDescription>
               The QR will stop working immediately. Anyone who scans it after
               deletion will see a generic WhatsApp page instead of your
               prefilled message. Analytics for this QR code will be lost.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel disabled={isPending}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isPending}>
               Cancel
-            </ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction
-              destructive
+            </AlertDialogCancel>
+            <AlertDialogAction
+              intent="danger"
               disabled={isPending}
               onClick={() => deleteTarget && handleDelete(deleteTarget)}
             >
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }

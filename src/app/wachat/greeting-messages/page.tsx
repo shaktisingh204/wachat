@@ -1,32 +1,16 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  Label,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Field,
   Skeleton,
   Switch,
   Textarea,
-  useZoruToast,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Input,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -45,11 +29,25 @@ import {
 
 import * as React from 'react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
 const VARIABLES = ['{name}', '{phone}', '{email}', '{company}'];
+
+const SCHEDULE_OPTIONS = [
+  { value: 'always', label: 'Always active' },
+  { value: 'outside_business_hours', label: 'Outside business hours' },
+  { value: 'custom', label: 'Custom schedule' },
+];
+
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Greeting & Away Messages' },
+];
 
 export default function GreetingMessagesPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   // Greeting State
@@ -80,7 +78,7 @@ export default function GreetingMessagesPage() {
       ]);
 
       if (gRes.error) {
-        toast({ title: 'Error', description: gRes.error, variant: 'destructive' });
+        toast({ title: 'Error', description: gRes.error, tone: 'danger' });
       } else if (gRes.config) {
         setGreetingEnabled(gRes.config.enabled ?? false);
         const msg = gRes.config.message ?? '';
@@ -106,7 +104,7 @@ export default function GreetingMessagesPage() {
       }
 
       if (aRes.error) {
-        toast({ title: 'Error', description: aRes.error, variant: 'destructive' });
+        toast({ title: 'Error', description: aRes.error, tone: 'danger' });
       } else if (aRes.config) {
         setAwayEnabled(aRes.config.enabled ?? false);
         setAwayMessage(aRes.config.message ?? '');
@@ -158,7 +156,7 @@ export default function GreetingMessagesPage() {
         toast({
           title: 'Error',
           description: gRes.error || aRes.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -166,70 +164,49 @@ export default function GreetingMessagesPage() {
       toast({
         title: 'Saved',
         description: 'Settings updated successfully.',
+        tone: 'success',
       });
     });
   };
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <Skeleton className="h-3 w-52" />
-        <div className="mt-5 space-y-3">
-          <Skeleton className="h-9 w-72" />
-          <Skeleton className="h-4 w-96" />
+      <WachatPage breadcrumb={BREADCRUMB}>
+        <div className="grid gap-4">
+          <Skeleton height={96} />
+          <Skeleton height={160} />
+          <Skeleton height={128} />
         </div>
-        <div className="mt-8 grid gap-4">
-          <Skeleton className="h-24" />
-          <Skeleton className="h-40" />
-          <Skeleton className="h-32" />
-        </div>
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Greeting & Away Messages</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat</ZoruPageEyebrow>
-          <ZoruPageTitle>Greeting & Away Messages</ZoruPageTitle>
-          <ZoruPageDescription>
-            Configure the welcome messages and after-hours away messages sent to contacts.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button onClick={handleSave} disabled={isSaving}>
-            <Save /> {isSaving ? 'Saving…' : 'Save'}
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
-      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      eyebrow="WaChat"
+      title="Greeting & Away Messages"
+      description="Configure the welcome messages and after-hours away messages sent to contacts."
+      actions={
+        <Button variant="primary" iconLeft={Save} onClick={handleSave} loading={isSaving}>
+          {isSaving ? 'Saving…' : 'Save'}
+        </Button>
+      }
+    >
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* LEFT COLUMN: GREETING */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-zoru-ink">Greeting Message</h2>
-          
-          <Card className="p-5">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+            Greeting Message
+          </h2>
+
+          <Card padding="lg">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-[15px] font-medium text-zoru-ink">Enable greeting</h3>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
+                  Enable greeting
+                </h3>
+                <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
                   Automatically send a greeting when a contact messages for the first time.
                 </p>
               </div>
@@ -241,11 +218,13 @@ export default function GreetingMessagesPage() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card padding="lg">
             <div className="mb-4 flex items-center justify-between gap-4">
                <div>
-                  <h3 className="text-[15px] font-medium text-zoru-ink">A/B Testing</h3>
-                  <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                  <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
+                    A/B Testing
+                  </h3>
+                  <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
                     Test two different greetings to see which performs better.
                   </p>
                </div>
@@ -257,9 +236,11 @@ export default function GreetingMessagesPage() {
             </div>
 
             {greetingType === 'ab_test' ? (
-              <div className="flex flex-col gap-6 border-t border-zoru-line pt-4">
-                <div className="flex flex-col gap-3">
-                  <Label>Variant A</Label>
+              <div
+                className="flex flex-col gap-6 pt-4"
+                style={{ borderTop: '1px solid var(--st-border)' }}
+              >
+                <Field label="Variant A">
                   <Textarea
                     value={greetingVariantA}
                     onChange={(e) => setGreetingVariantA(e.target.value)}
@@ -267,9 +248,8 @@ export default function GreetingMessagesPage() {
                     placeholder="Type your greeting message…"
                   />
                   <VariableInserter onInsert={(v) => setGreetingVariantA(prev => prev + ' ' + v)} />
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Label>Variant B</Label>
+                </Field>
+                <Field label="Variant B">
                   <Textarea
                     value={greetingVariantB}
                     onChange={(e) => setGreetingVariantB(e.target.value)}
@@ -277,18 +257,22 @@ export default function GreetingMessagesPage() {
                     placeholder="Type your alternative greeting…"
                   />
                   <VariableInserter onInsert={(v) => setGreetingVariantB(prev => prev + ' ' + v)} />
-                </div>
+                </Field>
               </div>
             ) : (
-              <div className="flex flex-col gap-3 border-t border-zoru-line pt-4">
-                <Label>Message</Label>
-                <Textarea
-                  value={greetingMessage}
-                  onChange={(e) => setGreetingMessage(e.target.value)}
-                  rows={4}
-                  placeholder="Type your greeting message…"
-                />
-                <VariableInserter onInsert={(v) => setGreetingMessage(prev => prev + ' ' + v)} />
+              <div
+                className="flex flex-col gap-3 pt-4"
+                style={{ borderTop: '1px solid var(--st-border)' }}
+              >
+                <Field label="Message">
+                  <Textarea
+                    value={greetingMessage}
+                    onChange={(e) => setGreetingMessage(e.target.value)}
+                    rows={4}
+                    placeholder="Type your greeting message…"
+                  />
+                  <VariableInserter onInsert={(v) => setGreetingMessage(prev => prev + ' ' + v)} />
+                </Field>
               </div>
             )}
           </Card>
@@ -301,11 +285,21 @@ export default function GreetingMessagesPage() {
                greetingType === 'ab_test' ? (
                  <div className="flex flex-col gap-4">
                    <div>
-                     <span className="mb-1 block text-xs font-semibold text-zoru-ink-muted">Variant A</span>
+                     <span
+                       className="mb-1 block text-xs font-semibold"
+                       style={{ color: 'var(--st-text-secondary)' }}
+                     >
+                       Variant A
+                     </span>
                      <PreviewBubble rendered={renderPreviewText(greetingVariantA)} />
                    </div>
                    <div>
-                     <span className="mb-1 block text-xs font-semibold text-zoru-ink-muted">Variant B</span>
+                     <span
+                       className="mb-1 block text-xs font-semibold"
+                       style={{ color: 'var(--st-text-secondary)' }}
+                     >
+                       Variant B
+                     </span>
                      <PreviewBubble rendered={renderPreviewText(greetingVariantB)} />
                    </div>
                  </div>
@@ -318,13 +312,17 @@ export default function GreetingMessagesPage() {
 
         {/* RIGHT COLUMN: AWAY */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold text-zoru-ink">Away Message</h2>
-          
-          <Card className="p-5">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+            Away Message
+          </h2>
+
+          <Card padding="lg">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h3 className="text-[15px] font-medium text-zoru-ink">Enable away message</h3>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+                <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
+                  Enable away message
+                </h3>
+                <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
                   Send a response when you are unavailable.
                 </p>
               </div>
@@ -336,51 +334,49 @@ export default function GreetingMessagesPage() {
             </div>
           </Card>
 
-          <Card className="p-5 flex flex-col gap-5">
-            <div className="flex flex-col gap-3">
-              <Label>Schedule</Label>
-              <Select value={awaySchedule} onValueChange={setAwaySchedule}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select schedule" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="always">Always active</SelectItem>
-                  <SelectItem value="outside_business_hours">Outside business hours</SelectItem>
-                  <SelectItem value="custom">Custom schedule</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <Card padding="lg" className="flex flex-col gap-5">
+            <Field label="Schedule">
+              <Select
+                value={awaySchedule}
+                onChange={(v) => setAwaySchedule(v ?? 'always')}
+                options={SCHEDULE_OPTIONS}
+                placeholder="Select schedule"
+                aria-label="Schedule"
+              />
+            </Field>
 
             {awaySchedule === 'custom' && (
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <Label>From</Label>
-                  <Input 
-                    type="time" 
-                    value={awayTimeFrom} 
-                    onChange={(e) => setAwayTimeFrom(e.target.value)} 
+                <Field label="From">
+                  <Input
+                    type="time"
+                    value={awayTimeFrom}
+                    onChange={(e) => setAwayTimeFrom(e.target.value)}
                   />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Label>To</Label>
-                  <Input 
-                    type="time" 
-                    value={awayTimeTo} 
-                    onChange={(e) => setAwayTimeTo(e.target.value)} 
+                </Field>
+                <Field label="To">
+                  <Input
+                    type="time"
+                    value={awayTimeTo}
+                    onChange={(e) => setAwayTimeTo(e.target.value)}
                   />
-                </div>
+                </Field>
               </div>
             )}
 
-            <div className="flex flex-col gap-3 border-t border-zoru-line pt-4">
-              <Label>Message</Label>
-              <Textarea
-                value={awayMessage}
-                onChange={(e) => setAwayMessage(e.target.value)}
-                rows={4}
-                placeholder="Type your away message…"
-              />
-              <VariableInserter onInsert={(v) => setAwayMessage(prev => prev + ' ' + v)} />
+            <div
+              className="flex flex-col gap-3 pt-4"
+              style={{ borderTop: '1px solid var(--st-border)' }}
+            >
+              <Field label="Message">
+                <Textarea
+                  value={awayMessage}
+                  onChange={(e) => setAwayMessage(e.target.value)}
+                  rows={4}
+                  placeholder="Type your away message…"
+                />
+                <VariableInserter onInsert={(v) => setAwayMessage(prev => prev + ' ' + v)} />
+              </Field>
             </div>
           </Card>
 
@@ -392,7 +388,7 @@ export default function GreetingMessagesPage() {
           />
         </div>
       </div>
-    </div>
+    </WachatPage>
   );
 }
 
@@ -401,13 +397,21 @@ export default function GreetingMessagesPage() {
 function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[12px] text-zoru-ink-muted">Insert:</span>
+      <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+        Insert:
+      </span>
       {VARIABLES.map((v) => (
         <button
           key={v}
           type="button"
           onClick={() => onInsert(v)}
-          className="rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-bg px-2 py-1 font-mono text-[11px] text-zoru-ink transition-colors hover:bg-zoru-surface"
+          className="px-2 py-1 font-mono text-[11px] transition-colors"
+          style={{
+            borderRadius: 'var(--st-radius)',
+            border: '1px solid var(--st-border)',
+            background: 'var(--st-bg)',
+            color: 'var(--st-text)',
+          }}
         >
           {v}
         </button>
@@ -418,16 +422,27 @@ function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
 
 function PreviewCard({ title, show, onToggle, content }: { title: string, show: boolean, onToggle: () => void, content: React.ReactNode }) {
   return (
-    <Card className="p-5">
+    <Card padding="lg">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[15px] text-zoru-ink">{title}</h2>
-        <Button variant="ghost" size="sm" onClick={onToggle}>
-          {show ? <EyeOff /> : <Eye />}
+        <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>{title}</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          iconLeft={show ? EyeOff : Eye}
+          onClick={onToggle}
+        >
           {show ? 'Hide' : 'Show'}
         </Button>
       </div>
       {show && (
-        <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4">
+        <div
+          className="p-4"
+          style={{
+            borderRadius: 'var(--st-radius)',
+            border: '1px solid var(--st-border)',
+            background: 'var(--st-bg-secondary)',
+          }}
+        >
           {content}
         </div>
       )}
@@ -437,8 +452,20 @@ function PreviewCard({ title, show, onToggle, content }: { title: string, show: 
 
 function PreviewBubble({ rendered }: { rendered: string | null }) {
   return (
-    <div className="inline-block max-w-[80%] rounded-[var(--zoru-radius)] bg-zoru-surface-2 px-4 py-2.5 text-[13px] text-zoru-ink">
-      {rendered || <span className="italic text-zoru-ink-muted">Empty message</span>}
+    <div
+      className="inline-block max-w-[80%] px-4 py-2.5 text-[13px]"
+      style={{
+        borderRadius: 'var(--st-radius)',
+        background: 'var(--st-bg)',
+        border: '1px solid var(--st-border)',
+        color: 'var(--st-text)',
+      }}
+    >
+      {rendered || (
+        <span className="italic" style={{ color: 'var(--st-text-secondary)' }}>
+          Empty message
+        </span>
+      )}
     </div>
   );
 }

@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   Badge,
-} from '@/components/zoruui';
+  Card,
+} from '@/components/sabcrm/20ui';
 import { Wand2, Plus } from 'lucide-react';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 const SUGGESTIONS = [
   {
@@ -47,45 +51,57 @@ export function AiSuggestionsDialog({
   onSelectSuggestion: (suggestion: any) => void;
 }) {
   return (
-    <ZoruAlertDialog open={open} onOpenChange={onOpenChange}>
-      <ZoruAlertDialogContent className="sm:max-w-[500px]">
-        <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-zoru-ink" />
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-[500px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <Wand2 className="h-5 w-5" style={{ color: 'var(--st-text)' }} aria-hidden="true" />
             AI Rule Suggestions
-          </ZoruAlertDialogTitle>
-          <ZoruAlertDialogDescription>
+          </AlertDialogTitle>
+          <AlertDialogDescription>
             Based on frequently asked questions, our AI suggests creating these common auto-reply rules.
-          </ZoruAlertDialogDescription>
-        </ZoruAlertDialogHeader>
-        
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
         <div className="grid gap-4 py-4">
           {SUGGESTIONS.map((suggestion, idx) => (
-            <div key={idx} className="flex items-center justify-between rounded-lg border p-4 hover:bg-zoru-surface-2 transition-colors">
+            <Card
+              key={idx}
+              variant="interactive"
+              padding="md"
+              className="flex items-center justify-between gap-4"
+            >
               <div className="grid gap-1">
-                <p className="text-sm font-medium text-zoru-ink">{suggestion.name}</p>
+                <p className="text-sm" style={{ color: 'var(--st-text)', fontWeight: 'var(--st-fw-medium)' }}>
+                  {suggestion.name}
+                </p>
                 <div className="flex flex-wrap gap-1">
                   {suggestion.keywords.split(', ').map(kw => (
-                    <Badge key={kw} variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                    <Badge key={kw} tone="neutral" className="text-[10px] px-1 py-0 h-4">
                       {kw}
                     </Badge>
                   ))}
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={() => {
-                onSelectSuggestion(suggestion);
-                onOpenChange(false);
-              }}>
-                <Plus className="mr-1 h-3 w-3" /> Use
+              <Button
+                size="sm"
+                variant="outline"
+                iconLeft={Plus}
+                onClick={() => {
+                  onSelectSuggestion(suggestion);
+                  onOpenChange(false);
+                }}
+              >
+                Use
               </Button>
-            </div>
+            </Card>
           ))}
         </div>
 
-        <ZoruAlertDialogFooter>
-          <ZoruAlertDialogCancel>Close</ZoruAlertDialogCancel>
-        </ZoruAlertDialogFooter>
-      </ZoruAlertDialogContent>
-    </ZoruAlertDialog>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Close</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

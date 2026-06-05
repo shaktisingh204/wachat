@@ -1,44 +1,32 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
-  DropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
+  Checkbox,
   EmptyState,
+  Field,
+  IconButton,
   Input,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+  Select,
   Skeleton,
   StatCard,
-  useZoruToast,
-  type ZoruBadgeProps,
-  Checkbox,
-} from '@/components/zoruui';
+  useToast,
+  type BadgeProps,
+  type SelectOption,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useEffect,
@@ -56,8 +44,6 @@ import {
   Search,
   FileText,
   CircleAlert,
-  ChevronDown,
-  Filter,
   Smartphone,
   CircleCheck,
   Clock,
@@ -74,13 +60,15 @@ import {
 } from '@/app/actions/template.actions';
 import type { Template } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Templates — list, rebuilt on ZoruUI primitives.
+ * Wachat Templates — list, rebuilt on the 20ui design system.
  *
- * Same data + handlers as before. Only the visual layer is swapped:
- * Clay → Zoru. Status badges use neutral zoru variants, no rainbow
- * accents. Delete uses ZoruAlertDialog.
+ * Same data + handlers as before. Only the visual layer is swapped to 20ui:
+ * the page frames inside <WachatPage> (single width + gutter + header), status
+ * badges use neutral 20ui tones, filters use the 20ui Select, and delete uses
+ * the 20ui AlertDialog.
  */
 
 import * as React from 'react';
@@ -92,13 +80,15 @@ function compact(n: number): string {
   return String(n);
 }
 
-function statusVariant(s?: string | null): ZoruBadgeProps['variant'] {
+function statusTone(s?: string | null): BadgeProps['tone'] {
   const v = (s ?? '').toLowerCase();
   if (v === 'approved') return 'success';
   if (v === 'pending' || v === 'in_review') return 'warning';
   if (v === 'rejected') return 'danger';
-  return 'secondary';
+  return 'neutral';
 }
+
+const titleCase = (s: string): string => s.replace(/_/g, ' ').toLowerCase();
 
 /* ── page ───────────────────────────────────────────────────────── */
 
@@ -118,7 +108,7 @@ export default function TemplatesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   useEffect(() => setIsClient(true), []);
 
@@ -138,7 +128,7 @@ export default function TemplatesPage() {
           toast({
             title: 'Error',
             description: 'Failed to load templates.',
-            variant: 'destructive',
+            tone: 'danger',
           });
         }
       });
@@ -155,7 +145,7 @@ export default function TemplatesPage() {
       toast({
         title: 'Error',
         description: 'No active project selected.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -165,7 +155,7 @@ export default function TemplatesPage() {
         toast({
           title: 'Sync failed',
           description: result.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         toast({
@@ -220,6 +210,31 @@ export default function TemplatesPage() {
     [templates],
   );
 
+  const categoryOptions = useMemo<SelectOption[]>(
+    () =>
+      categories.map((c) => ({
+        value: c,
+        label: c === 'ALL' ? 'All categories' : titleCase(c),
+      })),
+    [categories],
+  );
+  const statusOptions = useMemo<SelectOption[]>(
+    () =>
+      statuses.map((s) => ({
+        value: s,
+        label: s === 'ALL' ? 'All statuses' : titleCase(s),
+      })),
+    [statuses],
+  );
+  const languageOptions = useMemo<SelectOption[]>(
+    () =>
+      languages.map((l) => ({
+        value: l,
+        label: l === 'ALL' ? 'All languages' : l,
+      })),
+    [languages],
+  );
+
   /* ── derived KPIs for the stats strip ── */
   const stats = useMemo(() => {
     const approved = templates.filter(
@@ -246,7 +261,7 @@ export default function TemplatesPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       } else {
         toast({
@@ -292,7 +307,7 @@ export default function TemplatesPage() {
         toast({
           title: 'Warning',
           description: `Failed to delete ${failCount} template(s).`,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
       setIsBulkDeleting(false);
@@ -302,7 +317,7 @@ export default function TemplatesPage() {
   const handleBulkSubmit = useCallback(() => {
     if (selectedIds.size === 0) return;
     setIsSubmitting(true);
-    // There is no explicit bulk submit API exposed for Meta Graph API 
+    // There is no explicit bulk submit API exposed for Meta Graph API
     // templates that are already created. We mock the submission toast.
     setTimeout(() => {
       toast({
@@ -330,99 +345,82 @@ export default function TemplatesPage() {
   }, [selectedIds]);
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Templates</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <PageHeader bordered={false}>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Message templates</ZoruPageTitle>
-          <ZoruPageDescription>
-            Manage and sync your WhatsApp message templates. Approved templates
-            can be used in broadcasts and direct chats.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Templates' },
+      ]}
+      title="Message templates"
+      description="Manage and sync your WhatsApp message templates. Approved templates can be used in broadcasts and direct chats."
+      actions={
+        <>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={RefreshCw}
+            loading={isSyncing}
             onClick={onSync}
             disabled={!activeProjectId || isSyncing}
           >
-            <RefreshCw className={isSyncing ? 'animate-spin' : ''} />
             {isSyncing ? 'Syncing…' : 'Sync with Meta'}
           </Button>
           <Button
             variant="outline"
             size="sm"
+            iconLeft={BookCopy}
             onClick={() => router.push('/wachat/templates/library')}
           >
-            <BookCopy /> Library
+            Library
           </Button>
           <Button
+            variant="primary"
             size="sm"
+            iconLeft={CirclePlus}
             disabled={!activeProjectId}
             onClick={() => router.push('/wachat/templates/create')}
           >
-            <CirclePlus /> New template
+            New template
           </Button>
           <Button
             size="sm"
             variant="secondary"
+            iconLeft={Smartphone}
             onClick={() => router.push('/wachat/templates/interactive-message-builder')}
           >
-            <Smartphone /> Interactive builder
+            Interactive builder
           </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
+        </>
+      }
+    >
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard
-          label="Total"
-          value={compact(stats.total)}
-          icon={<FileText />}
-        />
+        <StatCard label="Total" value={compact(stats.total)} icon={FileText} />
         <StatCard
           label="Approved"
           value={compact(stats.approved)}
-          icon={<CircleCheck />}
+          icon={CircleCheck}
         />
         <StatCard
           label="In review"
           value={compact(stats.pending)}
-          icon={<Clock />}
+          icon={Clock}
         />
         <StatCard
           label="Rejected"
           value={compact(stats.rejected)}
-          icon={<CircleX />}
+          icon={CircleX}
         />
       </div>
 
       {/* Project-not-selected state */}
       {!activeProjectId && isClient ? (
         <EmptyState
-          icon={<CircleAlert />}
+          icon={CircleAlert}
           title="No project selected"
           description="Please select a project from the main dashboard to manage templates."
           action={
-            <Button size="sm" onClick={() => router.push('/wachat')}>
+            <Button variant="primary" size="sm" onClick={() => router.push('/wachat')}>
               Choose a project
             </Button>
           }
@@ -430,110 +428,52 @@ export default function TemplatesPage() {
       ) : (
         <>
           {/* Filter bar */}
-          <Card className="p-4">
+          <Card padding="md">
             <div className="flex flex-wrap items-center gap-3">
               <div className="min-w-[260px] flex-1">
-                <Input
-                  placeholder="Search templates by name…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Field label="Search templates">
+                  <Input
+                    iconLeft={Search}
+                    placeholder="Search templates by name…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </Field>
               </div>
 
               {/* Category filter */}
-              <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter />
-                    {categoryFilter === 'ALL'
-                      ? 'All categories'
-                      : categoryFilter.replace(/_/g, ' ')}
-                    <ChevronDown className="opacity-60" />
-                  </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuLabel>Category</ZoruDropdownMenuLabel>
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuRadioGroup
-                    value={categoryFilter}
-                    onValueChange={setCategoryFilter}
-                  >
-                    {categories.map((c) => (
-                      <ZoruDropdownMenuRadioItem
-                        key={c}
-                        value={c}
-                        className="capitalize"
-                      >
-                        {c === 'ALL'
-                          ? 'All'
-                          : c.replace(/_/g, ' ').toLowerCase()}
-                      </ZoruDropdownMenuRadioItem>
-                    ))}
-                  </ZoruDropdownMenuRadioGroup>
-                </ZoruDropdownMenuContent>
-              </DropdownMenu>
+              <Select
+                aria-label="Filter by category"
+                size="sm"
+                value={categoryFilter}
+                onChange={(v) => setCategoryFilter(v ?? 'ALL')}
+                options={categoryOptions}
+              />
 
               {/* Status filter */}
-              <DropdownMenu>
-                <ZoruDropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    {statusFilter === 'ALL'
-                      ? 'All statuses'
-                      : statusFilter.replace(/_/g, ' ').toLowerCase()}
-                    <ChevronDown className="opacity-60" />
-                  </Button>
-                </ZoruDropdownMenuTrigger>
-                <ZoruDropdownMenuContent align="end">
-                  <ZoruDropdownMenuLabel>Status</ZoruDropdownMenuLabel>
-                  <ZoruDropdownMenuSeparator />
-                  <ZoruDropdownMenuRadioGroup
-                    value={statusFilter}
-                    onValueChange={setStatusFilter}
-                  >
-                    {statuses.map((s) => (
-                      <ZoruDropdownMenuRadioItem
-                        key={s}
-                        value={s}
-                        className="capitalize"
-                      >
-                        {s === 'ALL'
-                          ? 'All'
-                          : s.replace(/_/g, ' ').toLowerCase()}
-                      </ZoruDropdownMenuRadioItem>
-                    ))}
-                  </ZoruDropdownMenuRadioGroup>
-                </ZoruDropdownMenuContent>
-              </DropdownMenu>
+              <Select
+                aria-label="Filter by status"
+                size="sm"
+                value={statusFilter}
+                onChange={(v) => setStatusFilter(v ?? 'ALL')}
+                options={statusOptions}
+              />
 
               {/* Language filter */}
               {languages.length > 2 ? (
-                <DropdownMenu>
-                  <ZoruDropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      {languageFilter === 'ALL'
-                        ? 'All languages'
-                        : languageFilter}
-                      <ChevronDown className="opacity-60" />
-                    </Button>
-                  </ZoruDropdownMenuTrigger>
-                  <ZoruDropdownMenuContent align="end">
-                    <ZoruDropdownMenuLabel>Language</ZoruDropdownMenuLabel>
-                    <ZoruDropdownMenuSeparator />
-                    <ZoruDropdownMenuRadioGroup
-                      value={languageFilter}
-                      onValueChange={setLanguageFilter}
-                    >
-                      {languages.map((l) => (
-                        <ZoruDropdownMenuRadioItem key={l} value={l}>
-                          {l === 'ALL' ? 'All' : l}
-                        </ZoruDropdownMenuRadioItem>
-                      ))}
-                    </ZoruDropdownMenuRadioGroup>
-                  </ZoruDropdownMenuContent>
-                </DropdownMenu>
+                <Select
+                  aria-label="Filter by language"
+                  size="sm"
+                  value={languageFilter}
+                  onChange={(v) => setLanguageFilter(v ?? 'ALL')}
+                  options={languageOptions}
+                />
               ) : null}
 
-              <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
+              <span
+                className="ml-auto text-[11.5px] tabular-nums"
+                style={{ color: 'var(--st-text-tertiary)' }}
+              >
                 {filteredTemplates.length} / {templates.length} templates
               </span>
             </div>
@@ -541,8 +481,15 @@ export default function TemplatesPage() {
 
           {/* Bulk actions bar */}
           {selectedIds.size > 0 && (
-            <Card className="flex items-center justify-between p-3 bg-zoru-surface border-zoru-brand/20">
-              <span className="text-sm font-medium text-zoru-ink">
+            <Card
+              padding="sm"
+              className="flex items-center justify-between"
+              style={{ borderColor: 'var(--st-accent)' }}
+            >
+              <span
+                className="text-sm font-medium"
+                style={{ color: 'var(--st-text)' }}
+              >
                 {selectedIds.size} template{selectedIds.size > 1 ? 's' : ''} selected
               </span>
               <div className="flex gap-2">
@@ -555,7 +502,7 @@ export default function TemplatesPage() {
                   {isSubmitting ? 'Submitting...' : 'Submit for approval'}
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="danger"
                   size="sm"
                   onClick={handleBulkDelete}
                   disabled={isBulkDeleting || isSubmitting || isLoading}
@@ -570,19 +517,29 @@ export default function TemplatesPage() {
           {isLoading && templates.length === 0 ? (
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-36 w-full" />
+                <Skeleton key={i} height={144} width="100%" radius="var(--st-radius-lg)" />
               ))}
             </div>
           ) : filteredTemplates.length > 0 ? (
-            <Card className="overflow-hidden p-0">
-              <div className="divide-y divide-zoru-line">
-                <div className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide text-zoru-ink-subtle items-center">
+            <Card padding="none" className="overflow-hidden">
+              {/* Local, token-only row chrome: hairline separators + hover tint.
+                  Scoped to this list via the .tpl-list class. */}
+              <style>{`
+                .tpl-list__row { border-top: 1px solid var(--st-border); transition: background 120ms ease; }
+                .tpl-list__row:hover { background: var(--st-hover); }
+              `}</style>
+              <div className="tpl-list">
+                <div
+                  className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-[11px] font-medium uppercase tracking-wide"
+                  style={{ color: 'var(--st-text-tertiary)' }}
+                >
                   <Checkbox
+                    size="sm"
                     checked={
                       filteredTemplates.length > 0 &&
                       selectedIds.size === filteredTemplates.length
                     }
-                    onCheckedChange={toggleSelectAll}
+                    onChange={toggleSelectAll}
                     aria-label="Select all templates"
                   />
                   <span>Name</span>
@@ -594,16 +551,18 @@ export default function TemplatesPage() {
                 {filteredTemplates.map((t) => (
                   <div
                     key={t._id.toString()}
-                    className="grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-sm transition-colors hover:bg-zoru-surface"
+                    className="tpl-list__row grid grid-cols-[auto_2fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 text-sm"
                   >
                     <Checkbox
+                      size="sm"
                       checked={selectedIds.has(t._id.toString())}
-                      onCheckedChange={() => toggleSelect(t._id.toString())}
+                      onChange={() => toggleSelect(t._id.toString())}
                       aria-label={`Select template ${t.name}`}
                     />
                     <button
                       type="button"
-                      className="min-w-0 truncate text-left text-zoru-ink hover:underline"
+                      className="min-w-0 truncate text-left hover:underline"
+                      style={{ color: 'var(--st-text)' }}
                       onClick={() =>
                         router.push(
                           `/wachat/templates/create?id=${t._id.toString()}`,
@@ -612,64 +571,71 @@ export default function TemplatesPage() {
                     >
                       {t.name}
                     </button>
-                    <span className="truncate capitalize text-zoru-ink-muted">
-                      {(t.category || '').replace(/_/g, ' ').toLowerCase() ||
-                        '—'}
+                    <span
+                      className="truncate capitalize"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
+                      {titleCase(t.category || '') || '—'}
                     </span>
-                    <span className="truncate text-zoru-ink-muted">
+                    <span
+                      className="truncate"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       {t.language || '—'}
                     </span>
                     <span>
-                      <Badge variant={statusVariant(t.status)}>
-                        {(t.status || 'unknown')
-                          .replace(/_/g, ' ')
-                          .toLowerCase()}
+                      <Badge tone={statusTone(t.status)}>
+                        {titleCase(t.status || 'unknown')}
                       </Badge>
                     </span>
-                    <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
-                        <Button
+                    <Menu
+                      align="end"
+                      label={`Actions for ${t.name}`}
+                      trigger={
+                        <IconButton
                           variant="ghost"
-                          size="icon-sm"
-                          aria-label="Actions"
-                        >
-                          <MoreHorizontal />
-                        </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem
-                          onSelect={() =>
-                            router.push(
-                              `/wachat/templates/create?id=${t._id.toString()}`,
-                            )
-                          }
-                        >
-                          <Pencil /> Edit
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem
-                          onSelect={() =>
-                            router.push(
-                              `/wachat/templates/create?action=clone&id=${t._id.toString()}`,
-                            )
-                          }
-                        >
-                          <BookCopy /> Clone
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem
-                          onSelect={() => setDeleteTarget(t)}
-                        >
-                          <Trash2 /> Delete
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
-                    </DropdownMenu>
+                          size="sm"
+                          label={`Actions for ${t.name}`}
+                          icon={MoreHorizontal}
+                        />
+                      }
+                    >
+                      <MenuItem
+                        icon={Pencil}
+                        onSelect={() =>
+                          router.push(
+                            `/wachat/templates/create?id=${t._id.toString()}`,
+                          )
+                        }
+                      >
+                        Edit
+                      </MenuItem>
+                      <MenuItem
+                        icon={BookCopy}
+                        onSelect={() =>
+                          router.push(
+                            `/wachat/templates/create?action=clone&id=${t._id.toString()}`,
+                          )
+                        }
+                      >
+                        Clone
+                      </MenuItem>
+                      <MenuSeparator />
+                      <MenuItem
+                        icon={Trash2}
+                        danger
+                        onSelect={() => setDeleteTarget(t)}
+                      >
+                        Delete
+                      </MenuItem>
+                    </Menu>
                   </div>
                 ))}
               </div>
             </Card>
           ) : (
             <EmptyState
-              icon={<FileText />}
+              icon={FileText}
               title={
                 templates.length > 0
                   ? 'No matching templates'
@@ -686,16 +652,20 @@ export default function TemplatesPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      iconLeft={RefreshCw}
+                      loading={isSyncing}
                       onClick={onSync}
                       disabled={isSyncing}
                     >
-                      <RefreshCw /> Sync with Meta
+                      Sync with Meta
                     </Button>
                     <Button
+                      variant="primary"
                       size="sm"
+                      iconLeft={CirclePlus}
                       onClick={() => router.push('/wachat/templates/create')}
                     >
-                      <CirclePlus /> New template
+                      New template
                     </Button>
                   </div>
                 ) : (
@@ -719,29 +689,27 @@ export default function TemplatesPage() {
       )}
 
       {/* Delete confirm dialog */}
-      <ZoruAlertDialog
+      <AlertDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
       >
-        <ZoruAlertDialogContent>
-          <ZoruAlertDialogHeader>
-            <ZoruAlertDialogTitle>Delete template?</ZoruAlertDialogTitle>
-            <ZoruAlertDialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete template?</AlertDialogTitle>
+            <AlertDialogDescription>
               This will remove &quot;{deleteTarget?.name}&quot; from your
               workspace. The template may still exist on Meta until the next
               sync.
-            </ZoruAlertDialogDescription>
-          </ZoruAlertDialogHeader>
-          <ZoruAlertDialogFooter>
-            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={onConfirmDelete}>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={onConfirmDelete}>
               Delete
-            </ZoruAlertDialogAction>
-          </ZoruAlertDialogFooter>
-        </ZoruAlertDialogContent>
-      </ZoruAlertDialog>
-
-      <div className="h-6" />
-    </div>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </WachatPage>
   );
 }

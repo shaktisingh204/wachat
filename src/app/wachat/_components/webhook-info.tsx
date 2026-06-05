@@ -1,6 +1,14 @@
 'use client';
 
-import { Button, Card, Input, Label, Skeleton, cn, useZoruToast } from '@/components/zoruui';
+import {
+  Button,
+  IconButton,
+  Card,
+  Field,
+  Input,
+  Skeleton,
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -17,7 +25,7 @@ import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 
 /**
- * WebhookInfo (wachat-local, ZoruUI).
+ * WebhookInfo (wachat-local, 20ui).
  *
  * Replaces the legacy webhook-info. Renders the callback
  * URL + verify token (read-only, copyable) and a live status card that
@@ -42,7 +50,7 @@ function InfoRow({
   value: string;
   isSecret?: boolean;
 }) {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   const handleCopy = () => {
     if (!navigator.clipboard) {
@@ -50,7 +58,7 @@ function InfoRow({
         title: 'Failed to copy',
         description:
           'Clipboard API is not available. Please use a secure (HTTPS) connection.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -68,15 +76,14 @@ function InfoRow({
           title: 'Failed to copy',
           description:
             'Could not copy to clipboard. Check browser permissions.',
-          variant: 'destructive',
+          tone: 'danger',
         });
       },
     );
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <Label>{label}</Label>
+    <Field label={label}>
       <div className="flex items-center gap-2">
         <Input
           readOnly
@@ -84,16 +91,14 @@ function InfoRow({
           type={isSecret ? 'password' : 'text'}
           className="font-mono"
         />
-        <Button
+        <IconButton
           variant="outline"
-          size="icon"
+          icon={Copy}
           onClick={handleCopy}
-          aria-label={`Copy ${label}`}
-        >
-          <Copy />
-        </Button>
+          label={`Copy ${label}`}
+        />
       </div>
-    </div>
+    </Field>
   );
 }
 
@@ -136,46 +141,71 @@ function WebhookStatus() {
   }, []);
 
   return (
-    <Card className="p-5">
+    <Card padding="lg">
       <div className="flex flex-row items-center justify-between gap-2">
         <div>
-          <h3 className="text-[15px] text-zoru-ink">Live Status</h3>
-          <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+          <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+            Live Status
+          </h3>
+          <p
+            className="mt-0.5 text-[12px]"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
             Real-time status of your webhook subscription from Meta.
           </p>
         </div>
         <Button
           variant="outline"
-          size="icon"
           onClick={checkStatus}
           disabled={isLoading}
           aria-label="Refresh status"
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+          {isLoading ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : (
+            <RefreshCw aria-hidden="true" />
+          )}
         </Button>
       </div>
       <div className="mt-4">
         {isLoading ? (
           <Skeleton className="h-10 w-full" />
         ) : status && projectId ? (
-          <div className="flex items-center justify-between rounded-[var(--zoru-radius)] border border-zoru-line p-4">
+          <div
+            className="flex items-center justify-between p-4"
+            style={{
+              borderRadius: 'var(--st-radius)',
+              border: '1px solid var(--st-border)',
+            }}
+          >
             <div className="flex items-center gap-3">
               {status.isActive ? (
-                <CheckCircle className="h-5 w-5 text-zoru-success" />
+                <CheckCircle
+                  className="h-5 w-5"
+                  style={{ color: 'var(--st-success)' }}
+                />
               ) : (
-                <AlertTriangle className="h-5 w-5 text-zoru-danger" />
+                <AlertTriangle
+                  className="h-5 w-5"
+                  style={{ color: 'var(--st-danger)' }}
+                />
               )}
               <div className="flex flex-col">
                 <span
-                  className={cn(
-                    'text-[14px]',
-                    status.isActive ? 'text-zoru-success' : 'text-zoru-danger',
-                  )}
+                  className="text-[14px]"
+                  style={{
+                    color: status.isActive
+                      ? 'var(--st-success)'
+                      : 'var(--st-danger)',
+                  }}
                 >
                   {status.isActive ? 'Active' : 'Inactive'}
                 </span>
                 {status.error && (
-                  <span className="font-mono text-[11px] text-zoru-ink-muted">
+                  <span
+                    className="font-mono text-[11px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
                     {status.error}
                   </span>
                 )}
@@ -187,7 +217,10 @@ function WebhookStatus() {
             />
           </div>
         ) : (
-          <p className="text-[13px] text-zoru-ink-muted">
+          <p
+            className="text-[13px]"
+            style={{ color: 'var(--st-text-secondary)' }}
+          >
             Could not determine status. Select a project.
           </p>
         )}
@@ -216,7 +249,7 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
 
   if (!isClient) {
     return (
-      <Card className="p-5">
+      <Card padding="lg">
         <Skeleton className="h-6 w-1/3" />
         <Skeleton className="mt-2 h-4 w-2/3" />
         <div className="mt-4 flex flex-col gap-2">
@@ -233,9 +266,14 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="p-5">
-        <h3 className="text-[15px] text-zoru-ink">Webhook Configuration</h3>
-        <p className="mt-0.5 text-[12px] text-zoru-ink-muted">
+      <Card padding="lg">
+        <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+          Webhook Configuration
+        </h3>
+        <p
+          className="mt-0.5 text-[12px]"
+          style={{ color: 'var(--st-text-secondary)' }}
+        >
           Copy these values into your Meta App configuration.
         </p>
         <div className="mt-4 flex flex-col gap-4">

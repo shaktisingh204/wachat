@@ -2,26 +2,20 @@
 
 import {
   Button,
-  Card,
   EmptyState,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   ScrollArea,
   Input,
-  Label,
+  Field,
   Switch,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-} from '@/components/zoruui';
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  Modal,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useCallback,
@@ -68,17 +62,21 @@ import { Sidebar } from '@/components/flow-builder/Sidebar';
 import CustomNode from '@/components/flow-builder/CustomNode';
 import { PropertiesPanel } from '@/components/zoruui-domain/properties-panel';
 
-import { cn } from '@/lib/utils';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 /**
- * Flow Builder Canvas — per-flow editor, rebuilt on Clay primitives.
+ * Flow Builder Canvas — per-flow editor on 20ui.
  *
- * Full-bleed layout with:
- *   - Clay header bar (back link, flow name input, status switch, save CTA)
+ * Full-bleed app page (WachatPage variant="app") with:
+ *   - 20ui header bar (back link, flow name input, status switch, save CTA)
  *   - React Flow canvas (dotted background, custom nodes, drop-to-add)
- *   - Floating Clay FAB for opening the Add Block palette
- *   - Clay Sheet on mobile / pinned Properties panel on desktop
- *   - Clay-styled Settings dialog for name + trigger keywords
+ *   - Floating FAB for opening the Add Block palette
+ *   - 20ui Drawer on mobile / pinned Properties panel on desktop
+ *   - 20ui Modal settings dialog for name + trigger keywords
  */
 
 import * as React from 'react';
@@ -339,47 +337,75 @@ function FlowBuilder({ flowId }: { flowId: string }) {
   /* ── No project state ── */
   if (!activeProjectId) {
     return (
-      <div className="flex h-full w-full items-center justify-center p-6">
-        <EmptyState
-          icon={<LuCircleAlert className="h-10 w-10" />}
-          title="No project selected"
-          description="Please select a project from the main dashboard to use the flow builder."
-          action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
-        />
-      </div>
+      <WachatPage variant="app">
+        <div className="flex h-full w-full items-center justify-center p-6">
+          <EmptyState
+            icon={LuCircleAlert}
+            title="No project selected"
+            description="Please select a project from the main dashboard to use the flow builder."
+            action={<Button variant="primary" onClick={() => router.push('/wachat')}>Choose a project</Button>}
+          />
+        </div>
+      </WachatPage>
     );
   }
 
   const isPaused = currentFlow?.status === 'PAUSED';
 
   return (
-    <div className="relative flex h-full w-full flex-col overflow-hidden bg-zoru-surface">
-      {/* ─── Clay header bar ─── */}
-      <header className="flex h-[64px] shrink-0 items-center justify-between gap-4 border-b border-zoru-line bg-zoru-surface/80 px-5 backdrop-blur">
+    <WachatPage variant="app">
+      <div
+        className="relative flex h-full w-full flex-col overflow-hidden"
+        style={{ background: 'var(--st-bg)' }}
+      >
+      {/* ─── Header bar ─── */}
+      <header
+        className="flex h-[64px] shrink-0 items-center justify-between gap-4 px-5 backdrop-blur"
+        style={{
+          borderBottom: '1px solid var(--st-border)',
+          background: 'color-mix(in srgb, var(--st-bg) 80%, transparent)',
+        }}
+      >
         <div className="flex min-w-0 items-center gap-3">
           <Link
             href="/wachat/flow-builder"
-            className="inline-flex items-center gap-1.5 rounded-full border border-zoru-line bg-zoru-surface px-2.5 py-1.5 text-[11.5px] font-medium text-zoru-ink-muted hover:text-zoru-ink hover:border-zoru-line transition-colors"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11.5px] font-medium transition-colors"
+            style={{
+              borderRadius: 'var(--st-radius-pill)',
+              border: '1px solid var(--st-border)',
+              background: 'var(--st-bg)',
+              color: 'var(--st-text-secondary)',
+            }}
           >
-            <LuArrowLeft className="h-3 w-3" strokeWidth={2} />
+            <LuArrowLeft className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
             Back
           </Link>
-          <div className="h-6 w-px bg-border" />
+          <div className="h-6 w-px" style={{ background: 'var(--st-border)' }} />
           <Input
             value={flowName}
             onChange={(e) => setFlowName(e.target.value)}
-            className="h-9 w-[260px] rounded-[10px] border-zoru-line bg-zoru-surface font-semibold text-zoru-ink"
+            className="w-[260px] font-semibold"
             placeholder="Flow name"
+            aria-label="Flow name"
           />
           {currentFlow ? (
-            <div className="flex items-center gap-2 rounded-full border border-zoru-line bg-zoru-surface-2 px-3 py-1">
+            <div
+              className="flex items-center gap-2 px-3 py-1"
+              style={{
+                borderRadius: 'var(--st-radius-pill)',
+                border: '1px solid var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+              }}
+            >
               <span
-                className={cn(
-                  'h-1.5 w-1.5 rounded-full',
-                  isPaused ? 'bg-zoru-ink' : 'bg-zoru-ink',
-                )}
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ background: isPaused ? 'var(--st-warn)' : 'var(--st-status-ok)' }}
+                aria-hidden="true"
               />
-              <span className="text-[10.5px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
+              <span
+                className="text-[10.5px] font-semibold uppercase tracking-wide"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 {isPaused ? 'Paused' : 'Active'}
               </span>
               <Switch
@@ -390,6 +416,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                     status: checked ? 'ACTIVE' : 'PAUSED',
                   })
                 }
+                aria-label={isPaused ? 'Activate flow' : 'Pause flow'}
               />
             </div>
           ) : null}
@@ -401,7 +428,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             size="sm"
             onClick={() => window.open('/wachat/flow-builder/docs', '_blank')}
           >
-            <LuBookOpen className="h-3.5 w-3.5" />
+            <LuBookOpen className="h-3.5 w-3.5" aria-hidden="true" />
             Docs
           </Button>
           <Button
@@ -409,14 +436,14 @@ function FlowBuilder({ flowId }: { flowId: string }) {
             size="sm"
             onClick={() => setIsSettingsOpen(true)}
           >
-            <LuSettings2 className="h-3.5 w-3.5" />
+            <LuSettings2 className="h-3.5 w-3.5" aria-hidden="true" />
             Settings
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button variant="primary" onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
-              <LuLoader className="h-3.5 w-3.5 animate-spin" />
+              <LuLoader className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
             ) : (
-              <LuSave className="h-3.5 w-3.5" />
+              <LuSave className="h-3.5 w-3.5" aria-hidden="true" />
             )}
             {isSaving ? 'Saving…' : 'Save flow'}
           </Button>
@@ -441,7 +468,7 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         <div
           className="relative h-full w-full flex-1"
           ref={reactFlowWrapper}
-          style={{ backgroundColor: 'var(--zoru-surface)' }}
+          style={{ backgroundColor: 'var(--st-bg)' }}
         >
           <ReactFlow
             nodes={nodes}
@@ -464,31 +491,41 @@ function FlowBuilder({ flowId }: { flowId: string }) {
               variant={BackgroundVariant.Dots}
               gap={14}
               size={1.2}
-              color="hsl(30 12% 84%)"
+              color="var(--st-border)"
             />
 
             {/* Floating Add-Block FAB (top-left) */}
             <Panel position="top-left" className="m-4">
               <Popover>
-                <ZoruPopoverTrigger asChild>
+                <PopoverTrigger asChild>
                   <button
                     type="button"
                     aria-label="Add block"
-                    className="group flex h-12 w-12 items-center justify-center rounded-full bg-zoru-ink text-white shadow-md transition-[transform,background] hover:bg-zoru-ink/90 active:scale-95"
+                    className="group flex h-12 w-12 items-center justify-center rounded-full text-white shadow-md transition-[transform,background] active:scale-95"
+                    style={{ background: 'var(--st-accent)' }}
                   >
-                    <LuPlus className="h-5 w-5" strokeWidth={2.25} />
+                    <LuPlus className="h-5 w-5" strokeWidth={2.25} aria-hidden="true" />
                   </button>
-                </ZoruPopoverTrigger>
-                <ZoruPopoverContent
+                </PopoverTrigger>
+                <PopoverContent
                   side="right"
                   align="start"
-                  className="ml-4 w-[340px] rounded-[16px] border border-zoru-line bg-zoru-surface p-0 shadow-lg"
+                  className="ml-4 w-[340px] p-0"
                 >
-                  <div className="border-b border-zoru-line px-4 py-3.5">
-                    <h4 className="text-[14px] font-semibold leading-none text-zoru-ink">
+                  <div
+                    className="px-4 py-3.5"
+                    style={{ borderBottom: '1px solid var(--st-border)' }}
+                  >
+                    <h4
+                      className="text-[14px] font-semibold leading-none"
+                      style={{ color: 'var(--st-text)' }}
+                    >
                       Add block
                     </h4>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
+                    <p
+                      className="mt-1 text-[11.5px]"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       Drag a block onto the canvas to add it to your flow.
                     </p>
                   </div>
@@ -497,16 +534,27 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                       <Sidebar className="w-full" />
                     </div>
                   </ScrollArea>
-                </ZoruPopoverContent>
+                </PopoverContent>
               </Popover>
             </Panel>
 
             {/* Flow status footer — shown when empty or just start node */}
             {nodes.length <= 1 ? (
               <Panel position="bottom-center" className="mb-6">
-                <div className="pointer-events-none rounded-full border border-zoru-line bg-zoru-surface px-4 py-2 text-[11.5px] font-medium text-zoru-ink-muted shadow-sm">
+                <div
+                  className="pointer-events-none px-4 py-2 text-[11.5px] font-medium shadow-sm"
+                  style={{
+                    borderRadius: 'var(--st-radius-pill)',
+                    border: '1px solid var(--st-border)',
+                    background: 'var(--st-bg)',
+                    color: 'var(--st-text-secondary)',
+                  }}
+                >
                   Tap the{' '}
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-zoru-ink text-[9px] text-white">
+                  <span
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[9px] text-white"
+                    style={{ background: 'var(--st-accent)' }}
+                  >
                     +
                   </span>{' '}
                   button to add your first block
@@ -518,7 +566,10 @@ function FlowBuilder({ flowId }: { flowId: string }) {
 
         {/* Right properties panel — desktop pinned */}
         {selectedNode && isPropsOpen ? (
-          <aside className="hidden w-[320px] shrink-0 border-l border-zoru-line bg-zoru-surface overflow-y-auto md:block">
+          <aside
+            className="hidden w-[320px] shrink-0 overflow-y-auto md:block"
+            style={{ borderLeft: '1px solid var(--st-border)', background: 'var(--st-bg)' }}
+          >
             <PropertiesPanel
               node={selectedNode}
               onUpdate={onNodeUpdate}
@@ -529,16 +580,17 @@ function FlowBuilder({ flowId }: { flowId: string }) {
         ) : null}
       </div>
 
-      {/* Properties panel — mobile sheet (only rendered below md breakpoint) */}
+      {/* Properties panel — mobile drawer (only rendered below md breakpoint) */}
       <div className="md:hidden">
-        <Sheet open={isPropsOpen && !!selectedNode} onOpenChange={setIsPropsOpen}>
-          <ZoruSheetContent
-            side="right"
-            className="w-full p-0 sm:max-w-md"
-          >
-            <ZoruSheetHeader className="sr-only">
-              <ZoruSheetTitle>Properties</ZoruSheetTitle>
-            </ZoruSheetHeader>
+        <Drawer
+          side="right"
+          open={isPropsOpen && !!selectedNode}
+          onOpenChange={setIsPropsOpen}
+        >
+          <DrawerContent side="right" className="w-full p-0 sm:max-w-md">
+            <DrawerHeader className="sr-only">
+              <DrawerTitle>Properties</DrawerTitle>
+            </DrawerHeader>
             {selectedNode ? (
               <PropertiesPanel
                 node={selectedNode}
@@ -547,10 +599,11 @@ function FlowBuilder({ flowId }: { flowId: string }) {
                 availableVariables={[]}
               />
             ) : null}
-          </ZoruSheetContent>
-        </Sheet>
+          </DrawerContent>
+        </Drawer>
       </div>
-    </div>
+      </div>
+    </WachatPage>
   );
 }
 
@@ -572,7 +625,7 @@ export default function FlowBuilderPageWrapper({
 }
 
 /* ══════════════════════════════════════════════════════════════════
- *  Settings dialog — Clay styled
+ *  Settings dialog — 20ui Modal
  * ══════════════════════════════════════════════════════════════════ */
 
 function FlowSettingsDialog({
@@ -590,6 +643,7 @@ function FlowSettingsDialog({
 }) {
   const [name, setName] = useState(initialName);
   const [keywords, setKeywords] = useState(initialKeywords);
+  const formId = React.useId();
 
   useEffect(() => {
     if (open) {
@@ -604,72 +658,52 @@ function FlowSettingsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="max-w-[480px] rounded-[18px] border border-zoru-line bg-zoru-surface p-0 shadow-lg">
-        <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-zoru-surface-2 text-zoru-ink">
-            <LuSettings2 className="h-5 w-5" strokeWidth={2} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <ZoruDialogTitle className="text-[16px] font-semibold text-zoru-ink leading-tight">
-              Flow settings
-            </ZoruDialogTitle>
-            <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted leading-snug">
-              Configure the basic settings for this flow.
-            </ZoruDialogDescription>
-          </div>
-        </ZoruDialogHeader>
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      size="md"
+      title="Flow settings"
+      description="Configure the basic settings for this flow."
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" form={formId}>
+            Save changes
+          </Button>
+        </>
+      }
+    >
+      <form id={formId} onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <Field
+          label="Flow name"
+          required
+          help="A memorable name for this flow."
+        >
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            placeholder="Give this flow a memorable name"
+          />
+        </Field>
 
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-5 px-6 py-5">
-            <div className="flex flex-col gap-1.5">
-              <Label
-                htmlFor="flow-name"
-                className="text-[11.5px] font-semibold text-zoru-ink-muted"
-              >
-                Flow name <span className="ml-1 text-zoru-ink">*</span>
-              </Label>
-              <Input
-                id="flow-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                placeholder="Give this flow a memorable name"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <Label
-                htmlFor="flow-keywords"
-                className="text-[11.5px] font-semibold text-zoru-ink-muted"
-              >
-                Trigger keywords
-              </Label>
-              <Input
-                id="flow-keywords"
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-                placeholder="hello, promo, help"
-              />
-              <p className="mt-0.5 text-[11px] text-zoru-ink-muted">
-                Comma-separated words that will start this flow when a
-                customer sends them.
-              </p>
-            </div>
-          </div>
-
-          <ZoruDialogFooter className="border-t border-zoru-line px-6 py-4 sm:justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">Save changes</Button>
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
+        <Field
+          label="Trigger keywords"
+          help="Comma-separated words that will start this flow when a customer sends them."
+        >
+          <Input
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            placeholder="hello, promo, help"
+          />
+        </Field>
+      </form>
+    </Modal>
   );
 }

@@ -2,22 +2,13 @@
 
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  type BadgeTone,
   Card,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Button,
   Skeleton,
-} from '@/components/zoruui';
+  Alert,
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import {
   Check,
   Route,
@@ -94,12 +85,10 @@ const fetchLiveRoadmap = async (): Promise<RoadmapPhase[]> => {
   });
 };
 
-function statusVariant(
-  status: RoadmapStatus,
-): 'success' | 'info' | 'ghost' {
+function statusTone(status: RoadmapStatus): BadgeTone {
   if (status === 'Completed') return 'success';
   if (status === 'In Progress') return 'info';
-  return 'ghost';
+  return 'neutral';
 }
 
 export default function AdsRoadmapPage() {
@@ -133,103 +122,114 @@ export default function AdsRoadmapPage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Ads Roadmap</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-2">
-        <ZoruPageHeading>
-          <ZoruPageEyebrow>WaChat · Ads</ZoruPageEyebrow>
-          <ZoruPageTitle className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-              <Route className="h-5 w-5" />
-            </span>
-            Facebook Integration Roadmap
-          </ZoruPageTitle>
-          <ZoruPageDescription>
-            Our long-term plan for integrating deeply with the Meta Marketing
-            API.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button variant="outline" size="sm" onClick={loadRoadmap} disabled={isLoading}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Sync with Linear
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Ads Roadmap' },
+      ]}
+      eyebrow="WaChat · Ads"
+      title={
+        <span className="flex items-center gap-3">
+          <span
+            className="flex h-9 w-9 items-center justify-center"
+            style={{
+              borderRadius: 'var(--st-radius)',
+              background: 'var(--st-bg-secondary)',
+              color: 'var(--st-text)',
+            }}
+            aria-hidden="true"
+          >
+            <Route className="h-5 w-5" />
+          </span>
+          Facebook Integration Roadmap
+        </span>
+      }
+      description="Our long-term plan for integrating deeply with the Meta Marketing API."
+      actions={
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={RefreshCw}
+          onClick={loadRoadmap}
+          disabled={isLoading}
+        >
+          Sync with Linear
+        </Button>
+      }
+    >
       {error && (
-        <div className="rounded-md bg-zoru-surface-2 p-4 text-sm text-zoru-ink">
+        <Alert tone="danger" className="mb-4">
           {error}
-        </div>
+        </Alert>
       )}
 
       <div className="grid gap-4 md:grid-cols-2">
         {isLoading && phases.length === 0
           ? Array.from({ length: 4 }).map((_, i) => (
-              <Card key={i} className="flex flex-col gap-4 p-5">
-                <Skeleton className="h-4 w-1/4" />
-                <Skeleton className="h-6 w-1/2" />
-                <Skeleton className="h-20 w-full" />
+              <Card key={i} className="flex flex-col gap-4">
+                <Skeleton height={16} width="25%" />
+                <Skeleton height={24} width="50%" />
+                <Skeleton height={80} width="100%" />
               </Card>
             ))
           : phases.map((phase) => (
-              <Card key={phase.phase} className="flex flex-col gap-4 p-5">
+              <Card key={phase.phase} className="flex flex-col gap-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[11px] uppercase tracking-wide text-zoru-ink-subtle">
+                    <p
+                      className="text-[11px] uppercase tracking-wide"
+                      style={{ color: 'var(--st-text-tertiary)' }}
+                    >
                       {phase.phase}
                     </p>
-                    <h3 className="mt-1 text-[16px] tracking-tight text-zoru-ink">
+                    <h3
+                      className="mt-1 text-[16px] tracking-tight"
+                      style={{ color: 'var(--st-text)' }}
+                    >
                       {phase.title}
                     </h3>
                   </div>
-                  <Badge variant={statusVariant(phase.status)}>
-                    {phase.status}
-                  </Badge>
+                  <Badge tone={statusTone(phase.status)}>{phase.status}</Badge>
                 </div>
                 <ul className="flex flex-col gap-2.5 mb-2">
                   {phase.milestones.map((milestone) => (
                     <li
                       key={milestone}
-                      className="flex items-start gap-2.5 text-[13px] text-zoru-ink"
+                      className="flex items-start gap-2.5 text-[13px]"
+                      style={{ color: 'var(--st-text)' }}
                     >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-zoru-ink-muted" />
+                      <Check
+                        className="mt-0.5 h-4 w-4 shrink-0"
+                        style={{ color: 'var(--st-text-secondary)' }}
+                        aria-hidden="true"
+                      />
                       <span>{milestone}</span>
                     </li>
                   ))}
                 </ul>
-                <div className="mt-auto flex items-center justify-between border-t border-zoru-border pt-4">
-                  <span className="text-sm font-medium text-zoru-ink-subtle">
+                <div
+                  className="mt-auto flex items-center justify-between pt-4"
+                  style={{ borderTop: '1px solid var(--st-border)' }}
+                >
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: 'var(--st-text-tertiary)' }}
+                  >
                     {phase.votes} votes
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2"
+                    iconLeft={ThumbsUp}
                     onClick={() => handleVote(phase.phase)}
                   >
-                    <ThumbsUp className="h-4 w-4" />
                     Upvote
                   </Button>
                 </div>
               </Card>
             ))}
       </div>
-    </div>
+    </WachatPage>
   );
 }

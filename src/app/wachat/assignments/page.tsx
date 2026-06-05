@@ -2,29 +2,19 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
   Button,
-  Card,
-  Input,
   EmptyState,
   Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  THead,
+  TBody,
+  Th,
+  Tr,
+  Td,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/zoruui';
+  StatCard,
+  Spinner,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -33,22 +23,26 @@ import {
 import { Inbox,
   UserPlus,
   RefreshCw,
-  Loader2,
   Bot } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getUnassignedConversations, assignConversation, getAgentStatuses, autoRouteConversations } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * /wachat/assignments — Assign unassigned conversations to agents,
- * rebuilt on ZoruUI primitives.
+ * rebuilt on 20ui primitives.
  */
 
 import * as React from 'react';
 
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 export default function AssignmentsPage() {
   const { activeProject, activeProjectId } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [contacts, setContacts] = useState<any[]>([]);
   const [agentInputs, setAgentInputs] = useState<Record<string, string>>({});
@@ -59,7 +53,7 @@ export default function AssignmentsPage() {
     startTransition(async () => {
       const res = await getUnassignedConversations(activeProjectId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
         setContacts(res.contacts ?? []);
       }
@@ -80,14 +74,14 @@ export default function AssignmentsPage() {
       toast({
         title: 'Error',
         description: 'Enter an agent ID.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
     startTransition(async () => {
       const res = await assignConversation(contactId, agentId);
       if (res.error) {
-        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Error', description: res.error, tone: 'danger' });
       } else {
         toast({
           title: 'Assigned',
@@ -108,7 +102,7 @@ export default function AssignmentsPage() {
     startTransition(async () => {
       const res = await autoRouteConversations(activeProjectId, strategy);
       if (res.error) {
-        toast({ title: 'Routing Error', description: res.error, variant: 'destructive' });
+        toast({ title: 'Routing Error', description: res.error, tone: 'danger' });
       } else {
         toast({ title: 'Routed', description: `Successfully routed ${res.count} conversations.` });
         fetchData();
@@ -116,149 +110,142 @@ export default function AssignmentsPage() {
     });
   };
 
-  return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Assignments</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
+  const agentOptions = agents.map((a) => ({
+    value: (a.id || a._id) as string,
+    label: `${a.name} (${a.status})`,
+  }));
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Conversation Assignments
-          </h1>
-          <p className="mt-1.5 max-w-[720px] text-[13px] text-zoru-ink-muted">
-            Assign unassigned conversations to agents for follow-up.
-          </p>
-        </div>
+  return (
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Assignments' },
+      ]}
+      title="Conversation Assignments"
+      description="Assign unassigned conversations to agents for follow-up."
+      actions={
         <div className="flex gap-2">
           <Button
             size="sm"
             variant="outline"
+            iconLeft={Bot}
             onClick={() => handleAutoRoute('round-robin')}
             disabled={isPending || contacts.length === 0}
           >
-            <Bot className="mr-1 h-3.5 w-3.5" /> Auto-Route
+            Auto-Route
           </Button>
           <Button
             size="sm"
             variant="ghost"
+            iconLeft={RefreshCw}
             onClick={fetchData}
             disabled={isPending}
           >
-            <RefreshCw className={isPending ? 'animate-spin h-3.5 w-3.5 mr-1' : 'h-3.5 w-3.5 mr-1'} />
             Refresh
           </Button>
         </div>
-      </div>
+      }
+    >
+      <div className="flex flex-col gap-6">
+        <StatCard
+          className="w-fit"
+          label="Unassigned Conversations"
+          value={contacts.length}
+        />
 
-      <Card className="w-fit p-5">
-        <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-          Unassigned Conversations
-        </div>
-        <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
-          {contacts.length}
-        </div>
-      </Card>
+        {isPending && contacts.length === 0 && (
+          <div className="flex h-20 items-center justify-center">
+            <Spinner />
+          </div>
+        )}
 
-      {isPending && contacts.length === 0 && (
-        <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-        </div>
-      )}
-
-      {contacts.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <Table>
-            <ZoruTableHeader>
-              <ZoruTableRow>
-                <ZoruTableHead>Contact</ZoruTableHead>
-                <ZoruTableHead>Last Message</ZoruTableHead>
-                <ZoruTableHead>Time</ZoruTableHead>
-                <ZoruTableHead>Assign</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {contacts.map((c) => (
-                <ZoruTableRow key={c._id}>
-                  <ZoruTableCell>
-                    <div className="text-[13px] text-zoru-ink">
-                      {c.name || c.phone || 'Unknown'}
-                    </div>
-                    {c.phone && c.name && (
-                      <div className="font-mono text-[11px] text-zoru-ink-muted">
-                        {c.phone}
+        {contacts.length > 0 ? (
+          <div
+            className="overflow-x-auto"
+            style={{
+              border: '1px solid var(--st-border)',
+              borderRadius: 'var(--st-radius-lg)',
+              background: 'var(--st-bg)',
+            }}
+          >
+            <Table>
+              <THead>
+                <Tr>
+                  <Th>Contact</Th>
+                  <Th>Last Message</Th>
+                  <Th>Time</Th>
+                  <Th>Assign</Th>
+                </Tr>
+              </THead>
+              <TBody>
+                {contacts.map((c) => (
+                  <Tr key={c._id}>
+                    <Td>
+                      <div style={{ color: 'var(--st-text)' }}>
+                        {c.name || c.phone || 'Unknown'}
                       </div>
-                    )}
-                  </ZoruTableCell>
-                  <ZoruTableCell className="max-w-[260px]">
-                    <p className="truncate text-[13px] text-zoru-ink-muted">
-                      {c.lastMessage || c.lastMessagePreview || '--'}
-                    </p>
-                  </ZoruTableCell>
-                  <ZoruTableCell className="whitespace-nowrap text-[12px] text-zoru-ink-muted">
-                    {c.lastMessageTimestamp
-                      ? fmtDate(c.lastMessageTimestamp)
-                      : '--'}
-                  </ZoruTableCell>
-                  <ZoruTableCell>
-                    <div className="flex items-center gap-2">
-                      <Select
-                        value={agentInputs[c._id] || ''}
-                        onValueChange={(val) =>
-                          setAgentInputs((p) => ({
-                            ...p,
-                            [c._id]: val,
-                          }))
-                        }
-                      >
-                        <SelectTrigger className="h-8 w-[160px] text-xs">
-                          <SelectValue placeholder="Select Agent" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {agents.map((a) => (
-                            <SelectItem key={a.id || a._id} value={a.id || a._id}>
-                              {a.name} ({a.status})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button
-                        size="sm"
-                        onClick={() => handleAssign(c._id)}
-                        disabled={isPending || !agentInputs[c._id]}
-                      >
-                        <UserPlus className="mr-1 h-3.5 w-3.5" /> Assign
-                      </Button>
-                    </div>
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ))}
-            </ZoruTableBody>
-          </Table>
-        </Card>
-      ) : (
-        !isPending && (
-          <EmptyState
-            icon={<Inbox />}
-            title="All caught up"
-            description="All conversations are currently assigned."
-          />
-        )
-      )}
-      <div className="h-6" />
-    </div>
+                      {c.phone && c.name && (
+                        <div
+                          className="font-mono text-[11px]"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                        >
+                          {c.phone}
+                        </div>
+                      )}
+                    </Td>
+                    <Td className="max-w-[260px]">
+                      <p className="truncate" style={{ color: 'var(--st-text-secondary)' }}>
+                        {c.lastMessage || c.lastMessagePreview || '--'}
+                      </p>
+                    </Td>
+                    <Td className="whitespace-nowrap" style={{ color: 'var(--st-text-secondary)' }}>
+                      {c.lastMessageTimestamp
+                        ? fmtDate(c.lastMessageTimestamp)
+                        : '--'}
+                    </Td>
+                    <Td>
+                      <div className="flex items-center gap-2">
+                        <Select
+                          size="sm"
+                          className="w-[160px]"
+                          aria-label="Select agent"
+                          placeholder="Select Agent"
+                          value={agentInputs[c._id] || null}
+                          options={agentOptions}
+                          onChange={(val) =>
+                            setAgentInputs((p) => ({
+                              ...p,
+                              [c._id]: val ?? '',
+                            }))
+                          }
+                        />
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          iconLeft={UserPlus}
+                          onClick={() => handleAssign(c._id)}
+                          disabled={isPending || !agentInputs[c._id]}
+                        >
+                          Assign
+                        </Button>
+                      </div>
+                    </Td>
+                  </Tr>
+                ))}
+              </TBody>
+            </Table>
+          </div>
+        ) : (
+          !isPending && (
+            <EmptyState
+              icon={Inbox}
+              title="All caught up"
+              description="All conversations are currently assigned."
+            />
+          )
+        )}
+      </div>
+    </WachatPage>
   );
 }

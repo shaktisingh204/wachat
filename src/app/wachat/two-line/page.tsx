@@ -1,38 +1,29 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
+  IconButton,
   Card,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  useZoruToast,
+  Modal,
+  useToast,
   Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
+  Field,
   Input,
   Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
   Badge,
-  Label,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Phone, Bot, User } from 'lucide-react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
 
 type Team = { id: string; name: string };
 type RouteType = 'bot' | 'agent';
@@ -50,6 +41,13 @@ const TEAMS: Team[] = [
   { id: 'team_2', name: 'Support Team' },
   { id: 'team_3', name: 'Marketing' },
   { id: 'team_4', name: 'Global Ops' },
+];
+
+const TEAM_OPTIONS = TEAMS.map((t) => ({ value: t.id, label: t.name }));
+
+const ROUTE_OPTIONS = [
+  { value: 'bot', label: 'AI Bot' },
+  { value: 'agent', label: 'Human Agent' },
 ];
 
 const INITIAL_NUMBERS: PhoneNumber[] = [
@@ -70,7 +68,7 @@ const INITIAL_NUMBERS: PhoneNumber[] = [
 ];
 
 export default function MultiNumberManagementPage() {
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [numbers, setNumbers] = useState<PhoneNumber[]>(INITIAL_NUMBERS);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -106,7 +104,7 @@ export default function MultiNumberManagementPage() {
 
   const handleSaveAdd = () => {
     if (!formData.number || !formData.label) {
-      toast({ title: 'Error', description: 'Please fill in all required fields.' });
+      toast({ title: 'Error', description: 'Please fill in all required fields.', tone: 'danger' });
       return;
     }
     const newNumber: PhoneNumber = {
@@ -118,12 +116,12 @@ export default function MultiNumberManagementPage() {
     };
     setNumbers([...numbers, newNumber]);
     setIsAddOpen(false);
-    toast({ title: 'Number added', description: `${newNumber.number} has been added.` });
+    toast({ title: 'Number added', description: `${newNumber.number} has been added.`, tone: 'success' });
   };
 
   const handleSaveEdit = () => {
     if (!formData.number || !formData.label) {
-      toast({ title: 'Error', description: 'Please fill in all required fields.' });
+      toast({ title: 'Error', description: 'Please fill in all required fields.', tone: 'danger' });
       return;
     }
     setNumbers(
@@ -132,265 +130,215 @@ export default function MultiNumberManagementPage() {
       )
     );
     setIsEditOpen(false);
-    toast({ title: 'Number updated', description: 'Your changes have been saved.' });
+    toast({ title: 'Number updated', description: 'Your changes have been saved.', tone: 'success' });
   };
 
   const handleDelete = (id: string) => {
     setNumbers(numbers.filter((n) => n.id !== id));
-    toast({ title: 'Number deleted', description: 'The phone number has been removed.' });
+    toast({ title: 'Number deleted', description: 'The phone number has been removed.', tone: 'neutral' });
   };
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Numbers & Routing</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Numbers & Routing
-          </h1>
-          <p className="mt-1.5 max-w-[680px] text-[13px] text-zoru-ink-muted">
-            Manage your WhatsApp Business API (WABA) numbers. Bind numbers to specific
-            teams and configure their default routing behavior.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button onClick={handleOpenAdd}>
-            <Plus className="mr-2 h-4 w-4" /> Add number
-          </Button>
-        </div>
-      </div>
-
-      <Card className="mt-6 overflow-hidden p-0">
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Numbers & Routing' },
+      ]}
+      title="Numbers & Routing"
+      description="Manage your WhatsApp Business API (WABA) numbers. Bind numbers to specific teams and configure their default routing behavior."
+      actions={
+        <Button variant="primary" iconLeft={Plus} onClick={handleOpenAdd}>
+          Add number
+        </Button>
+      }
+    >
+      <Card padding="none" className="overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Phone Number</TableHead>
-              <TableHead>Label</TableHead>
-              <TableHead>Assigned Team</TableHead>
-              <TableHead>Default Route</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <THead>
+            <Tr>
+              <Th>Phone Number</Th>
+              <Th>Label</Th>
+              <Th>Assigned Team</Th>
+              <Th>Default Route</Th>
+              <Th align="right">Actions</Th>
+            </Tr>
+          </THead>
+          <TBody>
             {numbers.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-zoru-ink-muted">
+              <Tr>
+                <Td
+                  colSpan={5}
+                  align="center"
+                  style={{ paddingTop: 32, paddingBottom: 32, color: 'var(--st-text-secondary)' }}
+                >
                   No phone numbers configured. Click "Add number" to get started.
-                </TableCell>
-              </TableRow>
+                </Td>
+              </Tr>
             ) : (
               numbers.map((num) => {
                 const team = TEAMS.find((t) => t.id === num.teamId);
                 return (
-                  <TableRow key={num.id}>
-                    <TableCell className="font-medium">
+                  <Tr key={num.id}>
+                    <Td style={{ fontWeight: 500 }}>
                       <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-zoru-ink-subtle" />
+                        <Phone
+                          className="h-4 w-4"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                          aria-hidden="true"
+                        />
                         {num.number}
                       </div>
-                    </TableCell>
-                    <TableCell>{num.label}</TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>{num.label}</Td>
+                    <Td>
                       {team ? (
-                        <Badge
-                          variant="secondary"
-                          className="rounded-[var(--zoru-radius-sm)] font-normal text-[11px]"
-                        >
-                          {team.name}
-                        </Badge>
+                        <Badge tone="neutral">{team.name}</Badge>
                       ) : (
-                        <span className="text-zoru-ink-muted">Unassigned</span>
+                        <span style={{ color: 'var(--st-text-secondary)' }}>Unassigned</span>
                       )}
-                    </TableCell>
-                    <TableCell>
+                    </Td>
+                    <Td>
                       <div className="flex items-center gap-1.5">
                         {num.defaultRoute === 'bot' ? (
-                          <Bot className="h-3.5 w-3.5 text-zoru-primary" />
+                          <Bot
+                            className="h-3.5 w-3.5"
+                            style={{ color: 'var(--st-accent)' }}
+                            aria-hidden="true"
+                          />
                         ) : (
-                          <User className="h-3.5 w-3.5 text-zoru-warning" />
+                          <User
+                            className="h-3.5 w-3.5"
+                            style={{ color: 'var(--st-warn)' }}
+                            aria-hidden="true"
+                          />
                         )}
                         <span className="capitalize text-sm">{num.defaultRoute}</span>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right">
+                    </Td>
+                    <Td align="right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                        <IconButton
+                          label="Edit number"
+                          icon={Edit2}
+                          size="sm"
                           onClick={() => handleOpenEdit(num)}
-                          className="h-8 w-8"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
+                        />
+                        <IconButton
+                          label="Delete number"
+                          icon={Trash2}
+                          variant="danger"
+                          size="sm"
                           onClick={() => handleDelete(num.id)}
-                          className="h-8 w-8 text-zoru-danger hover:bg-zoru-danger/10 hover:text-zoru-danger"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        />
                       </div>
-                    </TableCell>
-                  </TableRow>
+                    </Td>
+                  </Tr>
                 );
               })
             )}
-          </TableBody>
+          </TBody>
         </Table>
       </Card>
 
       {/* Add Dialog */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Add New Number</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Register a new WhatsApp number and configure its routing rules.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="number">Phone Number</Label>
-              <Input
-                id="number"
-                placeholder="+1 (555) 000-0000"
-                value={formData.number || ''}
-                onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="label">Internal Label</Label>
-              <Input
-                id="label"
-                placeholder="e.g. US Sales Team"
-                value={formData.label || ''}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Assigned Team</Label>
-              <Select
-                value={formData.teamId}
-                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEAMS.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label>Default Route</Label>
-              <Select
-                value={formData.defaultRoute}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, defaultRoute: val as RouteType })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select routing" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bot">AI Bot</SelectItem>
-                  <SelectItem value="agent">Human Agent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={isAddOpen}
+        onClose={() => setIsAddOpen(false)}
+        title="Add New Number"
+        description="Register a new WhatsApp number and configure its routing rules."
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setIsAddOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveAdd}>Add Number</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
+            <Button variant="primary" onClick={handleSaveAdd}>
+              Add Number
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4">
+          <Field label="Phone Number">
+            <Input
+              placeholder="+1 (555) 000-0000"
+              value={formData.number || ''}
+              onChange={(e) => setFormData({ ...formData, number: e.target.value })}
+            />
+          </Field>
+          <Field label="Internal Label">
+            <Input
+              placeholder="e.g. US Sales Team"
+              value={formData.label || ''}
+              onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+            />
+          </Field>
+          <Field label="Assigned Team">
+            <Select
+              value={formData.teamId}
+              onChange={(val) => setFormData({ ...formData, teamId: val ?? undefined })}
+              options={TEAM_OPTIONS}
+              placeholder="Select a team"
+            />
+          </Field>
+          <Field label="Default Route">
+            <Select
+              value={formData.defaultRoute}
+              onChange={(val) =>
+                setFormData({ ...formData, defaultRoute: (val as RouteType) ?? undefined })
+              }
+              options={ROUTE_OPTIONS}
+              placeholder="Select routing"
+            />
+          </Field>
+        </div>
+      </Modal>
 
       {/* Edit Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Edit Number Configuration</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Update routing rules and team assignment for {formData.number}.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-label">Internal Label</Label>
-              <Input
-                id="edit-label"
-                placeholder="e.g. US Sales Team"
-                value={formData.label || ''}
-                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Assigned Team</Label>
-              <Select
-                value={formData.teamId}
-                onValueChange={(val) => setFormData({ ...formData, teamId: val })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEAMS.map((team) => (
-                    <SelectItem key={team.id} value={team.id}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid gap-2">
-              <Label>Default Route</Label>
-              <Select
-                value={formData.defaultRoute}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, defaultRoute: val as RouteType })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select routing" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bot">AI Bot</SelectItem>
-                  <SelectItem value="agent">Human Agent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <ZoruDialogFooter>
+      <Modal
+        open={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        title="Edit Number Configuration"
+        description={`Update routing rules and team assignment for ${formData.number}.`}
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setIsEditOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveEdit}>Save Changes</Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-    </div>
+            <Button variant="primary" onClick={handleSaveEdit}>
+              Save Changes
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-4">
+          <Field label="Internal Label">
+            <Input
+              placeholder="e.g. US Sales Team"
+              value={formData.label || ''}
+              onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+            />
+          </Field>
+          <Field label="Assigned Team">
+            <Select
+              value={formData.teamId}
+              onChange={(val) => setFormData({ ...formData, teamId: val ?? undefined })}
+              options={TEAM_OPTIONS}
+              placeholder="Select a team"
+            />
+          </Field>
+          <Field label="Default Route">
+            <Select
+              value={formData.defaultRoute}
+              onChange={(val) =>
+                setFormData({ ...formData, defaultRoute: (val as RouteType) ?? undefined })
+              }
+              options={ROUTE_OPTIONS}
+              placeholder="Select routing"
+            />
+          </Field>
+        </div>
+      </Modal>
+    </WachatPage>
   );
 }

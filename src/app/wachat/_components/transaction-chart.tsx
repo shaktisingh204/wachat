@@ -1,6 +1,11 @@
 'use client';
 
-import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/sabcrm/20ui';
 import {
   endOfDay,
   format,
@@ -11,14 +16,23 @@ import {
 import { DateRange } from 'react-day-picker';
 
 /**
- * TransactionChart (wachat-local, ZoruUI).
+ * TransactionChart (wachat-local, 20ui).
  *
  * Replaces the legacy whatsapp-pay/transaction-chart.
  * Same data shape (transactions + dateRange), same memoised grouping.
- * Visual swap: Recharts via ZoruChart family with greyscale palette.
+ * Visual swap: Recharts via the 20ui Chart family, on-system --st-* tokens.
  */
 
 import * as React from 'react';
+import * as Recharts from 'recharts';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
+
+const CHART_CONFIG: ChartConfig = {
+  revenue: { label: 'Revenue', color: 'var(--st-accent)' },
+};
 
 interface TransactionChartProps {
   transactions: any[];
@@ -63,68 +77,85 @@ export function TransactionChart({
 
   if (chartData.length === 0) {
     return (
-      <div className="flex h-[300px] w-full items-center justify-center text-[13px] text-zoru-ink-muted">
+      <div
+        className={cx(
+          'flex h-[300px] w-full items-center justify-center text-[13px]',
+        )}
+        style={{ color: 'var(--st-text-secondary)' }}
+      >
         No data available for the selected period
       </div>
     );
   }
 
-  const stroke = ZORU_CHART_PALETTE[0];
-
   return (
-    <ZoruChartContainer height={300}>
-      <ZoruChart.AreaChart
+    <ChartContainer config={CHART_CONFIG} style={{ height: 300 }}>
+      <Recharts.AreaChart
         data={chartData}
         margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
       >
         <defs>
-          <linearGradient id="zoruRevenueFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={stroke} stopOpacity={0.4} />
-            <stop offset="95%" stopColor={stroke} stopOpacity={0} />
+          <linearGradient id="st20RevenueFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-revenue)" stopOpacity={0.4} />
+            <stop offset="95%" stopColor="var(--color-revenue)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <ZoruChart.CartesianGrid
+        <Recharts.CartesianGrid
           strokeDasharray="3 3"
           vertical={false}
-          stroke="hsl(var(--zoru-line))"
+          stroke="var(--st-border)"
         />
-        <ZoruChart.XAxis
+        <Recharts.XAxis
           dataKey="date"
           tickFormatter={(str) => format(parseISO(str), 'MMM d')}
-          stroke="hsl(var(--zoru-ink-muted))"
-          fontSize={12}
+          tick={{ fontSize: 12, fill: 'var(--st-text-tertiary)' }}
+          tickLine={false}
+          axisLine={{ stroke: 'var(--st-border)' }}
         />
-        <ZoruChart.YAxis
-          stroke="hsl(var(--zoru-ink-muted))"
-          fontSize={12}
+        <Recharts.YAxis
+          tick={{ fontSize: 12, fill: 'var(--st-text-tertiary)' }}
+          tickLine={false}
+          axisLine={false}
           tickFormatter={(value: any) => `₹${value}`}
         />
-        <ZoruChart.Tooltip
-          content={(props: any) => (
-            <ZoruChartTooltip
-              {...props}
-              label={
-                props?.label
-                  ? format(parseISO(String(props.label)), 'PPP')
-                  : undefined
+        <ChartTooltip
+          content={
+            <ChartTooltipContent
+              labelFormatter={(label) =>
+                label ? format(parseISO(String(label)), 'PPP') : ''
               }
-              payload={(props?.payload || []).map((p: any) => ({
-                ...p,
-                name: 'Revenue',
-                value: `₹${p.value}`,
-                color: stroke,
-              }))}
+              formatter={(value, _name, item) => (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="u-chart-tt__indicator u-chart-tt__indicator--dot"
+                    style={
+                      {
+                        '--u-chart-indicator':
+                          item?.color ?? 'var(--color-revenue)',
+                      } as React.CSSProperties
+                    }
+                  />
+                  <div className="u-chart-tt__content">
+                    <div className="u-chart-tt__name-wrap">
+                      <span className="u-chart-tt__name">Revenue</span>
+                    </div>
+                    <span className="u-chart-tt__value">{`₹${value}`}</span>
+                  </div>
+                </>
+              )}
             />
-          )}
+          }
         />
-        <ZoruChart.Area
+        <Recharts.Area
           type="monotone"
           dataKey="revenue"
-          stroke={stroke}
-          fill="url(#zoruRevenueFill)"
+          name="Revenue"
+          stroke="var(--color-revenue)"
+          fill="url(#st20RevenueFill)"
           fillOpacity={1}
         />
-      </ZoruChart.AreaChart>
-    </ZoruChartContainer>
+      </Recharts.AreaChart>
+    </ChartContainer>
   );
 }

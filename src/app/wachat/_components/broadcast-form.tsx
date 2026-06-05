@@ -3,27 +3,21 @@
 import {
   Button,
   Checkbox,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
   Input,
-  Label,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   RadioGroup,
-  ZoruRadioGroupItem,
+  Radio,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -52,7 +46,7 @@ import type { Template,
 import { useProject } from '@/context/project-context';
 
 /**
- * BroadcastForm (wachat-local, ZoruUI)
+ * BroadcastForm (wachat-local, 20ui)
  *
  * The WhatsApp campaign composer. 6 numbered steps on a single form:
  *   1. Type             (Message template vs. Interactive flow)
@@ -64,7 +58,7 @@ import { useProject } from '@/context/project-context';
  *
  * All CSV/XLSX validation, tag-popover behavior, and server-action
  * wiring (handleStartBroadcast) are preserved 1:1 from the wabasimplify
- * version. Visual layer is fully Zoru.
+ * version. Visual layer is fully 20ui.
  */
 
 import * as React from 'react';
@@ -72,6 +66,10 @@ import * as React from 'react';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 import { TemplateInputRenderer } from './template-input-renderer';
+
+function cx(...a: Array<string | false | null | undefined>) {
+  return a.filter(Boolean).join(' ');
+}
 
 /* ══════════════════════════════════════════════════════════════════
  *  Helpers (CSV/XLSX parse + validation, unchanged)
@@ -187,12 +185,13 @@ const validateFileContent = async (
 function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="lg" disabled={pending || disabled}>
-      {pending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Send className="h-4 w-4" />
-      )}
+    <Button
+      type="submit"
+      variant="primary"
+      size="lg"
+      disabled={pending || disabled}
+      iconLeft={pending ? Loader2 : Send}
+    >
       {pending ? 'Queueing broadcast…' : 'Start broadcast'}
     </Button>
   );
@@ -218,7 +217,7 @@ export function BroadcastForm({
     handleStartBroadcast,
     initialState,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   const [audienceType, setAudienceType] = useState<'file' | 'tags'>('file');
@@ -255,7 +254,7 @@ export function BroadcastForm({
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast, onSuccess]);
@@ -332,12 +331,12 @@ export function BroadcastForm({
     toast({ title: 'Sample file downloading…' });
   };
 
-  const handleTemplateChange = (templateId: string) => {
+  const handleTemplateChange = (templateId: string | null) => {
     const template = templates.find((t) => t._id.toString() === templateId);
     setSelectedTemplate(template || null);
   };
 
-  const handleFlowChange = (flowId: string) => {
+  const handleFlowChange = (flowId: string | null) => {
     const flow = metaFlows.find((f) => f._id.toString() === flowId);
     setSelectedFlow(flow || null);
   };
@@ -345,6 +344,26 @@ export function BroadcastForm({
   const approvedTemplates = templates.filter(
     (t) => t.status?.toUpperCase() === 'APPROVED',
   );
+
+  const phoneOptions = (activeProject?.phoneNumbers || []).map((phone) => ({
+    value: phone.id,
+    label: `${phone.display_phone_number} · ${phone.verified_name}`,
+  }));
+
+  const templateOptions = approvedTemplates.map((template) => {
+    const status = template.status
+      ? template.status.replace(/_/g, ' ').toLowerCase()
+      : 'n/a';
+    return {
+      value: template._id.toString(),
+      label: `${template.name} · ${status}`,
+    };
+  });
+
+  const flowOptions = metaFlows.map((flow) => ({
+    value: flow._id.toString(),
+    label: flow.name,
+  }));
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-7">
@@ -359,6 +378,22 @@ export function BroadcastForm({
         name="createContacts"
         value={createContacts ? 'true' : 'false'}
       />
+      {/* 20ui Select is a button widget — mirror its value into a hidden input
+          so the server action keeps reading these fields from FormData. */}
+      <input type="hidden" name="phoneNumberId" value={selectedPhoneNumber} />
+      {broadcastType === 'template' ? (
+        <input
+          type="hidden"
+          name="templateId"
+          value={selectedTemplate?._id.toString() || ''}
+        />
+      ) : (
+        <input
+          type="hidden"
+          name="flowId"
+          value={selectedFlow?._id.toString() || ''}
+        />
+      )}
       {selectedTagIds.map((id) => (
         <input key={id} type="hidden" name="tagIds" value={id} />
       ))}
@@ -372,6 +407,8 @@ export function BroadcastForm({
             onValueChange={(v) =>
               setBroadcastType(v as 'template' | 'flow')
             }
+            orientation="horizontal"
+            aria-label="Broadcast type"
             className="flex gap-3"
           >
             <TypeOption
@@ -394,21 +431,12 @@ export function BroadcastForm({
         <div className="flex flex-col gap-1.5">
           <StepLabel step={2} label="Send from" />
           <Select
-            name="phoneNumberId"
-            value={selectedPhoneNumber}
-            onValueChange={setSelectedPhoneNumber}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose a number…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {(activeProject?.phoneNumbers || []).map((phone) => (
-                <ZoruSelectItem key={phone.id} value={phone.id}>
-                  {phone.display_phone_number} · {phone.verified_name}
-                </ZoruSelectItem>
-              ))}
-            </ZoruSelectContent>
-          </Select>
+            value={selectedPhoneNumber || null}
+            onChange={(v) => setSelectedPhoneNumber(v ?? '')}
+            options={phoneOptions}
+            placeholder="Choose a number…"
+            aria-label="Send-from number"
+          />
         </div>
       </div>
 
@@ -421,76 +449,68 @@ export function BroadcastForm({
           }
         />
         {broadcastType === 'template' ? (
+          templateOptions.length > 0 ? (
+            <Select
+              value={selectedTemplate?._id.toString() || null}
+              onChange={handleTemplateChange}
+              options={templateOptions}
+              placeholder="Choose an approved template…"
+              searchable
+              aria-label="Template"
+            />
+          ) : (
+            <div
+              className="rounded-[var(--st-radius)] border border-dashed px-2 py-4 text-center text-[12px]"
+              style={{
+                borderColor: 'var(--st-border)',
+                color: 'var(--st-text-muted)',
+              }}
+            >
+              No approved templates found. Sync with Meta or create a new one.
+            </div>
+          )
+        ) : flowOptions.length > 0 ? (
           <Select
-            name="templateId"
-            value={selectedTemplate?._id.toString() || ''}
-            onValueChange={handleTemplateChange}
-          >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose an approved template…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {approvedTemplates.length > 0 ? (
-                approvedTemplates.map((template) => (
-                  <ZoruSelectItem
-                    key={template._id.toString()}
-                    value={template._id.toString()}
-                  >
-                    {template.name}
-                    <span className="ml-2 text-[11px] capitalize text-zoru-ink-muted">
-                      {template.status
-                        ? template.status
-                            .replace(/_/g, ' ')
-                            .toLowerCase()
-                        : 'n/a'}
-                    </span>
-                  </ZoruSelectItem>
-                ))
-              ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                  No approved templates found. Sync with Meta or create a new
-                  one.
-                </div>
-              )}
-            </ZoruSelectContent>
-          </Select>
+            value={selectedFlow?._id.toString() || null}
+            onChange={handleFlowChange}
+            options={flowOptions}
+            placeholder="Choose a flow…"
+            searchable
+            aria-label="Interactive flow"
+          />
         ) : (
-          <Select
-            name="flowId"
-            value={selectedFlow?._id.toString() || ''}
-            onValueChange={handleFlowChange}
+          <div
+            className="rounded-[var(--st-radius)] border border-dashed px-2 py-4 text-center text-[12px]"
+            style={{
+              borderColor: 'var(--st-border)',
+              color: 'var(--st-text-muted)',
+            }}
           >
-            <ZoruSelectTrigger>
-              <ZoruSelectValue placeholder="Choose a flow…" />
-            </ZoruSelectTrigger>
-            <ZoruSelectContent>
-              {metaFlows.length > 0 ? (
-                metaFlows.map((flow) => (
-                  <ZoruSelectItem
-                    key={flow._id.toString()}
-                    value={flow._id.toString()}
-                  >
-                    {flow.name}
-                  </ZoruSelectItem>
-                ))
-              ) : (
-                <div className="px-2 py-4 text-center text-[12px] text-zoru-ink-muted">
-                  No flows found. Sync with Meta or create a new one.
-                </div>
-              )}
-            </ZoruSelectContent>
-          </Select>
+            No flows found. Sync with Meta or create a new one.
+          </div>
         )}
       </div>
 
       {/* ── Step 4: Flow-only entry message ── */}
       {broadcastType === 'flow' && (
-        <div className="grid gap-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-5 md:grid-cols-2">
+        <div
+          className="grid gap-4 rounded-[var(--st-radius)] border p-5 md:grid-cols-2"
+          style={{
+            borderColor: 'var(--st-border)',
+            background: 'var(--st-surface)',
+          }}
+        >
           <div className="md:col-span-2">
-            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+            <span
+              className="text-[11.5px] uppercase tracking-wide"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               Flow entry message
-            </Label>
-            <p className="mt-0.5 text-[11.5px] text-zoru-ink-muted">
+            </span>
+            <p
+              className="mt-0.5 text-[11.5px]"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               Define how the flow entry message looks to the user.
             </p>
           </div>
@@ -535,6 +555,8 @@ export function BroadcastForm({
           <RadioGroup
             value={audienceType}
             onValueChange={(val) => setAudienceType(val as 'file' | 'tags')}
+            orientation="horizontal"
+            aria-label="Audience source"
             className="flex gap-3"
           >
             <TypeOption
@@ -557,37 +579,57 @@ export function BroadcastForm({
         {audienceType === 'file' ? (
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                Contact file <span className="ml-1 text-zoru-danger">*</span>
-              </Label>
+              <label
+                htmlFor="csvFile"
+                className="text-[11.5px] uppercase tracking-wide"
+                style={{ color: 'var(--st-text-muted)' }}
+              >
+                Contact file{' '}
+                <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
+                  *
+                </span>
+              </label>
               <button
                 type="button"
                 onClick={handleDownloadSample}
-                className="inline-flex items-center gap-1 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+                className="inline-flex items-center gap-1 text-[11px] transition-colors"
+                style={{ color: 'var(--st-text-muted)' }}
               >
-                <Download className="h-3 w-3" />
+                <Download className="h-3 w-3" aria-hidden="true" />
                 Sample CSV
               </button>
             </div>
             <label
-              className={cn(
-                'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius)] border-2 border-dashed px-4 py-6 text-center transition-colors',
-                selectedFile
-                  ? 'border-zoru-ink bg-zoru-surface-2'
-                  : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2',
-              )}
+              className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border-2 border-dashed px-4 py-6 text-center transition-colors"
+              style={{
+                borderColor: selectedFile
+                  ? 'var(--st-text)'
+                  : 'var(--st-border)',
+                background: selectedFile
+                  ? 'var(--st-surface-muted)'
+                  : 'var(--st-surface)',
+              }}
             >
               <Upload
-                className={cn(
-                  'h-5 w-5 transition-colors',
-                  selectedFile ? 'text-zoru-ink' : 'text-zoru-ink-muted',
-                )}
+                className="h-5 w-5 transition-colors"
+                style={{
+                  color: selectedFile
+                    ? 'var(--st-text)'
+                    : 'var(--st-text-muted)',
+                }}
+                aria-hidden="true"
               />
               <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] text-zoru-ink">
+                <span
+                  className="text-[13px]"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   {selectedFile?.name || 'Click to choose a file'}
                 </span>
-                <span className="text-[11px] text-zoru-ink-muted">
+                <span
+                  className="text-[11px]"
+                  style={{ color: 'var(--st-text-muted)' }}
+                >
                   {selectedFile ? 'Click to replace' : 'CSV or XLSX'}
                 </span>
               </div>
@@ -612,35 +654,59 @@ export function BroadcastForm({
                   toast({
                     title: 'Pick failed',
                     description: err.message,
-                    variant: 'destructive',
+                    tone: 'danger',
                   })
                 }
               >
                 Pick from SabFiles
               </SabFileToFileButton>
             </div>
-            <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            <div
+              className="mt-0.5 text-[11px]"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               For variables, use column names that match your template (e.g.{' '}
-              <code className="rounded-[3px] bg-zoru-surface-2 px-1 font-mono text-[10px] text-zoru-ink">
+              <code
+                className="rounded-[3px] px-1 font-mono text-[10px]"
+                style={{
+                  background: 'var(--st-surface-muted)',
+                  color: 'var(--st-text)',
+                }}
+              >
                 variable1
               </code>
               ).
             </div>
 
             {isValidating ? (
-              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-zoru-info">
-                <Loader2 className="h-3 w-3 animate-spin" />
+              <p
+                className="mt-1 inline-flex items-center gap-1.5 text-[11.5px]"
+                style={{ color: 'var(--st-accent)' }}
+              >
+                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
                 Validating file…
               </p>
             ) : null}
 
             {validationErrors.length > 0 && (
-              <div className="mt-2 rounded-[var(--zoru-radius)] border border-zoru-danger/40 bg-zoru-danger/5 p-3">
-                <div className="flex items-center gap-2 text-[12px] text-zoru-danger">
-                  <AlertCircle className="h-3.5 w-3.5" />
+              <div
+                className="mt-2 rounded-[var(--st-radius)] border p-3"
+                style={{
+                  borderColor: 'var(--st-danger)',
+                  background: 'var(--st-danger-soft)',
+                }}
+              >
+                <div
+                  className="flex items-center gap-2 text-[12px]"
+                  style={{ color: 'var(--st-danger)' }}
+                >
+                  <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
                   File error
                 </div>
-                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px] text-zoru-danger">
+                <ul
+                  className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px]"
+                  style={{ color: 'var(--st-danger)' }}
+                >
                   {validationErrors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -653,45 +719,57 @@ export function BroadcastForm({
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <Label className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+            <span
+              className="text-[11.5px] uppercase tracking-wide"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               Contact tags
-            </Label>
+            </span>
             <Popover
               open={tagPopoverOpen}
               onOpenChange={setTagPopoverOpen}
             >
-              <ZoruPopoverTrigger asChild>
+              <PopoverTrigger asChild>
                 <button
                   type="button"
                   role="combobox"
                   aria-expanded={tagPopoverOpen}
-                  className={cn(
-                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] transition-colors hover:bg-zoru-surface',
-                    selectedTagIds.length === 0 && 'text-zoru-ink-muted',
-                  )}
+                  aria-label="Select contact tags"
+                  className="inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border px-3 text-[13px] transition-colors"
+                  style={{
+                    borderColor: 'var(--st-border)',
+                    background: 'var(--st-bg)',
+                    color:
+                      selectedTagIds.length === 0
+                        ? 'var(--st-text-muted)'
+                        : 'var(--st-text)',
+                  }}
                 >
                   <span className="inline-flex items-center gap-1.5 truncate">
-                    <TagIcon className="h-3.5 w-3.5" />
+                    <TagIcon className="h-3.5 w-3.5" aria-hidden="true" />
                     {selectedTagIds.length > 0
                       ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
                       : 'Select tags…'}
                   </span>
-                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronsUpDown
+                    className="h-4 w-4 shrink-0 opacity-50"
+                    aria-hidden="true"
+                  />
                 </button>
-              </ZoruPopoverTrigger>
-              <ZoruPopoverContent
+              </PopoverTrigger>
+              <PopoverContent
                 className="w-[--radix-popover-trigger-width] p-0"
                 align="start"
               >
-                <ZoruCommand>
-                  <ZoruCommandInput placeholder="Search tags…" />
-                  <ZoruCommandList>
-                    <ZoruCommandEmpty>No tags found.</ZoruCommandEmpty>
-                    <ZoruCommandGroup>
+                <Command>
+                  <CommandInput placeholder="Search tags…" />
+                  <CommandList>
+                    <CommandEmpty>No tags found.</CommandEmpty>
+                    <CommandGroup>
                       {(activeProject?.tags || []).map((tag: Tag) => {
                         const isSelected = selectedTagIds.includes(tag._id);
                         return (
-                          <ZoruCommandItem
+                          <CommandItem
                             key={tag._id}
                             value={tag.name}
                             onSelect={() => {
@@ -702,15 +780,22 @@ export function BroadcastForm({
                             }}
                           >
                             <span
-                              className={cn(
-                                'mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border',
-                                isSelected
-                                  ? 'border-zoru-ink bg-zoru-ink text-zoru-on-primary'
-                                  : 'border-zoru-line',
-                              )}
+                              className="mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border"
+                              style={{
+                                borderColor: isSelected
+                                  ? 'var(--st-text)'
+                                  : 'var(--st-border)',
+                                background: isSelected
+                                  ? 'var(--st-text)'
+                                  : 'transparent',
+                                color: 'var(--st-text-inverted)',
+                              }}
                             >
                               {isSelected ? (
-                                <Check className="h-3 w-3" />
+                                <Check
+                                  className="h-3 w-3"
+                                  aria-hidden="true"
+                                />
                               ) : null}
                             </span>
                             <span
@@ -718,15 +803,18 @@ export function BroadcastForm({
                               style={{ backgroundColor: tag.color }}
                             />
                             <span>{tag.name}</span>
-                          </ZoruCommandItem>
+                          </CommandItem>
                         );
                       })}
-                    </ZoruCommandGroup>
-                  </ZoruCommandList>
-                </ZoruCommand>
-              </ZoruPopoverContent>
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
             </Popover>
-            <div className="mt-0.5 text-[11px] text-zoru-ink-muted">
+            <div
+              className="mt-0.5 text-[11px]"
+              style={{ color: 'var(--st-text-muted)' }}
+            >
               Send this broadcast to every contact matching one or more of
               these tags.
             </div>
@@ -738,7 +826,13 @@ export function BroadcastForm({
       {broadcastType === 'template' && selectedTemplate && (
         <div className="flex flex-col gap-3">
           <StepLabel step={6} label="Template variables" />
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-5">
+          <div
+            className="rounded-[var(--st-radius)] border p-5"
+            style={{
+              borderColor: 'var(--st-border)',
+              background: 'var(--st-surface)',
+            }}
+          >
             <TemplateInputRenderer
               template={selectedTemplate}
               variableOptions={variableOptions}
@@ -748,17 +842,23 @@ export function BroadcastForm({
       )}
 
       {/* ── Options ── */}
-      <div className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-5 py-3">
-        <label className="flex items-center gap-2.5 cursor-pointer select-none">
-          <Checkbox
-            checked={createContacts}
-            onCheckedChange={(c) => setCreateContacts(Boolean(c))}
-          />
-          <span className="text-[12px] text-zoru-ink">
-            Create contacts in CRM
-          </span>
-        </label>
-        <span className="text-[10px] text-zoru-ink-muted">
+      <div
+        className="flex items-center gap-3 rounded-[var(--st-radius)] border px-5 py-3"
+        style={{
+          borderColor: 'var(--st-border)',
+          background: 'var(--st-surface)',
+        }}
+      >
+        <Checkbox
+          checked={createContacts}
+          onChange={(e) => setCreateContacts(e.target.checked)}
+          label={
+            <span className="text-[12px]" style={{ color: 'var(--st-text)' }}>
+              Create contacts in CRM
+            </span>
+          }
+        />
+        <span className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
           {createContacts
             ? 'New contacts will be added for each recipient not already in your CRM.'
             : 'Off — only existing contacts will be updated. No new contacts created.'}
@@ -766,26 +866,34 @@ export function BroadcastForm({
       </div>
 
       {/* ── Submit ── */}
-      <div className="flex flex-col items-stretch gap-3 border-t border-zoru-line pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-[11.5px] text-zoru-ink-muted">
-          <FileText className="h-3.5 w-3.5" />
+      <div
+        className="flex flex-col items-stretch gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between"
+        style={{ borderColor: 'var(--st-border)' }}
+      >
+        <div
+          className="flex items-center gap-2 text-[11.5px]"
+          style={{ color: 'var(--st-text-muted)' }}
+        >
+          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
           {selectedFile ? (
             <span>
               Ready:{' '}
-              <span className="text-zoru-ink">{selectedFile.name}</span>{' '}
+              <span style={{ color: 'var(--st-text)' }}>
+                {selectedFile.name}
+              </span>{' '}
               {validationErrors.length > 0 ? (
-                <span className="text-zoru-danger">
+                <span style={{ color: 'var(--st-danger)' }}>
                   · {validationErrors.length} issue
                   {validationErrors.length === 1 ? '' : 's'}
                 </span>
               ) : (
-                <span className="text-zoru-success">· validated</span>
+                <span style={{ color: 'var(--st-success)' }}>· validated</span>
               )}
             </span>
           ) : audienceType === 'tags' && selectedTagIds.length > 0 ? (
             <span>
               Audience:{' '}
-              <span className="text-zoru-ink">
+              <span style={{ color: 'var(--st-text)' }}>
                 {selectedTagIds.length} tag
                 {selectedTagIds.length === 1 ? '' : 's'}
               </span>
@@ -815,8 +923,17 @@ export function BroadcastForm({
 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
-      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-zoru-ink text-[10px] tabular-nums text-zoru-on-primary">
+    <span
+      className="inline-flex items-center gap-2 text-[12.5px]"
+      style={{ color: 'var(--st-text)' }}
+    >
+      <span
+        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] tabular-nums"
+        style={{
+          background: 'var(--st-text)',
+          color: 'var(--st-text-inverted)',
+        }}
+      >
         {step}
       </span>
       {label}
@@ -840,19 +957,24 @@ function TypeOption({
   return (
     <label
       htmlFor={id}
-      className={cn(
-        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--zoru-radius)] border px-3 py-2.5 transition-colors',
-        active
-          ? 'border-zoru-ink bg-zoru-surface-2'
-          : 'border-zoru-line bg-zoru-bg hover:bg-zoru-surface',
-      )}
+      className="flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--st-radius)] border px-3 py-2.5 transition-colors"
+      style={{
+        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
+        background: active ? 'var(--st-surface-muted)' : 'var(--st-bg)',
+      }}
     >
-      <ZoruRadioGroupItem value={value} id={id} className="mt-0.5" />
+      <Radio value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
-        <span className="text-[13px] leading-tight text-zoru-ink">
+        <span
+          className="text-[13px] leading-tight"
+          style={{ color: 'var(--st-text)' }}
+        >
           {label}
         </span>
-        <span className="mt-0.5 text-[11px] leading-tight text-zoru-ink-muted">
+        <span
+          className="mt-0.5 text-[11px] leading-tight"
+          style={{ color: 'var(--st-text-muted)' }}
+        >
           {description}
         </span>
       </div>
@@ -875,18 +997,23 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label
+      <label
         htmlFor={htmlFor}
-        className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted"
+        className="text-[11.5px] uppercase tracking-wide"
+        style={{ color: 'var(--st-text-muted)' }}
       >
         {label}
         {required ? (
-          <span className="ml-1 text-zoru-danger">*</span>
+          <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
+            *
+          </span>
         ) : null}
         {optional ? (
-          <span className="ml-1 text-zoru-ink-subtle">(optional)</span>
+          <span className="ml-1" style={{ color: 'var(--st-text-tertiary)' }}>
+            (optional)
+          </span>
         ) : null}
-      </Label>
+      </label>
       {children}
     </div>
   );

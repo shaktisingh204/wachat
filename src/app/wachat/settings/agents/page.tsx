@@ -1,20 +1,10 @@
 'use client';
 
 import {
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   EmptyState,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
   Skeleton,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState } from 'react';
@@ -27,6 +17,14 @@ import { AgentsSettingsClient } from './client-page';
 
 import * as React from 'react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
+
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Agents & roles' },
+];
+
 export default function AgentsSettingsPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
@@ -38,65 +36,39 @@ export default function AgentsSettingsPage() {
     });
   }, []);
 
-  const breadcrumbs = (
-    <Breadcrumb>
-      <ZoruBreadcrumbList>
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-        </ZoruBreadcrumbItem>
-        <ZoruBreadcrumbSeparator />
-        <ZoruBreadcrumbItem>
-          <ZoruBreadcrumbPage>Agents & roles</ZoruBreadcrumbPage>
-        </ZoruBreadcrumbItem>
-      </ZoruBreadcrumbList>
-    </Breadcrumb>
-  );
-
   if (isLoadingProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
-        <Skeleton className="h-[420px] w-full" />
-      </div>
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
+        <Skeleton width="100%" height={420} />
+      </WachatPage>
     );
   }
 
   if (!activeProject) {
     return (
-      <div className="flex min-h-full flex-col gap-6">
-        {breadcrumbs}
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
         <EmptyState
-          icon={<CircleAlert className="h-10 w-10" />}
+          icon={CircleAlert}
           title="Select a project first"
           description="Pick a project from the WaChat home page to manage agents."
           action={<Button onClick={() => router.push('/wachat')}>Choose a project</Button>}
         />
-      </div>
+      </WachatPage>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-col gap-6">
-      {breadcrumbs}
-
-      <PageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Agents, Roles & Routing</ZoruPageTitle>
-          <ZoruPageDescription>
-            Invite teammates, configure role-based permissions, and manage conversation routing logic.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="Agents, Roles & Routing"
+      description="Invite teammates, configure role-based permissions, and manage conversation routing logic."
+      width="narrow"
+    >
       {user ? (
         <AgentsSettingsClient project={activeProject} />
       ) : (
-        <Skeleton className="h-40 w-full" />
+        <Skeleton width="100%" height={160} />
       )}
-    </div>
+    </WachatPage>
   );
 }

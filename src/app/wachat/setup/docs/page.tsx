@@ -1,13 +1,12 @@
 export const dynamic = 'force-dynamic';
 
-import {
-  Button,
-} from '@/components/zoruui';
 import React from 'react';
 
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import type { Metadata } from 'next';
+
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 import {
   PrerequisitesCard,
@@ -24,48 +23,84 @@ export const metadata: Metadata = {
 
 export default function ManualSetupDocsPage() {
   return (
-    <div className="flex flex-col gap-10 pb-10">
-      <div>
-        <Button variant="ghost" asChild className="mb-4 -ml-4">
-          <Link href="/wachat/setup">
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Setup Options
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Setup', href: '/wachat/setup' },
+        { label: 'Docs' },
+      ]}
+      title="WhatsApp Setup & Documentation"
+      description="Your complete guide to setting up and managing your WhatsApp Business Account integration. Includes real-time diagnostic tools and a comprehensive knowledge base."
+      width="wide"
+    >
+      <div className="flex flex-col gap-10">
+        <div>
+          <Link href="/wachat/setup" className="u-btn u-btn--ghost u-btn--md -ml-2">
+            <ChevronLeft size={14} aria-hidden="true" />
+            <span className="u-btn__label">Back to Setup Options</span>
           </Link>
-        </Button>
-        <h1 className="text-3xl font-bold font-headline">WhatsApp Setup & Documentation</h1>
-        <p className="text-zoru-ink-muted mt-2 max-w-2xl">
-          Your complete guide to setting up and managing your WhatsApp Business Account integration. Includes real-time diagnostic tools and a comprehensive knowledge base.
-        </p>
+        </div>
+
+        <section>
+          <div
+            className="mb-6 border-b pb-2"
+            style={{ borderColor: 'var(--st-border)' }}
+          >
+            <h2
+              className="text-2xl font-semibold tracking-tight"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Manual Setup Guide
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+              Follow these steps to connect your Meta App directly using Developer credentials.
+            </p>
+          </div>
+          <div className="grid gap-6">
+            <PrerequisitesCard />
+            <FindIdsCard />
+            <GenerateTokenCard />
+            <ConnectToSabNodeCard />
+          </div>
+        </section>
+
+        <section>
+          <div
+            className="mb-6 border-b pb-2"
+            style={{ borderColor: 'var(--st-border)' }}
+          >
+            <h2
+              className="text-2xl font-semibold tracking-tight"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Diagnostic Tools
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+              Real-time status checks and testing utilities to ensure your connection is healthy.
+            </p>
+          </div>
+          <WhatsAppTools />
+        </section>
+
+        <section>
+          <div
+            className="mb-6 border-b pb-2"
+            style={{ borderColor: 'var(--st-border)' }}
+          >
+            <h2
+              className="text-2xl font-semibold tracking-tight"
+              style={{ color: 'var(--st-text)' }}
+            >
+              Knowledge Base
+            </h2>
+            <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+              Searchable articles, troubleshooting steps, and best practices.
+            </p>
+          </div>
+          <DocumentationList />
+        </section>
       </div>
-
-      <section>
-        <div className="mb-6 border-b pb-2">
-          <h2 className="text-2xl font-semibold tracking-tight">Manual Setup Guide</h2>
-          <p className="text-zoru-ink-muted text-sm">Follow these steps to connect your Meta App directly using Developer credentials.</p>
-        </div>
-        <div className="grid gap-6">
-          <PrerequisitesCard />
-          <FindIdsCard />
-          <GenerateTokenCard />
-          <ConnectToSabNodeCard />
-        </div>
-      </section>
-
-      <section>
-        <div className="mb-6 border-b pb-2">
-          <h2 className="text-2xl font-semibold tracking-tight">Diagnostic Tools</h2>
-          <p className="text-zoru-ink-muted text-sm">Real-time status checks and testing utilities to ensure your connection is healthy.</p>
-        </div>
-        <WhatsAppTools />
-      </section>
-
-      <section>
-        <div className="mb-6 border-b pb-2">
-          <h2 className="text-2xl font-semibold tracking-tight">Knowledge Base</h2>
-          <p className="text-zoru-ink-muted text-sm">Searchable articles, troubleshooting steps, and best practices.</p>
-        </div>
-        <DocumentationList />
-      </section>
-    </div>
+    </WachatPage>
   );
 }

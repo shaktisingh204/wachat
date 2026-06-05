@@ -3,30 +3,21 @@ import { fmtDate } from "@/lib/utils";
 
 import {
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   DataTable,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  type DataTableColumn,
+  Modal,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
   EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
   Skeleton,
-  useZoruToast,
+  useToast,
+  Field,
   Input,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -34,19 +25,18 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import type { ColumnDef } from '@tanstack/react-table';
 import { Eye,
-  Loader2,
   RefreshCw,
   RotateCcw,
   Webhook } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { getWebhookLogs, replayWebhookLog } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Webhook Logs — ZoruUI migration.
- * Data table of deliveries + view-payload sheet + retry-delivery dialog.
+ * Wachat Webhook Logs — 20ui migration.
+ * Data table of deliveries + view-payload drawer + retry-delivery modal.
  */
 
 import * as React from 'react';
@@ -63,7 +53,7 @@ type WebhookLog = {
 
 export default function WebhookLogsPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [logs, setLogs] = useState<WebhookLog[]>([]);
@@ -92,7 +82,7 @@ export default function WebhookLogsPage() {
           toast({
             title: 'Error',
             description: res.error,
-            variant: 'destructive',
+            tone: 'danger',
           });
         } else {
           setLogs((res.logs as WebhookLog[]) || []);
@@ -106,66 +96,71 @@ export default function WebhookLogsPage() {
     if (projectId) fetchLogs(projectId);
   }, [projectId, fetchLogs]);
 
-  const columns = React.useMemo<ColumnDef<WebhookLog>[]>(
+  const columns = React.useMemo<DataTableColumn<WebhookLog>[]>(
     () => [
       {
-        id: 'timestamp',
-        accessorKey: 'receivedAt',
+        key: 'timestamp',
         header: 'Timestamp',
-        cell: ({ row }) => {
-          const t = row.original.receivedAt;
+        sortable: true,
+        sortValue: (row) => row.receivedAt ?? '',
+        render: (row) => {
+          const t = row.receivedAt;
           return (
-            <span className="font-mono text-[12.5px] tabular-nums text-zoru-ink-muted">
+            <span
+              className="font-mono text-[12.5px] tabular-nums"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               {t ? fmtDate(t) : '--'}
             </span>
           );
         },
       },
       {
-        id: 'event',
-        accessorKey: 'event',
+        key: 'event',
         header: 'Event',
-        cell: ({ row }) => (
-          <span className="text-[13px] text-zoru-ink">
-            {row.original.event || row.original.type || 'webhook'}
+        sortable: true,
+        sortValue: (row) => row.event || row.type || 'webhook',
+        render: (row) => (
+          <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+            {row.event || row.type || 'webhook'}
           </span>
         ),
       },
       {
-        id: 'status',
-        accessorKey: 'status',
+        key: 'status',
         header: 'Status',
-        cell: ({ row }) => {
-          const s = (row.original.status || 'received').toLowerCase();
-          const variant: 'success' | 'danger' | 'secondary' =
+        render: (row) => {
+          const s = (row.status || 'received').toLowerCase();
+          const tone: 'success' | 'danger' | 'neutral' =
             s === 'success'
               ? 'success'
               : s === 'failed' || s === 'error'
                 ? 'danger'
-                : 'secondary';
-          return <Badge variant={variant}>{s}</Badge>;
+                : 'neutral';
+          return <Badge tone={tone}>{s}</Badge>;
         },
       },
       {
-        id: 'actions',
+        key: 'actions',
         header: '',
-        enableSorting: false,
-        enableHiding: false,
-        cell: ({ row }) => (
+        align: 'right',
+        render: (row) => (
           <div className="flex items-center justify-end gap-1">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setPreviewLog(row.original)}
+              iconLeft={Eye}
+              onClick={() => setPreviewLog(row)}
             >
-              <Eye /> View
+              View
             </Button>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setRetryLog(row.original)}
+              iconLeft={RotateCcw}
+              onClick={() => setRetryLog(row)}
             >
-              <RotateCcw /> Retry
+              Retry
             </Button>
           </div>
         ),
@@ -178,148 +173,135 @@ export default function WebhookLogsPage() {
     previewLog?.payload ?? previewLog?.body ?? {};
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Webhook logs</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div className="mt-5 flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Webhook logs
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            View incoming and outgoing webhook event logs.
-          </p>
-        </div>
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Webhook logs' },
+      ]}
+      title="Webhook logs"
+      description="View incoming and outgoing webhook event logs."
+      width="wide"
+      actions={
         <Button
           size="sm"
           variant="outline"
+          iconLeft={RefreshCw}
+          loading={isLoading}
           onClick={() => projectId && fetchLogs(projectId)}
-          disabled={isLoading}
         >
-          {isLoading ? (
-            <Loader2 className="animate-spin" />
-          ) : (
-            <RefreshCw />
-          )}
           Refresh
         </Button>
-      </div>
-
-      <div className="mt-6">
-        {isLoading && logs.length === 0 ? (
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-9 w-full" />
-            <Skeleton className="h-9 w-full" />
-          </div>
-        ) : logs.length === 0 ? (
-          <EmptyState
-            icon={<Webhook />}
-            title="No webhook logs found"
-            description="Once Meta starts sending events to your endpoint, they'll appear here."
-          />
-        ) : (
-          <DataTable
+      }
+    >
+      {isLoading && logs.length === 0 ? (
+        <div className="flex flex-col gap-2">
+          <Skeleton height={36} />
+          <Skeleton height={36} />
+          <Skeleton height={36} />
+          <Skeleton height={36} />
+        </div>
+      ) : logs.length === 0 ? (
+        <EmptyState
+          icon={Webhook}
+          title="No webhook logs found"
+          description="Once Meta starts sending events to your endpoint, they'll appear here."
+        />
+      ) : (
+        <div className="flex flex-col gap-3">
+          <Field className="max-w-sm" label="Search">
+            <Input
+              placeholder="Search events and payloads…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </Field>
+          <DataTable<WebhookLog>
             columns={columns}
-            data={filteredLogs}
-            toolbar={
-              <Input
-                placeholder="Search events and payloads…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-sm"
-              />
-            }
+            rows={filteredLogs}
+            getRowId={(row) => row._id}
             empty={
               <EmptyState
-                compact
-                icon={<Webhook />}
+                size="sm"
+                icon={Webhook}
                 title="No deliveries match"
               />
             }
           />
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* ── View payload sheet ── */}
-      <Sheet
+      {/* ── View payload drawer ── */}
+      <Drawer
         open={!!previewLog}
         onOpenChange={(o) => !o && setPreviewLog(null)}
       >
-        <ZoruSheetContent className="w-full sm:max-w-xl flex flex-col">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>
+        <DrawerContent side="right" className="w-full sm:max-w-xl flex flex-col">
+          <DrawerHeader>
+            <DrawerTitle>
               {previewLog?.event || previewLog?.type || 'Webhook event'}
-            </ZoruSheetTitle>
-            <ZoruSheetDescription>
+            </DrawerTitle>
+            <DrawerDescription>
               {previewLog?.receivedAt
                 ? fmtDate(previewLog.receivedAt)
                 : 'Full payload'}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerDescription>
+          </DrawerHeader>
           <div className="mt-4 flex-1 overflow-auto">
-            <pre className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 font-mono text-[12px] text-zoru-ink">
+            <pre
+              className="p-4 font-mono text-[12px]"
+              style={{
+                borderRadius: 'var(--st-radius)',
+                border: '1px solid var(--st-border)',
+                background: 'var(--st-bg-secondary)',
+                color: 'var(--st-text)',
+              }}
+            >
               {JSON.stringify(previewPayload, null, 2)}
             </pre>
           </div>
-        </ZoruSheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
-      {/* ── Retry delivery dialog ── */}
-      <Dialog
+      {/* ── Retry delivery modal ── */}
+      <Modal
         open={!!retryLog}
-        onOpenChange={(o) => !o && setRetryLog(null)}
-      >
-        <ZoruDialogContent>
-          <ZoruDialogHeader>
-            <ZoruDialogTitle>Retry delivery?</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              We&apos;ll re-send {retryLog?.event || 'this event'} to your
-              endpoint. Existing logs are kept untouched.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <ZoruDialogFooter>
+        onClose={() => setRetryLog(null)}
+        title="Retry delivery?"
+        description={
+          <>
+            We&apos;ll re-send {retryLog?.event || 'this event'} to your
+            endpoint. Existing logs are kept untouched.
+          </>
+        }
+        footer={
+          <>
             <Button variant="ghost" onClick={() => setRetryLog(null)}>
               Cancel
             </Button>
             <Button
-              disabled={isRetrying}
+              variant="primary"
+              iconLeft={RotateCcw}
+              loading={isRetrying}
               onClick={() => {
                 if (!projectId || !retryLog) return;
                 startRetrying(async () => {
                   const payload = retryLog.payload ?? retryLog.body;
                   const res = await replayWebhookLog(projectId, payload);
                   if (res.error) {
-                    toast({ title: 'Error', description: res.error, variant: 'destructive' });
+                    toast({ title: 'Error', description: res.error, tone: 'danger' });
                   } else {
-                    toast({ title: 'Retry queued', description: res.message || 'The event will be re-delivered shortly.' });
+                    toast({ title: 'Retry queued', description: res.message || 'The event will be re-delivered shortly.', tone: 'success' });
                     setRetryLog(null);
                   }
                 });
               }}
             >
-              {isRetrying ? <Loader2 className="animate-spin" /> : <RotateCcw />} Retry
+              Retry
             </Button>
-          </ZoruDialogFooter>
-        </ZoruDialogContent>
-      </Dialog>
-
-      <div className="h-6" />
-    </div>
+          </>
+        }
+      />
+    </WachatPage>
   );
 }

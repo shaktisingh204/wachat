@@ -2,14 +2,10 @@
 
 import {
   Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  Button,
+  IconButton,
   ScrollArea,
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useRef,
@@ -23,7 +19,6 @@ import type { Contact,
 import { ChatMessage } from './zoru-chat-message';
 import { ChatMessageInput } from './zoru-chat-message-input';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 
 import { AlertCircle } from 'lucide-react';
@@ -144,32 +139,41 @@ export function ChatWindow({
 
     return (
         <div className="flex flex-col h-full bg-transparent relative">
-            <div className="flex items-center justify-between gap-3 p-3 border-b bg-zoru-surface/80 backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0">
+            <div
+                className="flex items-center justify-between gap-3 p-3 border-b backdrop-blur-md h-[73px] flex-shrink-0 z-10 sticky top-0"
+                style={{ borderColor: 'var(--st-border)', background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)' }}
+            >
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                        <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
-                    </Avatar>
+                    <IconButton
+                        label="Back"
+                        icon={ArrowLeft}
+                        variant="ghost"
+                        className="md:hidden"
+                        onClick={onBack}
+                    />
+                    <Avatar name={contact.name} size="md" shape="round" />
                     <div>
                         <p className="font-semibold leading-none">{contact.name}</p>
-                        <p className="text-xs text-zoru-ink-muted mt-1">online</p>
+                        <p className="text-xs mt-1" style={{ color: 'var(--st-text-muted)' }}>online</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
                     {sessionExpiryTime && !isWindowExpired && (
-                        <div className="hidden sm:block text-xs bg-zoru-surface-2/50 text-zoru-ink-muted p-2 rounded-md border">
+                        <div
+                            className="hidden sm:block text-xs p-2 rounded-md border"
+                            style={{
+                                color: 'var(--st-text-muted)',
+                                borderColor: 'var(--st-border)',
+                                background: 'color-mix(in oklab, var(--st-surface-muted) 50%, transparent)',
+                            }}
+                        >
                             Session closes in: <Countdown targetTime={sessionExpiryTime} onExpire={() => setIsWindowExpired(true)} />
                         </div>
                     )}
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" disabled><Phone className="h-5 w-5 text-zoru-ink-muted" /></Button>
-                        <Button variant="ghost" size="icon" disabled><Video className="h-5 w-5 text-zoru-ink-muted" /></Button>
-                        <Button variant="ghost" size="icon" onClick={onInfoToggle}>
-                            <Info className="h-5 w-5 text-zoru-ink-muted" />
-                            <span className="sr-only">Contact Info</span>
-                        </Button>
+                        <IconButton label="Voice call" icon={Phone} variant="ghost" disabled />
+                        <IconButton label="Video call" icon={Video} variant="ghost" disabled />
+                        <IconButton label="Contact Info" icon={Info} variant="ghost" onClick={onInfoToggle} />
                     </div>
                 </div>
             </div>
@@ -177,7 +181,7 @@ export function ChatWindow({
             <ScrollArea viewportRef={viewportRef} className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
-                        <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                        <LoaderCircle className="h-6 w-6 animate-spin" style={{ color: 'var(--st-text-muted)' }} />
                     </div>
                 ) : (
                     <div className="p-4 space-y-4">
@@ -190,28 +194,41 @@ export function ChatWindow({
 
             <div className="p-3 bg-transparent flex-shrink-0 z-10 w-full max-w-4xl mx-auto">
                 {isWindowExpired && (
-                    <Alert variant="destructive" className="bg-zoru-ink/10 border-destructive/30 mb-2">
-                        <AlertCircle className="h-4 w-4" />
-                        <ZoruAlertTitle>24-Hour Window Closed</ZoruAlertTitle>
-                        <ZoruAlertDescription>
-                            You can no longer send free-form messages. Send a new template message to start a conversation.
-                        </ZoruAlertDescription>
+                    <Alert tone="danger" icon={AlertCircle} title="24-Hour Window Closed" className="mb-2">
+                        You can no longer send free-form messages. Send a new template message to start a conversation.
                     </Alert>
                 )}
                 {replyToMessage && (
-                    <div className="p-2 mb-2 bg-zoru-surface/80 backdrop-blur-md rounded-xl text-sm relative border shadow-sm">
-                        <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => setReplyToMessage(null)}>
-                            <X className="h-4 w-4" />
-                        </Button>
-                        <p className="font-semibold text-zoru-ink">
+                    <div
+                        className="p-2 mb-2 backdrop-blur-md rounded-xl text-sm relative border shadow-sm"
+                        style={{
+                            borderColor: 'var(--st-border)',
+                            background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)',
+                        }}
+                    >
+                        <IconButton
+                            label="Cancel reply"
+                            icon={X}
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-1 right-1"
+                            onClick={() => setReplyToMessage(null)}
+                        />
+                        <p className="font-semibold" style={{ color: 'var(--st-text)' }}>
                             Replying to {replyToMessage.direction === 'out' ? 'You' : replyToMessage.content.profile?.name || 'User'}
                         </p>
-                        <p className="text-zoru-ink-muted truncate">
+                        <p className="truncate" style={{ color: 'var(--st-text-muted)' }}>
                             {replyToMessage.content.text?.body || 'Media or interactive message'}
                         </p>
                     </div>
                 )}
-                <div className="bg-zoru-surface/80 backdrop-blur-xl border rounded-2xl shadow-lg p-2">
+                <div
+                    className="backdrop-blur-xl border rounded-2xl shadow-lg p-2"
+                    style={{
+                        borderColor: 'var(--st-border)',
+                        background: 'color-mix(in oklab, var(--st-surface) 80%, transparent)',
+                    }}
+                >
                     <ChatMessageInput
                         project={project}
                         contact={contact}

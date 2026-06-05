@@ -2,31 +2,18 @@
 
 import {
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
-  Label,
+  Field,
+  Modal,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
   useRef,
   useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { Download,
   FileUp,
-  Loader2,
   Upload } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
@@ -34,7 +21,7 @@ import { handleImportContacts } from '@/app/actions/contact.actions';
 import type { Project } from '@/lib/definitions';
 
 /**
- * ImportContactsDialog (wachat-local, ZoruUI).
+ * ImportContactsDialog (wachat-local, 20ui).
  *
  * Replaces the legacy import-contacts-dialog. Same server
  * action (handleImportContacts), same form fields and CSV download
@@ -48,11 +35,15 @@ const initialState = {
   error: null as string | null,
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : null}
+    <Button
+      type="submit"
+      form="import-contacts-form"
+      variant="primary"
+      loading={pending}
+      disabled={pending}
+    >
       {pending ? 'Importing…' : 'Import contacts'}
     </Button>
   );
@@ -68,11 +59,11 @@ export function ImportContactsDialog({
   onImported,
 }: ImportContactsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(
+  const [state, formAction, isPending] = useActionState(
     handleImportContacts as any,
     initialState as any,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(
     project.phoneNumbers?.[0]?.id || '',
@@ -81,7 +72,7 @@ export function ImportContactsDialog({
 
   useEffect(() => {
     if (state?.message) {
-      toast({ title: 'Success', description: state.message });
+      toast({ title: 'Success', description: state.message, tone: 'success' });
       formRef.current?.reset();
       setFileName(null);
       onImported();
@@ -91,7 +82,7 @@ export function ImportContactsDialog({
       toast({
         title: 'Error',
         description: state.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     }
   }, [state, toast, onImported]);
@@ -113,16 +104,58 @@ export function ImportContactsDialog({
     toast({ title: 'Sample file downloading…' });
   };
 
+  const phoneOptions = (project?.phoneNumbers || []).map((phone) => ({
+    value: phone.id,
+    label: `${phone.display_phone_number} (${phone.verified_name})`,
+  }));
+
+  const titleNode = (
+    <span className="flex flex-row items-start gap-3">
+      <span
+        className="flex h-10 w-10 shrink-0 items-center justify-center"
+        style={{
+          borderRadius: 'var(--st-radius-sm)',
+          background: 'var(--st-bg-muted)',
+          color: 'var(--st-text)',
+        }}
+      >
+        <FileUp className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">Import contacts</span>
+    </span>
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <ZoruDialogTrigger asChild>
-        <Button variant="outline" size="md">
-          <FileUp />
-          Import
-        </Button>
-      </ZoruDialogTrigger>
-      <ZoruDialogContent className="max-w-[520px] p-0">
-        <form action={formAction as any} ref={formRef}>
+    <>
+      <Button
+        variant="outline"
+        size="md"
+        iconLeft={FileUp}
+        onClick={() => setOpen(true)}
+      >
+        Import
+      </Button>
+
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={titleNode}
+        description="Upload a CSV or XLSX file to add or update contacts. First column must be the phone number (WhatsApp ID); second should be the name."
+        size="md"
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setOpen(false)}
+            >
+              Cancel
+            </Button>
+            <SubmitButton pending={isPending} />
+          </>
+        }
+      >
+        <form action={formAction as any} ref={formRef} id="import-contacts-form">
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input
             type="hidden"
@@ -130,54 +163,33 @@ export function ImportContactsDialog({
             value={selectedPhoneNumberId}
           />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-              <FileUp className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] text-zoru-ink">
-                Import contacts
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted">
-                Upload a CSV or XLSX file to add or update contacts. First
-                column must be the phone number (WhatsApp ID); second should be
-                the name.
-              </ZoruDialogDescription>
-            </div>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-5 px-6 py-5">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] text-zoru-ink-muted">
-                Associate with number
-              </Label>
+          <div className="flex flex-col gap-5">
+            <Field label="Associate with number">
               <Select
                 value={selectedPhoneNumberId}
-                onValueChange={setSelectedPhoneNumberId}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Choose a number…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {(project?.phoneNumbers || []).map((phone) => (
-                    <ZoruSelectItem key={phone.id} value={phone.id}>
-                      {phone.display_phone_number} ({phone.verified_name})
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
-            </div>
+                onChange={(v) => setSelectedPhoneNumberId(v ?? '')}
+                options={phoneOptions}
+                placeholder="Choose a number…"
+                aria-label="Associate with number"
+              />
+            </Field>
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <Label className="text-[11.5px] text-zoru-ink-muted">
+                <span
+                  className="text-[11.5px]"
+                  style={{ color: 'var(--st-text-secondary)' }}
+                >
                   Contact file{' '}
-                  <span className="ml-1 text-zoru-danger">*</span>
-                </Label>
+                  <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
+                    *
+                  </span>
+                </span>
                 <button
                   type="button"
                   onClick={handleDownloadSample}
-                  className="inline-flex items-center gap-1 text-[11px] text-zoru-ink-muted transition-colors hover:text-zoru-ink"
+                  className="inline-flex items-center gap-1 text-[11px] transition-colors"
+                  style={{ color: 'var(--st-text-secondary)' }}
                 >
                   <Download className="h-3 w-3" />
                   Sample CSV
@@ -185,24 +197,36 @@ export function ImportContactsDialog({
               </div>
 
               <label
-                className={cn(
-                  'group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--zoru-radius-lg)] border-2 border-dashed px-4 py-8 text-center transition-colors',
-                  fileName
-                    ? 'border-zoru-ink bg-zoru-surface-2'
-                    : 'border-zoru-line bg-zoru-surface hover:bg-zoru-surface-2',
-                )}
+                className="group flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed px-4 py-8 text-center transition-colors"
+                style={{
+                  borderRadius: 'var(--st-radius-lg)',
+                  borderColor: fileName
+                    ? 'var(--st-text)'
+                    : 'var(--st-border)',
+                  background: fileName
+                    ? 'var(--st-bg-muted)'
+                    : 'var(--st-bg)',
+                }}
               >
                 <Upload
-                  className={cn(
-                    'h-6 w-6 transition-colors',
-                    fileName ? 'text-zoru-ink' : 'text-zoru-ink-muted',
-                  )}
+                  className="h-6 w-6 transition-colors"
+                  style={{
+                    color: fileName
+                      ? 'var(--st-text)'
+                      : 'var(--st-text-secondary)',
+                  }}
                 />
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] text-zoru-ink">
+                  <span
+                    className="text-[13px]"
+                    style={{ color: 'var(--st-text)' }}
+                  >
                     {fileName || 'Click to choose a file'}
                   </span>
-                  <span className="text-[11px] text-zoru-ink-muted">
+                  <span
+                    className="text-[11px]"
+                    style={{ color: 'var(--st-text-secondary)' }}
+                  >
                     {fileName ? 'Click to replace' : 'CSV or XLSX, up to 10 MB'}
                   </span>
                 </div>
@@ -220,19 +244,8 @@ export function ImportContactsDialog({
               </label>
             </div>
           </div>
-
-          <ZoruDialogFooter className="gap-2 border-t border-zoru-line px-6 py-4 sm:justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton />
-          </ZoruDialogFooter>
         </form>
-      </ZoruDialogContent>
-    </Dialog>
+      </Modal>
+    </>
   );
 }

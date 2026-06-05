@@ -1,49 +1,42 @@
 'use client';
 
 import {
-  useZoruToast,
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  useToast,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
   Card,
-  Label,
+  Field,
   Progress,
+  Spinner,
   Textarea,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
 import { CircleCheck,
   CircleX,
-  Loader2,
   Send } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
  * Wachat Bulk Messaging — send messages to multiple numbers at once.
- * ZoruUI rebuild. Same handler (sendBulkMessages); only chrome is new.
+ * 20ui rebuild. Same handler (sendBulkMessages); only chrome is new.
  */
-
-import * as React from 'react';
 
 import { sendBulkMessages } from '@/app/actions/wachat-features.actions';
 
 export default function BulkMessagingPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
 
   const [numbers, setNumbers] = useState('');
@@ -66,7 +59,7 @@ export default function BulkMessagingPage() {
       toast({
         title: 'Missing info',
         description: 'Add phone numbers and a message.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -74,7 +67,7 @@ export default function BulkMessagingPage() {
       toast({
         title: 'Error',
         description: 'No project selected.',
-        variant: 'destructive',
+        tone: 'danger',
       });
       return;
     }
@@ -86,7 +79,7 @@ export default function BulkMessagingPage() {
       toast({
         title: 'Error',
         description: res.error,
-        variant: 'destructive',
+        tone: 'danger',
       });
     } else {
       setResult({
@@ -97,45 +90,25 @@ export default function BulkMessagingPage() {
       toast({
         title: 'Complete',
         description: `Sent ${res.success} of ${res.total} messages.`,
+        tone: 'success',
       });
     }
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Bulk Messaging</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Bulk Messaging
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          Send a message to multiple phone numbers at once.
-        </p>
-      </div>
-
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Bulk Messaging' },
+      ]}
+      title="Bulk Messaging"
+      description="Send a message to multiple phone numbers at once."
+    >
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="flex flex-col gap-4 p-6">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="bm-numbers">
-              Phone numbers (one per line)
-            </Label>
+        <Card padding="lg" className="flex flex-col gap-4">
+          <Field label="Phone numbers (one per line)">
             <Textarea
-              id="bm-numbers"
               value={numbers}
               onChange={(e) => setNumbers(e.target.value)}
               rows={6}
@@ -143,91 +116,114 @@ export default function BulkMessagingPage() {
               placeholder={'+91 98765 43210\n+91 87654 32109\n+91 76543 21098'}
               className="font-mono"
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="bm-message">Message</Label>
+          </Field>
+          <Field label="Message">
             <Textarea
-              id="bm-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
               disabled={sending}
               placeholder="Type your message here..."
             />
-          </div>
+          </Field>
           <div>
-            <ZoruAlertDialog>
-              <ZoruAlertDialogTrigger asChild>
-                <Button disabled={sending || !canSend}>
-                  {sending ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Send className="h-3.5 w-3.5" />
-                  )}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="primary"
+                  iconLeft={Send}
+                  loading={sending}
+                  disabled={sending || !canSend}
+                >
                   {sending ? 'Sending…' : 'Send all'}
                 </Button>
-              </ZoruAlertDialogTrigger>
-              <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                  <ZoruAlertDialogTitle>
-                    Confirm bulk send?
-                  </ZoruAlertDialogTitle>
-                  <ZoruAlertDialogDescription>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm bulk send?</AlertDialogTitle>
+                  <AlertDialogDescription>
                     {lines.length} message{lines.length === 1 ? '' : 's'} will
                     be sent immediately. Charges may apply per recipient and
                     these messages cannot be unsent.
-                  </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                  <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                  <ZoruAlertDialogAction onClick={handleSend}>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction intent="primary" onClick={handleSend}>
                     Send {lines.length} message
                     {lines.length === 1 ? '' : 's'}
-                  </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-              </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-sm text-zoru-ink mb-4">Result</h2>
+        <Card padding="lg">
+          <h2
+            className="mb-4 text-sm"
+            style={{ color: 'var(--st-text)' }}
+          >
+            Result
+          </h2>
           {sending ? (
             <div className="flex h-20 items-center justify-center gap-3">
-              <Loader2 className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-              <p className="text-[13px] text-zoru-ink-muted">
+              <Spinner size="md" label="Sending messages" />
+              <p
+                className="text-[13px]"
+                style={{ color: 'var(--st-text-secondary)' }}
+              >
                 Sending messages…
               </p>
             </div>
           ) : result ? (
             <>
-              <Progress value={100} className="mb-4 h-3" />
-              <p className="mb-4 text-[13px] text-zoru-ink">
+              <Progress value={100} tone="success" className="mb-4" />
+              <p
+                className="mb-4 text-[13px]"
+                style={{ color: 'var(--st-text)' }}
+              >
                 {result.total} processed
               </p>
               <div className="flex gap-6">
                 <div className="flex items-center gap-2">
-                  <CircleCheck className="h-4 w-4 text-zoru-success" />
-                  <span className="text-[13px] text-zoru-ink">
+                  <CircleCheck
+                    className="h-4 w-4"
+                    style={{ color: 'var(--st-status-ok)' }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="text-[13px]"
+                    style={{ color: 'var(--st-text)' }}
+                  >
                     {result.success} sent
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CircleX className="h-4 w-4 text-zoru-danger" />
-                  <span className="text-[13px] text-zoru-ink">
+                  <CircleX
+                    className="h-4 w-4"
+                    style={{ color: 'var(--st-danger)' }}
+                    aria-hidden="true"
+                  />
+                  <span
+                    className="text-[13px]"
+                    style={{ color: 'var(--st-text)' }}
+                  >
                     {result.failed} failed
                   </span>
                 </div>
               </div>
             </>
           ) : (
-            <p className="py-8 text-center text-[13px] text-zoru-ink-muted">
+            <p
+              className="py-8 text-center text-[13px]"
+              style={{ color: 'var(--st-text-secondary)' }}
+            >
               Enter numbers and a message, then click Send all.
             </p>
           )}
         </Card>
       </div>
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

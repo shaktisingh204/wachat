@@ -2,25 +2,19 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  useZoruToast,
+  useToast,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
+  StatCard,
   EmptyState,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetDescription,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
-  ZoruSheetTrigger,
   Skeleton,
-} from '@/components/zoruui';
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -36,11 +30,13 @@ import {
 
 import { useProject } from '@/context/project-context';
 import { getImportHistory } from '@/app/actions/wachat-features.actions';
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Wachat Contact Import History — rebuilt on ZoruUI primitives (phase 2).
+ * Wachat Contact Import History — rebuilt on 20ui primitives.
  *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ * Same data, same handlers. Visual primitives swapped to 20ui inside the
+ * standard WachatPage frame.
  */
 
 import * as React from 'react';
@@ -49,30 +45,30 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'completed':
       return (
-        <Badge variant="success">
-          <CircleCheck /> Completed
+        <Badge tone="success">
+          <CircleCheck size={12} aria-hidden="true" /> Completed
         </Badge>
       );
     case 'failed':
       return (
-        <Badge variant="danger">
-          <CircleX /> Failed
+        <Badge tone="danger">
+          <CircleX size={12} aria-hidden="true" /> Failed
         </Badge>
       );
     case 'processing':
       return (
-        <Badge variant="info">
-          <Clock /> Processing
+        <Badge tone="info">
+          <Clock size={12} aria-hidden="true" /> Processing
         </Badge>
       );
     default:
-      return <Badge variant="secondary">{status}</Badge>;
+      return <Badge tone="neutral">{status}</Badge>;
   }
 }
 
 export default function ContactImportHistoryPage() {
   const { activeProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const projectId = activeProject?._id?.toString();
   const [imports, setImports] = useState<any[]>([]);
   const [isLoading, startTransition] = useTransition();
@@ -86,7 +82,7 @@ export default function ContactImportHistoryPage() {
         toast({
           title: 'Error',
           description: res.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
         return;
       }
@@ -102,176 +98,190 @@ export default function ContactImportHistoryPage() {
   const isLoadingInitial = isLoading && imports.length === 0;
 
   return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat/contacts">
-              Contacts
-            </ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Import History</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <div>
-        <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-          Contact Import History
-        </h1>
-        <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-          View the history of all past CSV contact imports.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Total Imports
-          </div>
-          <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
-            {imports.length}
-          </div>
-        </Card>
-        <Card className="p-5">
-          <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-            Contacts Imported
-          </div>
-          <div className="mt-1 text-[28px] tabular-nums text-zoru-ink">
-            {totalImported.toLocaleString()}
-          </div>
-        </Card>
-      </div>
-
-      {isLoadingInitial ? (
-        <div className="flex flex-col gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-12 w-full" />
-          ))}
+    <WachatPage
+      breadcrumb={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts', href: '/wachat/contacts' },
+        { label: 'Import History' },
+      ]}
+      title="Contact Import History"
+      description="View the history of all past CSV contact imports."
+      width="wide"
+    >
+      <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <StatCard label="Total Imports" value={imports.length} />
+          <StatCard
+            label="Contacts Imported"
+            value={totalImported.toLocaleString()}
+          />
         </div>
-      ) : imports.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-zoru-line text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                <th className="px-5 py-3">Filename</th>
-                <th className="px-5 py-3">Date</th>
-                <th className="px-5 py-3 text-right">Total</th>
-                <th className="px-5 py-3 text-right">Success</th>
-                <th className="px-5 py-3 text-right">Failed</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zoru-line">
-              {imports.map((imp) => (
-                <tr key={imp._id}>
-                  <td className="px-5 py-3 text-[13px] text-zoru-ink">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="h-4 w-4 shrink-0 text-zoru-ink-muted" />
-                      {imp.filename || 'Unknown'}
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 text-[12px] text-zoru-ink-muted whitespace-nowrap">
-                    {imp.importedAt
-                      ? fmtDate(imp.importedAt)
-                      : '—'}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-ink tabular-nums">
-                    {(imp.total ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-success tabular-nums">
-                    {(imp.success ?? 0).toLocaleString()}
-                  </td>
-                  <td className="px-5 py-3 text-right text-[13px] text-zoru-danger tabular-nums">
-                    {imp.failed ?? 0}
-                  </td>
-                  <td className="px-5 py-3">
-                    <StatusBadge status={imp.status || 'completed'} />
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelected(imp)}
-                    >
-                      <Eye /> View
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      ) : (
-        <EmptyState
-          icon={<FileSpreadsheet />}
-          title="No import records found"
-          description="Imports performed via the Contacts page will appear here."
-        />
-      )}
 
-      {/* View results sheet */}
-      <Sheet
+        {isLoadingInitial ? (
+          <div className="flex flex-col gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} height={48} />
+            ))}
+          </div>
+        ) : imports.length > 0 ? (
+          <Card padding="none" className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr
+                  className="text-[11px] uppercase tracking-wide"
+                  style={{
+                    color: 'var(--st-text-tertiary)',
+                    borderBottom: '1px solid var(--st-border)',
+                  }}
+                >
+                  <th className="px-5 py-3">Filename</th>
+                  <th className="px-5 py-3">Date</th>
+                  <th className="px-5 py-3 text-right">Total</th>
+                  <th className="px-5 py-3 text-right">Success</th>
+                  <th className="px-5 py-3 text-right">Failed</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {imports.map((imp) => (
+                  <tr
+                    key={imp._id}
+                    style={{ borderTop: '1px solid var(--st-border)' }}
+                  >
+                    <td
+                      className="px-5 py-3 text-[13px]"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet
+                          className="h-4 w-4 shrink-0"
+                          style={{ color: 'var(--st-text-tertiary)' }}
+                          aria-hidden="true"
+                        />
+                        {imp.filename || 'Unknown'}
+                      </div>
+                    </td>
+                    <td
+                      className="px-5 py-3 text-[12px] whitespace-nowrap"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
+                      {imp.importedAt ? fmtDate(imp.importedAt) : '—'}
+                    </td>
+                    <td
+                      className="px-5 py-3 text-right text-[13px] tabular-nums"
+                      style={{ color: 'var(--st-text)' }}
+                    >
+                      {(imp.total ?? 0).toLocaleString()}
+                    </td>
+                    <td
+                      className="px-5 py-3 text-right text-[13px] tabular-nums"
+                      style={{ color: 'var(--st-status-ok)' }}
+                    >
+                      {(imp.success ?? 0).toLocaleString()}
+                    </td>
+                    <td
+                      className="px-5 py-3 text-right text-[13px] tabular-nums"
+                      style={{ color: 'var(--st-danger)' }}
+                    >
+                      {imp.failed ?? 0}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={imp.status || 'completed'} />
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        iconLeft={Eye}
+                        onClick={() => setSelected(imp)}
+                      >
+                        View
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        ) : (
+          <EmptyState
+            icon={FileSpreadsheet}
+            title="No import records found"
+            description="Imports performed via the Contacts page will appear here."
+          />
+        )}
+      </div>
+
+      {/* View results drawer */}
+      <Drawer
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}
       >
-        <ZoruSheetContent side="right" className="w-full sm:max-w-md">
-          <ZoruSheetHeader>
-            <ZoruSheetTitle>
+        <DrawerContent side="right" className="w-full sm:max-w-md">
+          <DrawerHeader>
+            <DrawerTitle>
               {selected?.filename || 'Import details'}
-            </ZoruSheetTitle>
-            <ZoruSheetDescription>
-              {selected?.importedAt
-                ? fmtDate(selected.importedAt)
-                : '—'}
-            </ZoruSheetDescription>
-          </ZoruSheetHeader>
+            </DrawerTitle>
+            <DrawerDescription>
+              {selected?.importedAt ? fmtDate(selected.importedAt) : '—'}
+            </DrawerDescription>
+          </DrawerHeader>
           {selected && (
             <div className="mt-6 flex flex-col gap-3">
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Status</span>
+                <span style={{ color: 'var(--st-text-secondary)' }}>Status</span>
                 <StatusBadge status={selected.status || 'completed'} />
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Total rows</span>
-                <span className="text-zoru-ink tabular-nums">
+                <span style={{ color: 'var(--st-text-secondary)' }}>
+                  Total rows
+                </span>
+                <span
+                  className="tabular-nums"
+                  style={{ color: 'var(--st-text)' }}
+                >
                   {(selected.total ?? 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Imported</span>
-                <span className="text-zoru-success tabular-nums">
+                <span style={{ color: 'var(--st-text-secondary)' }}>
+                  Imported
+                </span>
+                <span
+                  className="tabular-nums"
+                  style={{ color: 'var(--st-status-ok)' }}
+                >
                   {(selected.success ?? 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span className="text-zoru-ink-muted">Failed</span>
-                <span className="text-zoru-danger tabular-nums">
+                <span style={{ color: 'var(--st-text-secondary)' }}>Failed</span>
+                <span
+                  className="tabular-nums"
+                  style={{ color: 'var(--st-danger)' }}
+                >
                   {selected.failed ?? 0}
                 </span>
               </div>
               {selected.errorMessage ? (
-                <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 text-[12px] text-zoru-ink-muted">
+                <div
+                  className="p-3 text-[12px]"
+                  style={{
+                    borderRadius: 'var(--st-radius)',
+                    border: '1px solid var(--st-border)',
+                    background: 'var(--st-bg-secondary)',
+                    color: 'var(--st-text-secondary)',
+                  }}
+                >
                   {selected.errorMessage}
                 </div>
               ) : null}
             </div>
           )}
-        </ZoruSheetContent>
-      </Sheet>
-
-      <div className="h-6" />
-    </div>
+        </DrawerContent>
+      </Drawer>
+    </WachatPage>
   );
 }

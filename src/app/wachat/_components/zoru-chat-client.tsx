@@ -2,44 +2,30 @@
 
 import {
   Alert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
   Avatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
   Badge,
   Button,
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  Modal,
+  Field,
   Input,
-  Label,
   Popover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
+  PopoverContent,
+  PopoverTrigger,
   ScrollArea,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  Sheet,
-  ZoruSheetContent,
-  ZoruSheetHeader,
-  ZoruSheetTitle,
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
   Skeleton,
-  useZoruToast,
-  cn,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useEffect,
   useState,
@@ -85,16 +71,16 @@ import { ChatWindow } from "./chat/zoru-chat-window";
 import { ContactInfoPanel } from "./chat/zoru-contact-info-panel";
 
 /**
- * /wachat/chat — ZoruUI rebuild of `ChatClient`.
+ * /wachat/chat — 20ui rebuild of `ChatClient`.
  *
  * Three-pane workspace:
- *   1. Conversations list  (rebuilt inline with Zoru primitives)
- *   2. Message thread      (pure ZoruUI ChatWindow — preserves
+ *   1. Conversations list  (rebuilt inline with 20ui primitives)
+ *   2. Message thread      (pure 20ui ChatWindow — preserves
  *                           every server-action call: send-message,
  *                           attachments, reactions, reply, etc.)
- *   3. Contact info panel  (pure ZoruUI ContactInfoPanel —
+ *   3. Contact info panel  (pure 20ui ContactInfoPanel —
  *                           preserves contact-edit server actions;
- *                           presented in a Sheet on mobile, side
+ *                           presented in a Drawer on mobile, side
  *                           panel on lg+ desktop).
  *
  * Server-action wiring preserved end-to-end:
@@ -110,13 +96,18 @@ import { ContactInfoPanel } from "./chat/zoru-contact-info-panel";
 
 import * as React from "react";
 
+/** Local class-join helper (20ui ships no `cn`). */
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
 const _CONTACTS_PER_PAGE = 30;
 
 /* ── skeleton ─────────────────────────────────────────────────────── */
 
 function ChatPageSkeleton() {
   return (
-    <div className="flex h-full w-full gap-3 p-3">
+    <div className="ui20 flex h-full w-full gap-3 p-3">
       <Skeleton className="h-full w-[320px] shrink-0" />
       <Skeleton className="h-full flex-1" />
       <Skeleton className="hidden h-full w-[300px] shrink-0 lg:block" />
@@ -136,7 +127,7 @@ function ContactRowSkeleton() {
   );
 }
 
-/* ── new-chat dialog (Zoru rebuild of NewChatDialog) ──────────────── */
+/* ── new-chat dialog (20ui rebuild of NewChatDialog) ──────────────── */
 
 interface NewChatDialogProps {
   open: boolean;
@@ -153,6 +144,7 @@ function ZoruNewChatDialog({
   const [selectedCountryName, setSelectedCountryName] = useState("India");
   const [openCombobox, setOpenCombobox] = useState(false);
   const [loading, setLoading] = useState(false);
+  const formId = React.useId();
 
   const selectedCountry = useMemo(
     () => countryCodes.find((c) => c.name === selectedCountryName),
@@ -171,114 +163,116 @@ function ZoruNewChatDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <ZoruDialogContent className="flex max-h-[85vh] flex-col overflow-hidden p-0 sm:max-w-[425px]">
-        <form
-          onSubmit={handleSubmit}
-          className="flex h-full flex-col overflow-hidden"
-        >
-          <ZoruDialogHeader className="px-6 pt-6 pb-2">
-            <ZoruDialogTitle>Start new conversation</ZoruDialogTitle>
-            <ZoruDialogDescription>
-              Select the country code and enter the phone number to start a
-              new chat.
-            </ZoruDialogDescription>
-          </ZoruDialogHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="zoru-new-chat-phone">Phone number</Label>
-              <div className="flex gap-2">
-                <Popover
-                  open={openCombobox}
-                  onOpenChange={setOpenCombobox}
-                  modal
-                >
-                  <ZoruPopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={openCombobox}
-                      className="w-[140px] justify-between"
-                      type="button"
-                    >
-                      {selectedCountry
-                        ? `+${selectedCountry.code}`
-                        : "Select..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </ZoruPopoverTrigger>
-                  <ZoruPopoverContent className="w-[300px] p-0" align="start">
-                    <ZoruCommand>
-                      <ZoruCommandInput placeholder="Search country..." />
-                      <ZoruCommandList className="max-h-[300px] overflow-y-auto">
-                        <ZoruCommandEmpty>No country found.</ZoruCommandEmpty>
-                        <ZoruCommandGroup>
-                          {countryCodes.map((country) => (
-                            <ZoruCommandItem
-                              key={`${country.code}-${country.name}`}
-                              value={`${country.name} +${country.code}`}
-                              onSelect={() => {
-                                setSelectedCountryName(country.name);
-                                setOpenCombobox(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedCountryName === country.name
-                                    ? "opacity-100"
-                                    : "opacity-0",
-                                )}
-                              />
-                              <span className="flex-1 truncate">
-                                {country.name}
-                              </span>
-                              <span className="ml-2 text-zoru-ink-muted">
-                                +{country.code}
-                              </span>
-                            </ZoruCommandItem>
-                          ))}
-                        </ZoruCommandGroup>
-                      </ZoruCommandList>
-                    </ZoruCommand>
-                  </ZoruPopoverContent>
-                </Popover>
-                <Input
-                  id="zoru-new-chat-phone"
-                  name="phoneNumber"
-                  placeholder="e.g. 9876543210"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="flex-1"
-                  required
-                  type="tel"
-                />
-              </div>
-              <p className="text-xs text-zoru-ink-muted">
-                Format:{" "}
-                {selectedCountry
-                  ? `+${selectedCountry.code} 9876543210`
-                  : "Select country code first"}
-              </p>
-            </div>
-          </div>
-          <ZoruDialogFooter className="px-6 pt-2 pb-6">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
+    <Modal
+      open={open}
+      onClose={() => onOpenChange(false)}
+      title="Start new conversation"
+      description="Select the country code and enter the phone number to start a new chat."
+      className="max-h-[85vh]"
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form={formId}
+            variant="primary"
+            loading={loading}
+            disabled={loading || !phoneNumber}
+          >
+            Start chat
+          </Button>
+        </>
+      }
+    >
+      <form id={formId} onSubmit={handleSubmit}>
+        <Field label="Phone number" id="new-chat-phone">
+          <div className="flex gap-2">
+            <Popover
+              open={openCombobox}
+              onOpenChange={setOpenCombobox}
+              modal
             >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={loading || !phoneNumber}>
-              {loading && <LoaderCircle className="animate-spin" />}
-              Start chat
-            </Button>
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openCombobox}
+                  aria-label="Select country code"
+                  className="w-[140px] justify-between"
+                  type="button"
+                  iconRight={ChevronsUpDown}
+                >
+                  {selectedCountry
+                    ? `+${selectedCountry.code}`
+                    : "Select..."}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[300px] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search country..." />
+                  <CommandList className="max-h-[300px] overflow-y-auto">
+                    <CommandEmpty>No country found.</CommandEmpty>
+                    <CommandGroup>
+                      {countryCodes.map((country) => (
+                        <CommandItem
+                          key={`${country.code}-${country.name}`}
+                          value={`${country.name} +${country.code}`}
+                          onSelect={() => {
+                            setSelectedCountryName(country.name);
+                            setOpenCombobox(false);
+                          }}
+                        >
+                          <Check
+                            className={cx(
+                              "mr-2 h-4 w-4",
+                              selectedCountryName === country.name
+                                ? "opacity-100"
+                                : "opacity-0",
+                            )}
+                          />
+                          <span className="flex-1 truncate">
+                            {country.name}
+                          </span>
+                          <span
+                            className="ml-2"
+                            style={{ color: "var(--st-text-muted)" }}
+                          >
+                            +{country.code}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <Input
+              id="new-chat-phone"
+              name="phoneNumber"
+              placeholder="e.g. 9876543210"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              className="flex-1"
+              required
+              type="tel"
+            />
+          </div>
+        </Field>
+        <p className="mt-2 text-xs" style={{ color: "var(--st-text-muted)" }}>
+          Format:{" "}
+          {selectedCountry
+            ? `+${selectedCountry.code} 9876543210`
+            : "Select country code first"}
+        </p>
+      </form>
+    </Modal>
   );
 }
 
@@ -341,22 +335,32 @@ function ZoruContactListPane({
 
   const phoneNumbers = project?.phoneNumbers || [];
 
+  const phoneOptions = useMemo(
+    () =>
+      phoneNumbers.map((phone) => ({
+        value: phone.id,
+        label: `${phone.display_phone_number} (${phone.verified_name})`,
+      })),
+    [phoneNumbers],
+  );
+
   return (
-    <div className="flex h-full flex-col overflow-hidden bg-zoru-bg">
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      style={{ background: "var(--st-bg)" }}
+    >
       {/* Header — current user + new-chat trigger */}
-      <div className="flex shrink-0 items-center justify-between border-b border-zoru-line p-3">
+      <div
+        className="flex shrink-0 items-center justify-between border-b p-3"
+        style={{ borderColor: "var(--st-border)" }}
+      >
         {sessionUser ? (
           <div className="flex items-center gap-3">
-            <Avatar>
-              <ZoruAvatarImage
-                src={`https://i.pravatar.cc/150?u=${sessionUser.email}`}
-                alt={sessionUser.name}
-              />
-              <ZoruAvatarFallback>
-                {sessionUser.name.charAt(0)}
-              </ZoruAvatarFallback>
-            </Avatar>
-            <p className="text-zoru-ink">{sessionUser.name}</p>
+            <Avatar
+              name={sessionUser.name}
+              src={`https://i.pravatar.cc/150?u=${sessionUser.email}`}
+            />
+            <p style={{ color: "var(--st-text)" }}>{sessionUser.name}</p>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -369,69 +373,66 @@ function ZoruContactListPane({
         )}
         <Button
           variant="ghost"
-          size="icon-sm"
+          size="sm"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             onNewChat();
           }}
           aria-label="New chat"
-        >
-          <MessageSquarePlus />
-        </Button>
+          iconLeft={MessageSquarePlus}
+        />
       </div>
 
       {/* Search + phone-number select */}
-      <div className="shrink-0 space-y-3 border-b border-zoru-line p-3">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zoru-ink-muted" />
-          <Input
-            placeholder="Search or start new chat"
-            className="pl-8"
-            onChange={(e) => handleSearch(e.target.value)}
-          />
-        </div>
+      <div
+        className="shrink-0 space-y-3 border-b p-3"
+        style={{ borderColor: "var(--st-border)" }}
+      >
+        <Input
+          placeholder="Search or start new chat"
+          aria-label="Search or start new chat"
+          iconLeft={Search}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
         <Select
-          value={selectedPhoneNumberId}
-          onValueChange={onPhoneNumberChange}
+          value={selectedPhoneNumberId || null}
+          onChange={(v) => onPhoneNumberChange(v ?? "")}
+          options={phoneOptions}
+          placeholder="Select a phone number..."
+          aria-label="Select a phone number"
           disabled={phoneNumbers.length === 0}
-        >
-          <ZoruSelectTrigger>
-            <ZoruSelectValue placeholder="Select a phone number..." />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            {phoneNumbers.map((phone) => (
-              <ZoruSelectItem key={phone.id} value={phone.id}>
-                {phone.display_phone_number} ({phone.verified_name})
-              </ZoruSelectItem>
-            ))}
-          </ZoruSelectContent>
-        </Select>
+        />
       </div>
 
       {/* All / Unread segmented filter */}
-      <div className="flex shrink-0 items-center gap-1.5 border-b border-zoru-line px-3 py-2">
+      <div
+        className="flex shrink-0 items-center gap-1.5 border-b px-3 py-2"
+        style={{ borderColor: "var(--st-border)" }}
+      >
         <button
           type="button"
           onClick={() => setChatFilter("all")}
-          className={cn(
-            "rounded-full px-3 py-1 text-[11px] transition-colors",
+          aria-pressed={chatFilter === "all"}
+          className="rounded-full px-3 py-1 text-[11px] transition-colors"
+          style={
             chatFilter === "all"
-              ? "bg-zoru-ink text-zoru-on-primary"
-              : "bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface",
-          )}
+              ? { background: "var(--st-text)", color: "var(--st-text-inverted)" }
+              : { background: "var(--st-bg-muted)", color: "var(--st-text-muted)" }
+          }
         >
           All
         </button>
         <button
           type="button"
           onClick={() => setChatFilter("unread")}
-          className={cn(
-            "rounded-full px-3 py-1 text-[11px] transition-colors",
+          aria-pressed={chatFilter === "unread"}
+          className="rounded-full px-3 py-1 text-[11px] transition-colors"
+          style={
             chatFilter === "unread"
-              ? "bg-zoru-ink text-zoru-on-primary"
-              : "bg-zoru-surface-2 text-zoru-ink-muted hover:bg-zoru-surface",
-          )}
+              ? { background: "var(--st-text)", color: "var(--st-text-inverted)" }
+              : { background: "var(--st-bg-muted)", color: "var(--st-text-muted)" }
+          }
         >
           Unread{unreadCount > 0 && ` (${unreadCount})`}
         </button>
@@ -458,42 +459,55 @@ function ZoruContactListPane({
                   key={id}
                   type="button"
                   onClick={() => onSelectContact(contact)}
-                  className={cn(
-                    "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--zoru-radius)] p-3 text-left transition-colors",
+                  className="mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors"
+                  style={
                     selected
-                      ? "bg-zoru-surface-2 shadow-[var(--zoru-shadow-sm)]"
-                      : "hover:bg-zoru-surface",
-                  )}
+                      ? {
+                          background: "var(--st-bg-muted)",
+                          boxShadow: "var(--st-shadow-sm)",
+                        }
+                      : undefined
+                  }
                 >
-                  <Avatar>
-                    <ZoruAvatarFallback>
-                      {(contact.name || "?").charAt(0).toUpperCase()}
-                    </ZoruAvatarFallback>
-                  </Avatar>
+                  <Avatar
+                    name={(contact.name || "?").toUpperCase()}
+                    initials={(contact.name || "?").charAt(0).toUpperCase()}
+                  />
                   <div className="min-w-0 flex-1 pt-0.5">
                     <div className="flex items-start justify-between">
                       <span
-                        className={cn(
-                          "truncate pr-2",
-                          unread > 0
-                            ? "text-zoru-ink"
-                            : "text-zoru-ink-muted",
-                        )}
+                        className="truncate pr-2"
+                        style={{
+                          color:
+                            unread > 0
+                              ? "var(--st-text)"
+                              : "var(--st-text-muted)",
+                        }}
                       >
                         {contact.name || contact.waId}
                       </span>
                       {lastMsgTime && (
-                        <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] text-zoru-ink-subtle">
+                        <span
+                          className="mt-0.5 shrink-0 whitespace-nowrap text-[10px]"
+                          style={{ color: "var(--st-text-tertiary)" }}
+                        >
                           {format(new Date(lastMsgTime), "HH:mm")}
                         </span>
                       )}
                     </div>
                     <div className="mt-0.5 flex items-center justify-between">
-                      <span className="block max-w-[180px] truncate text-xs text-zoru-ink-muted">
+                      <span
+                        className="block max-w-[180px] truncate text-xs"
+                        style={{ color: "var(--st-text-muted)" }}
+                      >
                         {lastMsgContent}
                       </span>
                       {unread > 0 && (
-                        <Badge className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]">
+                        <Badge
+                          tone="accent"
+                          kind="solid"
+                          className="ml-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full p-0 text-[10px]"
+                        >
                           {unread}
                         </Badge>
                       )}
@@ -507,13 +521,25 @@ function ZoruContactListPane({
               className="flex items-center justify-center p-4"
             >
               {hasMoreContacts && (
-                <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                <LoaderCircle
+                  className="h-5 w-5 animate-spin"
+                  style={{ color: "var(--st-text-muted)" }}
+                />
               )}
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center gap-2 p-8 text-center text-sm text-zoru-ink-muted">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+          <div
+            className="flex flex-col items-center gap-2 p-8 text-center text-sm"
+            style={{ color: "var(--st-text-muted)" }}
+          >
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-full"
+              style={{
+                background: "var(--st-bg-muted)",
+                color: "var(--st-text-muted)",
+              }}
+            >
               <Users className="h-5 w-5" />
             </div>
             <div>
@@ -521,14 +547,12 @@ function ZoruContactListPane({
               {searchQuery ? " for your search" : " for this number"}.
             </div>
             {!searchQuery && (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="mt-2"
+              <Link
+                href="/wachat/contacts"
+                className="u-btn u-btn--outline u-btn--sm mt-2 inline-flex"
               >
-                <Link href="/wachat/contacts">Import or add contacts</Link>
-              </Button>
+                <span className="u-btn__label">Import or add contacts</span>
+              </Link>
             )}
           </div>
         )}
@@ -565,7 +589,7 @@ export function ZoruChatClient() {
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState("");
   const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
   const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
 
   // Pagination state for contacts
   const [contactPage, setContactPage] = useState(1);
@@ -660,7 +684,7 @@ export function ZoruChatClient() {
       toast({
         title: "Error",
         description: "Failed to load more contacts.",
-        variant: "destructive",
+        tone: "danger",
       });
       setHasMoreContacts(false);
     } finally {
@@ -751,7 +775,7 @@ export function ZoruChatClient() {
       toast({
         title: "Error",
         description: "Project and phone number must be selected.",
-        variant: "destructive",
+        tone: "danger",
       });
       return;
     }
@@ -764,7 +788,7 @@ export function ZoruChatClient() {
       toast({
         title: "Error",
         description: error || "Could not find or create contact.",
-        variant: "destructive",
+        tone: "danger",
       });
     }
     if (contact) {
@@ -821,14 +845,15 @@ export function ZoruChatClient() {
 
   if (!activeProjectId) {
     return (
-      <div className="flex h-full items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertCircle />
-          <ZoruAlertTitle>No project selected</ZoruAlertTitle>
-          <ZoruAlertDescription>
-            Please select a project from the main dashboard to use the chat
-            interface.
-          </ZoruAlertDescription>
+      <div className="ui20 flex h-full items-center justify-center p-4">
+        <Alert
+          tone="danger"
+          title="No project selected"
+          icon={AlertCircle}
+          className="max-w-md"
+        >
+          Please select a project from the main dashboard to use the chat
+          interface.
         </Alert>
       </div>
     );
@@ -842,14 +867,18 @@ export function ZoruChatClient() {
         onOpenChange={setIsNewChatDialogOpen}
         onStartChat={handleNewChat}
       />
-      <div className="flex h-full w-full flex-col overflow-hidden bg-zoru-bg">
+      <div
+        className="ui20 flex h-full w-full flex-col overflow-hidden"
+        style={{ background: "var(--st-bg)" }}
+      >
         <div className="flex flex-1 overflow-hidden">
           {/* Pane 1 — conversations list */}
           <div
-            className={cn(
-              "w-full shrink-0 flex-col border-r border-zoru-line md:w-[380px]",
+            className={cx(
+              "w-full shrink-0 flex-col border-r md:w-[380px]",
               selectedContact ? "hidden md:flex" : "flex",
             )}
+            style={{ borderColor: "var(--st-border)" }}
           >
             <ZoruContactListPane
               sessionUser={sessionUser}
@@ -868,7 +897,7 @@ export function ZoruChatClient() {
 
           {/* Pane 2 — message thread */}
           <div
-            className={cn(
+            className={cx(
               "relative w-full flex-1 flex-col",
               selectedContact ? "flex" : "hidden md:flex",
             )}
@@ -887,16 +916,31 @@ export function ZoruChatClient() {
                 isInfoPanelOpen={isInfoPanelOpen}
               />
             ) : (
-              <div className="hidden h-full flex-col items-center justify-center gap-4 bg-zoru-surface p-8 text-center text-zoru-ink-muted md:flex">
-                <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-zoru-surface-2">
-                  <MessageSquare className="h-10 w-10 text-zoru-ink-subtle" />
+              <div
+                className="hidden h-full flex-col items-center justify-center gap-4 p-8 text-center md:flex"
+                style={{
+                  background: "var(--st-bg-secondary)",
+                  color: "var(--st-text-muted)",
+                }}
+              >
+                <div
+                  className="mb-2 flex h-20 w-20 items-center justify-center rounded-full"
+                  style={{ background: "var(--st-bg-muted)" }}
+                >
+                  <MessageSquare
+                    className="h-10 w-10"
+                    style={{ color: "var(--st-text-tertiary)" }}
+                  />
                 </div>
-                <h2 className="text-xl text-zoru-ink">Select a conversation</h2>
+                <h2 className="text-xl" style={{ color: "var(--st-text)" }}>
+                  Select a conversation
+                </h2>
                 <p className="max-w-xs text-sm">
                   Choose a contact from the list or start a new chat to begin
                   messaging.
                 </p>
                 <Button
+                  variant="primary"
                   className="mt-4"
                   onClick={() => setIsNewChatDialogOpen(true)}
                 >
@@ -908,7 +952,13 @@ export function ZoruChatClient() {
 
           {/* Pane 3 — contact info (desktop side panel) */}
           {isInfoPanelOpen && selectedContact && activeProject && (
-            <div className="hidden w-[340px] shrink-0 border-l border-zoru-line bg-zoru-bg lg:block">
+            <div
+              className="hidden w-[340px] shrink-0 border-l lg:block"
+              style={{
+                borderColor: "var(--st-border)",
+                background: "var(--st-bg)",
+              }}
+            >
               <ContactInfoPanel
                 project={activeProject}
                 contact={selectedContact}
@@ -920,20 +970,21 @@ export function ZoruChatClient() {
         </div>
       </div>
 
-      {/* Pane 3 — contact info (mobile sheet) */}
-      <Sheet
+      {/* Pane 3 — contact info (mobile drawer) */}
+      <Drawer
+        side="right"
         open={isInfoPanelOpen && !!selectedContact}
         onOpenChange={(o) => {
           if (!o) setIsInfoPanelOpen(false);
         }}
       >
-        <ZoruSheetContent
+        <DrawerContent
           side="right"
           className="w-full max-w-md overflow-y-auto p-0 lg:hidden"
         >
-          <ZoruSheetHeader className="px-6 pt-6">
-            <ZoruSheetTitle>Contact info</ZoruSheetTitle>
-          </ZoruSheetHeader>
+          <DrawerHeader className="px-6 pt-6">
+            <DrawerTitle>Contact info</DrawerTitle>
+          </DrawerHeader>
           {selectedContact && activeProject && (
             <ContactInfoPanel
               project={activeProject}
@@ -942,8 +993,8 @@ export function ZoruChatClient() {
               onClose={() => setIsInfoPanelOpen(false)}
             />
           )}
-        </ZoruSheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

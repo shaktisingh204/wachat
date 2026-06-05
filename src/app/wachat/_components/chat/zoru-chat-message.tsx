@@ -3,20 +3,16 @@ import { fmtDate } from "@/lib/utils";
 
 import {
   Tooltip,
-  ZoruTooltipContent,
-  ZoruTooltipTrigger,
-  ZoruTooltipProvider,
   Button,
+  IconButton,
   Separator,
   Avatar,
-  ZoruAvatarFallback,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import {
   handleTranslateMessage } from '@/app/actions/ai-actions';
 import type { AnyMessage,
   OutgoingMessage,
   InteractiveMessageContent } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
 import { Check,
   CheckCheck,
   Clock,
@@ -45,6 +41,10 @@ import { TemplateMessageContent } from '@/components/zoruui-domain/messages/temp
 import { ProductMessageContent } from '@/components/zoruui-domain/messages/product-message-content';
 import { OrderMessageContent } from '@/components/zoruui-domain/messages/order-message-content';
 import { ContactMessageContent } from '@/components/zoruui-domain/messages/contact-message-content';
+
+function cx(...a: Array<string | false | null | undefined>) {
+    return a.filter(Boolean).join(' ');
+}
 
 interface ChatMessageProps {
     message: AnyMessage;
@@ -78,29 +78,26 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
         return fmtDate(date);
     };
 
+    const tooltipLabel = (
+        <div className="text-xs space-y-1">
+            {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
+            {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
+            {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
+            {status === 'pending' && <p>Pending...</p>}
+            {status === 'failed' && (
+                <div>
+                    <p className="font-medium" style={{ color: 'var(--st-text-muted)' }}>Failed</p>
+                    {(message as OutgoingMessage).error && <p style={{ color: 'var(--st-text-muted)' }}>{(message as OutgoingMessage).error}</p>}
+                    {(message as OutgoingMessage).errorCode && <p style={{ color: 'var(--st-text-tertiary)' }}>Code: {(message as OutgoingMessage).errorCode}</p>}
+                </div>
+            )}
+        </div>
+    );
+
     return (
-        <ZoruTooltipProvider>
-            <Tooltip>
-                <ZoruTooltipTrigger asChild>
-                    <span className="text-white/70 hover:text-white cursor-pointer">{getIcon()}</span>
-                </ZoruTooltipTrigger>
-                <ZoruTooltipContent side="top" align="end">
-                    <div className="text-xs space-y-1 p-1">
-                        {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
-                        {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
-                        {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
-                        {status === 'pending' && <p>Pending...</p>}
-                        {status === 'failed' && (
-                            <div>
-                                <p className="text-zoru-ink-muted font-medium">Failed</p>
-                                {(message as OutgoingMessage).error && <p className="text-zoru-ink-muted">{(message as OutgoingMessage).error}</p>}
-                                {(message as OutgoingMessage).errorCode && <p className="text-zoru-ink-muted/70">Code: {(message as OutgoingMessage).errorCode}</p>}
-                            </div>
-                        )}
-                    </div>
-                </ZoruTooltipContent>
-            </Tooltip>
-        </ZoruTooltipProvider>
+        <Tooltip label={tooltipLabel} placement="top">
+            <span className="text-white/70 hover:text-white cursor-pointer" tabIndex={0} role="img" aria-label={`Message status: ${status}`}>{getIcon()}</span>
+        </Tooltip>
     );
 }
 
@@ -108,12 +105,12 @@ function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
 
     if (type === 'unsupported') {
-        return <p className="whitespace-pre-wrap italic text-zoru-ink-muted">This message type is not supported by the Cloud API.</p>;
+        return <p className="whitespace-pre-wrap italic" style={{ color: 'var(--st-text-muted)' }}>This message type is not supported by the Cloud API.</p>;
     }
 
     const media = message.content[type as keyof typeof message.content] as any;
 
-    if (!media) return <div className="text-sm text-zoru-ink-muted italic">[Unsupported message content]</div>;
+    if (!media) return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Unsupported message content]</div>;
 
     const url = media.url || media.link;
     const caption = media.caption || '';
@@ -123,14 +120,14 @@ function MediaContent({ message }: { message: AnyMessage }) {
         if (url) {
             return (
                 <div className="space-y-2">
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-zoru-surface-2 rounded-lg overflow-hidden">
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 rounded-lg overflow-hidden" style={{ background: 'var(--st-surface-muted)' }}>
                         <Image src={url} alt={caption || 'Sent image'} layout="fill" objectFit="cover" data-ai-hint="chat image" />
                     </a>
                     {caption && <p className="text-sm">{caption}</p>}
                 </div>
             );
         }
-        return <div className="text-sm text-zoru-ink-muted italic">[Image received - preview unavailable]</div>;
+        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Image received - preview unavailable]</div>;
     }
 
     if (type === 'sticker') {
@@ -141,7 +138,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm text-zoru-ink-muted italic">[Sticker received]</div>;
+        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Sticker received]</div>;
     }
 
     if (type === 'video') {
@@ -153,23 +150,23 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             );
         }
-        return <div className="text-sm text-zoru-ink-muted italic">[Video received]</div>;
+        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Video received]</div>;
     }
 
     if (type === 'document') {
         if (url) {
             return (
-                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg bg-zoru-surface/50 hover:bg-zoru-surface transition-colors max-w-xs">
-                    <FileIcon className="h-8 w-8 text-zoru-ink flex-shrink-0" />
+                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95" style={{ background: 'var(--st-surface-muted)' }}>
+                    <FileIcon className="h-8 w-8 flex-shrink-0" style={{ color: 'var(--st-text)' }} />
                     <div className="flex-1 overflow-hidden">
                         <p className="font-semibold truncate">{fileName}</p>
-                        {caption && <p className="text-xs text-zoru-ink-muted truncate">{caption}</p>}
+                        {caption && <p className="text-xs truncate" style={{ color: 'var(--st-text-muted)' }}>{caption}</p>}
                     </div>
-                    <Download className="h-5 w-5 text-zoru-ink-muted" />
+                    <Download className="h-5 w-5" style={{ color: 'var(--st-text-muted)' }} />
                 </a>
             );
         }
-        return <div className="text-sm text-zoru-ink-muted italic">[Document received: {fileName}]</div>;
+        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Document received: {fileName}]</div>;
     }
 
     if (type === 'audio') {
@@ -180,24 +177,24 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm text-zoru-ink-muted italic">[Audio message]</div>;
+        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Audio message]</div>;
     }
 
     if (type === 'location') {
         const { latitude, longitude, name, address } = media;
         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
         return (
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-zoru-surface/50 hover:bg-zoru-surface transition-colors max-w-xs">
-                <MapPin className="h-8 w-8 text-zoru-ink flex-shrink-0" />
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95" style={{ background: 'var(--st-surface-muted)' }}>
+                <MapPin className="h-8 w-8 flex-shrink-0" style={{ color: 'var(--st-text)' }} />
                 <div className="flex-1 overflow-hidden">
                     <p className="font-semibold truncate">{name || 'Location'}</p>
-                    <p className="text-xs text-zoru-ink-muted truncate">{address || `${latitude}, ${longitude}`}</p>
+                    <p className="text-xs truncate" style={{ color: 'var(--st-text-muted)' }}>{address || `${latitude}, ${longitude}`}</p>
                 </div>
             </a>
         );
     }
 
-    return <div className="text-sm text-zoru-ink-muted italic">[{type} message]</div>;
+    return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[{type} message]</div>;
 };
 
 const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMessage, phoneNumberId?: string }) => {
@@ -231,8 +228,8 @@ const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMe
         <div className="space-y-2 w-64">
             <p className="font-semibold">Payment Request</p>
             <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
-            <p className="text-xs text-zoru-ink-muted">{message.content.payment_request.description}</p>
-            <Button size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
+            <p className="text-xs" style={{ color: 'var(--st-text-muted)' }}>{message.content.payment_request.description}</p>
+            <Button variant="primary" size="sm" block className="mt-2" onClick={checkStatus} disabled={isChecking}>
                 {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
             </Button>
@@ -248,7 +245,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
             return (
                 <div className="mt-2 space-y-1">
                     {action.buttons.map(button => (
-                        <div key={button.reply.id} className="text-center text-zoru-ink font-medium bg-white/80 dark:bg-zoru-surface-2/50 py-1.5 rounded-md text-sm border">
+                        <div key={button.reply.id} className="text-center font-medium py-1.5 rounded-md text-sm border" style={{ color: 'var(--st-text)', background: 'var(--st-surface)' }}>
                             {button.reply.title}
                         </div>
                     ))}
@@ -257,7 +254,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         }
         if (action.button) {
             return (
-                <div className="mt-2 text-center text-zoru-ink font-medium bg-white/80 dark:bg-zoru-surface-2/50 py-2.5 rounded-md text-sm border font-semibold">
+                <div className="mt-2 text-center font-medium py-2.5 rounded-md text-sm border font-semibold" style={{ color: 'var(--st-text)', background: 'var(--st-surface)' }}>
                     <List className="inline-block h-4 w-4 mr-2" />
                     {action.button}
                 </div>
@@ -273,7 +270,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         <div className="space-y-2 w-64">
             {header && <p className="font-bold text-lg">{header.text}</p>}
             {body && <p className="whitespace-pre-wrap">{body.text}</p>}
-            {footer && <p className="text-xs text-zoru-ink-muted pt-1">{footer.text}</p>}
+            {footer && <p className="text-xs pt-1" style={{ color: 'var(--st-text-muted)' }}>{footer.text}</p>}
             {action && renderAction()}
         </div>
     )
@@ -287,8 +284,8 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
 
     return (
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
-            <p className="font-semibold text-zoru-ink">{senderName}</p>
-            <div className="text-zoru-ink-muted line-clamp-2">
+            <p className="font-semibold" style={{ color: 'var(--st-text)' }}>{senderName}</p>
+            <div className="line-clamp-2" style={{ color: 'var(--st-text-muted)' }}>
                 <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} isQuoted={true} />
             </div>
         </div>
@@ -315,10 +312,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
             const nfm = message.content.interactive.nfm_reply;
             return (
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold text-zoru-ink flex items-center gap-1"><Bot className="h-3 w-3" /> Flow Response</p>
+                    <p className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--st-text)' }}><Bot className="h-3 w-3" /> Flow Response</p>
                     {nfm.body && <p className="whitespace-pre-wrap text-sm">{nfm.body}</p>}
                     {nfm.response_json && (
-                        <pre className="text-xs bg-zoru-surface-2/50 p-2 rounded overflow-x-auto max-w-xs">{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
+                        <pre className="text-xs p-2 rounded overflow-x-auto max-w-xs" style={{ background: 'var(--st-surface-muted)' }}>{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
                     )}
                 </div>
             );
@@ -359,7 +356,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
     // System message (number change, group update, etc.)
     if (message.type === 'system') {
         return (
-            <div className="text-xs italic text-zoru-ink-muted flex items-center gap-1.5">
+            <div className="text-xs italic flex items-center gap-1.5" style={{ color: 'var(--st-text-muted)' }}>
                 <Bot className="h-3 w-3" />
                 {message.content.system?.body || message.content.body || '[System message]'}
             </div>
@@ -371,10 +368,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
         const ref = message.content.referral || message.content;
         return (
             <div className="space-y-1 text-sm">
-                <p className="text-xs font-semibold text-zoru-ink">From Ad</p>
+                <p className="text-xs font-semibold" style={{ color: 'var(--st-text)' }}>From Ad</p>
                 {ref.headline && <p className="font-medium">{ref.headline}</p>}
-                {ref.body && <p className="text-zoru-ink-muted">{ref.body}</p>}
-                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs text-zoru-ink hover:underline">{ref.source_url}</a>}
+                {ref.body && <p style={{ color: 'var(--st-text-muted)' }}>{ref.body}</p>}
+                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs hover:underline" style={{ color: 'var(--st-text)' }}>{ref.source_url}</a>}
                 {message.content.text?.body && <p className="whitespace-pre-wrap mt-1">{message.content.text.body}</p>}
             </div>
         );
@@ -382,7 +379,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
 
     // Conversation opened (request_welcome)
     if (message.type === 'request_welcome') {
-        return <p className="text-xs italic text-zoru-ink-muted">Customer opened the conversation</p>;
+        return <p className="text-xs italic" style={{ color: 'var(--st-text-muted)' }}>Customer opened the conversation</p>;
     }
 
     // Media and other types
@@ -434,28 +431,43 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
         (message.type === 'button' && message.content.button?.text);
 
     return (
-        <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
+        <div className={cx("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
-                <Avatar className="h-8 w-8 self-end">
-                    <ZoruAvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</ZoruAvatarFallback>
-                </Avatar>
+                <Avatar
+                    name={message.content?.profile?.name || 'User'}
+                    initials={message.content?.profile?.name?.charAt(0) || 'U'}
+                    size="md"
+                    shape="round"
+                    className="h-8 w-8 self-end"
+                />
             )}
             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem' } : { left: '100%', marginLeft: '0.5rem' }}
             >
-                <div className="flex items-center bg-zoru-surface border rounded-full shadow-sm p-0.5">
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
-                        <CornerUpLeft className="h-3 w-3" />
-                    </Button>
+                <div className="flex items-center border rounded-full shadow-sm p-0.5" style={{ background: 'var(--st-surface)' }}>
+                    <IconButton
+                        label="Reply"
+                        icon={CornerUpLeft}
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6"
+                        onClick={() => onReply(message.wamid)}
+                    />
                     {isTextBased && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onTranslate} disabled={isTranslating}>
-                            {isTranslating ? <LoaderCircle className="h-3 w-3 animate-spin" /> : <Languages className="h-3 w-3" />}
-                        </Button>
+                        <IconButton
+                            label={isTranslating ? 'Translating…' : 'Translate'}
+                            icon={isTranslating ? LoaderCircle : Languages}
+                            variant="ghost"
+                            size="sm"
+                            className={cx('h-6 w-6', isTranslating && '[&_svg]:animate-spin')}
+                            onClick={onTranslate}
+                            disabled={isTranslating}
+                        />
                     )}
                 </div>
             </div>
             <div
-                className={cn(
+                className={cx(
                     "max-w-[75%] md:max-w-[60%] rounded-2xl p-3 text-sm flex flex-col relative",
                     isOutgoing
                         ? "glass-bubble-out rounded-br-none"
@@ -469,7 +481,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 {translatedText && (
                     <>
                         <Separator className="my-2 bg-black/10 dark:bg-white/10" />
-                        <p className="whitespace-pre-wrap italic text-zoru-ink-muted">{translatedText}</p>
+                        <p className="whitespace-pre-wrap italic" style={{ color: 'var(--st-text-muted)' }}>{translatedText}</p>
                     </>
                 )}
 
@@ -483,17 +495,23 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 )}
 
                 <div className="flex items-center gap-1.5 self-end mt-1">
-                    <p className={cn("text-xs", isOutgoing ? "text-white/70" : "text-zoru-ink-muted/80")}>
+                    <p
+                        className={cx("text-xs", isOutgoing && "text-white/70")}
+                        style={isOutgoing ? undefined : { color: 'var(--st-text-muted)', opacity: 0.8 }}
+                    >
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}
                 </div>
             </div>
             {message.reaction && (
-                <div className={cn(
-                    "absolute -bottom-3 bg-zoru-surface border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
-                    isOutgoing ? 'right-0' : 'left-8'
-                )}>
+                <div
+                    className={cx(
+                        "absolute -bottom-3 border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
+                        isOutgoing ? 'right-0' : 'left-8'
+                    )}
+                    style={{ background: 'var(--st-surface)' }}
+                >
                     {message.reaction.emoji}
                 </div>
             )}

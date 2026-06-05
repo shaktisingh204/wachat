@@ -2,53 +2,55 @@
 
 import {
   Accordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
   Button,
   Card,
   EmptyState,
-  ZoruPageActions,
-  ZoruPageDescription,
-  PageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-  Separator,
   Skeleton,
+  Spinner,
   Switch,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useState,
   useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CircleAlert,
   ListFilter,
-  Loader,
   Sparkles,
   MessageCircle,
   Clock,
   Bot } from 'lucide-react';
 
+import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useProject } from '@/context/project-context';
 import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
 import { AutoReplyForm } from '@/app/wachat/_components/auto-reply-form';
 import { OptInOutForm } from '@/app/wachat/_components/opt-in-out-form';
 
 /**
- * /wachat/auto-reply — Auto-Reply settings page (ZoruUI).
+ * /wachat/auto-reply — Auto-Reply settings page (20ui).
  *
  * Master switch + per-rule-type accordion (welcome, away, general, AI).
  * Visual layer only — server actions and same data flow are unchanged.
  */
 
 import * as React from 'react';
+
+function cx(...a: Array<string | false | null | undefined>): string {
+  return a.filter(Boolean).join(' ');
+}
+
+const BREADCRUMB = [
+  { label: 'SabNode', href: '/dashboard' },
+  { label: 'WaChat', href: '/wachat' },
+  { label: 'Auto Reply' },
+];
+
+const PAGE_DESCRIPTION =
+  'Configure automatic responses: welcome messages, business-hour away messages, AI-powered replies, and keyword-based rules.';
 
 const RULE_TYPES = [
   {
@@ -80,7 +82,7 @@ const RULE_TYPES = [
 export default function AutoReplyPage() {
   const router = useRouter();
   const { activeProject, isLoadingProject } = useProject();
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const [isSwitchPending, startSwitchTransition] = useTransition();
   const [masterEnabled, setMasterEnabled] = useState<boolean>(
     activeProject?.autoReplySettings?.masterEnabled !== false,
@@ -98,114 +100,71 @@ export default function AutoReplyPage() {
     startSwitchTransition(async () => {
       const result = await handleUpdateMasterSwitch(activeProject._id.toString(), checked);
       if (result.error) {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        toast({ title: 'Error', description: result.error, tone: 'danger' });
         setMasterEnabled(!checked);
       } else {
-        toast({ title: 'Saved', description: result.message });
+        toast({ title: 'Saved', description: result.message, tone: 'success' });
       }
     });
   };
 
   if (isLoadingProject) {
     return (
-      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <Skeleton className="h-3 w-52" />
-        <div className="mt-5 flex items-end justify-between">
-          <Skeleton className="h-9 w-56" />
-          <Skeleton className="h-9 w-32 rounded-full" />
-        </div>
-        <div className="mt-6 space-y-4">
-          <Skeleton className="h-[120px]" />
-          <Skeleton className="h-[420px]" />
-        </div>
-      </div>
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
+        <Skeleton className="h-9 w-56" />
+        <Skeleton className="h-[120px]" />
+        <Skeleton className="h-[420px]" />
+      </WachatPage>
     );
   }
 
   if (!activeProject) {
     return (
-      <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-        <Breadcrumb>
-          <ZoruBreadcrumbList>
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-            </ZoruBreadcrumbItem>
-            <ZoruBreadcrumbSeparator />
-            <ZoruBreadcrumbItem>
-              <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
-            </ZoruBreadcrumbItem>
-          </ZoruBreadcrumbList>
-        </Breadcrumb>
-        <div className="mt-6">
-          <EmptyState
-            icon={<CircleAlert />}
-            title="No project selected"
-            description="Pick a WaChat project to configure auto-reply behaviour."
-            action={
-              <Button onClick={() => router.push('/wachat')}>
-                Choose a project
-              </Button>
-            }
-          />
-        </div>
-      </div>
+      <WachatPage breadcrumb={BREADCRUMB} width="narrow">
+        <EmptyState
+          icon={CircleAlert}
+          title="No project selected"
+          description="Pick a WaChat project to configure auto-reply behaviour."
+          action={
+            <Button variant="primary" onClick={() => router.push('/wachat')}>
+              Choose a project
+            </Button>
+          }
+        />
+      </WachatPage>
     );
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1320px] px-6 pt-6 pb-10">
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Auto Reply</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      <PageHeader className="mt-5">
-        <ZoruPageHeading>
-          <ZoruPageTitle>Auto Reply</ZoruPageTitle>
-          <ZoruPageDescription>
-            Configure automatic responses: welcome messages, business-hour away
-            messages, AI-powered replies, and keyword-based rules.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-        <ZoruPageActions>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push('/wachat/auto-reply-rules')}
-          >
-            <ListFilter /> Advanced rules
-          </Button>
-        </ZoruPageActions>
-      </PageHeader>
-
+    <WachatPage
+      breadcrumb={BREADCRUMB}
+      title="Auto Reply"
+      description={PAGE_DESCRIPTION}
+      width="narrow"
+      actions={
+        <Button
+          variant="outline"
+          size="sm"
+          iconLeft={ListFilter}
+          onClick={() => router.push('/wachat/auto-reply-rules')}
+        >
+          Advanced rules
+        </Button>
+      }
+    >
       {/* Master switch */}
-      <Card className="mt-6 p-5">
+      <Card padding="lg">
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="text-[15px] text-zoru-ink">Master auto-reply switch</h2>
-            <p className="mt-1 text-[13px] text-zoru-ink-muted">
+            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+              Master auto-reply switch
+            </h2>
+            <p className="mt-1 text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
               Enable or disable all auto-reply functionality for this project.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {isSwitchPending && (
-              <Loader className="h-4 w-4 animate-spin text-zoru-ink-muted" />
-            )}
+            {isSwitchPending && <Spinner size="sm" label="Saving" />}
             <Switch
               checked={masterEnabled}
               onCheckedChange={onMasterSwitchChange}
@@ -216,47 +175,54 @@ export default function AutoReplyPage() {
         </div>
       </Card>
 
-      <Separator className="my-6" />
-
       {/* Per rule-type accordion */}
-      <Card className="p-0">
+      <Card padding="none">
         <Accordion type="multiple" defaultValue={['welcomeMessage']}>
           {RULE_TYPES.map(({ key, label, description, icon: Icon }) => (
-            <ZoruAccordionItem key={key} value={key} className="px-5">
-              <ZoruAccordionTrigger>
+            <AccordionItem key={key} value={key} className="px-5">
+              <AccordionTrigger>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink [&_svg]:size-4">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center [&_svg]:size-4"
+                    style={{
+                      borderRadius: 'var(--st-radius)',
+                      background: 'var(--st-bg-secondary)',
+                      color: 'var(--st-text)',
+                    }}
+                    aria-hidden="true"
+                  >
                     <Icon />
                   </span>
                   <div className="text-left">
-                    <div className="text-[14px] text-zoru-ink leading-tight">{label}</div>
-                    <div className="mt-0.5 text-[12px] text-zoru-ink-muted leading-tight">
+                    <div className="text-[14px] leading-tight" style={{ color: 'var(--st-text)' }}>
+                      {label}
+                    </div>
+                    <div
+                      className="mt-0.5 text-[12px] leading-tight"
+                      style={{ color: 'var(--st-text-secondary)' }}
+                    >
                       {description}
                     </div>
                   </div>
                 </div>
-              </ZoruAccordionTrigger>
-              <ZoruAccordionContent>
+              </AccordionTrigger>
+              <AccordionContent>
                 <div className="pt-2">
                   <AutoReplyForm
                     type={key as 'welcomeMessage' | 'inactiveHours' | 'general' | 'aiAssistant'}
                     project={activeProject}
                   />
                 </div>
-              </ZoruAccordionContent>
-            </ZoruAccordionItem>
+              </AccordionContent>
+            </AccordionItem>
           ))}
         </Accordion>
       </Card>
 
-      <Separator className="my-6" />
-
       {/* Opt-in / opt-out — separate concern */}
-      <Card className="p-5">
+      <Card padding="lg">
         <OptInOutForm project={activeProject} />
       </Card>
-
-      <div className="h-6" />
-    </div>
+    </WachatPage>
   );
 }

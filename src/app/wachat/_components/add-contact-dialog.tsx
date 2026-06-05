@@ -2,23 +2,12 @@
 
 import {
   Button,
-  Dialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruDialogTrigger,
+  Field,
   Input,
-  Label,
-  ScrollArea,
+  Modal,
   Select,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/zoruui';
+  useToast,
+} from '@/components/sabcrm/20ui';
 import {
   useActionState,
   useEffect,
@@ -35,7 +24,7 @@ import type { Project,
   Tag } from '@/lib/definitions';
 
 /**
- * AddContactDialog (wachat-local, ZoruUI).
+ * AddContactDialog (wachat-local, 20ui).
  *
  * Replaces the legacy add-contact-dialog. Same server
  * action (handleAddNewContact), same hidden form fields, same project
@@ -55,8 +44,8 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : null}
+    <Button type="submit" variant="primary" disabled={pending}>
+      {pending ? <Loader2 className="animate-spin" size={14} aria-hidden="true" /> : null}
       {pending ? 'Adding…' : 'Add contact'}
     </Button>
   );
@@ -73,7 +62,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
     handleAddNewContact as any,
     initialState as any,
   );
-  const { toast } = useZoruToast();
+  const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState(
     project.phoneNumbers?.[0]?.id || '',
@@ -85,7 +74,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   useEffect(() => {
     if ((state.message || state.error) && !hasRunEffectRef.current) {
       if (state.message) {
-        toast({ title: 'Success', description: state.message });
+        toast({ title: 'Success', description: state.message, tone: 'success' });
         formRef.current?.reset();
         onAdded();
         setOpen(false);
@@ -94,7 +83,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
         toast({
           title: 'Error',
           description: state.error,
-          variant: 'destructive',
+          tone: 'danger',
         });
       }
       hasRunEffectRef.current = true;
@@ -121,17 +110,56 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
     color: tag.color,
   }));
 
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <ZoruDialogTrigger asChild>
-        <Button size="md">
-          <UserPlus />
-          Add contact
-        </Button>
-      </ZoruDialogTrigger>
+  const phoneOptions = (project?.phoneNumbers || []).map((phone) => ({
+    value: phone.id,
+    label: `${phone.display_phone_number} (${phone.verified_name})`,
+  }));
 
-      <ZoruDialogContent className="max-w-[520px] p-0">
-        <form action={wrappedFormAction} ref={formRef}>
+  const countryOptions = countryCodes.map((c) => ({
+    value: c.code,
+    label: `+${c.code} (${c.name})`,
+  }));
+
+  return (
+    <>
+      <Button variant="primary" size="md" iconLeft={UserPlus} onClick={() => handleOpenChange(true)}>
+        Add contact
+      </Button>
+
+      <form action={wrappedFormAction} ref={formRef}>
+        <Modal
+          open={open}
+          onClose={() => handleOpenChange(false)}
+          size="md"
+          title={
+            <span className="flex flex-row items-center gap-3">
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center"
+                style={{
+                  borderRadius: 'var(--st-radius-sm)',
+                  background: 'var(--st-surface-muted)',
+                  color: 'var(--st-text)',
+                }}
+              >
+                <UserPlus className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span>Add new contact</span>
+            </span>
+          }
+          description="Manually add a contact to your project. They'll become available for chat and broadcasts right away."
+          footer={
+            <div className="flex flex-row items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => handleOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <SubmitButton />
+            </div>
+          }
+        >
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
           <input
@@ -141,41 +169,18 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           />
           <input type="hidden" name="countryCode" value={countryCode} />
 
-          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-zoru-line px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-surface-2 text-zoru-ink">
-              <UserPlus className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <ZoruDialogTitle className="text-[16px] text-zoru-ink">
-                Add new contact
-              </ZoruDialogTitle>
-              <ZoruDialogDescription className="mt-0.5 text-[12px] text-zoru-ink-muted">
-                Manually add a contact to your project. They&apos;ll become
-                available for chat and broadcasts right away.
-              </ZoruDialogDescription>
-            </div>
-          </ZoruDialogHeader>
-
-          <div className="flex flex-col gap-5 px-6 py-5">
-            <Field label="WhatsApp number" htmlFor="phoneNumberId-dialog">
+          <div className="flex flex-col gap-5">
+            <Field label="WhatsApp number">
               <Select
                 value={selectedPhoneNumberId}
-                onValueChange={setSelectedPhoneNumberId}
-              >
-                <ZoruSelectTrigger id="phoneNumberId-dialog">
-                  <ZoruSelectValue placeholder="Choose a number…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {(project?.phoneNumbers || []).map((phone) => (
-                    <ZoruSelectItem key={phone.id} value={phone.id}>
-                      {phone.display_phone_number} ({phone.verified_name})
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </Select>
+                onChange={(v) => setSelectedPhoneNumberId(v ?? '')}
+                options={phoneOptions}
+                placeholder="Choose a number…"
+                aria-label="WhatsApp number"
+              />
             </Field>
 
-            <Field label="Full name" required htmlFor="name">
+            <Field label="Full name" required>
               <Input
                 id="name"
                 name="name"
@@ -186,22 +191,16 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
             <div className="grid grid-cols-[120px_1fr] items-end gap-3">
               <Field label="Country">
-                <Select value={countryCode} onValueChange={setCountryCode}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="Code" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ScrollArea className="h-64">
-                      {countryCodes.map((c) => (
-                        <ZoruSelectItem key={c.name} value={c.code}>
-                          +{c.code} ({c.name})
-                        </ZoruSelectItem>
-                      ))}
-                    </ScrollArea>
-                  </ZoruSelectContent>
-                </Select>
+                <Select
+                  value={countryCode}
+                  onChange={(v) => setCountryCode(v ?? '')}
+                  options={countryOptions}
+                  placeholder="Code"
+                  searchable
+                  aria-label="Country"
+                />
               </Field>
-              <Field label="Phone number" required htmlFor="phone">
+              <Field label="Phone number" required>
                 <Input
                   id="phone"
                   name="phone"
@@ -212,56 +211,17 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
               </Field>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] text-zoru-ink-muted">
-                Tags
-              </Label>
+            <Field label="Tags">
               <MultiSelectCombobox
                 options={tagOptions}
                 selected={selectedTagIds}
                 onSelectionChange={setSelectedTagIds}
                 placeholder="Assign tags…"
               />
-            </div>
+            </Field>
           </div>
-
-          <ZoruDialogFooter className="gap-2 border-t border-zoru-line px-6 py-4 sm:justify-end">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => handleOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton />
-          </ZoruDialogFooter>
-        </form>
-      </ZoruDialogContent>
-    </Dialog>
-  );
-}
-
-function Field({
-  label,
-  required,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label
-        htmlFor={htmlFor}
-        className="text-[11.5px] text-zoru-ink-muted"
-      >
-        {label}
-        {required ? <span className="ml-1 text-zoru-danger">*</span> : null}
-      </Label>
-      {children}
-    </div>
+        </Modal>
+      </form>
+    </>
   );
 }
