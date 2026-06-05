@@ -146,11 +146,7 @@ function ProjectRow({
     <button
       type="button"
       onClick={() => onSelect(project._id.toString())}
-      className="group flex items-center gap-4 rounded-[var(--st-radius-lg)] border p-4 text-left transition"
-      style={{
-        borderColor: 'var(--st-border)',
-        background: 'var(--st-bg)',
-      }}
+      className="u-card u-card--interactive u-card--pad-md group flex w-full items-center gap-4 text-left"
     >
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)]"
