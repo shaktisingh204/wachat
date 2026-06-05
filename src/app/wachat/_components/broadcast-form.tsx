@@ -1,7 +1,13 @@
 'use client';
 
 import {
+  Alert,
   Button,
+  Card,
+  CardBody,
+  CardDescription,
+  CardHeader,
+  CardTitle,
   Checkbox,
   Command,
   CommandEmpty,
@@ -9,6 +15,8 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  EmptyState,
+  Field,
   Input,
   Popover,
   PopoverContent,
@@ -16,6 +24,7 @@ import {
   RadioGroup,
   Radio,
   Select,
+  Spinner,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -28,12 +37,10 @@ import Papa from 'papaparse';
 import ExcelJS from 'exceljs';
 import type { WithId } from 'mongodb';
 import {
-  AlertCircle,
   Check,
   ChevronsUpDown,
   Download,
   FileText,
-  Loader2,
   Send,
   Tag as TagIcon,
   Upload,
@@ -190,7 +197,8 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
       variant="primary"
       size="lg"
       disabled={pending || disabled}
-      iconLeft={pending ? Loader2 : Send}
+      iconLeft={Send}
+      loading={pending}
     >
       {pending ? 'Queueing broadcast…' : 'Start broadcast'}
     </Button>
@@ -459,15 +467,11 @@ export function BroadcastForm({
               aria-label="Template"
             />
           ) : (
-            <div
-              className="rounded-[var(--st-radius)] border border-dashed px-2 py-4 text-center text-[12px]"
-              style={{
-                borderColor: 'var(--st-border)',
-                color: 'var(--st-text-muted)',
-              }}
-            >
-              No approved templates found. Sync with Meta or create a new one.
-            </div>
+            <EmptyState
+              title="No approved templates"
+              description="Sync with Meta or create a new one."
+              className="py-4"
+            />
           )
         ) : flowOptions.length > 0 ? (
           <Select
@@ -479,72 +483,58 @@ export function BroadcastForm({
             aria-label="Interactive flow"
           />
         ) : (
-          <div
-            className="rounded-[var(--st-radius)] border border-dashed px-2 py-4 text-center text-[12px]"
-            style={{
-              borderColor: 'var(--st-border)',
-              color: 'var(--st-text-muted)',
-            }}
-          >
-            No flows found. Sync with Meta or create a new one.
-          </div>
+          <EmptyState
+            title="No flows found"
+            description="Sync with Meta or create a new one."
+            className="py-4"
+          />
         )}
       </div>
 
       {/* ── Step 4: Flow-only entry message ── */}
       {broadcastType === 'flow' && (
-        <div
-          className="grid gap-4 rounded-[var(--st-radius)] border p-5 md:grid-cols-2"
-          style={{
-            borderColor: 'var(--st-border)',
-            background: 'var(--st-surface)',
-          }}
-        >
-          <div className="md:col-span-2">
-            <span
-              className="text-[11.5px] uppercase tracking-wide"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
-              Flow entry message
-            </span>
-            <p
-              className="mt-0.5 text-[11.5px]"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
+        <Card variant="outlined" padding="md">
+          <CardHeader>
+            <CardTitle>Flow entry message</CardTitle>
+            <CardDescription>
               Define how the flow entry message looks to the user.
-            </p>
-          </div>
-          <Field label="Header" optional htmlFor="flowHeader">
-            <Input
-              name="flowHeader"
-              id="flowHeader"
-              placeholder="Start your application"
-            />
-          </Field>
-          <Field label="Body text" required htmlFor="flowBody">
-            <Input
-              name="flowBody"
-              id="flowBody"
-              placeholder="Click below to begin…"
-              required
-            />
-          </Field>
-          <Field label="Footer" optional htmlFor="flowFooter">
-            <Input
-              name="flowFooter"
-              id="flowFooter"
-              placeholder="Wachat"
-            />
-          </Field>
-          <Field label="CTA button" required htmlFor="flowCta">
-            <Input
-              name="flowCta"
-              id="flowCta"
-              placeholder="Open App"
-              required
-            />
-          </Field>
-        </div>
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Header" id="flowHeader">
+                <Input
+                  name="flowHeader"
+                  id="flowHeader"
+                  placeholder="Start your application"
+                />
+              </Field>
+              <Field label="Body text" required id="flowBody">
+                <Input
+                  name="flowBody"
+                  id="flowBody"
+                  placeholder="Click below to begin…"
+                  required
+                />
+              </Field>
+              <Field label="Footer" id="flowFooter">
+                <Input
+                  name="flowFooter"
+                  id="flowFooter"
+                  placeholder="Wachat"
+                />
+              </Field>
+              <Field label="CTA button" required id="flowCta">
+                <Input
+                  name="flowCta"
+                  id="flowCta"
+                  placeholder="Open App"
+                  required
+                />
+              </Field>
+            </div>
+          </CardBody>
+        </Card>
       )}
 
       {/* ── Step 5: Audience ── */}
@@ -581,55 +571,41 @@ export function BroadcastForm({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="csvFile"
-                className="text-[11.5px] uppercase tracking-wide"
-                style={{ color: 'var(--st-text-muted)' }}
+                className="u-field__label"
               >
-                Contact file{' '}
-                <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
-                  *
-                </span>
+                Contact file <span className="u-field__req" aria-hidden="true">*</span>
               </label>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="sm"
+                iconLeft={Download}
                 onClick={handleDownloadSample}
-                className="inline-flex items-center gap-1 text-[11px] transition-colors"
-                style={{ color: 'var(--st-text-muted)' }}
               >
-                <Download className="h-3 w-3" aria-hidden="true" />
                 Sample CSV
-              </button>
+              </Button>
             </div>
             <label
-              className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius)] border-2 border-dashed px-4 py-6 text-center transition-colors"
-              style={{
-                borderColor: selectedFile
-                  ? 'var(--st-text)'
-                  : 'var(--st-border)',
-                background: selectedFile
-                  ? 'var(--st-surface-muted)'
-                  : 'var(--st-surface)',
-              }}
+              className={cx(
+                'group flex cursor-pointer flex-col items-center justify-center gap-2',
+                'rounded-[var(--st-radius)] border-2 border-dashed px-4 py-6 text-center transition-colors',
+                selectedFile
+                  ? 'border-[var(--st-text)] bg-[var(--st-surface-muted)]'
+                  : 'border-[var(--st-border)] bg-[var(--st-surface)]',
+              )}
             >
               <Upload
-                className="h-5 w-5 transition-colors"
-                style={{
-                  color: selectedFile
-                    ? 'var(--st-text)'
-                    : 'var(--st-text-muted)',
-                }}
+                className={cx(
+                  'h-5 w-5 transition-colors',
+                  selectedFile ? 'text-[var(--st-text)]' : 'text-[var(--st-text-muted)]',
+                )}
                 aria-hidden="true"
               />
               <div className="flex flex-col gap-0.5">
-                <span
-                  className="text-[13px]"
-                  style={{ color: 'var(--st-text)' }}
-                >
+                <span className="text-[13px] text-[var(--st-text)]">
                   {selectedFile?.name || 'Click to choose a file'}
                 </span>
-                <span
-                  className="text-[11px]"
-                  style={{ color: 'var(--st-text-muted)' }}
-                >
+                <span className="text-[11px] text-[var(--st-text-muted)]">
                   {selectedFile ? 'Click to replace' : 'CSV or XLSX'}
                 </span>
               </div>
@@ -661,52 +637,24 @@ export function BroadcastForm({
                 Pick from SabFiles
               </SabFileToFileButton>
             </div>
-            <div
-              className="mt-0.5 text-[11px]"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
+            <p className="mt-0.5 text-[11px] text-[var(--st-text-muted)]">
               For variables, use column names that match your template (e.g.{' '}
-              <code
-                className="rounded-[3px] px-1 font-mono text-[10px]"
-                style={{
-                  background: 'var(--st-surface-muted)',
-                  color: 'var(--st-text)',
-                }}
-              >
+              <code className="rounded-[3px] bg-[var(--st-surface-muted)] px-1 font-mono text-[10px] text-[var(--st-text)]">
                 variable1
               </code>
               ).
-            </div>
+            </p>
 
             {isValidating ? (
-              <p
-                className="mt-1 inline-flex items-center gap-1.5 text-[11.5px]"
-                style={{ color: 'var(--st-accent)' }}
-              >
-                <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+              <p className="mt-1 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--st-accent)]">
+                <Spinner size="sm" aria-hidden="true" />
                 Validating file…
               </p>
             ) : null}
 
             {validationErrors.length > 0 && (
-              <div
-                className="mt-2 rounded-[var(--st-radius)] border p-3"
-                style={{
-                  borderColor: 'var(--st-danger)',
-                  background: 'var(--st-danger-soft)',
-                }}
-              >
-                <div
-                  className="flex items-center gap-2 text-[12px]"
-                  style={{ color: 'var(--st-danger)' }}
-                >
-                  <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                  File error
-                </div>
-                <ul
-                  className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px]"
-                  style={{ color: 'var(--st-danger)' }}
-                >
+              <Alert tone="danger" title="File error" className="mt-2">
+                <ul className="mt-1.5 list-disc space-y-0.5 pl-5 text-[11.5px]">
                   {validationErrors.slice(0, 5).map((err, i) => (
                     <li key={i}>{err}</li>
                   ))}
@@ -714,17 +662,12 @@ export function BroadcastForm({
                     <li>…and {validationErrors.length - 5} more issues.</li>
                   )}
                 </ul>
-              </div>
+              </Alert>
             )}
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <span
-              className="text-[11.5px] uppercase tracking-wide"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
-              Contact tags
-            </span>
+            <span className="u-field__label">Contact tags</span>
             <Popover
               open={tagPopoverOpen}
               onOpenChange={setTagPopoverOpen}
@@ -735,15 +678,13 @@ export function BroadcastForm({
                   role="combobox"
                   aria-expanded={tagPopoverOpen}
                   aria-label="Select contact tags"
-                  className="inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border px-3 text-[13px] transition-colors"
-                  style={{
-                    borderColor: 'var(--st-border)',
-                    background: 'var(--st-bg)',
-                    color:
-                      selectedTagIds.length === 0
-                        ? 'var(--st-text-muted)'
-                        : 'var(--st-text)',
-                  }}
+                  className={cx(
+                    'inline-flex h-10 w-full items-center justify-between gap-2 rounded-[var(--st-radius)] border px-3 text-[13px] transition-colors',
+                    'border-[var(--st-border)] bg-[var(--st-bg)]',
+                    selectedTagIds.length === 0
+                      ? 'text-[var(--st-text-muted)]'
+                      : 'text-[var(--st-text)]',
+                  )}
                 >
                   <span className="inline-flex items-center gap-1.5 truncate">
                     <TagIcon className="h-3.5 w-3.5" aria-hidden="true" />
@@ -780,16 +721,12 @@ export function BroadcastForm({
                             }}
                           >
                             <span
-                              className="mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border"
-                              style={{
-                                borderColor: isSelected
-                                  ? 'var(--st-text)'
-                                  : 'var(--st-border)',
-                                background: isSelected
-                                  ? 'var(--st-text)'
-                                  : 'transparent',
-                                color: 'var(--st-text-inverted)',
-                              }}
+                              className={cx(
+                                'mr-2 flex h-4 w-4 items-center justify-center rounded-[3px] border',
+                                isSelected
+                                  ? 'border-[var(--st-text)] bg-[var(--st-text)] text-[var(--st-text-inverted)]'
+                                  : 'border-[var(--st-border)] bg-transparent',
+                              )}
                             >
                               {isSelected ? (
                                 <Check
@@ -798,6 +735,7 @@ export function BroadcastForm({
                                 />
                               ) : null}
                             </span>
+                            {/* data-driven colour — kept as inline style */}
                             <span
                               className="mr-2 h-2 w-2 shrink-0 rounded-full"
                               style={{ backgroundColor: tag.color }}
@@ -811,13 +749,10 @@ export function BroadcastForm({
                 </Command>
               </PopoverContent>
             </Popover>
-            <div
-              className="mt-0.5 text-[11px]"
-              style={{ color: 'var(--st-text-muted)' }}
-            >
+            <p className="mt-0.5 text-[11px] text-[var(--st-text-muted)]">
               Send this broadcast to every contact matching one or more of
               these tags.
-            </div>
+            </p>
           </div>
         )}
       </div>
@@ -826,74 +761,58 @@ export function BroadcastForm({
       {broadcastType === 'template' && selectedTemplate && (
         <div className="flex flex-col gap-3">
           <StepLabel step={6} label="Template variables" />
-          <div
-            className="rounded-[var(--st-radius)] border p-5"
-            style={{
-              borderColor: 'var(--st-border)',
-              background: 'var(--st-surface)',
-            }}
-          >
+          <Card variant="outlined" padding="md">
             <TemplateInputRenderer
               template={selectedTemplate}
               variableOptions={variableOptions}
             />
-          </div>
+          </Card>
         </div>
       )}
 
       {/* ── Options ── */}
-      <div
-        className="flex items-center gap-3 rounded-[var(--st-radius)] border px-5 py-3"
-        style={{
-          borderColor: 'var(--st-border)',
-          background: 'var(--st-surface)',
-        }}
-      >
-        <Checkbox
-          checked={createContacts}
-          onChange={(e) => setCreateContacts(e.target.checked)}
-          label={
-            <span className="text-[12px]" style={{ color: 'var(--st-text)' }}>
-              Create contacts in CRM
-            </span>
-          }
-        />
-        <span className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
-          {createContacts
-            ? 'New contacts will be added for each recipient not already in your CRM.'
-            : 'Off — only existing contacts will be updated. No new contacts created.'}
-        </span>
-      </div>
+      <Card variant="outlined" padding="none">
+        <div className="flex items-center gap-3 px-5 py-3">
+          <Checkbox
+            checked={createContacts}
+            onChange={(e) => setCreateContacts(e.target.checked)}
+            label={
+              <span className="text-[12px] text-[var(--st-text)]">
+                Create contacts in CRM
+              </span>
+            }
+          />
+          <span className="text-[10px] text-[var(--st-text-muted)]">
+            {createContacts
+              ? 'New contacts will be added for each recipient not already in your CRM.'
+              : 'Off -- only existing contacts will be updated. No new contacts created.'}
+          </span>
+        </div>
+      </Card>
 
       {/* ── Submit ── */}
-      <div
-        className="flex flex-col items-stretch gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between"
-        style={{ borderColor: 'var(--st-border)' }}
-      >
-        <div
-          className="flex items-center gap-2 text-[11.5px]"
-          style={{ color: 'var(--st-text-muted)' }}
-        >
+      <div className="flex flex-col items-stretch gap-3 border-t border-[var(--st-border)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-[11.5px] text-[var(--st-text-muted)]">
           <FileText className="h-3.5 w-3.5" aria-hidden="true" />
           {selectedFile ? (
             <span>
               Ready:{' '}
-              <span style={{ color: 'var(--st-text)' }}>
+              <span className="text-[var(--st-text)]">
                 {selectedFile.name}
               </span>{' '}
               {validationErrors.length > 0 ? (
-                <span style={{ color: 'var(--st-danger)' }}>
+                <span className="text-[var(--st-danger)]">
                   · {validationErrors.length} issue
                   {validationErrors.length === 1 ? '' : 's'}
                 </span>
               ) : (
-                <span style={{ color: 'var(--st-success)' }}>· validated</span>
+                <span className="text-[var(--st-success)]">· validated</span>
               )}
             </span>
           ) : audienceType === 'tags' && selectedTagIds.length > 0 ? (
             <span>
               Audience:{' '}
-              <span style={{ color: 'var(--st-text)' }}>
+              <span className="text-[var(--st-text)]">
                 {selectedTagIds.length} tag
                 {selectedTagIds.length === 1 ? '' : 's'}
               </span>
@@ -923,17 +842,8 @@ export function BroadcastForm({
 
 function StepLabel({ step, label }: { step: number; label: string }) {
   return (
-    <span
-      className="inline-flex items-center gap-2 text-[12.5px]"
-      style={{ color: 'var(--st-text)' }}
-    >
-      <span
-        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] tabular-nums"
-        style={{
-          background: 'var(--st-text)',
-          color: 'var(--st-text-inverted)',
-        }}
-      >
+    <span className="inline-flex items-center gap-2 text-[12.5px] text-[var(--st-text)]">
+      <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--st-text)] text-[10px] tabular-nums text-[var(--st-text-inverted)]">
         {step}
       </span>
       {label}
@@ -957,64 +867,22 @@ function TypeOption({
   return (
     <label
       htmlFor={id}
-      className="flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--st-radius)] border px-3 py-2.5 transition-colors"
-      style={{
-        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
-        background: active ? 'var(--st-surface-muted)' : 'var(--st-bg)',
-      }}
+      className={cx(
+        'flex flex-1 cursor-pointer items-start gap-2.5 rounded-[var(--st-radius)] border px-3 py-2.5 transition-colors',
+        active
+          ? 'border-[var(--st-text)] bg-[var(--st-surface-muted)]'
+          : 'border-[var(--st-border)] bg-[var(--st-bg)]',
+      )}
     >
       <Radio value={value} id={id} className="mt-0.5" />
       <div className="flex flex-col">
-        <span
-          className="text-[13px] leading-tight"
-          style={{ color: 'var(--st-text)' }}
-        >
+        <span className="text-[13px] leading-tight text-[var(--st-text)]">
           {label}
         </span>
-        <span
-          className="mt-0.5 text-[11px] leading-tight"
-          style={{ color: 'var(--st-text-muted)' }}
-        >
+        <span className="mt-0.5 text-[11px] leading-tight text-[var(--st-text-muted)]">
           {description}
         </span>
       </div>
     </label>
-  );
-}
-
-function Field({
-  label,
-  required,
-  optional,
-  htmlFor,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  optional?: boolean;
-  htmlFor?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor={htmlFor}
-        className="text-[11.5px] uppercase tracking-wide"
-        style={{ color: 'var(--st-text-muted)' }}
-      >
-        {label}
-        {required ? (
-          <span className="ml-1" style={{ color: 'var(--st-danger)' }}>
-            *
-          </span>
-        ) : null}
-        {optional ? (
-          <span className="ml-1" style={{ color: 'var(--st-text-tertiary)' }}>
-            (optional)
-          </span>
-        ) : null}
-      </label>
-      {children}
-    </div>
   );
 }

@@ -2,9 +2,16 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
+  Alert,
+  Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   EmptyState,
+  Separator,
   Skeleton,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
@@ -34,7 +41,7 @@ import { useProject } from '@/context/project-context';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 /**
- * Wachat Catalog — catalog list + Meta Commerce setup guide.
+ * Wachat Catalog -- catalog list + Meta Commerce setup guide.
  */
 
 import * as React from 'react';
@@ -60,30 +67,21 @@ function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
         >
           <ShoppingBag className="h-[18px] w-[18px]" />
         </span>
-        <span
-          className="min-w-0 flex-1 truncate text-[15px]"
-          style={{ color: 'var(--st-text)' }}
-        >
+        <span className="min-w-0 flex-1 truncate text-[15px] text-[color:var(--st-text)]">
           {catalog.name}
         </span>
       </div>
 
       <div className="mt-5">
-        <div
-          className="text-[10px] uppercase tracking-wide"
-          style={{ color: 'var(--st-text-tertiary)' }}
-        >
+        <div className="text-[10px] uppercase tracking-wide text-[color:var(--st-text-tertiary)]">
           Meta catalog ID
         </div>
-        <div
-          className="mt-1 break-all font-mono text-[11.5px] tabular-nums"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <div className="mt-1 break-all font-mono text-[11.5px] tabular-nums text-[color:var(--st-text-secondary)]">
           {catalog.metaCatalogId}
         </div>
       </div>
 
-      <div className="mt-4 text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+      <div className="mt-4 text-[11px] text-[color:var(--st-text-tertiary)]">
         Created {fmtDate(catalog.createdAt)}
       </div>
 
@@ -137,7 +135,7 @@ export default function CatalogPage() {
       <WachatPage
         breadcrumb={BREADCRUMB}
         title="Ecomm + catalog"
-        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        description="Manage product catalogs that power WhatsApp interactive messages -- single-product and multi-product carousels."
         width="wide"
       >
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -154,7 +152,7 @@ export default function CatalogPage() {
       <WachatPage
         breadcrumb={BREADCRUMB}
         title="Ecomm + catalog"
-        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        description="Manage product catalogs that power WhatsApp interactive messages -- single-product and multi-product carousels."
         width="wide"
       >
         <EmptyState
@@ -176,7 +174,7 @@ export default function CatalogPage() {
       <WachatPage
         breadcrumb={BREADCRUMB}
         title="Ecomm + catalog"
-        description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+        description="Manage product catalogs that power WhatsApp interactive messages -- single-product and multi-product carousels."
         width="wide"
       >
         <EmptyState
@@ -192,64 +190,55 @@ export default function CatalogPage() {
     <WachatPage
       breadcrumb={BREADCRUMB}
       title="Ecomm + catalog"
-      description="Manage product catalogs that power WhatsApp interactive messages — single-product and multi-product carousels."
+      description="Manage product catalogs that power WhatsApp interactive messages -- single-product and multi-product carousels."
       actions={actions}
       width="wide"
     >
       {!hasCatalogAccess ? (
         <Card padding="lg">
-          <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <span
-              className="flex h-16 w-16 items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius-lg)',
-                background: 'color-mix(in oklab, var(--st-danger) 10%, transparent)',
-                color: 'var(--st-danger)',
-              }}
-              aria-hidden="true"
-            >
-              <Lock className="h-7 w-7" />
-            </span>
-            <h2
-              className="text-[22px] tracking-[-0.01em]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Catalog management locked
-            </h2>
-            <p
-              className="max-w-md text-sm leading-relaxed"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              This project was set up without catalog management permissions. Re-authorize the
-              application with <Code>catalog_management</Code> and{' '}
-              <Code>business_management</Code> scopes to unlock.
-            </p>
-            <div className="mt-2">
-              {appId && configId ? (
-                <EmbeddedSignup
-                  appId={appId}
-                  configId={configId}
-                  includeCatalog={true}
-                  state="whatsapp"
-                  reauthorize={true}
-                />
-              ) : (
-                <p className="text-[12.5px]" style={{ color: 'var(--st-danger)' }}>
-                  Admin has not configured the Facebook App ID.
-                </p>
-              )}
+          <CardBody>
+            <div className="flex flex-col items-center gap-4 py-4 text-center">
+              <span
+                className="flex h-16 w-16 items-center justify-center"
+                style={{
+                  borderRadius: 'var(--st-radius-lg)',
+                  background: 'color-mix(in oklab, var(--st-danger) 10%, transparent)',
+                  color: 'var(--st-danger)',
+                }}
+                aria-hidden="true"
+              >
+                <Lock className="h-7 w-7" />
+              </span>
+              <h2 className="text-[22px] tracking-[-0.01em] text-[color:var(--st-text)]">
+                Catalog management locked
+              </h2>
+              <p className="max-w-md text-sm leading-relaxed text-[color:var(--st-text-secondary)]">
+                This project was set up without catalog management permissions. Re-authorize the
+                application with <Code>catalog_management</Code> and{' '}
+                <Code>business_management</Code> scopes to unlock.
+              </p>
+              <div className="mt-2">
+                {appId && configId ? (
+                  <EmbeddedSignup
+                    appId={appId}
+                    configId={configId}
+                    includeCatalog={true}
+                    state="whatsapp"
+                    reauthorize={true}
+                  />
+                ) : (
+                  <Alert tone="danger" title="Admin has not configured the Facebook App ID." />
+                )}
+              </div>
             </div>
-          </div>
+          </CardBody>
         </Card>
       ) : catalogs.length > 0 ? (
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <div
-              className="text-[11px] uppercase tracking-wide"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
+            <Badge tone="neutral" kind="subtle">
               {catalogs.length} {catalogs.length === 1 ? 'catalog' : 'catalogs'}
-            </div>
+            </Badge>
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {catalogs.map((c) => (
@@ -259,169 +248,138 @@ export default function CatalogPage() {
         </div>
       ) : (
         <Card>
-          <div className="flex items-center gap-2.5">
-            <span
-              className="flex h-8 w-8 items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-              aria-hidden="true"
-            >
-              <GitBranch className="h-4 w-4" />
-            </span>
-            <div>
-              <div className="text-[15px] leading-tight" style={{ color: 'var(--st-text)' }}>
-                Get started with catalogs
-              </div>
-              <div
-                className="mt-0.5 text-[11.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
+          <CardBody>
+            <div className="flex items-center gap-2.5">
+              <span
+                className="flex h-8 w-8 items-center justify-center"
+                style={{
+                  borderRadius: 'var(--st-radius)',
+                  background: 'var(--st-bg-secondary)',
+                  color: 'var(--st-text)',
+                }}
+                aria-hidden="true"
               >
-                Create a catalog in Meta Commerce Manager, then sync it here.
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 flex flex-col gap-10">
-            <GuideStep step="Step 1" title="Create a catalog" image={step1}>
-              <ol
-                className="list-inside list-decimal space-y-2 pl-4 text-sm"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                <li>
-                  Open the{' '}
-                  <a
-                    href="https://business.facebook.com/commerce"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 hover:underline"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    Meta Commerce Manager <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                  </a>
-                  .
-                </li>
-                <li>Make sure you have the correct Business Manager account selected.</li>
-                <li>
-                  Click <Strong>Add Catalog</Strong>, choose <Strong>E-commerce</Strong> as the
-                  type, and follow the prompts.
-                </li>
-              </ol>
-            </GuideStep>
-
-            <GuideStep step="Step 2" title="Assign partner" image={step2}>
-              <ol
-                className="list-inside list-decimal space-y-2 pl-4 text-sm"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                <li>
-                  In Business Settings, go to <Strong>Data Sources → Catalogs</Strong>.
-                </li>
-                <li>Select your newly created catalog.</li>
-                <li>
-                  Click <Strong>Assign Partners</Strong>.
-                </li>
-                <li>Assign your BSP as a partner with Full Access permissions.</li>
-              </ol>
-            </GuideStep>
-
-            <GuideStep
-              step="Step 3"
-              title="Add your first product (mandatory)"
-              image={step2}
-            >
-              <ol
-                className="list-inside list-decimal space-y-2 pl-4 text-sm"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                <li>
-                  In your new catalog, go to the <Strong>Items</Strong> tab and click{' '}
-                  <Strong>Add Items</Strong>.
-                </li>
-                <li>
-                  Choose the <Strong>Manual</Strong> option.
-                </li>
-                <li>
-                  Fill in all required details for at least one product (image, price, currency,
-                  availability, description).
-                </li>
-                <li style={{ color: 'var(--st-text)' }}>
-                  This step is mandatory to activate the catalog for WhatsApp.
-                </li>
-              </ol>
-            </GuideStep>
-
-            <GuideStep step="Step 4" title="Assign to WABA" image={step3}>
-              <ol
-                className="list-inside list-decimal space-y-2 pl-4 text-sm"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                <li>
-                  Navigate to <Strong>WhatsApp Manager</Strong> from your Business Suite.
-                </li>
-                <li>
-                  Go to <Strong>Account tools → Catalog</Strong>.
-                </li>
-                <li>
-                  Click <Strong>Choose a catalog</Strong>.
-                </li>
-                <li>
-                  Select the catalog you just created and click <Strong>Connect catalog</Strong>.
-                </li>
-              </ol>
-            </GuideStep>
-
-            <div
-              className="flex flex-col items-center gap-3 border-2 border-dashed px-6 py-8 text-center"
-              style={{
-                borderRadius: 'var(--st-radius-lg)',
-                borderColor: 'var(--st-border)',
-                background: 'var(--st-bg)',
-              }}
-            >
-              <div
-                className="text-[11px] uppercase tracking-wide"
-                style={{ color: 'var(--st-text-tertiary)' }}
-              >
-                Step 5
-              </div>
-              <h3
-                className="text-[22px] tracking-[-0.01em]"
-                style={{ color: 'var(--st-text)' }}
-              >
-                Sync your catalog
-              </h3>
-              <p
-                className="max-w-xl text-sm"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Once your catalog is created, has at least one product, and is connected to your
-                WABA, return here and click sync.
-              </p>
-              <div className="mt-2">
-                <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
+                <GitBranch className="h-4 w-4" />
+              </span>
+              <div>
+                <div className="text-[15px] leading-tight text-[color:var(--st-text)]">
+                  Get started with catalogs
+                </div>
+                <div className="mt-0.5 text-[11.5px] text-[color:var(--st-text-secondary)]">
+                  Create a catalog in Meta Commerce Manager, then sync it here.
+                </div>
               </div>
             </div>
 
-            <GuideStep
-              step="Step 6"
-              title="Send WhatsApp catalog messages"
-              image={step6}
-              imageFirst
-            >
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: 'var(--st-text-secondary)' }}
+            <div className="mt-8 flex flex-col gap-10">
+              <GuideStep step="Step 1" title="Create a catalog" image={step1}>
+                <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-[color:var(--st-text-secondary)]">
+                  <li>
+                    Open the{' '}
+                    <a
+                      href="https://business.facebook.com/commerce"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[color:var(--st-text)] hover:underline"
+                    >
+                      Meta Commerce Manager <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                    .
+                  </li>
+                  <li>Make sure you have the correct Business Manager account selected.</li>
+                  <li>
+                    Click <Strong>Add Catalog</Strong>, choose <Strong>E-commerce</Strong> as the
+                    type, and follow the prompts.
+                  </li>
+                </ol>
+              </GuideStep>
+
+              <GuideStep step="Step 2" title="Assign partner" image={step2}>
+                <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-[color:var(--st-text-secondary)]">
+                  <li>
+                    In Business Settings, go to <Strong>Data Sources &rarr; Catalogs</Strong>.
+                  </li>
+                  <li>Select your newly created catalog.</li>
+                  <li>
+                    Click <Strong>Assign Partners</Strong>.
+                  </li>
+                  <li>Assign your BSP as a partner with Full Access permissions.</li>
+                </ol>
+              </GuideStep>
+
+              <GuideStep
+                step="Step 3"
+                title="Add your first product (mandatory)"
+                image={step2}
               >
-                After a successful sync, reference your products inside interactive messages —
-                multi-product and single-product messages. Use the{' '}
-                <Strong>Product Catalog</Strong> template type to get started.{' '}
-                <ArrowRight className="ml-1 inline h-3 w-3" aria-hidden="true" />
-              </p>
-            </GuideStep>
-          </div>
+                <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-[color:var(--st-text-secondary)]">
+                  <li>
+                    In your new catalog, go to the <Strong>Items</Strong> tab and click{' '}
+                    <Strong>Add Items</Strong>.
+                  </li>
+                  <li>
+                    Choose the <Strong>Manual</Strong> option.
+                  </li>
+                  <li>
+                    Fill in all required details for at least one product (image, price, currency,
+                    availability, description).
+                  </li>
+                  <li className="text-[color:var(--st-text)]">
+                    This step is mandatory to activate the catalog for WhatsApp.
+                  </li>
+                </ol>
+              </GuideStep>
+
+              <GuideStep step="Step 4" title="Assign to WABA" image={step3}>
+                <ol className="list-inside list-decimal space-y-2 pl-4 text-sm text-[color:var(--st-text-secondary)]">
+                  <li>
+                    Navigate to <Strong>WhatsApp Manager</Strong> from your Business Suite.
+                  </li>
+                  <li>
+                    Go to <Strong>Account tools &rarr; Catalog</Strong>.
+                  </li>
+                  <li>
+                    Click <Strong>Choose a catalog</Strong>.
+                  </li>
+                  <li>
+                    Select the catalog you just created and click <Strong>Connect catalog</Strong>.
+                  </li>
+                </ol>
+              </GuideStep>
+
+              <Card variant="outlined" padding="lg">
+                <CardBody>
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <Badge tone="neutral" kind="subtle">Step 5</Badge>
+                    <h3 className="text-[22px] tracking-[-0.01em] text-[color:var(--st-text)]">
+                      Sync your catalog
+                    </h3>
+                    <p className="max-w-xl text-sm text-[color:var(--st-text-secondary)]">
+                      Once your catalog is created, has at least one product, and is connected to your
+                      WABA, return here and click sync.
+                    </p>
+                    <div className="mt-2">
+                      <SyncCatalogsButton projectId={activeProjectId} onSyncComplete={fetchData} />
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+
+              <GuideStep
+                step="Step 6"
+                title="Send WhatsApp catalog messages"
+                image={step6}
+                imageFirst
+              >
+                <p className="text-sm leading-relaxed text-[color:var(--st-text-secondary)]">
+                  After a successful sync, reference your products inside interactive messages --
+                  multi-product and single-product messages. Use the{' '}
+                  <Strong>Product Catalog</Strong> template type to get started.{' '}
+                  <ArrowRight className="ml-1 inline h-3 w-3" aria-hidden="true" />
+                </p>
+              </GuideStep>
+            </div>
+          </CardBody>
         </Card>
       )}
     </WachatPage>
@@ -429,20 +387,12 @@ export default function CatalogPage() {
 }
 
 function Strong({ children }: { children: React.ReactNode }) {
-  return <strong style={{ color: 'var(--st-text)' }}>{children}</strong>;
+  return <strong className="text-[color:var(--st-text)]">{children}</strong>;
 }
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code
-      className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px]"
-      style={{
-        borderRadius: '4px',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg)',
-        color: 'var(--st-text)',
-      }}
-    >
+    <code className="inline-flex items-center rounded px-1.5 py-0.5 font-mono text-[11px] border border-[color:var(--st-border)] bg-[color:var(--st-bg)] text-[color:var(--st-text)]">
       {children}
     </code>
   );
@@ -462,14 +412,7 @@ function GuideStep({
   children: React.ReactNode;
 }) {
   const imageBlock = image ? (
-    <div
-      className="overflow-hidden"
-      style={{
-        borderRadius: 'var(--st-radius-lg)',
-        border: '1px solid var(--st-border)',
-        boxShadow: 'var(--st-shadow-sm)',
-      }}
-    >
+    <div className="overflow-hidden rounded-[var(--st-radius-lg)] border border-[color:var(--st-border)] shadow-[var(--st-shadow-sm)]">
       <Image
         src={image.imageUrl}
         alt={image.description}
@@ -484,16 +427,10 @@ function GuideStep({
     <div className="grid items-center gap-6 md:grid-cols-2">
       {imageFirst ? imageBlock : null}
       <div>
-        <div
-          className="mb-1.5 text-[10px] uppercase tracking-wide"
-          style={{ color: 'var(--st-text-tertiary)' }}
-        >
+        <div className="mb-1.5 text-[10px] uppercase tracking-wide text-[color:var(--st-text-tertiary)]">
           {step}
         </div>
-        <h3
-          className="mb-3 text-[18px] tracking-[-0.01em]"
-          style={{ color: 'var(--st-text)' }}
-        >
+        <h3 className="mb-3 text-[18px] tracking-[-0.01em] text-[color:var(--st-text)]">
           {title}
         </h3>
         {children}

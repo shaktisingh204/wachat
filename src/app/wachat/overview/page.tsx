@@ -5,12 +5,17 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
   Menu,
   MenuItem,
   MenuLabel,
   MenuSeparator,
   EmptyState,
   Skeleton,
+  Progress,
 } from '@/components/sabcrm/20ui';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { useRouter } from 'next/navigation';
@@ -50,7 +55,7 @@ const OverviewChart = dynamic(() => import('./overview-chart'), {
 });
 
 /**
- * Wachat Overview — project-scoped dashboard.
+ * Wachat Overview -- project-scoped dashboard.
  */
 
 type Stats = {
@@ -341,17 +346,12 @@ export default function OverviewPage() {
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
             {layout.funnel && (
               <Card padding="lg" className="col-span-1">
-                <div className="flex items-center justify-between">
+                <CardHeader className="flex flex-row items-center justify-between pb-0">
                   <div>
-                    <div className="text-sm" style={{ color: 'var(--st-text)' }}>
-                      Delivery funnel
-                    </div>
-                    <div
-                      className="mt-1 text-[11.5px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <CardTitle className="text-sm">Delivery funnel</CardTitle>
+                    <CardDescription className="mt-1 text-[11.5px]">
                       How your messages moved through WhatsApp
-                    </div>
+                    </CardDescription>
                   </div>
                   <IconButton
                     label="View broadcasts"
@@ -360,9 +360,9 @@ export default function OverviewPage() {
                     size="sm"
                     onClick={() => router.push('/wachat/broadcasts')}
                   />
-                </div>
+                </CardHeader>
 
-                <div className="mt-5 flex flex-col gap-3">
+                <CardBody className="mt-5 flex flex-col gap-3">
                   <FunnelBar
                     label="Queued"
                     count={stats?.totalMessages ?? 0}
@@ -393,7 +393,7 @@ export default function OverviewPage() {
                     total={stats?.totalMessages ?? 0}
                     tone="danger"
                   />
-                </div>
+                </CardBody>
               </Card>
             )}
 
@@ -408,17 +408,12 @@ export default function OverviewPage() {
                       : 'col-span-1 lg:col-span-2',
                 )}
               >
-                <div className="mb-4">
-                  <div className="text-sm" style={{ color: 'var(--st-text)' }}>
-                    Messaging Activity
-                  </div>
-                  <div
-                    className="mt-1 text-[11.5px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                <CardHeader className="mb-4 pb-0">
+                  <CardTitle className="text-sm">Messaging Activity</CardTitle>
+                  <CardDescription className="mt-1 text-[11.5px]">
                     Last 30 days performance
-                  </div>
-                </div>
+                  </CardDescription>
+                </CardHeader>
                 <OverviewChart data={chart} />
               </Card>
             )}
@@ -472,16 +467,10 @@ export default function OverviewPage() {
           <div>
             <div className="flex items-center justify-between">
               <div>
-                <h2
-                  className="text-[22px] tracking-tight leading-none"
-                  style={{ color: 'var(--st-text)' }}
-                >
+                <h2 className="text-[22px] tracking-tight leading-none text-[color:var(--st-text)]">
                   Recent campaigns
                 </h2>
-                <p
-                  className="mt-1.5 text-[12.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <p className="mt-1.5 text-[12.5px] text-[color:var(--st-text-secondary)]">
                   {stats?.totalCampaigns ?? 0} campaigns all-time · {broadcasts.length} shown
                 </p>
               </div>
@@ -530,25 +519,20 @@ export default function OverviewPage() {
                           : 'warning';
                     const createdDate = b.createdAt ? new Date(b.createdAt as any) : null;
                     return (
-                      <div
+                      <Card
                         key={b._id?.toString?.()}
-                        className="flex items-center justify-between gap-3 p-3"
-                        style={{
-                          border: '1px solid var(--st-border)',
-                          borderRadius: 'var(--st-radius)',
-                        }}
+                        variant="outlined"
+                        padding="sm"
+                        className="flex flex-row items-center justify-between gap-3"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm" style={{ color: 'var(--st-text)' }}>
+                          <p className="truncate text-sm text-[color:var(--st-text)]">
                             {b.fileName || b.templateName || 'Untitled campaign'}
                           </p>
-                          <div
-                            className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px]"
-                            style={{ color: 'var(--st-text-secondary)' }}
-                          >
+                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11.5px] text-[color:var(--st-text-secondary)]">
                             {b.templateName && (
                               <>
-                                <span style={{ color: 'var(--st-text)' }}>{b.templateName}</span>
+                                <span className="text-[color:var(--st-text)]">{b.templateName}</span>
                                 <span>·</span>
                               </>
                             )}
@@ -562,8 +546,8 @@ export default function OverviewPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="flex flex-col items-end pr-1 text-[11.5px]">
-                            <div style={{ color: 'var(--st-text)' }}>{rate}%</div>
-                            <div style={{ color: 'var(--st-text-secondary)' }}>
+                            <div className="text-[color:var(--st-text)]">{rate}%</div>
+                            <div className="text-[color:var(--st-text-secondary)]">
                               {compact(delivered)}/{compact(total)}
                             </div>
                           </div>
@@ -575,7 +559,7 @@ export default function OverviewPage() {
                             onClick={() => router.push(`/wachat/broadcasts/${b._id}/report`)}
                           />
                         </div>
-                      </div>
+                      </Card>
                     );
                   })}
                 </div>
@@ -604,25 +588,9 @@ function Kpi({
   up?: boolean;
 }) {
   return (
-    <Card
-      padding="sm"
-      className="transition-shadow"
-      onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = 'var(--st-shadow-sm)';
-      }}
-      onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.boxShadow = '';
-      }}
-    >
+    <Card padding="sm" className="transition-shadow hover:shadow-[var(--st-shadow-sm)]">
       <div className="flex items-start justify-between">
-        <span
-          className="flex h-8 w-8 items-center justify-center"
-          style={{
-            borderRadius: 'var(--st-radius-sm)',
-            background: 'var(--st-bg-secondary)',
-            color: 'var(--st-text)',
-          }}
-        >
+        <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius-sm)] bg-[color:var(--st-bg-secondary)] text-[color:var(--st-text)]">
           {icon}
         </span>
         {delta !== undefined && (
@@ -636,20 +604,14 @@ function Kpi({
           </Badge>
         )}
       </div>
-      <div className="mt-3.5 text-[11.5px] leading-none" style={{ color: 'var(--st-text-secondary)' }}>
+      <div className="mt-3.5 text-[11.5px] leading-none text-[color:var(--st-text-secondary)]">
         {label}
       </div>
-      <div
-        className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none"
-        style={{ color: 'var(--st-text)' }}
-      >
+      <div className="mt-1.5 text-[22px] tracking-[-0.01em] leading-none text-[color:var(--st-text)]">
         {value}
       </div>
       {hint && (
-        <div
-          className="mt-1 truncate text-[11px] leading-tight"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <div className="mt-1 truncate text-[11px] leading-tight text-[color:var(--st-text-secondary)]">
           {hint}
         </div>
       )}
@@ -669,30 +631,31 @@ function FunnelBar({
   tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 }) {
   const width = total > 0 ? Math.min(100, Math.round((count / total) * 100)) : 0;
-  const color = {
-    neutral: 'var(--st-text-tertiary)',
-    info: 'var(--st-accent)',
-    success: 'var(--st-status-ok)',
-    warning: 'var(--st-warn)',
-    danger: 'var(--st-danger)',
-  }[tone];
+  const progressTone =
+    tone === 'neutral'
+      ? 'accent'
+      : tone === 'info'
+        ? 'accent'
+        : tone === 'success'
+          ? 'success'
+          : tone === 'warning'
+            ? 'warning'
+            : 'danger';
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span style={{ color: 'var(--st-text)' }}>{label}</span>
-        <span style={{ color: 'var(--st-text-secondary)' }}>
+        <span className="text-[color:var(--st-text)]">{label}</span>
+        <span className="text-[color:var(--st-text-secondary)]">
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div
-        className="mt-1.5 h-2 w-full overflow-hidden rounded-full"
-        style={{ background: 'var(--st-bg-secondary)' }}
-      >
-        <div
-          className="h-full rounded-full transition-[width]"
-          style={{ width: `${width}%`, background: color }}
-        />
-      </div>
+      <Progress
+        value={width}
+        tone={progressTone}
+        size="sm"
+        label={label}
+        className="mt-1.5"
+      />
     </div>
   );
 }

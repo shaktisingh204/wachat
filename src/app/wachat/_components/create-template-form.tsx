@@ -376,12 +376,7 @@ export function CreateTemplateForm({
       <div className="mb-8">
         <span
           id="template-type-label"
-          className="mb-2 block"
-          style={{
-            fontSize: 'var(--st-font-size)',
-            fontWeight: 'var(--st-fw-semibold)',
-            color: 'var(--st-text)',
-          }}
+          className="mb-2 block u-text u-fw-semibold"
         >
           Choose Template Type
         </span>
@@ -497,12 +492,7 @@ export function CreateTemplateForm({
                 <div className="space-y-3">
                   <span
                     id="header-format-label"
-                    className="block"
-                    style={{
-                      fontSize: 'var(--st-font-size)',
-                      fontWeight: 'var(--st-fw-medium)',
-                      color: 'var(--st-text)',
-                    }}
+                    className="block u-text u-fw-medium"
                   >
                     Header
                   </span>
@@ -518,28 +508,15 @@ export function CreateTemplateForm({
                         <label
                           key={f}
                           htmlFor={`h-${f}`}
-                          className="flex items-center space-x-2 p-2 cursor-pointer"
-                          style={{
-                            borderRadius: 'var(--st-radius)',
-                            border: '1px solid',
-                            borderColor:
-                              headerFormat === f
-                                ? 'var(--st-text)'
-                                : 'var(--st-border)',
-                            background:
-                              headerFormat === f
-                                ? 'var(--st-bg-secondary)'
-                                : 'transparent',
-                            transition: 'background 0.15s, border-color 0.15s',
-                          }}
+                          className={cx(
+                            'flex items-center space-x-2 p-2 cursor-pointer u-radius u-transition',
+                            headerFormat === f
+                              ? 'u-border-active u-bg-secondary'
+                              : 'u-border',
+                          )}
                         >
                           <Radio value={f} id={`h-${f}`} />
-                          <span
-                            style={{
-                              fontSize: '13px',
-                              color: 'var(--st-text)',
-                            }}
-                          >
+                          <span className="u-text-sm u-text">
                             {f}
                           </span>
                         </label>
@@ -561,22 +538,17 @@ export function CreateTemplateForm({
                         onChange={(e) => setHeaderText(e.target.value)}
                       />
                       {headerText.match(/{{\s*(\d+)\s*}}/g) && (
-                        <div
-                          className="mt-2 p-2"
-                          style={{
-                            borderRadius: 'var(--st-radius)',
-                            background: 'var(--st-bg-secondary)',
-                            fontSize: 'var(--st-font-size-sm)',
-                          }}
-                        >
-                          <Field label="Header Variable Example">
-                            <Input
-                              name="headerExample"
-                              placeholder="e.g. Discount"
-                              required
-                            />
-                          </Field>
-                        </div>
+                        <Card variant="ghost" padding="sm" className="mt-2">
+                          <CardBody>
+                            <Field label="Header Variable Example">
+                              <Input
+                                name="headerExample"
+                                placeholder="e.g. Discount"
+                                required
+                              />
+                            </Field>
+                          </CardBody>
+                        </Card>
                       )}
                     </div>
                   )}
@@ -599,16 +571,11 @@ export function CreateTemplateForm({
                         }
                       />
                       <div className="flex items-center justify-between gap-2">
-                        <div
-                          style={{
-                            fontSize: 'var(--st-font-size-xs)',
-                            color: 'var(--st-text-muted)',
-                          }}
-                        >
+                        <span className="u-text-xs u-text-muted">
                           {pickedHeaderFileName
                             ? `Picked from SabFiles: ${pickedHeaderFileName}`
                             : 'Pick from SabFiles instead of uploading'}
-                        </div>
+                        </span>
                         <SabFileToFileButton
                           accept={
                             headerFormat === 'IMAGE'
@@ -637,14 +604,9 @@ export function CreateTemplateForm({
                           Pick from SabFiles
                         </SabFileToFileButton>
                       </div>
-                      <div
-                        style={{
-                          fontSize: 'var(--st-font-size-xs)',
-                          color: 'var(--st-text-muted)',
-                        }}
-                      >
+                      <span className="u-text-xs u-text-muted">
                         OR
-                      </div>
+                      </span>
                       <SabFileUrlInput
                         name="headerSampleUrl"
                         placeholder="https://..."
@@ -694,50 +656,32 @@ export function CreateTemplateForm({
 
                     if (vars.length > 0) {
                       return (
-                        <div
-                          className="space-y-2 p-3 mt-2"
-                          style={{
-                            borderRadius: 'var(--st-radius)',
-                            border: '1px solid var(--st-border)',
-                            background: 'var(--st-bg-secondary)',
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 'var(--st-font-size-xs)',
-                              fontWeight: 'var(--st-fw-medium)',
-                              color: 'var(--st-text)',
-                            }}
-                          >
-                            Variable Examples (Required)
-                          </span>
-                          <div className="grid gap-2">
-                            {vars.map((v) => (
-                              <div
-                                key={v}
-                                className="flex items-center gap-2"
-                              >
-                                <span
-                                  className="w-8"
-                                  style={{
-                                    fontSize: 'var(--st-font-size-xs)',
-                                    color: 'var(--st-text-muted)',
-                                    fontFamily: 'var(--st-font-mono)',
-                                  }}
+                        <Card variant="outlined" padding="sm" className="mt-2">
+                          <CardBody className="space-y-2">
+                            <span className="u-text-xs u-fw-medium u-text">
+                              Variable Examples (Required)
+                            </span>
+                            <div className="grid gap-2">
+                              {vars.map((v) => (
+                                <div
+                                  key={v}
+                                  className="flex items-center gap-2"
                                 >
-                                  {`{{${v}}}`}
-                                </span>
-                                <Input
-                                  name={`body_example_${v}`}
-                                  placeholder="e.g. John"
-                                  inputSize="sm"
-                                  aria-label={`Example for variable {{${v}}}`}
-                                  required
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                                  <span className="w-8 u-text-xs u-text-muted u-font-mono">
+                                    {`{{${v}}}`}
+                                  </span>
+                                  <Input
+                                    name={`body_example_${v}`}
+                                    placeholder="e.g. John"
+                                    inputSize="sm"
+                                    aria-label={`Example for variable {{${v}}}`}
+                                    required
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </CardBody>
+                        </Card>
                       );
                     }
                   }
@@ -757,87 +701,70 @@ export function CreateTemplateForm({
               {/* Buttons editor */}
               <CardBody className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <span
-                    style={{
-                      fontSize: 'var(--st-font-size)',
-                      fontWeight: 'var(--st-fw-medium)',
-                      color: 'var(--st-text)',
-                    }}
-                  >
+                  <span className="u-text u-fw-medium">
                     Buttons ({buttons.length})
                   </span>
                 </div>
 
                 {buttons.map((b, i) => (
-                  <div
-                    key={i}
-                    className="relative space-y-2 p-3"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      border: '1px solid var(--st-border)',
-                      background: 'var(--st-bg-secondary)',
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 'var(--st-font-size-xs)',
-                        color: 'var(--st-text-muted)',
-                      }}
-                    >
-                      {b.type}
-                    </div>
-                    <Input
-                      placeholder="Label"
-                      aria-label={`${b.type} button label`}
-                      value={b.text}
-                      onChange={(e) => {
-                        const newBtns = [...buttons];
-                        newBtns[i] = { ...b, text: e.target.value };
-                        setButtons(newBtns);
-                      }}
-                    />
-                    <IconButton
-                      label="Remove button"
-                      icon={Trash2}
-                      variant="ghost"
-                      size="sm"
-                      className="absolute top-1 right-1"
-                      onClick={() =>
-                        setButtons((btns) =>
-                          btns.filter((_, idx) => idx !== i),
-                        )
-                      }
-                    />
-
-                    {b.type === 'URL' && (
+                  <Card key={i} variant="outlined" padding="sm" className="relative">
+                    <CardBody className="space-y-2">
+                      <span className="u-text-xs u-text-muted">
+                        {b.type}
+                      </span>
                       <Input
-                        placeholder="https://website.com"
-                        aria-label="Button URL"
-                        value={b.url || ''}
+                        placeholder="Label"
+                        aria-label={`${b.type} button label`}
+                        value={b.text}
                         onChange={(e) => {
                           const newBtns = [...buttons];
-                          newBtns[i] = { ...b, url: e.target.value };
+                          newBtns[i] = { ...b, text: e.target.value };
                           setButtons(newBtns);
                         }}
                       />
-                    )}
-
-                    {b.type === 'PHONE_NUMBER' && (
-                      <Input
-                        placeholder="+1234567890"
-                        aria-label="Button phone number"
-                        value={b.phone_number || ''}
-                        onChange={(e) => {
-                          const newBtns = [...buttons];
-                          newBtns[i] = {
-                            ...b,
-                            phone_number: e.target.value,
-                          };
-                          setButtons(newBtns);
-                        }}
+                      <IconButton
+                        label="Remove button"
+                        icon={Trash2}
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-1 right-1"
+                        onClick={() =>
+                          setButtons((btns) =>
+                            btns.filter((_, idx) => idx !== i),
+                          )
+                        }
                       />
-                    )}
-                  </div>
+
+                      {b.type === 'URL' && (
+                        <Input
+                          placeholder="https://website.com"
+                          aria-label="Button URL"
+                          value={b.url || ''}
+                          onChange={(e) => {
+                            const newBtns = [...buttons];
+                            newBtns[i] = { ...b, url: e.target.value };
+                            setButtons(newBtns);
+                          }}
+                        />
+                      )}
+
+                      {b.type === 'PHONE_NUMBER' && (
+                        <Input
+                          placeholder="+1234567890"
+                          aria-label="Button phone number"
+                          value={b.phone_number || ''}
+                          onChange={(e) => {
+                            const newBtns = [...buttons];
+                            newBtns[i] = {
+                              ...b,
+                              phone_number: e.target.value,
+                            };
+                            setButtons(newBtns);
+                          }}
+                        />
+                      )}
+                    </CardBody>
+                  </Card>
                 ))}
                 {buttons.length < 3 && (
                   <div className="flex gap-2">
@@ -984,12 +911,7 @@ export function CreateTemplateForm({
               <CardTitle>Publish</CardTitle>
             </CardHeader>
             <CardBody className="space-y-4">
-              <p
-                style={{
-                  fontSize: 'var(--st-font-size-sm)',
-                  color: 'var(--st-text-muted)',
-                }}
-              >
+              <p className="u-text-sm u-text-muted">
                 {templateType === 'STANDARD' &&
                   'Submitting will send this template to Meta for review. Approval usually takes 1 minute.'}
                 {templateType === 'MARKETING_CAROUSEL' &&
@@ -1030,25 +952,18 @@ function TypeCard({
   return (
     <label
       htmlFor={id}
-      className="relative flex cursor-pointer flex-col items-center gap-2 p-4 h-full"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        border: '2px solid',
-        borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
-        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
-        transition: 'background 0.15s, border-color 0.15s',
-      }}
+      className={cx(
+        'relative flex cursor-pointer flex-col items-center gap-2 p-4 h-full u-radius u-transition',
+        active
+          ? 'u-border-2-active u-bg-secondary'
+          : 'u-border-2 u-bg',
+      )}
     >
       <Radio value={value} id={id} className="sr-only" />
-      <span style={{ color: 'var(--st-text)', marginBottom: 4 }}>{icon}</span>
+      <span className="u-text mb-1">{icon}</span>
       <div className="text-center space-y-1">
-        <div style={{ color: 'var(--st-text)' }}>{title}</div>
-        <div
-          style={{
-            fontSize: 'var(--st-font-size-xs)',
-            color: 'var(--st-text-muted)',
-          }}
-        >
+        <div className="u-text">{title}</div>
+        <div className="u-text-xs u-text-muted">
           {description}
         </div>
       </div>

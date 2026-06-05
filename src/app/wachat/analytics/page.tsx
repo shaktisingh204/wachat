@@ -3,11 +3,20 @@
 import {
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
   EmptyState,
   Field,
   Select,
   SegmentedControl,
   StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -88,19 +97,12 @@ type BroadcastData = {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        className="p-3"
-        style={{
-          borderRadius: 'var(--st-radius)',
-          border: '1px solid var(--st-border)',
-          background: 'var(--st-bg)',
-          boxShadow: 'var(--st-shadow-sm, 0 1px 2px rgba(0,0,0,0.06))',
-        }}
-      >
+      <div className="u-tooltip-chart p-3">
         <p className="mb-2 text-sm font-medium" style={{ color: 'var(--st-text)' }}>{label}</p>
         <div className="flex flex-col gap-1.5">
           {payload.map((entry: any, index: number) => (
             <div key={index} className="flex items-center gap-2 text-xs">
+              {/* data-driven swatch colour — kept as inline style */}
               <div
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: entry.color }}
@@ -231,8 +233,8 @@ export default function AnalyticsPage() {
               { value: '90d', label: '90 days' },
             ]}
           />
-          <Button size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}>
-            <RefreshCw className={cx('h-3.5 w-3.5', isPending && 'animate-spin')} aria-hidden="true" />
+          <Button size="sm" variant="outline" onClick={fetchAnalytics} disabled={isPending}
+            iconLeft={<RefreshCw className={cx('h-3.5 w-3.5', isPending && 'animate-spin')} aria-hidden="true" />}>
             Refresh
           </Button>
         </div>
@@ -301,103 +303,105 @@ export default function AnalyticsPage() {
         {/* Delivery rate */}
         {analytics && analytics.totalSent > 0 && (
           <Card padding="lg">
-            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Delivery performance</h2>
-            <div className="grid grid-cols-3 gap-6">
-              {[
-                {
-                  label: 'Delivery rate',
-                  value: ((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1),
-                  tone: 'var(--st-status-ok)',
-                },
-                {
-                  label: 'Read rate',
-                  value: ((analytics.totalRead / analytics.totalSent) * 100).toFixed(1),
-                  tone: 'var(--st-status-ok)',
-                },
-                {
-                  label: 'Failure rate',
-                  value: ((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1),
-                  tone: 'var(--st-danger)',
-                },
-              ].map((metric) => (
-                <div key={metric.label}>
-                  <p
-                    className="mb-1 text-[11px] uppercase tracking-wider"
-                    style={{ color: 'var(--st-text-tertiary)' }}
-                  >
-                    {metric.label}
-                  </p>
-                  <p className="text-3xl tabular-nums" style={{ color: metric.tone }}>{metric.value}%</p>
-                </div>
-              ))}
-            </div>
+            <CardHeader>
+              <CardTitle>Delivery performance</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-3 gap-6">
+                {[
+                  {
+                    label: 'Delivery rate',
+                    value: ((analytics.totalDelivered / analytics.totalSent) * 100).toFixed(1),
+                    className: 'u-text-ok',
+                  },
+                  {
+                    label: 'Read rate',
+                    value: ((analytics.totalRead / analytics.totalSent) * 100).toFixed(1),
+                    className: 'u-text-ok',
+                  },
+                  {
+                    label: 'Failure rate',
+                    value: ((analytics.totalFailed / analytics.totalSent) * 100).toFixed(1),
+                    className: 'u-text-danger',
+                  },
+                ].map((metric) => (
+                  <div key={metric.label}>
+                    <p className="mb-1 text-[11px] uppercase tracking-wider u-text-tertiary">
+                      {metric.label}
+                    </p>
+                    <p className={`text-3xl tabular-nums ${metric.className}`}>{metric.value}%</p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
           </Card>
         )}
 
         {/* Daily trend chart */}
         {analytics && analytics.dailyBreakdown.length > 0 && (
           <Card padding="lg">
-            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Daily trend</h2>
-            <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
-                  <XAxis dataKey="date" stroke="var(--st-text-tertiary)" tick={{ fontSize: 10 }} />
-                  <YAxis
-                    stroke="var(--st-text-tertiary)"
-                    tick={{ fontSize: 10 }}
-                    domain={[0, yAxisLimit === 'auto' ? 'auto' : parseInt(yAxisLimit)]}
-                    allowDataOverflow={true}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Line type="monotone" dataKey="sent" stroke="var(--st-text)" strokeWidth={2} dot={false} name="Sent" />
-                  <Line type="monotone" dataKey="delivered" stroke="var(--st-status-ok)" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
-                  <Line type="monotone" dataKey="read" stroke="var(--st-warn)" strokeWidth={2} strokeDasharray="3 3" dot={false} name="Read" />
-                  <Line type="monotone" dataKey="failed" stroke="var(--st-danger)" strokeWidth={2} dot={false} name="Failed" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
+            <CardHeader>
+              <CardTitle>Daily trend</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="h-[260px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={analytics.dailyBreakdown} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--st-border)" />
+                    <XAxis dataKey="date" stroke="var(--st-text-tertiary)" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      stroke="var(--st-text-tertiary)"
+                      tick={{ fontSize: 10 }}
+                      domain={[0, yAxisLimit === 'auto' ? 'auto' : parseInt(yAxisLimit)]}
+                      allowDataOverflow={true}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="sent" stroke="var(--st-text)" strokeWidth={2} dot={false} name="Sent" />
+                    <Line type="monotone" dataKey="delivered" stroke="var(--st-status-ok)" strokeWidth={2} strokeDasharray="6 3" dot={false} name="Delivered" />
+                    <Line type="monotone" dataKey="read" stroke="var(--st-warn)" strokeWidth={2} strokeDasharray="3 3" dot={false} name="Read" />
+                    <Line type="monotone" dataKey="failed" stroke="var(--st-danger)" strokeWidth={2} dot={false} name="Failed" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardBody>
           </Card>
         )}
 
         {/* Daily breakdown table */}
         {analytics && analytics.dailyBreakdown.length > 0 && (
           <Card padding="none">
-            <div className="p-4" style={{ borderBottom: '1px solid var(--st-border)' }}>
-              <h2 className="text-sm" style={{ color: 'var(--st-text)' }}>Daily breakdown</h2>
-            </div>
+            <CardHeader>
+              <CardTitle>Daily breakdown</CardTitle>
+            </CardHeader>
             <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--st-border)', color: 'var(--st-text-tertiary)' }}>
-                    <th className="px-4 py-2.5 text-left">Date</th>
-                    <th className="px-4 py-2.5 text-right">Sent</th>
-                    <th className="px-4 py-2.5 text-right">Delivered</th>
-                    <th className="px-4 py-2.5 text-right">Read</th>
-                    <th className="px-4 py-2.5 text-right">Failed</th>
-                    <th className="px-4 py-2.5 text-right">Incoming</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th align="left">Date</Th>
+                    <Th align="right">Sent</Th>
+                    <Th align="right">Delivered</Th>
+                    <Th align="right">Read</Th>
+                    <Th align="right">Failed</Th>
+                    <Th align="right">Incoming</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {analytics.dailyBreakdown
                     .slice()
                     .reverse()
                     .map((day) => (
-                      <tr
-                        key={day.date}
-                        style={{ borderBottom: '1px solid var(--st-border)' }}
-                      >
-                        <td className="px-4 py-2" style={{ color: 'var(--st-text)' }}>{day.date}</td>
-                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-text)' }}>{day.sent}</td>
-                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-status-ok)' }}>{day.delivered}</td>
-                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-status-ok)' }}>{day.read}</td>
-                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-danger)' }}>{day.failed}</td>
-                        <td className="px-4 py-2 text-right tabular-nums" style={{ color: 'var(--st-warn)' }}>{day.incoming}</td>
-                      </tr>
+                      <Tr key={day.date}>
+                        <Td>{day.date}</Td>
+                        <Td align="right" className="tabular-nums">{day.sent}</Td>
+                        <Td align="right" className="tabular-nums u-text-ok">{day.delivered}</Td>
+                        <Td align="right" className="tabular-nums u-text-ok">{day.read}</Td>
+                        <Td align="right" className="tabular-nums u-text-danger">{day.failed}</Td>
+                        <Td align="right" className="tabular-nums u-text-warn">{day.incoming}</Td>
+                      </Tr>
                     ))}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
           </Card>
         )}
@@ -405,37 +409,38 @@ export default function AnalyticsPage() {
         {/* Broadcast performance */}
         {displayBroadcastData && displayBroadcastData.totalBroadcasts > 0 && (
           <Card padding="lg">
-            <h2 className="mb-4 text-sm" style={{ color: 'var(--st-text)' }}>Broadcast performance</h2>
-            <div className="grid grid-cols-4 gap-6">
-              {[
-                { label: 'Total campaigns', value: displayBroadcastData.totalBroadcasts, tone: 'var(--st-text)' },
-                {
-                  label: 'Total recipients',
-                  value: displayBroadcastData.totalContacts.toLocaleString(),
-                  tone: 'var(--st-text)',
-                },
-                {
-                  label: 'Successful',
-                  value: displayBroadcastData.totalSuccess.toLocaleString(),
-                  tone: 'var(--st-status-ok)',
-                },
-                {
-                  label: 'Failed',
-                  value: displayBroadcastData.totalFailed.toLocaleString(),
-                  tone: 'var(--st-danger)',
-                },
-              ].map((metric) => (
-                <div key={metric.label}>
-                  <p
-                    className="mb-1 text-[11px] uppercase tracking-wider"
-                    style={{ color: 'var(--st-text-tertiary)' }}
-                  >
-                    {metric.label}
-                  </p>
-                  <p className="text-2xl tabular-nums" style={{ color: metric.tone }}>{metric.value}</p>
-                </div>
-              ))}
-            </div>
+            <CardHeader>
+              <CardTitle>Broadcast performance</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="grid grid-cols-4 gap-6">
+                {[
+                  { label: 'Total campaigns', value: displayBroadcastData.totalBroadcasts, className: '' },
+                  {
+                    label: 'Total recipients',
+                    value: displayBroadcastData.totalContacts.toLocaleString(),
+                    className: '',
+                  },
+                  {
+                    label: 'Successful',
+                    value: displayBroadcastData.totalSuccess.toLocaleString(),
+                    className: 'u-text-ok',
+                  },
+                  {
+                    label: 'Failed',
+                    value: displayBroadcastData.totalFailed.toLocaleString(),
+                    className: 'u-text-danger',
+                  },
+                ].map((metric) => (
+                  <div key={metric.label}>
+                    <p className="mb-1 text-[11px] uppercase tracking-wider u-text-tertiary">
+                      {metric.label}
+                    </p>
+                    <p className={`text-2xl tabular-nums ${metric.className}`}>{metric.value}</p>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
           </Card>
         )}
 

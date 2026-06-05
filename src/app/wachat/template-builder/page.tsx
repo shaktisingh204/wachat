@@ -5,9 +5,15 @@ import { WachatPage } from "@/app/wachat/_components/wachat-page";
 import {
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  CardDescription,
+  EmptyState,
   Field,
   Input,
   Modal,
+  SegmentedControl,
   Select,
   Textarea,
   useToast,
@@ -58,6 +64,7 @@ const SortableBlock = memo(
       isDragging,
     } = useSortable({ id });
 
+    // transform/transition/zIndex/opacity are genuine dynamic layout values — keep inline
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
@@ -82,6 +89,10 @@ const SortableBlock = memo(
   },
 );
 SortableBlock.displayName = "SortableBlock";
+
+const HEADER_TYPE_OPTIONS = (
+  ["none", "text", "image", "video", "document"] as const
+).map((t) => ({ value: t, label: t.charAt(0).toUpperCase() + t.slice(1) }));
 
 export default function TemplateBuilderPage() {
   const { activeProject } = useProject();
@@ -215,13 +226,10 @@ export default function TemplateBuilderPage() {
   const categoryBlock = useMemo(
     () => (
       <Card>
-        <div className="space-y-3">
-          <h2
-            className="text-[15px] font-semibold"
-            style={{ color: "var(--st-text)" }}
-          >
-            Category
-          </h2>
+        <CardHeader>
+          <CardTitle>Category</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <Field label="Category">
             <Select
               value={category}
@@ -233,7 +241,7 @@ export default function TemplateBuilderPage() {
               ]}
             />
           </Field>
-        </div>
+        </CardBody>
       </Card>
     ),
     [category],
@@ -242,42 +250,16 @@ export default function TemplateBuilderPage() {
   const headerBlock = useMemo(
     () => (
       <Card>
-        <div className="space-y-3">
-          <h2
-            className="text-[15px] font-semibold"
-            style={{ color: "var(--st-text)" }}
-          >
-            Header
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {(["none", "text", "image", "video", "document"] as const).map(
-              (t) => {
-                const isActive = headerType === t;
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setHeaderType(t)}
-                    aria-pressed={isActive}
-                    className="px-3 py-1.5 text-[12px] font-medium capitalize transition-colors"
-                    style={{
-                      borderRadius: "var(--st-radius)",
-                      border: "1px solid",
-                      borderColor: isActive
-                        ? "var(--st-text)"
-                        : "var(--st-border)",
-                      background: isActive ? "var(--st-text)" : "var(--st-bg)",
-                      color: isActive
-                        ? "var(--st-bg)"
-                        : "var(--st-text-secondary)",
-                    }}
-                  >
-                    {t}
-                  </button>
-                );
-              },
-            )}
-          </div>
+        <CardHeader>
+          <CardTitle>Header</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-3">
+          <SegmentedControl
+            aria-label="Header type"
+            value={headerType}
+            onChange={(v) => setHeaderType(v as HeaderType)}
+            items={HEADER_TYPE_OPTIONS}
+          />
           {headerType === "text" && (
             <Field label="Header text">
               <Input
@@ -290,14 +272,11 @@ export default function TemplateBuilderPage() {
           {(headerType === "image" ||
             headerType === "video" ||
             headerType === "document") && (
-            <p
-              className="text-[12px]"
-              style={{ color: "var(--st-text-secondary)" }}
-            >
+            <CardDescription>
               Upload {headerType} when submitting for approval.
-            </p>
+            </CardDescription>
           )}
-        </div>
+        </CardBody>
       </Card>
     ),
     [headerType, headerText],
@@ -306,44 +285,32 @@ export default function TemplateBuilderPage() {
   const bodyBlock = useMemo(
     () => (
       <Card>
-        <div className="space-y-3">
-          <h2
-            className="text-[15px] font-semibold"
-            style={{ color: "var(--st-text)" }}
-          >
-            Body
-          </h2>
+        <CardHeader>
+          <CardTitle>Body</CardTitle>
+        </CardHeader>
+        <CardBody className="space-y-3">
           <Field label="Body">
             <Textarea
               rows={4}
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Message body…"
+              placeholder="Message body..."
             />
           </Field>
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className="text-[12px]"
-              style={{ color: "var(--st-text-secondary)" }}
-            >
-              Variables:
-            </span>
+            <CardDescription className="!mb-0">Variables:</CardDescription>
             {[1, 2, 3].map((n) => (
-              <button
+              <Button
                 key={n}
-                type="button"
+                variant="outline"
+                size="sm"
                 onClick={() => insertVar(n)}
-                className="px-2 py-1 font-mono text-[11px]"
-                style={{
-                  borderRadius: "var(--st-radius)",
-                  border: "1px solid var(--st-border)",
-                  background: "var(--st-bg)",
-                  color: "var(--st-text)",
-                }}
-              >{`{{${n}}}`}</button>
+              >
+                {`{{${n}}}`}
+              </Button>
             ))}
           </div>
-        </div>
+        </CardBody>
       </Card>
     ),
     [body],
@@ -352,13 +319,10 @@ export default function TemplateBuilderPage() {
   const footerBlock = useMemo(
     () => (
       <Card>
-        <div className="space-y-3">
-          <h2
-            className="text-[15px] font-semibold"
-            style={{ color: "var(--st-text)" }}
-          >
-            Footer
-          </h2>
+        <CardHeader>
+          <CardTitle>Footer</CardTitle>
+        </CardHeader>
+        <CardBody>
           <Field label="Footer text (optional)">
             <Input
               placeholder="Footer text (optional)"
@@ -366,7 +330,7 @@ export default function TemplateBuilderPage() {
               onChange={(e) => setFooter(e.target.value)}
             />
           </Field>
-        </div>
+        </CardBody>
       </Card>
     ),
     [footer],
@@ -375,74 +339,71 @@ export default function TemplateBuilderPage() {
   const buttonsBlock = useMemo(
     () => (
       <Card>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2
-              className="text-[15px] font-semibold"
-              style={{ color: "var(--st-text)" }}
-            >
-              Buttons ({buttons.length}/3)
-            </h2>
-            <Button
-              size="sm"
-              variant="outline"
-              iconLeft={Plus}
-              onClick={addButton}
-              disabled={buttons.length >= 3}
-            >
-              Add
-            </Button>
-          </div>
+        <CardHeader>
+          <CardTitle>Buttons ({buttons.length}/3)</CardTitle>
+          <Button
+            size="sm"
+            variant="outline"
+            iconLeft={Plus}
+            onClick={addButton}
+            disabled={buttons.length >= 3}
+          >
+            Add
+          </Button>
+        </CardHeader>
+        <CardBody className="space-y-3">
           {buttons.map((btn, i) => (
-            <div
-              key={i}
-              className="flex flex-wrap items-center gap-2 p-3"
-              style={{
-                borderRadius: "var(--st-radius)",
-                border: "1px solid var(--st-border)",
-                background: "var(--st-bg-secondary)",
-              }}
-            >
-              <div className="min-w-[140px]">
-                <Select
-                  aria-label="Button type"
-                  value={btn.type}
-                  onChange={(v) =>
-                    updateButton(i, { type: (v ?? "quick_reply") as BtnType })
-                  }
-                  options={[
-                    { value: "quick_reply", label: "Quick reply" },
-                    { value: "url", label: "URL" },
-                    { value: "phone", label: "Phone" },
-                  ]}
-                />
-              </div>
-              <Input
-                className="min-w-[120px] flex-1"
-                aria-label="Button label"
-                placeholder="Button label"
-                value={btn.text}
-                onChange={(e) => updateButton(i, { text: e.target.value })}
-              />
-              {btn.type !== "quick_reply" && (
+            <Card key={i} variant="ghost" padding="sm">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="min-w-[140px]">
+                  <Select
+                    aria-label="Button type"
+                    value={btn.type}
+                    onChange={(v) =>
+                      updateButton(i, {
+                        type: (v ?? "quick_reply") as BtnType,
+                      })
+                    }
+                    options={[
+                      { value: "quick_reply", label: "Quick reply" },
+                      { value: "url", label: "URL" },
+                      { value: "phone", label: "Phone" },
+                    ]}
+                  />
+                </div>
                 <Input
                   className="min-w-[120px] flex-1"
-                  aria-label={btn.type === "url" ? "Button URL" : "Button phone number"}
-                  placeholder={btn.type === "url" ? "https://…" : "+1234567890"}
-                  value={btn.value}
-                  onChange={(e) => updateButton(i, { value: e.target.value })}
+                  aria-label="Button label"
+                  placeholder="Button label"
+                  value={btn.text}
+                  onChange={(e) => updateButton(i, { text: e.target.value })}
                 />
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                iconLeft={Trash2}
-                aria-label="Remove button"
-                onClick={() => removeButton(i)}
-              />
-            </div>
+                {btn.type !== "quick_reply" && (
+                  <Input
+                    className="min-w-[120px] flex-1"
+                    aria-label={
+                      btn.type === "url" ? "Button URL" : "Button phone number"
+                    }
+                    placeholder={
+                      btn.type === "url" ? "https://..." : "+1234567890"
+                    }
+                    value={btn.value}
+                    onChange={(e) =>
+                      updateButton(i, { value: e.target.value })
+                    }
+                  />
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  iconLeft={Trash2}
+                  aria-label="Remove button"
+                  onClick={() => removeButton(i)}
+                />
+              </div>
+            </Card>
           ))}
-        </div>
+        </CardBody>
       </Card>
     ),
     [buttons],
@@ -506,49 +467,31 @@ export default function TemplateBuilderPage() {
 
         <div className="lg:sticky lg:top-6 lg:self-start">
           <Card variant="elevated">
-            <div className="space-y-3">
-              <h2
-                className="flex items-center gap-1.5 text-[15px] font-semibold"
-                style={{ color: "var(--st-text)" }}
-              >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-1.5">
                 <Eye className="h-4 w-4" aria-hidden="true" /> Preview
-              </h2>
-              <div
-                className="p-4"
-                style={{
-                  borderRadius: "var(--st-radius-lg)",
-                  background: "var(--st-bg-secondary)",
-                }}
-              >
-                <div
-                  className="max-w-[260px] p-3"
-                  style={{
-                    borderRadius: "var(--st-radius)",
-                    background: "var(--st-bg)",
-                    boxShadow: "var(--st-shadow-sm)",
-                  }}
-                >
+              </CardTitle>
+              {activeProject?.name && (
+                <CardDescription className="text-[10px] uppercase tracking-wide">
+                  Project: {activeProject.name}
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardBody>
+              {/* Preview bubble -- rounded-2xl is a bubble shape, kept as-is */}
+              <div className="rounded-2xl p-4 bg-[var(--st-bg-secondary)]">
+                <div className="max-w-[260px] rounded-[var(--st-radius)] p-3 bg-[var(--st-bg)] shadow-[var(--st-shadow-sm)]">
                   {blocks.map((blockId) => {
                     if (blockId === "header" && headerType !== "none") {
                       return (
                         <div key={blockId} className="mb-2">
                           {headerType === "text" && headerText && (
-                            <p
-                              className="mb-1 text-[13px] font-semibold"
-                              style={{ color: "var(--st-text)" }}
-                            >
+                            <p className="mb-1 text-[13px] font-semibold text-[var(--st-text)]">
                               {headerText}
                             </p>
                           )}
                           {headerType !== "text" && (
-                            <div
-                              className="flex h-24 items-center justify-center text-[11px] uppercase"
-                              style={{
-                                borderRadius: "var(--st-radius)",
-                                background: "var(--st-bg-muted)",
-                                color: "var(--st-text-tertiary)",
-                              }}
-                            >
+                            <div className="flex h-24 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-muted)] text-[11px] uppercase text-[var(--st-text-tertiary)]">
                               {headerType}
                             </div>
                           )}
@@ -559,10 +502,9 @@ export default function TemplateBuilderPage() {
                       return (
                         <p
                           key={blockId}
-                          className="whitespace-pre-wrap text-[13px] mb-2"
-                          style={{ color: "var(--st-text)" }}
+                          className="whitespace-pre-wrap text-[13px] mb-2 text-[var(--st-text)]"
                         >
-                          {body || "Message body…"}
+                          {body || "Message body..."}
                         </p>
                       );
                     }
@@ -570,8 +512,7 @@ export default function TemplateBuilderPage() {
                       return (
                         <p
                           key={blockId}
-                          className="mt-2 text-[11px]"
-                          style={{ color: "var(--st-text-secondary)" }}
+                          className="mt-2 text-[11px] text-[var(--st-text-secondary)]"
                         >
                           {footer}
                         </p>
@@ -581,14 +522,12 @@ export default function TemplateBuilderPage() {
                       return (
                         <div
                           key={blockId}
-                          className="mt-2 flex flex-col gap-1 pt-2"
-                          style={{ borderTop: "1px solid var(--st-border)" }}
+                          className="mt-2 flex flex-col gap-1 pt-2 border-t border-[var(--st-border)]"
                         >
                           {buttons.map((b, i) => (
                             <div
                               key={i}
-                              className="py-1 text-center text-[12px] font-medium"
-                              style={{ color: "var(--st-text)" }}
+                              className="py-1 text-center text-[12px] font-medium text-[var(--st-text)]"
                             >
                               {b.text || "Button"}
                             </div>
@@ -600,15 +539,7 @@ export default function TemplateBuilderPage() {
                   })}
                 </div>
               </div>
-              {activeProject?.name && (
-                <p
-                  className="block text-[10px] uppercase tracking-wide"
-                  style={{ color: "var(--st-text-tertiary)" }}
-                >
-                  Project: {activeProject.name}
-                </p>
-              )}
-            </div>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -643,45 +574,33 @@ export default function TemplateBuilderPage() {
       >
         <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
           {versions.length === 0 ? (
-            <p
-              className="text-sm"
-              style={{ color: "var(--st-text-secondary)" }}
-            >
-              No versions saved yet. Save your template to create a version.
-            </p>
+            <EmptyState
+              icon={History}
+              size="sm"
+              title="No versions yet"
+              description="Save your template to create a version."
+            />
           ) : (
             versions.map((v) => (
-              <div
-                key={v.id}
-                className="flex items-center justify-between p-3"
-                style={{
-                  borderRadius: "var(--st-radius)",
-                  border: "1px solid var(--st-border)",
-                  background: "var(--st-bg-secondary)",
-                }}
-              >
-                <div>
-                  <p
-                    className="text-[14px] font-medium"
-                    style={{ color: "var(--st-text)" }}
+              <Card key={v.id} variant="outlined" padding="sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[14px] font-medium text-[var(--st-text)]">
+                      {v.name}
+                    </p>
+                    <p className="text-[12px] text-[var(--st-text-secondary)]">
+                      {fmtDate(v.timestamp)}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => loadVersion(v)}
                   >
-                    {v.name}
-                  </p>
-                  <p
-                    className="text-[12px]"
-                    style={{ color: "var(--st-text-secondary)" }}
-                  >
-                    {fmtDate(v.timestamp)}
-                  </p>
+                    Restore
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => loadVersion(v)}
-                >
-                  Restore
-                </Button>
-              </div>
+              </Card>
             ))
           )}
         </div>

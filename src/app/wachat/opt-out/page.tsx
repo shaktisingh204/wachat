@@ -3,12 +3,17 @@
 import {
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
   EmptyState,
   Field,
   Input,
   Progress,
   Skeleton,
   Spinner,
+  StatCard,
   Switch,
   Textarea,
 } from '@/components/sabcrm/20ui';
@@ -317,333 +322,271 @@ export default function OptOutPage() {
         <div className="flex flex-col gap-4">
           {/* Add form */}
           <Card>
-            <h2
-              className="mb-4 text-[15px]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Add to opt-out list
-            </h2>
-            <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
-              <Field label="Phone number">
-                <Input
-                  id="opt-phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+1 234 567 8900"
-                  required
-                  className="w-52"
-                />
-              </Field>
-              <div className="flex flex-1 flex-col">
-                <Field label="Reason">
+            <CardHeader>
+              <CardTitle>Add to opt-out list</CardTitle>
+            </CardHeader>
+            <CardBody>
+              <form onSubmit={handleAdd} className="flex flex-wrap items-end gap-3">
+                <Field label="Phone number">
                   <Input
-                    id="opt-reason"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder="e.g. User requested"
+                    id="opt-phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+1 234 567 8900"
+                    required
+                    className="w-52"
                   />
                 </Field>
-              </div>
-              <Button type="submit" variant="primary" size="sm" iconLeft={Plus}>
-                Add
-              </Button>
-            </form>
+                <div className="flex flex-1 flex-col">
+                  <Field label="Reason">
+                    <Input
+                      id="opt-reason"
+                      value={reason}
+                      onChange={(e) => setReason(e.target.value)}
+                      placeholder="e.g. User requested"
+                    />
+                  </Field>
+                </div>
+                <Button type="submit" variant="primary" size="sm" iconLeft={Plus}>
+                  Add
+                </Button>
+              </form>
+            </CardBody>
           </Card>
 
           {/* Bulk paste */}
           <Card>
-            <h2
-              className="mb-3 text-[15px]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Bulk add
-            </h2>
-            <p
-              className="mb-2 text-[12px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              Paste multiple phone numbers separated by newlines or commas.
-            </p>
-            <Textarea
-              rows={4}
-              placeholder={'+919876543210\n+919876543211\n+919876543212'}
-              value={bulkText}
-              onChange={(e) => setBulkText(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={handleBulkPaste}
-              disabled={!bulkText.trim()}
-              iconLeft={Upload}
-            >
-              Bulk add
-            </Button>
+            <CardHeader>
+              <CardTitle>Bulk add</CardTitle>
+              <CardDescription>
+                Paste multiple phone numbers separated by newlines or commas.
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <Textarea
+                rows={4}
+                placeholder={'+919876543210\n+919876543211\n+919876543212'}
+                value={bulkText}
+                onChange={(e) => setBulkText(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={handleBulkPaste}
+                disabled={!bulkText.trim()}
+                iconLeft={Upload}
+              >
+                Bulk add
+              </Button>
+            </CardBody>
           </Card>
 
           {/* CSV Upload */}
           <Card>
-            <h2
-              className="mb-3 text-[15px]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              Upload CSV
-            </h2>
-            <p
-              className="mb-4 text-[12px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              Upload a CSV file containing opt-outs. Expected columns: <b>phone, reason</b> (optional).
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              className="sr-only"
-              onChange={handleFileInputChange}
-            />
-            <div
-              className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed px-4 py-6 text-center"
-              style={{
-                borderColor: 'var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <CloudUpload
-                size={22}
-                aria-hidden="true"
-                style={{ color: 'var(--st-text-tertiary)' }}
+            <CardHeader>
+              <CardTitle>Upload CSV</CardTitle>
+              <CardDescription>
+                Upload a CSV file containing opt-outs. Expected columns: <b>phone, reason</b> (optional).
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                className="sr-only"
+                onChange={handleFileInputChange}
               />
-              <p
-                className="text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                CSV up to 5MB
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Choose file
-              </Button>
-            </div>
-            {uploadItems.length > 0 ? (
-              <ul className="mt-3 flex flex-col gap-2">
-                {uploadItems.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex flex-col gap-1.5 rounded-[var(--st-radius)] border px-3 py-2"
-                    style={{
-                      borderColor: 'var(--st-border)',
-                      background: 'var(--st-bg)',
-                    }}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className="min-w-0 truncate text-[12.5px]"
-                        style={{ color: 'var(--st-text)' }}
-                      >
-                        {item.file.name}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        iconLeft={X}
-                        aria-label={`Remove ${item.file.name}`}
-                        onClick={() =>
-                          setUploadItems((p) => p.filter((i) => i.id !== item.id))
-                        }
-                      />
-                    </div>
-                    {item.status === 'uploading' ? (
-                      <Progress
-                        value={item.progress ?? 0}
-                        indeterminate={item.progress == null}
-                        size="sm"
-                        label={`Uploading ${item.file.name}`}
-                      />
-                    ) : null}
-                    {item.status === 'error' ? (
-                      <span
-                        className="text-[11.5px]"
-                        style={{ color: 'var(--st-danger)' }}
-                      >
-                        {item.errorMessage || 'Upload failed'}
-                      </span>
-                    ) : null}
-                    {item.status === 'done' ? (
-                      <span
-                        className="text-[11.5px]"
-                        style={{ color: 'var(--st-status-ok)' }}
-                      >
-                        Done{item.errorMessage ? ` — ${item.errorMessage}` : ''}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+              <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border border-dashed border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-4 py-6 text-center">
+                <CloudUpload
+                  size={22}
+                  aria-hidden="true"
+                  className="text-[var(--st-text-tertiary)]"
+                />
+                <p className="text-[12px] text-[var(--st-text-secondary)]">
+                  CSV up to 5MB
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Choose file
+                </Button>
+              </div>
+              {uploadItems.length > 0 ? (
+                <ul className="mt-3 flex flex-col gap-2">
+                  {uploadItems.map((item) => (
+                    <li key={item.id}>
+                      <Card variant="outlined" padding="sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="min-w-0 truncate text-[12.5px] text-[var(--st-text)]">
+                            {item.file.name}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            iconLeft={X}
+                            aria-label={`Remove ${item.file.name}`}
+                            onClick={() =>
+                              setUploadItems((p) => p.filter((i) => i.id !== item.id))
+                            }
+                          />
+                        </div>
+                        {item.status === 'uploading' ? (
+                          <Progress
+                            value={item.progress ?? 0}
+                            indeterminate={item.progress == null}
+                            size="sm"
+                            label={`Uploading ${item.file.name}`}
+                          />
+                        ) : null}
+                        {item.status === 'error' ? (
+                          <span className="text-[11.5px] text-[var(--st-danger)]">
+                            {item.errorMessage || 'Upload failed'}
+                          </span>
+                        ) : null}
+                        {item.status === 'done' ? (
+                          <span className="text-[11.5px] text-[var(--st-status-ok)]">
+                            Done{item.errorMessage ? ` — ${item.errorMessage}` : ''}
+                          </span>
+                        ) : null}
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </CardBody>
           </Card>
 
           {/* Per-keyword stats */}
           {keywordStats.length > 0 && (
             <Card>
-              <h2
-                className="mb-3 text-[15px]"
-                style={{ color: 'var(--st-text)' }}
-              >
-                Per-reason stats
-              </h2>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-                {keywordStats.slice(0, 8).map(([k, n]) => (
-                  <div
-                    key={k}
-                    className="rounded-[var(--st-radius)] border px-3 py-2"
-                    style={{
-                      borderColor: 'var(--st-border)',
-                      background: 'var(--st-bg-secondary)',
-                    }}
-                  >
-                    <div
-                      className="truncate text-[11.5px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
-                      {k}
-                    </div>
-                    <div
-                      className="mt-0.5 text-[18px] leading-none"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      {n}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <CardHeader>
+                <CardTitle>Per-reason stats</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                  {keywordStats.slice(0, 8).map(([k, n]) => (
+                    <StatCard key={k} label={k} value={n} />
+                  ))}
+                </div>
+              </CardBody>
             </Card>
           )}
 
           {/* List */}
           <Card>
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                Opt-out numbers
-              </h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleExport}
-                disabled={list.length === 0}
-                iconLeft={Download}
-              >
-                Export CSV
-              </Button>
-            </div>
-            {isPending && list.length === 0 ? (
-              <div className="flex flex-col gap-2">
-                <Skeleton height={32} width="100%" />
-                <Skeleton height={32} width="100%" />
-                <Skeleton height={32} width="100%" />
-              </div>
-            ) : !isPending && list.length === 0 ? (
-              <EmptyState
-                size="sm"
-                icon={ShieldOff}
-                title="No opt-out numbers recorded"
-                description="Numbers added here will be skipped from outbound campaigns."
-              />
-            ) : (
-              <div className="space-y-1">
-                <div
-                  className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Opt-out numbers</CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExport}
+                  disabled={list.length === 0}
+                  iconLeft={Download}
                 >
-                  <span>Phone</span>
-                  <span>Reason</span>
-                  <span>Opted out</span>
-                  <span />
-                </div>
-                {list.map((item) => (
-                  <div
-                    key={item._id}
-                    className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--st-radius)] px-1 py-2 text-[13px]"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    <span>{item.phone}</span>
-                    <span style={{ color: 'var(--st-text-secondary)' }}>
-                      {item.reason || '--'}
-                    </span>
-                    <span
-                      className="text-[12px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
-                      {item.optedOutAt
-                        ? fmtDate(item.optedOutAt)
-                        : '--'}
-                    </span>
-                    {isPending ? (
-                      <span className="flex h-7 w-7 items-center justify-center">
-                        <Spinner size="sm" label="Removing" />
-                      </span>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        iconLeft={Trash2}
-                        onClick={() => handleRemove(item._id)}
-                        disabled={isPending}
-                        aria-label={`Remove ${item.phone}`}
-                      />
-                    )}
-                  </div>
-                ))}
+                  Export CSV
+                </Button>
               </div>
-            )}
+            </CardHeader>
+            <CardBody>
+              {isPending && list.length === 0 ? (
+                <div className="flex flex-col gap-2">
+                  <Skeleton height={32} width="100%" />
+                  <Skeleton height={32} width="100%" />
+                  <Skeleton height={32} width="100%" />
+                </div>
+              ) : !isPending && list.length === 0 ? (
+                <EmptyState
+                  size="sm"
+                  icon={ShieldOff}
+                  title="No opt-out numbers recorded"
+                  description="Numbers added here will be skipped from outbound campaigns."
+                />
+              ) : (
+                <div className="space-y-1">
+                  <div className="grid grid-cols-[1fr_1fr_140px_48px] gap-3 pb-2 text-[11.5px] text-[var(--st-text-secondary)]">
+                    <span>Phone</span>
+                    <span>Reason</span>
+                    <span>Opted out</span>
+                    <span />
+                  </div>
+                  {list.map((item) => (
+                    <div
+                      key={item._id}
+                      className="grid grid-cols-[1fr_1fr_140px_48px] items-center gap-3 rounded-[var(--st-radius)] px-1 py-2 text-[13px] text-[var(--st-text)]"
+                    >
+                      <span>{item.phone}</span>
+                      <span className="text-[var(--st-text-secondary)]">
+                        {item.reason || '--'}
+                      </span>
+                      <span className="text-[12px] text-[var(--st-text-secondary)]">
+                        {item.optedOutAt
+                          ? fmtDate(item.optedOutAt)
+                          : '--'}
+                      </span>
+                      {isPending ? (
+                        <span className="flex h-7 w-7 items-center justify-center">
+                          <Spinner size="sm" label="Removing" />
+                        </span>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconLeft={Trash2}
+                          onClick={() => handleRemove(item._id)}
+                          disabled={isPending}
+                          aria-label={`Remove ${item.phone}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardBody>
           </Card>
         </div>
 
         {/* Sidebar settings */}
         <div className="flex flex-col gap-4">
           <Card>
-            <h2
-              className="mb-1 flex items-center gap-2 text-[15px] font-medium"
-              style={{ color: 'var(--st-text)' }}
-            >
-              <Bot
-                className="h-4 w-4"
-                aria-hidden="true"
-                style={{ color: 'var(--st-text-secondary)' }}
-              />{' '}
-              AI Settings
-            </h2>
-            <p
-              className="mb-4 text-[12px] leading-relaxed"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              Auto-add contacts to opt-out list based on sentiment analysis of inbound messages (e.g. "stop messaging me", "unsubscribe").
-            </p>
-            <div className="flex items-center justify-between">
-              <label
-                htmlFor="auto-sentiment-switch"
-                className="cursor-pointer text-[13px]"
-                style={{ color: 'var(--st-text)' }}
-              >
-                Enable Sentiment Auto-Opt-Out
-              </label>
-              <Switch
-                id="auto-sentiment-switch"
-                checked={autoSentiment}
-                aria-label="Enable Sentiment Auto-Opt-Out"
-                onCheckedChange={(c) => {
-                  setAutoSentiment(c);
-                  toast({
-                    title: c ? 'Enabled' : 'Disabled',
-                    description: 'Sentiment analysis auto opt-out updated.',
-                  });
-                }}
-              />
-            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bot
+                  className="h-4 w-4 text-[var(--st-text-secondary)]"
+                  aria-hidden="true"
+                />{' '}
+                AI Settings
+              </CardTitle>
+              <CardDescription>
+                Auto-add contacts to opt-out list based on sentiment analysis of inbound messages (e.g. "stop messaging me", "unsubscribe").
+              </CardDescription>
+            </CardHeader>
+            <CardBody>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="auto-sentiment-switch"
+                  className="cursor-pointer text-[13px] text-[var(--st-text)]"
+                >
+                  Enable Sentiment Auto-Opt-Out
+                </label>
+                <Switch
+                  id="auto-sentiment-switch"
+                  checked={autoSentiment}
+                  aria-label="Enable Sentiment Auto-Opt-Out"
+                  onCheckedChange={(c) => {
+                    setAutoSentiment(c);
+                    toast({
+                      title: c ? 'Enabled' : 'Disabled',
+                      description: 'Sentiment analysis auto opt-out updated.',
+                    });
+                  }}
+                />
+              </div>
+            </CardBody>
           </Card>
         </div>
       </div>

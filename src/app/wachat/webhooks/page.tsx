@@ -12,6 +12,11 @@ import {
   Button,
   Callout,
   Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   Field,
   Input,
   Modal,
@@ -187,238 +192,182 @@ export default function WebhooksPage() {
 
         {/* Setup guide */}
         <Card padding="lg">
-          <div className="flex items-center gap-2.5">
-            <span
-              className="flex h-8 w-8 items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-              aria-hidden="true"
-            >
-              <Webhook className="h-4 w-4" />
-            </span>
-            <div>
-              <div
-                className="text-[15px] leading-tight"
-                style={{ color: 'var(--st-text)' }}
+          <CardHeader>
+            <div className="flex items-center gap-2.5">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded u-card__icon-chip"
+                aria-hidden="true"
               >
-                Setup guide
-              </div>
-              <div
-                className="mt-0.5 text-[11.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Follow these steps in your Meta App dashboard to complete
-                webhook registration.
+                <Webhook className="h-4 w-4" />
+              </span>
+              <div>
+                <CardTitle>Setup guide</CardTitle>
+                <CardDescription>
+                  Follow these steps in your Meta App dashboard to complete
+                  webhook registration.
+                </CardDescription>
               </div>
             </div>
-          </div>
+          </CardHeader>
 
-          <ol
-            className="mt-5 flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed"
-            style={{ color: 'var(--st-text)' }}
-          >
-            <li>
-              Go to your Meta App&apos;s dashboard and select the{' '}
-              <strong>Webhooks</strong> product.
-            </li>
-            <li>
-              Find the object you want to subscribe to (e.g.{' '}
-              <em>WhatsApp Business Account</em> or <em>Page</em>).
-            </li>
-            <li>
-              Click <strong>Edit subscription</strong> or{' '}
-              <strong>Subscribe to object</strong>.
-            </li>
-            <li>
-              In the popup, paste the <strong>Callback URL</strong> and{' '}
-              <strong>Verify token</strong> from above into the corresponding
-              fields, then click <strong>Verify and save</strong>.
-            </li>
-            <li>
-              <strong>This is the most important step:</strong> after verifying,
-              find the event fields for that object and click{' '}
-              <strong>Edit</strong> or <strong>Subscribe</strong>.
-            </li>
-            <li>
-              For full functionality, subscribe to all relevant events:
-              <ul
-                className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                <li>
-                  <strong style={{ color: 'var(--st-text)' }}>WhatsApp:</strong>{' '}
-                  <Code>messages</Code>,{' '}
-                  <Code>message_template_status_update</Code>,{' '}
-                  <Code>phone_number_quality_update</Code>
-                </li>
-                <li>
-                  <strong style={{ color: 'var(--st-text)' }}>
-                    Facebook Pages:
-                  </strong>{' '}
-                  <Code>feed</Code> (comments), <Code>messages</Code> (Messenger)
-                </li>
-                <li>
-                  <strong style={{ color: 'var(--st-text)' }}>
-                    E-Commerce:
-                  </strong>{' '}
-                  <Code>commerce_orders</Code>,{' '}
-                  <Code>catalog_product_events</Code>
-                </li>
-              </ul>
-            </li>
-          </ol>
+          <CardBody>
+            <ol className="flex list-decimal flex-col gap-3 pl-5 text-[13px] leading-relaxed" style={{ color: 'var(--st-text)' }}>
+              <li>
+                Go to your Meta App&apos;s dashboard and select the{' '}
+                <strong>Webhooks</strong> product.
+              </li>
+              <li>
+                Find the object you want to subscribe to (e.g.{' '}
+                <em>WhatsApp Business Account</em> or <em>Page</em>).
+              </li>
+              <li>
+                Click <strong>Edit subscription</strong> or{' '}
+                <strong>Subscribe to object</strong>.
+              </li>
+              <li>
+                In the popup, paste the <strong>Callback URL</strong> and{' '}
+                <strong>Verify token</strong> from above into the corresponding
+                fields, then click <strong>Verify and save</strong>.
+              </li>
+              <li>
+                <strong>This is the most important step:</strong> after verifying,
+                find the event fields for that object and click{' '}
+                <strong>Edit</strong> or <strong>Subscribe</strong>.
+              </li>
+              <li>
+                For full functionality, subscribe to all relevant events:
+                <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-6 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
+                  <li>
+                    <strong style={{ color: 'var(--st-text)' }}>WhatsApp:</strong>{' '}
+                    <Code>messages</Code>,{' '}
+                    <Code>message_template_status_update</Code>,{' '}
+                    <Code>phone_number_quality_update</Code>
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--st-text)' }}>
+                      Facebook Pages:
+                    </strong>{' '}
+                    <Code>feed</Code> (comments), <Code>messages</Code> (Messenger)
+                  </li>
+                  <li>
+                    <strong style={{ color: 'var(--st-text)' }}>
+                      E-Commerce:
+                    </strong>{' '}
+                    <Code>commerce_orders</Code>,{' '}
+                    <Code>catalog_product_events</Code>
+                  </li>
+                </ul>
+              </li>
+            </ol>
 
-          <Callout
-            className="mt-5"
-            tone="warning"
-            icon={Lightbulb}
-            title="Heads up"
-          >
-            Your application must be deployed to a public URL for Meta&apos;s
-            servers to reach the callback endpoint. Test events work from the
-            dashboard, but real events require a public deployment.
-          </Callout>
+            <Callout
+              className="mt-5"
+              tone="warning"
+              icon={Lightbulb}
+              title="Heads up"
+            >
+              Your application must be deployed to a public URL for Meta&apos;s
+              servers to reach the callback endpoint. Test events work from the
+              dashboard, but real events require a public deployment.
+            </Callout>
+          </CardBody>
 
-          <div className="mt-5 flex items-center justify-end gap-2">
+          <CardFooter className="flex items-center justify-end">
             <Button
               size="sm"
-              variant="ghost"
+              variant="danger"
               iconLeft={Trash2}
               onClick={() => setDeleteOpen(true)}
-              style={{ color: 'var(--st-danger)' }}
             >
               Delete endpoint
             </Button>
-          </div>
+          </CardFooter>
         </Card>
 
-        {/* ── Deployment Templates Card ── */}
+        {/* Deployment Templates Card */}
         <Card padding="lg">
-          <div className="mb-5 flex items-center gap-2.5">
-            <span
-              className="flex h-8 w-8 items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-              aria-hidden="true"
-            >
-              <Cloud className="h-4 w-4" />
-            </span>
-            <div>
-              <div
-                className="text-[15px] leading-tight"
-                style={{ color: 'var(--st-text)' }}
+          <CardHeader>
+            <div className="flex items-center gap-2.5">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded u-card__icon-chip"
+                aria-hidden="true"
               >
-                Deployment templates
-              </div>
-              <div
-                className="mt-0.5 text-[11.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Pre-configured boilerplates to quickly deploy your custom
-                endpoint.
+                <Cloud className="h-4 w-4" />
+              </span>
+              <div>
+                <CardTitle>Deployment templates</CardTitle>
+                <CardDescription>
+                  Pre-configured boilerplates to quickly deploy your custom
+                  endpoint.
+                </CardDescription>
               </div>
             </div>
-          </div>
+          </CardHeader>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {/* Vercel Next.js template */}
-            <div
-              className="flex flex-col p-4"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-              }}
-            >
-              <div
-                className="mb-2 text-[14px] font-medium"
-                style={{ color: 'var(--st-text)' }}
-              >
-                Vercel / Next.js
-              </div>
-              <div
-                className="mb-4 text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                A ready-to-use Next.js App Router API route to receive SabNode
-                events.
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                iconLeft={CodeIcon}
-                className="mt-auto w-max"
-                onClick={() => {
-                  setTemplateCode(VERCEL_TEMPLATE);
-                  setTemplateTitle('Next.js API Route (App Router)');
-                  setTemplateOpen(true);
-                }}
-              >
-                View code
-              </Button>
-            </div>
+          <CardBody>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* Vercel Next.js template */}
+              <Card variant="outlined" padding="md" className="flex flex-col">
+                <CardTitle className="mb-2 text-[14px]">Vercel / Next.js</CardTitle>
+                <CardDescription className="mb-4 text-[12px]">
+                  A ready-to-use Next.js App Router API route to receive SabNode
+                  events.
+                </CardDescription>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={CodeIcon}
+                  className="mt-auto w-max"
+                  onClick={() => {
+                    setTemplateCode(VERCEL_TEMPLATE);
+                    setTemplateTitle('Next.js API Route (App Router)');
+                    setTemplateOpen(true);
+                  }}
+                >
+                  View code
+                </Button>
+              </Card>
 
-            {/* AWS Lambda Node.js template */}
-            <div
-              className="flex flex-col p-4"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-              }}
-            >
-              <div
-                className="mb-2 text-[14px] font-medium"
-                style={{ color: 'var(--st-text)' }}
-              >
-                AWS Lambda
-              </div>
-              <div
-                className="mb-4 text-[12px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Serverless Node.js handler configured for AWS API Gateway.
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                iconLeft={CodeIcon}
-                className="mt-auto w-max"
-                onClick={() => {
-                  setTemplateCode(AWS_TEMPLATE);
-                  setTemplateTitle('AWS Lambda (Node.js)');
-                  setTemplateOpen(true);
-                }}
-              >
-                View code
-              </Button>
+              {/* AWS Lambda Node.js template */}
+              <Card variant="outlined" padding="md" className="flex flex-col">
+                <CardTitle className="mb-2 text-[14px]">AWS Lambda</CardTitle>
+                <CardDescription className="mb-4 text-[12px]">
+                  Serverless Node.js handler configured for AWS API Gateway.
+                </CardDescription>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  iconLeft={CodeIcon}
+                  className="mt-auto w-max"
+                  onClick={() => {
+                    setTemplateCode(AWS_TEMPLATE);
+                    setTemplateTitle('AWS Lambda (Node.js)');
+                    setTemplateOpen(true);
+                  }}
+                >
+                  View code
+                </Button>
+              </Card>
             </div>
-          </div>
+          </CardBody>
         </Card>
 
         {/* Recent events */}
         <Card padding="lg">
-          <div className="mb-4">
-            <div className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-              Recent events
-            </div>
-            <div
-              className="mt-0.5 text-[11.5px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
+          <CardHeader>
+            <CardTitle>Recent events</CardTitle>
+            <CardDescription>
               Live log of webhook events received for{' '}
               {activeProject?.name || 'this project'}.
-            </div>
-          </div>
-          <WebhookLogs filterByProject={true} />
+            </CardDescription>
+          </CardHeader>
+          <CardBody>
+            <WebhookLogs filterByProject={true} />
+          </CardBody>
         </Card>
       </div>
 
-      {/* ── Create webhook dialog ── */}
+      {/* Create webhook dialog */}
       <Modal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -496,13 +445,13 @@ export default function WebhooksPage() {
               onChange={(e) =>
                 setDraft((p) => ({ ...p, secret: e.target.value }))
               }
-              placeholder="whsec_…"
+              placeholder="whsec_..."
             />
           </Field>
         </div>
       </Modal>
 
-      {/* ── Template Dialog ── */}
+      {/* Template Dialog */}
       <Modal
         open={templateOpen}
         onClose={() => setTemplateOpen(false)}
@@ -520,8 +469,7 @@ export default function WebhooksPage() {
             readOnly
             value={templateCode}
             rows={16}
-            className="font-mono text-[11.5px]"
-            style={{ background: 'var(--st-bg-secondary)' }}
+            className="font-mono text-[11.5px] u-bg-secondary"
           />
           <Button
             size="sm"
@@ -538,7 +486,7 @@ export default function WebhooksPage() {
         </div>
       </Modal>
 
-      {/* ── Test webhook dialog ── */}
+      {/* Test webhook dialog */}
       <Modal
         open={testOpen}
         onClose={() => setTestOpen(false)}
@@ -577,7 +525,7 @@ export default function WebhooksPage() {
         </Field>
       </Modal>
 
-      {/* ── Delete webhook confirm ── */}
+      {/* Delete webhook confirm */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -606,15 +554,7 @@ export default function WebhooksPage() {
 
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code
-      className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px]"
-      style={{
-        borderRadius: '4px',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg-secondary)',
-        color: 'var(--st-text)',
-      }}
-    >
+    <code className="inline-flex items-center px-1.5 py-0.5 font-mono text-[11px] rounded u-card--outlined u-bg-secondary" style={{ color: 'var(--st-text)' }}>
       {children}
     </code>
   );

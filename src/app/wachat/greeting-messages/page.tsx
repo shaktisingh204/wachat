@@ -3,7 +3,11 @@
 import {
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
   Field,
+  Separator,
   Skeleton,
   Switch,
   Textarea,
@@ -196,20 +200,18 @@ export default function GreetingMessagesPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* LEFT COLUMN: GREETING */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">
             Greeting Message
           </h2>
 
           <Card padding="lg">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
-                  Enable greeting
-                </h3>
-                <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
+              <CardHeader className="p-0">
+                <CardTitle>Enable greeting</CardTitle>
+                <CardDescription>
                   Automatically send a greeting when a contact messages for the first time.
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
               <Switch
                 checked={greetingEnabled}
                 onCheckedChange={setGreetingEnabled}
@@ -220,26 +222,23 @@ export default function GreetingMessagesPage() {
 
           <Card padding="lg">
             <div className="mb-4 flex items-center justify-between gap-4">
-               <div>
-                  <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
-                    A/B Testing
-                  </h3>
-                  <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
-                    Test two different greetings to see which performs better.
-                  </p>
-               </div>
-               <Switch
-                 checked={greetingType === 'ab_test'}
-                 onCheckedChange={(c) => setGreetingType(c ? 'ab_test' : 'single')}
-                 aria-label="Enable A/B testing"
-               />
+              <CardHeader className="p-0">
+                <CardTitle>A/B Testing</CardTitle>
+                <CardDescription>
+                  Test two different greetings to see which performs better.
+                </CardDescription>
+              </CardHeader>
+              <Switch
+                checked={greetingType === 'ab_test'}
+                onCheckedChange={(c) => setGreetingType(c ? 'ab_test' : 'single')}
+                aria-label="Enable A/B testing"
+              />
             </div>
 
+            <Separator className="mb-4" />
+
             {greetingType === 'ab_test' ? (
-              <div
-                className="flex flex-col gap-6 pt-4"
-                style={{ borderTop: '1px solid var(--st-border)' }}
-              >
+              <div className="flex flex-col gap-6">
                 <Field label="Variant A">
                   <Textarea
                     value={greetingVariantA}
@@ -260,10 +259,7 @@ export default function GreetingMessagesPage() {
                 </Field>
               </div>
             ) : (
-              <div
-                className="flex flex-col gap-3 pt-4"
-                style={{ borderTop: '1px solid var(--st-border)' }}
-              >
+              <div className="flex flex-col gap-3">
                 <Field label="Message">
                   <Textarea
                     value={greetingMessage}
@@ -285,19 +281,13 @@ export default function GreetingMessagesPage() {
                greetingType === 'ab_test' ? (
                  <div className="flex flex-col gap-4">
                    <div>
-                     <span
-                       className="mb-1 block text-xs font-semibold"
-                       style={{ color: 'var(--st-text-secondary)' }}
-                     >
+                     <span className="mb-1 block text-xs font-semibold text-[var(--st-text-secondary)]">
                        Variant A
                      </span>
                      <PreviewBubble rendered={renderPreviewText(greetingVariantA)} />
                    </div>
                    <div>
-                     <span
-                       className="mb-1 block text-xs font-semibold"
-                       style={{ color: 'var(--st-text-secondary)' }}
-                     >
+                     <span className="mb-1 block text-xs font-semibold text-[var(--st-text-secondary)]">
                        Variant B
                      </span>
                      <PreviewBubble rendered={renderPreviewText(greetingVariantB)} />
@@ -312,20 +302,16 @@ export default function GreetingMessagesPage() {
 
         {/* RIGHT COLUMN: AWAY */}
         <div className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold" style={{ color: 'var(--st-text)' }}>
+          <h2 className="text-lg font-semibold text-[var(--st-text)]">
             Away Message
           </h2>
 
           <Card padding="lg">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
-                  Enable away message
-                </h3>
-                <p className="mt-0.5 text-[12.5px]" style={{ color: 'var(--st-text-secondary)' }}>
-                  Send a response when you are unavailable.
-                </p>
-              </div>
+              <CardHeader className="p-0">
+                <CardTitle>Enable away message</CardTitle>
+                <CardDescription>Send a response when you are unavailable.</CardDescription>
+              </CardHeader>
               <Switch
                 checked={awayEnabled}
                 onCheckedChange={setAwayEnabled}
@@ -364,10 +350,9 @@ export default function GreetingMessagesPage() {
               </div>
             )}
 
-            <div
-              className="flex flex-col gap-3 pt-4"
-              style={{ borderTop: '1px solid var(--st-border)' }}
-            >
+            <Separator className="mt-1" />
+
+            <div className="flex flex-col gap-3">
               <Field label="Message">
                 <Textarea
                   value={awayMessage}
@@ -397,24 +382,17 @@ export default function GreetingMessagesPage() {
 function VariableInserter({ onInsert }: { onInsert: (v: string) => void }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
-        Insert:
-      </span>
+      <span className="text-[12px] text-[var(--st-text-secondary)]">Insert:</span>
       {VARIABLES.map((v) => (
-        <button
+        <Button
           key={v}
-          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => onInsert(v)}
-          className="px-2 py-1 font-mono text-[11px] transition-colors"
-          style={{
-            borderRadius: 'var(--st-radius)',
-            border: '1px solid var(--st-border)',
-            background: 'var(--st-bg)',
-            color: 'var(--st-text)',
-          }}
+          className="font-mono text-[11px]"
         >
           {v}
-        </button>
+        </Button>
       ))}
     </div>
   );
@@ -424,7 +402,7 @@ function PreviewCard({ title, show, onToggle, content }: { title: string, show: 
   return (
     <Card padding="lg">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>{title}</h2>
+        <CardTitle>{title}</CardTitle>
         <Button
           variant="ghost"
           size="sm"
@@ -435,16 +413,9 @@ function PreviewCard({ title, show, onToggle, content }: { title: string, show: 
         </Button>
       </div>
       {show && (
-        <div
-          className="p-4"
-          style={{
-            borderRadius: 'var(--st-radius)',
-            border: '1px solid var(--st-border)',
-            background: 'var(--st-bg-secondary)',
-          }}
-        >
+        <Card variant="ghost" padding="md">
           {content}
-        </div>
+        </Card>
       )}
     </Card>
   );
@@ -452,20 +423,10 @@ function PreviewCard({ title, show, onToggle, content }: { title: string, show: 
 
 function PreviewBubble({ rendered }: { rendered: string | null }) {
   return (
-    <div
-      className="inline-block max-w-[80%] px-4 py-2.5 text-[13px]"
-      style={{
-        borderRadius: 'var(--st-radius)',
-        background: 'var(--st-bg)',
-        border: '1px solid var(--st-border)',
-        color: 'var(--st-text)',
-      }}
-    >
+    <Card variant="outlined" padding="sm" className="inline-block max-w-[80%] text-[13px]">
       {rendered || (
-        <span className="italic" style={{ color: 'var(--st-text-secondary)' }}>
-          Empty message
-        </span>
+        <span className="italic text-[var(--st-text-secondary)]">Empty message</span>
       )}
-    </div>
+    </Card>
   );
 }

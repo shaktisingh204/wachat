@@ -3,11 +3,15 @@
 import {
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
   Modal,
   EmptyState,
   Input,
   Select,
   Skeleton,
+  Callout,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -15,9 +19,8 @@ import {
   useState,
   useTransition,
   useEffect,
-  } from 'react';
-import { useRouter,
-  useSearchParams } from 'next/navigation';
+} from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowLeft,
   Send,
@@ -34,7 +37,7 @@ import {
   Phone,
   CircleAlert,
   Eye,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
@@ -42,7 +45,7 @@ import { useTemplateStore } from '../template-store';
 import { WachatPage } from '@/app/wachat/_components/wachat-page';
 
 /**
- * Template Creator — full-featured WhatsApp Cloud API template builder,
+ * Template Creator -- full-featured WhatsApp Cloud API template builder,
  * rebuilt on 20ui primitives.
  *
  * Same data flow as before. Submit-for-review uses Modal confirm.
@@ -68,7 +71,7 @@ function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
 }
 
-/* ── Live Phone Preview ────────────────────────── */
+/* -- Live Phone Preview ────────────────────────── */
 
 function PhonePreview({
   headerFormat,
@@ -89,33 +92,20 @@ function PhonePreview({
     <div className="mx-auto w-[280px]">
       <div
         className="rounded-[18px] border p-3"
-        style={{
-          borderColor: 'var(--st-border)',
-          background: 'var(--st-bg-secondary)',
-        }}
+        style={{ borderColor: 'var(--st-border)', background: 'var(--st-bg-secondary)' }}
       >
-        <div
-          className="flex items-center justify-between px-2 py-1 text-[9px]"
-          style={{ color: 'var(--st-text-tertiary)' }}
-        >
+        <div className="flex items-center justify-between px-2 py-1 text-[9px]" style={{ color: 'var(--st-text-tertiary)' }}>
           <span>WhatsApp</span>
           <span>Preview</span>
         </div>
 
-        <div
-          className="mt-2 max-w-[240px] rounded-lg p-3"
-          style={{ background: 'var(--st-bg)' }}
-        >
+        <div className="mt-2 max-w-[240px] rounded-lg p-3" style={{ background: 'var(--st-bg)' }}>
           {headerFormat === 'IMAGE' && (
             <div
               className="mb-2 flex h-[120px] items-center justify-center rounded"
               style={{ background: 'var(--st-bg-secondary)' }}
             >
-              <ImageIcon
-                className="h-8 w-8"
-                style={{ color: 'var(--st-text-tertiary)' }}
-                aria-hidden="true"
-              />
+              <ImageIcon className="h-8 w-8" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'VIDEO' && (
@@ -123,29 +113,13 @@ function PhonePreview({
               className="mb-2 flex h-[120px] items-center justify-center rounded"
               style={{ background: 'var(--st-bg-secondary)' }}
             >
-              <Video
-                className="h-8 w-8"
-                style={{ color: 'var(--st-text-tertiary)' }}
-                aria-hidden="true"
-              />
+              <Video className="h-8 w-8" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'DOCUMENT' && (
-            <div
-              className="mb-2 flex items-center gap-2 rounded p-2"
-              style={{ background: 'var(--st-bg-secondary)' }}
-            >
-              <FileText
-                className="h-5 w-5"
-                style={{ color: 'var(--st-text-tertiary)' }}
-                aria-hidden="true"
-              />
-              <span
-                className="text-[10px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
-                Document
-              </span>
+            <div className="mb-2 flex items-center gap-2 rounded p-2" style={{ background: 'var(--st-bg-secondary)' }}>
+              <FileText className="h-5 w-5" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
+              <span className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>Document</span>
             </div>
           )}
           {headerFormat === 'LOCATION' && (
@@ -153,45 +127,27 @@ function PhonePreview({
               className="mb-2 flex h-[80px] items-center justify-center rounded"
               style={{ background: 'var(--st-bg-secondary)' }}
             >
-              <MapPin
-                className="h-6 w-6"
-                style={{ color: 'var(--st-text-secondary)' }}
-                aria-hidden="true"
-              />
+              <MapPin className="h-6 w-6" style={{ color: 'var(--st-text-secondary)' }} aria-hidden="true" />
             </div>
           )}
           {headerFormat === 'TEXT' && headerText && (
-            <p
-              className="mb-1 text-[12px] font-bold"
-              style={{ color: 'var(--st-text)' }}
-            >
+            <p className="mb-1 text-[12px] font-bold" style={{ color: 'var(--st-text)' }}>
               {headerText}
             </p>
           )}
 
-          <p
-            className="whitespace-pre-wrap text-[11px] leading-relaxed"
-            style={{ color: 'var(--st-text)' }}
-          >
-            {body || 'Your message body will appear here…'}
+          <p className="whitespace-pre-wrap text-[11px] leading-relaxed" style={{ color: 'var(--st-text)' }}>
+            {body || 'Your message body will appear here...'}
           </p>
 
           {footer && (
-            <p
-              className="mt-1.5 text-[9px]"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
+            <p className="mt-1.5 text-[9px]" style={{ color: 'var(--st-text-tertiary)' }}>
               {footer}
             </p>
           )}
 
           <div className="mt-1 flex justify-end">
-            <span
-              className="text-[8px]"
-              style={{ color: 'var(--st-text-tertiary)' }}
-            >
-              12:00 PM
-            </span>
+            <span className="text-[8px]" style={{ color: 'var(--st-text-tertiary)' }}>12:00 PM</span>
           </div>
         </div>
 
@@ -203,15 +159,9 @@ function PhonePreview({
                 className="flex items-center justify-center rounded-lg py-1.5 text-[11px] font-medium"
                 style={{ background: 'var(--st-bg)', color: 'var(--st-text)' }}
               >
-                {btn.type === 'URL' && (
-                  <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />
-                )}
-                {btn.type === 'PHONE_NUMBER' && (
-                  <Phone className="mr-1 h-3 w-3" aria-hidden="true" />
-                )}
-                {btn.type === 'COPY_CODE' && (
-                  <Copy className="mr-1 h-3 w-3" aria-hidden="true" />
-                )}
+                {btn.type === 'URL' && <ExternalLink className="mr-1 h-3 w-3" aria-hidden="true" />}
+                {btn.type === 'PHONE_NUMBER' && <Phone className="mr-1 h-3 w-3" aria-hidden="true" />}
+                {btn.type === 'COPY_CODE' && <Copy className="mr-1 h-3 w-3" aria-hidden="true" />}
                 {btn.text || `Button ${i + 1}`}
               </div>
             ))}
@@ -232,7 +182,7 @@ function PhonePreview({
   );
 }
 
-/* ── Multi-Language Selector ───────────────────── */
+/* -- Multi-Language Selector ───────────────────── */
 
 function MultiLanguageSelector({
   selected,
@@ -245,91 +195,69 @@ function MultiLanguageSelector({
 
   if (!open) {
     return (
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
+        iconLeft={Globe}
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-[11px] transition-colors"
-        style={{ color: 'var(--st-text-secondary)' }}
       >
-        <Globe className="h-3 w-3" aria-hidden="true" /> Clone to multiple languages
-      </button>
+        Clone to multiple languages
+      </Button>
     );
   }
 
   return (
-    <div
-      className="space-y-2 rounded-[var(--st-radius)] border p-3"
-      style={{
-        borderColor: 'var(--st-border)',
-        background: 'var(--st-bg-secondary)',
-      }}
-    >
-      <div className="flex items-center justify-between">
-        <p
-          className="text-[11px] font-semibold"
-          style={{ color: 'var(--st-text)' }}
-        >
-          <Globe className="mr-1 inline h-3 w-3" aria-hidden="true" /> Multi-language cloning
+    <Card variant="outlined" padding="sm">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="flex items-center gap-1 text-[11px] font-semibold" style={{ color: 'var(--st-text)' }}>
+            <Globe className="h-3 w-3" aria-hidden="true" /> Multi-language cloning
+          </p>
+          <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </div>
+        <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
+          After creating the primary template, clones will be auto-created for selected languages.
         </p>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="text-[10px]"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
-          Close
-        </button>
-      </div>
-      <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
-        After creating the primary template, clones will be auto-created for
-        selected languages.
-      </p>
-      <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
-        {LANGUAGES.map((l) => {
-          const isSelected = selected.includes(l.code);
-          return (
-            <button
-              key={l.code}
-              type="button"
-              onClick={() =>
-                onChange(
+        <div className="flex max-h-32 flex-wrap gap-1.5 overflow-y-auto">
+          {LANGUAGES.map((l) => {
+            const isSelected = selected.includes(l.code);
+            return (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() =>
+                  onChange(
+                    isSelected
+                      ? selected.filter((s) => s !== l.code)
+                      : [...selected, l.code],
+                  )
+                }
+                className="rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors"
+                style={
                   isSelected
-                    ? selected.filter((s) => s !== l.code)
-                    : [...selected, l.code],
-                )
-              }
-              className="rounded-full border px-2 py-0.5 text-[10px] font-medium transition-colors"
-              style={
-                isSelected
-                  ? {
-                      borderColor: 'var(--st-text)',
-                      background: 'var(--st-text)',
-                      color: 'var(--st-bg)',
-                    }
-                  : {
-                      borderColor: 'var(--st-border)',
-                      color: 'var(--st-text-secondary)',
-                    }
-              }
-            >
-              {l.name}
-            </button>
-          );
-        })}
+                    ? { borderColor: 'var(--st-text)', background: 'var(--st-text)', color: 'var(--st-bg)' }
+                    : { borderColor: 'var(--st-border)', color: 'var(--st-text-secondary)' }
+                }
+              >
+                {l.name}
+              </button>
+            );
+          })}
+        </div>
+        {selected.length > 0 && (
+          <p className="text-[10px] font-medium" style={{ color: 'var(--st-text)' }}>
+            {selected.length} language(s) selected for cloning
+          </p>
+        )}
       </div>
-      {selected.length > 0 && (
-        <p
-          className="text-[10px] font-medium"
-          style={{ color: 'var(--st-text)' }}
-        >
-          {selected.length} language(s) selected for cloning
-        </p>
-      )}
-    </div>
+    </Card>
   );
 }
 
-/* ── Main Page ─────────────────────────────────── */
+/* -- Main Page ─────────────────────────────────── */
 
 function CreateTemplateContent() {
   const router = useRouter();
@@ -352,9 +280,7 @@ function CreateTemplateContent() {
   const [buttons, setButtons] = useState<ButtonData[]>([]);
 
   // Auth OTP state
-  const [otpType, setOtpType] = useState<
-    'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP'
-  >('COPY_CODE');
+  const [otpType, setOtpType] = useState<'COPY_CODE' | 'ONE_TAP' | 'ZERO_TAP'>('COPY_CODE');
   const [codeExpiry, setCodeExpiry] = useState('10');
 
   // LTO state
@@ -543,14 +469,16 @@ function CreateTemplateContent() {
       }
     >
       <div className="flex flex-col gap-6">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="sm"
+          iconLeft={ArrowLeft}
           onClick={() => router.push('/wachat/templates')}
-          className="flex items-center gap-1 self-start text-[12px] transition-colors"
-          style={{ color: 'var(--st-text-secondary)' }}
+          className="self-start"
         >
-          <ArrowLeft className="h-3 w-3" aria-hidden="true" /> Back to templates
-        </button>
+          Back to templates
+        </Button>
 
         {/* Template Type Selector */}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
@@ -567,39 +495,24 @@ function CreateTemplateContent() {
                   setButtons([]);
                   setHeaderFormat('NONE');
                 }}
-                className="flex flex-col items-center gap-1.5 rounded-[var(--st-radius-lg)] border p-3 text-center transition-colors"
-                style={
-                  isActive
-                    ? {
-                        borderColor: 'var(--st-text)',
-                        background: 'var(--st-bg-secondary)',
-                      }
-                    : { borderColor: 'var(--st-border)' }
-                }
+                className={cx(
+                  'u-card u-card--interactive u-card--pad-sm flex flex-col items-center gap-1.5 text-center transition-colors',
+                  isActive && 'u-card--outlined',
+                )}
+                style={isActive ? { borderColor: 'var(--st-text)', background: 'var(--st-bg-secondary)' } : undefined}
               >
                 <Icon
                   className="h-5 w-5"
-                  style={{
-                    color: isActive
-                      ? 'var(--st-text)'
-                      : 'var(--st-text-secondary)',
-                  }}
+                  style={{ color: isActive ? 'var(--st-text)' : 'var(--st-text-secondary)' }}
                   aria-hidden="true"
                 />
                 <span
                   className="text-[11px] font-semibold"
-                  style={{
-                    color: isActive
-                      ? 'var(--st-text)'
-                      : 'var(--st-text-secondary)',
-                  }}
+                  style={{ color: isActive ? 'var(--st-text)' : 'var(--st-text-secondary)' }}
                 >
                   {t.name}
                 </span>
-                <span
-                  className="text-[9px] leading-tight"
-                  style={{ color: 'var(--st-text-tertiary)' }}
-                >
+                <span className="text-[9px] leading-tight" style={{ color: 'var(--st-text-tertiary)' }}>
                   {t.desc}
                 </span>
               </button>
@@ -613,17 +526,14 @@ function CreateTemplateContent() {
             showPreview ? 'lg:grid-cols-[1fr_320px]' : 'lg:grid-cols-1',
           )}
         >
-          {/* ── Editor Column ── */}
+          {/* -- Editor Column -- */}
           <div className="space-y-5">
             {/* Details */}
             <Card>
-              <div className="space-y-4">
-                <h3
-                  className="text-[13px] font-semibold"
-                  style={{ color: 'var(--st-text)' }}
-                >
-                  Template details
-                </h3>
+              <CardHeader>
+                <CardTitle>Template details</CardTitle>
+              </CardHeader>
+              <CardBody>
                 <div className="grid gap-4 sm:grid-cols-3">
                   <Field label="Name" required>
                     <Input
@@ -659,85 +569,73 @@ function CreateTemplateContent() {
                     />
                   </Field>
                 </div>
-              </div>
+              </CardBody>
             </Card>
 
             {/* AUTH */}
             {templateType === 'AUTH' && (
               <Card>
-                <div className="space-y-4">
-                  <h3
-                    className="text-[13px] font-semibold"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    Authentication settings
-                  </h3>
-                  <Field label="OTP type">
-                    <Select
-                      value={otpType}
-                      onChange={(v) => v && setOtpType(v as any)}
-                      aria-label="OTP type"
-                      options={[
-                        { value: 'COPY_CODE', label: 'Copy code button' },
-                        { value: 'ONE_TAP', label: 'One-tap autofill' },
-                        { value: 'ZERO_TAP', label: 'Zero-tap (auto-verify)' },
-                      ]}
-                    />
-                  </Field>
-                  <Field label="Code expiry (minutes)">
-                    <Input
-                      value={codeExpiry}
-                      onChange={(e) => setCodeExpiry(e.target.value)}
-                      placeholder="10"
-                    />
-                  </Field>
-                  <div
-                    className="rounded-[var(--st-radius)] p-3 text-[11px]"
-                    style={{
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text-secondary)',
-                    }}
-                  >
-                    <p
-                      className="mb-1 font-medium"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      Auto-generated body:
-                    </p>
-                    <p className="font-mono">{`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}</p>
+                <CardHeader>
+                  <CardTitle>Authentication settings</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="space-y-4">
+                    <Field label="OTP type">
+                      <Select
+                        value={otpType}
+                        onChange={(v) => v && setOtpType(v as any)}
+                        aria-label="OTP type"
+                        options={[
+                          { value: 'COPY_CODE', label: 'Copy code button' },
+                          { value: 'ONE_TAP', label: 'One-tap autofill' },
+                          { value: 'ZERO_TAP', label: 'Zero-tap (auto-verify)' },
+                        ]}
+                      />
+                    </Field>
+                    <Field label="Code expiry (minutes)">
+                      <Input
+                        value={codeExpiry}
+                        onChange={(e) => setCodeExpiry(e.target.value)}
+                        placeholder="10"
+                      />
+                    </Field>
+                    <Callout tone="neutral" icon={null} title="Auto-generated body:">
+                      <span className="font-mono text-[11px]">
+                        {`{{1}} is your verification code. This code expires in ${codeExpiry} minutes.`}
+                      </span>
+                    </Callout>
                   </div>
-                </div>
+                </CardBody>
               </Card>
             )}
 
             {/* LTO */}
             {templateType === 'LTO' && (
               <Card>
-                <div className="space-y-4">
-                  <h3
-                    className="text-[13px] font-semibold"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    Limited time offer
-                  </h3>
-                  <Field
-                    label="Offer expiry"
-                    hint="When the offer expires (shown as countdown)"
-                  >
-                    <Input
-                      type="datetime-local"
-                      value={ltoExpiry}
-                      onChange={(e) => setLtoExpiry(e.target.value)}
-                    />
-                  </Field>
-                  <Field label="Coupon code">
-                    <Input
-                      value={ltoCoupon}
-                      onChange={(e) => setLtoCoupon(e.target.value)}
-                      placeholder="SAVE20"
-                    />
-                  </Field>
-                </div>
+                <CardHeader>
+                  <CardTitle>Limited time offer</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="space-y-4">
+                    <Field
+                      label="Offer expiry"
+                      hint="When the offer expires (shown as countdown)"
+                    >
+                      <Input
+                        type="datetime-local"
+                        value={ltoExpiry}
+                        onChange={(e) => setLtoExpiry(e.target.value)}
+                      />
+                    </Field>
+                    <Field label="Coupon code">
+                      <Input
+                        value={ltoCoupon}
+                        onChange={(e) => setLtoCoupon(e.target.value)}
+                        placeholder="SAVE20"
+                      />
+                    </Field>
+                  </div>
+                </CardBody>
               </Card>
             )}
 
@@ -746,70 +644,67 @@ function CreateTemplateContent() {
               templateType === 'LTO' ||
               templateType === 'CAROUSEL') && (
               <Card>
-                <div className="space-y-4">
-                  <h3
-                    className="text-[13px] font-semibold"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                <CardHeader>
+                  <CardTitle>
                     {templateType === 'CAROUSEL'
                       ? 'Carousel introduction'
                       : 'Message content'}
-                  </h3>
+                  </CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="space-y-4">
+                    {templateType === 'STANDARD' && (
+                      <HeaderEditor
+                        headerFormat={headerFormat}
+                        setHeaderFormat={setHeaderFormat}
+                        headerText={headerText}
+                        setHeaderText={setHeaderText}
+                        headerMediaUrl={headerMediaUrl}
+                        setHeaderMediaUrl={setHeaderMediaUrl}
+                      />
+                    )}
 
-                  {templateType === 'STANDARD' && (
-                    <HeaderEditor
-                      headerFormat={headerFormat}
-                      setHeaderFormat={setHeaderFormat}
-                      headerText={headerText}
-                      setHeaderText={setHeaderText}
-                      headerMediaUrl={headerMediaUrl}
-                      setHeaderMediaUrl={setHeaderMediaUrl}
+                    <BodyEditor
+                      body={body}
+                      setBody={setBody}
+                      footer={footer}
+                      setFooter={setFooter}
                     />
-                  )}
-
-                  <BodyEditor
-                    body={body}
-                    setBody={setBody}
-                    footer={footer}
-                    setFooter={setFooter}
-                  />
-                </div>
+                  </div>
+                </CardBody>
               </Card>
             )}
 
             {/* Buttons */}
             {(templateType === 'STANDARD' || templateType === 'CAROUSEL') && (
               <Card>
-                <div className="space-y-3">
-                  <ButtonManager
-                    buttons={buttons}
-                    setButtons={setButtons}
-                  />
-                </div>
+                <CardBody>
+                  <div className="space-y-3">
+                    <ButtonManager
+                      buttons={buttons}
+                      setButtons={setButtons}
+                    />
+                  </div>
+                </CardBody>
               </Card>
             )}
 
             {/* SabNode features */}
             <Card>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles
-                    className="h-4 w-4"
-                    style={{ color: 'var(--st-text)' }}
-                    aria-hidden="true"
-                  />
-                  <h3
-                    className="text-[13px] font-semibold"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+              <CardHeader>
+                <CardTitle>
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
                     SabNode features
-                  </h3>
-                </div>
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardBody>
                 <MultiLanguageSelector
                   selected={cloneLanguages}
                   onChange={setCloneLanguages}
                 />
-              </div>
+              </CardBody>
             </Card>
 
             {/* Submit */}
@@ -825,7 +720,7 @@ function CreateTemplateContent() {
                   (!body.trim() && templateType !== 'AUTH')
                 }
               >
-                {isPending ? 'Submitting…' : 'Submit for approval'}
+                {isPending ? 'Submitting...' : 'Submit for approval'}
               </Button>
               <Button
                 variant="ghost"
@@ -841,10 +736,7 @@ function CreateTemplateContent() {
           {showPreview && (
             <div className="hidden lg:block">
               <div className="sticky top-6 space-y-4">
-                <div
-                  className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color: 'var(--st-text-secondary)' }}>
                   <Smartphone className="h-3.5 w-3.5" aria-hidden="true" /> Live preview
                 </div>
                 <Card variant="elevated">
@@ -862,23 +754,14 @@ function CreateTemplateContent() {
                   />
                 </Card>
                 <div className="space-y-1 text-center">
-                  <p
-                    className="text-[10px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
                     {charCount}/1024 characters
                   </p>
-                  <p
-                    className="text-[10px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <p className="text-[10px]" style={{ color: 'var(--st-text-secondary)' }}>
                     {varCount} variable(s) detected
                   </p>
                   {cloneLanguages.length > 0 && (
-                    <p
-                      className="text-[10px]"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    <p className="text-[10px]" style={{ color: 'var(--st-text)' }}>
                       {cloneLanguages.length} language clone(s)
                     </p>
                   )}

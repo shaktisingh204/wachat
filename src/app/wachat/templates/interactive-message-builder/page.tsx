@@ -4,6 +4,8 @@ import {
   Button,
   IconButton,
   Card,
+  CardTitle,
+  CardDescription,
   Modal,
   Input,
   Field,
@@ -11,6 +13,7 @@ import {
   Radio,
   Textarea,
   EmptyState,
+  Separator,
   useToast,
 } from '@/components/sabcrm/20ui';
 import { useState, useEffect } from 'react';
@@ -256,7 +259,7 @@ export default function InteractiveMessagesPage() {
         <div className="flex flex-col gap-4">
           <Card padding="lg">
             <div className="flex flex-col gap-3">
-              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Message type</h2>
+              <CardTitle>Message type</CardTitle>
               <RadioGroup
                 value={msgType}
                 onValueChange={(v) => setMsgType(v as MsgType)}
@@ -269,8 +272,8 @@ export default function InteractiveMessagesPage() {
                     value={opt.value}
                     label={
                       <span className="flex flex-col">
-                        <span style={{ color: 'var(--st-text)' }}>{opt.label}</span>
-                        <span className="text-[12px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                        <span className="u-card__title text-[13px]">{opt.label}</span>
+                        <span className="text-[12px] u-card__desc">
                           {opt.desc}
                         </span>
                       </span>
@@ -287,7 +290,7 @@ export default function InteractiveMessagesPage() {
                 rows={3}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Message body…"
+                placeholder="Message body..."
                 className="min-h-[80px]"
               />
             </Field>
@@ -296,14 +299,10 @@ export default function InteractiveMessagesPage() {
           {msgType === 'buttons' && (
             <Card padding="lg">
               <div className="flex flex-col gap-3">
-                <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Buttons (max 3)</h2>
+                <CardTitle>Buttons (max 3)</CardTitle>
                 <div className="flex flex-col gap-3">
                   {buttons.map((btn, i) => (
-                    <div
-                      key={i}
-                      className="flex flex-col gap-2 p-3"
-                      style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}
-                    >
+                    <Card key={i} variant="outlined" padding="sm" className="flex flex-col gap-2">
                       <Input
                         placeholder={`Button ${i + 1} label`}
                         value={btn.label}
@@ -314,7 +313,7 @@ export default function InteractiveMessagesPage() {
                         value={btn.id}
                         onChange={(e) => updateButton(i, { id: e.target.value })}
                       />
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </div>
@@ -324,18 +323,14 @@ export default function InteractiveMessagesPage() {
           {msgType === 'list' && (
             <Card padding="lg">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Sections</h2>
+                <CardTitle>Sections</CardTitle>
                 <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addSection}>
                   Section
                 </Button>
               </div>
               <div className="flex flex-col gap-3">
                 {sections.map((sec, si) => (
-                  <div
-                    key={si}
-                    className="p-3"
-                    style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}
-                  >
+                  <Card key={si} variant="outlined" padding="sm">
                     <div className="mb-2 flex items-center gap-2">
                       <Input
                         placeholder="Section title (required)"
@@ -353,14 +348,11 @@ export default function InteractiveMessagesPage() {
                     </div>
                     <div className="flex flex-col gap-1.5">
                       {sec.rows.map((row, ri) => (
-                        <div
+                        <Card
                           key={ri}
-                          className="flex flex-col gap-2 p-2"
-                          style={{
-                            border: '1px solid var(--st-border)',
-                            borderRadius: 'var(--st-radius)',
-                            background: 'var(--st-bg-secondary)',
-                          }}
+                          variant="ghost"
+                          padding="sm"
+                          className="flex flex-col gap-2"
                         >
                           <div className="flex items-center gap-2">
                             <Input
@@ -388,21 +380,22 @@ export default function InteractiveMessagesPage() {
                             value={row.id || ''}
                             onChange={(e) => updateRow(si, ri, { id: e.target.value })}
                           />
-                        </div>
+                        </Card>
                       ))}
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => addRow(si)}
-                      className="mt-2 text-[11px] transition-colors"
-                      style={{ color: 'var(--st-text-tertiary)' }}
+                      className="mt-2"
                     >
                       + Add row
-                    </button>
-                  </div>
+                    </Button>
+                  </Card>
                 ))}
                 {sections.length === 0 && (
-                  <p className="text-sm" style={{ color: 'var(--st-text)' }}>At least one section required.</p>
+                  <p className="text-sm u-card__desc">At least one section required.</p>
                 )}
               </div>
             </Card>
@@ -411,7 +404,7 @@ export default function InteractiveMessagesPage() {
           {msgType === 'flow' && (
             <Card padding="lg">
               <div className="flex flex-col gap-3">
-                <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Flow Configuration</h2>
+                <CardTitle>Flow Configuration</CardTitle>
                 <div className="flex flex-col gap-2">
                   <Field label="Flow ID (required)">
                     <Input
@@ -445,20 +438,16 @@ export default function InteractiveMessagesPage() {
           {msgType === 'carousel' && (
             <Card padding="lg">
               <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Carousel Cards</h2>
+                <CardTitle>Carousel Cards</CardTitle>
                 <Button variant="ghost" size="sm" iconLeft={Plus} onClick={addCard}>
                   Card
                 </Button>
               </div>
               <div className="flex flex-col gap-3">
                 {carouselCards.map((card, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col gap-2 p-3"
-                    style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}
-                  >
+                  <Card key={idx} variant="outlined" padding="sm" className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[13px] font-medium" style={{ color: 'var(--st-text)' }}>
+                      <span className="text-[13px] font-medium u-card__title">
                         Card {idx + 1}
                       </span>
                       <IconButton variant="ghost" size="sm" label="Remove card" icon={Trash2} onClick={() => removeCard(idx)} />
@@ -478,7 +467,7 @@ export default function InteractiveMessagesPage() {
                       value={card.buttonLabel}
                       onChange={e => updateCard(idx, { buttonLabel: e.target.value })}
                     />
-                  </div>
+                  </Card>
                 ))}
               </div>
             </Card>
@@ -486,41 +475,40 @@ export default function InteractiveMessagesPage() {
 
           {msgType === 'product' && (
             <Card padding="lg">
-              <p className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+              <CardDescription>
                 Product messages use your connected catalog. Configure products
                 in the Catalog section.
-              </p>
+              </CardDescription>
             </Card>
           )}
           {msgType === 'location_request' && (
             <Card padding="lg">
-              <p className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+              <CardDescription>
                 This message will prompt the user to share their location.
-              </p>
+              </CardDescription>
             </Card>
           )}
         </div>
 
+        {/* Preview panel */}
         <Card padding="lg" className="sticky top-6 self-start">
           <div className="mb-3 flex items-center gap-2">
-            <Eye className="h-4 w-4" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
-            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>Preview</h2>
+            <Eye className="h-4 w-4 u-card__desc" aria-hidden="true" />
+            <CardTitle>Preview</CardTitle>
           </div>
-          <div className="p-4" style={{ background: 'var(--st-bg-secondary)', borderRadius: 'var(--st-radius)' }}>
-            <div
-              className="max-w-[260px] p-3 overflow-hidden"
-              style={{ background: 'var(--st-bg)', borderRadius: 'var(--st-radius)', boxShadow: 'var(--st-shadow-sm)' }}
-            >
-              <p className="whitespace-pre-wrap text-[13px]" style={{ color: 'var(--st-text)' }}>
-                {body || 'Message body…'}
+          <Card variant="ghost" padding="sm">
+            {/* Message bubble */}
+            <Card variant="elevated" padding="sm" className="max-w-[260px] overflow-hidden">
+              <p className="whitespace-pre-wrap text-[13px] u-card__title">
+                {body || 'Message body...'}
               </p>
               {msgType === 'buttons' && (
-                <div className="mt-2 flex flex-col gap-1 pt-2" style={{ borderTop: '1px solid var(--st-border)' }}>
+                <div className="mt-2 flex flex-col gap-1 pt-2">
+                  <Separator />
                   {buttons.filter(b => b.label).map((l, i) => (
                     <div
                       key={i}
-                      className="py-1 text-center text-[12px]"
-                      style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)', color: 'var(--st-text)' }}
+                      className="py-1 text-center text-[12px] u-card--outlined u-card--pad-sm u-card__title"
                     >
                       {l.label}
                     </div>
@@ -528,42 +516,45 @@ export default function InteractiveMessagesPage() {
                 </div>
               )}
               {msgType === 'list' && (
-                <div className="mt-2 pt-2 text-center text-[12px]" style={{ borderTop: '1px solid var(--st-border)', color: 'var(--st-text)' }}>
-                  Menu
+                <div className="mt-2 pt-2">
+                  <Separator />
+                  <p className="text-center text-[12px] u-card__title mt-2">Menu</p>
                 </div>
               )}
               {msgType === 'location_request' && (
-                <div className="mt-2 pt-2 text-center text-[12px]" style={{ borderTop: '1px solid var(--st-border)', color: 'var(--st-text)' }}>
-                  Send Location
+                <div className="mt-2 pt-2">
+                  <Separator />
+                  <p className="text-center text-[12px] u-card__title mt-2">Send Location</p>
                 </div>
               )}
               {msgType === 'flow' && (
-                <div className="mt-2 pt-2 text-center text-[12px]" style={{ borderTop: '1px solid var(--st-border)', color: 'var(--st-text)' }}>
-                  {flowCta || 'Open Flow'}
+                <div className="mt-2 pt-2">
+                  <Separator />
+                  <p className="text-center text-[12px] u-card__title mt-2">
+                    {flowCta || 'Open Flow'}
+                  </p>
                 </div>
               )}
               {msgType === 'carousel' && carouselCards.length > 0 && (
-                <div className="mt-2 pt-2 flex flex-col gap-2" style={{ borderTop: '1px solid var(--st-border)' }}>
+                <div className="mt-2 pt-2 flex flex-col gap-2">
+                  <Separator />
                   {carouselCards.slice(0, 1).map((c, i) => (
-                    <div
-                      key={i}
-                      className="p-2 flex flex-col gap-1"
-                      style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}
-                    >
-                      <p className="text-[12px] font-medium" style={{ color: 'var(--st-text)' }}>{c.title || 'Card Title'}</p>
-                      <p className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>{c.body || 'Card Body'}</p>
-                      <div className="mt-1 pt-1 text-center text-[11px]" style={{ borderTop: '1px solid var(--st-border)', color: 'var(--st-text)' }}>
+                    <Card key={i} variant="outlined" padding="sm" className="flex flex-col gap-1">
+                      <p className="text-[12px] font-medium u-card__title">{c.title || 'Card Title'}</p>
+                      <p className="text-[11px] u-card__desc">{c.body || 'Card Body'}</p>
+                      <Separator />
+                      <p className="text-center text-[11px] u-card__title">
                         {c.buttonLabel || 'Action'}
-                      </div>
-                    </div>
+                      </p>
+                    </Card>
                   ))}
                   {carouselCards.length > 1 && (
-                    <p className="text-[10px] text-center" style={{ color: 'var(--st-text-secondary)' }}>+{carouselCards.length - 1} more</p>
+                    <p className="text-[10px] text-center u-card__desc">+{carouselCards.length - 1} more</p>
                   )}
                 </div>
               )}
-            </div>
-          </div>
+            </Card>
+          </Card>
         </Card>
       </div>
 
@@ -636,19 +627,15 @@ export default function InteractiveMessagesPage() {
             />
           ) : (
             savedTemplates.map((t, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between p-2"
-                style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}
-              >
-                <span className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>{t.name}</span>
+              <Card key={i} variant="outlined" padding="sm" className="flex items-center justify-between">
+                <span className="text-sm font-medium u-card__title">{t.name}</span>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="outline" onClick={() => loadState(t.state)}>
                     Load
                   </Button>
                   <IconButton size="sm" variant="ghost" label="Delete template" icon={Trash2} onClick={() => handleDeleteTemplate(i)} />
                 </div>
-              </div>
+              </Card>
             ))
           )}
         </div>

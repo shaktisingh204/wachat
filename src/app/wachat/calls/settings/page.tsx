@@ -1,6 +1,16 @@
 'use client';
 
-import { Badge, Button, Card, EmptyState, IconButton } from '@/components/sabcrm/20ui';
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  EmptyState,
+  IconButton,
+} from '@/components/sabcrm/20ui';
 import { useToast } from '@/hooks/use-toast';
 import {
   useState,
@@ -154,77 +164,66 @@ export default function CallingSettingsPage() {
             <>
               {/* Phone picker card */}
               <Card>
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-[16px]" style={{ color: 'var(--st-text)' }}>
-                      Configure number
-                    </h2>
-                    <p
-                      className="mt-1 text-[12.5px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
+                <CardHeader>
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <CardTitle>Configure number</CardTitle>
+                      <CardDescription>
+                        Select a phone number to view and modify its calling
+                        configuration.
+                      </CardDescription>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconLeft={isLoading ? undefined : RefreshCw}
+                      onClick={refreshProject}
+                      disabled={isLoading}
                     >
-                      Select a phone number to view and modify its calling
-                      configuration.
-                    </p>
+                      {isLoading ? (
+                        <Loader2 className="animate-spin" size={14} aria-hidden="true" />
+                      ) : null}
+                      Reload
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    iconLeft={isLoading ? undefined : RefreshCw}
-                    onClick={refreshProject}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <Loader2 className="animate-spin" size={14} aria-hidden="true" />
-                    ) : null}
-                    Reload
-                  </Button>
-                </div>
-
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  {phoneNumbers.map((phone) => {
-                    const active = phone.id === selectedPhone?.id;
-                    const callingEnabled =
-                      phone.callingSettings?.status === 'ENABLED';
-                    return (
-                      <button
-                        key={phone.id}
-                        type="button"
-                        onClick={() => setSelectedPhoneId(phone.id)}
-                        className="flex items-center justify-between gap-3 px-4 py-3 text-left transition-colors focus-visible:outline-none"
-                        style={{
-                          borderRadius: 'var(--st-radius)',
-                          border: '1px solid',
-                          borderColor: active ? 'var(--st-text)' : 'var(--st-border)',
-                          background: active
-                            ? 'var(--st-bg-secondary)'
-                            : 'var(--st-bg)',
-                        }}
-                      >
-                        <div className="min-w-0">
-                          <div
-                            className="truncate text-[13px]"
-                            style={{ color: 'var(--st-text)' }}
-                          >
-                            {phone.display_phone_number}
-                          </div>
-                          <div
-                            className="truncate text-[11.5px]"
-                            style={{ color: 'var(--st-text-secondary)' }}
-                          >
-                            {phone.verified_name || 'Unverified'}
-                          </div>
-                        </div>
-                        <Badge
-                          tone={callingEnabled ? 'success' : 'neutral'}
-                          dot
+                </CardHeader>
+                <CardBody>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                    {phoneNumbers.map((phone) => {
+                      const active = phone.id === selectedPhone?.id;
+                      const callingEnabled =
+                        phone.callingSettings?.status === 'ENABLED';
+                      return (
+                        <button
+                          key={phone.id}
+                          type="button"
+                          onClick={() => setSelectedPhoneId(phone.id)}
+                          className={cx(
+                            'u-card u-card--interactive u-card--pad-md',
+                            'flex items-center justify-between gap-3 text-left transition-colors focus-visible:outline-none',
+                            active && 'u-card--selected',
+                          )}
+                          aria-pressed={active}
                         >
-                          {callingEnabled ? 'On' : 'Off'}
-                        </Badge>
-                      </button>
-                    );
-                  })}
-                </div>
+                          <div className="min-w-0">
+                            <div className="truncate text-[13px] text-[var(--st-text)]">
+                              {phone.display_phone_number}
+                            </div>
+                            <div className="truncate text-[11.5px] text-[var(--st-text-secondary)]">
+                              {phone.verified_name || 'Unverified'}
+                            </div>
+                          </div>
+                          <Badge
+                            tone={callingEnabled ? 'success' : 'neutral'}
+                            dot
+                          >
+                            {callingEnabled ? 'On' : 'Off'}
+                          </Badge>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </CardBody>
               </Card>
 
               {/* Status banner */}
@@ -251,10 +250,7 @@ export default function CallingSettingsPage() {
                 />
               ) : (
                 <Card padding="lg">
-                  <p
-                    className="text-center text-[13px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <p className="text-center text-[13px] text-[var(--st-text-secondary)]">
                     Select a phone number above to manage its settings.
                   </p>
                 </Card>
@@ -266,104 +262,77 @@ export default function CallingSettingsPage() {
         {/* Right column: API log */}
         <div className="lg:col-span-1">
           <Card>
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span
-                  className="flex h-8 w-8 items-center justify-center"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    background: 'var(--st-bg-secondary)',
-                  }}
-                >
-                  <FileText
-                    className="h-4 w-4"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                    aria-hidden="true"
-                  />
-                </span>
-                <div>
-                  <h3 className="text-[13.5px]" style={{ color: 'var(--st-text)' }}>
-                    API call log
-                  </h3>
-                  <p
-                    className="text-[11.5px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    Fetches and saves from this page.
-                  </p>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)]">
+                    <FileText
+                      className="h-4 w-4 text-[var(--st-text-secondary)]"
+                      aria-hidden="true"
+                    />
+                  </span>
+                  <div>
+                    <CardTitle>API call log</CardTitle>
+                    <CardDescription>Fetches and saves from this page.</CardDescription>
+                  </div>
                 </div>
+                <IconButton
+                  variant="ghost"
+                  size="sm"
+                  label="Clear log"
+                  icon={Trash2}
+                  onClick={clearApiLog}
+                  disabled={log.length === 0}
+                />
               </div>
-              <IconButton
-                variant="ghost"
-                size="sm"
-                label="Clear log"
-                icon={Trash2}
-                onClick={clearApiLog}
-                disabled={log.length === 0}
-              />
-            </div>
-
-            <div className="mt-4 max-h-96 overflow-y-auto">
-              {log.length === 0 ? (
-                <p
-                  className="py-8 text-center text-[12.5px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  Nothing logged yet. Fetches and saves will appear here.
-                </p>
-              ) : (
-                <ul className="flex flex-col">
-                  {log.map((entry) => (
-                    <li
-                      key={entry.id}
-                      className="py-2.5"
-                      style={{ borderTop: '1px solid var(--st-border)' }}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="font-mono text-[10.5px]"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
-                          {entry.method}
-                        </span>
-                        <Badge
-                          tone={entry.status === 'SUCCESS' ? 'success' : 'danger'}
-                        >
-                          {entry.status === 'SUCCESS' ? (
-                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-                          ) : (
-                            <AlertCircle className="h-3 w-3" aria-hidden="true" />
-                          )}
-                          {entry.status}
-                        </Badge>
-                        <span
-                          className="ml-auto text-[10.5px]"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
-                          {formatDistanceToNow(entry.createdAt, {
-                            addSuffix: true,
-                          })}
-                        </span>
-                      </div>
-                      <div
-                        className="mt-1 text-[12.5px]"
-                        style={{ color: 'var(--st-text)' }}
+            </CardHeader>
+            <CardBody>
+              <div className="max-h-96 overflow-y-auto">
+                {log.length === 0 ? (
+                  <p className="py-8 text-center text-[12.5px] text-[var(--st-text-secondary)]">
+                    Nothing logged yet. Fetches and saves will appear here.
+                  </p>
+                ) : (
+                  <ul className="flex flex-col">
+                    {log.map((entry) => (
+                      <li
+                        key={entry.id}
+                        className="border-t border-[var(--st-border)] py-2.5"
                       >
-                        {entry.summary}
-                      </div>
-                      {entry.status === 'ERROR' && entry.errorMessage ? (
-                        <div
-                          className="mt-1 truncate text-[11.5px]"
-                          style={{ color: 'var(--st-danger)' }}
-                        >
-                          {entry.errorMessage}
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[10.5px] text-[var(--st-text-secondary)]">
+                            {entry.method}
+                          </span>
+                          <Badge
+                            tone={entry.status === 'SUCCESS' ? 'success' : 'danger'}
+                          >
+                            {entry.status === 'SUCCESS' ? (
+                              <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                            ) : (
+                              <AlertCircle className="h-3 w-3" aria-hidden="true" />
+                            )}
+                            {entry.status}
+                          </Badge>
+                          <span className="ml-auto text-[10.5px] text-[var(--st-text-secondary)]">
+                            {formatDistanceToNow(entry.createdAt, {
+                              addSuffix: true,
+                            })}
+                          </span>
                         </div>
-                      ) : null}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+                        <div className="mt-1 text-[12.5px] text-[var(--st-text)]">
+                          {entry.summary}
+                        </div>
+                        {entry.status === 'ERROR' && entry.errorMessage ? (
+                          <div className="mt-1 truncate text-[11.5px] text-[var(--st-danger)]">
+                            {entry.errorMessage}
+                          </div>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </CardBody>
           </Card>
         </div>
       </div>
@@ -389,57 +358,48 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
 
   return (
     <Card>
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h3 className="text-[14px]" style={{ color: 'var(--st-text)' }}>
-            Current status
-          </h3>
-          <p
-            className="mt-0.5 text-[12px]"
-            style={{ color: 'var(--st-text-secondary)' }}
-          >
-            Live configuration for {phone.display_phone_number}
-          </p>
-        </div>
-        <Badge tone={enabled ? 'success' : 'neutral'} dot>
-          {enabled ? 'Enabled' : 'Disabled'}
-        </Badge>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {checklist.map((item) => (
-          <div
-            key={item.label}
-            className="flex items-center gap-2 px-3 py-2"
-            style={{
-              borderRadius: 'var(--st-radius)',
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg-secondary)',
-            }}
-          >
-            <span
-              className="flex h-5 w-5 items-center justify-center rounded-full"
-              style={{
-                background: item.ok
-                  ? 'color-mix(in srgb, var(--st-status-ok) 12%, transparent)'
-                  : 'var(--st-bg)',
-                color: item.ok ? 'var(--st-status-ok)' : 'var(--st-text-tertiary)',
-              }}
-            >
-              {item.ok ? (
-                <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
-              ) : (
-                <AlertCircle className="h-3 w-3" aria-hidden="true" />
-              )}
-            </span>
-            <span
-              className="truncate text-[12px]"
-              style={{ color: 'var(--st-text)' }}
-            >
-              {item.label}
-            </span>
+      <CardHeader>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <CardTitle>Current status</CardTitle>
+            <CardDescription>
+              Live configuration for {phone.display_phone_number}
+            </CardDescription>
           </div>
-        ))}
-      </div>
+          <Badge tone={enabled ? 'success' : 'neutral'} dot>
+            {enabled ? 'Enabled' : 'Disabled'}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardBody>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {checklist.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
+            >
+              <span
+                className="flex h-5 w-5 items-center justify-center rounded-full"
+                style={{
+                  background: item.ok
+                    ? 'color-mix(in srgb, var(--st-status-ok) 12%, transparent)'
+                    : 'var(--st-bg)',
+                  color: item.ok ? 'var(--st-status-ok)' : 'var(--st-text-tertiary)',
+                }}
+              >
+                {item.ok ? (
+                  <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+                ) : (
+                  <AlertCircle className="h-3 w-3" aria-hidden="true" />
+                )}
+              </span>
+              <span className="truncate text-[12px] text-[var(--st-text)]">
+                {item.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardBody>
     </Card>
   );
 }

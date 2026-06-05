@@ -16,7 +16,15 @@ import {
   EmptyState,
   IconButton,
   Modal,
+  Pagination,
   Skeleton,
+  StatCard,
+  Table,
+  TBody,
+  Td,
+  THead,
+  Tr,
+  Th,
   useToast,
 } from '@/components/sabcrm/20ui';
 import {
@@ -32,8 +40,6 @@ import {
   RefreshCw,
   Eye,
   Trash2,
-  ChevronLeft,
-  ChevronRight
 } from 'lucide-react';
 import {
   AreaChart,
@@ -172,7 +178,6 @@ export default function LinkTrackingPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex max-w-[320px] items-center gap-1.5 truncate text-[13px] hover:underline"
-            style={{ color: 'var(--st-text)' }}
             title={row.url}
           >
             <LinkIcon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
@@ -188,7 +193,7 @@ export default function LinkTrackingPage() {
         key: 'campaignName',
         header: 'Campaign',
         render: (row) => (
-          <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+          <span className="text-[13px]">
             {row.campaignName || '—'}
           </span>
         ),
@@ -197,7 +202,7 @@ export default function LinkTrackingPage() {
         key: 'count',
         header: 'Clicks',
         render: (row) => (
-          <span className="font-mono tabular-nums" style={{ color: 'var(--st-text)' }}>
+          <span className="font-mono tabular-nums">
             {row.count}
           </span>
         ),
@@ -206,16 +211,16 @@ export default function LinkTrackingPage() {
         key: 'ctr',
         header: 'CTR',
         render: (row) => {
-           if (!row.messagesSent) return <span style={{ color: 'var(--st-text-secondary)' }}>—</span>;
+           if (!row.messagesSent) return <span className="u-text-secondary">—</span>;
            const ctr = (row.count / row.messagesSent) * 100;
-           return <span className="font-mono" style={{ color: 'var(--st-text)' }}>{ctr.toFixed(1)}%</span>;
+           return <span className="font-mono">{ctr.toFixed(1)}%</span>;
         }
       },
       {
         key: 'lastClicked',
         header: 'Last clicked',
         render: (row) => (
-          <span className="text-[12px] whitespace-nowrap" style={{ color: 'var(--st-text-secondary)' }}>
+          <span className="text-[12px] whitespace-nowrap u-text-secondary">
             {row.lastClicked
               ? formatUTC(row.lastClicked, true)
               : '—'}
@@ -281,27 +286,21 @@ export default function LinkTrackingPage() {
     >
       <div className="flex flex-col gap-6">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card padding="lg" className="flex flex-col justify-center">
-            <div className="text-[11px] uppercase tracking-wide" style={{ color: 'var(--st-text-secondary)' }}>
-              Total Clicks
-            </div>
-            <div className="mt-1 text-[28px] tabular-nums" style={{ color: 'var(--st-text)' }}>
-              {totalClicks}
-            </div>
-          </Card>
-          <Card padding="lg" className="flex flex-col justify-center">
-            <div className="text-[11px] uppercase tracking-wide" style={{ color: 'var(--st-text-secondary)' }}>
-              Unique Links
-            </div>
-            <div className="mt-1 text-[28px] tabular-nums" style={{ color: 'var(--st-text)' }}>
-              {uniqueLinks}
-            </div>
-          </Card>
+          <StatCard
+            label="Total Clicks"
+            value={totalClicks}
+            icon={MousePointerClick}
+          />
+          <StatCard
+            label="Unique Links"
+            value={uniqueLinks}
+            icon={LinkIcon}
+          />
 
           <Card padding="lg" className="sm:col-span-2 lg:col-span-1 flex flex-col justify-center min-h-[140px]">
              {chartData.length > 0 ? (
                <div className="h-full w-full flex flex-col">
-                 <div className="mb-2 text-[11px] uppercase tracking-wide" style={{ color: 'var(--st-text-secondary)' }}>Clicks Over Time</div>
+                 <div className="mb-2 text-[11px] uppercase tracking-wide u-text-secondary">Clicks Over Time</div>
                  <div className="flex-1 min-h-[80px]">
                    <ResponsiveContainer width="100%" height="100%">
                      <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
@@ -328,7 +327,7 @@ export default function LinkTrackingPage() {
                  </div>
                </div>
              ) : (
-               <div className="flex h-full flex-col items-center justify-center text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+               <div className="flex h-full flex-col items-center justify-center text-[13px] u-text-secondary">
                  No chart data available
                </div>
              )}
@@ -370,10 +369,10 @@ export default function LinkTrackingPage() {
         description={viewing?.url}
       >
         {viewing && viewing.campaignName && (
-           <div className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+           <div className="text-[13px]">
              <span className="font-medium">Campaign:</span> {viewing.campaignName}
              {viewing.messagesSent && (
-                <span className="ml-4" style={{ color: 'var(--st-text-secondary)' }}>
+                <span className="ml-4 u-text-secondary">
                    CTR: {((viewing.count / viewing.messagesSent) * 100).toFixed(1)}% ({viewing.count}/{viewing.messagesSent} clicks)
                 </span>
              )}
@@ -382,66 +381,45 @@ export default function LinkTrackingPage() {
 
         {viewing ? (
           <div className="flex flex-col gap-3">
-            <div
-              className="max-h-[50vh] overflow-y-auto"
-              style={{ borderRadius: 'var(--st-radius)', border: '1px solid var(--st-border)' }}
-            >
-              <table className="w-full text-[13px]">
-                <thead
-                  className="text-[11px] uppercase tracking-wide sticky top-0"
-                  style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg-secondary)', color: 'var(--st-text-secondary)' }}
-                >
-                  <tr>
-                    <th className="px-4 py-2 text-left">#</th>
-                    <th className="px-4 py-2 text-left">When</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="max-h-[50vh] overflow-y-auto">
+              <Table>
+                <THead>
+                  <Tr>
+                    <Th>#</Th>
+                    <Th>When</Th>
+                  </Tr>
+                </THead>
+                <TBody>
                   {paginatedClicks.map((c, idx) => {
                     const ts = c.clickedAt || c.createdAt || '';
                     const absoluteIdx = (page - 1) * pageSize + idx + 1;
                     return (
-                      <tr key={`${ts}-${absoluteIdx}`} style={{ borderTop: idx === 0 ? undefined : '1px solid var(--st-border)' }}>
-                        <td className="px-4 py-2 tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                      <Tr key={`${ts}-${absoluteIdx}`}>
+                        <Td className="tabular-nums u-text-secondary">
                           {absoluteIdx}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap" style={{ color: 'var(--st-text)' }}>
+                        </Td>
+                        <Td className="whitespace-nowrap">
                           {ts ? formatUTC(ts, true) : '—'}
-                        </td>
-                      </tr>
+                        </Td>
+                      </Tr>
                     );
                   })}
-                </tbody>
-              </table>
+                </TBody>
+              </Table>
             </div>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="flex items-center justify-between">
-                <div className="text-[12px]" style={{ color: 'var(--st-text-secondary)' }}>
+                <div className="text-[12px] u-text-secondary">
                   Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, viewing.clicks.length)} of {viewing.clicks.length}
                 </div>
-                <div className="flex items-center gap-1">
-                  <IconButton
-                    variant="outline"
-                    size="sm"
-                    label="Previous page"
-                    icon={ChevronLeft}
-                    disabled={page === 1}
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
-                  />
-                  <span className="text-[13px] font-medium px-2" style={{ color: 'var(--st-text)' }}>
-                     {page} / {totalPages}
-                  </span>
-                  <IconButton
-                    variant="outline"
-                    size="sm"
-                    label="Next page"
-                    icon={ChevronRight}
-                    disabled={page === totalPages}
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  />
-                </div>
+                <Pagination
+                  page={page}
+                  pageCount={totalPages}
+                  onPageChange={setPage}
+                  size="compact"
+                />
               </div>
             )}
           </div>
@@ -460,7 +438,7 @@ export default function LinkTrackingPage() {
             <AlertDialogTitle>Delete tracked link?</AlertDialogTitle>
             <AlertDialogDescription>
               This removes click analytics for{' '}
-              <span className="break-all font-mono" style={{ color: 'var(--st-text)' }}>
+              <span className="break-all font-mono">
                 {deleteTarget?.url}
               </span>
               . The link itself will continue to work in any messages already

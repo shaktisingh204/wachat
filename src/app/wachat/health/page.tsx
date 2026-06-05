@@ -11,6 +11,7 @@ import {
   useToast,
   Alert,
   Tooltip,
+  Separator,
   ChartContainer,
   ChartTooltip,
   type ChartConfig,
@@ -146,6 +147,36 @@ const yAxisFormatter = (val: number) => {
   return '';
 };
 
+/** Icon chip — coloured circle housing a status glyph. */
+function StatusChip({
+  color,
+  size = 'md',
+  children,
+}: {
+  color: HealthColor;
+  size?: 'sm' | 'md';
+  children: React.ReactNode;
+}) {
+  const bg =
+    color === 'green'
+      ? 'var(--st-status-ok)'
+      : color === 'amber'
+        ? 'var(--st-warn)'
+        : color === 'red'
+          ? 'var(--st-danger)'
+          : 'var(--st-bg-muted)';
+  const fg = color === 'muted' ? 'var(--st-text-secondary)' : 'var(--st-text-inverted)';
+  const dim = size === 'sm' ? 'h-8 w-8' : 'h-12 w-12';
+  return (
+    <div
+      className={cx('flex shrink-0 items-center justify-center rounded-[var(--st-radius-lg)]', dim)}
+      style={{ background: bg, color: fg }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function HealthPage() {
   const { activeProject } = useProject();
   const { toast } = useToast();
@@ -256,29 +287,9 @@ export default function HealthPage() {
         {/* Overall messaging status */}
         {wabaHealth && (
           <Card padding="none" className="overflow-hidden">
-            <div
-              className="flex items-center gap-4 px-6 py-5"
-              style={{
-                borderBottom: '1px solid var(--st-border)',
-                background: 'var(--st-bg-secondary)',
-              }}
-            >
-              <div
-                className="flex h-12 w-12 shrink-0 items-center justify-center"
-                style={{
-                  borderRadius: 'var(--st-radius-lg)',
-                  background:
-                    overallColor === 'green'
-                      ? 'var(--st-status-ok)'
-                      : overallColor === 'amber'
-                        ? 'var(--st-warn)'
-                        : overallColor === 'red'
-                          ? 'var(--st-danger)'
-                          : 'var(--st-bg-muted)',
-                  color:
-                    overallColor === 'muted' ? 'var(--st-text-secondary)' : 'var(--st-text-inverted)',
-                }}
-              >
+            {/* Card header row */}
+            <div className="flex items-center gap-4 border-b border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-6 py-5">
+              <StatusChip color={overallColor} size="md">
                 {overallColor === 'green' ? (
                   <CircleCheck className="h-6 w-6" aria-hidden="true" />
                 ) : overallColor === 'amber' ? (
@@ -288,15 +299,13 @@ export default function HealthPage() {
                 ) : (
                   <Activity className="h-6 w-6" aria-hidden="true" />
                 )}
-              </div>
+              </StatusChip>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2.5">
-                  <h2 className="text-[16px]" style={{ color: 'var(--st-text)' }}>
-                    Messaging status
-                  </h2>
+                  <h2 className="text-[16px] text-[var(--st-text)]">Messaging status</h2>
                   <StatusPill status={overallStatus} />
                 </div>
-                <p className="mt-0.5 text-xs" style={{ color: 'var(--st-text-secondary)' }}>
+                <p className="mt-0.5 text-xs text-[var(--st-text-secondary)]">
                   {overallColor === 'green'
                     ? 'Your account is healthy. You can send business-initiated and user-initiated messages.'
                     : overallColor === 'amber'
@@ -309,48 +318,27 @@ export default function HealthPage() {
             </div>
 
             {entities.length > 0 && (
-              <div className="flex flex-col" style={{ color: 'var(--st-text)' }}>
+              <div className="flex flex-col text-[var(--st-text)]">
                 {entities.map((entity: any, i: number) => {
                   const errors: any[] = entity.errors || [];
                   const eColor = statusColor(entity.can_send_message);
                   return (
                     <div
                       key={i}
-                      className="px-6 py-4"
-                      style={i > 0 ? { borderTop: '1px solid var(--st-border)' } : undefined}
+                      className={cx('px-6 py-4', i > 0 && 'border-t border-[var(--st-border)]')}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-8 w-8 items-center justify-center"
-                          style={{
-                            borderRadius: 'var(--st-radius-sm)',
-                            background:
-                              eColor === 'green'
-                                ? 'var(--st-status-ok)'
-                                : eColor === 'amber'
-                                  ? 'var(--st-warn)'
-                                  : eColor === 'red'
-                                    ? 'var(--st-danger)'
-                                    : 'var(--st-bg-muted)',
-                            color:
-                              eColor === 'muted'
-                                ? 'var(--st-text-secondary)'
-                                : 'var(--st-text-inverted)',
-                          }}
-                        >
+                        <StatusChip color={eColor} size="sm">
                           {entityIcon(entity.entity_type)}
-                        </div>
+                        </StatusChip>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm" style={{ color: 'var(--st-text)' }}>
+                            <span className="text-sm text-[var(--st-text)]">
                               {entity.entity_type}
                             </span>
                             <StatusPill status={entity.can_send_message} />
                           </div>
-                          <p
-                            className="font-mono text-[11px]"
-                            style={{ color: 'var(--st-text-secondary)' }}
-                          >
+                          <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                             {entity.id}
                           </p>
                         </div>
@@ -361,83 +349,44 @@ export default function HealthPage() {
                           {errors.map((err: any, j: number) => {
                             const errMeta = categorizeError(err);
                             const isDanger = errMeta.variant === 'danger';
-                            const isWarning = errMeta.variant === 'warning';
                             return (
-                              <div
+                              <Alert
                                 key={j}
-                                className="flex flex-col gap-2 px-3 py-2.5"
-                                style={{
-                                  borderRadius: 'var(--st-radius-sm)',
-                                  border: `1px solid ${
-                                    isDanger
-                                      ? 'var(--st-danger)'
-                                      : isWarning
-                                        ? 'var(--st-warn)'
-                                        : 'var(--st-border)'
-                                  }`,
-                                  background: isDanger
-                                    ? 'var(--st-danger-soft)'
-                                    : isWarning
-                                      ? 'var(--st-bg-secondary)'
-                                      : 'var(--st-bg-secondary)',
-                                }}
-                              >
-                                <div className="flex items-start gap-2">
-                                  {isDanger ? (
-                                    <Ban
-                                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
-                                      style={{ color: 'var(--st-danger)' }}
-                                      aria-hidden="true"
-                                    />
-                                  ) : (
-                                    <TriangleAlert
-                                      className="mt-0.5 h-3.5 w-3.5 shrink-0"
-                                      style={{ color: 'var(--st-warn)' }}
-                                      aria-hidden="true"
-                                    />
-                                  )}
-                                  <div className="min-w-0 flex-1">
-                                    <div className="mb-1 flex items-center gap-2">
-                                      <Badge tone={isDanger ? 'danger' : 'warning'} className="text-[9px] uppercase">
-                                        {errMeta.type}
-                                      </Badge>
-                                    </div>
-                                    <p
-                                      className="text-xs font-medium"
-                                      style={{
-                                        color: isDanger ? 'var(--st-danger)' : 'var(--st-warn)',
-                                      }}
+                                tone={isDanger ? 'danger' : errMeta.variant === 'warning' ? 'warning' : 'neutral'}
+                                icon={isDanger ? Ban : TriangleAlert}
+                                title={
+                                  <span className="flex items-center gap-2">
+                                    <Badge
+                                      tone={isDanger ? 'danger' : 'warning'}
+                                      className="text-[9px] uppercase"
                                     >
+                                      {errMeta.type}
+                                    </Badge>
+                                    <span className="text-xs font-medium">
                                       {err.error_description || err.message || 'Unknown error'}
+                                    </span>
+                                  </span>
+                                }
+                              >
+                                <div className="flex flex-col gap-2">
+                                  {err.possible_solution && (
+                                    <p className="text-[11px] text-[var(--st-text-secondary)]">
+                                      {err.possible_solution}
                                     </p>
-                                    {err.possible_solution && (
-                                      <p
-                                        className="mt-1 text-[11px]"
-                                        style={{ color: 'var(--st-text-secondary)' }}
-                                      >
-                                        {err.possible_solution}
-                                      </p>
-                                    )}
+                                  )}
+                                  <div>
+                                    <a
+                                      href="https://business.facebook.com/wa/manage/phone-numbers"
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="inline-flex h-7 items-center gap-1.5 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 text-[11px] font-medium text-[var(--st-text)] hover:bg-[var(--st-bg-secondary)]"
+                                    >
+                                      <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                                      File Dispute
+                                    </a>
                                   </div>
                                 </div>
-                                <div className="ml-5 flex items-center gap-2">
-                                  <a
-                                    href="https://business.facebook.com/wa/manage/phone-numbers"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex h-7 items-center gap-1.5 px-2.5 text-[11px] font-medium"
-                                    style={{
-                                      borderRadius: 'var(--st-radius)',
-                                      border: '1px solid var(--st-border)',
-                                      background: 'var(--st-bg)',
-                                      color: 'var(--st-text)',
-                                    }}
-                                  >
-                                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
-                                    File Dispute
-                                  </a>
-                                </div>
-                              </div>
+                              </Alert>
                             );
                           })}
                         </div>
@@ -453,31 +402,19 @@ export default function HealthPage() {
         {/* Phone numbers */}
         {phoneHealths.length > 0 && (
           <>
-            <h2 className="text-sm" style={{ color: 'var(--st-text)' }}>
-              Phone numbers
-            </h2>
+            <h2 className="text-sm text-[var(--st-text)]">Phone numbers</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               {phoneHealths.map((phone) => (
                 <Card key={phone.phoneNumberId} padding="lg">
                   <div className="mb-4 flex items-center gap-3">
-                    <div
-                      className="flex h-9 w-9 items-center justify-center"
-                      style={{
-                        borderRadius: 'var(--st-radius)',
-                        background: 'var(--st-bg-secondary)',
-                        color: 'var(--st-text)',
-                      }}
-                    >
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
                       <Phone className="h-4 w-4" aria-hidden="true" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm" style={{ color: 'var(--st-text)' }}>
+                      <p className="truncate text-sm text-[var(--st-text)]">
                         {phone.displayName}
                       </p>
-                      <p
-                        className="font-mono text-[11px]"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                      <p className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                         {phone.displayNumber}
                       </p>
                     </div>
@@ -490,155 +427,111 @@ export default function HealthPage() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div
-                      className="px-3 py-2.5"
-                      style={{
-                        borderRadius: 'var(--st-radius-sm)',
-                        background: 'var(--st-bg-secondary)',
-                      }}
-                    >
-                      <p
-                        className="mb-0.5 text-[10px] uppercase tracking-wider"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                    <div className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
+                      <p className="mb-0.5 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Messaging tier
                       </p>
-                      <p className="text-sm" style={{ color: 'var(--st-text)' }}>
+                      <p className="text-sm text-[var(--st-text)]">
                         {phone.messagingLimitTier || 'Unknown'}
                       </p>
                     </div>
-                    <div
-                      className="px-3 py-2.5"
-                      style={{
-                        borderRadius: 'var(--st-radius-sm)',
-                        background: 'var(--st-bg-secondary)',
-                      }}
-                    >
-                      <p
-                        className="mb-0.5 text-[10px] uppercase tracking-wider"
-                        style={{ color: 'var(--st-text-secondary)' }}
-                      >
+                    <div className="rounded-[var(--st-radius-sm)] bg-[var(--st-bg-secondary)] px-3 py-2.5">
+                      <p className="mb-0.5 text-[10px] uppercase tracking-wider text-[var(--st-text-secondary)]">
                         Name status
                       </p>
-                      <p className="text-sm capitalize" style={{ color: 'var(--st-text)' }}>
+                      <p className="text-sm capitalize text-[var(--st-text)]">
                         {(phone.nameStatus || 'Unknown').replace(/_/g, ' ')}
                       </p>
                     </div>
                   </div>
 
-                  <div
-                    className="mt-4 pt-4"
-                    style={{ borderTop: '1px solid var(--st-border)' }}
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="text-[12px] font-medium" style={{ color: 'var(--st-text)' }}>
-                        Quality History
-                      </h3>
-                      <Tooltip label="Track your quality rating over time to see if specific campaigns caused a drop in quality.">
-                        <IconButton
-                          label="About quality history"
-                          icon={Info}
-                          variant="ghost"
-                          size="sm"
-                        />
-                      </Tooltip>
-                    </div>
+                  <Separator className="my-4" />
 
-                    <ChartContainer
-                      config={QUALITY_CHART_CONFIG}
-                      style={{ height: 140, aspectRatio: 'auto' }}
-                    >
-                      <LineChart data={MOCK_QUALITY_HISTORY} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
-                        <XAxis
-                          dataKey="date"
-                          tickLine={false}
-                          axisLine={false}
-                          tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
-                          dy={5}
-                        />
-                        <YAxis
-                          tickLine={false}
-                          axisLine={false}
-                          tickFormatter={yAxisFormatter}
-                          tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
-                          domain={[1, 3]}
-                          ticks={[1, 2, 3]}
-                        />
-                        <ChartTooltip
-                          content={({ active, payload, label }: any) => {
-                            if (!active || !payload?.length) return null;
-                            const data = payload[0].payload;
-                            return (
-                              <div
-                                className="px-2.5 py-1.5 text-xs"
-                                style={{
-                                  borderRadius: 'var(--st-radius-sm)',
-                                  border: '1px solid var(--st-border)',
-                                  background: 'var(--st-bg)',
-                                  boxShadow: 'var(--st-shadow-sm)',
-                                }}
-                              >
-                                <p className="mb-1 font-medium" style={{ color: 'var(--st-text)' }}>
-                                  {label}
-                                </p>
-                                <div
-                                  className="flex items-center gap-2"
-                                  style={{ color: 'var(--st-text-secondary)' }}
-                                >
-                                  <span
-                                    className="h-1.5 w-1.5 rounded-full"
-                                    style={{
-                                      background:
-                                        data.value === 3
-                                          ? 'var(--st-status-ok)'
-                                          : data.value === 2
-                                            ? 'var(--st-warn)'
-                                            : 'var(--st-danger)',
-                                    }}
-                                    aria-hidden="true"
-                                  />
-                                  <span>Rating:</span>
-                                  <span className="font-medium" style={{ color: 'var(--st-text)' }}>
-                                    {data.rating}
-                                  </span>
-                                </div>
-                                {data.event && (
-                                  <div
-                                    className="mt-1 flex items-start gap-1.5 pt-1 text-[10px]"
-                                    style={{
-                                      borderTop: '1px solid var(--st-border)',
-                                      color: 'var(--st-warn)',
-                                    }}
-                                  >
-                                    <TrendingDown className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
-                                    <span className="max-w-[120px] leading-tight">{data.event}</span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="var(--st-text)"
-                          strokeWidth={2}
-                          dot={{ r: 3, fill: 'var(--st-bg)', strokeWidth: 2 }}
-                          activeDot={{ r: 5 }}
-                        />
-                      </LineChart>
-                    </ChartContainer>
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-[12px] font-medium text-[var(--st-text)]">
+                      Quality History
+                    </h3>
+                    <Tooltip label="Track your quality rating over time to see if specific campaigns caused a drop in quality.">
+                      <IconButton
+                        label="About quality history"
+                        icon={Info}
+                        variant="ghost"
+                        size="sm"
+                      />
+                    </Tooltip>
                   </div>
 
-                  <div
-                    className="mt-4 flex items-center justify-between pt-4"
-                    style={{ borderTop: '1px solid var(--st-border)' }}
+                  <ChartContainer
+                    config={QUALITY_CHART_CONFIG}
+                    style={{ height: 140, aspectRatio: 'auto' }}
                   >
-                    <div
-                      className="flex items-center gap-3 text-[11px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <LineChart data={MOCK_QUALITY_HISTORY} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--st-border)" />
+                      <XAxis
+                        dataKey="date"
+                        tickLine={false}
+                        axisLine={false}
+                        tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
+                        dy={5}
+                      />
+                      <YAxis
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={yAxisFormatter}
+                        tick={{ fill: 'var(--st-text-secondary)', fontSize: 10 }}
+                        domain={[1, 3]}
+                        ticks={[1, 2, 3]}
+                      />
+                      <ChartTooltip
+                        content={({ active, payload, label }: any) => {
+                          if (!active || !payload?.length) return null;
+                          const data = payload[0].payload;
+                          // data-driven swatch colour kept as inline style (value-driven)
+                          const swatchBg =
+                            data.value === 3
+                              ? 'var(--st-status-ok)'
+                              : data.value === 2
+                                ? 'var(--st-warn)'
+                                : 'var(--st-danger)';
+                          return (
+                            <div className="rounded-[var(--st-radius-sm)] border border-[var(--st-border)] bg-[var(--st-bg)] px-2.5 py-1.5 text-xs shadow-[var(--st-shadow-sm)]">
+                              <p className="mb-1 font-medium text-[var(--st-text)]">{label}</p>
+                              <div className="flex items-center gap-2 text-[var(--st-text-secondary)]">
+                                <span
+                                  className="h-1.5 w-1.5 rounded-full"
+                                  style={{ background: swatchBg }}
+                                  aria-hidden="true"
+                                />
+                                <span>Rating:</span>
+                                <span className="font-medium text-[var(--st-text)]">
+                                  {data.rating}
+                                </span>
+                              </div>
+                              {data.event && (
+                                <div className="mt-1 flex items-start gap-1.5 border-t border-[var(--st-border)] pt-1 text-[10px] text-[var(--st-warn)]">
+                                  <TrendingDown className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
+                                  <span className="max-w-[120px] leading-tight">{data.event}</span>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="var(--st-text)"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: 'var(--st-bg)', strokeWidth: 2 }}
+                        activeDot={{ r: 5 }}
+                      />
+                    </LineChart>
+                  </ChartContainer>
+
+                  <Separator className="my-4" />
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-[11px] text-[var(--st-text-secondary)]">
                       {phone.commerceSettings && (
                         <>
                           <span>Cart {phone.commerceSettings.is_cart_enabled ? '✓' : '✗'}</span>
