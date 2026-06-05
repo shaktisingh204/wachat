@@ -141,12 +141,7 @@ function TagsFilter({
                       className="flex items-center gap-2"
                     >
                       <span
-                        className="flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border"
-                        style={{
-                          borderColor: isSelected ? 'var(--st-accent)' : 'var(--st-border)',
-                          background: isSelected ? 'var(--st-accent)' : 'transparent',
-                          color: isSelected ? 'var(--st-accent-contrast, #fff)' : 'transparent',
-                        }}
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border ${isSelected ? 'border-[var(--st-accent)] bg-[var(--st-accent)] text-[var(--st-accent-contrast,#fff)]' : 'border-[var(--st-border)] bg-transparent text-transparent'}`}
                       >
                         {isSelected && <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />}
                       </span>

@@ -71,8 +71,7 @@ export default function EditProductPage() {
     >
       <Link
         href={backHref}
-        className="-ml-1 inline-flex items-center gap-1 text-sm font-medium"
-        style={{ color: 'var(--st-text-secondary)' }}
+        className="-ml-1 inline-flex items-center gap-1 text-sm font-medium text-[var(--st-text-secondary)]"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to products
       </Link>

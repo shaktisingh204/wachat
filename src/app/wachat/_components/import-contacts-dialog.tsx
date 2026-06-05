@@ -187,17 +187,10 @@ export function ImportContactsDialog({
               </div>
 
               <label
-                className="group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed px-4 py-8 text-center transition-colors"
-                style={{
-                  borderColor: fileName ? 'var(--st-text)' : 'var(--st-border)',
-                  background: fileName ? 'var(--st-bg-muted)' : 'var(--st-bg)',
-                }}
+                className={`group flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[var(--st-radius-lg)] border-2 border-dashed px-4 py-8 text-center transition-colors ${fileName ? 'border-[var(--st-text)] bg-[var(--st-bg-muted)]' : 'border-[var(--st-border)] bg-[var(--st-bg)]'}`}
               >
                 <Upload
-                  className="h-6 w-6 transition-colors"
-                  style={{
-                    color: fileName ? 'var(--st-text)' : 'var(--st-text-secondary)',
-                  }}
+                  className={`h-6 w-6 transition-colors ${fileName ? 'text-[var(--st-text)]' : 'text-[var(--st-text-secondary)]'}`}
                 />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-[13px] text-[var(--st-text)]">

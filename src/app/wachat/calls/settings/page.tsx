@@ -379,13 +379,7 @@ function StatusBanner({ phone }: { phone: PhoneNumber }) {
               className="flex items-center gap-2 rounded-[var(--st-radius)] border border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-2"
             >
               <span
-                className="flex h-5 w-5 items-center justify-center rounded-full"
-                style={{
-                  background: item.ok
-                    ? 'color-mix(in srgb, var(--st-status-ok) 12%, transparent)'
-                    : 'var(--st-bg)',
-                  color: item.ok ? 'var(--st-status-ok)' : 'var(--st-text-tertiary)',
-                }}
+                className={`flex h-5 w-5 items-center justify-center rounded-full ${item.ok ? 'bg-[color-mix(in_srgb,var(--st-status-ok)_12%,transparent)] text-[var(--st-status-ok)]' : 'bg-[var(--st-bg)] text-[var(--st-text-tertiary)]'}`}
               >
                 {item.ok ? (
                   <CheckCircle2 className="h-3 w-3" aria-hidden="true" />

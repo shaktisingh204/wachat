@@ -110,8 +110,7 @@ export function ProjectTagsManagerDialog({ isOpen, onOpenChange, project, onTags
                 <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color, _id: t._id })).filter(t => t.name.trim()))} />
                 <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                     <div
-                        className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm"
-                        style={{ color: 'var(--st-text-muted)' }}
+                        className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 font-medium text-sm text-[var(--st-text-muted)]"
                     >
                         <span>Tag Name</span>
                         <span className="text-center">Color</span>

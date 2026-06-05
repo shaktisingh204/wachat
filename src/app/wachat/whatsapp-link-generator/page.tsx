@@ -144,7 +144,7 @@ export default function WhatsAppLinkGeneratorPage() {
             }
             help={
               phone && isValid ? (
-                <span style={{ color: 'var(--st-status-ok)' }}>Valid: {formattedPhone}</span>
+                <span className="text-[var(--st-status-ok)]">Valid: {formattedPhone}</span>
               ) : undefined
             }
           >

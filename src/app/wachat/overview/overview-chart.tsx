@@ -22,8 +22,7 @@ export default function OverviewChart({ data }: { data: ChartPoint[] }) {
   if (!data || data.length === 0) {
     return (
       <div
-        className="flex h-[300px] items-center justify-center text-sm"
-        style={{ color: 'var(--st-text-secondary)' }}
+        className="flex h-[300px] items-center justify-center text-sm text-[var(--st-text-secondary)]"
       >
         No chart data available
       </div>

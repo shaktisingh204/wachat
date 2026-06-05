@@ -202,7 +202,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                     { value: 'skill-based', label: 'Skill-Based Routing' },
                                 ]}
                             />
-                            <p className="text-xs mt-1" style={{ color: 'var(--st-text-tertiary)' }}>
+                            <p className="text-xs mt-1 text-[var(--st-text-tertiary)]">
                                 {routingStrategy === 'manual' && "Agents must manually pick conversations or an admin must assign them."}
                                 {routingStrategy === 'round-robin' && "New conversations are automatically assigned in a round-robin fashion."}
                                 {routingStrategy === 'skill-based' && "Conversations are routed to agents based on their assigned skills."}
@@ -242,7 +242,7 @@ export function AgentsSettingsClient({ project: initialProject }: { project: Wit
                                                     />
                                                     <div className="space-y-0.5">
                                                         <p className="text-sm font-medium leading-none">{agent.name}</p>
-                                                        <p className="text-sm" style={{ color: 'var(--st-text-tertiary)' }}>{agent.email}</p>
+                                                        <p className="text-sm text-[var(--st-text-tertiary)]">{agent.email}</p>
                                                         <div className="flex items-center gap-2 mt-2">
                                                             <Badge kind="outline">{agent.role}</Badge>
                                                             {(agent.skills || []).map((s: string) => (

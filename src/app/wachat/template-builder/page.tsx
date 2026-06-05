@@ -78,8 +78,7 @@ const SortableBlock = memo(
           {...attributes}
           {...listeners}
           aria-label="Drag to reorder block"
-          className="absolute left-[-28px] top-6 p-1 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity"
-          style={{ color: "var(--st-text-tertiary)" }}
+          className="absolute left-[-28px] top-6 p-1 cursor-grab opacity-0 group-hover:opacity-100 transition-opacity text-[var(--st-text-tertiary)]"
         >
           <GripVertical size={18} aria-hidden="true" />
         </div>

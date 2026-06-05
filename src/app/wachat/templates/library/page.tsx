@@ -135,12 +135,8 @@ function TemplateTile({
                   }}
                 >
                   <Star
-                    className="h-3.5 w-3.5 transition-colors"
+                    className={`h-3.5 w-3.5 transition-colors ${active ? 'fill-[var(--st-warn)] text-[var(--st-warn)]' : 'fill-none text-[var(--st-border)]'}`}
                     aria-hidden="true"
-                    style={{
-                      fill: active ? 'var(--st-warn)' : 'none',
-                      color: active ? 'var(--st-warn)' : 'var(--st-border)',
-                    }}
                   />
                 </button>
               );

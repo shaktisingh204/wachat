@@ -62,11 +62,7 @@ function Stars({ count }: { count: number }) {
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className="h-3.5 w-3.5"
-          style={{
-            fill: i <= count ? 'var(--st-accent)' : 'transparent',
-            color: i <= count ? 'var(--st-accent)' : 'var(--st-text-tertiary)',
-          }}
+          className={`h-3.5 w-3.5 ${i <= count ? 'fill-[var(--st-accent)] text-[var(--st-accent)]' : 'fill-transparent text-[var(--st-text-tertiary)]'}`}
           strokeWidth={1.75}
           aria-hidden="true"
         />

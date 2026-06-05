@@ -136,8 +136,7 @@ export default function ChatLabelsPage() {
               </Field>
               <div className="flex flex-wrap items-center gap-2">
                 <span
-                  className="mr-1 text-[13px]"
-                  style={{ color: 'var(--st-text-secondary)' }}
+                  className="mr-1 text-[13px] text-[var(--st-text-secondary)]"
                 >
                   Color:
                 </span>
