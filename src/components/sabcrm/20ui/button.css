@@ -38,9 +38,22 @@
   cursor: not-allowed;
   transform: none;
 }
+/* Icons passed as button CHILDREN (e.g. `<Button><Icon/> Save</Button>`, the
+   shadcn/Zoru pattern) land inside this label span. Tailwind's preflight forces
+   `svg { display: block }`, which would stack the icon ABOVE the text and
+   collapse the button to the text width. Lay the label out as an inline row so
+   an icon + text child stay on one line and the button keeps sizing to content.
+   (Icons passed via the `iconLeft`/`iconRight` props sit outside the label and
+   are unaffected.) */
 :is(.ui20, .sabcrm-twenty) .u-btn__label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+:is(.ui20, .sabcrm-twenty) .u-btn svg {
+  flex-shrink: 0;
 }
 
 /* ----- Sizes ----- */
