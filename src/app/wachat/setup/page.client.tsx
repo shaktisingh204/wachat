@@ -291,19 +291,17 @@ function HeroSection({ appId, configId, includeCatalog, setIncludeCatalog }: { a
 
 function UnlocksSection() {
   return (
-    <div
-      className="lg:col-span-2 rounded-3xl p-6 md:p-8"
-      style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
-    >
+    <Card variant="elevated" padding="lg" className="lg:col-span-2 md:p-8">
       <p className="text-xs font-bold uppercase tracking-widest mb-6" style={{ color: 'var(--st-text)' }}>
         What you unlock
       </p>
       <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {UNLOCKS.map((u) => (
-          <div
+          <Card
             key={u.label}
-            className="group flex flex-col gap-2.5 rounded-2xl p-4 transition"
-            style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)' }}
+            variant="outlined"
+            padding="md"
+            className="group flex flex-col gap-2.5"
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors"
@@ -317,7 +315,7 @@ function UnlocksSection() {
                 {u.description}
               </p>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
@@ -349,7 +347,7 @@ function UnlocksSection() {
           ))}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -357,10 +355,7 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
   const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col gap-4">
-      <div
-        className="rounded-3xl p-6"
-        style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
-      >
+      <Card variant="elevated" padding="md">
         <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
           Security & Trust
         </p>
@@ -379,12 +374,9 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
             </div>
           ))}
         </div>
-      </div>
+      </Card>
 
-      <div
-        className="rounded-3xl p-6"
-        style={{ border: '1px solid var(--st-border)', background: 'var(--st-surface)', boxShadow: 'var(--st-shadow-sm)' }}
-      >
+      <Card variant="elevated" padding="md">
         <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--st-text)' }}>
           Before you start
         </p>
@@ -400,7 +392,7 @@ function RightPanel({ appId, configId, includeCatalog, setIncludeCatalog }: { ap
             </li>
           ))}
         </ul>
-      </div>
+      </Card>
 
       <div
         className="relative overflow-hidden rounded-3xl p-6"
