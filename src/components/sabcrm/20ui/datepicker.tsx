@@ -89,6 +89,16 @@ export interface CalendarBaseProps {
   showOutsideDays?: boolean;
   /** Move focus into the grid on mount (used when opened in a popover). */
   autoFocus?: boolean;
+  /**
+   * Caption style. `'dropdown'` (default) shows month + year dropdowns so the
+   * user can jump straight to any month/year instead of stepping one at a time;
+   * `'label'` shows the plain month label with only the prev/next arrows.
+   */
+  captionLayout?: 'label' | 'dropdown' | 'dropdown-months' | 'dropdown-years';
+  /** Earliest selectable month (also bounds the year dropdown). Default: 100y back. */
+  startMonth?: Date;
+  /** Latest selectable month (also bounds the year dropdown). Default: 10y ahead. */
+  endMonth?: Date;
   className?: string;
 }
 
@@ -118,8 +128,17 @@ export function Calendar(props: CalendarProps): React.JSX.Element {
     weekStartsOn = 0,
     showOutsideDays = true,
     autoFocus = false,
+    captionLayout = 'dropdown',
+    startMonth,
+    endMonth,
     className,
   } = props;
+
+  // Sensible default range for the month/year dropdowns: a century back through
+  // a decade ahead, so the year picker covers historical + future dates.
+  const thisYear = new Date().getFullYear();
+  const resolvedStart = startMonth ?? new Date(thisYear - 100, 0, 1);
+  const resolvedEnd = endMonth ?? new Date(thisYear + 10, 11, 31);
 
   const shared = {
     classNames: CAL_CLASS_NAMES,
@@ -129,6 +148,9 @@ export function Calendar(props: CalendarProps): React.JSX.Element {
     weekStartsOn,
     showOutsideDays,
     autoFocus,
+    captionLayout,
+    startMonth: resolvedStart,
+    endMonth: resolvedEnd,
     className: ['u-cal', className].filter(Boolean).join(' '),
   } as const;
 
