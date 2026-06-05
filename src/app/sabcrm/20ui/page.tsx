@@ -23,6 +23,12 @@ import {
   ChevronDown,
   Mail,
   Phone,
+  Sparkles,
+  Zap,
+  ArrowRight,
+  Workflow,
+  BarChart3,
+  MessageSquare,
 } from 'lucide-react';
 
 import {
@@ -67,6 +73,13 @@ import {
   Breadcrumb,
   Avatar,
   AvatarGroup,
+  GradientText,
+  GradientIcon,
+  GlassPill,
+  Aurora,
+  SpotlightCard,
+  FeatureTile,
+  GlowBadge,
 } from '@/components/sabcrm/20ui';
 
 import './showcase.css';
@@ -101,17 +114,87 @@ export default function TwentyUiShowcase(): React.JSX.Element {
 
   return (
     <div className="ux-page">
-      <header className="ux-hero">
-        <Breadcrumb
-          items={[{ label: 'SabCRM', href: '/sabcrm' }, { label: '20ui' }]}
-        />
-        <h1 style={{ marginTop: 12 }}>20ui</h1>
-        <p>
-          SabCRM&apos;s design system. Twenty as the foundation, refined into a
-          modern, minimal, accessible component set. Every control below is
-          keyboard operable, respects reduced motion, and meets AA contrast.
+      <Breadcrumb
+        items={[{ label: 'SabCRM', href: '/sabcrm' }, { label: '20ui' }]}
+      />
+
+      <Aurora intensity="normal" className="ux-aurora-hero">
+        <GlassPill icon={Sparkles}>Design system</GlassPill>
+        <h1 className="ux-hero-title">
+          <GradientText tone="brand" underline>
+            20ui
+          </GradientText>{' '}
+          components, built for SabCRM.
+        </h1>
+        <p className="ux-hero-sub">
+          Twenty as the foundation, elevated with the SabNode brand language.
+          Every control is keyboard operable, respects reduced motion, and meets
+          AA contrast. Premium where it counts, calm everywhere else.
         </p>
-      </header>
+        <div className="ux-row" style={{ marginTop: 4 }}>
+          <Button variant="gradient" iconRight={ArrowRight}>
+            Get started
+          </Button>
+          <Button variant="ghost">Browse components</Button>
+        </div>
+      </Aurora>
+
+      {/* PREMIUM */}
+      <Section title="Premium" note="landing-inspired · opt-in flourishes">
+        <div className="ux-row">
+          <Button variant="gradient" iconLeft={Sparkles}>Upgrade to Pro</Button>
+          <GlowBadge tone="brand" icon={Zap}>New</GlowBadge>
+          <GlowBadge tone="violet">Beta</GlowBadge>
+          <GradientText tone="brand" style={{ fontSize: 18 }}>Amber to rose</GradientText>
+          <GradientText tone="violet" style={{ fontSize: 18 }}>Violet</GradientText>
+          <GradientText tone="sky" style={{ fontSize: 18 }}>Sky</GradientText>
+        </div>
+        <div className="ux-grid" style={{ marginTop: 12 }}>
+          <FeatureTile
+            icon={MessageSquare}
+            tone="emerald"
+            title="Conversations"
+            description="Unified WhatsApp, chat, and email in one timeline."
+            trailing={<GlowBadge tone="emerald">Live</GlowBadge>}
+          />
+          <FeatureTile
+            icon={Workflow}
+            tone="violet"
+            title="Automations"
+            description="Visual flows that move records the moment things change."
+          />
+          <FeatureTile
+            icon={BarChart3}
+            tone="sky"
+            title="Insights"
+            description="Pipeline, velocity, and win-rate, refreshed in real time."
+          />
+        </div>
+        <div className="ux-grid" style={{ marginTop: 12 }}>
+          <SpotlightCard tone="brand">
+            <div className="ux-row" style={{ margin: 0 }}>
+              <GradientIcon icon={Sparkles} tone="brand" />
+              <div>
+                <div style={{ fontWeight: 600 }}>Spotlight card</div>
+                <div style={{ fontSize: 12, color: 'var(--st-text-secondary)' }}>
+                  The glow follows your cursor.
+                </div>
+              </div>
+            </div>
+          </SpotlightCard>
+          <SpotlightCard tone="rose">
+            <div className="ux-row" style={{ margin: 0 }}>
+              <GradientIcon icon={TrendingUp} tone="rose" />
+              <div>
+                <div style={{ fontWeight: 600 }}>$486,200 pipeline</div>
+                <div style={{ fontSize: 12, color: 'var(--st-text-secondary)' }}>
+                  +12.4% month over month.
+                </div>
+              </div>
+            </div>
+          </SpotlightCard>
+        </div>
+      </Section>
 
       {/* BUTTONS */}
       <Section title="Buttons" note="variants · sizes · icon · loading">

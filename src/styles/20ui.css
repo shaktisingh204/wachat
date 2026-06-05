@@ -282,3 +282,47 @@
     }
   }
 }
+
+/* =========================================================================
+   9 · PREMIUM (landing-inspired)
+   The SabNode marketing brand language, brought into 20ui as OPT-IN premium
+   flourishes: the amber -> orange -> rose brand gradient, low-alpha glows, the
+   ambient aurora wash, and two extra easings. Defaults stay calm + light; these
+   only fire on gradient/spotlight/feature components. Sourced from landing-v2.
+   ========================================================================= */
+.sabcrm-twenty {
+  /* Brand gradient (amber 400 -> orange 500 -> rose 500) */
+  --u-brand-amber: #fbbf24;
+  --u-brand-orange: #f97316;
+  --u-brand-rose: #f43f5e;
+  --u-brand-violet: #8b5cf6;
+  --u-brand-grad: linear-gradient(90deg, #fbbf24 0%, #f97316 50%, #f43f5e 100%);
+  --u-brand-grad-br: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #f43f5e 100%);
+
+  /* Low-alpha glows (for halos / spotlight / featured cards only) */
+  --u-glow-amber: rgba(251, 191, 36, 0.42);
+  --u-glow-rose: rgba(244, 63, 94, 0.32);
+  --u-glow-violet: rgba(139, 92, 246, 0.34);
+  --u-glow-orange: rgba(249, 115, 22, 0.3);
+
+  /* The signature ambient aurora wash + the cinematic halo */
+  --u-aurora:
+    radial-gradient(circle at 30% 30%, var(--u-glow-amber), transparent 60%),
+    radial-gradient(circle at 70% 60%, var(--u-glow-rose), transparent 60%),
+    radial-gradient(circle at 50% 80%, var(--u-glow-violet), transparent 60%);
+  --u-halo: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(244, 63, 94, 0.45), rgba(139, 92, 246, 0.45));
+
+  /* A warm brand-tinted shadow for gradient CTAs */
+  --u-shadow-brand: 0 10px 30px -6px var(--u-glow-orange);
+
+  /* Extra easings used by premium motion */
+  --u-ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --u-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Shared sheen sweep (used by the gradient button + feature tiles on hover). */
+@keyframes u-sheen {
+  to {
+    transform: translateX(100%);
+  }
+}

@@ -19,7 +19,9 @@ export type ButtonVariant =
   | 'secondary'
   | 'ghost'
   | 'outline'
-  | 'danger';
+  | 'danger'
+  /** Premium SabNode brand-gradient pill (amber to rose) with a hover sheen. */
+  | 'gradient';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps
@@ -75,6 +77,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         aria-busy={loading || undefined}
         {...rest}
       >
+        {variant === 'gradient' ? <span className="u-btn__sheen" aria-hidden="true" /> : null}
         {loading ? <span className="u-btn__spinner" aria-hidden="true" /> : null}
         {!loading && IconLeft ? <IconLeft size={s} aria-hidden="true" /> : null}
         {children != null ? <span className="u-btn__label">{children}</span> : null}

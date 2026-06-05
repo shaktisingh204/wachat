@@ -23,3 +23,4 @@ export * from './menu';
 export * from './modal';
 export * from './misc';
 export * from './avatar';
+export * from './premium';

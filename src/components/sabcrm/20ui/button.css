@@ -109,6 +109,46 @@
   background: var(--st-danger-hover, #a8311f);
 }
 
+/* Premium brand-gradient pill (landing-inspired) — amber to rose, warm glow,
+   a hover lift + a one-pass light sheen sweeping across. Opt-in for flagship
+   CTAs, never the default. */
+.sabcrm-twenty .u-btn--gradient {
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: var(--st-radius-pill);
+  background: var(--u-brand-grad);
+  color: #fff;
+  font-weight: var(--st-fw-semibold);
+  box-shadow: var(--u-shadow-brand);
+  transition:
+    transform var(--u-dur-fast) var(--u-ease-smooth),
+    box-shadow var(--u-dur-fast) var(--u-ease-smooth),
+    filter var(--u-dur-fast) var(--u-ease-smooth);
+}
+.sabcrm-twenty .u-btn--gradient:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 14px 34px -8px var(--u-glow-orange);
+  filter: saturate(1.05);
+}
+.sabcrm-twenty .u-btn--gradient:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.sabcrm-twenty .u-btn--gradient > * {
+  position: relative;
+  z-index: 1;
+}
+.sabcrm-twenty .u-btn__sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-100%);
+}
+.sabcrm-twenty .u-btn--gradient:hover .u-btn__sheen {
+  animation: u-sheen 700ms var(--u-ease-out);
+}
+
 /* ----- Loading spinner ----- */
 .sabcrm-twenty .u-btn.is-loading {
   cursor: progress;
@@ -169,6 +209,12 @@
 @media (prefers-reduced-motion: reduce) {
   .sabcrm-twenty .u-btn:active {
     transform: none;
+  }
+  .sabcrm-twenty .u-btn--gradient:hover:not(:disabled) {
+    transform: none;
+  }
+  .sabcrm-twenty .u-btn--gradient:hover .u-btn__sheen {
+    animation: none;
   }
   .sabcrm-twenty .u-btn__spinner {
     animation-duration: 1.2s;
