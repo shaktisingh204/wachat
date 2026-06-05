@@ -1,0 +1,248 @@
+/* 20ui · Sheet — Radix-dialog side panel (slides in from any edge) */
+
+/* The portal layer only scopes tokens in the body portal; it must not interfere
+   with the fixed positioning of the overlay + panel. */
+:is(.ui20, .sabcrm-twenty).u-sheet__layer {
+  display: contents;
+}
+
+/* ----- Overlay (dimming scrim, fade only) ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(16, 24, 40, 0.35);
+}
+:is(.ui20, .sabcrm-twenty).st-theme-dark .u-sheet__overlay,
+:is(.ui20.dark, .ui20[data-theme='dark']) .u-sheet__overlay {
+  background: rgba(0, 0, 0, 0.6);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet__overlay[data-state='open'] {
+  animation: u-sheet-overlay-in var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet__overlay[data-state='closed'] {
+  animation: u-sheet-overlay-out var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* ----- Panel (the surface) ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet {
+  position: fixed;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-4);
+  padding: var(--st-space-5);
+  background: var(--st-bg);
+  color: var(--st-text);
+  box-shadow: var(--u-elev-3);
+  outline: none;
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet:focus-visible {
+  box-shadow: var(--u-elev-3), var(--u-focus-ring);
+}
+
+/* ----- Per-side sizing + placement ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet--right,
+:is(.ui20, .sabcrm-twenty) .u-sheet--left {
+  inset-block: 0;
+  width: min(420px, calc(100vw - var(--st-space-6)));
+  height: 100dvh;
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet--right {
+  inset-inline-end: 0;
+  border-inline-start: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet--left {
+  inset-inline-start: 0;
+  border-inline-end: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet--top,
+:is(.ui20, .sabcrm-twenty) .u-sheet--bottom {
+  inset-inline: 0;
+  width: 100vw;
+  max-height: calc(100dvh - var(--st-space-6));
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet--top {
+  inset-block-start: 0;
+  border-block-end: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet--bottom {
+  inset-block-end: 0;
+  border-block-start: 1px solid var(--st-border);
+}
+
+/* ----- Close button (pinned top-right of the panel) ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet__x {
+  position: absolute;
+  inset-block-start: var(--st-space-4);
+  inset-inline-end: var(--st-space-4);
+  z-index: 1;
+}
+
+/* ----- Header ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-1);
+  /* Leave room for the pinned close button. */
+  padding-inline-end: var(--st-space-6);
+  text-align: start;
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet__title {
+  margin: 0;
+  font-size: var(--st-font-size-lg);
+  font-weight: var(--st-fw-semibold);
+  color: var(--st-text);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet__desc {
+  margin: 0;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+  line-height: 1.5;
+}
+
+/* ----- Footer ----- */
+:is(.ui20, .sabcrm-twenty) .u-sheet__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--st-space-2);
+  margin-block-start: auto;
+}
+
+/* ===== Motion (Emil: transform + opacity only, eased, < 250ms) ===== */
+@keyframes u-sheet-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes u-sheet-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Slide-in / slide-out per side — the panel grows out of its anchored edge. */
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='right'][data-state='open'] {
+  animation: u-sheet-in-right var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='right'][data-state='closed'] {
+  animation: u-sheet-out-right var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='left'][data-state='open'] {
+  animation: u-sheet-in-left var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='left'][data-state='closed'] {
+  animation: u-sheet-out-left var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='top'][data-state='open'] {
+  animation: u-sheet-in-top var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='top'][data-state='closed'] {
+  animation: u-sheet-out-top var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='bottom'][data-state='open'] {
+  animation: u-sheet-in-bottom var(--u-dur-slow) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-sheet[data-side='bottom'][data-state='closed'] {
+  animation: u-sheet-out-bottom var(--u-dur) var(--u-ease-out);
+}
+
+@keyframes u-sheet-in-right {
+  from {
+    opacity: 0.6;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes u-sheet-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: translateX(100%);
+  }
+}
+@keyframes u-sheet-in-left {
+  from {
+    opacity: 0.6;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes u-sheet-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: translateX(-100%);
+  }
+}
+@keyframes u-sheet-in-top {
+  from {
+    opacity: 0.6;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes u-sheet-out-top {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: translateY(-100%);
+  }
+}
+@keyframes u-sheet-in-bottom {
+  from {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes u-sheet-out-bottom {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+}
+
+/* ===== Reduced motion: fade only, no movement ===== */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-sheet[data-state='open'] {
+    animation: u-sheet-overlay-in var(--u-dur-fast) ease;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-sheet[data-state='closed'] {
+    animation: u-sheet-overlay-out var(--u-dur-fast) ease;
+  }
+}

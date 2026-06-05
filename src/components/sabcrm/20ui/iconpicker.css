@@ -1,0 +1,195 @@
+/* 20ui · IconPicker — trigger swatch + searchable lucide grid (Popover-driven) */
+
+/* ----- Trigger ----- */
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  min-width: 0;
+  padding: var(--st-space-1) var(--st-space-2);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background-color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger:hover:not(:disabled) {
+  border-color: var(--st-border-strong);
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger:active:not(:disabled) {
+  transform: scale(0.99);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger[aria-expanded='true'] {
+  border-color: var(--st-border-strong);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-bg-secondary);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger-glyph {
+  width: 15px;
+  height: 15px;
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--st-font-mono);
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-secondary);
+}
+
+/* ----- Panel ----- */
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__panel {
+  width: 296px;
+  max-width: calc(100vw - var(--st-space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-2);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__search {
+  /* Native Input already carries the focus ring + tokens. */
+  display: block;
+}
+
+/* ----- Grid ----- */
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--st-space-1);
+  max-height: 232px;
+  overflow-y: auto;
+  /* Keep focus rings from clipping at the scroll edge. */
+  padding: 2px;
+  margin: -2px;
+  scrollbar-gutter: stable;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  cursor: pointer;
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell:hover {
+  border-color: var(--st-border);
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell:active {
+  transform: scale(0.92);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell.is-active {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__cell-glyph {
+  width: 17px;
+  height: 17px;
+}
+
+/* ----- Empty state ----- */
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__empty {
+  margin: 0;
+  padding: var(--st-space-4) var(--st-space-2);
+  text-align: center;
+  font-size: var(--st-font-size-sm);
+  color: var(--st-text-secondary);
+}
+
+/* ----- Footer ----- */
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--st-space-2);
+  padding-top: var(--st-space-2);
+  border-top: 1px solid var(--st-border);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__clear {
+  padding: 2px var(--st-space-1);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-secondary);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-xs);
+  cursor: pointer;
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__clear:hover:not(:disabled) {
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__clear:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__clear:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+:is(.ui20, .sabcrm-twenty) .u-iconpicker__count {
+  font-size: var(--st-font-size-xs);
+  color: var(--st-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Reduced motion: no movement, instant state changes ----- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger,
+  :is(.ui20, .sabcrm-twenty) .u-iconpicker__cell,
+  :is(.ui20, .sabcrm-twenty) .u-iconpicker__clear {
+    transition: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-iconpicker__trigger:active:not(:disabled),
+  :is(.ui20, .sabcrm-twenty) .u-iconpicker__cell:active {
+    transform: none;
+  }
+}

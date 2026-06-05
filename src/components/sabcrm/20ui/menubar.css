@@ -1,0 +1,312 @@
+/* 20ui · Menubar — macOS-style application menu bar (Radix-driven) */
+
+/* ----------------------------------------------------------------------------
+   The bar itself
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty) .u-menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  box-shadow: var(--u-elev-1);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+  height: 28px;
+  padding: 0 var(--st-space-3);
+  border: none;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text);
+  font-family: inherit;
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-medium);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  outline: none;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger:hover {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger:active {
+  transform: scale(0.97);
+}
+/* The active / open menu reads as the accent-tinted, selected one. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger[data-highlighted],
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger[data-state='open'] {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__trigger:focus-visible {
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----------------------------------------------------------------------------
+   Portal scope wrapper — tokens only, must not affect Radix positioning
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty).u-menubar__portal {
+  display: contents;
+}
+
+/* ----------------------------------------------------------------------------
+   The floating panel (top-level content + sub-content share this base)
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty) .u-menubar__content {
+  z-index: 1000;
+  min-width: 200px;
+  max-width: min(360px, calc(100vw - var(--st-space-4)));
+  max-height: var(--radix-menubar-content-available-height);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  line-height: 1.4;
+  box-shadow: var(--u-elev-3);
+  outline: none;
+  /* Grow out of the trigger edge Radix anchored the panel to. */
+  transform-origin: var(--radix-menubar-content-transform-origin);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__subcontent {
+  min-width: 180px;
+  max-height: var(--radix-menubar-content-available-height, none);
+  transform-origin: var(--radix-menubar-sub-content-transform-origin);
+}
+
+/* ----------------------------------------------------------------------------
+   Items
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty) .u-menubar__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-height: 30px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  outline: none;
+  cursor: default;
+  user-select: none;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+/* Reserve the left gutter so labels align with checkbox/radio rows. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__item--inset,
+:is(.ui20, .sabcrm-twenty) .u-menubar__item--indicator {
+  padding-left: 30px;
+}
+
+/* Roving highlight (keyboard + pointer) — Radix sets data-highlighted. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-highlighted] {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+}
+/* Open submenu trigger stays tinted while its child panel is open. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-state='open'] {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-disabled] {
+  color: var(--st-text-tertiary);
+  pointer-events: none;
+}
+
+/* The label stretches; trailing chevron / shortcut sit at the edge via margin. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Check / radio indicator sits in the reserved left gutter. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__indicator {
+  position: absolute;
+  left: var(--st-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-highlighted] .u-menubar__indicator {
+  color: var(--st-accent-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__dot {
+  fill: currentColor;
+}
+
+/* Submenu chevron pushed to the trailing edge. */
+:is(.ui20, .sabcrm-twenty) .u-menubar__chevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-highlighted] .u-menubar__chevron {
+  color: var(--st-accent-hover);
+}
+
+/* ----------------------------------------------------------------------------
+   Label + separator + shortcut
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty) .u-menubar__label {
+  padding: var(--st-space-1) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__label--inset {
+  padding-left: 30px;
+}
+
+:is(.ui20, .sabcrm-twenty) .u-menubar__sep {
+  height: 1px;
+  margin: var(--st-space-1) calc(var(--st-space-1) * -1);
+  background: var(--st-border);
+}
+
+:is(.ui20, .sabcrm-twenty) .u-menubar__shortcut {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: var(--st-space-4);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__item[data-highlighted] .u-menubar__shortcut {
+  color: var(--st-accent-hover);
+}
+
+/* ----------------------------------------------------------------------------
+   Entrance (Emil: transform + opacity only, < 250ms, eased, directional)
+   ------------------------------------------------------------------------- */
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-state='open'] {
+  animation: u-menubar-in var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-state='closed'] {
+  animation: u-menubar-out var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='top'] {
+  animation-name: u-menubar-in-top;
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='bottom'] {
+  animation-name: u-menubar-in-bottom;
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='left'] {
+  animation-name: u-menubar-in-left;
+}
+:is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='right'] {
+  animation-name: u-menubar-in-right;
+}
+
+@keyframes u-menubar-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes u-menubar-in-top {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-menubar-in-bottom {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-menubar-in-left {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-menubar-in-right {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-menubar-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Reduced motion — fade only, no movement / scale, no press squash
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-menubar__trigger:active {
+    transform: none;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-state='open'],
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-state='closed'],
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='top'],
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='bottom'],
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='left'],
+  :is(.ui20, .sabcrm-twenty) .u-menubar__content[data-side='right'] {
+    animation: u-menubar-fade var(--u-dur-fast) ease;
+  }
+  @keyframes u-menubar-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

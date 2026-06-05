@@ -1,0 +1,274 @@
+/* 20ui · DropdownMenu — floating command surface (Radix-driven) */
+
+/* The portal wrapper only exists to scope tokens in the body portal; it must
+   not interfere with Radix's fixed positioning of the panel. */
+:is(.ui20, .sabcrm-twenty).u-dropdown__portal {
+  display: contents;
+}
+
+/* ----- Panel ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown {
+  z-index: 1000;
+  min-width: 184px;
+  max-width: min(320px, calc(100vw - var(--st-space-4)));
+  padding: var(--st-space-1);
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size);
+  line-height: 1.4;
+  box-shadow: var(--u-elev-3);
+  outline: none;
+  /* Grow from the corner Radix anchored against (its content var resolves to a
+     side+align-aware origin), so the menu reads as unfolding from the trigger. */
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+}
+/* Sub-content shares the same Radix content transform-origin var (the dropdown
+   package namespaces by component, not by content vs sub-content), so the panel
+   still unfolds from the side the sub-menu opened toward. */
+:is(.ui20, .sabcrm-twenty) .u-dropdown--sub {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+}
+
+/* ----- Item rows ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  width: 100%;
+  min-height: 30px;
+  padding: var(--st-space-1) var(--st-space-2);
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text);
+  font-size: var(--st-font-size);
+  font-weight: var(--st-fw-regular);
+  text-align: left;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  outline: none;
+  /* Only colour transitions on the always-present hover (no movement here — a
+     menu row is a constantly-seen, keyboard-driven target; Emil: do not animate). */
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Radix sets data-highlighted on the roving-focus row (pointer OR keyboard). */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-highlighted] {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Leading convenience icon + indicator-row icons share a muted ink. */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item-icon {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item[data-highlighted] .u-dropdown__item-icon {
+  color: var(--st-text-secondary);
+}
+
+/* Inset rows reserve the indicator gutter so plain items align with check/radio. */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--inset {
+  padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
+}
+
+/* Checkbox / radio rows: a fixed leading gutter for the indicator. */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--indicator {
+  padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator {
+  position: absolute;
+  left: var(--st-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--st-accent);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator-check {
+  width: 15px;
+  height: 15px;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__indicator-dot {
+  width: 7px;
+  height: 7px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Danger variant — destructive command (e.g. "Delete lead"). */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger {
+  color: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__item-icon {
+  color: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger[data-highlighted] {
+  background: var(--st-danger-soft);
+  color: var(--st-danger);
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-dropdown__item--danger[data-highlighted]
+  .u-dropdown__item-icon {
+  color: var(--st-danger);
+}
+
+/* ----- Sub-menu trigger ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__subtrigger[data-state='open'] {
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__subtrigger-chevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 15px;
+  height: 15px;
+  color: var(--st-text-tertiary);
+}
+
+/* ----- Label ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__label {
+  padding: var(--st-space-1) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-weight: var(--st-fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__label--inset {
+  padding-left: calc(var(--st-space-2) + 16px + var(--st-space-2));
+}
+
+/* ----- Separator ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__separator {
+  height: 1px;
+  margin: var(--st-space-1) calc(var(--st-space-1) * -1);
+  background: var(--st-border-light);
+}
+
+/* ----- Trailing shortcut hint ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown__shortcut {
+  margin-left: auto;
+  padding-left: var(--st-space-3);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  letter-spacing: 0.06em;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown__item--danger .u-dropdown__shortcut {
+  color: var(--st-danger);
+  opacity: 0.7;
+}
+
+/* ----- Entrance (Emil: transform + opacity only, < 250ms, eased) ----- */
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='open'] {
+  animation: u-dropdown-in var(--u-dur) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='closed'] {
+  animation: u-dropdown-out var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Directional nudge: lean in from the anchored side, then settle. */
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='top'] {
+  animation-name: u-dropdown-in-top;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='bottom'] {
+  animation-name: u-dropdown-in-bottom;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='left'] {
+  animation-name: u-dropdown-in-left;
+}
+:is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='right'] {
+  animation-name: u-dropdown-in-right;
+}
+
+@keyframes u-dropdown-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes u-dropdown-in-top {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-dropdown-in-bottom {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-dropdown-in-left {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-dropdown-in-right {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-dropdown-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* Reduced motion: fade only, no movement or scale. */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='open'],
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-state='closed'],
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='top'],
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='bottom'],
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='left'],
+  :is(.ui20, .sabcrm-twenty) .u-dropdown[data-side='right'] {
+    animation: u-dropdown-fade var(--u-dur-fast) ease;
+  }
+  @keyframes u-dropdown-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

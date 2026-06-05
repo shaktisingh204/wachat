@@ -1,0 +1,146 @@
+/* 20ui · Carousel — embla viewport + track + nav arrows */
+
+/* ----- Root region ----- */
+:is(.ui20, .sabcrm-twenty) .u-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  font-family: var(--st-font);
+  color: var(--st-text);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel--horizontal {
+  flex-direction: row;
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel--vertical {
+  flex-direction: column;
+}
+
+/* The region itself is keyboard-focusable for arrow navigation; show the ring
+   only on keyboard focus, never on a pointer interaction. */
+:is(.ui20, .sabcrm-twenty) .u-carousel:focus-visible {
+  outline: none;
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Viewport (embla clips here) ----- */
+:is(.ui20, .sabcrm-twenty) .u-carousel__viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--st-radius-lg);
+}
+
+/* ----- Track (embla translates this) ----- */
+:is(.ui20, .sabcrm-twenty) .u-carousel__track {
+  display: flex;
+  /* Negative margin pairs with each slide's leading padding to make the gap. */
+  backface-visibility: hidden;
+  touch-action: pan-y pinch-zoom;
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel__track--horizontal {
+  flex-direction: row;
+  margin-left: calc(var(--st-space-3) * -1);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel__track--vertical {
+  flex-direction: column;
+  /* Vertical needs an explicit height to scroll; callers can override. */
+  height: 100%;
+  max-height: 18rem;
+  margin-top: calc(var(--st-space-3) * -1);
+  touch-action: pan-x pinch-zoom;
+}
+
+/* ----- Slide ----- */
+:is(.ui20, .sabcrm-twenty) .u-carousel__item {
+  position: relative;
+  flex: 0 0 100%;
+  min-width: 0;
+  min-height: 0;
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel--horizontal .u-carousel__item {
+  padding-left: var(--st-space-3);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel--vertical .u-carousel__item {
+  padding-top: var(--st-space-3);
+}
+
+/* ----- Nav arrows -----
+   These are 20ui IconButtons (their own press/focus motion already applies);
+   here we only add the resting surface + an Emil-safe hover lift. The buttons
+   default to flowing after the viewport, but absolute overlays are a one-class
+   opt-in for callers who want them floating over the rail. */
+:is(.ui20, .sabcrm-twenty) .u-carousel__arrow {
+  flex: 0 0 auto;
+  background: var(--st-bg);
+  box-shadow: var(--u-elev-1);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform 80ms var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel__arrow:hover:not(:disabled) {
+  box-shadow: var(--u-elev-2);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel__arrow:disabled {
+  box-shadow: none;
+}
+
+/* Optional floating overlay placement (opt-in via these modifier helpers).
+   Horizontal arrows hug the left/right edges; vertical hug top/bottom. */
+:is(.ui20, .sabcrm-twenty) .u-carousel--horizontal .u-carousel__arrow.u-carousel__arrow--float {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-carousel--horizontal
+  .u-carousel__arrow--prev.u-carousel__arrow--float {
+  left: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-carousel--horizontal
+  .u-carousel__arrow--next.u-carousel__arrow--float {
+  right: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty) .u-carousel--vertical .u-carousel__arrow.u-carousel__arrow--float {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-carousel--vertical
+  .u-carousel__arrow--prev.u-carousel__arrow--float {
+  top: var(--st-space-2);
+}
+:is(.ui20, .sabcrm-twenty)
+  .u-carousel--vertical
+  .u-carousel__arrow--next.u-carousel__arrow--float {
+  bottom: var(--st-space-2);
+}
+
+/* ----- Reduced motion -----
+   Embla animates the track with JS-driven transforms. We cannot disable its
+   internal tween from CSS, but we make sure no 20ui-owned motion (the arrow
+   lift / press) moves for users who opted out, and we kill any incidental
+   scroll smoothing the platform might apply to the viewport. */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-carousel__viewport {
+    scroll-behavior: auto;
+  }
+  :is(.ui20, .sabcrm-twenty) .u-carousel__arrow {
+    transition:
+      background var(--u-dur-fast) var(--u-ease-out),
+      border-color var(--u-dur-fast) var(--u-ease-out),
+      box-shadow var(--u-dur-fast) var(--u-ease-out);
+  }
+  :is(.ui20, .sabcrm-twenty) .u-carousel__arrow:active {
+    transform: none;
+  }
+}
