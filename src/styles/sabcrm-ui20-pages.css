@@ -1,0 +1,477 @@
+/* =========================================================================
+   SabCRM · ui20 page polish
+   =========================================================================
+
+   MODERN ui20 polish for the page-specific CRM surfaces, layered ON TOP of:
+     - src/styles/sabcrm-twenty.css   (base `.st-*` chrome + tokens)
+     - src/styles/sabcrm-ui20-theme.css (ui20 indigo tokens + global chrome)
+
+   Surfaces covered (their page-local CSS owns layout; we only re-skin colour,
+   border, radius, depth, hover/focus motion):
+     - Dashboard  : KPI tiles, widget panels, saved-dashboard tabs, bar/pipeline
+                    widgets, add-widget type chooser   (dashboard.css `.st-*`)
+     - Reports    : section panels, metric tiles, chart frames, report rows,
+                    import summary tiles                (reports-twenty.css)
+     - Getting-started : progress panel, checklist cards, "do it" links
+                                                        (getting-started.css `.st-gs-*`)
+     - Notes      : note grid tiles, composer, note cards (tasks-notes.css `.stn-*`)
+     - Tasks      : board cards, completion checkbox, status select (`.stn-*`)
+     - Activity   : timeline rail, dots, items, target chips (activity.css `.sa-*`)
+
+   Rules honoured: every selector is scoped `.sabcrm-twenty .<class>`
+   (specificity 0,2,0) so it wins over the base bare rules; tokens only
+   (--st-* / --u-*); ONE indigo accent (--st-accent); ONE radius system;
+   transitions are transform/opacity/background/color/border/box-shadow only,
+   <=200ms, var(--u-ease-out); accent-aware :focus-visible rings via
+   var(--u-focus-ring); reduced-motion opt-out at the end.
+
+   IMPORTANT: none of these surfaces is the virtualized data table, but the
+   tasks/notes/activity/report list rows are still treated conservatively —
+   no width/height/padding/margin/font/line-height/display changes; only
+   colour, background, border, border-radius, box-shadow, outline, transition.
+   ========================================================================= */
+
+/* =========================================================================
+   1 · DASHBOARD
+   ========================================================================= */
+
+/* ----- KPI tiles: softer cool border, layered depth, lift on hover ----- */
+.sabcrm-twenty .st-kpi {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  background:
+    linear-gradient(180deg, var(--st-bg), color-mix(in srgb, var(--st-bg-secondary) 60%, var(--st-bg)));
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    box-shadow var(--u-dur) var(--u-ease-out),
+    border-color var(--u-dur) var(--u-ease-out),
+    transform var(--u-dur) var(--u-ease-out);
+}
+.sabcrm-twenty .st-kpi:hover {
+  border-color: var(--st-border);
+  box-shadow: var(--st-shadow-md);
+  transform: translateY(-1px);
+}
+.sabcrm-twenty .st-kpi__value {
+  color: var(--st-text);
+}
+
+/* ----- Bar list: accent gradient fills, deeper track ----- */
+.sabcrm-twenty .st-barlist__track {
+  background: var(--st-bg-muted);
+  box-shadow: inset 0 0 0 1px var(--st-border-light);
+}
+.sabcrm-twenty .st-barlist__fill {
+  background: var(--st-accent-grad);
+}
+
+/* ----- Recent-records rows: accent-soft hover, accent chevron ----- */
+.sabcrm-twenty .st-reclist__link {
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-reclist__link:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-reclist__link:hover .st-reclist__meta,
+.sabcrm-twenty .st-reclist__link:hover .st-reclist__chevron {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-reclist__link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Pipeline summary: cleaner divider ----- */
+.sabcrm-twenty .st-pipesum__total {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* ----- Saved-dashboard tabs: pill rest, accent-tinted active ----- */
+.sabcrm-twenty .st-dash-tabs {
+  border-bottom-color: var(--st-border-light);
+}
+.sabcrm-twenty .st-dash-tab {
+  border-radius: var(--st-radius-pill);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-dash-tab:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-dash-tab.active {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 26%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-dash-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-dash-tab--add:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Inline notice: lift to accent-soft, rounder ----- */
+.sabcrm-twenty .st-dash-notice {
+  border-radius: var(--st-radius);
+  border-color: var(--st-border-light);
+  background: var(--st-bg-secondary);
+}
+
+/* ----- Widget panels: head divider + accent-tinted type icon ----- */
+.sabcrm-twenty .st-widget__head {
+  border-bottom-color: var(--st-border-light);
+}
+.sabcrm-twenty .st-widget__type-icon {
+  color: var(--st-accent);
+  opacity: 0.85;
+}
+.sabcrm-twenty .st-widget__remove {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-widget__remove:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Add-widget type chooser: smoother, accent-glow on active ----- */
+.sabcrm-twenty .st-widget-typeopt {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-widget-typeopt:hover {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 24%, transparent);
+  color: var(--st-text);
+}
+.sabcrm-twenty .st-widget-typeopt.active {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+  box-shadow: 0 0 0 1px var(--st-accent), var(--st-shadow-sm);
+}
+.sabcrm-twenty .st-widget-typeopt:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   2 · REPORTS
+   ========================================================================= */
+
+/* ----- Section panels: lighter border, layered depth ----- */
+.sabcrm-twenty .st-section {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+}
+.sabcrm-twenty .st-section__head {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* ----- Report bar visualisation: accent gradient fill, framed track ----- */
+.sabcrm-twenty .st-bar__track {
+  background: var(--st-bg-muted);
+  border-color: var(--st-border-light);
+}
+.sabcrm-twenty .st-bar__fill {
+  background: var(--st-accent-grad);
+}
+
+/* ----- Metric tile values: accent-aware emphasis ----- */
+.sabcrm-twenty .st-metric__value {
+  color: var(--st-text);
+}
+
+/* ----- Chart frame: accent line + soft accent fill ----- */
+.sabcrm-twenty .st-chart__area {
+  fill: var(--st-accent);
+  opacity: 0.08;
+}
+.sabcrm-twenty .st-chart__line {
+  stroke: var(--st-accent);
+}
+.sabcrm-twenty .st-chart__dot {
+  stroke: var(--st-accent);
+}
+
+/* ----- Report list rows: accent-soft hover, rounder, accent-aware focus ----- */
+.sabcrm-twenty .st-rep-row {
+  border-bottom-color: var(--st-border-light);
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-rep-row:hover {
+  background: var(--st-accent-soft);
+}
+.sabcrm-twenty .st-rep-row:focus-within {
+  background: var(--st-accent-soft);
+}
+.sabcrm-twenty .st-rep-result {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* ----- Result table rows: cool hover ----- */
+.sabcrm-twenty .st-rtable tbody tr {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-rtable tbody tr:hover {
+  background: var(--st-bg-secondary);
+}
+
+/* ----- Import summary tiles: rounder, layered, accent-tinted number ----- */
+.sabcrm-twenty .st-iox-summary__tile {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius);
+  box-shadow: var(--st-shadow-sm);
+}
+.sabcrm-twenty .st-iox-summary__num {
+  color: var(--st-text);
+}
+.sabcrm-twenty .st-iox-drop {
+  border-radius: var(--st-radius-lg);
+  transition:
+    border-color var(--u-dur) var(--u-ease-out),
+    background var(--u-dur) var(--u-ease-out);
+}
+.sabcrm-twenty .st-iox-drop:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 40%, var(--st-border));
+  background: var(--st-accent-soft);
+}
+
+/* ----- Active import step dot: indigo accent (was neutral text) ----- */
+.sabcrm-twenty .st-iox-step.is-active .st-iox-step__dot {
+  border-color: var(--st-accent);
+  background: var(--st-accent);
+  color: #fff;
+}
+.sabcrm-twenty .st-iox-step.is-active {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   3 · GETTING STARTED
+   ========================================================================= */
+
+/* ----- Progress panel: lighter border, soft depth ----- */
+.sabcrm-twenty .st-gs-progress {
+  border-color: var(--st-border-light);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* ----- Checklist cards: smooth lift, accent border on hover ----- */
+.sabcrm-twenty .st-gs-card {
+  border-color: var(--st-border-light);
+  transition:
+    border-color var(--u-dur) var(--u-ease-out),
+    box-shadow var(--u-dur) var(--u-ease-out),
+    transform var(--u-dur) var(--u-ease-out);
+}
+.sabcrm-twenty .st-gs-card:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 32%, var(--st-border));
+  box-shadow: var(--st-shadow-md);
+  transform: translateY(-1px);
+}
+.sabcrm-twenty .st-gs-card--done {
+  background: var(--st-bg-secondary);
+}
+
+/* ----- Card icon chip: gradient accent for pending items ----- */
+.sabcrm-twenty .st-gs-card__icon {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 18%, transparent);
+}
+
+/* ----- "Do it" link: smoother, accent-aware focus ----- */
+.sabcrm-twenty .st-gs-do {
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-gs-do:hover {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 30%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-gs-do:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   4 · NOTES
+   ========================================================================= */
+
+/* ----- Note tiles: rounder, cool border, accent-aware lift ----- */
+.sabcrm-twenty .stn-note-tile {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur) var(--u-ease-out),
+    box-shadow var(--u-dur) var(--u-ease-out),
+    transform var(--u-dur) var(--u-ease-out);
+}
+.sabcrm-twenty .stn-note-tile:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 34%, var(--st-border));
+  box-shadow: var(--st-shadow-md);
+  transform: translateY(-1px);
+}
+.sabcrm-twenty .stn-note-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .stn-note-tile__title svg {
+  color: var(--st-accent);
+}
+
+/* ----- Composer + note cards: lighter border, soft depth ----- */
+.sabcrm-twenty .stn-composer {
+  border-color: var(--st-border-light);
+  box-shadow: var(--st-shadow-sm);
+}
+.sabcrm-twenty .stn-note {
+  border-color: var(--st-border-light);
+  box-shadow: var(--st-shadow-sm);
+}
+.sabcrm-twenty .stn-note__title svg {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   5 · TASKS
+   ========================================================================= */
+
+/* ----- Completion checkbox: accent-aware focus ring (token replacement) --- */
+.sabcrm-twenty .stn-check {
+  transition:
+    background-color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stn-check:hover:not(:disabled) {
+  border-color: var(--st-accent);
+}
+.sabcrm-twenty .stn-check.is-done {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+.sabcrm-twenty .stn-check:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Status select: rounder, accent-aware focus ----- */
+.sabcrm-twenty .stn-status-select {
+  border-color: var(--st-border);
+  border-radius: var(--st-radius-sm);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stn-status-select:hover {
+  background-color: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 28%, var(--st-border));
+}
+.sabcrm-twenty .stn-status-select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Task title link: accent on hover ----- */
+.sabcrm-twenty .stn-card-title {
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stn-card-title:hover {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   6 · ACTIVITY
+   ========================================================================= */
+
+/* ----- Filter count chip: accent-soft pill ----- */
+.sabcrm-twenty .sa-feed__filter-count {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Timeline rail: cool connective line ----- */
+.sabcrm-twenty .sa-item:not(:last-child) .sa-item__rail::after {
+  background: var(--st-border);
+}
+
+/* ----- Timeline dots: rounder, gradient accent, layered depth ----- */
+.sabcrm-twenty .sa-item__dot {
+  border-radius: var(--st-radius);
+  border-color: color-mix(in srgb, var(--st-accent) 20%, var(--st-border));
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* ----- Target chips: accent-soft hover + accent-aware focus ----- */
+.sabcrm-twenty .sa-item__target {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-pill);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .sa-item__target:hover {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 26%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .sa-item__target:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   7 · MOTION OPT-OUT (emil + a11y)
+   Disable transitions/animation for users who request reduced motion. The
+   accent-aware :focus-visible rings remain (they are not motion).
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-kpi,
+  .sabcrm-twenty .st-reclist__link,
+  .sabcrm-twenty .st-dash-tab,
+  .sabcrm-twenty .st-widget__remove,
+  .sabcrm-twenty .st-widget-typeopt,
+  .sabcrm-twenty .st-rep-row,
+  .sabcrm-twenty .st-rtable tbody tr,
+  .sabcrm-twenty .st-iox-drop,
+  .sabcrm-twenty .st-gs-card,
+  .sabcrm-twenty .st-gs-do,
+  .sabcrm-twenty .stn-note-tile,
+  .sabcrm-twenty .stn-check,
+  .sabcrm-twenty .stn-status-select,
+  .sabcrm-twenty .stn-card-title,
+  .sabcrm-twenty .sa-item__target {
+    transition: none;
+  }
+  .sabcrm-twenty .st-kpi:hover,
+  .sabcrm-twenty .st-gs-card:hover,
+  .sabcrm-twenty .stn-note-tile:hover {
+    transform: none;
+  }
+}

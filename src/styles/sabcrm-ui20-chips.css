@@ -1,0 +1,198 @@
+/* =========================================================================
+   SabCRM · ui20 polish — Chips / Badges / Tags / Avatars / Status
+   =========================================================================
+
+   Surface: the small "atom" UI — `.st-chip` tag pills, MULTI_SELECT chips,
+   status / select-enum dots (`.st-chip__dot`, `.st-select2__dot`), `.st-avatar`
+   treatments, the toolbar `.st-count` pill, and `.st-kbd` keyboard hints.
+
+   Layered on top of sabcrm-twenty.css (base `.st-*`) + sabcrm-ui20-theme.css.
+   Every selector is scoped `.sabcrm-twenty .st-*` (specificity 0,2,0) so it
+   wins over the bare base rules by specificity + import order.
+
+   Constraints honoured:
+   - NO size/layout change on chips/avatars/dots (height, padding, font-size,
+     line-height, width, display all untouched) — only colour, background,
+     border, border-radius, box-shadow, outline and <=200ms transitions.
+   - ONE accent (indigo --st-accent), ONE radius system, tinted fills built
+     with color-mix over --st-bg, AA contrast preserved.
+   - Tokens only (--st-* / --u-*). No hardcoded colour (bar #fff/#000 on fills).
+   - Visible :focus-visible rings via var(--u-focus-ring); reduced-motion block.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. Tag / enum chips — refined tinted fill, hairline border, smooth motion
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-chip {
+  /* Soft tint of the muted surface over bg = lighter, less "grey block". */
+  background: color-mix(in srgb, var(--st-bg-muted) 60%, var(--st-bg));
+  border: 1px solid color-mix(in srgb, var(--st-border) 70%, transparent);
+  border-radius: var(--st-radius-pill);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* The colour dot sharpens with a faint ring so light hues stay visible. */
+.sabcrm-twenty .st-chip__dot {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-text) 8%, transparent);
+}
+
+/* -------------------------------------------------------------------------
+   2. Interactive chips (MULTI_SELECT buttons) — accent-aware states
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty button.st-chip {
+  background: var(--st-bg);
+  border-color: var(--st-border);
+}
+.sabcrm-twenty button.st-chip:hover {
+  background: var(--st-hover);
+  border-color: var(--st-border-strong);
+  color: var(--st-text);
+}
+.sabcrm-twenty button.st-chip:active {
+  background: var(--st-active);
+}
+.sabcrm-twenty button.st-chip:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Selected chip: gentle accent gradient tint + accent edge. */
+.sabcrm-twenty .st-chip--active {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--st-accent) 12%, var(--st-bg)),
+      var(--st-accent-soft)
+    ) !important;
+  border-color: color-mix(in srgb, var(--st-accent) 45%, transparent) !important;
+  color: var(--st-accent) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 22%, transparent);
+}
+.sabcrm-twenty .st-chip--active .st-chip__dot {
+  background: var(--st-accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-accent) 30%, transparent);
+}
+
+/* -------------------------------------------------------------------------
+   3. Status / select dots — crisp definition ring for low-contrast hues
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-select2__dot {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--st-text) 10%, transparent);
+}
+
+/* -------------------------------------------------------------------------
+   4. Avatars — accent-tinted ring + a touch of depth, smooth on hover
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-avatar {
+  border-radius: var(--st-radius);
+  /* Accent-tinted hairline reads as deliberate (vs flat grey inset). */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 14%, transparent);
+  transition:
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-avatar--round {
+  border-radius: var(--st-radius-pill);
+}
+/* Larger avatars (identifier / record header) earn real elevation. */
+.sabcrm-twenty .st-avatar--lg {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 16%, transparent),
+    var(--st-shadow-sm);
+}
+
+/* A clickable avatar (links / triggers) lifts subtly under the cursor. */
+.sabcrm-twenty a .st-avatar:hover,
+.sabcrm-twenty button .st-avatar:hover,
+.sabcrm-twenty .st-cell-link:hover .st-avatar {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 28%, transparent),
+    var(--st-shadow-sm);
+}
+.sabcrm-twenty a:focus-visible .st-avatar,
+.sabcrm-twenty button:focus-visible .st-avatar {
+  box-shadow: var(--u-focus-ring);
+}
+
+/* -------------------------------------------------------------------------
+   5. Count pill — turn the bare count into a quiet rounded badge
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--st-space-2);
+  border-radius: var(--st-radius-pill);
+  background: color-mix(in srgb, var(--st-bg-muted) 55%, var(--st-bg));
+  border: 1px solid color-mix(in srgb, var(--st-border) 60%, transparent);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-medium);
+}
+
+/* -------------------------------------------------------------------------
+   6. Keyboard hint (kbd) — softer fill + rounder, matches the chip language
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-kbd {
+  border-radius: var(--st-radius-sm);
+  border-color: color-mix(in srgb, var(--st-border) 80%, transparent);
+  background: color-mix(in srgb, var(--st-bg-muted) 45%, var(--st-bg));
+  color: var(--st-text-tertiary);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* -------------------------------------------------------------------------
+   7. Status-tone chip variants — semantic fills via color-mix over bg
+   (apply where the markup adds a tone modifier; harmless otherwise)
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-chip--ok {
+  background: color-mix(in srgb, var(--st-status-ok) 14%, var(--st-bg));
+  border-color: color-mix(in srgb, var(--st-status-ok) 36%, transparent);
+  color: var(--st-status-ok);
+}
+.sabcrm-twenty .st-chip--ok .st-chip__dot {
+  background: var(--st-status-ok);
+}
+.sabcrm-twenty .st-chip--warn {
+  background: color-mix(in srgb, var(--st-warn) 14%, var(--st-bg));
+  border-color: color-mix(in srgb, var(--st-warn) 36%, transparent);
+  color: var(--st-warn);
+}
+.sabcrm-twenty .st-chip--warn .st-chip__dot {
+  background: var(--st-warn);
+}
+.sabcrm-twenty .st-chip--danger {
+  background: color-mix(in srgb, var(--st-danger) 14%, var(--st-bg));
+  border-color: color-mix(in srgb, var(--st-danger) 36%, transparent);
+  color: var(--st-danger);
+}
+.sabcrm-twenty .st-chip--danger .st-chip__dot {
+  background: var(--st-danger);
+}
+.sabcrm-twenty .st-chip--accent {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 36%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-chip--accent .st-chip__dot {
+  background: var(--st-accent);
+}
+
+/* -------------------------------------------------------------------------
+   8. Motion opt-out (emil / a11y)
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-chip,
+  .sabcrm-twenty button.st-chip,
+  .sabcrm-twenty .st-avatar {
+    transition: none;
+  }
+  .sabcrm-twenty a .st-avatar:hover,
+  .sabcrm-twenty button .st-avatar:hover,
+  .sabcrm-twenty .st-cell-link:hover .st-avatar {
+    transform: none;
+  }
+}

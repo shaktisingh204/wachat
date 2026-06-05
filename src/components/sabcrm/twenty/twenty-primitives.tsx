@@ -5,8 +5,17 @@ import '@/styles/sabcrm-twenty.css';
 // 20ui — SabCRM's design system (motion · interaction · accessibility layer).
 import '@/styles/20ui.css';
 // ui20 CRM theme — re-skins the whole CRM (tokens + chrome) to the new look.
-// Imported AFTER the base sheets so its token + chrome overrides win.
+// Imported AFTER the base sheets so its token + chrome overrides win, then the
+// per-surface polish layers (each wins by source order + specificity).
 import '@/styles/sabcrm-ui20-theme.css';
+import '@/styles/sabcrm-ui20-shell.css';
+import '@/styles/sabcrm-ui20-list.css';
+import '@/styles/sabcrm-ui20-forms.css';
+import '@/styles/sabcrm-ui20-chips.css';
+import '@/styles/sabcrm-ui20-detail.css';
+import '@/styles/sabcrm-ui20-board.css';
+import '@/styles/sabcrm-ui20-overlays.css';
+import '@/styles/sabcrm-ui20-pages.css';
 import { Button } from '../20ui/button';
 
 /* =========================================================================

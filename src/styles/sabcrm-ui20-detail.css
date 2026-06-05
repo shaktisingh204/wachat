@@ -1,0 +1,461 @@
+/* =========================================================================
+   SabCRM · ui20 polish — RECORD DETAIL
+   =========================================================================
+
+   Surface: the record-show view — page/detail header, the labelled field rows
+   (label/value + inline-edit affordance), the detail tab strip
+   (`.st-rdt-*`), the relations panel cards, and the system-field group
+   (`.st-rfp__group--system`).
+
+   Layered ON TOP of `sabcrm-twenty.css` (base `.st-*`) and
+   `sabcrm-ui20-theme.css` (tokens + chrome). Every selector is scoped
+   `.sabcrm-twenty .st-…` (specificity 0,2,0) so it wins over the bare base
+   rules. Tokens only (`--st-*` / `--u-*`); no hardcoded colour.
+
+   4 skills:
+   - taste: ONE indigo accent (`--st-accent`), ONE radius system, AA contrast,
+     no decorative noise — depth comes from soft tints + layered shadows.
+   - emil: transform/opacity/background/colour transitions only, <=200ms,
+     `var(--u-ease-out)`; a reduced-motion block disables them.
+   - a11y: visible `:focus-visible` rings via `var(--u-focus-ring)`; no outline
+     removed without a token-ring replacement; contrast preserved.
+
+   LAYOUT SAFETY: never touches width/height/padding/margin/font-size/
+   line-height/display/grid of `.st-field-row` / `.st-field-row__*`. Only
+   colour, background, border, border-radius, box-shadow, outline, transition.
+   ========================================================================= */
+
+/* =========================================================================
+   1 · Detail header — airy, anchored back affordance
+   ========================================================================= */
+
+/* The "back" link gets an accent-aware hover + a real focus ring. */
+.sabcrm-twenty .st-back {
+  border-radius: var(--st-radius-sm);
+  transition:
+    color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-back:hover {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-back:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   2 · Detail panels — softer borders, layered depth, rounder
+   ========================================================================= */
+
+.sabcrm-twenty .st-panel {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition: box-shadow var(--u-dur) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-panel:hover {
+  box-shadow: var(--st-shadow-md);
+}
+
+/* Panel heading reads as a quiet, modern section label. */
+.sabcrm-twenty .st-panel__head {
+  border-bottom-color: var(--st-border-light);
+  color: var(--st-text-secondary);
+  letter-spacing: 0.03em;
+}
+
+/* =========================================================================
+   3 · Field rows — quiet separators + accent inline-edit affordance
+   -------------------------------------------------------------------------
+   ONLY colour/background/border/radius/shadow/transition — the row grid,
+   sizing and spacing stay exactly as the base defines them.
+   ========================================================================= */
+
+.sabcrm-twenty .st-field-row {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* The inline-editable value zone: an accent-soft tint on hover signals "click
+   to edit" without shifting the box (padding/margin untouched). */
+.sabcrm-twenty .st-field-row__val .st-cell-editable {
+  border-radius: var(--st-radius-sm);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-cell-editable:hover {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-cell-editable:focus-visible {
+  outline: none;
+  background: var(--st-accent-soft);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Active inline editors: rounder corners + a soft accent halo. */
+.sabcrm-twenty .st-cell-input,
+.sabcrm-twenty .st-cell-select {
+  border-radius: var(--st-radius-sm);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* =========================================================================
+   4 · Record field panel (`.st-rfp*`) — grouping + inline editors
+   ========================================================================= */
+
+/* Section heading: a touch more presence, still quiet metadata. */
+.sabcrm-twenty .st-rfp__group-head {
+  color: var(--st-text-tertiary);
+  letter-spacing: 0.05em;
+}
+
+/* System group: set off as metadata with a soft tint + clean divider. */
+.sabcrm-twenty .st-rfp__group--system {
+  border-top-color: var(--st-border-light);
+}
+
+.sabcrm-twenty .st-rfp__group--system .st-rfp__group-head {
+  color: var(--st-text-tertiary);
+}
+
+/* Boolean toggle: smoother thumb travel + accent-soft hover + focus ring. */
+.sabcrm-twenty .st-rfp-bool {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rfp-bool:hover {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-rfp-bool:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+.sabcrm-twenty .st-rfp-bool__track {
+  transition: background var(--u-dur) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rfp-bool__thumb {
+  box-shadow: var(--st-shadow-sm);
+  transition: transform var(--u-dur) var(--u-ease-out);
+}
+
+/* Multi-value popovers (multi-select / lists / address): rounder + a real
+   layered shadow instead of a flat tint, so the editing surface lifts. */
+.sabcrm-twenty .st-rfp-multi,
+.sabcrm-twenty .st-rfp-list,
+.sabcrm-twenty .st-rfp-address {
+  border-radius: var(--st-radius);
+  box-shadow:
+    0 0 0 3px var(--st-accent-ring),
+    var(--st-shadow-md);
+}
+
+.sabcrm-twenty .st-rfp-multi__item {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rfp-multi__item:hover {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-rfp-multi__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* List add / done / remove controls: smooth accent-aware states. */
+.sabcrm-twenty .st-rfp-list__add,
+.sabcrm-twenty .st-rfp-list__done,
+.sabcrm-twenty .st-rfp-list__remove {
+  border-radius: var(--st-radius-sm);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rfp-list__add:hover,
+.sabcrm-twenty .st-rfp-list__done:hover {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 30%, transparent);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-rfp-list__add:focus-visible,
+.sabcrm-twenty .st-rfp-list__done:focus-visible,
+.sabcrm-twenty .st-rfp-list__remove:focus-visible,
+.sabcrm-twenty .st-rfp-rating__star:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   5 · Detail tab strip (`.st-rdt-*`) — accent underline + pill hover
+   ========================================================================= */
+
+.sabcrm-twenty .st-rdt-tabs {
+  border-bottom-color: var(--st-border-light);
+}
+
+.sabcrm-twenty .st-rdt-tab {
+  border-radius: var(--st-radius) var(--st-radius) 0 0;
+  transition:
+    color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Quiet pill behind an inactive tab on hover — invites without shouting. */
+.sabcrm-twenty .st-rdt-tab:hover:not(.is-active) {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-rdt-tab.is-active {
+  color: var(--st-accent);
+}
+
+/* Crisper, slightly taller-feeling accent underline via a soft gradient. */
+.sabcrm-twenty .st-rdt-tab.is-active::after {
+  background: var(--st-accent-grad);
+  box-shadow: 0 0 0 0.5px var(--st-accent-ring);
+}
+
+/* Token-ring focus replaces the base hard outline. */
+.sabcrm-twenty .st-rdt-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   6 · Tab-body cards (notes / composer) — rounder, layered, accent focus
+   ========================================================================= */
+
+.sabcrm-twenty .st-rdt-note,
+.sabcrm-twenty .st-rdt-composer {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition: box-shadow var(--u-dur) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-note:hover {
+  box-shadow: var(--st-shadow-md);
+}
+
+/* Composer text fields: rounder + accent halo on focus (no hard outline). */
+.sabcrm-twenty .st-rdt-composer__title,
+.sabcrm-twenty .st-rdt-composer__body {
+  border-radius: var(--st-radius);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-composer__title:focus,
+.sabcrm-twenty .st-rdt-composer__body:focus {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+
+/* Composer primary "Add": gradient fill + accent glow + smooth lift. */
+.sabcrm-twenty .st-rdt-composer__add {
+  border-radius: var(--st-radius);
+  background: var(--st-accent-grad);
+  border-color: transparent;
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-composer__add:hover:not(:disabled) {
+  background: var(--st-accent-hover);
+  border-color: transparent;
+  box-shadow: 0 6px 18px -6px var(--st-accent-ring);
+  transform: translateY(-1px);
+}
+
+.sabcrm-twenty .st-rdt-composer__add:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--st-shadow-sm);
+}
+
+.sabcrm-twenty .st-rdt-composer__add:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   7 · Relations panel cards — modern grouped list with accent rows
+   ========================================================================= */
+
+/* The relation header pill (count) picks up the accent-soft language. */
+.sabcrm-twenty .st-rdt-rel__count {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* Relation list: a real card — rounder, soft border, layered shadow. */
+.sabcrm-twenty .st-rdt-rel__list {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition: box-shadow var(--u-dur) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-rel__list:hover {
+  box-shadow: var(--st-shadow-md);
+}
+
+.sabcrm-twenty .st-rdt-rel__row:not(:last-child) {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* Row hover: accent-soft tint + the chevron warms to accent for a clear
+   "navigate" signal. Only colour/background transition. */
+.sabcrm-twenty .st-rdt-rel__row {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-rel__row:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-rdt-rel__row:hover .st-rdt-rel__row-chev {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-rdt-rel__row:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   8 · Tasks / files chips in tabs — accent-aware, rounder
+   ========================================================================= */
+
+.sabcrm-twenty .st-rdt-task {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-task:hover {
+  background: var(--st-accent-soft);
+}
+
+.sabcrm-twenty .st-rdt-task__status--done {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-rdt-file {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-file:hover {
+  border-color: var(--st-border-strong);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* "Coming soon" pill: soft accent metadata rather than a flat grey. */
+.sabcrm-twenty .st-rdt-soon {
+  border-color: color-mix(in srgb, var(--st-accent) 22%, transparent);
+  border-radius: var(--st-radius-pill);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* Empty-state icon chip: gentle accent tint to match the new identity. */
+.sabcrm-twenty .st-rdt-empty__icon {
+  border-radius: var(--st-radius-lg);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* Inline comment composer in threads: accent halo on focus. */
+.sabcrm-twenty .st-rdt-addform__input {
+  border-radius: var(--st-radius);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-addform__input:focus {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+}
+
+.sabcrm-twenty .st-rdt-addform__send {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-rdt-addform__send:hover:not(:disabled) {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-rdt-addform__send:focus-visible,
+.sabcrm-twenty .st-rdt-thread__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   9 · Reduced motion — disable every transition/animation introduced above
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-back,
+  .sabcrm-twenty .st-panel,
+  .sabcrm-twenty .st-field-row__val .st-cell-editable,
+  .sabcrm-twenty .st-cell-input,
+  .sabcrm-twenty .st-cell-select,
+  .sabcrm-twenty .st-rfp-bool,
+  .sabcrm-twenty .st-rfp-bool__track,
+  .sabcrm-twenty .st-rfp-bool__thumb,
+  .sabcrm-twenty .st-rfp-multi__item,
+  .sabcrm-twenty .st-rfp-list__add,
+  .sabcrm-twenty .st-rfp-list__done,
+  .sabcrm-twenty .st-rfp-list__remove,
+  .sabcrm-twenty .st-rdt-tab,
+  .sabcrm-twenty .st-rdt-note,
+  .sabcrm-twenty .st-rdt-composer,
+  .sabcrm-twenty .st-rdt-composer__title,
+  .sabcrm-twenty .st-rdt-composer__body,
+  .sabcrm-twenty .st-rdt-composer__add,
+  .sabcrm-twenty .st-rdt-rel__list,
+  .sabcrm-twenty .st-rdt-rel__row,
+  .sabcrm-twenty .st-rdt-task,
+  .sabcrm-twenty .st-rdt-file,
+  .sabcrm-twenty .st-rdt-addform__input,
+  .sabcrm-twenty .st-rdt-addform__send {
+    transition: none;
+  }
+
+  .sabcrm-twenty .st-rdt-composer__add:hover:not(:disabled) {
+    transform: none;
+  }
+}

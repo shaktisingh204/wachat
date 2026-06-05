@@ -1,0 +1,298 @@
+/* =========================================================================
+   SabCRM · ui20 SHELL deepening
+   Surface: sidebar / app-rail / topbar / page-header / workspace-switcher
+   =========================================================================
+
+   Layered ON TOP of sabcrm-twenty.css (base `.st-*` chrome) and
+   sabcrm-ui20-theme.css (tokens + first-pass chrome polish). The base theme
+   already shipped: sidebar gradient, active nav pill + accent bar, glassy
+   topbar, page-header icon tint. This file EXTENDS the remaining shell
+   surfaces — section labels, rail tiles, the workspace switcher, the topbar
+   breadcrumb/title row and the page-header title typography — without
+   duplicating any of that work.
+
+   Every selector is `.sabcrm-twenty .st-*` (specificity 0,2,0) so it wins
+   over the base bare `.st-*` rules by specificity + import order. Only
+   colour / background / border / radius / shadow / outline / transition /
+   transform / opacity are touched — no layout-affecting properties on the
+   virtualized table. Tokens only: `--st-*` and `--u-*`. No hardcoded hex.
+
+   4 skills: taste (one indigo accent, one radius system, AA contrast, calm),
+   emil (transform/opacity/colour transitions, <=200ms, custom ease,
+   reduced-motion opt-out), a11y (visible accent focus rings, no bare outline
+   removal), and a final brace/colour re-read.
+   ========================================================================= */
+
+/* =========================================================================
+   App rail — premium icon tiles
+   The base theme washes the rail with a gradient; here we make the tiles feel
+   tactile: rounder, a soft hover tint, and an accent-gradient ACTIVE tile with
+   a depth ring (replacing the flat `--st-accent` fill).
+   ========================================================================= */
+.sabcrm-twenty .st-rail__item {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-rail__item:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-rail__item:active {
+  transform: scale(0.94);
+}
+.sabcrm-twenty .st-rail__item.active {
+  background: var(--st-accent-grad);
+  color: #fff;
+  box-shadow:
+    0 2px 8px -2px var(--st-accent-ring),
+    inset 0 0 0 1px color-mix(in srgb, #fff 18%, transparent);
+}
+.sabcrm-twenty .st-rail__item.active:hover {
+  background: var(--st-accent-grad);
+  color: #fff;
+  box-shadow:
+    0 4px 12px -2px var(--st-accent-ring),
+    inset 0 0 0 1px color-mix(in srgb, #fff 24%, transparent);
+}
+.sabcrm-twenty .st-rail__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Brand mark — gradient chip with a subtle inner highlight. */
+.sabcrm-twenty .st-rail__brand-mark {
+  background: var(--st-accent-grad);
+  box-shadow:
+    0 1px 3px -1px var(--st-accent-ring),
+    inset 0 0 0 1px color-mix(in srgb, #fff 16%, transparent);
+}
+.sabcrm-twenty .st-rail__brand {
+  transition: transform var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-rail__brand:hover {
+  transform: translateY(-1px);
+}
+.sabcrm-twenty .st-rail__brand:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+  border-radius: var(--st-radius);
+}
+
+/* =========================================================================
+   Sidebar section labels (and the collapse chevron)
+   Quieter, tracked-out micro-caps so the section dividers read as structure,
+   not noise — and a smooth chevron that warms toward the accent on hover.
+   ========================================================================= */
+.sabcrm-twenty .st-section-title {
+  color: var(--st-text-tertiary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: var(--st-radius-sm);
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-section-title:hover {
+  color: var(--st-text-secondary);
+}
+.sabcrm-twenty .st-section-title__chevron {
+  transition: transform var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-section-title:hover .st-section-title__chevron {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   Favourites — empty-state line + warm star on favourite rows
+   The "No favorites" line reads as quiet guidance, not a hard label; favourite
+   nav rows warm their star toward the accent on hover for a tactile cue.
+   ========================================================================= */
+.sabcrm-twenty .st-fav-empty {
+  padding: var(--st-space-1) var(--st-space-2) var(--st-space-2);
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-xs);
+  font-style: italic;
+}
+.sabcrm-twenty .st-nav-item:hover .st-nav-item__icon {
+  color: var(--st-accent);
+}
+
+/* =========================================================================
+   Workspace switcher — rounder trigger, accent-aware hover + focus
+   The base only re-tints; here we round it to the lg radius, add a hairline
+   surface on hover and rotate/colour the chevron toward the accent.
+   ========================================================================= */
+.sabcrm-twenty .st-workspace-switcher {
+  border-radius: var(--st-radius-lg);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-workspace-switcher:hover {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 14%, transparent);
+}
+.sabcrm-twenty .st-workspace-switcher:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-workspace-switcher__avatar {
+  border-radius: var(--st-radius-sm);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 14%, transparent);
+}
+.sabcrm-twenty .st-workspace-switcher__chevron {
+  transition: color var(--u-dur-fast) var(--u-ease-out),
+    transform var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-workspace-switcher:hover .st-workspace-switcher__chevron {
+  color: var(--st-accent);
+}
+
+/* Workspace dropdown — selected/active rows pick up the accent tint. */
+.sabcrm-twenty .st-ws-menu__item {
+  border-radius: var(--st-radius);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-ws-menu__item:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+}
+.sabcrm-twenty .st-ws-menu__item:hover .st-ws-menu__item-icon {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-ws-menu__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-ws-menu__avatar,
+.sabcrm-twenty .st-ws-menu__item-avatar {
+  border-radius: var(--st-radius-sm);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 14%, transparent);
+}
+/* Inline edit pencil in the menu header. */
+.sabcrm-twenty .st-ws-menu__edit {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-ws-menu__edit:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-ws-menu__edit:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   Sidebar search button — rounder, accent-tinted hover, clear focus ring
+   ========================================================================= */
+.sabcrm-twenty .st-search-btn {
+  border-radius: var(--st-radius-lg);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-search-btn:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st-accent) 14%, transparent);
+}
+.sabcrm-twenty .st-search-btn__icon {
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-search-btn:hover .st-search-btn__icon {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-search-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+/* The ⌘K hint reads a touch crisper against the accent-soft hover surface. */
+.sabcrm-twenty .st-search-btn:hover .st-kbd {
+  border-color: color-mix(in srgb, var(--st-accent) 20%, var(--st-border));
+}
+
+/* =========================================================================
+   Top bar — breadcrumb / title row + actions
+   The base theme made the bar glassy; here we refine the title typography and
+   give the action cluster a quiet, modern presence.
+   ========================================================================= */
+.sabcrm-twenty .st-topbar__title {
+  color: var(--st-text);
+  letter-spacing: -0.005em;
+}
+/* Any link/separator inside the breadcrumb title softens, then warms to the
+   accent on hover for a clear, calm wayfinding cue. */
+.sabcrm-twenty .st-topbar__title a {
+  color: var(--st-text-secondary);
+  text-decoration: none;
+  border-radius: var(--st-radius-sm);
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-topbar__title a:hover {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-topbar__title a:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   Page header — title typography + (future) subtitle sibling
+   The base tinted the icon chip; here we tighten the title's optical tracking.
+   The subtitle rule is a defensive sibling: a muted, comfortably-leaded line
+   under the title when a view renders one.
+   ========================================================================= */
+.sabcrm-twenty .st-page-header__title {
+  letter-spacing: -0.02em;
+  color: var(--st-text);
+}
+.sabcrm-twenty .st-page-header__subtitle,
+.sabcrm-twenty .st-page-header__sub {
+  margin: 2px 0 0;
+  color: var(--st-text-secondary);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-regular);
+}
+/* The accent icon chip (tinted by the base theme) gains a soft hover lift. */
+.sabcrm-twenty .st-page-header__icon {
+  box-shadow: var(--st-shadow-sm);
+  transition: transform var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-page-header:hover .st-page-header__icon {
+  transform: translateY(-1px);
+  box-shadow: var(--st-shadow-md);
+}
+
+/* =========================================================================
+   Reduced motion — disable all shell transitions/transforms per emil + a11y.
+   Focus-visible rings (box-shadow) are static and remain fully intact.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-rail__item,
+  .sabcrm-twenty .st-rail__brand,
+  .sabcrm-twenty .st-section-title,
+  .sabcrm-twenty .st-section-title__chevron,
+  .sabcrm-twenty .st-nav-item__icon,
+  .sabcrm-twenty .st-workspace-switcher,
+  .sabcrm-twenty .st-workspace-switcher__chevron,
+  .sabcrm-twenty .st-ws-menu__item,
+  .sabcrm-twenty .st-ws-menu__edit,
+  .sabcrm-twenty .st-search-btn,
+  .sabcrm-twenty .st-search-btn__icon,
+  .sabcrm-twenty .st-topbar__title a,
+  .sabcrm-twenty .st-page-header__icon {
+    transition: none;
+  }
+  .sabcrm-twenty .st-rail__item:active,
+  .sabcrm-twenty .st-rail__brand:hover,
+  .sabcrm-twenty .st-page-header:hover .st-page-header__icon {
+    transform: none;
+  }
+}

@@ -1,0 +1,452 @@
+/* =========================================================================
+   SabCRM · ui20 — Board / Kanban / Calendar / Cards polish
+   =========================================================================
+
+   MODERN ui20 polish for the SabCRM board surfaces, layered on top of the
+   Twenty base chrome (`src/styles/sabcrm-twenty.css`), the ui20 theme tokens
+   (`sabcrm-ui20-theme.css`), and the page-local files:
+     - `[objectSlug]/pipeline-board.css`  (`.stpb-*` pipeline columns)
+     - `[objectSlug]/kanban-dnd.css`      (`.st-card--*` drag affordances)
+     - `tasks-notes.css`                  (`.stn-*` task + note cards)
+     - `calendar/calendar.css`            (`.cal-*` month grid + events)
+     - `home.css`                         (`.st-obj-card`, `.st-quick-link`)
+
+   Every selector is scoped under `.sabcrm-twenty` (specificity 0,2,0) so it
+   wins over the base bare rules by specificity + import order. Only colour,
+   background, border, border-radius, box-shadow, outline, transition and
+   hover/transform are touched — never layout-affecting box metrics — so the
+   virtualized board / table never reflow.
+
+   Tokens only (`--st-*` / `--u-*`). One indigo accent, one radius system,
+   AA contrast, reduced-motion honoured at the foot of the file.
+   ========================================================================= */
+
+/* =========================================================================
+   1 · Kanban columns — subtle framed surface + refined header
+   ========================================================================= */
+
+/* Each column gets a faint cool-neutral wash + soft rounding so the board
+   reads as a set of grouped lanes rather than free-floating cards. Layout
+   metrics (flex/width/gap/padding) are untouched. */
+.sabcrm-twenty .st-board__col {
+  border-radius: var(--st-radius-lg);
+  transition:
+    background var(--u-dur, 160ms) var(--u-ease-out),
+    box-shadow var(--u-dur, 160ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-board__head {
+  border-radius: var(--st-radius);
+}
+
+/* Count chip reads as a quiet pill, accent-tinted so it pops just enough. */
+.sabcrm-twenty .st-board__count {
+  color: var(--st-text-secondary);
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-pill, 999px);
+  padding: 0 7px;
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    color var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-board__empty {
+  color: var(--st-text-tertiary);
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: color-mix(in srgb, var(--st-bg-secondary) 60%, transparent);
+}
+
+/* =========================================================================
+   2 · Record cards — rounder, layered shadow, accent stage edge, hover lift
+   ========================================================================= */
+
+/* Modernise the shared board card: softer border, gentle base depth, rounder
+   corners, and a smooth all-property transition (motion limited to
+   transform/opacity/background/border/box-shadow). */
+.sabcrm-twenty .st-card {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out),
+    transform var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+/* Hover: lift one pixel + a layered shadow + accent-aware edge. */
+.sabcrm-twenty .st-card:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 30%, var(--st-border));
+  box-shadow: var(--st-shadow-md);
+  transform: translateY(-1px);
+}
+
+.sabcrm-twenty .st-card:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+.sabcrm-twenty .st-card__title {
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-card__meta {
+  color: var(--st-text-secondary);
+}
+
+/* Dragging ghost: keep it lifted with the accent edge but read as detached. */
+.sabcrm-twenty .st-card--dragging {
+  border-color: var(--st-accent);
+  box-shadow: var(--st-shadow-md);
+}
+
+/* Saving state: a calm accent ring while the move persists. */
+.sabcrm-twenty .st-card--saving {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 2px var(--st-accent-soft);
+}
+
+/* Drop-target column body: accent-soft wash + inset ring, smooth in/out. */
+.sabcrm-twenty .st-board__body--dnd {
+  border-radius: var(--st-radius-lg);
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-board__body--drop-active {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 2px var(--st-accent);
+}
+
+/* =========================================================================
+   3 · Pipeline-stage columns — refined rail, count + amount pills
+   ========================================================================= */
+
+/* The colored stage rail keeps its inline `--stpb-stage-color`, but rounds
+   the column head so the rail reads as a tab, not a hard line. */
+.sabcrm-twenty .stpb-col {
+  border-top-left-radius: var(--st-radius);
+  border-top-right-radius: var(--st-radius);
+  border-top-width: 3px;
+}
+
+.sabcrm-twenty .stpb-head__label {
+  color: var(--st-text);
+}
+
+/* Stage count pill: quiet, rounded, accent-tinted ring. */
+.sabcrm-twenty .stpb-head__count {
+  background: var(--st-bg-secondary);
+  border: 1px solid var(--st-border-light);
+  color: var(--st-text-secondary);
+  border-radius: var(--st-radius-pill, 999px);
+}
+
+.sabcrm-twenty .stpb-head__amount {
+  color: var(--st-text-secondary);
+}
+
+/* Pipeline selector control: rounder, accent-aware focus ring. */
+.sabcrm-twenty .stpb-select {
+  border-radius: var(--st-radius);
+  transition:
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .stpb-select:hover {
+  border-color: var(--st-border-strong);
+}
+
+.sabcrm-twenty .stpb-select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Active-pipeline tag: gradient-soft accent chip. */
+.sabcrm-twenty .stpb-bar__pill {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  border: 1px solid color-mix(in srgb, var(--st-accent) 22%, transparent);
+  border-radius: var(--st-radius-pill, 999px);
+}
+
+.sabcrm-twenty .stpb-bar__clear {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    color var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .stpb-bar__clear:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+/* =========================================================================
+   4 · Task + Note cards — modern card feel
+   ========================================================================= */
+
+/* Note tile: rounder, layered base shadow, hover lift + accent edge. */
+.sabcrm-twenty .stn-note-tile {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out),
+    transform var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .stn-note-tile:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 30%, var(--st-border));
+  box-shadow: var(--st-shadow-md);
+  transform: translateY(-1px);
+}
+
+.sabcrm-twenty .stn-note-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Legacy flat note + composer: align with the rounder, softly-shadowed kit. */
+.sabcrm-twenty .stn-note,
+.sabcrm-twenty .stn-composer {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* Completion checkbox: accent-aware focus ring + smooth fill. */
+.sabcrm-twenty .stn-check {
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .stn-check.is-done {
+  background: var(--st-accent);
+  border-color: var(--st-accent);
+}
+
+.sabcrm-twenty .stn-check:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Inline status select on cards: rounder, accent-aware focus. */
+.sabcrm-twenty .stn-status-select {
+  border-radius: var(--st-radius-sm);
+  transition:
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    background var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .stn-status-select:hover {
+  background-color: var(--st-hover);
+}
+
+.sabcrm-twenty .stn-status-select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   5 · Calendar — framed grid, refined day cells, accent events
+   ========================================================================= */
+
+/* The month grid reads as a single elevated panel. */
+.sabcrm-twenty .cal-grid {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+}
+
+.sabcrm-twenty .cal-weekdays {
+  background: var(--st-bg-secondary);
+}
+
+/* Day cell hover / focus: smooth wash + accent-aware focus ring (inset so it
+   never bleeds past the cell edge). */
+.sabcrm-twenty .cal-day {
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .cal-day:hover {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .cal-day:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--st-accent), var(--u-focus-ring);
+}
+
+.sabcrm-twenty .cal-day--selected {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--st-accent);
+}
+
+/* Today pill: gradient accent fill so the current day reads first. */
+.sabcrm-twenty .cal-day--today .cal-day__num {
+  background: var(--st-accent-grad);
+  color: #fff;
+}
+
+/* Event chip: accent-soft fill, rounder, accent edge on hover. */
+.sabcrm-twenty .cal-event {
+  border-radius: var(--st-radius-sm);
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  border: 1px solid transparent;
+  transition:
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    background var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .cal-event:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 45%, transparent);
+  background: var(--st-active);
+}
+
+.sabcrm-twenty .cal-event:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+.sabcrm-twenty .cal-more:focus-visible {
+  outline: none;
+  border-radius: var(--st-radius-sm);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Nav buttons: rounder, accent-aware focus. */
+.sabcrm-twenty .cal-nav__btn {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .cal-nav__btn:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+  border-color: var(--st-border-strong);
+}
+
+.sabcrm-twenty .cal-nav__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Selected-day detail panel: framed + softly elevated to match the grid. */
+.sabcrm-twenty .cal-detail {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-sm);
+}
+
+.sabcrm-twenty .cal-detail__row {
+  transition: background var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .cal-detail__row:hover {
+  background: var(--st-hover);
+}
+
+/* =========================================================================
+   6 · Home object cards + quick links — modern, accent-aware
+   ========================================================================= */
+
+/* Object card icon chip: rounder, gradient-soft accent. */
+.sabcrm-twenty .st-obj-card__icon {
+  border-radius: var(--st-radius-lg);
+  background: var(--st-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--st-accent) 18%, transparent);
+  color: var(--st-accent);
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+/* Lift the icon to the gradient on card hover so the whole tile feels alive. */
+.sabcrm-twenty .st-obj-card-shell:hover .st-obj-card__icon {
+  background: var(--st-accent-grad);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 12px -4px var(--st-accent-ring);
+}
+
+/* Count pill: rounded, accent-tinted on hover (already wired in home.css,
+   we only modernise the resting border + radius). */
+.sabcrm-twenty .st-obj-card__count {
+  border: 1px solid var(--st-border-light);
+  border-radius: var(--st-radius-pill, 999px);
+}
+
+/* Quick links: rounder, smooth, accent-aware focus + hover. */
+.sabcrm-twenty .st-quick-link {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast, 120ms) var(--u-ease-out),
+    border-color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    color var(--u-dur-fast, 120ms) var(--u-ease-out),
+    box-shadow var(--u-dur-fast, 120ms) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-quick-link:hover {
+  background: var(--st-hover);
+  border-color: color-mix(in srgb, var(--st-accent) 28%, var(--st-border));
+  color: var(--st-text);
+  box-shadow: var(--st-shadow-sm);
+}
+
+.sabcrm-twenty .st-quick-link:hover svg {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-quick-link:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Home empty state: dashed frame with a hint of accent warmth. */
+.sabcrm-twenty .st-home__empty {
+  border-color: var(--st-border);
+  border-radius: var(--st-radius-lg);
+  background: color-mix(in srgb, var(--st-bg-secondary) 50%, transparent);
+}
+
+/* =========================================================================
+   Reduced motion — disable all transitions/animation introduced above.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-board__col,
+  .sabcrm-twenty .st-board__count,
+  .sabcrm-twenty .st-board__body--dnd,
+  .sabcrm-twenty .st-card,
+  .sabcrm-twenty .stpb-select,
+  .sabcrm-twenty .stpb-bar__clear,
+  .sabcrm-twenty .stn-note-tile,
+  .sabcrm-twenty .stn-check,
+  .sabcrm-twenty .stn-status-select,
+  .sabcrm-twenty .cal-grid,
+  .sabcrm-twenty .cal-day,
+  .sabcrm-twenty .cal-event,
+  .sabcrm-twenty .cal-nav__btn,
+  .sabcrm-twenty .cal-detail__row,
+  .sabcrm-twenty .st-obj-card__icon,
+  .sabcrm-twenty .st-quick-link {
+    transition: none;
+  }
+  .sabcrm-twenty .st-card:hover,
+  .sabcrm-twenty .stn-note-tile:hover {
+    transform: none;
+  }
+}

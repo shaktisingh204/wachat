@@ -1,0 +1,355 @@
+/* =========================================================================
+   SabCRM ui20 — OVERLAYS surface polish
+   Surface: dialogs / popovers / menus / command menu / notifications /
+            empty states / skeletons / banners.
+
+   Layered on top of:
+     - src/styles/sabcrm-twenty.css        (base .st-* chrome)
+     - src/styles/sabcrm-ui20-theme.css    (ui20 tokens + initial polish)
+
+   Rules:
+     - Every selector is scoped ".sabcrm-twenty .st-..." (specificity 0,2,0)
+       so it wins over the bare base ".st-..." rules by specificity + order.
+     - Token-only: --st-* and --u-*. No hardcoded colour (only #fff/#000 on a
+       coloured fill, which is not needed here).
+     - Static look only: colour / background / border / radius / shadow /
+       outline / transition / hover. The scale-in + fade animations are
+       already owned by ui20 / the co-located component CSS; we do not touch
+       transforms, sizing, or layout.
+   ========================================================================= */
+
+/* =========================================================================
+   1. Scrim — softer, blurred overlay backdrop (chrome only, no layout)
+   ========================================================================= */
+.sabcrm-twenty .st-dialog-overlay {
+  background: color-mix(in srgb, var(--st-text) 32%, transparent);
+  -webkit-backdrop-filter: blur(3px) saturate(105%);
+  backdrop-filter: blur(3px) saturate(105%);
+}
+
+.sabcrm-twenty .st-cmdk-overlay {
+  background: color-mix(in srgb, var(--st-text) 30%, transparent);
+  -webkit-backdrop-filter: blur(3px) saturate(105%);
+  backdrop-filter: blur(3px) saturate(105%);
+}
+
+/* =========================================================================
+   2. Dialog — rounder, deeper layered shadow, crisp hairline
+   ========================================================================= */
+.sabcrm-twenty .st-dialog {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+}
+
+/* Header gets a faint hairline so the title reads as a band. */
+.sabcrm-twenty .st-dialog__header {
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+/* Footer hairline mirrors the header for a balanced card. */
+.sabcrm-twenty .st-dialog__footer {
+  border-top: 1px solid var(--st-border-light);
+}
+
+/* Close button: accent-soft tint + token focus ring, smoother transition. */
+.sabcrm-twenty .st-dialog__close {
+  border-radius: var(--st-radius);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-dialog__close:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-dialog__close:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   3. Popover — rounder + layered shadow + hairline border
+   (also covers the notifications portal panel, which is an .st-popover)
+   ========================================================================= */
+.sabcrm-twenty .st-popover {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+}
+
+/* =========================================================================
+   4. Workspace menu — match the popover language
+   ========================================================================= */
+.sabcrm-twenty .st-ws-menu {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+}
+
+/* Header gets a faint divider so the project list reads as a section. */
+.sabcrm-twenty .st-ws-menu__header {
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+/* Rows: accent-soft hover + token-ring focus, smoother transition. */
+.sabcrm-twenty .st-ws-menu__item {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-ws-menu__item:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-ws-menu__item:hover .st-ws-menu__item-icon {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-ws-menu__item:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Edit pencil: accent-soft hover + token focus ring. */
+.sabcrm-twenty .st-ws-menu__edit {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-ws-menu__edit:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-ws-menu__edit:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Separator: lighter hairline to reduce visual noise. */
+.sabcrm-twenty .st-ws-menu__sep {
+  background: var(--st-border-light);
+}
+
+/* =========================================================================
+   5. Command menu — accent-soft active row, rounder panel, token focus
+   (transforms / sizing untouched — only colour, border, radius, shadow)
+   ========================================================================= */
+.sabcrm-twenty .st-cmdk-panel {
+  border-color: var(--st-border-light);
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+}
+
+/* Search row hairline — separates query from results cleanly. */
+.sabcrm-twenty .st-cmdk-search {
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-cmdk-search__input:focus-visible {
+  outline: none;
+}
+
+/* Esc chip reads as a quiet token affordance. */
+.sabcrm-twenty .st-cmdk-search__esc {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-cmdk-search__esc:hover {
+  background: var(--st-hover);
+  color: var(--st-text);
+}
+
+/* Rows: smooth tint transition on hover/active. */
+.sabcrm-twenty .st-cmdk-row {
+  border-radius: var(--st-radius);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-cmdk-row:hover {
+  background: var(--st-hover);
+}
+
+/* Active row: accent-soft fill + accent ring (overrides the faint inset). */
+.sabcrm-twenty .st-cmdk-row.is-active {
+  background: var(--st-accent-soft);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--st-accent) 30%, transparent);
+}
+
+.sabcrm-twenty .st-cmdk-row.is-active .st-cmdk-row__icon {
+  color: var(--st-accent);
+}
+
+/* Footer hairline + keycaps read as quiet tokens. */
+.sabcrm-twenty .st-cmdk-footer {
+  border-top: 1px solid var(--st-border-light);
+}
+
+.sabcrm-twenty .st-cmdk-kbd {
+  border-radius: var(--st-radius-sm);
+  border: 1px solid var(--st-border-light);
+  background: var(--st-bg-secondary);
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-cmdk-footer__help {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-cmdk-footer__help:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-cmdk-footer__help:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Error status keeps token danger colour. */
+.sabcrm-twenty .st-cmdk-status--error {
+  color: var(--st-danger);
+}
+
+/* =========================================================================
+   6. Notifications panel — rounder, accent-aware bell + token focus
+   (the portal panel itself is polished via .st-popover above)
+   ========================================================================= */
+.sabcrm-twenty .st-notif__btn {
+  border-radius: var(--st-radius);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-notif__btn:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-notif__btn.active {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-notif__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Unread badge: accent gradient pill for a crisper read. */
+.sabcrm-twenty .st-notif__badge {
+  background: var(--st-accent-grad);
+  color: #fff;
+}
+
+/* Header divider mirrors the dialog band. */
+.sabcrm-twenty .st-notif__header {
+  border-bottom: 1px solid var(--st-border-light);
+}
+
+/* Items: smooth accent-soft hover. */
+.sabcrm-twenty .st-notif__item {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-notif__item:hover {
+  background: var(--st-accent-soft);
+}
+
+/* Unread dot uses the accent so it reads as a status token. */
+.sabcrm-twenty .st-notif__dot {
+  background: var(--st-accent);
+}
+
+/* "Mark all" + delete: token focus ring, smoother transitions. */
+.sabcrm-twenty .st-notif__mark-all {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-notif__mark-all:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-notif__mark-all:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+.sabcrm-twenty .st-notif__del {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-notif__del:hover {
+  background: var(--st-danger-soft);
+  color: var(--st-danger);
+}
+
+.sabcrm-twenty .st-notif__del:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   7. Empty states — accent-soft icon tile for a warmer, on-brand feel
+   ========================================================================= */
+.sabcrm-twenty .st-empty__icon {
+  border-radius: var(--st-radius-lg);
+  border-color: transparent;
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* =========================================================================
+   8. Banners — token-driven danger surface (replaces hardcoded hex base)
+   ========================================================================= */
+.sabcrm-twenty .st-banner {
+  border-color: color-mix(in srgb, var(--st-danger) 28%, transparent);
+  border-radius: var(--st-radius);
+  background: var(--st-danger-soft);
+  color: var(--st-danger-strong);
+  box-shadow: var(--st-shadow-sm);
+}
+
+/* =========================================================================
+   9. Skeletons — rounder corners on the shimmer surface (animation kept)
+   ========================================================================= */
+.sabcrm-twenty .st-skeleton {
+  border-radius: var(--st-radius);
+}
+
+/* =========================================================================
+   10. Reduced motion — disable all overlay transitions + the shimmer
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-dialog__close,
+  .sabcrm-twenty .st-ws-menu__item,
+  .sabcrm-twenty .st-ws-menu__edit,
+  .sabcrm-twenty .st-cmdk-search__esc,
+  .sabcrm-twenty .st-cmdk-row,
+  .sabcrm-twenty .st-cmdk-footer__help,
+  .sabcrm-twenty .st-notif__btn,
+  .sabcrm-twenty .st-notif__item,
+  .sabcrm-twenty .st-notif__mark-all,
+  .sabcrm-twenty .st-notif__del {
+    transition: none;
+  }
+
+  .sabcrm-twenty .st-skeleton {
+    animation: none;
+  }
+}

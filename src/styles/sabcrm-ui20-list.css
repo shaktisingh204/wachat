@@ -1,0 +1,370 @@
+/* =========================================================================
+   SabCRM ui20 — LIST surface polish: record table + view/bulk toolbar.
+
+   Layered on top of:
+     - src/styles/sabcrm-twenty.css          (base .st-* chrome)
+     - src/styles/sabcrm-ui20-theme.css      (ui20 tokens + first polish)
+     - app/sabcrm/[objectSlug]/view-bar.css  (.stv-* view bar)
+     - app/sabcrm/[objectSlug]/pagination.css (.st-pagination*, .st-th-sort*)
+     - app/sabcrm/[objectSlug]/bulk-bar.css   (.st-checkbox*, .st-selbar*)
+
+   Every selector is scoped under `.sabcrm-twenty` (specificity 0,2,0) so it
+   wins over the base single-class `.st-*` / `.stv-*` rules by specificity and
+   import order. Token-only rules use `.sabcrm-twenty { --… }`.
+
+   LAYOUT-SAFE: the data table is virtualized. On table rows / cells / headers
+   ONLY colour, background, border, border-radius, box-shadow, outline and
+   transition are touched — never width/height/padding/margin/font/display.
+   The selected-row accent bar is an *inset box-shadow* (no reflow).
+
+   Tokens only: --st-* and --u-*. No hardcoded colour (bar a coloured fill).
+   ========================================================================= */
+
+/* =========================================================================
+   1. Record table — header, rows, cells, links
+   ========================================================================= */
+
+/* ----- Sticky-feeling header: quiet wash + crisper bottom edge ----- */
+.sabcrm-twenty .st-table th {
+  background: linear-gradient(
+    180deg,
+    var(--st-bg-secondary) 0%,
+    color-mix(in srgb, var(--st-bg-secondary) 60%, var(--st-bg)) 100%
+  );
+  color: var(--st-text-secondary);
+  border-bottom-color: var(--st-border);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Column-header hover: accent-tinted, never noisy. */
+.sabcrm-twenty .st-table th:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+/* ----- Row hover: faint accent-soft tint (replaces flat grey) ----- */
+.sabcrm-twenty .st-row {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-row:hover > td {
+  background: color-mix(in srgb, var(--st-accent-soft) 55%, var(--st-bg));
+}
+
+/* ----- Selected row: accent-soft fill + inset accent bar (no reflow) ----- */
+.sabcrm-twenty .st-row.is-selected > td,
+.sabcrm-twenty .st-row.is-selected:hover > td {
+  background: var(--st-accent-soft);
+}
+/* Lead the selected row with a 2px inset accent rail on the first cell. The
+   bar is painted via inset box-shadow so the row keeps its exact geometry. */
+.sabcrm-twenty .st-row.is-selected > td:first-child {
+  box-shadow: inset 2px 0 0 var(--st-accent);
+}
+
+/* ----- Cell link: clearer accent intent on hover ----- */
+.sabcrm-twenty .st-cell-link {
+  transition: color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-cell-link:hover {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-cell-link:focus-visible {
+  outline: none;
+  color: var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Email cells share the accent hover treatment. */
+.sabcrm-twenty .st-cell-email:focus-visible {
+  outline: none;
+  border-radius: var(--st-radius-sm);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Sortable column-header button ----- */
+.sabcrm-twenty .st-th-sort {
+  transition: color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-th-sort:hover {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-th-sort.is-active {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-th-sort:focus-visible {
+  outline: none;
+  color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   2. Checkbox cell + restyled checkbox
+   ========================================================================= */
+.sabcrm-twenty .st-checkbox {
+  transition: border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out),
+    opacity var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-checkbox:hover {
+  border-color: var(--st-accent);
+}
+/* Token focus ring replaces the base hardcoded 2px outline. */
+.sabcrm-twenty .st-checkbox:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-checkbox:checked,
+.sabcrm-twenty .st-checkbox:indeterminate {
+  background: var(--st-accent-grad);
+  border-color: var(--st-accent);
+}
+
+/* Row-reveal checkbox: smooth, eased fade-in. */
+.sabcrm-twenty .st-checkbox--row {
+  transition: opacity var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* =========================================================================
+   3. View bar — saved-view tabs, control pills, active chips, popovers
+   ========================================================================= */
+
+/* ----- Saved-view tabs ----- */
+.sabcrm-twenty .stv-tab {
+  border-radius: var(--st-radius-sm) var(--st-radius-sm) 0 0;
+  transition: color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-tab:hover {
+  color: var(--st-text);
+  background: color-mix(in srgb, var(--st-accent-soft) 50%, transparent);
+}
+.sabcrm-twenty .stv-tab.active {
+  color: var(--st-accent);
+  border-bottom-color: var(--st-accent);
+}
+.sabcrm-twenty .stv-tab:focus-visible {
+  outline: none;
+  border-radius: var(--st-radius-sm);
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .stv-tab__add {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-tab__add:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .stv-tab__add:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Filter / Sort / Group / Fields control pills ----- */
+.sabcrm-twenty .stv-control__btn {
+  border-radius: var(--st-radius);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-control__btn:hover,
+.sabcrm-twenty .stv-control__btn.open {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 24%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .stv-control__btn.open {
+  box-shadow: var(--st-shadow-sm);
+}
+.sabcrm-twenty .stv-control__btn.active {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .stv-control__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Active filter / sort / group chips (pills) ----- */
+.sabcrm-twenty .stv-pill {
+  border-radius: var(--st-radius-pill);
+  border-color: color-mix(in srgb, var(--st-accent) 22%, var(--st-border));
+  background: color-mix(in srgb, var(--st-accent-soft) 70%, var(--st-bg));
+  box-shadow: var(--st-shadow-sm);
+  transition: border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-pill:hover {
+  border-color: color-mix(in srgb, var(--st-accent) 38%, var(--st-border));
+}
+.sabcrm-twenty .stv-pill__key {
+  color: var(--st-accent);
+}
+.sabcrm-twenty .stv-pill__x {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-pill__x:hover {
+  background: color-mix(in srgb, var(--st-accent) 16%, transparent);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .stv-pill__x:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- View-bar popovers: rounder + layered depth ----- */
+.sabcrm-twenty .stv-pop {
+  border-radius: var(--st-radius-lg);
+  border-color: var(--st-border);
+  box-shadow: var(--st-shadow-md);
+}
+.sabcrm-twenty .stv-pop__select:focus,
+.sabcrm-twenty .stv-pop__input:focus {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .stv-fieldlist__item {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .stv-fieldlist__item:hover {
+  background: var(--st-accent-soft);
+}
+.sabcrm-twenty .stv-coltoggle:hover {
+  background: var(--st-accent-soft);
+}
+
+/* =========================================================================
+   4. Pagination controls
+   ========================================================================= */
+.sabcrm-twenty .st-pagination__count strong {
+  color: var(--st-text);
+}
+.sabcrm-twenty .st-pagination__select {
+  border-radius: var(--st-radius-sm);
+  transition: border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-pagination__select:hover {
+  border-color: var(--st-border-strong);
+}
+.sabcrm-twenty .st-pagination__select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-pagination__btn {
+  border-radius: var(--st-radius-sm);
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-pagination__btn:hover:not(:disabled) {
+  background: var(--st-accent-soft);
+  border-color: color-mix(in srgb, var(--st-accent) 28%, var(--st-border));
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-pagination__btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+.sabcrm-twenty .st-pagination__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   5. Floating bulk / selection bar + its popovers
+   ========================================================================= */
+.sabcrm-twenty .st-selbar {
+  border-radius: var(--st-radius-lg);
+  border-color: var(--st-border);
+  box-shadow: var(--st-shadow-lg);
+}
+.sabcrm-twenty .st-selbar__count em {
+  color: var(--st-text-secondary);
+}
+.sabcrm-twenty .st-selbar__select {
+  border-radius: var(--st-radius);
+  transition: border-color var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-selbar__select:hover {
+  border-color: var(--st-border-strong);
+}
+.sabcrm-twenty .st-selbar__select:focus-visible {
+  outline: none;
+  border-color: var(--st-accent);
+  box-shadow: var(--u-focus-ring);
+}
+.sabcrm-twenty .st-selbar__close {
+  transition: background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-selbar__close:hover {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+.sabcrm-twenty .st-selbar__close:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* Bulk-bar popover (Add tag) — match the rounder, layered popover look. */
+.sabcrm-twenty .st-selbar__pop {
+  border-radius: var(--st-radius-lg);
+  border-color: var(--st-border);
+  box-shadow: var(--st-shadow-lg);
+}
+.sabcrm-twenty .st-selbar__opt {
+  transition: background var(--u-dur-fast) var(--u-ease-out);
+}
+.sabcrm-twenty .st-selbar__opt:hover {
+  background: var(--st-accent-soft);
+}
+.sabcrm-twenty .st-selbar__opt:focus-visible {
+  outline: none;
+  box-shadow: var(--u-focus-ring);
+}
+
+/* =========================================================================
+   6. Reduced-motion — disable every transition / animation added above
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-table th,
+  .sabcrm-twenty .st-row,
+  .sabcrm-twenty .st-cell-link,
+  .sabcrm-twenty .st-th-sort,
+  .sabcrm-twenty .st-checkbox,
+  .sabcrm-twenty .st-checkbox--row,
+  .sabcrm-twenty .stv-tab,
+  .sabcrm-twenty .stv-tab__add,
+  .sabcrm-twenty .stv-control__btn,
+  .sabcrm-twenty .stv-pill,
+  .sabcrm-twenty .stv-pill__x,
+  .sabcrm-twenty .stv-fieldlist__item,
+  .sabcrm-twenty .st-pagination__select,
+  .sabcrm-twenty .st-pagination__btn,
+  .sabcrm-twenty .st-selbar__select,
+  .sabcrm-twenty .st-selbar__close,
+  .sabcrm-twenty .st-selbar__opt {
+    transition: none;
+  }
+  .sabcrm-twenty .st-pagination__btn:active:not(:disabled) {
+    transform: none;
+  }
+  .sabcrm-twenty .st-selbar {
+    animation: none;
+  }
+}

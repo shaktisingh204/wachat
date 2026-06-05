@@ -1,0 +1,334 @@
+/* =========================================================================
+   SabCRM · ui20 — Inputs / Selects / Fields / Forms
+   =========================================================================
+
+   Modern ui20 polish for the SabCRM form surface, layered on top of the base
+   Twenty chrome (sabcrm-twenty.css) and the ui20 theme tokens
+   (sabcrm-ui20-theme.css). Loaded AFTER both.
+
+   Covered: .st-input, .st-textarea, .st-select, the custom .st-select2 control
+   (trigger / popover / search / option list), .st-field labels, the
+   .st-search input, and the .st-checkbox-row markup row.
+
+   Design (4 skills):
+   - taste: ONE indigo accent (--st-accent), ONE radius system, AA contrast,
+     no decorative noise. Accent-soft tints + accent-ring glows only.
+   - emil: colour/background/border/box-shadow/transform transitions only,
+     <=200ms, var(--u-ease-out); reduced-motion block disables them.
+   - a11y: visible accent focus ring (var(--u-focus-ring)) on :focus-visible,
+     no outline removed without a token-ring replacement, contrast preserved.
+
+   STRICT: every selector scoped `.sabcrm-twenty .st-*` (specificity 0,2,0) so
+   it wins over base bare `.st-*` rules. Only colour, background, border,
+   border-radius, box-shadow, outline, transition and hover/focus visuals are
+   touched — never height / padding / font-size / line-height / layout, so the
+   dense 28px form chrome never reflows. Tokens only — no hardcoded hex.
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   Text inputs / textareas / native selects — refined resting + hover state
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-input,
+.sabcrm-twenty .st-select,
+.sabcrm-twenty .st-textarea {
+  border-radius: var(--st-radius);
+  border-color: var(--st-border);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Hover: firmer edge + a hairline accent hint, without moving anything. */
+.sabcrm-twenty .st-input:hover:not(:focus):not(:disabled),
+.sabcrm-twenty .st-select:hover:not(:focus):not(:disabled),
+.sabcrm-twenty .st-textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--st-border-strong);
+}
+
+/* Focus: accent border + soft accent-ring glow (keyboard-equivalent). */
+.sabcrm-twenty .st-input:focus,
+.sabcrm-twenty .st-select:focus,
+.sabcrm-twenty .st-textarea:focus {
+  border-color: var(--st-accent);
+  background: var(--st-bg);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+  outline: none;
+}
+
+/* Crisp accent focus ring for keyboard users (a11y, never removed bare). */
+.sabcrm-twenty .st-input:focus-visible,
+.sabcrm-twenty .st-select:focus-visible,
+.sabcrm-twenty .st-textarea:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  outline: none;
+}
+
+/* Placeholder: tertiary text so the label/value hierarchy stays clear. */
+.sabcrm-twenty .st-input::placeholder,
+.sabcrm-twenty .st-textarea::placeholder {
+  color: var(--st-text-tertiary);
+  opacity: 1;
+}
+
+/* Disabled: quiet, clearly inert. */
+.sabcrm-twenty .st-input:disabled,
+.sabcrm-twenty .st-select:disabled,
+.sabcrm-twenty .st-textarea:disabled {
+  background: var(--st-bg-secondary);
+  color: var(--st-text-tertiary);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Invalid / error state — danger edge + danger-tinted glow. */
+.sabcrm-twenty .st-input[aria-invalid="true"],
+.sabcrm-twenty .st-select[aria-invalid="true"],
+.sabcrm-twenty .st-textarea[aria-invalid="true"],
+.sabcrm-twenty .st-input.st-input--error,
+.sabcrm-twenty .st-textarea.st-input--error {
+  border-color: var(--st-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--st-danger) 18%, transparent);
+}
+
+/* Textarea keeps the rounder language with a slightly larger radius. */
+.sabcrm-twenty .st-textarea {
+  border-radius: var(--st-radius-lg);
+}
+
+/* -------------------------------------------------------------------------
+   Field labels — confident, legible, accent-aware required marker
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-field__label {
+  color: var(--st-text-secondary);
+}
+
+.sabcrm-twenty .st-field__req {
+  color: var(--st-danger);
+}
+
+/* -------------------------------------------------------------------------
+   Quick-search input — pairs with the rounder, glowing language
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-search__input {
+  border-radius: var(--st-radius);
+  border-color: var(--st-border);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-search__input:hover:not(:focus) {
+  border-color: var(--st-border-strong);
+}
+
+.sabcrm-twenty .st-search__input:focus {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+  outline: none;
+}
+
+.sabcrm-twenty .st-search__input:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  outline: none;
+}
+
+.sabcrm-twenty .st-search__input::placeholder {
+  color: var(--st-text-tertiary);
+  opacity: 1;
+}
+
+/* Search glyph picks up the accent while the field is focused. */
+.sabcrm-twenty .st-search__input:focus + .st-search__icon,
+.sabcrm-twenty .st-search:focus-within .st-search__icon {
+  color: var(--st-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Custom select (.st-select2) — trigger
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-select2__trigger {
+  border-radius: var(--st-radius);
+  border-color: var(--st-border);
+  background: var(--st-bg);
+  box-shadow: var(--st-shadow-sm);
+  transition:
+    border-color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out),
+    box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-select2__trigger:hover:not(:disabled) {
+  border-color: var(--st-border-strong);
+  background: var(--st-bg-secondary);
+}
+
+.sabcrm-twenty .st-select2__trigger:focus-visible,
+.sabcrm-twenty .st-select2__trigger--open {
+  border-color: var(--st-accent);
+  box-shadow: 0 0 0 3px var(--st-accent-ring);
+  outline: none;
+}
+
+/* Open trigger keeps the accent glow but reads as "active". */
+.sabcrm-twenty .st-select2__trigger--open {
+  background: var(--st-bg);
+}
+
+.sabcrm-twenty .st-select2__trigger:disabled {
+  background: var(--st-bg-secondary);
+  box-shadow: none;
+}
+
+.sabcrm-twenty .st-select2__placeholder {
+  color: var(--st-text-tertiary);
+}
+
+/* Chevron eases toward the accent + rotates when the popover is open. */
+.sabcrm-twenty .st-select2__chevron {
+  color: var(--st-text-secondary);
+  transition:
+    transform var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-select2__trigger--open .st-select2__chevron {
+  color: var(--st-accent);
+  transform: rotate(180deg);
+}
+
+/* Clear button — quiet until hovered, then accent-soft danger affordance. */
+.sabcrm-twenty .st-select2__clear {
+  border-radius: var(--st-radius-sm);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-select2__clear:hover {
+  background: var(--st-active);
+  color: var(--st-text);
+}
+
+.sabcrm-twenty .st-select2__clear:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  outline: none;
+}
+
+/* -------------------------------------------------------------------------
+   Custom select (.st-select2) — popover, search box, option list
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-select2__popover {
+  border-radius: var(--st-radius-lg);
+  box-shadow: var(--st-shadow-lg);
+}
+
+.sabcrm-twenty .st-select2__search {
+  border-bottom-color: var(--st-border-light);
+}
+
+/* Inline search input glyph + caret read with the accent on focus. */
+.sabcrm-twenty .st-select2__search:focus-within {
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-select2__search input::placeholder {
+  color: var(--st-text-tertiary);
+  opacity: 1;
+}
+
+/* Options — smooth hover/active, accent-soft selected highlight. */
+.sabcrm-twenty .st-select2__option {
+  border-radius: var(--st-radius);
+  transition:
+    background var(--u-dur-fast) var(--u-ease-out),
+    color var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-select2__option:hover:not(:disabled),
+.sabcrm-twenty .st-select2__option--active {
+  background: var(--st-hover);
+}
+
+.sabcrm-twenty .st-select2__option--selected {
+  background: var(--st-accent-soft);
+  color: var(--st-accent);
+}
+
+.sabcrm-twenty .st-select2__option--selected.st-select2__option--active {
+  background: var(--st-active);
+}
+
+.sabcrm-twenty .st-select2__option:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  outline: none;
+}
+
+.sabcrm-twenty .st-select2__check {
+  color: var(--st-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Checkbox / radio rows — accent-tinted, calm hover affordance
+   ------------------------------------------------------------------------- */
+.sabcrm-twenty .st-checkbox-row {
+  color: var(--st-text);
+}
+
+/* Native checkbox + radio inputs adopt the indigo accent so the checked
+   state matches the rest of the system; keyboard focus stays visible. */
+.sabcrm-twenty .st-checkbox-row input[type="checkbox"],
+.sabcrm-twenty .st-checkbox-row input[type="radio"],
+.sabcrm-twenty .st-field input[type="checkbox"],
+.sabcrm-twenty .st-field input[type="radio"] {
+  accent-color: var(--st-accent);
+  border-radius: var(--st-radius-sm);
+  cursor: pointer;
+  transition: box-shadow var(--u-dur-fast) var(--u-ease-out);
+}
+
+.sabcrm-twenty .st-checkbox-row input[type="radio"],
+.sabcrm-twenty .st-field input[type="radio"] {
+  border-radius: var(--st-radius-pill);
+}
+
+.sabcrm-twenty .st-checkbox-row input[type="checkbox"]:focus-visible,
+.sabcrm-twenty .st-checkbox-row input[type="radio"]:focus-visible,
+.sabcrm-twenty .st-field input[type="checkbox"]:focus-visible,
+.sabcrm-twenty .st-field input[type="radio"]:focus-visible {
+  box-shadow: var(--u-focus-ring);
+  outline: none;
+}
+
+/* The clickable row label gets a faint accent tint on hover for feedback. */
+.sabcrm-twenty .st-checkbox-row:hover {
+  color: var(--st-text);
+}
+
+/* -------------------------------------------------------------------------
+   Reduced motion — honour the user's preference (emil + a11y)
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sabcrm-twenty .st-input,
+  .sabcrm-twenty .st-select,
+  .sabcrm-twenty .st-textarea,
+  .sabcrm-twenty .st-search__input,
+  .sabcrm-twenty .st-select2__trigger,
+  .sabcrm-twenty .st-select2__chevron,
+  .sabcrm-twenty .st-select2__clear,
+  .sabcrm-twenty .st-select2__option,
+  .sabcrm-twenty .st-checkbox-row input[type="checkbox"],
+  .sabcrm-twenty .st-checkbox-row input[type="radio"],
+  .sabcrm-twenty .st-field input[type="checkbox"],
+  .sabcrm-twenty .st-field input[type="radio"] {
+    transition: none;
+  }
+  .sabcrm-twenty .st-select2__trigger--open .st-select2__chevron {
+    transform: none;
+  }
+}
