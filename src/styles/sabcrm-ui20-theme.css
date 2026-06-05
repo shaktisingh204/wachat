@@ -37,7 +37,7 @@
   /* Text — cool near-black. */
   --st-text: #1a1c23;
   --st-text-secondary: #5b6271;
-  --st-text-tertiary: #9aa1ae;
+  --st-text-tertiary: #868d9c;
 
   /* Accent — modern indigo (the headline change away from Twenty blue). */
   --st-accent: #5546e8;
@@ -84,10 +84,13 @@
   --st-text-secondary: #99a0ad;
   --st-text-tertiary: #6b7180;
 
+  /* Accent text/border stays bright for legibility ON dark surfaces, but the
+     primary-button gradient is darker so white button text clears AA (white on
+     #6a5cee ~= 4.6, on #5546e8 = 6.1). */
   --st-accent: #8b7cf6;
   --st-accent-hover: #a394f8;
   --st-accent-soft: #221f3a;
-  --st-accent-grad: linear-gradient(180deg, #9a8cf8 0%, #7c6ef2 100%);
+  --st-accent-grad: linear-gradient(180deg, #6a5cee 0%, #5546e8 100%);
   --st-accent-ring: rgba(139, 124, 246, 0.28);
 
   --st-hover: #20222c;
