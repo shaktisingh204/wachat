@@ -49,13 +49,14 @@ import Link from 'next/link';
 import {
   ClipboardList,
   AlertTriangle,
-  Loader2,
   RefreshCw,
 } from 'lucide-react';
 
 import { listMyAssignmentsAction } from '@/app/actions/sabcrm.actions';
 import { TwentyPageHeader, TwentyChip } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import { Button, SegmentedControl } from '@/components/sabcrm/20ui';
+import type { SegmentedItem } from '@/components/sabcrm/20ui';
 import type { CrmRecord, FieldMetadata } from '@/lib/sabcrm/types';
 import { useProject } from '@/context/project-context';
 
@@ -352,39 +353,43 @@ function ObjectFilter({
   total: number;
   onSelect: (slug: string) => void;
 }): React.JSX.Element {
-  return (
-    <div
-      className="stw-filters"
-      role="tablist"
-      aria-label="Filter assignments by object"
-    >
-      <button
-        type="button"
-        role="tab"
-        aria-selected={active === ALL_OBJECTS}
-        className={`stw-filter${active === ALL_OBJECTS ? ' is-active' : ''}`}
-        onClick={() => onSelect(ALL_OBJECTS)}
-      >
-        All
-        {total > 0 ? <span className="stw-filter-count">{total}</span> : null}
-      </button>
-      {options.map((opt) => {
-        const isActive = opt.slug === active;
-        return (
-          <button
-            key={opt.slug}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            className={`stw-filter${isActive ? ' is-active' : ''}`}
-            onClick={() => onSelect(opt.slug)}
-          >
+  // Fold the "All" sentinel and each object slug into one segmented row, each
+  // label carrying its live count pill (count is meaning, never decoration).
+  const items = React.useMemo<SegmentedItem<string>[]>(
+    () => [
+      {
+        value: ALL_OBJECTS,
+        label: (
+          <>
+            All
+            {total > 0 ? (
+              <span className="stw-filter-count">{total}</span>
+            ) : null}
+          </>
+        ),
+      },
+      ...options.map((opt) => ({
+        value: opt.slug,
+        label: (
+          <>
             {opt.label}
             <span className="stw-filter-count">{opt.count}</span>
-          </button>
-        );
-      })}
-    </div>
+          </>
+        ),
+      })),
+    ],
+    [options, total],
+  );
+
+  return (
+    <SegmentedControl
+      className="stw-filters"
+      aria-label="Filter assignments by object"
+      items={items}
+      value={active}
+      onChange={onSelect}
+      size="sm"
+    />
   );
 }
 
@@ -475,21 +480,17 @@ export default function MyWorkPage(): React.JSX.Element {
   );
 
   const headerActions = (
-    <button
-      type="button"
-      className="stw-refresh"
+    <Button
+      variant="secondary"
+      size="sm"
+      iconLeft={RefreshCw}
+      loading={loading}
       onClick={refresh}
-      disabled={loading}
       aria-label="Refresh assignments"
       title="Refresh"
     >
-      {loading ? (
-        <Loader2 size={13} className="stw-spin" aria-hidden="true" />
-      ) : (
-        <RefreshCw size={13} aria-hidden="true" />
-      )}
       Refresh
-    </button>
+    </Button>
   );
 
   return (

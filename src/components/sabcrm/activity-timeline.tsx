@@ -21,8 +21,8 @@
  * (the `SabFilePick.id` becomes the attachment's SabFiles `fileId`) — there is
  * no free-text URL paste.
  *
- * Styling is ZoruUI-only, black-and-white, using the namespaced `--zoru-*`
- * tokens via the barrel primitives.
+ * Styling uses the 20ui design system (`@/components/sabcrm/20ui`), which renders
+ * natively inside the CRM's `.sabcrm-twenty` scope.
  */
 
 import * as React from 'react';
@@ -34,31 +34,22 @@ import {
   Mail,
   MessageSquare,
   Paperclip,
-  Loader2,
   Send,
   X,
 } from 'lucide-react';
 
+import { cn, useZoruToast } from '@/components/zoruui';
 import {
   Card,
-  CardContent,
   Button,
   Badge,
   Separator,
   Avatar,
-  ZoruAvatarImage,
-  ZoruAvatarFallback,
   Textarea,
   Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
   EmptyState,
   Skeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+} from '@/components/sabcrm/20ui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import {
   listActivitiesAction,
@@ -260,12 +251,14 @@ function AuthorAvatar({
 }): React.ReactElement {
   const name = author?.name?.trim() || authorId || 'Unknown';
   return (
-    <Avatar className={cn('h-8 w-8', pending && 'opacity-60')} title={name}>
-      {author?.avatarUrl ? (
-        <ZoruAvatarImage src={author.avatarUrl} alt={`${name}'s avatar`} />
-      ) : null}
-      <ZoruAvatarFallback aria-label={`${name}'s initials`}>{initials(name)}</ZoruAvatarFallback>
-    </Avatar>
+    <Avatar
+      name={name}
+      src={author?.avatarUrl}
+      initials={initials(name)}
+      size="md"
+      shape="round"
+      className={cn(pending && 'opacity-60')}
+    />
   );
 }
 
@@ -341,7 +334,7 @@ function TimelineEntry({
           <span className="font-medium text-zoru-ink">{authorName}</span>
           {!isComment && (
             <Badge
-              variant="outline"
+              kind="outline"
               className="inline-flex items-center gap-1 px-1.5 py-0 text-[11px] font-normal"
             >
               <Icon className="h-3 w-3" aria-hidden="true" />
@@ -415,27 +408,23 @@ function Composer({
   }
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3 p-3">
-        <div className="flex items-center gap-2">
+    <Card padding="sm" className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
           <label htmlFor="activity-type-select" className="text-sm font-medium text-zoru-ink">
             Activity type
           </label>
           <Select
+            id="activity-type-select"
             value={type}
-            onValueChange={(v) => setType(v as ComposerType)}
-          >
-            <SelectTrigger className="h-8 w-[140px] text-sm" id="activity-type-select">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {COMPOSER_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            onChange={(v) => v && setType(v as ComposerType)}
+            options={COMPOSER_OPTIONS.map((opt) => ({
+              value: opt.value,
+              label: opt.label,
+            }))}
+            size="sm"
+            className="w-[140px]"
+            aria-label="Activity type"
+          />
         </div>
 
         <label htmlFor="activity-body-textarea" className="sr-only">
@@ -492,21 +481,17 @@ function Composer({
           </SabFilePickerButton>
           <Button
             type="button"
+            variant="primary"
             size="sm"
             onClick={onSubmit}
             disabled={!canSubmit}
-            className="gap-1.5"
+            loading={submitting}
+            iconLeft={Send}
             aria-label={type === 'COMMENT' ? 'Post comment' : `Log ${TYPE_LABEL[type].toLowerCase()}`}
           >
-            {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            ) : (
-              <Send className="h-4 w-4" aria-hidden="true" />
-            )}
             {type === 'COMMENT' ? 'Comment' : 'Log'}
           </Button>
         </div>
-      </CardContent>
     </Card>
   );
 }
@@ -765,8 +750,7 @@ export function ActivityTimeline({
         />
       )}
 
-      <Card>
-        <CardContent className="p-4 sm:p-5">
+      <Card padding="none" className="p-4 sm:p-5">
           {loading ? (
             <div role="status" aria-live="polite" aria-label="Loading activity timeline">
               <TimelineSkeleton />
@@ -826,21 +810,16 @@ export function ActivityTimeline({
                     variant="outline"
                     size="sm"
                     disabled={loadingMore}
+                    loading={loadingMore}
                     onClick={() => void fetchPage(page + 1, 'append')}
-                    className="gap-1.5"
-                    aria-busy={loadingMore}
                     aria-label={`Load older activity. Currently showing ${activities.length} of ${total} items.`}
                   >
-                    {loadingMore && (
-                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                    )}
                     Load older activity
                   </Button>
                 </div>
               )}
             </div>
           )}
-        </CardContent>
       </Card>
     </div>
   );

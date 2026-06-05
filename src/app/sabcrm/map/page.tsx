@@ -39,13 +39,14 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Database, MapPin, Globe2, Search } from 'lucide-react';
+import { AlertTriangle, Database, MapPin, Globe2 } from 'lucide-react';
 
 import {
   TwentyPageHeader,
   TwentyChip,
   TwentyAvatar,
 } from '@/components/sabcrm/twenty';
+import { Select, SearchInput, Alert } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -219,10 +220,9 @@ interface PlaceBucket {
 
 function ErrorBanner({ message }: { message: string }) {
   return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
+    <Alert tone="danger" icon={AlertTriangle}>
+      {message}
+    </Alert>
   );
 }
 
@@ -472,40 +472,36 @@ export default function SabcrmMapPage(): React.JSX.Element {
       <div className="map-controls">
         <div className="map-controls__group">
           <span className="map-controls__label">Object</span>
-          <select
-            className="st-select"
-            value={objectSlug}
+          <Select
+            value={objectSlug || null}
             disabled={loadingObjects || objects.length === 0}
-            onChange={(e) => setObjectSlug(e.target.value)}
+            onChange={(value) => setObjectSlug(value ?? '')}
             aria-label="Map object"
-          >
-            {objects.length === 0 && <option value="">No objects</option>}
-            {objects.map((o) => (
-              <option key={o.slug} value={o.slug}>
-                {o.labelPlural}
-              </option>
-            ))}
-          </select>
+            placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
+            options={objects.map((o) => ({
+              value: o.slug,
+              label: o.labelPlural,
+            }))}
+          />
         </div>
 
         <div className="map-controls__group">
           <span className="map-controls__label">By location</span>
-          <select
-            className="st-select"
-            value={locationFieldKey}
+          <Select
+            value={locationFieldKey || null}
             disabled={locationFields.length === 0}
-            onChange={(e) => setLocationFieldKey(e.target.value)}
+            onChange={(value) => setLocationFieldKey(value ?? '')}
             aria-label="Map location field"
-          >
-            {locationFields.length === 0 && (
-              <option value="">No location field</option>
-            )}
-            {locationFields.map((f) => (
-              <option key={f.key} value={f.key}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+            placeholder={
+              locationFields.length === 0
+                ? 'No location field'
+                : 'Select field'
+            }
+            options={locationFields.map((f) => ({
+              value: f.key,
+              label: f.label,
+            }))}
+          />
         </div>
 
         <div className="map-controls__spacer" />
@@ -609,17 +605,14 @@ export default function SabcrmMapPage(): React.JSX.Element {
             <div className="map-places">
               <div className="map-places__head">Places</div>
               {buckets.length > 6 && (
-                <div className="map-places__search">
-                  <Search size={14} aria-hidden="true" />
-                  <input
-                    type="text"
-                    className="map-places__search-input"
-                    placeholder="Filter places…"
-                    value={placeQuery}
-                    onChange={(e) => setPlaceQuery(e.target.value)}
-                    aria-label="Filter places"
-                  />
-                </div>
+                <SearchInput
+                  className="map-places__search"
+                  inputSize="sm"
+                  placeholder="Filter places…"
+                  value={placeQuery}
+                  onValueChange={setPlaceQuery}
+                  aria-label="Filter places"
+                />
               )}
               <div className="map-places__list">
                 {visibleBuckets.length === 0 && (

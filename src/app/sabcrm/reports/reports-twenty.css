@@ -488,6 +488,15 @@
   flex: 0 0 auto;
 }
 
+.sabcrm-twenty .st-rep-row__busy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
 .sabcrm-twenty .st-rep-result {
   padding: var(--st-space-3) var(--st-space-4) var(--st-space-4);
   border-bottom: 1px solid var(--st-border-light);

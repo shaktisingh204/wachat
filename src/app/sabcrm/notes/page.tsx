@@ -31,9 +31,19 @@ export const dynamic = 'force-dynamic';
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus, AlertTriangle, Loader2, StickyNote, Search, X } from 'lucide-react';
+import { Plus, StickyNote } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  Modal,
+  Field,
+  Input,
+  Textarea,
+  Button,
+  Alert,
+  Skeleton,
+  SearchInput,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmRecordsTw,
@@ -102,19 +112,14 @@ function NotesSkeleton() {
   return (
     <div className="stn-notes-grid" aria-hidden="true">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="st-skeleton" style={{ height: 180, borderRadius: 8 }} />
+        <Skeleton key={i} height={180} radius={8} />
       ))}
     </div>
   );
 }
 
 function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
+  return <Alert tone="danger">{message}</Alert>;
 }
 
 // ---------------------------------------------------------------------------
@@ -132,6 +137,7 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
   const [body, setBody] = React.useState('');
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const formId = React.useId();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -167,77 +173,54 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
   };
 
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label="New note"
-        onClick={(e) => e.stopPropagation()}
+    <Modal
+      open
+      onClose={onClose}
+      title="New note"
+      footer={
+        <>
+          <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </TwentyButton>
+          <Button type="submit" form={formId} variant="primary" loading={saving}>
+            Create note
+          </Button>
+        </>
+      }
+    >
+      <form
+        id={formId}
+        onSubmit={handleSubmit}
+        style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
       >
-        <form onSubmit={handleSubmit}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">New note</h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+        <Field label="Title">
+          <Input
+            value={title}
+            autoFocus
+            placeholder="Note title"
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Field>
 
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <span className="st-field__label">Title</span>
-              <input
-                className="st-input"
-                value={title}
-                autoFocus
-                placeholder="Note title"
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+        <Field label="Body">
+          <Textarea
+            value={body}
+            rows={6}
+            placeholder="Write your note…"
+            onChange={(e) => setBody(e.target.value)}
+            onKeyDown={(e) => {
+              // Cmd/Ctrl + Enter submits.
+              if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
+              }
+            }}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Body</span>
-              <textarea
-                className="st-textarea"
-                value={body}
-                rows={6}
-                placeholder="Write your note…"
-                onChange={(e) => setBody(e.target.value)}
-                onKeyDown={(e) => {
-                  // ⌘/Ctrl + Enter submits.
-                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
-                  }
-                }}
-              />
-            </div>
-
-            {error ? (
-              <div className="st-banner">
-                <AlertTriangle className="st-banner__icon" size={15} />
-                <span>{error}</span>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </TwentyButton>
-            <button type="submit" className="st-btn st-btn--primary" disabled={saving}>
-              {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              Create note
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -312,17 +295,12 @@ export default function SabcrmNotesPage(): React.JSX.Element {
       />
 
       <div className="st-toolbar">
-        <div className="st-search">
-          <Search className="st-search__icon" size={14} />
-          <input
-            className="st-search__input"
-            type="search"
-            value={search}
-            placeholder="Search notes…"
-            aria-label="Search notes"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <SearchInput
+          value={search}
+          placeholder="Search notes…"
+          aria-label="Search notes"
+          onValueChange={setSearch}
+        />
         <div className="st-toolbar__spacer" />
         {!loading ? (
           <span className="st-count">

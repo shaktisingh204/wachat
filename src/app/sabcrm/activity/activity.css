@@ -15,7 +15,7 @@
   gap: 16px;
 }
 
-/* Type filter (segmented control) -------------------------------------- */
+/* Type filter (20ui SegmentedControl wrapper) -------------------------- */
 .sa-feed__filters {
   display: flex;
   flex-wrap: wrap;
@@ -23,112 +23,20 @@
   align-items: center;
 }
 
-.sa-feed__filter {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid var(--st-border);
-  border-radius: 8px;
-  background: var(--st-bg);
-  color: var(--st-text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    background 0.12s ease,
-    border-color 0.12s ease,
-    color 0.12s ease;
-}
-
-.sa-feed__filter:hover {
-  background: var(--st-hover);
-  color: var(--st-text);
-}
-
-.sa-feed__filter.is-active {
-  background: var(--st-text);
-  border-color: var(--st-text);
-  color: var(--st-bg);
-}
-
+/* Live per-type count chip rendered inside each SegmentedControl label. */
 .sa-feed__filter-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 16px;
   height: 16px;
+  margin-left: 2px;
   padding: 0 4px;
   border-radius: 999px;
   background: var(--st-active);
   color: var(--st-text-secondary);
   font-size: 11px;
   font-weight: 600;
-}
-
-.sa-feed__filter.is-active .sa-feed__filter-count {
-  background: rgba(255, 255, 255, 0.22);
-  color: var(--st-bg);
-}
-
-/* Right-aligned refresh / meta row ------------------------------------- */
-.sa-feed__toolbar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.sa-feed__meta {
-  font-size: 12px;
-  color: var(--st-text-tertiary);
-}
-
-.sa-feed__refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 30px;
-  padding: 0 10px;
-  border: 1px solid var(--st-border);
-  border-radius: 8px;
-  background: var(--st-bg);
-  color: var(--st-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.sa-feed__refresh:hover:not(:disabled) {
-  background: var(--st-hover);
-  color: var(--st-text);
-}
-
-.sa-feed__refresh:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-/* Banners (degraded engine) -------------------------------------------- */
-.sa-feed__banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid var(--st-border);
-  border-radius: 10px;
-  background: var(--st-bg-secondary);
-  color: var(--st-text-secondary);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.sa-feed__banner-icon {
-  flex: 0 0 auto;
-  margin-top: 1px;
-  color: var(--st-text-tertiary);
 }
 
 /* Timeline list -------------------------------------------------------- */
@@ -265,51 +173,16 @@
 }
 
 /* States --------------------------------------------------------------- */
-.sa-feed__state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 48px 16px;
-  text-align: center;
-  color: var(--st-text-tertiary);
+/* Empty / no-project / error states now render via 20ui EmptyState + Alert. */
+.sa-feed__state-action {
+  margin-top: 10px;
 }
 
-.sa-feed__state-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: var(--st-bg-secondary);
-  border: 1px solid var(--st-border);
-  color: var(--st-text-tertiary);
-}
-
-.sa-feed__state-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--st-text);
-}
-
-.sa-feed__state-hint {
-  font-size: 13px;
-  max-width: 340px;
-}
-
-/* Skeleton rows (loading) */
+/* Skeleton rows (loading) — layout only; 20ui Skeleton brings the shimmer. */
 .sa-skel {
   display: flex;
   gap: 12px;
   padding: 0 0 18px;
-}
-
-.sa-skel__dot {
-  flex: 0 0 24px;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
 }
 
 .sa-skel__lines {
@@ -318,48 +191,4 @@
   flex-direction: column;
   gap: 7px;
   padding-top: 2px;
-}
-
-.sa-skel__line {
-  height: 11px;
-  border-radius: 6px;
-}
-
-.sa-skel__line--title {
-  width: 42%;
-}
-
-.sa-skel__line--body {
-  width: 78%;
-}
-
-.sa-skel__dot,
-.sa-skel__line {
-  background: linear-gradient(
-    90deg,
-    var(--st-bg-secondary) 25%,
-    var(--st-active) 37%,
-    var(--st-bg-secondary) 63%
-  );
-  background-size: 400% 100%;
-  animation: sa-shimmer 1.4s ease infinite;
-}
-
-@keyframes sa-shimmer {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
-
-.sa-spin {
-  animation: sa-rotate 0.8s linear infinite;
-}
-
-@keyframes sa-rotate {
-  to {
-    transform: rotate(360deg);
-  }
 }

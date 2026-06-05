@@ -10,7 +10,6 @@ import {
   UserPlus,
   Workflow,
   Upload,
-  Check,
   ArrowRight,
   Rocket,
   PartyPopper,
@@ -19,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import { Checkbox, Progress } from '@/components/sabcrm/20ui';
 import './getting-started.css';
 
 /**
@@ -175,31 +175,19 @@ export default function GettingStartedPage(): React.JSX.Element {
         </p>
 
         {/* Progress */}
-        <section
-          className={
-            'st-gs-progress' + (allDone ? ' st-gs-progress--done' : '')
-          }
-          aria-label="Onboarding progress"
-        >
+        <section className="st-gs-progress" aria-label="Onboarding progress">
           <div className="st-gs-progress__head">
             <span className="st-gs-progress__title">Your progress</span>
             <span className="st-gs-progress__count">
               <strong>{doneCount}</strong> of {total} complete
             </span>
           </div>
-          <div
-            className="st-gs-progress__track"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={total}
-            aria-valuenow={doneCount}
+          <Progress
+            value={pct}
+            tone={allDone ? 'success' : 'accent'}
+            label="Onboarding progress"
             aria-valuetext={`${doneCount} of ${total} steps complete`}
-          >
-            <div
-              className="st-gs-progress__fill"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
+          />
           {allDone ? (
             <p className="st-gs-progress__done-msg">
               <PartyPopper size={15} aria-hidden="true" />
@@ -217,20 +205,17 @@ export default function GettingStartedPage(): React.JSX.Element {
                 key={id}
                 className={'st-gs-card' + (isDone ? ' st-gs-card--done' : '')}
               >
-                <button
-                  type="button"
-                  className={'st-gs-check' + (isDone ? ' st-gs-check--on' : '')}
-                  role="checkbox"
-                  aria-checked={isDone}
+                <Checkbox
+                  className="st-gs-check"
+                  size="md"
+                  checked={isDone}
+                  onChange={() => toggle(id)}
                   aria-label={
                     isDone
                       ? `Mark "${title}" as not done`
                       : `Mark "${title}" as done`
                   }
-                  onClick={() => toggle(id)}
-                >
-                  <Check size={14} strokeWidth={3} aria-hidden="true" />
-                </button>
+                />
 
                 <span className="st-gs-card__icon" aria-hidden="true">
                   <Icon size={18} />

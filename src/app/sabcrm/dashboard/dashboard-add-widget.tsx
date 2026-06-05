@@ -9,13 +9,20 @@
  * formed `{ id, type, title, config }` widget back to the parent, which persists
  * it via `updateDashboardTw`.
  *
- * Pure `.st-*` dialog/field primitives — no ZoruUI / Tailwind.
+ * Built on 20ui primitives (Modal / Field / Input / Select / SegmentedControl)
+ * inside the CRM `.sabcrm-twenty` surface.
  */
 
 import * as React from 'react';
-import { X } from 'lucide-react';
 
-import { TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  Modal,
+  Field,
+  Input,
+  Select,
+  SegmentedControl,
+  Button,
+} from '@/components/sabcrm/20ui';
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 
 import {
@@ -84,6 +91,7 @@ export function AddWidgetDialog({
   onClose,
   onAdd,
 }: AddWidgetDialogProps): React.JSX.Element {
+  const formId = React.useId();
   const [type, setType] = React.useState<WidgetTypeTw>('kpi');
   const firstObject = objects[0]?.slug ?? 'leads';
   const [objectSlug, setObjectSlug] = React.useState<string>(firstObject);
@@ -154,168 +162,106 @@ export function AddWidgetDialog({
     });
   }
 
+  const fieldSelectOptions =
+    fieldOptions.length === 0
+      ? [{ value: '', label: 'No compatible field' }]
+      : fieldOptions.map((f) => ({ value: f.key, label: f.label }));
+
+  const sumSelectOptions =
+    numericOptions.length === 0
+      ? [{ value: 'amount', label: 'amount' }]
+      : numericOptions.map((f) => ({ value: f.key, label: f.label }));
+
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Add widget"
-      onClick={onClose}
-    >
-      <form
-        className="st-dialog"
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={handleSubmit}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">Add widget</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            <X size={16} aria-hidden="true" />
-          </button>
-        </div>
-
-        <div className="st-dialog__body">
-          {/* Widget type */}
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="aw-type">
-              Widget type
-            </label>
-            <div className="st-widget-typegrid" id="aw-type" role="radiogroup">
-              {WIDGET_TYPES.map((t) => (
-                <button
-                  type="button"
-                  key={t}
-                  role="radio"
-                  aria-checked={type === t}
-                  className={`st-widget-typeopt${type === t ? ' active' : ''}`}
-                  onClick={() => setType(t)}
-                >
-                  {WIDGET_TYPE_LABEL[t]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Object */}
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="aw-object">
-              Object
-            </label>
-            <select
-              id="aw-object"
-              className="st-select"
-              value={objectSlug}
-              onChange={(e) => setObjectSlug(e.target.value)}
-            >
-              {objects.map((o) => (
-                <option key={o.slug} value={o.slug}>
-                  {o.labelPlural}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Metric */}
-          {metrics.length > 1 ? (
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="aw-metric">
-                Metric
-              </label>
-              <select
-                id="aw-metric"
-                className="st-select"
-                value={metric}
-                onChange={(e) => setMetric(e.target.value)}
-              >
-                {metrics.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
-
-          {/* Group / category / date field */}
-          {needsField ? (
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="aw-field">
-                {metric === 'timeSeries' ? 'Date field' : 'Group by field'}
-              </label>
-              <select
-                id="aw-field"
-                className="st-select"
-                value={field}
-                onChange={(e) => setField(e.target.value)}
-              >
-                {fieldOptions.length === 0 ? (
-                  <option value="">No compatible field</option>
-                ) : (
-                  fieldOptions.map((f) => (
-                    <option key={f.key} value={f.key}>
-                      {f.label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          ) : null}
-
-          {/* Numeric field to sum */}
-          {needsSumField ? (
-            <div className="st-field">
-              <label className="st-field__label" htmlFor="aw-sumfield">
-                Value field (to sum)
-              </label>
-              <select
-                id="aw-sumfield"
-                className="st-select"
-                value={sumField}
-                onChange={(e) => setSumField(e.target.value)}
-              >
-                {numericOptions.length === 0 ? (
-                  <option value="amount">amount</option>
-                ) : (
-                  numericOptions.map((f) => (
-                    <option key={f.key} value={f.key}>
-                      {f.label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          ) : null}
-
-          {/* Title */}
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="aw-title">
-              Title
-            </label>
-            <input
-              id="aw-title"
-              className="st-input"
-              type="text"
-              value={title}
-              placeholder={defaultTitle}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="st-dialog__footer">
-          <TwentyButton variant="ghost" onClick={onClose}>
+    <Modal
+      open
+      onClose={onClose}
+      title="Add widget"
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </TwentyButton>
-          <TwentyButton variant="primary" type="submit">
+          </Button>
+          <Button variant="primary" type="submit" form={formId}>
             Add widget
-          </TwentyButton>
-        </div>
+          </Button>
+        </>
+      }
+    >
+      <form id={formId} onSubmit={handleSubmit}>
+        {/* Widget type */}
+        <Field label="Widget type">
+          <SegmentedControl<WidgetTypeTw>
+            aria-label="Widget type"
+            value={type}
+            onChange={setType}
+            items={WIDGET_TYPES.map((t) => ({
+              value: t,
+              label: WIDGET_TYPE_LABEL[t],
+            }))}
+          />
+        </Field>
+
+        {/* Object */}
+        <Field label="Object">
+          <Select
+            aria-label="Object"
+            value={objectSlug}
+            onChange={(v) => setObjectSlug(v ?? firstObject)}
+            options={objects.map((o) => ({
+              value: o.slug,
+              label: o.labelPlural,
+            }))}
+          />
+        </Field>
+
+        {/* Metric */}
+        {metrics.length > 1 ? (
+          <Field label="Metric">
+            <Select
+              aria-label="Metric"
+              value={metric}
+              onChange={(v) => setMetric(v ?? metrics[0]!.value)}
+              options={metrics.map((m) => ({ value: m.value, label: m.label }))}
+            />
+          </Field>
+        ) : null}
+
+        {/* Group / category / date field */}
+        {needsField ? (
+          <Field label={metric === 'timeSeries' ? 'Date field' : 'Group by field'}>
+            <Select
+              aria-label={metric === 'timeSeries' ? 'Date field' : 'Group by field'}
+              value={field}
+              onChange={(v) => setField(v ?? '')}
+              options={fieldSelectOptions}
+            />
+          </Field>
+        ) : null}
+
+        {/* Numeric field to sum */}
+        {needsSumField ? (
+          <Field label="Value field (to sum)">
+            <Select
+              aria-label="Value field to sum"
+              value={sumField}
+              onChange={(v) => setSumField(v ?? 'amount')}
+              options={sumSelectOptions}
+            />
+          </Field>
+        ) : null}
+
+        {/* Title */}
+        <Field label="Title">
+          <Input
+            type="text"
+            value={title}
+            placeholder={defaultTitle}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Field>
       </form>
-    </div>
+    </Modal>
   );
 }

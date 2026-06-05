@@ -63,23 +63,33 @@
   list-style: none;
 }
 
+/* Interactive 20ui Card shell wraps each object link; it owns the chrome
+   (border, radius, hover lift, press, focus ring). The inner link is
+   layout-only and stretches to fill the shell. */
+.sabcrm-twenty .st-obj-card-shell {
+  flex: 1 1 auto;
+  display: flex;
+}
+
 .sabcrm-twenty .st-obj-card {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
   gap: var(--st-space-3);
   height: 100%;
   padding: var(--st-space-4);
-  border: 1px solid var(--st-border);
-  border-radius: var(--st-radius-lg);
-  background: var(--st-bg);
   color: var(--st-text);
   text-decoration: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
-.sabcrm-twenty .st-obj-card:hover {
-  border-color: var(--st-text-tertiary);
-  box-shadow: var(--st-shadow);
+/* The inner link is the keyboard focus target; surface its focus ring on the
+   Card shell so the whole card reads as focused (matches the interactive
+   Card's own :focus-visible treatment). */
+.sabcrm-twenty .st-obj-card:focus-visible {
+  outline: none;
+}
+.sabcrm-twenty .st-obj-card-shell:has(.st-obj-card:focus-visible) {
+  box-shadow: var(--u-focus-ring);
 }
 
 .sabcrm-twenty .st-obj-card__top {
@@ -117,7 +127,7 @@
   font-weight: var(--st-fw-medium);
 }
 
-.sabcrm-twenty .st-obj-card:hover .st-obj-card__cta {
+.sabcrm-twenty .st-obj-card-shell:hover .st-obj-card__cta {
   color: var(--st-accent);
 }
 
@@ -125,7 +135,7 @@
   transition: transform 120ms ease;
 }
 
-.sabcrm-twenty .st-obj-card:hover .st-obj-card__cta svg {
+.sabcrm-twenty .st-obj-card-shell:hover .st-obj-card__cta svg {
   transform: translateX(2px);
 }
 
@@ -276,7 +286,7 @@
   font-weight: var(--st-fw-medium);
   text-align: center;
 }
-.sabcrm-twenty .st-obj-card:hover .st-obj-card__count {
+.sabcrm-twenty .st-obj-card-shell:hover .st-obj-card__count {
   background: var(--st-accent-soft);
   color: var(--st-accent);
 }
@@ -292,19 +302,14 @@
   line-height: 1.45;
 }
 
-/* Subtle lift on hover for a more polished feel. */
-.sabcrm-twenty .st-obj-card {
-  transition:
-    border-color 120ms ease,
-    box-shadow 120ms ease,
-    transform 120ms ease;
-}
-.sabcrm-twenty .st-obj-card:hover {
-  transform: translateY(-1px);
-}
-
-/* Skeleton card while objects load. */
+/* Skeleton card while objects load — the outlined Card owns the chrome,
+   so the placeholder only needs layout + disabled interaction. */
 .sabcrm-twenty .st-obj-card--skeleton {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-space-3);
+  height: 100%;
   pointer-events: none;
 }
 

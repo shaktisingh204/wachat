@@ -27,20 +27,30 @@ import * as React from 'react';
 import Link from 'next/link';
 import {
   Plus,
-  AlertTriangle,
   CheckCircle2,
-  Loader2,
   Table2,
   Columns3,
   CalendarClock,
   User as UserIcon,
-  Check,
-  Search,
-  X,
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton, TwentyChip } from '@/components/sabcrm/twenty';
 import { TwentyFieldValue } from '@/components/sabcrm/twenty/twenty-field';
+import {
+  Button,
+  Checkbox,
+  Select,
+  Modal,
+  Field,
+  Input,
+  Textarea,
+  Alert,
+  Skeleton,
+  Spinner,
+  SearchInput,
+  SegmentedControl,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmRecordsTw,
@@ -162,22 +172,19 @@ interface CompleteCheckboxProps {
 
 function CompleteCheckbox({ done, busy, onToggle }: CompleteCheckboxProps) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={done}
-      aria-label={done ? 'Mark task as to do' : 'Mark task as done'}
+    <Checkbox
+      size="sm"
+      checked={done}
       disabled={busy}
-      className={`stn-check${done ? ' is-done' : ''}`}
+      aria-label={done ? 'Mark task as to do' : 'Mark task as done'}
       onClick={(e) => {
         // Inside a card <Link> / row, don't navigate when toggling completion.
         e.stopPropagation();
-        e.preventDefault();
+      }}
+      onChange={() => {
         if (!busy) onToggle();
       }}
-    >
-      {done ? <Check size={11} strokeWidth={3} aria-hidden="true" /> : null}
-    </button>
+    />
   );
 }
 
@@ -191,29 +198,23 @@ interface StatusSelectProps {
   onChange: (next: TaskStatus) => void;
 }
 
+const STATUS_SELECT_OPTIONS = STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }));
+
 function StatusSelect({ value, busy, onChange }: StatusSelectProps) {
   return (
-    <select
-      className="stn-status-select"
-      value={value}
-      disabled={busy}
-      aria-label="Task status"
-      onClick={(e) => {
-        // Inside a card <Link>, don't navigate when toggling status.
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      onChange={(e) => {
-        const next = e.target.value;
-        if (isTaskStatus(next) && next !== value) onChange(next);
-      }}
-    >
-      {STATUS_OPTIONS.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    // Inside a card <Link>, don't navigate when interacting with the status menu.
+    <span onClick={(e) => e.stopPropagation()}>
+      <Select
+        size="sm"
+        value={value}
+        disabled={busy}
+        aria-label="Task status"
+        options={STATUS_SELECT_OPTIONS}
+        onChange={(next) => {
+          if (isTaskStatus(next) && next !== value) onChange(next);
+        }}
+      />
+    </span>
   );
 }
 
@@ -292,7 +293,7 @@ function TaskCard({
         <span className="stn-card-foot__status">
           {busy ? (
             <span className="stn-card-busy">
-              <Loader2 size={13} className="st-spin" />
+              <Spinner size="sm" label="Saving" />
             </span>
           ) : null}
           <StatusSelect value={statusOf(record)} busy={busy} onChange={onStatusChange} />
@@ -384,7 +385,7 @@ function TableView({ records, busyIds, onStatusChange, onToggleComplete }: Table
                   <span className="stn-card-foot__status">
                     {busy ? (
                       <span className="stn-card-busy">
-                        <Loader2 size={13} className="st-spin" />
+                        <Spinner size="sm" label="Saving" />
                       </span>
                     ) : null}
                     <StatusSelect
@@ -459,112 +460,73 @@ function CreateDialog({ projectId, onClose, onCreated }: CreateDialogProps) {
     }
   };
 
+  const formId = React.useId();
+
   return (
-    <div className="st-dialog-overlay" onClick={onClose} role="presentation">
-      <div
-        className="st-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label="New task"
-        onClick={(e) => e.stopPropagation()}
+    <Modal
+      open
+      onClose={onClose}
+      title="New task"
+      footer={
+        <>
+          <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </TwentyButton>
+          <Button type="submit" form={formId} variant="primary" loading={saving}>
+            Create task
+          </Button>
+        </>
+      }
+    >
+      <form
+        id={formId}
+        onSubmit={handleSubmit}
+        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--st-space-4, 16px)' }}
       >
-        <form onSubmit={handleSubmit}>
-          <div className="st-dialog__header">
-            <h2 className="st-dialog__title">New task</h2>
-            <button
-              type="button"
-              className="st-dialog__close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={16} />
-            </button>
-          </div>
+        <Field label="Title" required>
+          <Input
+            value={title}
+            required
+            autoFocus
+            placeholder="What needs doing?"
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </Field>
 
-          <div className="st-dialog__body">
-            <div className="st-field">
-              <span className="st-field__label">
-                Title<span className="st-field__req">*</span>
-              </span>
-              <input
-                className="st-input"
-                value={title}
-                required
-                autoFocus
-                placeholder="What needs doing?"
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
+        <Field label="Status">
+          <Select
+            value={status}
+            options={STATUS_SELECT_OPTIONS}
+            onChange={(v) => {
+              if (isTaskStatus(v)) setStatus(v);
+            }}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Status</span>
-              <select
-                className="st-select"
-                value={status}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  if (isTaskStatus(v)) setStatus(v);
-                }}
-              >
-                {STATUS_OPTIONS.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Field label="Due date">
+          <Input type="date" value={dueAt} onChange={(e) => setDueAt(e.target.value)} />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Due date</span>
-              <input
-                className="st-input"
-                type="date"
-                value={dueAt}
-                onChange={(e) => setDueAt(e.target.value)}
-              />
-            </div>
+        <Field label="Assignee">
+          <Input
+            value={assignee}
+            placeholder="Who owns it?"
+            onChange={(e) => setAssignee(e.target.value)}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Assignee</span>
-              <input
-                className="st-input"
-                value={assignee}
-                placeholder="Who owns it?"
-                onChange={(e) => setAssignee(e.target.value)}
-              />
-            </div>
+        <Field label="Notes">
+          <Textarea
+            value={body}
+            rows={3}
+            placeholder="Optional details…"
+            onChange={(e) => setBody(e.target.value)}
+          />
+        </Field>
 
-            <div className="st-field">
-              <span className="st-field__label">Notes</span>
-              <textarea
-                className="st-textarea"
-                value={body}
-                rows={3}
-                placeholder="Optional details…"
-                onChange={(e) => setBody(e.target.value)}
-              />
-            </div>
-
-            {error ? (
-              <div className="st-banner">
-                <AlertTriangle className="st-banner__icon" size={15} />
-                <span>{error}</span>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="st-dialog__footer">
-            <TwentyButton variant="secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </TwentyButton>
-            <button type="submit" className="st-btn st-btn--primary" disabled={saving}>
-              {saving ? <Loader2 size={14} className="st-spin" /> : null}
-              Create task
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+      </form>
+    </Modal>
   );
 }
 
@@ -582,7 +544,7 @@ function BoardSkeleton() {
           </div>
           <div className="st-board__body">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="st-skeleton" style={{ height: 64, borderRadius: 8 }} />
+              <Skeleton key={i} width="100%" height={64} radius={8} />
             ))}
           </div>
         </div>
@@ -592,12 +554,7 @@ function BoardSkeleton() {
 }
 
 function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
+  return <Alert tone="danger">{message}</Alert>;
 }
 
 // ---------------------------------------------------------------------------
@@ -771,14 +728,12 @@ export default function SabcrmTasksPage(): React.JSX.Element {
 
       <div className="st-toolbar">
         <div className="st-search">
-          <Search className="st-search__icon" size={14} />
-          <input
-            className="st-search__input"
-            type="search"
+          <SearchInput
+            inputSize="sm"
             value={search}
             placeholder="Search tasks…"
             aria-label="Search tasks"
-            onChange={(e) => setSearch(e.target.value)}
+            onValueChange={setSearch}
           />
         </div>
         <div className="st-toolbar__spacer" />
@@ -787,28 +742,16 @@ export default function SabcrmTasksPage(): React.JSX.Element {
             {totalCount} {totalCount === 1 ? 'task' : 'tasks'}
           </span>
         ) : null}
-        <div className="st-viewswitch" role="tablist" aria-label="View">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === 'board'}
-            className={`st-viewswitch__btn${view === 'board' ? ' active' : ''}`}
-            onClick={() => setView('board')}
-          >
-            <Columns3 size={14} aria-hidden="true" />
-            Board
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={view === 'table'}
-            className={`st-viewswitch__btn${view === 'table' ? ' active' : ''}`}
-            onClick={() => setView('table')}
-          >
-            <Table2 size={14} aria-hidden="true" />
-            Table
-          </button>
-        </div>
+        <SegmentedControl
+          size="sm"
+          aria-label="View"
+          value={view}
+          onChange={(v) => setView(v)}
+          items={[
+            { value: 'board', label: 'Board', icon: Columns3 },
+            { value: 'table', label: 'Table', icon: Table2 },
+          ]}
+        />
       </div>
 
       {error ? <ErrorBanner message={error} /> : null}
@@ -816,24 +759,22 @@ export default function SabcrmTasksPage(): React.JSX.Element {
       {loading ? (
         <BoardSkeleton />
       ) : isEmpty ? (
-        <div className="st-empty">
-          <span className="st-empty__icon">
-            <CheckCircle2 size={20} />
-          </span>
-          <h2 className="st-empty__title">
-            {isSearching ? 'No matching tasks' : 'No tasks yet'}
-          </h2>
-          <p className="st-empty__desc">
-            {isSearching
+        <EmptyState
+          icon={CheckCircle2}
+          title={isSearching ? 'No matching tasks' : 'No tasks yet'}
+          description={
+            isSearching
               ? 'Try a different search term, or clear the search to see every task.'
-              : 'Create your first task to start tracking work across To do, In progress and Done.'}
-          </p>
-          {!isSearching ? (
-            <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
-              New task
-            </TwentyButton>
-          ) : null}
-        </div>
+              : 'Create your first task to start tracking work across To do, In progress and Done.'
+          }
+          action={
+            !isSearching ? (
+              <TwentyButton variant="primary" icon={Plus} onClick={() => setCreateOpen(true)}>
+                New task
+              </TwentyButton>
+            ) : undefined
+          }
+        />
       ) : view === 'board' ? (
         <BoardView
           groups={visibleGroups}

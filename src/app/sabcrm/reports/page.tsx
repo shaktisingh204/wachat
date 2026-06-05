@@ -22,14 +22,13 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   BarChart3,
   Plus,
   Play,
   Trash2,
   Pencil,
-  AlertTriangle,
   RefreshCw,
 } from 'lucide-react';
 
@@ -50,6 +49,15 @@ import type {
 import { ReportChart } from './report-chart';
 
 import { useStConfirm } from '@/components/sabcrm/twenty/st-modals';
+import {
+  Button,
+  IconButton,
+  Badge,
+  Alert,
+  Spinner,
+  Skeleton,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import './reports-twenty.css';
 
@@ -109,6 +117,7 @@ function ReportResult({
 // ---------------------------------------------------------------------------
 
 export default function SabcrmReportsPage(): React.JSX.Element {
+  const router = useRouter();
   const { activeProjectId } = useProject();
 
   const [objects, setObjects] = React.useState<ObjectMetadata[]>([]);
@@ -205,19 +214,21 @@ export default function SabcrmReportsPage(): React.JSX.Element {
         </span>
         <h1 className="st-page-header__title">Reports</h1>
         <div className="st-page-header__actions">
-          <button
-            type="button"
-            className="st-btn st-btn--ghost"
+          <Button
+            variant="ghost"
+            iconLeft={RefreshCw}
             onClick={() => void load()}
             disabled={loading}
           >
-            <RefreshCw size={14} aria-hidden="true" />
             Refresh
-          </button>
-          <Link href="/sabcrm/reports/builder" className="st-btn st-btn--primary">
-            <Plus size={14} aria-hidden="true" />
+          </Button>
+          <Button
+            variant="primary"
+            iconLeft={Plus}
+            onClick={() => router.push('/sabcrm/reports/builder')}
+          >
             New report
-          </Link>
+          </Button>
         </div>
       </header>
 
@@ -228,10 +239,9 @@ export default function SabcrmReportsPage(): React.JSX.Element {
       </p>
 
       {error && (
-        <div className="st-banner" role="alert">
-          <AlertTriangle className="st-banner__icon" size={16} aria-hidden="true" />
-          <span>{error}</span>
-        </div>
+        <Alert tone="danger" style={{ marginBottom: 'var(--st-space-4)' }}>
+          {error}
+        </Alert>
       )}
 
       {/* Loading skeleton */}
@@ -239,26 +249,26 @@ export default function SabcrmReportsPage(): React.JSX.Element {
         <div className="st-section">
           <div className="st-section__body st-stack">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="st-skeleton st-skeleton-row" />
+              <Skeleton key={i} height={40} radius={8} />
             ))}
           </div>
         </div>
       ) : reports.length === 0 && !error ? (
         <div className="st-section">
-          <div className="st-empty">
-            <span className="st-empty__icon" aria-hidden="true">
-              <BarChart3 size={20} />
-            </span>
-            <h2 className="st-empty__title">No reports yet</h2>
-            <p className="st-empty__desc">
-              Create your first report to start measuring counts, sums, and
-              trends across your CRM data.
-            </p>
-            <Link href="/sabcrm/reports/builder" className="st-btn st-btn--primary">
-              <Plus size={14} aria-hidden="true" />
-              New report
-            </Link>
-          </div>
+          <EmptyState
+            icon={BarChart3}
+            title="No reports yet"
+            description="Create your first report to start measuring counts, sums, and trends across your CRM data."
+            action={
+              <Button
+                variant="primary"
+                iconLeft={Plus}
+                onClick={() => router.push('/sabcrm/reports/builder')}
+              >
+                New report
+              </Button>
+            }
+          />
         </div>
       ) : (
         <div className="st-section">
@@ -272,11 +282,7 @@ export default function SabcrmReportsPage(): React.JSX.Element {
                   <div className="st-rep-row__main">
                     <span className="st-rep-row__title">{report.name}</span>
                     <div className="st-rep-row__meta">
-                      <span className="st-chip">
-                        <span className="st-chip__label">
-                          {objectLabel(report.object)}
-                        </span>
-                      </span>
+                      <Badge tone="neutral">{objectLabel(report.object)}</Badge>
                       <span className="st-muted">{metricCaption(report)}</span>
                       {report.groupByField && (
                         <span className="st-muted">
@@ -286,48 +292,47 @@ export default function SabcrmReportsPage(): React.JSX.Element {
                     </div>
                   </div>
                   <div className="st-rep-row__actions">
-                    <button
-                      type="button"
-                      className="st-btn st-btn--secondary"
+                    <Button
+                      variant="secondary"
+                      iconLeft={isRunning ? undefined : Play}
+                      loading={isRunning}
                       onClick={() => void handleRun(report)}
                       disabled={isRunning}
                     >
-                      {isRunning ? (
-                        <span className="st-spinner" aria-hidden="true" />
-                      ) : (
-                        <Play size={14} aria-hidden="true" />
-                      )}
-                      {isRunning ? 'Running…' : 'Run'}
-                    </button>
-                    <Link
-                      href={`/sabcrm/reports/builder?id=${encodeURIComponent(report._id)}`}
-                      className="st-btn st-btn--ghost"
-                      aria-label={`Edit ${report.name}`}
-                    >
-                      <Pencil size={14} aria-hidden="true" />
-                    </Link>
-                    <button
-                      type="button"
-                      className="st-btn st-btn--ghost"
-                      onClick={() => void handleDelete(report)}
-                      disabled={isDeleting}
-                      aria-label={`Delete ${report.name}`}
-                    >
-                      {isDeleting ? (
-                        <span className="st-spinner" aria-hidden="true" />
-                      ) : (
-                        <Trash2 size={14} aria-hidden="true" />
-                      )}
-                    </button>
+                      {isRunning ? 'Running' : 'Run'}
+                    </Button>
+                    <IconButton
+                      variant="ghost"
+                      icon={Pencil}
+                      label={`Edit ${report.name}`}
+                      onClick={() =>
+                        router.push(
+                          `/sabcrm/reports/builder?id=${encodeURIComponent(report._id)}`,
+                        )
+                      }
+                    />
+                    {isDeleting ? (
+                      <span
+                        className="st-rep-row__busy"
+                        role="status"
+                        aria-label={`Deleting ${report.name}`}
+                      >
+                        <Spinner size="sm" label="Deleting" />
+                      </span>
+                    ) : (
+                      <IconButton
+                        variant="ghost"
+                        icon={Trash2}
+                        label={`Delete ${report.name}`}
+                        onClick={() => void handleDelete(report)}
+                      />
+                    )}
                   </div>
                 </div>
 
                 {run.status === 'error' && (
                   <div className="st-rep-result">
-                    <div className="st-iox-issue">
-                      <AlertTriangle size={14} aria-hidden="true" />
-                      <span>{run.error}</span>
-                    </div>
+                    <Alert tone="danger">{run.error}</Alert>
                   </div>
                 )}
                 {run.status === 'done' && (

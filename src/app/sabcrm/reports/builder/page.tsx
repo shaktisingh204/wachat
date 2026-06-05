@@ -27,7 +27,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, AlertTriangle, Save, BarChart3 } from 'lucide-react';
+import { ChevronLeft, Save, BarChart3 } from 'lucide-react';
 
 import {
   listObjectsAction,
@@ -47,6 +47,18 @@ import type {
 } from '@/app/actions/sabcrm.actions.types';
 
 import { ReportChart } from '../report-chart';
+
+import {
+  Button,
+  Field,
+  Input,
+  Textarea,
+  Select,
+  Alert,
+  Spinner,
+  Skeleton,
+  EmptyState,
+} from '@/components/sabcrm/20ui';
 
 import '../reports-twenty.css';
 
@@ -381,27 +393,22 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
           {editingId ? 'Edit report' : 'New report'}
         </h1>
         <div className="st-page-header__actions">
-          <button
-            type="button"
-            className="st-btn st-btn--primary"
+          <Button
+            variant="primary"
+            iconLeft={saving ? undefined : Save}
+            loading={saving}
             onClick={() => void handleSave()}
             disabled={!canSave || saving}
           >
-            {saving ? (
-              <span className="st-spinner" aria-hidden="true" />
-            ) : (
-              <Save size={14} aria-hidden="true" />
-            )}
-            {saving ? 'Saving…' : editingId ? 'Save changes' : 'Save report'}
-          </button>
+            {saving ? 'Saving' : editingId ? 'Save changes' : 'Save report'}
+          </Button>
         </div>
       </header>
 
       {pageError && (
-        <div className="st-banner" role="alert">
-          <AlertTriangle className="st-banner__icon" size={16} aria-hidden="true" />
-          <span>{pageError}</span>
-        </div>
+        <Alert tone="danger" style={{ marginBottom: 'var(--st-space-4)' }}>
+          {pageError}
+        </Alert>
       )}
 
       {loading ? (
@@ -409,13 +416,13 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
           <div className="st-section">
             <div className="st-section__body st-stack">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="st-skeleton st-skeleton-row" />
+                <Skeleton key={i} height={40} radius={8} />
               ))}
             </div>
           </div>
           <div className="st-section">
             <div className="st-section__body">
-              <div className="st-skeleton" style={{ height: 240, width: '100%' }} />
+              <Skeleton height={240} width="100%" radius={8} />
             </div>
           </div>
         </div>
@@ -433,177 +440,126 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
             </div>
             <div className="st-section__body st-stack">
               {/* Name */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-name">
-                  Name <span className="st-field__req">*</span>
-                </label>
-                <input
-                  id="rep-name"
-                  className="st-input"
+              <Field label="Name" required id="rep-name">
+                <Input
                   value={draft.name}
                   onChange={(e) => set('name', e.target.value)}
                   placeholder="e.g. Open opportunities by stage"
                 />
-              </div>
+              </Field>
 
               {/* Object */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-object">
-                  Object <span className="st-field__req">*</span>
-                </label>
-                <select
-                  id="rep-object"
-                  className="st-select"
-                  value={draft.object}
-                  onChange={(e) => handleObjectChange(e.target.value)}
+              <Field
+                label="Object"
+                required
+                id="rep-object"
+                help={
+                  editingId
+                    ? 'The object cannot be changed on an existing report.'
+                    : undefined
+                }
+              >
+                <Select
+                  value={draft.object || null}
+                  onChange={(v) => handleObjectChange(v ?? '')}
                   disabled={!!editingId}
-                >
-                  <option value="" disabled>
-                    Select an object…
-                  </option>
-                  {objects.map((o) => (
-                    <option key={o.slug} value={o.slug}>
-                      {o.labelPlural}
-                    </option>
-                  ))}
-                </select>
-                {editingId && (
-                  <span className="st-field__hint">
-                    The object can&apos;t be changed on an existing report.
-                  </span>
-                )}
-              </div>
+                  placeholder="Select an object"
+                  options={objects.map((o) => ({
+                    value: o.slug,
+                    label: o.labelPlural,
+                  }))}
+                />
+              </Field>
 
               {/* Metric */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-metric">
-                  Metric <span className="st-field__req">*</span>
-                </label>
-                <select
-                  id="rep-metric"
-                  className="st-select"
+              <Field label="Metric" required id="rep-metric">
+                <Select
                   value={draft.metric}
-                  onChange={(e) => set('metric', e.target.value as ReportMetric)}
-                >
-                  {METRICS.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  onChange={(v) => v && set('metric', v as ReportMetric)}
+                  options={METRICS.map((m) => ({
+                    value: m.value,
+                    label: m.label,
+                  }))}
+                />
+              </Field>
 
               {/* Metric field (only for sum/avg/min/max) */}
               {metricNeedsField(draft.metric) && (
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="rep-metric-field">
-                    Number field <span className="st-field__req">*</span>
-                  </label>
-                  <select
-                    id="rep-metric-field"
-                    className="st-select"
-                    value={draft.metricField}
-                    onChange={(e) => set('metricField', e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Select a number field…
-                    </option>
-                    {numericFields.map((f) => (
-                      <option key={f.key} value={f.key}>
-                        {f.label}
-                      </option>
-                    ))}
-                  </select>
-                  {numericFields.length === 0 && (
-                    <span className="st-field__hint">
-                      This object has no number fields to aggregate.
-                    </span>
-                  )}
-                </div>
+                <Field
+                  label="Number field"
+                  required
+                  id="rep-metric-field"
+                  help={
+                    numericFields.length === 0
+                      ? 'This object has no number fields to aggregate.'
+                      : undefined
+                  }
+                >
+                  <Select
+                    value={draft.metricField || null}
+                    onChange={(v) => set('metricField', v ?? '')}
+                    placeholder="Select a number field"
+                    options={numericFields.map((f) => ({
+                      value: f.key,
+                      label: f.label,
+                    }))}
+                  />
+                </Field>
               )}
 
               {/* Group by */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-group">
-                  Group by
-                </label>
-                <select
-                  id="rep-group"
-                  className="st-select"
+              <Field label="Group by" id="rep-group">
+                <Select
                   value={draft.groupByField}
-                  onChange={(e) => set('groupByField', e.target.value)}
-                >
-                  <option value="">No grouping (single value)</option>
-                  {groupableFields.map((f) => (
-                    <option key={f.key} value={f.key}>
-                      {f.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  onChange={(v) => set('groupByField', v ?? '')}
+                  options={[
+                    { value: '', label: 'No grouping (single value)' },
+                    ...groupableFields.map((f) => ({
+                      value: f.key,
+                      label: f.label,
+                    })),
+                  ]}
+                />
+              </Field>
 
               {/* Time bucket (only when group-by is a date field) */}
               {draft.groupByField && groupByIsDate && (
-                <div className="st-field">
-                  <label className="st-field__label" htmlFor="rep-bucket">
-                    Time bucket
-                  </label>
-                  <select
-                    id="rep-bucket"
-                    className="st-select"
+                <Field label="Time bucket" id="rep-bucket">
+                  <Select
                     value={draft.timeBucket}
-                    onChange={(e) =>
-                      set('timeBucket', e.target.value as ReportTimeBucket)
+                    onChange={(v) =>
+                      v && set('timeBucket', v as ReportTimeBucket)
                     }
-                  >
-                    {TIME_BUCKETS.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {t.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    options={TIME_BUCKETS.map((t) => ({
+                      value: t.value,
+                      label: t.label,
+                    }))}
+                  />
+                </Field>
               )}
 
               {/* Chart type */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-chart">
-                  Visualisation
-                </label>
-                <select
-                  id="rep-chart"
-                  className="st-select"
+              <Field label="Visualisation" id="rep-chart">
+                <Select
                   value={draft.chartType}
-                  onChange={(e) => set('chartType', e.target.value as ReportChartType)}
-                >
-                  {CHART_TYPES.map((c) => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  onChange={(v) => v && set('chartType', v as ReportChartType)}
+                  options={CHART_TYPES.map((c) => ({
+                    value: c.value,
+                    label: c.label,
+                  }))}
+                />
+              </Field>
 
               {/* Description */}
-              <div className="st-field">
-                <label className="st-field__label" htmlFor="rep-desc">
-                  Description
-                </label>
-                <textarea
-                  id="rep-desc"
-                  className="st-textarea"
+              <Field label="Description" id="rep-desc">
+                <Textarea
                   value={draft.description}
                   onChange={(e) => set('description', e.target.value)}
-                  placeholder="Optional — what this report tells you."
+                  placeholder="Optional note on what this report tells you."
                 />
-              </div>
+              </Field>
 
-              {saveError && (
-                <div className="st-iox-issue">
-                  <AlertTriangle size={14} aria-hidden="true" />
-                  <span>{saveError}</span>
-                </div>
-              )}
+              {saveError && <Alert tone="danger">{saveError}</Alert>}
             </div>
           </div>
 
@@ -617,31 +573,24 @@ export default function SabcrmReportBuilderPage(): React.JSX.Element {
                 </p>
               </div>
               <div className="st-section__head-actions">
-                {previewing && <span className="st-spinner" aria-hidden="true" />}
+                {previewing && <Spinner size="sm" label="Updating preview" />}
               </div>
             </div>
             <div className="st-section__body">
               {!canPreview ? (
-                <div className="st-empty">
-                  <span className="st-empty__icon" aria-hidden="true">
-                    <BarChart3 size={20} />
-                  </span>
-                  <p className="st-empty__desc">
-                    Pick an object and metric (and a number field for
-                    sum/average/min/max) to see a live preview.
-                  </p>
-                </div>
+                <EmptyState
+                  icon={BarChart3}
+                  title="Nothing to preview yet"
+                  description="Pick an object and metric (and a number field for sum, average, min, or max) to see a live preview."
+                />
               ) : previewError ? (
-                <div className="st-iox-issue">
-                  <AlertTriangle size={14} aria-hidden="true" />
-                  <span>{previewError}</span>
-                </div>
+                <Alert tone="danger">{previewError}</Alert>
               ) : preview ? (
                 <PreviewSeries series={preview} chartType={draft.chartType} />
               ) : (
                 <div className="st-stack st-stack--tight">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="st-skeleton st-skeleton-row" />
+                    <Skeleton key={i} height={40} radius={8} />
                   ))}
                 </div>
               )}

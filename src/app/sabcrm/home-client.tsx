@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import { Card, Skeleton } from '@/components/sabcrm/20ui';
 import { useSabcrmSettings } from '@/components/sabcrm/twenty/sabcrm-settings-context';
 import { useProject } from '@/context/project-context';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
@@ -131,13 +132,17 @@ export function SabcrmHomeClient(): React.JSX.Element {
           <ul className="st-obj-grid" aria-busy="true">
             {Array.from({ length: 6 }).map((_, i) => (
               <li key={i} style={{ display: 'flex' }}>
-                <div className="st-obj-card st-obj-card--skeleton" aria-hidden="true">
+                <Card
+                  variant="outlined"
+                  className="st-obj-card--skeleton"
+                  aria-hidden="true"
+                >
                   <div className="st-obj-card__top">
-                    <span className="st-skeleton st-obj-card__icon" />
-                    <span className="st-skeleton" style={{ height: 16, width: 96 }} />
+                    <Skeleton width={32} height={32} radius="var(--st-radius)" />
+                    <Skeleton width={96} height={16} />
                   </div>
-                  <span className="st-skeleton" style={{ height: 12, width: 64 }} />
-                </div>
+                  <Skeleton width={64} height={12} />
+                </Card>
               </li>
             ))}
           </ul>
@@ -157,30 +162,32 @@ export function SabcrmHomeClient(): React.JSX.Element {
               const count = counts[object.slug];
               return (
                 <li key={object.slug} style={{ display: 'flex' }}>
-                  <Link
-                    href={`/sabcrm/${object.slug}`}
-                    className="st-obj-card"
-                    aria-label={`${object.labelPlural}, view all`}
-                  >
-                    <div className="st-obj-card__top">
-                      <span className="st-obj-card__icon" aria-hidden="true">
-                        <Icon size={18} />
+                  <Card variant="interactive" padding="none" className="st-obj-card-shell">
+                    <Link
+                      href={`/sabcrm/${object.slug}`}
+                      className="st-obj-card"
+                      aria-label={`${object.labelPlural}, view all`}
+                    >
+                      <div className="st-obj-card__top">
+                        <span className="st-obj-card__icon" aria-hidden="true">
+                          <Icon size={18} />
+                        </span>
+                        <span className="st-obj-card__label">
+                          {object.labelPlural}
+                        </span>
+                        {count !== undefined && (
+                          <span className="st-obj-card__count">{count}</span>
+                        )}
+                      </div>
+                      {object.description ? (
+                        <span className="st-obj-card__desc">{object.description}</span>
+                      ) : null}
+                      <span className="st-obj-card__cta">
+                        View all
+                        <ArrowRight size={13} aria-hidden="true" />
                       </span>
-                      <span className="st-obj-card__label">
-                        {object.labelPlural}
-                      </span>
-                      {count !== undefined && (
-                        <span className="st-obj-card__count">{count}</span>
-                      )}
-                    </div>
-                    {object.description ? (
-                      <span className="st-obj-card__desc">{object.description}</span>
-                    ) : null}
-                    <span className="st-obj-card__cta">
-                      View all
-                      <ArrowRight size={13} aria-hidden="true" />
-                    </span>
-                  </Link>
+                    </Link>
+                  </Card>
                 </li>
               );
             })}

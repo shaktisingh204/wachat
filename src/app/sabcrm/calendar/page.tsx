@@ -36,7 +36,6 @@ export const dynamic = 'force-dynamic';
 import * as React from 'react';
 import Link from 'next/link';
 import {
-  AlertTriangle,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -48,6 +47,7 @@ import {
   TwentyButton,
   TwentyAvatar,
 } from '@/components/sabcrm/twenty';
+import { Select, IconButton, Alert } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -269,12 +269,7 @@ async function fetchAllInWindow(
 // ---------------------------------------------------------------------------
 
 function ErrorBanner({ message }: { message: string }) {
-  return (
-    <div className="st-banner" role="alert">
-      <AlertTriangle className="st-banner__icon" size={15} />
-      <span>{message}</span>
-    </div>
-  );
+  return <Alert tone="danger">{message}</Alert>;
 }
 
 function GridSkeleton() {
@@ -537,62 +532,46 @@ export default function SabcrmCalendarPage(): React.JSX.Element {
       <div className="cal-controls">
         <div className="cal-controls__group">
           <span className="cal-controls__label">Object</span>
-          <select
-            className="st-select"
-            value={objectSlug}
+          <Select
+            size="sm"
+            value={objectSlug || null}
             disabled={loadingObjects || objects.length === 0}
-            onChange={(e) => setObjectSlug(e.target.value)}
+            onChange={(v) => setObjectSlug(v ?? '')}
             aria-label="Calendar object"
-          >
-            {objects.length === 0 && <option value="">No objects</option>}
-            {objects.map((o) => (
-              <option key={o.slug} value={o.slug}>
-                {o.labelPlural}
-              </option>
-            ))}
-          </select>
+            placeholder={objects.length === 0 ? 'No objects' : 'Select object'}
+            options={objects.map((o) => ({ value: o.slug, label: o.labelPlural }))}
+          />
         </div>
 
         <div className="cal-controls__group">
           <span className="cal-controls__label">By date</span>
-          <select
-            className="st-select"
-            value={dateFieldKey}
+          <Select
+            size="sm"
+            value={dateFieldKey || null}
             disabled={dateFields.length === 0}
-            onChange={(e) => setDateFieldKey(e.target.value)}
+            onChange={(v) => setDateFieldKey(v ?? '')}
             aria-label="Calendar date field"
-          >
-            {dateFields.length === 0 && <option value="">No date field</option>}
-            {dateFields.map((f) => (
-              <option key={f.key} value={f.key}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+            placeholder={dateFields.length === 0 ? 'No date field' : 'Select date field'}
+            options={dateFields.map((f) => ({ value: f.key, label: f.label }))}
+          />
         </div>
 
         <div className="cal-controls__spacer" />
 
         <div className="cal-nav">
-          <button
-            type="button"
-            className="cal-nav__btn"
+          <IconButton
+            size="sm"
+            icon={ChevronLeft}
+            label="Previous month"
             onClick={goPrev}
-            aria-label="Previous month"
-            title="Previous month"
-          >
-            <ChevronLeft size={16} />
-          </button>
+          />
           <span className="cal-nav__title">{monthTitle}</span>
-          <button
-            type="button"
-            className="cal-nav__btn"
+          <IconButton
+            size="sm"
+            icon={ChevronRight}
+            label="Next month"
             onClick={goNext}
-            aria-label="Next month"
-            title="Next month"
-          >
-            <ChevronRight size={16} />
-          </button>
+          />
           <TwentyButton variant="secondary" onClick={goToday}>
             Today
           </TwentyButton>

@@ -56,8 +56,6 @@ import Link from 'next/link';
 import {
   Search,
   Database,
-  Loader2,
-  AlertTriangle,
   Building2,
   Users,
   Briefcase,
@@ -86,6 +84,14 @@ import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 import type { SabcrmRustRecord } from '@/lib/rust-client/sabcrm-records';
 import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
 import type { TwentyAvatarShape } from '@/components/sabcrm/twenty';
+import {
+  SearchInput,
+  Button,
+  IconButton,
+  Alert,
+  Spinner,
+  Skeleton,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 
 import '../my-work/my-work.css';
@@ -687,16 +693,13 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       <TwentyPageHeader title="Search" icon={Search} />
 
       <div className="stw-searchbox">
-        <span className="stw-searchbox__icon" aria-hidden="true">
-          <Search size={18} />
-        </span>
-        <input
+        <SearchInput
           ref={inputRef}
-          className="stw-searchbox__input"
+          inputSize="lg"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onValueChange={setInput}
           onKeyDown={onKeyDown}
-          placeholder="Search everything — companies, people, opportunities…"
+          placeholder="Search everything: companies, people, opportunities"
           autoFocus
           autoComplete="off"
           spellCheck={false}
@@ -711,8 +714,11 @@ export default function SabcrmSearchPage(): React.JSX.Element {
           aria-label="Search all records"
         />
         {searching ? (
-          <span className="stw-searchbox__spin" aria-hidden="true">
-            <Loader2 size={16} className="st-spin" />
+          <span
+            className="stw-searchbox__spin"
+            style={{ right: input ? 36 : 12 }}
+          >
+            <Spinner size="sm" label="Searching" />
           </span>
         ) : null}
       </div>
@@ -720,14 +726,14 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       {/* Results summary line (only once we have hits). */}
       {hasQuery && expandedObject ? (
         <p className="stsg-summary">
-          <button
-            type="button"
-            className="stsg-back"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={ChevronLeft}
             onClick={closeExpanded}
           >
-            <ChevronLeft size={14} aria-hidden="true" />
             All results
-          </button>
+          </Button>
           <span aria-hidden="true" className="stsg-summary__sep">
             /
           </span>
@@ -759,14 +765,9 @@ export default function SabcrmSearchPage(): React.JSX.Element {
       ) : null}
 
       {searchError ? (
-        <div className="st-banner stsg-degraded" role="alert">
-          <AlertTriangle
-            size={16}
-            className="st-banner__icon"
-            aria-hidden="true"
-          />
-          <span>{searchError}</span>
-        </div>
+        <Alert tone="danger" className="stsg-degraded">
+          {searchError}
+        </Alert>
       ) : !hasQuery ? (
         recent.length > 0 ? (
           <section className="stsg-recent" aria-label="Recent searches">
@@ -775,13 +776,9 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                 <Clock size={13} aria-hidden="true" />
                 Recent
               </span>
-              <button
-                type="button"
-                className="stsg-recent__clear"
-                onClick={clearRecent}
-              >
+              <Button variant="ghost" size="sm" onClick={clearRecent}>
                 Clear
-              </button>
+              </Button>
             </div>
             <ul className="stsg-recent__list">
               {recent.map((term) => (
@@ -945,17 +942,19 @@ export default function SabcrmSearchPage(): React.JSX.Element {
                     );
                   })}
                 </ul>
-                <button
-                  type="button"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  block
                   className="stsg-group__more"
+                  iconRight={ArrowRight}
                   onClick={() => openExpanded(descriptor.slug)}
                   aria-label={`See all results in ${descriptor.labelPlural}`}
                 >
                   {overflow > 0
                     ? `See all in ${descriptor.labelPlural}`
                     : `See all ${group.hits.length} in ${descriptor.labelPlural}`}
-                  <ArrowRight size={13} aria-hidden="true" />
-                </button>
+                </Button>
               </section>
             );
           })}
@@ -978,15 +977,25 @@ function ResultsSkeleton(): React.JSX.Element {
           className="stw-group"
           style={{ padding: 'var(--st-space-3)' }}
         >
-          <div
-            className="st-skeleton"
-            style={{ height: 16, width: 120, marginBottom: 'var(--st-space-3)' }}
+          <Skeleton
+            height={16}
+            width={120}
+            style={{ marginBottom: 'var(--st-space-3)' }}
           />
-          <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
-          <div className="st-skeleton st-skeleton-row" style={{ height: 28 }} />
-          <div
-            className="st-skeleton st-skeleton-row"
-            style={{ height: 28, width: '75%' }}
+          <Skeleton
+            height={28}
+            width="100%"
+            style={{ display: 'block', marginTop: 8 }}
+          />
+          <Skeleton
+            height={28}
+            width="100%"
+            style={{ display: 'block', marginTop: 8 }}
+          />
+          <Skeleton
+            height={28}
+            width="75%"
+            style={{ display: 'block', marginTop: 8 }}
           />
         </div>
       ))}
@@ -1041,10 +1050,9 @@ function ExpandedResults({
 
   if (error) {
     return (
-      <div className="st-banner stsg-degraded" role="alert">
-        <AlertTriangle size={16} className="st-banner__icon" aria-hidden="true" />
-        <span>{error}</span>
-      </div>
+      <Alert tone="danger" className="stsg-degraded">
+        {error}
+      </Alert>
     );
   }
 
@@ -1103,36 +1111,38 @@ function ExpandedResults({
 
         {/* Pager + back affordance. */}
         <div className="stsg-pager">
-          <button type="button" className="stsg-pager__back" onClick={onBack}>
-            <ChevronLeft size={13} aria-hidden="true" />
+          <Button
+            variant="ghost"
+            size="sm"
+            iconLeft={ChevronLeft}
+            onClick={onBack}
+          >
             Back to all results
-          </button>
+          </Button>
           {total > 0 ? (
             <div className="stsg-pager__nav">
               <span className="stsg-pager__range">
                 {from}&ndash;{to} of {total}
               </span>
-              <button
-                type="button"
-                className="stsg-pager__btn"
+              <IconButton
+                variant="outline"
+                size="sm"
+                icon={ChevronLeft}
+                label="Previous page"
                 disabled={page <= 1 || loading}
                 onClick={() => onPage(Math.max(1, page - 1))}
-                aria-label="Previous page"
-              >
-                <ChevronLeft size={14} aria-hidden="true" />
-              </button>
+              />
               <span className="stsg-pager__page">
                 {page} / {totalPages}
               </span>
-              <button
-                type="button"
-                className="stsg-pager__btn"
+              <IconButton
+                variant="outline"
+                size="sm"
+                icon={ChevronRight}
+                label="Next page"
                 disabled={page >= totalPages || loading}
                 onClick={() => onPage(Math.min(totalPages, page + 1))}
-                aria-label="Next page"
-              >
-                <ChevronRight size={14} aria-hidden="true" />
-              </button>
+              />
             </div>
           ) : null}
         </div>

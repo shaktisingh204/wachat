@@ -44,7 +44,6 @@ import * as React from 'react';
 import {
   Sparkles,
   Send,
-  Loader2,
   AlertTriangle,
   ArrowDown,
   Check,
@@ -54,6 +53,13 @@ import {
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { TwentyMarkdown } from '@/components/sabcrm/twenty/markdown';
+import {
+  Button,
+  IconButton,
+  Textarea,
+  Alert,
+  Spinner,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 
 import '@/styles/sabcrm-twenty.css';
@@ -228,15 +234,14 @@ function CopyButton({ text }: { text: string }): React.JSX.Element {
   }, [text]);
 
   return (
-    <button
-      type="button"
+    <IconButton
       className="st-ai__copy"
+      size="sm"
+      variant="ghost"
+      icon={copied ? Check : Copy}
+      label={copied ? 'Copied' : 'Copy message'}
       onClick={onCopy}
-      aria-label={copied ? 'Copied' : 'Copy message'}
-      title={copied ? 'Copied' : 'Copy'}
-    >
-      {copied ? <Check size={13} /> : <Copy size={13} />}
-    </button>
+    />
   );
 }
 
@@ -505,15 +510,15 @@ export default function SabcrmAiPage(): React.JSX.Element {
               </p>
               <div className="st-ai__chips">
                 {SUGGESTED_PROMPTS.map((prompt) => (
-                  <button
+                  <Button
                     key={prompt}
-                    type="button"
-                    className="st-ai__chip"
+                    variant="outline"
+                    size="sm"
                     onClick={() => void send(prompt)}
                     disabled={pending}
                   >
                     {prompt}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -538,11 +543,8 @@ export default function SabcrmAiPage(): React.JSX.Element {
                           </TwentyMarkdown>
                         )
                       ) : streaming ? (
-                        <span
-                          className="st-ai__typing"
-                          aria-label="Thinking"
-                        >
-                          <Loader2 size={14} className="st-ai__spin" />
+                        <span className="st-ai__typing">
+                          <Spinner size="sm" label="Thinking" />
                           Thinking…
                         </span>
                       ) : (
@@ -564,41 +566,36 @@ export default function SabcrmAiPage(): React.JSX.Element {
           )}
 
           {unconfigured ? (
-            <div className="st-ai__notice st-ai__notice--info" role="status">
-              <AlertTriangle size={16} aria-hidden="true" />
-              <div>
-                <strong>AI isn’t configured yet.</strong>
-                <p>
-                  Add a provider key (<code>AI_GATEWAY_API_KEY</code>,{' '}
-                  <code>ANTHROPIC_API_KEY</code>, or{' '}
-                  <code>OPENAI_API_KEY</code>) to enable the assistant.
-                </p>
-              </div>
-            </div>
+            <Alert
+              className="st-ai__notice"
+              tone="info"
+              icon={AlertTriangle}
+              title="AI isn’t configured yet."
+            >
+              Add a provider key (<code>AI_GATEWAY_API_KEY</code>,{' '}
+              <code>ANTHROPIC_API_KEY</code>, or <code>OPENAI_API_KEY</code>) to
+              enable the assistant.
+            </Alert>
           ) : null}
 
           {error ? (
-            <div className="st-ai__notice st-ai__notice--error" role="alert">
-              <AlertTriangle size={16} aria-hidden="true" />
-              <span>{error}</span>
-            </div>
+            <Alert className="st-ai__notice" tone="danger">
+              {error}
+            </Alert>
           ) : null}
         </div>
 
         {!isEmpty && !atBottom ? (
-          <button
-            type="button"
+          <IconButton
             className="st-ai__scroll-bottom"
+            icon={ArrowDown}
+            label="Scroll to latest"
             onClick={scrollToBottom}
-            aria-label="Scroll to latest"
-            title="Scroll to latest"
-          >
-            <ArrowDown size={16} />
-          </button>
+          />
         ) : null}
 
         <form className="st-ai__composer" onSubmit={onSubmit}>
-          <textarea
+          <Textarea
             ref={inputRef}
             className="st-ai__input"
             placeholder="Message the AI Assistant…"

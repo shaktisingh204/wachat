@@ -17,11 +17,16 @@
  * "No project selected" empty state. On mount, if nothing is selected yet
  * but projects exist, the first is auto-selected — matching the server
  * `gate()` which also defaults to the user's first project.
+ *
+ * UI: the dropdown is a 20ui `Menu` (keyboard + Escape + outside-click for
+ * free) and the create/edit dialog is a 20ui `Modal` with `Field`/`Input`/
+ * `Textarea`. The SabFiles logo picker and all project create/update logic
+ * (including the standalone CRM-only project filter) are unchanged.
  */
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Check, Plus, X, Pencil } from 'lucide-react';
+import { ChevronDown, Check, Plus, Pencil } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 import {
@@ -31,12 +36,24 @@ import {
   type SabcrmProjectListItem,
 } from '@/app/actions/sabcrm-twenty.actions';
 import { SabFileUrlInput } from '@/components/sabfiles';
+import {
+  Button,
+  Field,
+  Input,
+  Menu,
+  MenuItem,
+  MenuSeparator,
+  Modal,
+  Textarea,
+} from '@/components/sabcrm/20ui';
 
 /** First glyph of a name, for the square avatar tile. */
 function avatarLetter(name: string | null | undefined): string {
   const ch = (name ?? '').trim().charAt(0);
   return ch ? ch.toUpperCase() : 'S';
 }
+
+const FORM_ID = 'st-ws-dialog-form';
 
 export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   const router = useRouter();
@@ -49,7 +66,6 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
     reloadProjects,
   } = useProject();
 
-  const [menuOpen, setMenuOpen] = React.useState(false);
   // Dialog mode: null = closed, 'create' = new project, 'edit' = active project.
   const [dialogMode, setDialogMode] = React.useState<'create' | 'edit' | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
@@ -62,7 +78,6 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   const [formIndustry, setFormIndustry] = React.useState('');
   const [formDescription, setFormDescription] = React.useState('');
 
-  const rootRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   // SabCRM projects are STANDALONE from other modules' projects. We read them
@@ -101,18 +116,6 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
     }
   }, [activeIsCrm, crmProjects, setActiveProjectId]);
 
-  // Close the dropdown on an outside click.
-  React.useEffect(() => {
-    if (!menuOpen) return;
-    const onPointerDown = (event: MouseEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    window.addEventListener('mousedown', onPointerDown);
-    return () => window.removeEventListener('mousedown', onPointerDown);
-  }, [menuOpen]);
-
   // Focus the name field whenever a dialog opens.
   React.useEffect(() => {
     if (!dialogMode) return;
@@ -126,11 +129,9 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
       setActiveProjectId(projectId);
       router.refresh();
     }
-    setMenuOpen(false);
   };
 
   const openCreateDialog = () => {
-    setMenuOpen(false);
     setFormName('');
     setFormLogo('');
     setFormWebsite('');
@@ -140,7 +141,6 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   };
 
   const openEditDialog = () => {
-    setMenuOpen(false);
     setFormName(activeCrm?.name ?? '');
     setFormLogo(activeCrm?.logoUrl ?? '');
     setFormWebsite(activeCrm?.website ?? '');
@@ -192,35 +192,17 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
   };
 
   return (
-    <div className="st-ws" ref={rootRef}>
-      <button
-        type="button"
-        className="st-workspace-switcher"
-        onClick={() => setMenuOpen((open) => !open)}
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
-        aria-label={`Workspace: ${displayName}`}
-      >
-        <span className="st-workspace-switcher__avatar" aria-hidden="true">
-          {activeLogo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={activeLogo} alt="" className="st-ws-logo" />
-          ) : (
-            avatarLetter(displayName)
-          )}
-        </span>
-        <span className="st-workspace-switcher__name">{displayName}</span>
-        <ChevronDown
-          className="st-workspace-switcher__chevron"
-          size={14}
-          aria-hidden="true"
-        />
-      </button>
-
-      {menuOpen && (
-        <div className="st-ws-menu" role="menu">
-          <div className="st-ws-menu__header">
-            <span className="st-ws-menu__avatar" aria-hidden="true">
+    <div className="st-ws">
+      <Menu
+        align="start"
+        label={`Workspace: ${displayName}`}
+        trigger={
+          <button
+            type="button"
+            className="st-workspace-switcher"
+            aria-label={`Workspace: ${displayName}`}
+          >
+            <span className="st-workspace-switcher__avatar" aria-hidden="true">
               {activeLogo ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={activeLogo} alt="" className="st-ws-logo" />
@@ -228,209 +210,159 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
                 avatarLetter(displayName)
               )}
             </span>
-            <span className="st-ws-menu__title">{displayName}</span>
-            {activeIsCrm && (
-              <button
-                type="button"
-                className="st-ws-menu__edit"
-                aria-label="Edit project"
-                title="Edit project"
-                onClick={openEditDialog}
-              >
-                <Pencil size={14} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-
-          <div className="st-ws-menu__section">
-            {crmProjects.length === 0 ? (
-              <div className="st-ws-menu__empty">No CRM projects yet</div>
-            ) : (
-              crmProjects.map((project) => {
-                const id = project.id;
-                const selected = id === activeProjectId;
-                const logo = project.logoUrl;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    className="st-ws-menu__item"
-                    role="menuitemradio"
-                    aria-checked={selected}
-                    onClick={() => handleSelect(id)}
-                  >
-                    <span className="st-ws-menu__item-avatar" aria-hidden="true">
-                      {logo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={logo} alt="" className="st-ws-logo" />
-                      ) : (
-                        avatarLetter(project.name)
-                      )}
-                    </span>
-                    <span className="st-ws-menu__item-label">
-                      {project.name || 'Untitled'}
-                    </span>
-                    {selected && (
-                      <Check className="st-ws-menu__check" size={15} aria-hidden="true" />
-                    )}
-                  </button>
-                );
-              })
-            )}
-          </div>
-
-          <div className="st-ws-menu__sep" />
-
-          <button
-            type="button"
-            className="st-ws-menu__item"
-            role="menuitem"
-            onClick={openCreateDialog}
-          >
-            <span className="st-ws-menu__item-icon" aria-hidden="true">
-              <Plus size={15} />
-            </span>
-            <span className="st-ws-menu__item-label">Create project</span>
+            <span className="st-workspace-switcher__name">{displayName}</span>
+            <ChevronDown
+              className="st-workspace-switcher__chevron"
+              size={14}
+              aria-hidden="true"
+            />
           </button>
+        }
+      >
+        <div className="st-ws-menu__header">
+          <span className="st-ws-menu__avatar" aria-hidden="true">
+            {activeLogo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={activeLogo} alt="" className="st-ws-logo" />
+            ) : (
+              avatarLetter(displayName)
+            )}
+          </span>
+          <span className="st-ws-menu__title">{displayName}</span>
         </div>
-      )}
 
-      {dialogMode && (
-        <div
-          className="st-dialog-overlay"
-          onClick={() => {
-            if (!submitting) setDialogMode(null);
-          }}
-        >
-          <div
-            className="st-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="st-ws-dialog-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <form onSubmit={handleSubmit}>
-              <div className="st-dialog__header">
-                <h2 className="st-dialog__title" id="st-ws-dialog-title">
-                  {dialogMode === 'edit' ? 'Edit project' : 'Create project'}
-                </h2>
-                <button
-                  type="button"
-                  className="st-dialog__close"
-                  onClick={() => setDialogMode(null)}
-                  disabled={submitting}
-                  aria-label="Close"
-                >
-                  <X size={16} aria-hidden="true" />
-                </button>
-              </div>
-              <div className="st-dialog__body st-ws-form">
-                <div className="st-ws-field">
-                  <label className="st-ws-field-label" htmlFor="st-ws-name">
-                    Project name
-                  </label>
-                  <input
-                    id="st-ws-name"
-                    ref={inputRef}
-                    className="st-input"
-                    value={formName}
-                    onChange={(event) => setFormName(event.target.value)}
-                    placeholder="e.g. Acme Sales"
-                    maxLength={120}
-                    disabled={submitting}
-                    autoComplete="off"
-                  />
-                </div>
+        {activeIsCrm && (
+          <MenuItem icon={Pencil} onSelect={openEditDialog}>
+            Edit project
+          </MenuItem>
+        )}
 
-                <div className="st-ws-field">
-                  <label className="st-ws-field-label">Logo</label>
-                  <SabFileUrlInput
-                    value={formLogo}
-                    onChange={(v) => setFormLogo(v)}
-                    accept="image"
-                    pickerTitle="Choose a project logo"
-                    placeholder="No logo chosen"
-                    disabled={submitting}
-                  />
-                </div>
+        {crmProjects.length === 0 ? (
+          <div className="st-ws-menu__empty">No CRM projects yet</div>
+        ) : (
+          crmProjects.map((project) => {
+            const id = project.id;
+            const selected = id === activeProjectId;
+            const logo = project.logoUrl;
+            return (
+              <MenuItem
+                key={id}
+                role="menuitemradio"
+                aria-checked={selected}
+                onSelect={() => handleSelect(id)}
+                hint={
+                  selected ? (
+                    <Check className="st-ws-menu__check" size={15} aria-hidden="true" />
+                  ) : undefined
+                }
+              >
+                <span className="st-ws-menu__item-avatar" aria-hidden="true">
+                  {logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logo} alt="" className="st-ws-logo" />
+                  ) : (
+                    avatarLetter(project.name)
+                  )}
+                </span>
+                {project.name || 'Untitled'}
+              </MenuItem>
+            );
+          })
+        )}
 
-                <div className="st-ws-field">
-                  <label className="st-ws-field-label" htmlFor="st-ws-industry">
-                    Industry
-                  </label>
-                  <input
-                    id="st-ws-industry"
-                    className="st-input"
-                    value={formIndustry}
-                    onChange={(event) => setFormIndustry(event.target.value)}
-                    placeholder="e.g. SaaS, Real Estate"
-                    maxLength={120}
-                    disabled={submitting}
-                    autoComplete="off"
-                  />
-                </div>
+        <MenuSeparator />
 
-                <div className="st-ws-field">
-                  <label className="st-ws-field-label" htmlFor="st-ws-website">
-                    Website
-                  </label>
-                  <input
-                    id="st-ws-website"
-                    className="st-input"
-                    value={formWebsite}
-                    onChange={(event) => setFormWebsite(event.target.value)}
-                    placeholder="https://"
-                    maxLength={300}
-                    disabled={submitting}
-                    autoComplete="off"
-                  />
-                </div>
+        <MenuItem icon={Plus} onSelect={openCreateDialog}>
+          Create project
+        </MenuItem>
+      </Menu>
 
-                <div className="st-ws-field">
-                  <label className="st-ws-field-label" htmlFor="st-ws-desc">
-                    Description
-                  </label>
-                  <textarea
-                    id="st-ws-desc"
-                    className="st-textarea"
-                    value={formDescription}
-                    onChange={(event) => setFormDescription(event.target.value)}
-                    placeholder="A short description of this CRM workspace"
-                    maxLength={2000}
-                    disabled={submitting}
-                    rows={3}
-                  />
-                </div>
+      <Modal
+        open={dialogMode !== null}
+        onClose={() => {
+          if (!submitting) setDialogMode(null);
+        }}
+        title={dialogMode === 'edit' ? 'Edit project' : 'Create project'}
+        size="sm"
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => setDialogMode(null)}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form={FORM_ID}
+              loading={submitting}
+              disabled={!formName.trim()}
+            >
+              {dialogMode === 'edit' ? 'Save changes' : 'Create'}
+            </Button>
+          </>
+        }
+      >
+        <form id={FORM_ID} className="st-ws-form" onSubmit={handleSubmit}>
+          <Field label="Project name" error={error ?? undefined}>
+            <Input
+              ref={inputRef}
+              value={formName}
+              onChange={(event) => setFormName(event.target.value)}
+              placeholder="e.g. Acme Sales"
+              maxLength={120}
+              disabled={submitting}
+              autoComplete="off"
+            />
+          </Field>
 
-                {error && <p className="st-ws-error">{error}</p>}
-              </div>
-              <div className="st-dialog__footer">
-                <button
-                  type="button"
-                  className="st-btn st-btn--secondary"
-                  onClick={() => setDialogMode(null)}
-                  disabled={submitting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="st-btn st-btn--primary"
-                  disabled={submitting || !formName.trim()}
-                >
-                  {submitting
-                    ? dialogMode === 'edit'
-                      ? 'Saving…'
-                      : 'Creating…'
-                    : dialogMode === 'edit'
-                      ? 'Save changes'
-                      : 'Create'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+          <Field label="Logo">
+            <SabFileUrlInput
+              value={formLogo}
+              onChange={(v) => setFormLogo(v)}
+              accept="image"
+              pickerTitle="Choose a project logo"
+              placeholder="No logo chosen"
+              disabled={submitting}
+            />
+          </Field>
+
+          <Field label="Industry">
+            <Input
+              value={formIndustry}
+              onChange={(event) => setFormIndustry(event.target.value)}
+              placeholder="e.g. SaaS, Real Estate"
+              maxLength={120}
+              disabled={submitting}
+              autoComplete="off"
+            />
+          </Field>
+
+          <Field label="Website">
+            <Input
+              value={formWebsite}
+              onChange={(event) => setFormWebsite(event.target.value)}
+              placeholder="https://"
+              maxLength={300}
+              disabled={submitting}
+              autoComplete="off"
+            />
+          </Field>
+
+          <Field label="Description">
+            <Textarea
+              value={formDescription}
+              onChange={(event) => setFormDescription(event.target.value)}
+              placeholder="A short description of this CRM workspace"
+              maxLength={2000}
+              disabled={submitting}
+              rows={3}
+            />
+          </Field>
+        </form>
+      </Modal>
     </div>
   );
 }

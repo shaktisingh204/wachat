@@ -12,15 +12,18 @@ import {
   Users,
 } from "lucide-react";
 
+import { cn, useZoruToast } from "@/components/zoruui";
 import {
   Button,
+  IconButton,
   Input,
   Textarea,
-  Label,
+  Field,
   Badge,
-  cn,
-  useZoruToast,
-} from "@/components/zoruui";
+  Select,
+  SegmentedControl,
+  type SegmentedItem,
+} from "@/components/sabcrm/20ui";
 import { SabFilePickerButton, type SabFilePick } from "@/components/sabfiles";
 import {
   createActivityAction,
@@ -168,6 +171,16 @@ export function ActivityComposer({
   const [pending, startTransition] = React.useTransition();
 
   const bodyRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const modeItems = React.useMemo<SegmentedItem<ActivityComposerMode>[]>(
+    () =>
+      availableModes.map((m) => ({
+        value: m,
+        label: MODE_META[m].label,
+        icon: MODE_META[m].icon,
+      })),
+    [availableModes],
+  );
 
   const showsTitle = mode !== "COMMENT";
   const showsTime = TIMED_MODES.has(mode);
@@ -376,48 +389,24 @@ export function ActivityComposer({
     >
       <div className="flex flex-col gap-3">
         {availableModes.length > 1 ? (
-          <div
-            role="tablist"
+          <SegmentedControl
+            className="w-fit"
             aria-label="Activity type"
-            className="inline-flex w-fit items-center gap-1 rounded-full border border-zoru-line bg-zoru-surface p-1"
-          >
-            {availableModes.map((m) => {
-              const Icon = MODE_META[m].icon;
-              const active = m === mode;
-              return (
-                <button
-                  key={m}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setMode(m)}
-                  className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                    active
-                      ? "bg-zoru-ink text-zoru-bg shadow-[var(--zoru-shadow-sm)]"
-                      : "text-zoru-ink-muted hover:text-zoru-ink",
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {MODE_META[m].label}
-                </button>
-              );
-            })}
-          </div>
+            size="sm"
+            items={modeItems}
+            value={mode}
+            onChange={setMode}
+          />
         ) : null}
 
         {showsTitle ? (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="activity-composer-title" required>
-              Title
-            </Label>
+          <Field label="Title" required>
             <Input
-              id="activity-composer-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={`${meta.label} title`}
             />
-          </div>
+          </Field>
         ) : null}
 
         <div className="relative">
@@ -461,53 +450,39 @@ export function ActivityComposer({
 
         {showsTaskFields ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="activity-composer-due">Due date</Label>
+            <Field label="Due date">
               <Input
-                id="activity-composer-due"
                 type="datetime-local"
                 value={dueAt}
                 onChange={(e) => setDueAt(e.target.value)}
               />
-            </div>
+            </Field>
             {hasMembers ? (
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="activity-composer-assignee">Assignee</Label>
-                <select
-                  id="activity-composer-assignee"
-                  value={assigneeId}
-                  onChange={(e) => setAssigneeId(e.target.value)}
-                  className="h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-sm text-zoru-ink shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow] hover:border-zoru-line-strong focus-visible:border-zoru-ink focus-visible:outline-none"
-                >
-                  <option value="">Unassigned</option>
-                  {memberList.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Field label="Assignee">
+                <Select
+                  value={assigneeId || null}
+                  onChange={(v) => setAssigneeId(v ?? "")}
+                  placeholder="Unassigned"
+                  clearable
+                  options={memberList.map((m) => ({ value: m.id, label: m.name }))}
+                />
+              </Field>
             ) : null}
           </div>
         ) : null}
 
         {showsTime ? (
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="activity-composer-time">
-              {mode === "CALL" ? "Call time" : "Meeting time"}
-            </Label>
+          <Field label={mode === "CALL" ? "Call time" : "Meeting time"}>
             <Input
-              id="activity-composer-time"
               type="datetime-local"
               value={happenedAt}
               onChange={(e) => setHappenedAt(e.target.value)}
             />
-          </div>
+          </Field>
         ) : null}
 
         {attachments.length > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            <Label>Attachments</Label>
+          <Field label="Attachments">
             <ul className="flex flex-col gap-1">
               {attachments.map((a) => (
                 <li
@@ -518,25 +493,23 @@ export function ActivityComposer({
                     <Paperclip className="h-3.5 w-3.5 shrink-0 text-zoru-ink-muted" />
                     <span className="truncate text-zoru-ink">{a.name}</span>
                   </span>
-                  <button
-                    type="button"
-                    aria-label={`Remove ${a.name}`}
+                  <IconButton
+                    label={`Remove ${a.name}`}
+                    icon={X}
+                    size="sm"
                     onClick={() => removeAttachment(a.fileId)}
-                    className="shrink-0 rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+                  />
                 </li>
               ))}
             </ul>
-          </div>
+          </Field>
         ) : null}
 
         {mentionedMembers.length > 0 ? (
           <div className="flex flex-wrap items-center gap-1.5">
             <AtSign className="h-3.5 w-3.5 text-zoru-ink-muted" />
             {mentionedMembers.map((m) => (
-              <Badge key={m.id} variant="outline">
+              <Badge key={m.id} kind="outline">
                 {m.name}
                 <button
                   type="button"

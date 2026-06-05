@@ -45,6 +45,16 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
+import {
+  Modal,
+  Field,
+  Input,
+  Tabs,
+  Alert,
+  Skeleton,
+  EmptyState,
+  Button,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   getKpisAction,
@@ -291,12 +301,12 @@ function DashboardSkeleton(): React.JSX.Element {
     <>
       <div className="st-dash-kpis" aria-hidden="true">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="st-skeleton st-skel-kpi" />
+          <Skeleton key={i} className="st-skel-kpi" />
         ))}
       </div>
       <div className="st-dash-grid" aria-hidden="true">
-        <div className="st-skeleton st-skel-panel" />
-        <div className="st-skeleton st-skel-panel" />
+        <Skeleton className="st-skel-panel" />
+        <Skeleton className="st-skel-panel" />
       </div>
     </>
   );
@@ -304,13 +314,12 @@ function DashboardSkeleton(): React.JSX.Element {
 
 function DashboardError({ message }: { message: string }): React.JSX.Element {
   return (
-    <div className="st-empty">
-      <span className="st-empty__icon" aria-hidden="true">
-        <AlertTriangle size={20} />
-      </span>
-      <h2 className="st-empty__title">Dashboard unavailable</h2>
-      <p className="st-empty__desc">{message}</p>
-    </div>
+    <EmptyState
+      icon={AlertTriangle}
+      tone="warning"
+      title="Dashboard unavailable"
+      description={message}
+    />
   );
 }
 
@@ -536,25 +545,20 @@ function SavedDashboardView({
       </div>
 
       {dashboard.widgets.length === 0 ? (
-        <div className="st-empty">
-          <span className="st-empty__icon" aria-hidden="true">
-            <LayoutGrid size={20} />
-          </span>
-          <h2 className="st-empty__title">No widgets yet</h2>
-          <p className="st-empty__desc">
-            Add a KPI, breakdown, recent-records, or pipeline widget to build out
-            this dashboard.
-          </p>
-          <div style={{ marginTop: 'var(--st-space-3)' }}>
-            <TwentyButton
+        <EmptyState
+          icon={LayoutGrid}
+          title="No widgets yet"
+          description="Add a KPI, breakdown, recent-records, or pipeline widget to build out this dashboard."
+          action={
+            <Button
               variant="primary"
-              icon={Plus}
+              iconLeft={Plus}
               onClick={() => setAdding(true)}
             >
               Add your first widget
-            </TwentyButton>
-          </div>
-        </div>
+            </Button>
+          }
+        />
       ) : (
         <section
           className={`st-widget-grid${editing ? ' st-widget-grid--editing' : ''}`}
@@ -602,51 +606,47 @@ function RenameDialog({
   onConfirm: (name: string) => void;
 }): React.JSX.Element {
   const [name, setName] = React.useState(initial);
+  const formId = React.useId();
   return (
-    <div
-      className="st-dialog-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      onClick={onCancel}
+    <Modal
+      open
+      onClose={onCancel}
+      title={title}
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            type="submit"
+            form={formId}
+            disabled={!name.trim()}
+          >
+            {confirmLabel}
+          </Button>
+        </>
+      }
     >
       <form
-        className="st-dialog"
-        onClick={(e) => e.stopPropagation()}
+        id={formId}
         onSubmit={(e) => {
           e.preventDefault();
           if (name.trim()) onConfirm(name.trim());
         }}
       >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">{title}</h2>
-        </div>
-        <div className="st-dialog__body">
-          <div className="st-field">
-            <label className="st-field__label" htmlFor="dash-name">
-              Dashboard name
-            </label>
-            <input
-              id="dash-name"
-              className="st-input"
-              type="text"
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Sales pipeline"
-            />
-          </div>
-        </div>
-        <div className="st-dialog__footer">
-          <TwentyButton variant="ghost" onClick={onCancel}>
-            Cancel
-          </TwentyButton>
-          <TwentyButton variant="primary" type="submit" disabled={!name.trim()}>
-            {confirmLabel}
-          </TwentyButton>
-        </div>
+        <Field label="Dashboard name">
+          <Input
+            type="text"
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Sales pipeline"
+          />
+        </Field>
       </form>
-    </div>
+    </Modal>
   );
 }
 
@@ -921,38 +921,26 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
   );
 
   const selector = (
-    <div className="st-dash-tabs" role="tablist" aria-label="Dashboards">
-      <button
-        type="button"
-        role="tab"
-        aria-selected={selectedId === OVERVIEW_ID}
-        className={`st-dash-tab${selectedId === OVERVIEW_ID ? ' active' : ''}`}
-        onClick={() => setSelectedId(OVERVIEW_ID)}
-      >
-        Overview
-      </button>
-      {dashboards.map((d) => (
-        <button
-          type="button"
-          key={d.id}
-          role="tab"
-          aria-selected={selectedId === d.id}
-          className={`st-dash-tab${selectedId === d.id ? ' active' : ''}`}
-          onClick={() => setSelectedId(d.id)}
-        >
-          {d.name}
-        </button>
-      ))}
-      <button
-        type="button"
-        className="st-dash-tab st-dash-tab--add"
+    <div className="st-dash-tabs">
+      <Tabs
+        aria-label="Dashboards"
+        value={selectedId}
+        onChange={setSelectedId}
+        items={[
+          { value: OVERVIEW_ID, label: 'Overview' },
+          ...dashboards.map((d) => ({ value: d.id, label: d.name })),
+        ]}
+      />
+      <Button
+        variant="ghost"
+        size="sm"
+        iconLeft={Plus}
         onClick={() => setDialog('new')}
         aria-label="New dashboard"
         title="New dashboard"
       >
-        <Plus size={14} aria-hidden="true" />
         New
-      </button>
+      </Button>
     </div>
   );
 
@@ -973,18 +961,14 @@ export default function SabcrmDashboardPage(): React.JSX.Element {
       {selector}
 
       {notice ? (
-        <div className="st-dash-notice" role="status">
-          <AlertTriangle size={14} aria-hidden="true" />
-          <span>{notice}</span>
-          <button
-            type="button"
-            className="st-dash-notice__close"
-            onClick={() => setNotice(null)}
-            aria-label="Dismiss"
-          >
-            ×
-          </button>
-        </div>
+        <Alert
+          tone="warning"
+          style={{ marginBottom: 'var(--st-space-4)' }}
+          onClose={() => setNotice(null)}
+          closeLabel="Dismiss"
+        >
+          {notice}
+        </Alert>
       ) : null}
 
       {selected ? (

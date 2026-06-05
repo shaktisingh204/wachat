@@ -30,9 +30,11 @@
  */
 
 import * as React from 'react';
-import { X, AlertTriangle } from 'lucide-react';
 
-import { TwentyButton } from './twenty-primitives';
+import { Button } from '@/components/sabcrm/20ui/button';
+import { Field, Input } from '@/components/sabcrm/20ui/field';
+import { Alert } from '@/components/sabcrm/20ui/feedback';
+import { Modal } from '@/components/sabcrm/20ui/modal';
 
 // ---------------------------------------------------------------------------
 // Confirm
@@ -88,27 +90,23 @@ export function useStConfirm(): UseStConfirmResult {
       onDismiss={() => settle(false)}
       footer={
         <>
-          <TwentyButton variant="secondary" onClick={() => settle(false)}>
+          <Button variant="secondary" onClick={() => settle(false)}>
             {state.cancelLabel ?? 'Cancel'}
-          </TwentyButton>
-          <button
-            type="button"
-            className={`st-btn ${
-              state.destructive ? 'st-btn--danger' : 'st-btn--primary'
-            }`}
+          </Button>
+          <Button
+            variant={state.destructive ? 'danger' : 'primary'}
             onClick={() => settle(true)}
             autoFocus
           >
             {state.confirmLabel ?? 'Confirm'}
-          </button>
+          </Button>
         </>
       }
     >
       {state.destructive ? (
-        <div className="st-banner" role="alert">
-          <AlertTriangle className="st-banner__icon" size={15} />
-          <span>{state.message ?? 'This action cannot be undone.'}</span>
-        </div>
+        <Alert tone="danger">
+          {state.message ?? 'This action cannot be undone.'}
+        </Alert>
       ) : (
         <p className="st-dialog__text">{state.message}</p>
       )}
@@ -178,26 +176,17 @@ export function useStPrompt(): UseStPromptResult {
       onDismiss={() => settle(null)}
       footer={
         <>
-          <TwentyButton variant="secondary" onClick={() => settle(null)}>
+          <Button variant="secondary" onClick={() => settle(null)}>
             {state.cancelLabel ?? 'Cancel'}
-          </TwentyButton>
-          <button
-            type="button"
-            className="st-btn st-btn--primary"
-            onClick={submit}
-            disabled={!canSubmit}
-          >
+          </Button>
+          <Button variant="primary" onClick={submit} disabled={!canSubmit}>
             {state.confirmLabel ?? 'Save'}
-          </button>
+          </Button>
         </>
       }
     >
-      <div className="st-field">
-        {state.label ? (
-          <span className="st-field__label">{state.label}</span>
-        ) : null}
-        <input
-          className="st-input"
+      <Field label={state.label}>
+        <Input
           autoFocus
           value={value}
           placeholder={state.placeholder}
@@ -209,7 +198,7 @@ export function useStPrompt(): UseStPromptResult {
             }
           }}
         />
-      </div>
+      </Field>
     </StModalShell>
   ) : null;
 
@@ -231,44 +220,13 @@ function StModalShell({
   footer: React.ReactNode;
   onDismiss: () => void;
 }): React.JSX.Element {
-  // Escape-to-dismiss.
-  React.useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onDismiss();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onDismiss]);
-
+  // The 20ui Modal owns the full dialog contract — portal root scoped with the
+  // `ui20 sabcrm-twenty` token classes, focus trap + restore, Escape-to-close,
+  // overlay-click dismiss, and body-scroll lock — so the shell is a thin adapter
+  // that maps the promise-driven options onto the controlled `open`/`onClose` API.
   return (
-    // Self-scope under `.sabcrm-twenty` so the `--st-*` tokens resolve even when
-    // the host component isn't already inside the SabCRM design-system scope.
-    <div
-      className="sabcrm-twenty st-dialog-overlay"
-      onClick={onDismiss}
-      role="presentation"
-    >
-      <div
-        className="st-dialog st-dialog--sm"
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="st-dialog__header">
-          <h2 className="st-dialog__title">{title}</h2>
-          <button
-            type="button"
-            className="st-dialog__close"
-            onClick={onDismiss}
-            aria-label="Close"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="st-dialog__body">{children}</div>
-        <div className="st-dialog__footer">{footer}</div>
-      </div>
-    </div>
+    <Modal open onClose={onDismiss} title={title} footer={footer} size="sm">
+      {children}
+    </Modal>
   );
 }

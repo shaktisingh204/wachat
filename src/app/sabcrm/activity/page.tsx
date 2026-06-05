@@ -33,8 +33,9 @@ export const dynamic = 'force-dynamic';
  * fail). Client Component — auth / RBAC / project context come from
  * `../layout.tsx`; the actions independently re-run the full gate.
  *
- * Twenty look only (`.st-*` kit + the NEW sibling `./activity.css`). NO ZoruUI /
- * Tailwind / clay.
+ * Twenty look, on the 20ui design system (`@/components/sabcrm/20ui`, scoped
+ * under the CRM frame's `.sabcrm-twenty` class so no wrapper is needed) plus the
+ * sibling `./activity.css` for the timeline rail. NO ZoruUI / Tailwind / clay.
  */
 
 import * as React from 'react';
@@ -46,7 +47,6 @@ import {
   CheckCircle2,
   Database,
   Inbox,
-  Loader2,
   Mail,
   Phone,
   RefreshCw,
@@ -55,6 +55,14 @@ import {
 } from 'lucide-react';
 
 import { TwentyPageHeader } from '@/components/sabcrm/twenty';
+import {
+  Alert,
+  Button,
+  EmptyState,
+  SegmentedControl,
+  Skeleton,
+  type SegmentedItem,
+} from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 import {
   listSabcrmObjectsTw,
@@ -312,10 +320,10 @@ function FeedSkeleton(): React.JSX.Element {
     <div className="sa-feed__list" aria-hidden="true">
       {Array.from({ length: 6 }).map((_, i) => (
         <div className="sa-skel" key={i}>
-          <span className="sa-skel__dot" />
+          <Skeleton width={24} height={24} radius={8} />
           <div className="sa-skel__lines">
-            <span className="sa-skel__line sa-skel__line--title" />
-            <span className="sa-skel__line sa-skel__line--body" />
+            <Skeleton width="42%" height={11} radius={6} />
+            <Skeleton width="78%" height={11} radius={6} />
           </div>
         </div>
       ))}
@@ -410,22 +418,43 @@ export default function SabcrmActivityPage(): React.JSX.Element {
     setReloadKey((k) => k + 1);
   }, []);
 
+  // Type filter → SegmentedControl items, with a live count chip per type.
+  const filterItems = React.useMemo<SegmentedItem<FilterKey>[]>(
+    () =>
+      FILTERS.map(({ key, label, icon }) => {
+        const count =
+          key === 'ALL'
+            ? items.length
+            : items.filter((it) => it.activity.type.toUpperCase() === key)
+                .length;
+        return {
+          value: key,
+          icon,
+          label: (
+            <>
+              {label}
+              {!loading && count > 0 ? (
+                <span className="sa-feed__filter-count">{count}</span>
+              ) : null}
+            </>
+          ),
+        };
+      }),
+    [items, loading],
+  );
+
   const headerActions = (
-    <button
-      type="button"
-      className="sa-feed__refresh"
+    <Button
+      variant="secondary"
+      size="sm"
+      iconLeft={RefreshCw}
       onClick={refresh}
-      disabled={loading}
+      loading={loading}
       aria-label="Refresh activity feed"
       title="Refresh"
     >
-      {loading ? (
-        <Loader2 size={13} className="sa-spin" aria-hidden="true" />
-      ) : (
-        <RefreshCw size={13} aria-hidden="true" />
-      )}
       Refresh
-    </button>
+    </Button>
   );
 
   return (
@@ -438,99 +467,61 @@ export default function SabcrmActivityPage(): React.JSX.Element {
 
       <div className="sa-feed">
         {/* Type filter (segmented) */}
-        <div
-          className="sa-feed__filters"
-          role="tablist"
-          aria-label="Filter activity by type"
-        >
-          {FILTERS.map(({ key, label, icon: Icon }) => {
-            const isActive = key === filter;
-            const count =
-              key === 'ALL'
-                ? items.length
-                : items.filter(
-                    (it) => it.activity.type.toUpperCase() === key,
-                  ).length;
-            return (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                className={`sa-feed__filter${isActive ? ' is-active' : ''}`}
-                onClick={() => setFilter(key)}
-              >
-                <Icon size={13} aria-hidden="true" />
-                {label}
-                {!loading && count > 0 ? (
-                  <span className="sa-feed__filter-count">{count}</span>
-                ) : null}
-              </button>
-            );
-          })}
+        <div className="sa-feed__filters">
+          <SegmentedControl<FilterKey>
+            aria-label="Filter activity by type"
+            size="sm"
+            value={filter}
+            onChange={setFilter}
+            items={filterItems}
+          />
         </div>
 
         {/* Degraded-engine notice (partial results retained) */}
         {partial && !error ? (
-          <div className="sa-feed__banner" role="status">
-            <AlertTriangle
-              size={15}
-              className="sa-feed__banner-icon"
-              aria-hidden="true"
-            />
-            <span>
-              Some activity couldn&apos;t be loaded — the feed may be
-              incomplete. Try refreshing.
-            </span>
-          </div>
+          <Alert tone="warning">
+            Some activity couldn&apos;t be loaded, so the feed may be
+            incomplete. Try refreshing.
+          </Alert>
         ) : null}
 
         {/* Body: loading → error → empty → list */}
         {loading ? (
           <FeedSkeleton />
         ) : error ? (
-          <div className="sa-feed__state" role="alert">
-            <span className="sa-feed__state-icon">
-              <AlertTriangle size={18} aria-hidden="true" />
-            </span>
-            <span className="sa-feed__state-title">
-              Couldn&apos;t load activity
-            </span>
-            <span className="sa-feed__state-hint">{error}</span>
-            <button
-              type="button"
-              className="sa-feed__refresh"
-              onClick={refresh}
-            >
-              <RefreshCw size={13} aria-hidden="true" />
-              Try again
-            </button>
-          </div>
+          <Alert
+            tone="danger"
+            title="Couldn't load activity"
+            icon={AlertTriangle}
+          >
+            <p>{error}</p>
+            <div className="sa-feed__state-action">
+              <Button
+                variant="secondary"
+                size="sm"
+                iconLeft={RefreshCw}
+                onClick={refresh}
+              >
+                Try again
+              </Button>
+            </div>
+          </Alert>
         ) : !activeProjectId ? (
-          <div className="sa-feed__state">
-            <span className="sa-feed__state-icon">
-              <Inbox size={18} aria-hidden="true" />
-            </span>
-            <span className="sa-feed__state-title">No project selected</span>
-            <span className="sa-feed__state-hint">
-              Choose a project to see its activity feed.
-            </span>
-          </div>
+          <EmptyState
+            icon={Inbox}
+            title="No project selected"
+            description="Choose a project to see its activity feed."
+          />
         ) : items.length === 0 ? (
-          <div className="sa-feed__state">
-            <span className="sa-feed__state-icon">
-              <ActivityIcon size={18} aria-hidden="true" />
-            </span>
-            <span className="sa-feed__state-title">
-              {filter === 'ALL'
+          <EmptyState
+            icon={ActivityIcon}
+            title={
+              filter === 'ALL'
                 ? 'No activity yet'
-                : `No ${filter.toLowerCase()} activity`}
-            </span>
-            <span className="sa-feed__state-hint">
-              Notes, tasks, calls, meetings and emails added to your records show
-              up here, newest first.
-            </span>
-          </div>
+                : `No ${filter.toLowerCase()} activity`
+            }
+            description="Notes, tasks, calls, meetings and emails added to your records show up here, newest first."
+          />
         ) : (
           <ol className="sa-feed__list">
             {items.map((item) => (
