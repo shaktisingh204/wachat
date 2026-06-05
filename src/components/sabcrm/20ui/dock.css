@@ -80,7 +80,9 @@
   opacity: 0.45;
 }
 :is(.ui20, .sabcrm-twenty) .u-dock__btn:active:not(:disabled):not([aria-disabled='true']) {
-  transform: scale(0.94);
+  /* Keep the cursor-lean translateX while pressing (scale alone would drop it). */
+  transform: scale(0.94)
+    translateX(calc((var(--u-dock-mx, 0.5) - 0.5) * var(--u-dock-size) * 0.12));
 }
 
 /* ----- Tile (the rounded square behind the glyph) ----- */

@@ -195,7 +195,7 @@ function RailButton({ item }: { item: AppRailItem }): React.JSX.Element {
       type="button"
       className={cls}
       aria-label={item.label}
-      aria-current={item.active ? 'true' : undefined}
+      aria-current={item.active ? 'page' : undefined}
       onClick={item.onClick}
     >
       {inner}
@@ -394,7 +394,7 @@ function SidebarLeafRow({
     <button
       type="button"
       className={cls}
-      aria-current={item.active ? 'true' : undefined}
+      aria-current={item.active ? 'page' : undefined}
       onClick={item.onClick}
     >
       {body}

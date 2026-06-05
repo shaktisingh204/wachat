@@ -104,9 +104,13 @@ export function TableWithDialog<T>({
 
   const handleRowClick = React.useCallback(
     (row: T, index: number) => {
-      setActiveId(getRowId(row, index));
+      // Compute the id using the row's position in the unsorted `rows` (the same
+      // index basis the resolver above uses), so an index-dependent getRowId
+      // still matches after the table is sorted.
+      const i = rows.indexOf(row);
+      setActiveId(getRowId(row, i === -1 ? index : i));
     },
-    [getRowId],
+    [getRowId, rows],
   );
 
   const handleClose = React.useCallback(() => {

@@ -291,11 +291,14 @@ export const ActionSearchBar = React.forwardRef<HTMLInputElement, ActionSearchBa
           }
           break;
         case 'Escape':
+          // First Escape closes the panel; a second (panel already closed)
+          // clears the query.
           if (open) {
             event.preventDefault();
-            // First Escape closes the panel; a second clears the query.
-            if (query) setQuery('');
             setOpen(false);
+          } else if (query) {
+            event.preventDefault();
+            setQuery('');
           }
           break;
         default:

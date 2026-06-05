@@ -90,17 +90,20 @@ export function WaterLoader({
         focusable="false"
       >
         <defs>
-          {/* Brand gradient that fills the "water" (amber to orange to rose). */}
+          {/* Brand gradient that fills the "water" (amber to orange to rose).
+              CSS custom properties do NOT resolve in SVG presentation attributes
+              (stop-color="var(...)" renders as none); they only resolve in a CSS
+              context, so the vars are set via inline style instead. */}
           <linearGradient id={fillId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="var(--u-brand-amber)" />
-            <stop offset="50%" stopColor="var(--u-brand-orange)" />
-            <stop offset="100%" stopColor="var(--u-brand-rose)" />
+            <stop offset="0%" style={{ stopColor: 'var(--u-brand-amber)' }} />
+            <stop offset="50%" style={{ stopColor: 'var(--u-brand-orange)' }} />
+            <stop offset="100%" style={{ stopColor: 'var(--u-brand-rose)' }} />
           </linearGradient>
 
           {/* Subtle vertical wash for the empty/outline wordmark. */}
           <linearGradient id={emptyId} x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="var(--st-border-strong)" />
-            <stop offset="100%" stopColor="var(--st-text-tertiary)" />
+            <stop offset="0%" style={{ stopColor: 'var(--st-border-strong)' }} />
+            <stop offset="100%" style={{ stopColor: 'var(--st-text-tertiary)' }} />
           </linearGradient>
 
           {/*
