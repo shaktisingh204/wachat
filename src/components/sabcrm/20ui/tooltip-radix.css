@@ -1,0 +1,142 @@
+/* 20ui · Tooltip, small label bubble (Radix-driven) */
+
+/* The portal wrapper only exists to scope tokens in the body portal; it must
+   not interfere with Radix's fixed positioning of the bubble. */
+:is(.ui20, .sabcrm-twenty).u-tip__portal {
+  display: contents;
+}
+
+/* ----- Bubble ----- */
+:is(.ui20, .sabcrm-twenty) .u-tip {
+  z-index: 1100;
+  max-width: 260px;
+  padding: 5px 8px;
+  border-radius: var(--st-radius-sm);
+  /* Calm near-monochrome bubble: dark surface, inverted text, AA in both
+     light and dark themes. Sits above the trigger, never blocks the pointer. */
+  background: var(--st-text);
+  color: var(--st-text-inverted);
+  font-family: var(--st-font);
+  font-size: var(--st-font-size-sm);
+  font-weight: var(--st-fw-medium);
+  line-height: 1.4;
+  letter-spacing: 0.1px;
+  white-space: normal;
+  word-break: break-word;
+  box-shadow: var(--u-elev-2);
+  pointer-events: none;
+  user-select: none;
+  /* Grow from the corner Radix anchored against (its content var resolves to a
+     side+align-aware origin), so the bubble reads as unfolding from the trigger. */
+  transform-origin: var(--radix-tooltip-content-transform-origin);
+}
+
+/* ----- Arrow ----- */
+:is(.ui20, .sabcrm-twenty) .u-tip__arrow {
+  fill: var(--st-text);
+}
+
+/* ----- Entrance (Emil: transform + opacity only, < 200ms, eased) ----- */
+:is(.ui20, .sabcrm-twenty) .u-tip[data-state='delayed-open'],
+:is(.ui20, .sabcrm-twenty) .u-tip[data-state='instant-open'] {
+  animation: u-tip-in var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-tip[data-state='closed'] {
+  animation: u-tip-out var(--u-dur-fast) var(--u-ease-out);
+}
+
+/* Directional nudge: lean in from the anchored side, then settle. */
+:is(.ui20, .sabcrm-twenty) .u-tip[data-side='top'] {
+  animation-name: u-tip-in-top;
+}
+:is(.ui20, .sabcrm-twenty) .u-tip[data-side='bottom'] {
+  animation-name: u-tip-in-bottom;
+}
+:is(.ui20, .sabcrm-twenty) .u-tip[data-side='left'] {
+  animation-name: u-tip-in-left;
+}
+:is(.ui20, .sabcrm-twenty) .u-tip[data-side='right'] {
+  animation-name: u-tip-in-right;
+}
+
+@keyframes u-tip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes u-tip-in-top {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-tip-in-bottom {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes u-tip-in-left {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-tip-in-right {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateX(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+}
+@keyframes u-tip-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+/* Reduced motion: fade only, no movement or scale. */
+@media (prefers-reduced-motion: reduce) {
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-state='delayed-open'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-state='instant-open'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-state='closed'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-side='top'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-side='bottom'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-side='left'],
+  :is(.ui20, .sabcrm-twenty) .u-tip[data-side='right'] {
+    animation: u-tip-fade var(--u-dur-fast) ease;
+  }
+  @keyframes u-tip-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

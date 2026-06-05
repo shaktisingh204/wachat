@@ -17,7 +17,7 @@ import {
   Field,
   Input,
   Textarea,
-  Select,
+  SelectField,
   DatePicker,
 } from '@/components/sabcrm/20ui';
 import {
@@ -154,10 +154,10 @@ export function ProjectFormDialog({
 
         <div className="pm-form__row">
           <Field label="Status">
-            <Select value={status} onChange={(v) => setStatus(v ?? DEFAULT_PROJECT_STATUS)} options={STATUS_OPTS} />
+            <SelectField value={status} onChange={(v) => setStatus(v ?? DEFAULT_PROJECT_STATUS)} options={STATUS_OPTS} />
           </Field>
           <Field label="Priority">
-            <Select
+            <SelectField
               value={priority}
               onChange={(v) => setPriority(v ?? DEFAULT_PROJECT_PRIORITY)}
               options={PRIORITY_OPTS}

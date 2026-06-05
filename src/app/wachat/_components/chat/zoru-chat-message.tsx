@@ -2,7 +2,7 @@
 import { fmtDate } from "@/lib/utils";
 
 import {
-  Tooltip,
+  SimpleTooltip,
   Button,
   IconButton,
   Separator,
@@ -96,9 +96,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     );
 
     return (
-        <Tooltip label={tooltipLabel} placement="top">
+        <SimpleTooltip label={tooltipLabel} placement="top">
             <span className="text-white/70 hover:text-white cursor-pointer" tabIndex={0} role="img" aria-label={`Message status: ${status}`}>{getIcon()}</span>
-        </Tooltip>
+        </SimpleTooltip>
     );
 }
 

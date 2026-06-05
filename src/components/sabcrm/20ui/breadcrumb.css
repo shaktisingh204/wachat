@@ -1,0 +1,100 @@
+/* 20ui · Breadcrumb — semantic hierarchical trail (nav > ol > li) */
+
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb {
+  font-family: var(--st-font);
+}
+
+/* ----- List ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--st-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--st-text-tertiary);
+  font-size: var(--st-font-size-sm);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ----- Item ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--st-space-1);
+}
+
+/* ----- Link (prior crumb) ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__link {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--st-space-1) var(--st-space-2);
+  margin: calc(var(--st-space-1) * -1) calc(var(--st-space-2) * -1);
+  border-radius: var(--st-radius-sm);
+  color: var(--st-text-secondary);
+  font-weight: var(--st-fw-regular);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  /* Emil: a constantly-visible inline target — colour only, no movement. */
+  transition:
+    color var(--u-dur-fast) var(--u-ease-out),
+    background var(--u-dur-fast) var(--u-ease-out);
+}
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__link:hover {
+  color: var(--st-text);
+  background: var(--st-hover);
+}
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__link:focus-visible {
+  color: var(--st-text);
+  box-shadow: var(--u-focus-ring);
+}
+
+/* ----- Page (current crumb) ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__page {
+  display: inline-flex;
+  align-items: center;
+  color: var(--st-text);
+  font-weight: var(--st-fw-medium);
+}
+
+/* ----- Separator glyph ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__separator > svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ----- Collapsed-trail ellipsis ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--st-text-tertiary);
+}
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__ellipsis > svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ----- Visually-hidden label (accessible name for the ellipsis) ----- */
+:is(.ui20, .sabcrm-twenty) .u-breadcrumb__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

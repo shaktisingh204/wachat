@@ -69,7 +69,7 @@ import {
   Spinner,
   Progress,
   ProgressRing,
-  Tooltip,
+  SimpleTooltip,
   Menu,
   MenuItem,
   MenuSeparator,
@@ -87,7 +87,7 @@ import {
   SpotlightCard,
   FeatureTile,
   GlowBadge,
-  Select,
+  SelectField,
   Combobox,
   Slider,
   Pagination,
@@ -284,9 +284,9 @@ export function Ui20Showcase(): React.JSX.Element {
             <Button>Week</Button>
             <Button>Month</Button>
           </ButtonGroup>
-          <Tooltip label="Filter records">
+          <SimpleTooltip label="Filter records">
             <IconButton label="Filter" icon={Search} />
-          </Tooltip>
+          </SimpleTooltip>
         </div>
       </Section>
 
@@ -500,9 +500,9 @@ export function Ui20Showcase(): React.JSX.Element {
             Open modal
           </Button>
 
-          <Tooltip label="Call this contact">
+          <SimpleTooltip label="Call this contact">
             <IconButton label="Call" icon={Phone} variant="secondary" />
-          </Tooltip>
+          </SimpleTooltip>
         </div>
 
         <Modal
@@ -553,7 +553,7 @@ export function Ui20Showcase(): React.JSX.Element {
       <Section title="Selects & search" note="select · combobox · search · slider">
         <div className="ux-grid">
           <Field label="Stage">
-            <Select
+            <SelectField
               value={stage}
               onChange={setStage}
               placeholder="Select stage"

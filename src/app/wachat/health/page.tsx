@@ -14,7 +14,7 @@ import {
   Input,
   useToast,
   Alert,
-  Tooltip,
+  SimpleTooltip,
   Separator,
   ChartContainer,
   ChartTooltip,
@@ -449,14 +449,14 @@ export default function HealthPage() {
                     <h3 className="text-[12px] font-medium text-[var(--st-text)]">
                       Quality History
                     </h3>
-                    <Tooltip label="Track your quality rating over time to see if specific campaigns caused a drop in quality.">
+                    <SimpleTooltip label="Track your quality rating over time to see if specific campaigns caused a drop in quality.">
                       <IconButton
                         label="About quality history"
                         icon={Info}
                         variant="ghost"
                         size="sm"
                       />
-                    </Tooltip>
+                    </SimpleTooltip>
                   </div>
 
                   <ChartContainer

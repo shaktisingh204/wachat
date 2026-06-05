@@ -17,15 +17,25 @@ export * from './card';
 export * from './badge';
 export * from './field';
 export * from './choice';
-export * from './select';
+// Select: the compound (Radix) API is canonical; the older props-based widget
+// is kept as SelectField.
+export { Select as SelectField, MultiSelect, type SelectOption, type SelectSize, type SelectProps, type MultiSelectProps } from './select';
+export * from './select-radix';
 export * from './segmented';
-export * from './tabs';
+// Tabs: compound (Radix) API canonical; the props-based variant is TabsBar.
+export { Tabs as TabsBar, TabPanel, type TabItem, type TabsProps, type TabPanelProps } from './tabs';
+export * from './tabs-radix';
 export * from './feedback';
 export * from './loading';
-export * from './tooltip';
+// Tooltip: compound (Radix) API canonical; the single-child variant is SimpleTooltip.
+export { Tooltip as SimpleTooltip, type TooltipPlacement, type TooltipProps } from './tooltip';
+export * from './tooltip-radix';
 export * from './menu';
 export * from './pagination';
 export * from './modal';
+export * from './dialog';
+export * from './breadcrumb';
+export * from './progress';
 export * from './misc';
 export * from './avatar';
 export * from './premium';
