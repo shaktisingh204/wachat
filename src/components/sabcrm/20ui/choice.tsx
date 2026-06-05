@@ -230,6 +230,7 @@ export const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
           disabled={resolvedDisabled}
           onChange={handleChange}
           aria-invalid={field?.invalid || undefined}
+          aria-describedby={field?.describedBy}
           {...rest}
         />
         <span className="u-radio__dot" aria-hidden="true" />

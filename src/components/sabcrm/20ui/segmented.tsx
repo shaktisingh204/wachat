@@ -60,6 +60,10 @@ export function SegmentedControl<V extends string = string>({
   }>({ left: 0, width: 0, ready: false });
 
   const activeIndex = items.findIndex((it) => it.value === value);
+  // When nothing is selected, the roving tabstop goes to the first ENABLED
+  // segment (a disabled button can't hold focus, which would otherwise make the
+  // whole control unreachable by keyboard).
+  const firstEnabledIndex = items.findIndex((it) => !it.disabled);
 
   // Measure the active segment so the fill can slide to it. Re-measures on
   // selection change and on resize (container reflow / font swap).
@@ -179,7 +183,7 @@ export function SegmentedControl<V extends string = string>({
             aria-checked={selected}
             aria-label={iconOnly && typeof item.value === 'string' ? item.value : undefined}
             className={['u-seg__item', selected && 'is-selected'].filter(Boolean).join(' ')}
-            tabIndex={selected || (activeIndex < 0 && i === 0) ? 0 : -1}
+            tabIndex={selected || (activeIndex < 0 && i === firstEnabledIndex) ? 0 : -1}
             disabled={item.disabled}
             onClick={() => !item.disabled && onChange(item.value)}
             onKeyDown={(e) => onKeyDown(e, i)}

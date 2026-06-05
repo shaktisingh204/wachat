@@ -108,7 +108,7 @@ export function Breadcrumb({
         {items.map((item, i) => {
           const isLast = i === last;
           return (
-            <li className="u-breadcrumb__item" key={i}>
+            <li className="u-breadcrumb__item" key={item.href ?? i}>
               {item.href && !isLast ? (
                 <a className="u-breadcrumb__link" href={item.href}>
                   {item.label}
