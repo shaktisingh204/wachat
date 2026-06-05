@@ -2,7 +2,7 @@
 
 /* Portal layer: a fixed full-viewport stage above the app. The token scope
    (.ui20 / .sabcrm-twenty) is applied on this same node in the JSX so every
-   descendant resolves --st-*/--u-* even though it is portalled to <body>. */
+   descendant resolves the design tokens even though it is portalled to body. */
 :is(.ui20, .sabcrm-twenty).u-drawer__layer,
 :is(.ui20, .sabcrm-twenty) .u-drawer__layer {
   position: fixed;
