@@ -15,10 +15,19 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardHeader,
+  CardTitle,
   EmptyState,
   Field,
   Input,
   Select,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -80,10 +89,9 @@ function CancelScheduleDialog({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant="ghost"
+          variant="danger"
           size="sm"
           disabled={disabled}
-          style={{ color: 'var(--st-danger)' }}
         >
           Cancel
         </Button>
@@ -223,216 +231,192 @@ export function SchedulerView() {
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      <Card className="p-6">
-        <h2 className="text-[16px] mb-4" style={{ color: 'var(--st-text)' }}>New Schedule</h2>
-        <form action={formAction} className="flex flex-col gap-4">
-          <input type="hidden" name="projectId" value={projectId || ''} />
-          <input type="hidden" name="name" value={name} />
-          <input type="hidden" name="templateName" value={templateName} />
-          <input type="hidden" name="audience" value={audience} />
-          <input type="hidden" name="timezone" value={timezone} />
-          <input type="hidden" name="scheduledAt" value={scheduledAt} />
-          <input type="hidden" name="recurring" value={recurring} />
+      <Card variant="outlined" padding="lg">
+        <CardHeader>
+          <CardTitle>New Schedule</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <form action={formAction} className="flex flex-col gap-4">
+            <input type="hidden" name="projectId" value={projectId || ''} />
+            <input type="hidden" name="name" value={name} />
+            <input type="hidden" name="templateName" value={templateName} />
+            <input type="hidden" name="audience" value={audience} />
+            <input type="hidden" name="timezone" value={timezone} />
+            <input type="hidden" name="scheduledAt" value={scheduledAt} />
+            <input type="hidden" name="recurring" value={recurring} />
 
-          <ol className="flex flex-wrap items-center gap-2">
-            {STEPS.map((s, idx) => {
-              const isActive = s.value === step;
-              const stepIndex = STEPS.findIndex((x) => x.value === step);
-              const isComplete = idx < stepIndex;
-              return (
-                <li key={s.value} className="flex items-center gap-2">
-                  <div
-                    className="flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs"
-                    style={
-                      isActive
-                        ? {
-                            background: 'var(--st-text)',
-                            color: 'var(--st-bg)',
-                          }
-                        : isComplete
-                          ? {
-                              border: '1px solid var(--st-border)',
-                              background: 'var(--st-surface)',
-                              color: 'var(--st-text)',
-                            }
-                          : {
-                              border: '1px solid var(--st-border)',
-                              background: 'var(--st-bg)',
-                              color: 'var(--st-text-muted)',
-                            }
-                    }
-                  >
-                    <span className="text-[11px]">{idx + 1}</span>
-                    {s.label}
-                  </div>
-                  {idx < STEPS.length - 1 && (
-                    <span
-                      className="h-px w-6"
-                      style={{
-                        background: isComplete
-                          ? 'var(--st-text)'
-                          : 'var(--st-border)',
-                      }}
+            <ol className="flex flex-wrap items-center gap-2">
+              {STEPS.map((s, idx) => {
+                const isActive = s.value === step;
+                const stepIndex = STEPS.findIndex((x) => x.value === step);
+                const isComplete = idx < stepIndex;
+                return (
+                  <li key={s.value} className="flex items-center gap-2">
+                    <div
+                      className={[
+                        'flex h-7 min-w-7 items-center gap-1.5 rounded-full px-2.5 text-xs',
+                        isActive
+                          ? 'bg-[var(--st-text)] text-[var(--st-bg)]'
+                          : isComplete
+                            ? 'border border-[var(--st-border)] bg-[var(--st-surface)] text-[var(--st-text)]'
+                            : 'border border-[var(--st-border)] bg-[var(--st-bg)] text-[var(--st-text-muted)]',
+                      ].join(' ')}
+                    >
+                      <span className="text-[11px]">{idx + 1}</span>
+                      {s.label}
+                    </div>
+                    {idx < STEPS.length - 1 && (
+                      <span
+                        className={[
+                          'h-px w-6',
+                          isComplete
+                            ? 'bg-[var(--st-text)]'
+                            : 'bg-[var(--st-border)]',
+                        ].join(' ')}
+                      />
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+
+            <div className="mt-5">
+              {step === 'template' && (
+                <div className="flex flex-col gap-4 max-w-xl">
+                  <Field label="Broadcast name" required>
+                    <Input
+                      placeholder="Spring promo"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
                     />
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-
-          <div className="mt-5">
-            {step === 'template' && (
-              <div className="flex flex-col gap-4 max-w-xl">
-                <Field label="Broadcast name" required>
-                  <Input
-                    placeholder="Spring promo"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </Field>
-                <Field label="Template name" required>
-                  <Input
-                    placeholder="welcome_v3"
-                    value={templateName}
-                    onChange={(e) => setTemplateName(e.target.value)}
-                    required
-                  />
-                </Field>
-              </div>
-            )}
-
-            {step === 'audience' && (
-              <div className="flex flex-col gap-4 max-w-xl">
-                <Field label="Audience (default: all)">
-                  <Input
-                    placeholder="segment-id or empty for all contacts"
-                    value={audience}
-                    onChange={(e) => setAudience(e.target.value)}
-                  />
-                </Field>
-              </div>
-            )}
-
-            {step === 'schedule' && (
-              <div className="grid gap-4 max-w-xl sm:grid-cols-2">
-                <Field label="Timezone">
-                  <Select
-                    value={timezone}
-                    onChange={(v) => setTimezone(v ?? TIMEZONES[0])}
-                    options={TIMEZONE_OPTIONS}
-                    placeholder="Timezone"
-                    aria-label="Timezone"
-                  />
-                </Field>
-                <Field label="Scheduled at" required>
-                  <Input
-                    type="datetime-local"
-                    value={scheduledAt}
-                    onChange={(e) => setScheduledAt(e.target.value)}
-                    required
-                  />
-                </Field>
-                <div className="sm:col-span-2">
-                  <Field label="Recurring">
-                    <Select
-                      value={recurring}
-                      onChange={(v) => setRecurring(v ?? 'none')}
-                      options={RECURRING_OPTIONS}
-                      placeholder="Frequency"
-                      aria-label="Recurring"
+                  </Field>
+                  <Field label="Template name" required>
+                    <Input
+                      placeholder="welcome_v3"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      required
                     />
                   </Field>
                 </div>
-              </div>
-            )}
+              )}
 
-            {step === 'review' && (
-              <div className="grid grid-cols-2 gap-3 max-w-xl text-[13px]">
-                <ReviewRow label="Name" value={name || '—'} />
-                <ReviewRow label="Template" value={templateName || '—'} />
-                <ReviewRow label="Audience" value={audience || 'All contacts'} />
-                <ReviewRow label="Timezone" value={timezone} />
-                <ReviewRow
-                  label="Scheduled at"
-                  value={
-                    scheduledAt
-                      ? fmtDate(scheduledAt)
-                      : '—'
-                  }
-                />
-                <ReviewRow label="Recurring" value={recurring} />
-              </div>
-            )}
-          </div>
+              {step === 'audience' && (
+                <div className="flex flex-col gap-4 max-w-xl">
+                  <Field label="Audience (default: all)">
+                    <Input
+                      placeholder="segment-id or empty for all contacts"
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value)}
+                    />
+                  </Field>
+                </div>
+              )}
 
-          <div
-            className="mt-2 flex items-center justify-between gap-2 pt-4"
-            style={{ borderTop: '1px solid var(--st-border)' }}
-          >
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={goBack}
-              disabled={step === 'template'}
-            >
-              Back
-            </Button>
-            {isLastStep ? (
-              <Button type="submit" variant="primary" disabled={isPending || !projectId}>
-                {isPending ? 'Scheduling…' : 'Save Schedule'}
+              {step === 'schedule' && (
+                <div className="grid gap-4 max-w-xl sm:grid-cols-2">
+                  <Field label="Timezone">
+                    <Select
+                      value={timezone}
+                      onChange={(v) => setTimezone(v ?? TIMEZONES[0])}
+                      options={TIMEZONE_OPTIONS}
+                      placeholder="Timezone"
+                      aria-label="Timezone"
+                    />
+                  </Field>
+                  <Field label="Scheduled at" required>
+                    <Input
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={(e) => setScheduledAt(e.target.value)}
+                      required
+                    />
+                  </Field>
+                  <div className="sm:col-span-2">
+                    <Field label="Recurring">
+                      <Select
+                        value={recurring}
+                        onChange={(v) => setRecurring(v ?? 'none')}
+                        options={RECURRING_OPTIONS}
+                        placeholder="Frequency"
+                        aria-label="Recurring"
+                      />
+                    </Field>
+                  </div>
+                </div>
+              )}
+
+              {step === 'review' && (
+                <div className="grid grid-cols-2 gap-3 max-w-xl text-[13px]">
+                  <ReviewRow label="Name" value={name || '—'} />
+                  <ReviewRow label="Template" value={templateName || '—'} />
+                  <ReviewRow label="Audience" value={audience || 'All contacts'} />
+                  <ReviewRow label="Timezone" value={timezone} />
+                  <ReviewRow
+                    label="Scheduled at"
+                    value={
+                      scheduledAt
+                        ? fmtDate(scheduledAt)
+                        : '—'
+                    }
+                  />
+                  <ReviewRow label="Recurring" value={recurring} />
+                </div>
+              )}
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-2 pt-4 border-t border-[var(--st-border)]">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={goBack}
+                disabled={step === 'template'}
+              >
+                Back
               </Button>
-            ) : (
-              <Button type="button" variant="primary" onClick={goNext}>
-                Next
-              </Button>
-            )}
-          </div>
-        </form>
+              {isLastStep ? (
+                <Button type="submit" variant="primary" disabled={isPending || !projectId}>
+                  {isPending ? 'Scheduling...' : 'Save Schedule'}
+                </Button>
+              ) : (
+                <Button type="button" variant="primary" onClick={goNext}>
+                  Next
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardBody>
       </Card>
 
       {isLoading && schedules.length === 0 ? (
         <div className="flex h-20 items-center justify-center">
-          <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'var(--st-text-muted)' }} />
+          <Loader2 className="h-5 w-5 animate-spin text-[var(--st-text-muted)]" />
         </div>
       ) : schedules.length > 0 ? (
-        <Card className="overflow-x-auto p-0">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr
-                className="text-[11px] uppercase tracking-wide"
-                style={{
-                  borderBottom: '1px solid var(--st-border)',
-                  color: 'var(--st-text-muted)',
-                }}
-              >
-                <th className="px-5 py-3">Name</th>
-                <th className="px-5 py-3">Template</th>
-                <th className="px-5 py-3">Scheduled At</th>
-                <th className="px-5 py-3">Status</th>
-                <th className="px-5 py-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+        <Card variant="outlined" padding="none" className="overflow-x-auto">
+          <Table>
+            <THead>
+              <Tr>
+                <Th>Name</Th>
+                <Th>Template</Th>
+                <Th>Scheduled At</Th>
+                <Th>Status</Th>
+                <Th align="right">Action</Th>
+              </Tr>
+            </THead>
+            <TBody>
               {schedules.map((s) => (
-                <tr
-                  key={s._id}
-                  className="last:border-0"
-                  style={{ borderBottom: '1px solid var(--st-border)' }}
-                >
-                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text)' }}>
-                    {s.name}
-                  </td>
-                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text-muted)' }}>
-                    {s.templateName}
-                  </td>
-                  <td className="px-5 py-3 text-[13px]" style={{ color: 'var(--st-text-muted)' }}>
+                <Tr key={s._id}>
+                  <Td>{s.name}</Td>
+                  <Td className="text-[var(--st-text-muted)]">{s.templateName}</Td>
+                  <Td className="text-[var(--st-text-muted)]">
                     {s.scheduledAt
                       ? fmtDate(s.scheduledAt)
                       : '--'}
-                  </td>
-                  <td className="px-5 py-3">
+                  </Td>
+                  <Td>
                     <Badge
                       tone={
                         s.status === 'scheduled'
@@ -444,8 +428,8 @@ export function SchedulerView() {
                     >
                       {s.status}
                     </Badge>
-                  </td>
-                  <td className="px-5 py-3 text-right">
+                  </Td>
+                  <Td align="right">
                     {s.status === 'scheduled' && (
                       <CancelScheduleDialog
                         schedule={s}
@@ -453,11 +437,11 @@ export function SchedulerView() {
                         disabled={cancellingId === s._id}
                       />
                     )}
-                  </td>
-                </tr>
+                  </Td>
+                </Tr>
               ))}
-            </tbody>
-          </table>
+            </TBody>
+          </Table>
         </Card>
       ) : (
         <EmptyState
@@ -472,18 +456,11 @@ export function SchedulerView() {
 
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
-    <div
-      className="p-3"
-      style={{
-        borderRadius: 'var(--st-radius, 8px)',
-        border: '1px solid var(--st-border)',
-        background: 'var(--st-bg)',
-      }}
-    >
-      <div className="text-[11px] uppercase tracking-wide" style={{ color: 'var(--st-text-muted)' }}>
+    <Card variant="outlined" padding="sm">
+      <div className="text-[11px] uppercase tracking-wide text-[var(--st-text-muted)]">
         {label}
       </div>
-      <div className="mt-1 truncate" style={{ color: 'var(--st-text)' }}>{value}</div>
-    </div>
+      <div className="mt-1 truncate text-[var(--st-text)]">{value}</div>
+    </Card>
   );
 }

@@ -1,6 +1,10 @@
-/* CRM settings shell — centred column + back-button bar. */
+/* CRM settings shell — centred column + back-button bar.
+   The route is full-bleed (see `zoru-home-shell.tsx`), so the shell fills the
+   entire content area and owns scrolling: its grey surface then covers the
+   viewport edge-to-edge instead of floating in the dashboard's padded gutter. */
 .crm-settings-shell {
-  min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
   background: var(--st-bg-secondary);
   color: var(--st-text);
 }

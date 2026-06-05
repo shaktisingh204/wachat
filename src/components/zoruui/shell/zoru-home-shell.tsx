@@ -81,6 +81,13 @@ function isFullBleedRoute(pathname: string | null): boolean {
   // viewport edge-to-edge; the default padded <main> leaves a visible
   // gutter and forces a second scroll container.
   if (pathname === '/sabwa/inbox' || pathname.startsWith('/sabwa/inbox/')) return true;
+  // CRM settings render inside their own full-height shell (grey surface +
+  // centred column + back bar). The default padded <main> would frame that
+  // shell in a white gutter and clip its background, so it owns the bleed and
+  // scrolls internally instead.
+  if (pathname === '/dashboard/settings/crm' || pathname.startsWith('/dashboard/settings/crm/')) {
+    return true;
+  }
   return false;
 }
 

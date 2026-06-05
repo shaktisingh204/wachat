@@ -15,6 +15,11 @@ import {
   PopoverTrigger,
   RadioGroup,
   Radio,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  Separator,
 } from '@/components/sabcrm/20ui';
 import {
   useState } from 'react';
@@ -138,10 +143,7 @@ function SmartVariableInput({
         )}
       </div>
       {variableOptions.length > 0 && (
-        <p
-          className="text-[10px] mt-1"
-          style={{ color: 'var(--st-text-muted)' }}
-        >
+        <p className="text-[10px] mt-1" style={{ color: 'var(--st-text-muted)' }}>
           Type manually or select a variable.
         </p>
       )}
@@ -209,23 +211,15 @@ export function TemplateInputRenderer({
             if (vars.length > 0) {
               return (
                 <div key={`header-${idx}`} className="space-y-2">
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
                     Header Variables
                   </p>
                   {vars.map((v) => (
-                    <div key={`header-var-${v}`} className="space-y-1">
-                      <label
-                        htmlFor={`variable_header_${v}`}
-                        className="text-xs"
-                        style={{ color: 'var(--st-text-muted)' }}
-                      >
-                        Variable {'{{'}
-                        {v}
-                        {'}}'}
-                      </label>
+                    <Field
+                      key={`header-var-${v}`}
+                      label={`Variable {{${v}}}`}
+                      id={`variable_header_${v}`}
+                    >
                       <SmartVariableInput
                         id={`variable_header_${v}`}
                         name={`variable_header_${v}`}
@@ -233,7 +227,7 @@ export function TemplateInputRenderer({
                         required
                         variableOptions={variableOptions}
                       />
-                    </div>
+                    </Field>
                   ))}
                 </div>
               );
@@ -242,180 +236,165 @@ export function TemplateInputRenderer({
             ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format || '')
           ) {
             return (
-              <div
-                key={`header-${idx}`}
-                className="space-y-3 p-3"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                  background: 'var(--st-surface)',
-                }}
-              >
-                <p
-                  className="text-sm font-medium"
-                  style={{ color: 'var(--st-text)' }}
-                >
-                  Header Media ({component.format})
-                </p>
-                <RadioGroup
-                  value={headerMediaSource}
-                  onValueChange={(v) =>
-                    setHeaderMediaSource(v as 'url' | 'file')
-                  }
-                  orientation="horizontal"
-                  aria-label="Header media source"
-                  className="flex gap-4"
-                >
-                  <Radio
-                    value="file"
-                    id="h-source-file"
-                    label={
-                      <span className="flex items-center gap-1">
-                        <UploadCloud className="h-4 w-4" /> Upload
-                      </span>
-                    }
-                  />
-                  <Radio
-                    value="url"
-                    id="h-source-url"
-                    label={
-                      <span className="flex items-center gap-1">
-                        <LinkIcon className="h-4 w-4" /> URL
-                      </span>
-                    }
-                  />
-                </RadioGroup>
-
-                {headerMediaSource === 'file' ? (
-                  <div className="space-y-1">
-                    <input type="hidden" name="mediaSource" value="file" />
-                    <Input
-                      ref={headerMediaFileRef}
-                      name="headerMediaFile"
-                      type="file"
-                      accept={
-                        component.format === 'IMAGE'
-                          ? 'image/*'
-                          : component.format === 'VIDEO'
-                            ? 'video/*'
-                            : 'application/pdf'
+              <Card key={`header-${idx}`} variant="outlined" padding="sm">
+                <CardHeader>
+                  <CardTitle>Header Media ({component.format})</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="space-y-3">
+                    <RadioGroup
+                      value={headerMediaSource}
+                      onValueChange={(v) =>
+                        setHeaderMediaSource(v as 'url' | 'file')
                       }
-                      required
-                    />
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <p
-                        className="text-[10px]"
-                        style={{ color: 'var(--st-text-muted)' }}
-                      >
-                        Supports{' '}
-                        {component.format === 'IMAGE'
-                          ? 'JPG, PNG'
-                          : component.format === 'VIDEO'
-                            ? 'MP4'
-                            : 'PDF'}
-                        {pickedHeaderMediaName
-                          ? ` · Picked: ${pickedHeaderMediaName}`
-                          : ''}
-                      </p>
-                      <SabFileToFileButton
-                        accept={
-                          component.format === 'IMAGE'
-                            ? 'image'
-                            : component.format === 'VIDEO'
-                              ? 'video'
-                              : 'document'
+                      orientation="horizontal"
+                      aria-label="Header media source"
+                      className="flex gap-4"
+                    >
+                      <Radio
+                        value="file"
+                        id="h-source-file"
+                        label={
+                          <span className="flex items-center gap-1">
+                            <UploadCloud className="h-4 w-4" /> Upload
+                          </span>
                         }
-                        onPickFile={(file) => {
-                          setFileOnInput(headerMediaFileRef.current, file);
-                          setPickedHeaderMediaName(file.name);
-                        }}
-                      >
-                        Pick from SabFiles
-                      </SabFileToFileButton>
-                    </div>
+                      />
+                      <Radio
+                        value="url"
+                        id="h-source-url"
+                        label={
+                          <span className="flex items-center gap-1">
+                            <LinkIcon className="h-4 w-4" /> URL
+                          </span>
+                        }
+                      />
+                    </RadioGroup>
+
+                    {headerMediaSource === 'file' ? (
+                      <div className="space-y-1">
+                        <input type="hidden" name="mediaSource" value="file" />
+                        <Input
+                          ref={headerMediaFileRef}
+                          name="headerMediaFile"
+                          type="file"
+                          accept={
+                            component.format === 'IMAGE'
+                              ? 'image/*'
+                              : component.format === 'VIDEO'
+                                ? 'video/*'
+                                : 'application/pdf'
+                          }
+                          required
+                        />
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <p className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
+                            Supports{' '}
+                            {component.format === 'IMAGE'
+                              ? 'JPG, PNG'
+                              : component.format === 'VIDEO'
+                                ? 'MP4'
+                                : 'PDF'}
+                            {pickedHeaderMediaName
+                              ? ` · Picked: ${pickedHeaderMediaName}`
+                              : ''}
+                          </p>
+                          <SabFileToFileButton
+                            accept={
+                              component.format === 'IMAGE'
+                                ? 'image'
+                                : component.format === 'VIDEO'
+                                  ? 'video'
+                                  : 'document'
+                            }
+                            onPickFile={(file) => {
+                              setFileOnInput(headerMediaFileRef.current, file);
+                              setPickedHeaderMediaName(file.name);
+                            }}
+                          >
+                            Pick from SabFiles
+                          </SabFileToFileButton>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <input type="hidden" name="mediaSource" value="url" />
+                        <SabFileUrlInput
+                          name="headerMediaUrl"
+                          value={headerMediaUrl}
+                          onChange={(v) => setHeaderMediaUrl(v)}
+                          accept={
+                            component.format === 'IMAGE'
+                              ? 'image'
+                              : component.format === 'VIDEO'
+                                ? 'video'
+                                : component.format === 'DOCUMENT'
+                                  ? 'document'
+                                  : 'all'
+                          }
+                          placeholder={`https://example.com/${component.format?.toLowerCase()}`}
+                        />
+                      </div>
+                    )}
                   </div>
-                ) : (
-                  <div className="space-y-1">
-                    <input type="hidden" name="mediaSource" value="url" />
-                    <SabFileUrlInput
-                      name="headerMediaUrl"
-                      value={headerMediaUrl}
-                      onChange={(v) => setHeaderMediaUrl(v)}
-                      accept={
-                        component.format === 'IMAGE'
-                          ? 'image'
-                          : component.format === 'VIDEO'
-                            ? 'video'
-                            : component.format === 'DOCUMENT'
-                              ? 'document'
-                              : 'all'
-                      }
-                      placeholder={`https://example.com/${component.format?.toLowerCase()}`}
-                    />
-                  </div>
-                )}
-              </div>
+                </CardBody>
+              </Card>
             );
           } else if (component.format === 'LOCATION') {
             return (
-              <div
-                key={`header-${idx}`}
-                className="space-y-3 p-3"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                  background: 'var(--st-surface)',
-                }}
-              >
-                <p
-                  className="flex items-center gap-2 text-sm font-medium"
-                  style={{ color: 'var(--st-text)' }}
-                >
-                  <MapPin className="h-4 w-4" /> Location Header
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Latitude" id="location_lat">
-                    <Input
-                      name="location_lat"
-                      id="location_lat"
-                      placeholder="25.2048"
-                      required
-                      step="any"
-                      type="number"
-                    />
-                  </Field>
-                  <Field label="Longitude" id="location_long">
-                    <Input
-                      name="location_long"
-                      id="location_long"
-                      placeholder="55.2708"
-                      required
-                      step="any"
-                      type="number"
-                    />
-                  </Field>
-                  <div className="col-span-2">
-                    <Field label="Location Name" id="location_name">
+              <Card key={`header-${idx}`} variant="outlined" padding="sm">
+                <CardHeader>
+                  <CardTitle>
+                    <span className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" /> Location Header
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Latitude" id="location_lat">
                       <Input
-                        name="location_name"
-                        id="location_name"
-                        placeholder="Burj Khalifa"
+                        name="location_lat"
+                        id="location_lat"
+                        placeholder="25.2048"
                         required
+                        step="any"
+                        type="number"
                       />
                     </Field>
-                  </div>
-                  <div className="col-span-2">
-                    <Field label="Address" id="location_address">
+                    <Field label="Longitude" id="location_long">
                       <Input
-                        name="location_address"
-                        id="location_address"
-                        placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai"
+                        name="location_long"
+                        id="location_long"
+                        placeholder="55.2708"
                         required
+                        step="any"
+                        type="number"
                       />
                     </Field>
+                    <div className="col-span-2">
+                      <Field label="Location Name" id="location_name">
+                        <Input
+                          name="location_name"
+                          id="location_name"
+                          placeholder="Burj Khalifa"
+                          required
+                        />
+                      </Field>
+                    </div>
+                    <div className="col-span-2">
+                      <Field label="Address" id="location_address">
+                        <Input
+                          name="location_address"
+                          id="location_address"
+                          placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai"
+                          required
+                        />
+                      </Field>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </CardBody>
+              </Card>
             );
           }
         }
@@ -432,24 +411,16 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3">
-            <p
-              className="text-sm font-medium"
-              style={{ color: 'var(--st-text)' }}
-            >
+            <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
               Body Variables
             </p>
             <div className="grid gap-3">
               {vars.map((v) => (
-                <div key={`body-var-${v}`} className="space-y-1">
-                  <label
-                    htmlFor={`variable_body_${v}`}
-                    className="text-xs"
-                    style={{ color: 'var(--st-text-muted)' }}
-                  >
-                    Variable {'{{'}
-                    {v}
-                    {'}}'}
-                  </label>
+                <Field
+                  key={`body-var-${v}`}
+                  label={`Variable {{${v}}}`}
+                  id={`variable_body_${v}`}
+                >
                   <SmartVariableInput
                     id={`variable_body_${v}`}
                     name={`variable_body_${v}`}
@@ -457,7 +428,7 @@ export function TemplateInputRenderer({
                     required
                     variableOptions={variableOptions}
                   />
-                </div>
+                </Field>
               ))}
             </div>
           </div>
@@ -481,24 +452,25 @@ export function TemplateInputRenderer({
 
         return (
           <div className="space-y-3 pt-2">
-            <p
-              className="text-sm font-medium"
-              style={{ color: 'var(--st-text)' }}
-            >
+            <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
               Button Parameters
             </p>
             <div className="grid gap-3">
               {interactiveButtons.map((btn: any) => (
-                <div key={`btn-${btn.index}`} className="space-y-1">
-                  <label
-                    htmlFor={`variable_button_${btn.index}`}
-                    className="text-xs"
-                    style={{ color: 'var(--st-text-muted)' }}
-                  >
-                    {btn.type === 'COPY_CODE'
+                <Field
+                  key={`btn-${btn.index}`}
+                  label={
+                    btn.type === 'COPY_CODE'
                       ? `Coupon Code (Button: ${btn.text})`
-                      : `URL Suffix (Button: ${btn.text})`}
-                  </label>
+                      : `URL Suffix (Button: ${btn.text})`
+                  }
+                  id={`variable_button_${btn.index}`}
+                  help={
+                    btn.type === 'URL'
+                      ? `Appended to: ${btn.url.split('{{1}}')[0]}`
+                      : undefined
+                  }
+                >
                   <SmartVariableInput
                     id={`variable_button_${btn.index}`}
                     name={`variable_button_${btn.index}`}
@@ -508,15 +480,7 @@ export function TemplateInputRenderer({
                     required
                     variableOptions={variableOptions}
                   />
-                  {btn.type === 'URL' && (
-                    <p
-                      className="text-[10px]"
-                      style={{ color: 'var(--st-text-muted)' }}
-                    >
-                      Appended to: {btn.url.split('{{1}}')[0]}
-                    </p>
-                  )}
-                </div>
+                </Field>
               ))}
             </div>
           </div>
@@ -525,13 +489,11 @@ export function TemplateInputRenderer({
 
       {/* CAROUSEL card media */}
       {(template as any).type === 'MARKETING_CAROUSEL' && (
-        <div
-          className="space-y-4 pt-4"
-          style={{ borderTop: '1px solid var(--st-border)' }}
-        >
-          <h3 className="text-sm" style={{ color: 'var(--st-text)' }}>
+        <div className="space-y-4 pt-4">
+          <Separator />
+          <p className="text-sm font-medium" style={{ color: 'var(--st-text)' }}>
             Carousel Cards Media
-          </h3>
+          </p>
           <p className="text-xs" style={{ color: 'var(--st-text-muted)' }}>
             Upload media for each card.
           </p>
@@ -547,60 +509,50 @@ export function TemplateInputRenderer({
                   return null;
 
                 return (
-                  <div
-                    key={index}
-                    className="space-y-3 p-4"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      border: '1px solid var(--st-border)',
-                      background: 'var(--st-surface)',
-                    }}
-                  >
-                    <div className="flex justify-between items-center">
-                      <p
-                        className="text-sm font-medium"
-                        style={{ color: 'var(--st-text)' }}
-                      >
+                  <Card key={index} variant="outlined" padding="md">
+                    <CardHeader>
+                      <CardTitle>
                         Card {index + 1} ({header.format})
-                      </p>
-                    </div>
-                    <Input
-                      ref={(el) => {
-                        cardMediaRefs.current[index] = el;
-                      }}
-                      name={`card_${index}_media_file`}
-                      type="file"
-                      accept={
-                        header.format === 'IMAGE' ? 'image/*' : 'video/*'
-                      }
-                      required
-                    />
-                    <div className="flex items-center justify-between gap-2">
-                      <p
-                        className="text-[10px]"
-                        style={{ color: 'var(--st-text-muted)' }}
-                      >
-                        {pickedCardMediaNames[index]
-                          ? `Picked: ${pickedCardMediaNames[index]}`
-                          : 'Or pick from SabFiles'}
-                      </p>
-                      <SabFileToFileButton
-                        accept={header.format === 'IMAGE' ? 'image' : 'video'}
-                        onPickFile={(file) => {
-                          setFileOnInput(
-                            cardMediaRefs.current[index] ?? null,
-                            file,
-                          );
-                          setPickedCardMediaNames((prev) => ({
-                            ...prev,
-                            [index]: file.name,
-                          }));
-                        }}
-                      >
-                        Pick from SabFiles
-                      </SabFileToFileButton>
-                    </div>
-                  </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardBody>
+                      <div className="space-y-3">
+                        <Input
+                          ref={(el) => {
+                            cardMediaRefs.current[index] = el;
+                          }}
+                          name={`card_${index}_media_file`}
+                          type="file"
+                          accept={
+                            header.format === 'IMAGE' ? 'image/*' : 'video/*'
+                          }
+                          required
+                        />
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px]" style={{ color: 'var(--st-text-muted)' }}>
+                            {pickedCardMediaNames[index]
+                              ? `Picked: ${pickedCardMediaNames[index]}`
+                              : 'Or pick from SabFiles'}
+                          </p>
+                          <SabFileToFileButton
+                            accept={header.format === 'IMAGE' ? 'image' : 'video'}
+                            onPickFile={(file) => {
+                              setFileOnInput(
+                                cardMediaRefs.current[index] ?? null,
+                                file,
+                              );
+                              setPickedCardMediaNames((prev) => ({
+                                ...prev,
+                                [index]: file.name,
+                              }));
+                            }}
+                          >
+                            Pick from SabFiles
+                          </SabFileToFileButton>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </Card>
                 );
               })}
           </div>

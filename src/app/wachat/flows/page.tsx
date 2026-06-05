@@ -6,6 +6,8 @@ import {
   Button,
   IconButton,
   Card,
+  CardTitle,
+  CardDescription,
   Menu,
   MenuItem,
   MenuLabel,
@@ -204,69 +206,48 @@ export default function MetaFlowsPage() {
         ) : (
           <>
             <div className="mb-2 mt-4">
-              <h3 className="mb-3 text-sm font-medium" style={{ color: 'var(--st-text)' }}>
+              <CardTitle className="mb-3 text-sm font-medium">
                 Start from a template
-              </h3>
+              </CardTitle>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <Card
                   variant="interactive"
                   className="flex cursor-pointer flex-col"
                   onClick={() => router.push('/wachat/flows/create?template=lead_gen')}
                 >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text-secondary)',
-                    }}
-                  >
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                     <Users className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <div className="mb-1 font-medium" style={{ color: 'var(--st-text)' }}>Lead Generation</div>
-                  <div className="text-xs" style={{ color: 'var(--st-text-secondary)' }}>
+                  <CardTitle className="mb-1 text-sm font-medium">Lead Generation</CardTitle>
+                  <CardDescription className="text-xs">
                     Capture user info like name, email, and phone number directly in WhatsApp.
-                  </div>
+                  </CardDescription>
                 </Card>
                 <Card
                   variant="interactive"
                   className="flex cursor-pointer flex-col"
                   onClick={() => router.push('/wachat/flows/create?template=appointment')}
                 >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text-secondary)',
-                    }}
-                  >
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                     <CalendarDays className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <div className="mb-1 font-medium" style={{ color: 'var(--st-text)' }}>Appointment Booking</div>
-                  <div className="text-xs" style={{ color: 'var(--st-text-secondary)' }}>
+                  <CardTitle className="mb-1 text-sm font-medium">Appointment Booking</CardTitle>
+                  <CardDescription className="text-xs">
                     Let customers choose a date and time to book an appointment with you.
-                  </div>
+                  </CardDescription>
                 </Card>
                 <Card
                   variant="interactive"
                   className="flex cursor-pointer flex-col"
                   onClick={() => router.push('/wachat/flows/create?template=feedback')}
                 >
-                  <div
-                    className="mb-3 flex h-10 w-10 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text-secondary)',
-                    }}
-                  >
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text-secondary)]">
                     <MessageSquare className="h-5 w-5" aria-hidden="true" />
                   </div>
-                  <div className="mb-1 font-medium" style={{ color: 'var(--st-text)' }}>Customer Feedback</div>
-                  <div className="text-xs" style={{ color: 'var(--st-text-secondary)' }}>
+                  <CardTitle className="mb-1 text-sm font-medium">Customer Feedback</CardTitle>
+                  <CardDescription className="text-xs">
                     Collect ratings and feedback from your customers after a purchase.
-                  </div>
+                  </CardDescription>
                 </Card>
               </div>
             </div>
@@ -310,21 +291,12 @@ export default function MetaFlowsPage() {
                 >
                   {isLoading ? 'Refreshing…' : 'Refresh'}
                 </Button>
-                <span
-                  className="ml-auto text-[11.5px] tabular-nums"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <span className="ml-auto text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                   {filteredFlows.length} / {flows.length} flows
                 </span>
               </div>
 
-              <div
-                className="mt-5 overflow-hidden"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  border: '1px solid var(--st-border)',
-                }}
-              >
+              <Card variant="outlined" padding="none" className="mt-5 overflow-hidden">
                 {isLoading && flows.length === 0 ? (
                   <div className="p-4">
                     <Skeleton height={128} width="100%" />
@@ -361,11 +333,8 @@ export default function MetaFlowsPage() {
                     <TBody>
                       {filteredFlows.map((flow) => (
                         <Tr key={flow._id.toString()}>
-                          <Td style={{ color: 'var(--st-text)' }}>{flow.name}</Td>
-                          <Td
-                            className="font-mono text-xs tabular-nums"
-                            style={{ color: 'var(--st-text-secondary)' }}
-                          >
+                          <Td className="text-[var(--st-text)]">{flow.name}</Td>
+                          <Td className="font-mono text-xs tabular-nums text-[var(--st-text-secondary)]">
                             {flow.metaId}
                           </Td>
                           <Td>
@@ -386,14 +355,13 @@ export default function MetaFlowsPage() {
                             {flow.status === 'PUBLISHED' ? (
                               <div className="flex items-center gap-1.5 text-xs">
                                 <Activity
-                                  className="h-3.5 w-3.5"
-                                  style={{ color: 'var(--st-status-ok)' }}
+                                  className="h-3.5 w-3.5 text-[var(--st-status-ok)]"
                                   aria-hidden="true"
                                 />
                                 <span className="font-medium">{getCompletionRate(flow.metaId)}</span>
                               </div>
                             ) : (
-                              <span className="text-xs" style={{ color: 'var(--st-text-secondary)' }}>—</span>
+                              <span className="text-xs text-[var(--st-text-secondary)]">—</span>
                             )}
                           </Td>
                           <Td align="right">
@@ -434,7 +402,7 @@ export default function MetaFlowsPage() {
                     </TBody>
                   </Table>
                 )}
-              </div>
+              </Card>
             </Card>
           </>
         )}

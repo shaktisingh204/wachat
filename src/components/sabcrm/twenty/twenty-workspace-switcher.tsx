@@ -256,15 +256,17 @@ export function TwentyWorkspaceSwitcher(): React.JSX.Element {
                   ) : undefined
                 }
               >
-                <span className="st-ws-menu__item-avatar" aria-hidden="true">
-                  {logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={logo} alt="" className="st-ws-logo" />
-                  ) : (
-                    avatarLetter(project.name)
-                  )}
+                <span className="st-ws-menu__item-row">
+                  <span className="st-ws-menu__item-avatar" aria-hidden="true">
+                    {logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={logo} alt="" className="st-ws-logo" />
+                    ) : (
+                      avatarLetter(project.name)
+                    )}
+                  </span>
+                  <span className="st-ws-menu__item-name">{project.name || 'Untitled'}</span>
                 </span>
-                {project.name || 'Untitled'}
               </MenuItem>
             );
           })

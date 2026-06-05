@@ -7,11 +7,15 @@ import {
   Card,
   CardHeader,
   CardTitle,
+  CardDescription,
   CardBody,
   Input,
   Badge,
   EmptyState,
   Spinner,
+  StatCard,
+  Callout,
+  Separator,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -147,7 +151,7 @@ export default function ConversationSummaryPage() {
         {isPending && selectedId && (
           <div className="flex h-32 items-center justify-center gap-3">
             <Spinner size="sm" />
-            <p className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+            <p className="text-[13px] u-text-secondary">
               Loading timeline...
             </p>
           </div>
@@ -156,109 +160,67 @@ export default function ConversationSummaryPage() {
         {loaded && !isPending && (
           <>
             <Card>
-              <CardBody>
-                <div className="mb-3 flex items-center justify-between">
+              <CardHeader>
+                <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+                    <CardTitle>
                       {selectedContact?.name || selectedContact?.waId || 'Contact'}
-                    </h2>
-                    <p
-                      className="font-mono text-[12px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
-                      {selectedContact?.waId}
-                    </p>
+                    </CardTitle>
+                    {selectedContact?.waId && (
+                      <CardDescription className="font-mono">
+                        {selectedContact.waId}
+                      </CardDescription>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <MessageSquare
-                      className="h-4 w-4"
-                      style={{ color: 'var(--st-text-secondary)' }}
+                      className="h-4 w-4 u-text-secondary"
                       aria-hidden="true"
                     />
-                    <span className="text-[13px]" style={{ color: 'var(--st-text)' }}>
+                    <span className="text-[13px] u-text">
                       {events.length} events
                     </span>
                   </div>
                 </div>
-                <div
-                  className="p-4"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    border: '1px solid var(--st-border)',
-                    background: 'var(--st-bg-secondary)',
-                  }}
-                >
-                  {events.length === 0 ? (
-                    <p
-                      className="text-[13px]"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
-                      No messages found for this contact.
-                    </p>
-                  ) : (
-                    <p
-                      className="text-[13px] leading-relaxed"
-                      style={{ color: 'var(--st-text)' }}
-                    >
-                      This conversation has {inbound.length} inbound and{' '}
-                      {outbound.length} outbound messages
-                      {notes.length > 0
-                        ? `, plus ${notes.length} internal note(s)`
-                        : ''}
-                      .
-                      {events[0]?.timestamp &&
-                        ` Most recent activity: ${fmtDate(events[0].timestamp)}.`}
-                      {events[events.length - 1]?.timestamp &&
-                        ` First recorded activity: ${fmtDate(events[events.length - 1].timestamp)}.`}
-                    </p>
-                  )}
-                </div>
+              </CardHeader>
+              <CardBody>
+                {events.length === 0 ? (
+                  <Callout tone="neutral">
+                    No messages found for this contact.
+                  </Callout>
+                ) : (
+                  <Callout tone="neutral" icon={null}>
+                    This conversation has {inbound.length} inbound and{' '}
+                    {outbound.length} outbound messages
+                    {notes.length > 0
+                      ? `, plus ${notes.length} internal note(s)`
+                      : ''}
+                    .
+                    {events[0]?.timestamp &&
+                      ` Most recent activity: ${fmtDate(events[0].timestamp)}.`}
+                    {events[events.length - 1]?.timestamp &&
+                      ` First recorded activity: ${fmtDate(events[events.length - 1].timestamp)}.`}
+                  </Callout>
+                )}
               </CardBody>
             </Card>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <Card>
-                <CardBody className="text-center">
-                  <div
-                    className="mb-1 text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    Inbound
-                  </div>
-                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
-                    {inbound.length}
-                  </div>
-                  <Badge tone="info">Customer</Badge>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody className="text-center">
-                  <div
-                    className="mb-1 text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    Outbound
-                  </div>
-                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
-                    {outbound.length}
-                  </div>
-                  <Badge tone="success">Agent</Badge>
-                </CardBody>
-              </Card>
-              <Card>
-                <CardBody className="text-center">
-                  <div
-                    className="mb-1 text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    Notes
-                  </div>
-                  <div className="text-[28px]" style={{ color: 'var(--st-text)' }}>
-                    {notes.length}
-                  </div>
-                  <Badge tone="warning">Internal</Badge>
-                </CardBody>
-              </Card>
+              <StatCard
+                label="Inbound"
+                value={inbound.length}
+                delta={{ value: 'Customer', tone: 'neutral' }}
+              />
+              <StatCard
+                label="Outbound"
+                value={outbound.length}
+                delta={{ value: 'Agent', tone: 'neutral' }}
+              />
+              <StatCard
+                label="Notes"
+                value={notes.length}
+                delta={{ value: 'Internal', tone: 'neutral' }}
+              />
             </div>
 
             {events.length > 0 && (
@@ -266,51 +228,38 @@ export default function ConversationSummaryPage() {
                 <CardHeader>
                   <CardTitle>Recent Activity</CardTitle>
                 </CardHeader>
-                <div
-                  style={{ borderTop: '1px solid var(--st-border)' }}
-                >
+                <CardBody className="p-0">
                   {events.slice(0, 15).map((e: any, i: number) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-3 px-5 py-3"
-                      style={
-                        i > 0
-                          ? { borderTop: '1px solid var(--st-border)' }
-                          : undefined
-                      }
-                    >
-                      <Badge
-                        tone={
-                          e.type === 'note'
-                            ? 'warning'
+                    <React.Fragment key={i}>
+                      {i > 0 && <Separator />}
+                      <div className="flex items-start gap-3 px-5 py-3">
+                        <Badge
+                          tone={
+                            e.type === 'note'
+                              ? 'warning'
+                              : e.direction === 'in'
+                                ? 'info'
+                                : 'success'
+                          }
+                        >
+                          {e.type === 'note'
+                            ? 'Note'
                             : e.direction === 'in'
-                              ? 'info'
-                              : 'success'
-                        }
-                      >
-                        {e.type === 'note'
-                          ? 'Note'
-                          : e.direction === 'in'
-                            ? 'In'
-                            : 'Out'}
-                      </Badge>
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className="truncate text-[12.5px]"
-                          style={{ color: 'var(--st-text)' }}
-                        >
-                          {e.content || '--'}
-                        </p>
-                        <span
-                          className="text-[11px]"
-                          style={{ color: 'var(--st-text-secondary)' }}
-                        >
-                          {e.timestamp ? fmtDate(e.timestamp) : ''}
-                        </span>
+                              ? 'In'
+                              : 'Out'}
+                        </Badge>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[12.5px] u-text">
+                            {e.content || '--'}
+                          </p>
+                          <span className="text-[11px] u-text-secondary">
+                            {e.timestamp ? fmtDate(e.timestamp) : ''}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    </React.Fragment>
                   ))}
-                </div>
+                </CardBody>
               </Card>
             )}
           </>

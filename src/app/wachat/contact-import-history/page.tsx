@@ -3,6 +3,7 @@ import { fmtDate } from "@/lib/utils";
 
 import {
   useToast,
+  Alert,
   Badge,
   Button,
   Card,
@@ -14,6 +15,12 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerDescription,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import {
   useEffect,
@@ -126,71 +133,46 @@ export default function ContactImportHistoryPage() {
           </div>
         ) : imports.length > 0 ? (
           <Card padding="none" className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr
-                  className="text-[11px] uppercase tracking-wide"
-                  style={{
-                    color: 'var(--st-text-tertiary)',
-                    borderBottom: '1px solid var(--st-border)',
-                  }}
-                >
-                  <th className="px-5 py-3">Filename</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3 text-right">Total</th>
-                  <th className="px-5 py-3 text-right">Success</th>
-                  <th className="px-5 py-3 text-right">Failed</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table hover>
+              <THead>
+                <Tr>
+                  <Th>Filename</Th>
+                  <Th>Date</Th>
+                  <Th align="right">Total</Th>
+                  <Th align="right">Success</Th>
+                  <Th align="right">Failed</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {imports.map((imp) => (
-                  <tr
-                    key={imp._id}
-                    style={{ borderTop: '1px solid var(--st-border)' }}
-                  >
-                    <td
-                      className="px-5 py-3 text-[13px]"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                  <Tr key={imp._id}>
+                    <Td className="text-[13px]">
                       <div className="flex items-center gap-2">
                         <FileSpreadsheet
-                          className="h-4 w-4 shrink-0"
-                          style={{ color: 'var(--st-text-tertiary)' }}
+                          className="h-4 w-4 shrink-0 text-[color:var(--st-text-tertiary)]"
                           aria-hidden="true"
                         />
                         {imp.filename || 'Unknown'}
                       </div>
-                    </td>
-                    <td
-                      className="px-5 py-3 text-[12px] whitespace-nowrap"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    </Td>
+                    <Td className="text-[12px] whitespace-nowrap text-[color:var(--st-text-secondary)]">
                       {imp.importedAt ? fmtDate(imp.importedAt) : '—'}
-                    </td>
-                    <td
-                      className="px-5 py-3 text-right text-[13px] tabular-nums"
-                      style={{ color: 'var(--st-text)' }}
-                    >
+                    </Td>
+                    <Td align="right" className="text-[13px] tabular-nums">
                       {(imp.total ?? 0).toLocaleString()}
-                    </td>
-                    <td
-                      className="px-5 py-3 text-right text-[13px] tabular-nums"
-                      style={{ color: 'var(--st-status-ok)' }}
-                    >
+                    </Td>
+                    <Td align="right" className="text-[13px] tabular-nums text-[color:var(--st-status-ok)]">
                       {(imp.success ?? 0).toLocaleString()}
-                    </td>
-                    <td
-                      className="px-5 py-3 text-right text-[13px] tabular-nums"
-                      style={{ color: 'var(--st-danger)' }}
-                    >
+                    </Td>
+                    <Td align="right" className="text-[13px] tabular-nums text-[color:var(--st-danger)]">
                       {imp.failed ?? 0}
-                    </td>
-                    <td className="px-5 py-3">
+                    </Td>
+                    <Td>
                       <StatusBadge status={imp.status || 'completed'} />
-                    </td>
-                    <td className="px-5 py-3 text-right">
+                    </Td>
+                    <Td align="right">
                       <Button
                         variant="outline"
                         size="sm"
@@ -199,11 +181,11 @@ export default function ContactImportHistoryPage() {
                       >
                         View
                       </Button>
-                    </td>
-                  </tr>
+                    </Td>
+                  </Tr>
                 ))}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </Card>
         ) : (
           <EmptyState
@@ -231,52 +213,35 @@ export default function ContactImportHistoryPage() {
           {selected && (
             <div className="mt-6 flex flex-col gap-3">
               <div className="flex items-center justify-between text-[13px]">
-                <span style={{ color: 'var(--st-text-secondary)' }}>Status</span>
+                <span className="text-[color:var(--st-text-secondary)]">Status</span>
                 <StatusBadge status={selected.status || 'completed'} />
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span style={{ color: 'var(--st-text-secondary)' }}>
+                <span className="text-[color:var(--st-text-secondary)]">
                   Total rows
                 </span>
-                <span
-                  className="tabular-nums"
-                  style={{ color: 'var(--st-text)' }}
-                >
+                <span className="tabular-nums">
                   {(selected.total ?? 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span style={{ color: 'var(--st-text-secondary)' }}>
+                <span className="text-[color:var(--st-text-secondary)]">
                   Imported
                 </span>
-                <span
-                  className="tabular-nums"
-                  style={{ color: 'var(--st-status-ok)' }}
-                >
+                <span className="tabular-nums text-[color:var(--st-status-ok)]">
                   {(selected.success ?? 0).toLocaleString()}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[13px]">
-                <span style={{ color: 'var(--st-text-secondary)' }}>Failed</span>
-                <span
-                  className="tabular-nums"
-                  style={{ color: 'var(--st-danger)' }}
-                >
+                <span className="text-[color:var(--st-text-secondary)]">Failed</span>
+                <span className="tabular-nums text-[color:var(--st-danger)]">
                   {selected.failed ?? 0}
                 </span>
               </div>
               {selected.errorMessage ? (
-                <div
-                  className="p-3 text-[12px]"
-                  style={{
-                    borderRadius: 'var(--st-radius)',
-                    border: '1px solid var(--st-border)',
-                    background: 'var(--st-bg-secondary)',
-                    color: 'var(--st-text-secondary)',
-                  }}
-                >
+                <Alert tone="neutral" icon={null} className="text-[12px]">
                   {selected.errorMessage}
-                </div>
+                </Alert>
               ) : null}
             </div>
           )}

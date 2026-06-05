@@ -5,6 +5,10 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
   Menu,
   MenuItem,
   MenuLabel,
@@ -499,16 +503,10 @@ function WhatsAppAdsPageContent(): React.ReactElement {
         <div>
           <div className="flex items-center justify-between">
             <div>
-              <h2
-                className="text-[22px] leading-none tracking-tight"
-                style={{ color: 'var(--st-text)' }}
-              >
+              <h2 className="text-[22px] leading-none tracking-tight [color:var(--st-text)]">
                 Campaigns
               </h2>
-              <p
-                className="mt-1.5 text-[12.5px]"
-                style={{ color: 'var(--st-text-secondary)' }}
-              >
+              <p className="mt-1.5 text-[12.5px] [color:var(--st-text-secondary)]">
                 {dataLoading && campaigns.length === 0
                   ? 'Loading…'
                   : `${campaigns.length} CTW-eligible campaign${campaigns.length === 1 ? '' : 's'} · last 30 days insights`}
@@ -587,7 +585,7 @@ function WhatsAppAdsPageContent(): React.ReactElement {
                 />
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: 'var(--st-border)' }}>
+              <div className="divide-y [border-color:var(--st-border)]">
                 {campaigns.map((c) => (
                   <CampaignRow
                     key={c.id}
@@ -606,21 +604,18 @@ function WhatsAppAdsPageContent(): React.ReactElement {
 
         {/* Cross-link to full Ad Manager */}
         <Card padding="md" className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <CardHeader className="flex-row items-center gap-3 p-0">
             <ExternalLink
-              className="h-4 w-4"
-              style={{ color: 'var(--st-text-secondary)' }}
+              className="h-4 w-4 [color:var(--st-text-secondary)]"
               aria-hidden="true"
             />
             <div>
-              <div className="text-sm" style={{ color: 'var(--st-text)' }}>
-                Full Ad Manager
-              </div>
-              <div className="text-[11.5px]" style={{ color: 'var(--st-text-secondary)' }}>
+              <CardTitle className="text-sm">Full Ad Manager</CardTitle>
+              <CardDescription className="text-[11.5px]">
                 Audiences, creatives, A/B tests, and detailed insights live in the unified Ad Manager.
-              </div>
+              </CardDescription>
             </div>
-          </div>
+          </CardHeader>
           <Button
             variant="outline"
             size="sm"
@@ -665,15 +660,11 @@ function CampaignRow({
       <div className="min-w-0 flex-1">
         <Link
           href={`/dashboard/ad-manager/campaigns/${campaign.id}`}
-          className="block truncate text-sm font-medium hover:underline"
-          style={{ color: 'var(--st-text)' }}
+          className="block truncate text-sm font-medium hover:underline [color:var(--st-text)]"
         >
           {campaign.name}
         </Link>
-        <div
-          className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px]"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] [color:var(--st-text-secondary)]">
           <Badge tone={badgeTone}>{status}</Badge>
           {campaign.objective && <span>{campaign.objective.replace(/^OUTCOME_/, '')}</span>}
           {campaign.daily_budget !== undefined && campaign.daily_budget !== null && (
@@ -723,12 +714,8 @@ function Metric({
 }): React.ReactElement {
   return (
     <div className={cx('flex flex-col items-end', className)}>
-      <span className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
-        {label}
-      </span>
-      <span className="text-[12.5px] tabular-nums" style={{ color: 'var(--st-text)' }}>
-        {value}
-      </span>
+      <span className="text-[11px] [color:var(--st-text-secondary)]">{label}</span>
+      <span className="text-[12.5px] tabular-nums [color:var(--st-text)]">{value}</span>
     </div>
   );
 }
@@ -794,67 +781,37 @@ function AiCampaignDialog() {
             </Button>
           )}
           {result && (
-            <div
-              className="flex flex-col gap-4 mt-2 pt-4 border-t"
-              style={{ borderColor: 'var(--st-border)' }}
-            >
-              <div className="flex flex-col gap-1.5">
-                <span
-                  className="text-[12px] font-medium"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  Primary Text
-                </span>
-                <div
-                  className="text-sm p-3"
-                  style={{
-                    background: 'var(--st-bg-secondary)',
-                    borderRadius: 'var(--st-radius-lg)',
-                    border: '1px solid var(--st-border)',
-                    color: 'var(--st-text)',
-                  }}
-                >
+            <div className="flex flex-col gap-4 mt-2 pt-4 border-t [border-color:var(--st-border)]">
+              <Card variant="outlined" padding="sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-[12px] font-medium [color:var(--st-text-secondary)]">
+                    Primary Text
+                  </CardTitle>
+                </CardHeader>
+                <CardBody className="text-sm [color:var(--st-text)]">
                   {result.primaryText}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span
-                  className="text-[12px] font-medium"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  Headline
-                </span>
-                <div
-                  className="text-sm font-semibold p-3"
-                  style={{
-                    background: 'var(--st-bg-secondary)',
-                    borderRadius: 'var(--st-radius-lg)',
-                    border: '1px solid var(--st-border)',
-                    color: 'var(--st-text)',
-                  }}
-                >
+                </CardBody>
+              </Card>
+              <Card variant="outlined" padding="sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-[12px] font-medium [color:var(--st-text-secondary)]">
+                    Headline
+                  </CardTitle>
+                </CardHeader>
+                <CardBody className="text-sm font-semibold [color:var(--st-text)]">
                   {result.headline}
-                </div>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span
-                  className="text-[12px] font-medium"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  Creative Suggestion
-                </span>
-                <div
-                  className="text-sm p-3"
-                  style={{
-                    background: 'var(--st-bg-secondary)',
-                    borderRadius: 'var(--st-radius-lg)',
-                    border: '1px solid var(--st-border)',
-                    color: 'var(--st-text-secondary)',
-                  }}
-                >
+                </CardBody>
+              </Card>
+              <Card variant="outlined" padding="sm">
+                <CardHeader className="pb-1">
+                  <CardTitle className="text-[12px] font-medium [color:var(--st-text-secondary)]">
+                    Creative Suggestion
+                  </CardTitle>
+                </CardHeader>
+                <CardBody className="text-sm [color:var(--st-text-secondary)]">
                   {result.creativeIdea}
-                </div>
-              </div>
+                </CardBody>
+              </Card>
               <Button variant="outline" onClick={() => { setResult(null); setPrompt(''); }}>
                 Start over
               </Button>

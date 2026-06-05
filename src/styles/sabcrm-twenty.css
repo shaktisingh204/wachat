@@ -523,6 +523,22 @@
   color: var(--st-text);
 }
 
+/* Project rows render their avatar + name inside the 20ui MenuItem's single
+   label slot, so they need their own flex row to keep the tile and the name
+   evenly spaced and vertically centred (the label slot is not a flex box). */
+.st-ws-menu__item-row {
+  display: flex;
+  align-items: center;
+  gap: var(--st-space-2);
+  min-width: 0;
+}
+
+.st-ws-menu__item-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .st-ws-menu__section {
   display: flex;
   flex-direction: column;

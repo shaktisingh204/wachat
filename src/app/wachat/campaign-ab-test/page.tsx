@@ -11,9 +11,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
+  Alert,
   Badge,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardBody,
+  StatCard,
   Field,
   Select,
   Slider,
@@ -23,15 +28,13 @@ import {
   useState,
   useTransition,
   useCallback,
-  } from 'react';
-import { ChartBar,
-  Send,
-  Square } from 'lucide-react';
+} from 'react';
+import { ChartBar, Send, Square } from 'lucide-react';
 
 import { useProject } from '@/context/project-context';
 
 /**
- * Wachat Campaign A/B Test — split-test broadcast campaigns.
+ * Wachat Campaign A/B Test -- split-test broadcast campaigns.
  * 20ui rebuild. Uses real broadcast segments for audience selection.
  */
 
@@ -151,95 +154,84 @@ export default function CampaignAbTestPage() {
       <div className="flex flex-col gap-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <Card padding="lg">
-            <h2
-              className="mb-3 flex items-center gap-2 text-sm"
-              style={{ color: 'var(--st-text)' }}
-            >
-              <Badge tone="info">A</Badge> Variant A
-            </h2>
-            <Field label="Template A">
-              <Select
-                value={variantA}
-                onChange={(v) => v && setVariantA(v)}
-                options={TEMPLATE_OPTIONS}
-                aria-label="Variant A template"
-              />
-            </Field>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge tone="info">A</Badge> Variant A
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Field label="Template A">
+                <Select
+                  value={variantA}
+                  onChange={(v) => v && setVariantA(v)}
+                  options={TEMPLATE_OPTIONS}
+                  aria-label="Variant A template"
+                />
+              </Field>
+            </CardBody>
           </Card>
           <Card padding="lg">
-            <h2
-              className="mb-3 flex items-center gap-2 text-sm"
-              style={{ color: 'var(--st-text)' }}
-            >
-              <Badge tone="neutral">B</Badge> Variant B
-            </h2>
-            <Field label="Template B">
-              <Select
-                value={variantB}
-                onChange={(v) => v && setVariantB(v)}
-                options={TEMPLATE_OPTIONS}
-                aria-label="Variant B template"
-              />
-            </Field>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Badge tone="neutral">B</Badge> Variant B
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              <Field label="Template B">
+                <Select
+                  value={variantB}
+                  onChange={(v) => v && setVariantB(v)}
+                  options={TEMPLATE_OPTIONS}
+                  aria-label="Variant B template"
+                />
+              </Field>
+            </CardBody>
           </Card>
         </div>
 
         <Card padding="lg">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Test split">
-              <div className="flex items-center gap-3">
-                <span
-                  className="w-10 text-[12px] tabular-nums"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  A: {split}%
-                </span>
-                <Slider
-                  value={split}
-                  onValueChange={(v) =>
-                    setSplit(Array.isArray(v) ? v[0] : v)
-                  }
-                  min={10}
-                  max={90}
-                  ariaLabel="Variant A traffic share"
-                  className="flex-1"
+          <CardBody>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Test split">
+                <div className="flex items-center gap-3">
+                  <span className="w-10 text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                    A: {split}%
+                  </span>
+                  <Slider
+                    value={split}
+                    onValueChange={(v) =>
+                      setSplit(Array.isArray(v) ? v[0] : v)
+                    }
+                    min={10}
+                    max={90}
+                    ariaLabel="Variant A traffic share"
+                    className="flex-1"
+                  />
+                  <span className="w-12 text-right text-[12px] tabular-nums" style={{ color: 'var(--st-text-secondary)' }}>
+                    B: {100 - split}%
+                  </span>
+                </div>
+                <div className="ab-split-bar mt-2 flex h-2 w-full overflow-hidden">
+                  <div
+                    className="transition-all"
+                    style={{ width: `${split}%`, background: 'var(--st-accent)' }}
+                  />
+                  <div
+                    className="transition-all"
+                    style={{ width: `${100 - split}%`, background: 'var(--st-text-tertiary)' }}
+                  />
+                </div>
+              </Field>
+              <Field label="Audience" help={isPending ? 'Loading segments...' : undefined}>
+                <Select
+                  value={audience}
+                  onChange={(v) => setAudience(v ?? 'all')}
+                  options={audienceOptions}
+                  aria-label="Audience"
                 />
-                <span
-                  className="w-12 text-right text-[12px] tabular-nums"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  B: {100 - split}%
-                </span>
-              </div>
-              <div
-                className="mt-2 flex h-2 w-full overflow-hidden"
-                style={{
-                  borderRadius: 'var(--st-radius)',
-                  background: 'var(--st-bg-secondary)',
-                }}
-              >
-                <div
-                  className="transition-all"
-                  style={{ width: `${split}%`, background: 'var(--st-accent)' }}
-                />
-                <div
-                  className="transition-all"
-                  style={{
-                    width: `${100 - split}%`,
-                    background: 'var(--st-text-tertiary)',
-                  }}
-                />
-              </div>
-            </Field>
-            <Field label="Audience" help={isPending ? 'Loading segments…' : undefined}>
-              <Select
-                value={audience}
-                onChange={(v) => setAudience(v ?? 'all')}
-                options={audienceOptions}
-                aria-label="Audience"
-              />
-            </Field>
-          </div>
+              </Field>
+            </div>
+          </CardBody>
         </Card>
 
         <div className="flex items-center gap-2">
@@ -251,7 +243,7 @@ export default function CampaignAbTestPage() {
                 loading={sending}
                 disabled={sending || variantA === variantB}
               >
-                {sending ? 'Running test…' : 'Launch A/B test'}
+                {sending ? 'Running test...' : 'Launch A/B test'}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -299,76 +291,51 @@ export default function CampaignAbTestPage() {
         </div>
 
         {variantA === variantB && (
-          <p className="text-[12px]" style={{ color: 'var(--st-danger)' }}>
+          <Alert tone="danger">
             Variants A and B must use different templates.
-          </p>
+          </Alert>
         )}
 
         {results && (
           <Card padding="lg">
-            <h2
-              className="mb-4 flex items-center gap-2 text-sm"
-              style={{ color: 'var(--st-text)' }}
-            >
-              <ChartBar className="h-4 w-4" aria-hidden="true" /> Results
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {results.map((r) => {
-                const otherR = results.find((x) => x.variant !== r.variant);
-                const isWinner = otherR
-                  ? r.replied / r.sent >= otherR.replied / otherR.sent
-                  : false;
-                return (
-                  <div
-                    key={r.variant}
-                    className="border p-4"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      borderColor: isWinner
-                        ? 'color-mix(in srgb, var(--st-status-ok) 40%, transparent)'
-                        : 'var(--st-border)',
-                      background: isWinner
-                        ? 'color-mix(in srgb, var(--st-status-ok) 5%, transparent)'
-                        : undefined,
-                    }}
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="text-sm" style={{ color: 'var(--st-text)' }}>
-                        Variant {r.variant}:{' '}
-                        {r.variant === 'A' ? variantA : variantB}
-                      </h3>
-                      {isWinner && <Badge tone="success">Winner</Badge>}
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <p className="text-[18px]" style={{ color: 'var(--st-text)' }}>
-                          {r.sent}
-                        </p>
-                        <p className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
-                          Sent
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[18px]" style={{ color: 'var(--st-text)' }}>
-                          {pct(r.opened, r.sent)}
-                        </p>
-                        <p className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
-                          Open rate
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[18px]" style={{ color: 'var(--st-text)' }}>
-                          {pct(r.replied, r.sent)}
-                        </p>
-                        <p className="text-[11px]" style={{ color: 'var(--st-text-secondary)' }}>
-                          Reply rate
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <ChartBar className="h-4 w-4" aria-hidden="true" /> Results
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {results.map((r) => {
+                  const otherR = results.find((x) => x.variant !== r.variant);
+                  const isWinner = otherR
+                    ? r.replied / r.sent >= otherR.replied / otherR.sent
+                    : false;
+                  return (
+                    <Card
+                      key={r.variant}
+                      variant={isWinner ? 'outlined' : 'outlined'}
+                      padding="md"
+                      className={isWinner ? 'ab-result-card--winner' : undefined}
+                    >
+                      <CardHeader>
+                        <CardTitle className="flex items-center justify-between text-sm">
+                          Variant {r.variant}:{' '}
+                          {r.variant === 'A' ? variantA : variantB}
+                          {isWinner && <Badge tone="success">Winner</Badge>}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardBody>
+                        <div className="grid grid-cols-3 gap-2">
+                          <StatCard label="Sent" value={r.sent} />
+                          <StatCard label="Open rate" value={pct(r.opened, r.sent)} />
+                          <StatCard label="Reply rate" value={pct(r.replied, r.sent)} />
+                        </div>
+                      </CardBody>
+                    </Card>
+                  );
+                })}
+              </div>
+            </CardBody>
           </Card>
         )}
       </div>

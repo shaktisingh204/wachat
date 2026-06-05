@@ -11,6 +11,12 @@ import {
   EmptyState,
   StatCard,
   Spinner,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import WachatPage from '@/app/wachat/_components/wachat-page';
 import {
@@ -190,145 +196,110 @@ export default function BroadcastHistoryPage() {
           />
         ) : (
           <Card padding="none" className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr
-                  className="text-[11px] uppercase tracking-wide"
-                  style={{
-                    borderBottom: '1px solid var(--st-border)',
-                    color: 'var(--st-text-tertiary)',
-                  }}
-                >
-                  <th className="px-5 py-3 w-8" />
-                  <th className="px-5 py-3">Broadcast</th>
-                  <th className="px-5 py-3">Status</th>
-                  <th className="px-5 py-3 text-right">Total</th>
-                  <th className="px-5 py-3 text-right">Sent</th>
-                  <th className="px-5 py-3 text-right">Failed</th>
-                  <th className="px-5 py-3">Date</th>
-                  <th className="px-5 py-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <THead>
+                <Tr>
+                  <Th width={32} />
+                  <Th>Broadcast</Th>
+                  <Th>Status</Th>
+                  <Th align="right">Total</Th>
+                  <Th align="right">Sent</Th>
+                  <Th align="right">Failed</Th>
+                  <Th>Date</Th>
+                  <Th align="right">Action</Th>
+                </Tr>
+              </THead>
+              <TBody>
                 {broadcasts.map((b) => {
                   const id = b._id;
                   const isExpanded = expandedId === id;
                   return (
                     <React.Fragment key={id}>
-                      <tr
+                      <Tr
                         className="cursor-pointer transition-colors"
-                        style={{ borderBottom: '1px solid var(--st-border)' }}
                         onClick={() => toggle(id)}
                       >
-                        <td className="px-5 py-3">
+                        <Td>
                           {isExpanded ? (
                             <ChevronDown
-                              className="h-4 w-4"
-                              style={{ color: 'var(--st-text-tertiary)' }}
+                              className="h-4 w-4 text-[var(--st-text-tertiary)]"
                               aria-hidden="true"
                             />
                           ) : (
                             <ChevronRight
-                              className="h-4 w-4"
-                              style={{ color: 'var(--st-text-tertiary)' }}
+                              className="h-4 w-4 text-[var(--st-text-tertiary)]"
                               aria-hidden="true"
                             />
                           )}
-                        </td>
-                        <td
-                          className="px-5 py-3 text-[13px]"
-                          style={{ color: 'var(--st-text)' }}
-                        >
+                        </Td>
+                        <Td className="text-[13px]">
                           {b.name || b.templateName || 'Broadcast'}
-                        </td>
-                        <td className="px-5 py-3">
+                        </Td>
+                        <Td>
                           <Badge tone={statusTone(b.status)}>
                             {b.status || 'unknown'}
                           </Badge>
-                        </td>
-                        <td
-                          className="px-5 py-3 text-right text-[13px] tabular-nums"
-                          style={{ color: 'var(--st-text)' }}
-                        >
+                        </Td>
+                        <Td align="right" className="text-[13px]">
                           {(b.totalContacts || b.total || 0).toLocaleString()}
-                        </td>
-                        <td
-                          className="px-5 py-3 text-right text-[13px] tabular-nums"
-                          style={{ color: 'var(--st-status-ok)' }}
-                        >
+                        </Td>
+                        <Td align="right" className="text-[13px] text-[var(--st-status-ok)]">
                           {(b.sentCount || b.sent || 0).toLocaleString()}
-                        </td>
-                        <td
-                          className="px-5 py-3 text-right text-[13px] tabular-nums"
-                          style={{ color: 'var(--st-danger)' }}
-                        >
+                        </Td>
+                        <Td align="right" className="text-[13px] text-[var(--st-danger)]">
                           {(b.failedCount || b.failed || 0).toLocaleString()}
-                        </td>
-                        <td
-                          className="px-5 py-3 whitespace-nowrap text-[12px]"
-                          style={{ color: 'var(--st-text-tertiary)' }}
-                        >
+                        </Td>
+                        <Td className="whitespace-nowrap text-[12px] text-[var(--st-text-tertiary)]">
                           {b.createdAt
                             ? fmtDate(b.createdAt)
                             : '--'}
-                        </td>
-                        <td
-                          className="px-5 py-3 text-right"
-                          onClick={(e) => e.stopPropagation()}
-                        >
+                        </Td>
+                        <Td align="right" onClick={(e) => e.stopPropagation()}>
                           <ReplayBroadcastDialog
                             broadcast={b}
                             onConfirm={onReplay}
                           />
-                        </td>
-                      </tr>
+                        </Td>
+                      </Tr>
                       {isExpanded && (
-                        <tr
-                          style={{
-                            borderBottom: '1px solid var(--st-border)',
-                            background: 'var(--st-bg-secondary)',
-                          }}
-                        >
-                          <td colSpan={8} className="px-10 py-4">
+                        <Tr className="bg-[var(--st-bg-secondary)]">
+                          <Td colSpan={8} className="px-10 py-4">
                             <div className="grid max-w-md grid-cols-2 gap-4 text-[13px]">
                               <div>
-                                <span style={{ color: 'var(--st-text-tertiary)' }}>
+                                <span className="text-[var(--st-text-tertiary)]">
                                   Template:
                                 </span>{' '}
-                                <span
-                                  className="font-mono"
-                                  style={{ color: 'var(--st-text)' }}
-                                >
+                                <span className="font-mono text-[var(--st-text)]">
                                   {b.templateName || '--'}
                                 </span>
                               </div>
                               <div>
-                                <span style={{ color: 'var(--st-text-tertiary)' }}>
+                                <span className="text-[var(--st-text-tertiary)]">
                                   Audience:
                                 </span>{' '}
-                                <span style={{ color: 'var(--st-text)' }}>
+                                <span className="text-[var(--st-text)]">
                                   {b.audience || b.segmentName || '--'}
                                 </span>
                               </div>
                               {b.completedAt && (
                                 <div>
-                                  <span style={{ color: 'var(--st-text-tertiary)' }}>
+                                  <span className="text-[var(--st-text-tertiary)]">
                                     Completed:
                                   </span>{' '}
-                                  <span style={{ color: 'var(--st-text)' }}>
+                                  <span className="text-[var(--st-text)]">
                                     {fmtDate(b.completedAt)}
                                   </span>
                                 </div>
                               )}
                             </div>
-                          </td>
-                        </tr>
+                          </Td>
+                        </Tr>
                       )}
                     </React.Fragment>
                   );
                 })}
-              </tbody>
-            </table>
+              </TBody>
+            </Table>
           </Card>
         )}
       </div>

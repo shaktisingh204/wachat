@@ -5,6 +5,11 @@ import {
   Badge,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
   IconButton,
   Tabs,
   TabPanel,
@@ -184,34 +189,19 @@ export default function IntegrationsPage() {
         <TabPanel value="integrations" className="mt-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {integrations.map((integration) => (
-              <Card key={integration.title} padding="none" className="flex flex-col gap-4 p-5">
+              <Card key={integration.title} padding="none" className="flex flex-col p-5">
                 <div className="flex items-center gap-3">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text)',
-                    }}
-                  >
+                  <span className="u-integration-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
                     {integration.icon}
                   </span>
-                  <h3 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-                    {integration.title}
-                  </h3>
+                  <CardTitle className="text-[15px]">{integration.title}</CardTitle>
                 </div>
 
-                <p
-                  className="flex-1 text-sm leading-relaxed"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
+                <CardDescription className="mt-2 flex-1 text-sm leading-relaxed">
                   {integration.description}
-                </p>
+                </CardDescription>
 
-                <div
-                  className="flex items-center justify-between pt-4"
-                  style={{ borderTop: '1px solid var(--st-border)' }}
-                >
+                <CardFooter className="mt-4 flex items-center justify-between">
                   {integration.status === 'ready' ? (
                     <Badge tone="success">Ready to configure</Badge>
                   ) : (
@@ -228,30 +218,21 @@ export default function IntegrationsPage() {
                       Notify me
                     </Button>
                   )}
-                </div>
+                </CardFooter>
               </Card>
             ))}
           </div>
 
           <Card padding="none" className="mt-6 flex items-center gap-4 p-5">
-            <span
-              className="flex h-10 w-10 shrink-0 items-center justify-center"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                background: 'var(--st-bg-secondary)',
-                color: 'var(--st-text)',
-              }}
-            >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
               <Puzzle className="h-[18px] w-[18px]" aria-hidden="true" />
             </span>
-            <div className="flex-1">
-              <p className="text-[14px]" style={{ color: 'var(--st-text)' }}>
-                More integrations coming soon
-              </p>
-              <p className="text-[12.5px] leading-snug" style={{ color: 'var(--st-text-secondary)' }}>
+            <CardBody className="flex-1 p-0">
+              <CardTitle className="text-[14px]">More integrations coming soon</CardTitle>
+              <CardDescription className="text-[12.5px] leading-snug">
                 Shopify, HubSpot, Zapier and Stripe are in the works. Need a specific one? Tell us.
-              </p>
-            </div>
+              </CardDescription>
+            </CardBody>
           </Card>
         </TabPanel>
 
@@ -260,23 +241,12 @@ export default function IntegrationsPage() {
             {oauthConnections.map((app) => (
               <Card key={app.name} padding="none" className="flex items-center justify-between p-5">
                 <div className="flex items-center gap-4">
-                  <span
-                    className="flex h-10 w-10 shrink-0 items-center justify-center"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                      color: 'var(--st-text)',
-                    }}
-                  >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius)] bg-[var(--st-bg-secondary)] text-[var(--st-text)]">
                     {app.icon}
                   </span>
                   <div>
-                    <h3 className="text-[15px] font-medium" style={{ color: 'var(--st-text)' }}>
-                      {app.name}
-                    </h3>
-                    <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
-                      {app.description}
-                    </p>
+                    <CardTitle className="text-[15px] font-medium">{app.name}</CardTitle>
+                    <CardDescription className="text-sm">{app.description}</CardDescription>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -284,7 +254,7 @@ export default function IntegrationsPage() {
                     <>
                       <div className="flex flex-col items-end">
                         <Badge tone="success">Connected</Badge>
-                        <span className="mt-1 text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                        <span className="mt-1 text-[11px] text-[var(--st-text-tertiary)]">
                           Since {app.connectedAt}
                         </span>
                       </div>
@@ -301,99 +271,103 @@ export default function IntegrationsPage() {
 
         <TabPanel value="webhooks" className="mt-4">
           <div className="space-y-8">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+            <Card padding="none" className="p-5">
+              <CardHeader>
                 <div>
-                  <h3 className="text-base font-medium" style={{ color: 'var(--st-text)' }}>Webhooks</h3>
-                  <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+                  <CardTitle>Webhooks</CardTitle>
+                  <CardDescription>
                     Manage webhook endpoints to receive real-time updates.
-                  </p>
+                  </CardDescription>
                 </div>
                 <Button size="sm" variant="primary" iconLeft={Plus}>
                   Add Webhook
                 </Button>
-              </div>
-              <Table>
-                <THead>
-                  <Tr>
-                    <Th>URL</Th>
-                    <Th>Events</Th>
-                    <Th>Status</Th>
-                    <Th>Created</Th>
-                    <Th align="right">Actions</Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {webhooks.map((wh) => (
-                    <Tr key={wh.id}>
-                      <Td className="font-medium">{wh.url}</Td>
-                      <Td>
-                        <div className="flex flex-wrap gap-1">
-                          {wh.events.map((ev) => (
-                            <Badge key={ev} tone="neutral" className="text-[10px] uppercase font-medium">{ev}</Badge>
-                          ))}
-                        </div>
-                      </Td>
-                      <Td>
-                        {wh.status === 'active' ? (
-                          <Badge tone="success">Active</Badge>
-                        ) : (
-                          <Badge tone="neutral">Inactive</Badge>
-                        )}
-                      </Td>
-                      <Td style={{ color: 'var(--st-text-secondary)' }}>{wh.createdAt}</Td>
-                      <Td align="right">
-                        <div className="flex items-center justify-end gap-2">
-                          <IconButton label="Edit webhook" icon={Edit2} variant="ghost" size="sm" />
-                          <IconButton label="Delete webhook" icon={Trash2} variant="danger" size="sm" />
-                        </div>
-                      </Td>
+              </CardHeader>
+              <CardBody>
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th>URL</Th>
+                      <Th>Events</Th>
+                      <Th>Status</Th>
+                      <Th>Created</Th>
+                      <Th align="right">Actions</Th>
                     </Tr>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                  </THead>
+                  <TBody>
+                    {webhooks.map((wh) => (
+                      <Tr key={wh.id}>
+                        <Td className="font-medium">{wh.url}</Td>
+                        <Td>
+                          <div className="flex flex-wrap gap-1">
+                            {wh.events.map((ev) => (
+                              <Badge key={ev} tone="neutral" className="text-[10px] uppercase font-medium">{ev}</Badge>
+                            ))}
+                          </div>
+                        </Td>
+                        <Td>
+                          {wh.status === 'active' ? (
+                            <Badge tone="success">Active</Badge>
+                          ) : (
+                            <Badge tone="neutral">Inactive</Badge>
+                          )}
+                        </Td>
+                        <Td className="text-[var(--st-text-secondary)]">{wh.createdAt}</Td>
+                        <Td align="right">
+                          <div className="flex items-center justify-end gap-2">
+                            <IconButton label="Edit webhook" icon={Edit2} variant="ghost" size="sm" />
+                            <IconButton label="Delete webhook" icon={Trash2} variant="danger" size="sm" />
+                          </div>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </CardBody>
+            </Card>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
+            <Card padding="none" className="p-5">
+              <CardHeader>
                 <div>
-                  <h3 className="text-base font-medium" style={{ color: 'var(--st-text)' }}>API Keys</h3>
-                  <p className="text-sm" style={{ color: 'var(--st-text-secondary)' }}>
+                  <CardTitle>API Keys</CardTitle>
+                  <CardDescription>
                     Manage API keys to authenticate your API requests.
-                  </p>
+                  </CardDescription>
                 </div>
                 <Button size="sm" variant="primary" iconLeft={Plus}>
                   Generate Key
                 </Button>
-              </div>
-              <Table>
-                <THead>
-                  <Tr>
-                    <Th>Name</Th>
-                    <Th>Key</Th>
-                    <Th>Created At</Th>
-                    <Th>Last Used</Th>
-                    <Th align="right">Actions</Th>
-                  </Tr>
-                </THead>
-                <TBody>
-                  {apiKeys.map((k) => (
-                    <Tr key={k.id}>
-                      <Td className="font-medium">{k.name}</Td>
-                      <Td className="font-mono text-xs">{k.key}</Td>
-                      <Td style={{ color: 'var(--st-text-secondary)' }}>{k.createdAt}</Td>
-                      <Td style={{ color: 'var(--st-text-secondary)' }}>{k.lastUsed}</Td>
-                      <Td align="right">
-                        <div className="flex items-center justify-end gap-2">
-                          <IconButton label="Copy API key" icon={Copy} variant="ghost" size="sm" />
-                          <IconButton label="Delete API key" icon={Trash2} variant="danger" size="sm" />
-                        </div>
-                      </Td>
+              </CardHeader>
+              <CardBody>
+                <Table>
+                  <THead>
+                    <Tr>
+                      <Th>Name</Th>
+                      <Th>Key</Th>
+                      <Th>Created At</Th>
+                      <Th>Last Used</Th>
+                      <Th align="right">Actions</Th>
                     </Tr>
-                  ))}
-                </TBody>
-              </Table>
-            </div>
+                  </THead>
+                  <TBody>
+                    {apiKeys.map((k) => (
+                      <Tr key={k.id}>
+                        <Td className="font-medium">{k.name}</Td>
+                        <Td className="font-mono text-xs">{k.key}</Td>
+                        <Td className="text-[var(--st-text-secondary)]">{k.createdAt}</Td>
+                        <Td className="text-[var(--st-text-secondary)]">{k.lastUsed}</Td>
+                        <Td align="right">
+                          <div className="flex items-center justify-end gap-2">
+                            <IconButton label="Copy API key" icon={Copy} variant="ghost" size="sm" />
+                            <IconButton label="Delete API key" icon={Trash2} variant="danger" size="sm" />
+                          </div>
+                        </Td>
+                      </Tr>
+                    ))}
+                  </TBody>
+                </Table>
+              </CardBody>
+            </Card>
           </div>
         </TabPanel>
       </Tabs>

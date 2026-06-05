@@ -6,10 +6,24 @@ import {
   Badge,
   Button,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
+  CardFooter,
   EmptyState,
+  Pagination,
+  Progress,
+  Separator,
   Skeleton,
   Spinner,
   StatCard,
+  Table,
+  THead,
+  TBody,
+  Tr,
+  Th,
+  Td,
 } from '@/components/sabcrm/20ui';
 import {
   useState,
@@ -49,11 +63,11 @@ import type { BroadcastAttempt,
   BroadcastLog } from '@/lib/definitions';
 
 /**
- * Broadcast Report — per-campaign detail, 20ui rebuild.
+ * Broadcast Report -- per-campaign detail, 20ui rebuild.
  *
  * Same data + handlers as before (getBroadcastById, getBroadcastAttempts,
  * getBroadcastAttemptsForExport, getBroadcastLogs). Visual layer fully
- * on 20ui primitives — neutral palette, no rainbow.
+ * on 20ui primitives -- neutral palette, no rainbow.
  */
 
 import * as React from 'react';
@@ -62,7 +76,7 @@ function cx(...a: Array<string | false | null | undefined>): string {
   return a.filter(Boolean).join(' ');
 }
 
-/* ── types ──────────────────────────────────────────────────────── */
+/* -- types ------------------------------------------------------------------ */
 
 type Broadcast = {
   _id: any;
@@ -95,7 +109,7 @@ type FilterStatus =
 
 const ATTEMPTS_PER_PAGE = 50;
 
-/* ── helpers ────────────────────────────────────────────────────── */
+/* -- helpers ----------------------------------------------------------------- */
 
 function compact(n: number | null | undefined): string {
   const v = typeof n === 'number' && Number.isFinite(n) ? n : 0;
@@ -183,7 +197,7 @@ const CRUMBS = [
   { label: 'Report' },
 ];
 
-/* ── skeleton ───────────────────────────────────────────────────── */
+/* -- skeleton ---------------------------------------------------------------- */
 
 function ReportSkeleton() {
   return (
@@ -201,7 +215,7 @@ function ReportSkeleton() {
   );
 }
 
-/* ── page ───────────────────────────────────────────────────────── */
+/* -- page -------------------------------------------------------------------- */
 
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
@@ -306,7 +320,7 @@ export default function BroadcastReportPage() {
       try {
         toast({
           title: 'Preparing export',
-          description: 'Fetching all attempt data, this may take a moment…',
+          description: 'Fetching all attempt data, this may take a moment...',
         });
         const attemptsToExport = await getBroadcastAttemptsForExport(
           broadcastId,
@@ -396,7 +410,7 @@ export default function BroadcastReportPage() {
     } else if (attempt.status === 'FAILED') {
       detail = attempt.error || 'Failed with unknown error';
     } else {
-      detail = 'Waiting to be sent…';
+      detail = 'Waiting to be sent...';
     }
     return { ...attempt, detail };
   });
@@ -410,7 +424,7 @@ export default function BroadcastReportPage() {
         onClick={onRefresh}
         disabled={isRefreshing}
       >
-        {isRefreshing ? 'Refreshing…' : 'Refresh'}
+        {isRefreshing ? 'Refreshing...' : 'Refresh'}
       </Button>
       <Button
         variant="primary"
@@ -420,7 +434,7 @@ export default function BroadcastReportPage() {
         onClick={onExport}
         disabled={isExporting}
       >
-        {isExporting ? 'Exporting…' : 'Export CSV'}
+        {isExporting ? 'Exporting...' : 'Export CSV'}
       </Button>
     </div>
   );
@@ -437,8 +451,7 @@ export default function BroadcastReportPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
             href="/wachat/broadcasts"
-            className="inline-flex items-center gap-1.5 text-[11.5px] transition-colors"
-            style={{ color: 'var(--st-text-secondary)' }}
+            className="inline-flex items-center gap-1.5 text-[11.5px] transition-colors text-[var(--st-text-secondary)] hover:text-[var(--st-text)]"
           >
             <ArrowLeft className="h-3 w-3" aria-hidden="true" />
             Back to broadcasts
@@ -448,14 +461,11 @@ export default function BroadcastReportPage() {
           </Badge>
         </div>
 
-        <div
-          className="flex flex-wrap items-center gap-3 text-[12.5px]"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <div className="flex flex-wrap items-center gap-3 text-[12.5px] text-[var(--st-text-secondary)]">
           {broadcast.fileName ? (
             <span>
               File:{' '}
-              <span style={{ color: 'var(--st-text)' }}>
+              <span className="text-[var(--st-text)]">
                 {broadcast.fileName}
               </span>
             </span>
@@ -510,40 +520,36 @@ export default function BroadcastReportPage() {
         </div>
 
         {/* Delivery funnel */}
-        <Card className="p-6">
-          <div className="text-sm" style={{ color: 'var(--st-text)' }}>
-            Delivery funnel
-          </div>
-          <div className="mt-4 flex flex-col gap-3">
-            <FunnelBar label="Queued" count={total} total={total} />
-            <FunnelBar label="Sent" count={sent} total={total} />
-            <FunnelBar label="Delivered" count={delivered} total={total} />
-            <FunnelBar label="Read" count={read} total={total} />
-            {failed > 0 ? (
-              <FunnelBar label="Failed" count={failed} total={total} negative />
-            ) : null}
-          </div>
+        <Card variant="outlined" padding="lg">
+          <CardHeader>
+            <CardTitle>Delivery funnel</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="flex flex-col gap-3">
+              <FunnelBar label="Queued" count={total} total={total} />
+              <FunnelBar label="Sent" count={sent} total={total} />
+              <FunnelBar label="Delivered" count={delivered} total={total} />
+              <FunnelBar label="Read" count={read} total={total} />
+              {failed > 0 ? (
+                <FunnelBar label="Failed" count={failed} total={total} negative />
+              ) : null}
+            </div>
+          </CardBody>
         </Card>
 
         {/* Delivery results table */}
         <section>
           <div>
-            <h2
-              className="text-[22px] tracking-tight leading-none"
-              style={{ color: 'var(--st-text)' }}
-            >
+            <h2 className="text-[22px] tracking-tight leading-none text-[var(--st-text)]">
               Delivery results
             </h2>
-            <p
-              className="mt-1.5 text-[12.5px]"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
+            <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
               Live status for each contact. Auto-refreshes every 10 seconds while
               the campaign is still processing.
             </p>
           </div>
 
-          <Card className="mt-5 p-6">
+          <Card variant="outlined" padding="lg" className="mt-5">
             {/* Filter pills */}
             <div className="flex flex-wrap gap-2">
               {FILTERS.map((f) => {
@@ -562,13 +568,7 @@ export default function BroadcastReportPage() {
             </div>
 
             {/* Table */}
-            <div
-              className="mt-5 overflow-hidden"
-              style={{
-                borderRadius: 'var(--st-radius)',
-                border: '1px solid var(--st-border)',
-              }}
-            >
+            <div className="mt-5 overflow-hidden">
               {isRefreshing && enrichedAttempts.length === 0 ? (
                 <div className="flex h-40 items-center justify-center">
                   <Spinner size="md" />
@@ -581,91 +581,56 @@ export default function BroadcastReportPage() {
                 />
               ) : (
                 <div className="max-h-[60vh] overflow-y-auto">
-                  <table className="w-full text-[13px]">
-                    <thead
-                      className="sticky top-0 z-10 text-[11px] uppercase tracking-wide"
-                      style={{
-                        background: 'var(--st-bg-secondary)',
-                        color: 'var(--st-text-secondary)',
-                        borderBottom: '1px solid var(--st-border)',
-                      }}
-                    >
-                      <tr>
-                        <th className="px-4 py-3 text-left">Phone number</th>
-                        <th className="px-4 py-3 text-left">Status</th>
-                        <th className="px-4 py-3 text-left">
-                          Message ID / error details
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody style={{ background: 'var(--st-bg)' }}>
+                  <Table stickyHeader density="comfortable">
+                    <THead>
+                      <Tr>
+                        <Th>Phone number</Th>
+                        <Th>Status</Th>
+                        <Th>Message ID / error details</Th>
+                      </Tr>
+                    </THead>
+                    <TBody>
                       {enrichedAttempts.map((attempt) => {
                         const chip = attemptStatusChip(attempt.status);
                         return (
-                          <tr
-                            key={attempt._id}
-                            style={{ borderTop: '1px solid var(--st-border)' }}
-                          >
-                            <td
-                              className="px-4 py-3 font-mono text-[12px] tabular-nums"
-                              style={{ color: 'var(--st-text)' }}
-                            >
+                          <Tr key={attempt._id}>
+                            <Td className="font-mono text-[12px] tabular-nums">
                               {attempt.phone}
-                            </td>
-                            <td className="px-4 py-3">
+                            </Td>
+                            <Td>
                               <Badge tone={chip.tone}>
                                 {chip.icon}
                                 {chip.label}
                               </Badge>
-                            </td>
-                            <td
-                              className="px-4 py-3 font-mono text-[11px]"
-                              style={{ color: 'var(--st-text-secondary)' }}
-                            >
+                            </Td>
+                            <Td className="font-mono text-[11px] text-[var(--st-text-secondary)]">
                               {attempt.detail}
-                            </td>
-                          </tr>
+                            </Td>
+                          </Tr>
                         );
                       })}
-                    </tbody>
-                  </table>
+                    </TBody>
+                  </Table>
                 </div>
               )}
             </div>
 
             {/* Pagination */}
             {totalPages > 1 ? (
-              <div
-                className="mt-5 flex items-center justify-between gap-3 pt-4"
-                style={{ borderTop: '1px solid var(--st-border)' }}
-              >
-                <span
-                  className="text-[11.5px] tabular-nums"
-                  style={{ color: 'var(--st-text-secondary)' }}
-                >
-                  Page {currentPage} of {totalPages}
-                </span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage <= 1 || isRefreshing}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage >= totalPages || isRefreshing}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
+              <>
+                <Separator className="mt-5" />
+                <CardFooter className="flex items-center justify-between gap-3">
+                  <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Pagination
+                    page={currentPage}
+                    pageCount={totalPages}
+                    onPageChange={setCurrentPage}
+                    size="compact"
+                  />
+                </CardFooter>
+              </>
             ) : null}
           </Card>
         </section>
@@ -674,7 +639,7 @@ export default function BroadcastReportPage() {
   );
 }
 
-/* ── helpers ────────────────────────────────────────────────────── */
+/* -- helpers ----------------------------------------------------------------- */
 
 function FunnelBar({
   label,
@@ -691,26 +656,18 @@ function FunnelBar({
   return (
     <div>
       <div className="flex items-center justify-between text-[11.5px]">
-        <span style={{ color: 'var(--st-text)' }}>{label}</span>
-        <span
-          className="tabular-nums"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
+        <span className="text-[var(--st-text)]">{label}</span>
+        <span className="tabular-nums text-[var(--st-text-secondary)]">
           {count.toLocaleString()} · {width}%
         </span>
       </div>
-      <div
-        className="mt-1.5 h-2 w-full overflow-hidden rounded-full"
-        style={{ background: 'var(--st-bg-secondary)' }}
-      >
-        <div
-          className="h-full rounded-full transition-[width] duration-500"
-          style={{
-            width: `${width}%`,
-            background: negative ? 'var(--st-danger)' : 'var(--st-text)',
-          }}
-        />
-      </div>
+      <Progress
+        value={width}
+        tone={negative ? 'danger' : 'accent'}
+        size="sm"
+        label={label}
+        className="mt-1.5"
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import {
   IconButton,
   Separator,
   Avatar,
+  Badge,
 } from '@/components/sabcrm/20ui';
 import {
   handleTranslateMessage } from '@/app/actions/ai-actions';
@@ -86,9 +87,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
             {status === 'pending' && <p>Pending...</p>}
             {status === 'failed' && (
                 <div>
-                    <p className="font-medium" style={{ color: 'var(--st-text-muted)' }}>Failed</p>
-                    {(message as OutgoingMessage).error && <p style={{ color: 'var(--st-text-muted)' }}>{(message as OutgoingMessage).error}</p>}
-                    {(message as OutgoingMessage).errorCode && <p style={{ color: 'var(--st-text-tertiary)' }}>Code: {(message as OutgoingMessage).errorCode}</p>}
+                    <p className="font-medium u-text-muted">Failed</p>
+                    {(message as OutgoingMessage).error && <p className="u-text-muted">{(message as OutgoingMessage).error}</p>}
+                    {(message as OutgoingMessage).errorCode && <p className="u-text-tertiary">Code: {(message as OutgoingMessage).errorCode}</p>}
                 </div>
             )}
         </div>
@@ -105,12 +106,12 @@ function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
 
     if (type === 'unsupported') {
-        return <p className="whitespace-pre-wrap italic" style={{ color: 'var(--st-text-muted)' }}>This message type is not supported by the Cloud API.</p>;
+        return <p className="whitespace-pre-wrap italic u-text-muted">This message type is not supported by the Cloud API.</p>;
     }
 
     const media = message.content[type as keyof typeof message.content] as any;
 
-    if (!media) return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Unsupported message content]</div>;
+    if (!media) return <div className="text-sm italic u-text-muted">[Unsupported message content]</div>;
 
     const url = media.url || media.link;
     const caption = media.caption || '';
@@ -120,14 +121,14 @@ function MediaContent({ message }: { message: AnyMessage }) {
         if (url) {
             return (
                 <div className="space-y-2">
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 rounded-lg overflow-hidden" style={{ background: 'var(--st-surface-muted)' }}>
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 rounded-lg overflow-hidden u-surface-muted">
                         <Image src={url} alt={caption || 'Sent image'} layout="fill" objectFit="cover" data-ai-hint="chat image" />
                     </a>
                     {caption && <p className="text-sm">{caption}</p>}
                 </div>
             );
         }
-        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Image received - preview unavailable]</div>;
+        return <div className="text-sm italic u-text-muted">[Image received - preview unavailable]</div>;
     }
 
     if (type === 'sticker') {
@@ -138,7 +139,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Sticker received]</div>;
+        return <div className="text-sm italic u-text-muted">[Sticker received]</div>;
     }
 
     if (type === 'video') {
@@ -150,23 +151,23 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             );
         }
-        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Video received]</div>;
+        return <div className="text-sm italic u-text-muted">[Video received]</div>;
     }
 
     if (type === 'document') {
         if (url) {
             return (
-                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95" style={{ background: 'var(--st-surface-muted)' }}>
-                    <FileIcon className="h-8 w-8 flex-shrink-0" style={{ color: 'var(--st-text)' }} />
+                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95 u-surface-muted">
+                    <FileIcon className="h-8 w-8 flex-shrink-0 u-text" />
                     <div className="flex-1 overflow-hidden">
                         <p className="font-semibold truncate">{fileName}</p>
-                        {caption && <p className="text-xs truncate" style={{ color: 'var(--st-text-muted)' }}>{caption}</p>}
+                        {caption && <p className="text-xs truncate u-text-muted">{caption}</p>}
                     </div>
-                    <Download className="h-5 w-5" style={{ color: 'var(--st-text-muted)' }} />
+                    <Download className="h-5 w-5 u-text-muted" />
                 </a>
             );
         }
-        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Document received: {fileName}]</div>;
+        return <div className="text-sm italic u-text-muted">[Document received: {fileName}]</div>;
     }
 
     if (type === 'audio') {
@@ -177,24 +178,24 @@ function MediaContent({ message }: { message: AnyMessage }) {
                 </div>
             )
         }
-        return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[Audio message]</div>;
+        return <div className="text-sm italic u-text-muted">[Audio message]</div>;
     }
 
     if (type === 'location') {
         const { latitude, longitude, name, address } = media;
         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
         return (
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95" style={{ background: 'var(--st-surface-muted)' }}>
-                <MapPin className="h-8 w-8 flex-shrink-0" style={{ color: 'var(--st-text)' }} />
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg transition-colors max-w-xs hover:brightness-95 u-surface-muted">
+                <MapPin className="h-8 w-8 flex-shrink-0 u-text" />
                 <div className="flex-1 overflow-hidden">
                     <p className="font-semibold truncate">{name || 'Location'}</p>
-                    <p className="text-xs truncate" style={{ color: 'var(--st-text-muted)' }}>{address || `${latitude}, ${longitude}`}</p>
+                    <p className="text-xs truncate u-text-muted">{address || `${latitude}, ${longitude}`}</p>
                 </div>
             </a>
         );
     }
 
-    return <div className="text-sm italic" style={{ color: 'var(--st-text-muted)' }}>[{type} message]</div>;
+    return <div className="text-sm italic u-text-muted">[{type} message]</div>;
 };
 
 const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMessage, phoneNumberId?: string }) => {
@@ -228,7 +229,7 @@ const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMe
         <div className="space-y-2 w-64">
             <p className="font-semibold">Payment Request</p>
             <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
-            <p className="text-xs" style={{ color: 'var(--st-text-muted)' }}>{message.content.payment_request.description}</p>
+            <p className="text-xs u-text-muted">{message.content.payment_request.description}</p>
             <Button variant="primary" size="sm" block className="mt-2" onClick={checkStatus} disabled={isChecking}>
                 {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
@@ -245,7 +246,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
             return (
                 <div className="mt-2 space-y-1">
                     {action.buttons.map(button => (
-                        <div key={button.reply.id} className="text-center font-medium py-1.5 rounded-md text-sm border" style={{ color: 'var(--st-text)', background: 'var(--st-surface)' }}>
+                        <div key={button.reply.id} className="text-center font-medium py-1.5 rounded-md text-sm border u-text u-surface">
                             {button.reply.title}
                         </div>
                     ))}
@@ -254,7 +255,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         }
         if (action.button) {
             return (
-                <div className="mt-2 text-center font-medium py-2.5 rounded-md text-sm border font-semibold" style={{ color: 'var(--st-text)', background: 'var(--st-surface)' }}>
+                <div className="mt-2 text-center font-medium py-2.5 rounded-md text-sm border font-semibold u-text u-surface">
                     <List className="inline-block h-4 w-4 mr-2" />
                     {action.button}
                 </div>
@@ -270,7 +271,7 @@ const InteractiveMessageDisplay = ({ content }: { content: InteractiveMessageCon
         <div className="space-y-2 w-64">
             {header && <p className="font-bold text-lg">{header.text}</p>}
             {body && <p className="whitespace-pre-wrap">{body.text}</p>}
-            {footer && <p className="text-xs pt-1" style={{ color: 'var(--st-text-muted)' }}>{footer.text}</p>}
+            {footer && <p className="text-xs pt-1 u-text-muted">{footer.text}</p>}
             {action && renderAction()}
         </div>
     )
@@ -284,8 +285,8 @@ const QuotedMessage = ({ message }: { message: AnyMessage }) => {
 
     return (
         <div className="bg-black/5 dark:bg-white/5 p-2 rounded-md border-l-2 border-primary mb-2 text-xs">
-            <p className="font-semibold" style={{ color: 'var(--st-text)' }}>{senderName}</p>
-            <div className="line-clamp-2" style={{ color: 'var(--st-text-muted)' }}>
+            <p className="font-semibold u-text">{senderName}</p>
+            <div className="line-clamp-2 u-text-muted">
                 <MessageBody message={message} isOutgoing={isOutgoing} conversation={[]} onReply={() => { }} isQuoted={true} />
             </div>
         </div>
@@ -312,10 +313,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
             const nfm = message.content.interactive.nfm_reply;
             return (
                 <div className="space-y-1">
-                    <p className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--st-text)' }}><Bot className="h-3 w-3" /> Flow Response</p>
+                    <p className="text-xs font-semibold flex items-center gap-1 u-text"><Bot className="h-3 w-3" /> Flow Response</p>
                     {nfm.body && <p className="whitespace-pre-wrap text-sm">{nfm.body}</p>}
                     {nfm.response_json && (
-                        <pre className="text-xs p-2 rounded overflow-x-auto max-w-xs" style={{ background: 'var(--st-surface-muted)' }}>{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
+                        <pre className="text-xs p-2 rounded overflow-x-auto max-w-xs u-surface-muted">{typeof nfm.response_json === 'string' ? nfm.response_json : JSON.stringify(nfm.response_json, null, 2)}</pre>
                     )}
                 </div>
             );
@@ -356,7 +357,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
     // System message (number change, group update, etc.)
     if (message.type === 'system') {
         return (
-            <div className="text-xs italic flex items-center gap-1.5" style={{ color: 'var(--st-text-muted)' }}>
+            <div className="text-xs italic flex items-center gap-1.5 u-text-muted">
                 <Bot className="h-3 w-3" />
                 {message.content.system?.body || message.content.body || '[System message]'}
             </div>
@@ -368,10 +369,10 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
         const ref = message.content.referral || message.content;
         return (
             <div className="space-y-1 text-sm">
-                <p className="text-xs font-semibold" style={{ color: 'var(--st-text)' }}>From Ad</p>
+                <p className="text-xs font-semibold u-text">From Ad</p>
                 {ref.headline && <p className="font-medium">{ref.headline}</p>}
-                {ref.body && <p style={{ color: 'var(--st-text-muted)' }}>{ref.body}</p>}
-                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs hover:underline" style={{ color: 'var(--st-text)' }}>{ref.source_url}</a>}
+                {ref.body && <p className="u-text-muted">{ref.body}</p>}
+                {ref.source_url && <a href={ref.source_url} target="_blank" rel="noopener noreferrer" className="text-xs hover:underline u-text">{ref.source_url}</a>}
                 {message.content.text?.body && <p className="whitespace-pre-wrap mt-1">{message.content.text.body}</p>}
             </div>
         );
@@ -379,7 +380,7 @@ const MessageBody = ({ message, isOutgoing, conversation, onReply, phoneNumberId
 
     // Conversation opened (request_welcome)
     if (message.type === 'request_welcome') {
-        return <p className="text-xs italic" style={{ color: 'var(--st-text-muted)' }}>Customer opened the conversation</p>;
+        return <p className="text-xs italic u-text-muted">Customer opened the conversation</p>;
     }
 
     // Media and other types
@@ -444,7 +445,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem' } : { left: '100%', marginLeft: '0.5rem' }}
             >
-                <div className="flex items-center border rounded-full shadow-sm p-0.5" style={{ background: 'var(--st-surface)' }}>
+                <div className="flex items-center border rounded-full shadow-sm p-0.5 u-surface">
                     <IconButton
                         label="Reply"
                         icon={CornerUpLeft}
@@ -481,7 +482,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 {translatedText && (
                     <>
                         <Separator className="my-2 bg-black/10 dark:bg-white/10" />
-                        <p className="whitespace-pre-wrap italic" style={{ color: 'var(--st-text-muted)' }}>{translatedText}</p>
+                        <p className="whitespace-pre-wrap italic u-text-muted">{translatedText}</p>
                     </>
                 )}
 
@@ -495,10 +496,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
                 )}
 
                 <div className="flex items-center gap-1.5 self-end mt-1">
-                    <p
-                        className={cx("text-xs", isOutgoing && "text-white/70")}
-                        style={isOutgoing ? undefined : { color: 'var(--st-text-muted)', opacity: 0.8 }}
-                    >
+                    <p className={cx("text-xs", isOutgoing ? "text-white/70" : "u-text-muted opacity-80")}>
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}
@@ -507,10 +505,9 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
             {message.reaction && (
                 <div
                     className={cx(
-                        "absolute -bottom-3 border rounded-full text-lg px-1.5 py-0.5 shadow-sm",
+                        "absolute -bottom-3 border rounded-full text-lg px-1.5 py-0.5 shadow-sm u-surface",
                         isOutgoing ? 'right-0' : 'left-8'
                     )}
-                    style={{ background: 'var(--st-surface)' }}
                 >
                     {message.reaction.emoji}
                 </div>

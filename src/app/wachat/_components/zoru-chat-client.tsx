@@ -12,12 +12,14 @@ import {
   CommandItem,
   CommandList,
   Modal,
+  EmptyState,
   Field,
   Input,
   Popover,
   PopoverContent,
   PopoverTrigger,
   ScrollArea,
+  SegmentedControl,
   Select,
   Drawer,
   DrawerContent,
@@ -240,10 +242,7 @@ function ZoruNewChatDialog({
                           <span className="flex-1 truncate">
                             {country.name}
                           </span>
-                          <span
-                            className="ml-2"
-                            style={{ color: "var(--st-text-muted)" }}
-                          >
+                          <span className="ml-2 text-[var(--st-text-muted)]">
                             +{country.code}
                           </span>
                         </CommandItem>
@@ -265,7 +264,7 @@ function ZoruNewChatDialog({
             />
           </div>
         </Field>
-        <p className="mt-2 text-xs" style={{ color: "var(--st-text-muted)" }}>
+        <p className="mt-2 text-xs text-[var(--st-text-muted)]">
           Format:{" "}
           {selectedCountry
             ? `+${selectedCountry.code} 9876543210`
@@ -345,22 +344,16 @@ function ZoruContactListPane({
   );
 
   return (
-    <div
-      className="flex h-full flex-col overflow-hidden"
-      style={{ background: "var(--st-bg)" }}
-    >
+    <div className="flex h-full flex-col overflow-hidden bg-[var(--st-bg)]">
       {/* Header — current user + new-chat trigger */}
-      <div
-        className="flex shrink-0 items-center justify-between border-b p-3"
-        style={{ borderColor: "var(--st-border)" }}
-      >
+      <div className="flex shrink-0 items-center justify-between border-b border-[var(--st-border)] p-3">
         {sessionUser ? (
           <div className="flex items-center gap-3">
             <Avatar
               name={sessionUser.name}
               src={`https://i.pravatar.cc/150?u=${sessionUser.email}`}
             />
-            <p style={{ color: "var(--st-text)" }}>{sessionUser.name}</p>
+            <p>{sessionUser.name}</p>
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -385,10 +378,7 @@ function ZoruContactListPane({
       </div>
 
       {/* Search + phone-number select */}
-      <div
-        className="shrink-0 space-y-3 border-b p-3"
-        style={{ borderColor: "var(--st-border)" }}
-      >
+      <div className="shrink-0 space-y-3 border-b border-[var(--st-border)] p-3">
         <Input
           placeholder="Search or start new chat"
           aria-label="Search or start new chat"
@@ -406,36 +396,20 @@ function ZoruContactListPane({
       </div>
 
       {/* All / Unread segmented filter */}
-      <div
-        className="flex shrink-0 items-center gap-1.5 border-b px-3 py-2"
-        style={{ borderColor: "var(--st-border)" }}
-      >
-        <button
-          type="button"
-          onClick={() => setChatFilter("all")}
-          aria-pressed={chatFilter === "all"}
-          className="rounded-full px-3 py-1 text-[11px] transition-colors"
-          style={
-            chatFilter === "all"
-              ? { background: "var(--st-text)", color: "var(--st-text-inverted)" }
-              : { background: "var(--st-bg-muted)", color: "var(--st-text-muted)" }
-          }
-        >
-          All
-        </button>
-        <button
-          type="button"
-          onClick={() => setChatFilter("unread")}
-          aria-pressed={chatFilter === "unread"}
-          className="rounded-full px-3 py-1 text-[11px] transition-colors"
-          style={
-            chatFilter === "unread"
-              ? { background: "var(--st-text)", color: "var(--st-text-inverted)" }
-              : { background: "var(--st-bg-muted)", color: "var(--st-text-muted)" }
-          }
-        >
-          Unread{unreadCount > 0 && ` (${unreadCount})`}
-        </button>
+      <div className="shrink-0 border-b border-[var(--st-border)] px-3 py-2">
+        <SegmentedControl
+          size="sm"
+          aria-label="Filter conversations"
+          value={chatFilter}
+          onChange={(v) => setChatFilter(v as "all" | "unread")}
+          items={[
+            { value: "all", label: "All" },
+            {
+              value: "unread",
+              label: unreadCount > 0 ? `Unread (${unreadCount})` : "Unread",
+            },
+          ]}
+        />
       </div>
 
       {/* Contact list */}
@@ -459,15 +433,10 @@ function ZoruContactListPane({
                   key={id}
                   type="button"
                   onClick={() => onSelectContact(contact)}
-                  className="mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors"
-                  style={
-                    selected
-                      ? {
-                          background: "var(--st-bg-muted)",
-                          boxShadow: "var(--st-shadow-sm)",
-                        }
-                      : undefined
-                  }
+                  className={cx(
+                    "mx-2 mb-1 flex w-[calc(100%-16px)] items-start gap-3 rounded-[var(--st-radius)] p-3 text-left transition-colors",
+                    selected && "bg-[var(--st-bg-muted)] shadow-[var(--st-shadow-sm)]",
+                  )}
                 >
                   <Avatar
                     name={(contact.name || "?").toUpperCase()}
@@ -476,30 +445,23 @@ function ZoruContactListPane({
                   <div className="min-w-0 flex-1 pt-0.5">
                     <div className="flex items-start justify-between">
                       <span
-                        className="truncate pr-2"
-                        style={{
-                          color:
-                            unread > 0
-                              ? "var(--st-text)"
-                              : "var(--st-text-muted)",
-                        }}
+                        className={cx(
+                          "truncate pr-2",
+                          unread > 0
+                            ? "text-[var(--st-text)]"
+                            : "text-[var(--st-text-muted)]",
+                        )}
                       >
                         {contact.name || contact.waId}
                       </span>
                       {lastMsgTime && (
-                        <span
-                          className="mt-0.5 shrink-0 whitespace-nowrap text-[10px]"
-                          style={{ color: "var(--st-text-tertiary)" }}
-                        >
+                        <span className="mt-0.5 shrink-0 whitespace-nowrap text-[10px] text-[var(--st-text-tertiary)]">
                           {format(new Date(lastMsgTime), "HH:mm")}
                         </span>
                       )}
                     </div>
                     <div className="mt-0.5 flex items-center justify-between">
-                      <span
-                        className="block max-w-[180px] truncate text-xs"
-                        style={{ color: "var(--st-text-muted)" }}
-                      >
+                      <span className="block max-w-[180px] truncate text-xs text-[var(--st-text-muted)]">
                         {lastMsgContent}
                       </span>
                       {unread > 0 && (
@@ -521,40 +483,28 @@ function ZoruContactListPane({
               className="flex items-center justify-center p-4"
             >
               {hasMoreContacts && (
-                <LoaderCircle
-                  className="h-5 w-5 animate-spin"
-                  style={{ color: "var(--st-text-muted)" }}
-                />
+                <LoaderCircle className="h-5 w-5 animate-spin text-[var(--st-text-muted)]" />
               )}
             </div>
           </>
         ) : (
-          <div
-            className="flex flex-col items-center gap-2 p-8 text-center text-sm"
-            style={{ color: "var(--st-text-muted)" }}
-          >
-            <div
-              className="flex h-10 w-10 items-center justify-center rounded-full"
-              style={{
-                background: "var(--st-bg-muted)",
-                color: "var(--st-text-muted)",
-              }}
-            >
-              <Users className="h-5 w-5" />
-            </div>
-            <div>
-              No contacts found
-              {searchQuery ? " for your search" : " for this number"}.
-            </div>
-            {!searchQuery && (
-              <Link
-                href="/wachat/contacts"
-                className="u-btn u-btn--outline u-btn--sm mt-2 inline-flex"
-              >
-                <span className="u-btn__label">Import or add contacts</span>
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            className="p-8"
+            icon={Users}
+            tone="neutral"
+            size="sm"
+            title={`No contacts found${searchQuery ? " for your search" : " for this number"}.`}
+            action={
+              !searchQuery ? (
+                <Link
+                  href="/wachat/contacts"
+                  className="u-btn u-btn--outline u-btn--sm inline-flex"
+                >
+                  <span className="u-btn__label">Import or add contacts</span>
+                </Link>
+              ) : undefined
+            }
+          />
         )}
       </ScrollArea>
     </div>
@@ -867,18 +817,14 @@ export function ZoruChatClient() {
         onOpenChange={setIsNewChatDialogOpen}
         onStartChat={handleNewChat}
       />
-      <div
-        className="ui20 flex h-full w-full flex-col overflow-hidden"
-        style={{ background: "var(--st-bg)" }}
-      >
+      <div className="ui20 flex h-full w-full flex-col overflow-hidden bg-[var(--st-bg)]">
         <div className="flex flex-1 overflow-hidden">
           {/* Pane 1 — conversations list */}
           <div
             className={cx(
-              "w-full shrink-0 flex-col border-r md:w-[380px]",
+              "w-full shrink-0 flex-col border-r border-[var(--st-border)] md:w-[380px]",
               selectedContact ? "hidden md:flex" : "flex",
             )}
-            style={{ borderColor: "var(--st-border)" }}
           >
             <ZoruContactListPane
               sessionUser={sessionUser}
@@ -916,23 +862,11 @@ export function ZoruChatClient() {
                 isInfoPanelOpen={isInfoPanelOpen}
               />
             ) : (
-              <div
-                className="hidden h-full flex-col items-center justify-center gap-4 p-8 text-center md:flex"
-                style={{
-                  background: "var(--st-bg-secondary)",
-                  color: "var(--st-text-muted)",
-                }}
-              >
-                <div
-                  className="mb-2 flex h-20 w-20 items-center justify-center rounded-full"
-                  style={{ background: "var(--st-bg-muted)" }}
-                >
-                  <MessageSquare
-                    className="h-10 w-10"
-                    style={{ color: "var(--st-text-tertiary)" }}
-                  />
+              <div className="hidden h-full flex-col items-center justify-center gap-4 bg-[var(--st-bg-secondary)] p-8 text-center text-[var(--st-text-muted)] md:flex">
+                <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--st-bg-muted)]">
+                  <MessageSquare className="h-10 w-10 text-[var(--st-text-tertiary)]" />
                 </div>
-                <h2 className="text-xl" style={{ color: "var(--st-text)" }}>
+                <h2 className="text-xl text-[var(--st-text)]">
                   Select a conversation
                 </h2>
                 <p className="max-w-xs text-sm">
@@ -952,13 +886,7 @@ export function ZoruChatClient() {
 
           {/* Pane 3 — contact info (desktop side panel) */}
           {isInfoPanelOpen && selectedContact && activeProject && (
-            <div
-              className="hidden w-[340px] shrink-0 border-l lg:block"
-              style={{
-                borderColor: "var(--st-border)",
-                background: "var(--st-bg)",
-              }}
-            >
+            <div className="hidden w-[340px] shrink-0 border-l border-[var(--st-border)] bg-[var(--st-bg)] lg:block">
               <ContactInfoPanel
                 project={activeProject}
                 contact={selectedContact}

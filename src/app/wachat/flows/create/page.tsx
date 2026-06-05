@@ -1,11 +1,14 @@
 'use client';
 
 import {
+  Alert,
   Badge,
   Button,
+  ButtonGroup,
   IconButton,
   Input,
   Select,
+  Separator,
   Skeleton,
   useToast,
   Modal,
@@ -117,18 +120,12 @@ function ValidationBanner({
   };
 
   return (
-    <div
-      className="px-4 py-2 text-[12.5px]"
-      style={{
-        borderBottom: '1px solid color-mix(in srgb, var(--st-danger) 30%, transparent)',
-        background: 'color-mix(in srgb, var(--st-danger) 5%, transparent)',
-        color: 'var(--st-danger)',
-      }}
+    <Alert
+      tone="danger"
+      icon={AlertTriangle}
+      title={`${errors.length} validation error${errors.length > 1 ? 's' : ''}`}
+      className="rounded-none border-x-0 border-t-0 text-[12.5px]"
     >
-      <div className="flex items-center gap-2">
-        <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-        {errors.length} validation error{errors.length > 1 ? 's' : ''}
-      </div>
       <ul className="mt-1 list-disc pl-6 leading-relaxed">
         {errors.slice(0, 5).map((e, i) => (
           <li key={i}>
@@ -139,7 +136,6 @@ function ValidationBanner({
                  variant="ghost"
                  size="sm"
                  className="ml-2 h-auto p-0 underline"
-                 style={{ color: 'var(--st-danger)' }}
                  onClick={() => handleClick(e)}
                >
                  Locate
@@ -147,9 +143,9 @@ function ValidationBanner({
             ) : null}
           </li>
         ))}
-        {errors.length > 5 ? <li>…and {errors.length - 5} more</li> : null}
+        {errors.length > 5 ? <li>and {errors.length - 5} more</li> : null}
       </ul>
-    </div>
+    </Alert>
   );
 }
 
@@ -213,21 +209,21 @@ function ScreenReorderDialog({
              onDragStart={(e) => handleDragStart(e, idx)}
              onDragOver={(e) => handleDragOver(e, idx)}
              onDragEnd={handleDragEnd}
-             className="cursor-grab active:cursor-grabbing p-3 flex items-center gap-3 transition-colors"
-             style={{
-               border: '1px solid var(--st-border)',
-               borderRadius: 'var(--st-radius)',
-               background: draggedIdx === idx ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
-               opacity: draggedIdx === idx ? 0.5 : 1,
-             }}
+             className={cx(
+               'cursor-grab active:cursor-grabbing p-3 flex items-center gap-3 transition-colors',
+               'border border-[var(--st-border)] rounded-[var(--st-radius)]',
+               draggedIdx === idx
+                 ? 'bg-[var(--st-bg-secondary)] opacity-50'
+                 : 'bg-[var(--st-bg)]',
+             )}
            >
-             <GripVertical className="h-4 w-4" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true" />
-             <Layers className="h-4 w-4" style={{ color: 'var(--st-accent)' }} aria-hidden="true" />
+             <GripVertical className="h-4 w-4 text-[var(--st-text-tertiary)]" aria-hidden="true" />
+             <Layers className="h-4 w-4 text-[var(--st-accent)]" aria-hidden="true" />
              <span className="font-medium">{screen.title || screen.id}</span>
            </div>
          ))}
          {localScreens.length === 0 ? (
-           <div className="p-4 text-center text-sm" style={{ color: 'var(--st-text-tertiary)' }}>No screens to reorder.</div>
+           <p className="p-4 text-center text-sm text-[var(--st-text-tertiary)]">No screens to reorder.</p>
          ) : null}
       </div>
     </Modal>
@@ -339,7 +335,7 @@ function CreateMetaFlowPageContent() {
           toast({
             title: 'Encryption key propagating',
             description:
-              'Meta accepted the public key but is still rolling it out. Retry in 1–2 minutes.',
+              'Meta accepted the public key but is still rolling it out. Retry in 1-2 minutes.',
           });
         } else {
           setShowEncryptionDialog(true);
@@ -602,8 +598,7 @@ function CreateMetaFlowPageContent() {
     <Suspense fallback={<PageSkeleton />}>
       <div className="flex h-[calc(100vh-theme(spacing.20))] flex-col">
         <header
-          className="flex flex-shrink-0 flex-col gap-0"
-          style={{ borderBottom: '1px solid var(--st-border)', background: 'var(--st-bg)' }}
+          className="flex flex-shrink-0 flex-col gap-0 border-b border-[var(--st-border)] bg-[var(--st-bg)]"
         >
           <div className="flex items-center justify-between gap-3 p-3">
             <div className="flex min-w-0 items-center gap-4">
@@ -615,18 +610,17 @@ function CreateMetaFlowPageContent() {
               >
                 Back
               </Button>
-              <div className="h-6 w-px" style={{ background: 'var(--st-border)' }} />
+              <Separator orientation="vertical" className="h-6" />
               <Input
                 aria-label="Flow name"
                 value={flowName}
                 onChange={(e) => setFlowName(e.target.value)}
                 disabled={disableEdits}
-                className="h-8 w-64 px-2 text-lg"
-                style={{ border: '1px solid transparent', background: 'transparent', boxShadow: 'none' }}
+                className="h-8 w-64 border-transparent bg-transparent px-2 text-lg shadow-none"
               />
               {statusChip}
               {metaId ? (
-                <span className="truncate font-mono text-[11px]" style={{ color: 'var(--st-text-tertiary)' }}>
+                <span className="truncate font-mono text-[11px] text-[var(--st-text-tertiary)]">
                   ID {metaId}
                 </span>
               ) : null}
@@ -644,7 +638,7 @@ function CreateMetaFlowPageContent() {
                 options={flowCategories.map((c) => ({ value: c.id, label: c.name }))}
               />
 
-              <div className="flex items-center" style={{ border: '1px solid var(--st-border)', borderRadius: 'var(--st-radius)' }}>
+              <ButtonGroup>
                 <IconButton
                   label="Undo"
                   icon={History}
@@ -662,7 +656,7 @@ function CreateMetaFlowPageContent() {
                   disabled={disableEdits || historyIndex >= history.length - 1}
                   onClick={redo}
                 />
-              </div>
+              </ButtonGroup>
 
               <Button
                 variant="outline"
@@ -730,13 +724,11 @@ function CreateMetaFlowPageContent() {
           </div>
 
           <div
-            className="flex items-center gap-3 px-3 py-1.5"
-            style={{ borderTop: '1px solid var(--st-border)', background: 'var(--st-bg-secondary)' }}
+            className="flex items-center gap-3 border-t border-[var(--st-border)] bg-[var(--st-bg-secondary)] px-3 py-1.5"
           >
             <label
               htmlFor="endpoint_uri"
-              className="text-[11px] uppercase tracking-wide"
-              style={{ color: 'var(--st-text-tertiary)' }}
+              className="text-[11px] uppercase tracking-wide text-[var(--st-text-tertiary)]"
             >
               Endpoint URI
             </label>
@@ -765,7 +757,7 @@ function CreateMetaFlowPageContent() {
                 Auto-fill
               </Button>
             ) : null}
-            <span className="text-[10.5px]" style={{ color: 'var(--st-text-tertiary)' }}>For data_exchange screens</span>
+            <span className="text-[10.5px] text-[var(--st-text-tertiary)]">For data_exchange screens</span>
           </div>
 
           <ValidationBanner

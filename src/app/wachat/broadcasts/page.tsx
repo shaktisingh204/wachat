@@ -24,6 +24,7 @@ import {
   Select,
   SegmentedControl,
   StatCard,
+  Skeleton,
   Spinner,
 } from '@/components/sabcrm/20ui';
 import {
@@ -165,7 +166,7 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
           size="sm"
           label="Stop broadcast"
           icon={CircleStop}
-          style={{ color: 'var(--st-danger)' }}
+          className="text-[var(--st-danger)]"
         />
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -179,7 +180,7 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} disabled={isStopping}>
-            {isStopping ? 'Stopping…' : 'Stop broadcast'}
+            {isStopping ? 'Stopping...' : 'Stop broadcast'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -389,7 +390,7 @@ export default function BroadcastPage() {
             onClick={onSyncTemplates}
             disabled={!activeProjectId || isSyncingTemplates}
           >
-            {isSyncingTemplates ? 'Syncing…' : 'Sync templates'}
+            {isSyncingTemplates ? 'Syncing...' : 'Sync templates'}
           </Button>
           <Button
             variant="outline"
@@ -400,7 +401,7 @@ export default function BroadcastPage() {
             }
             disabled={!activeProjectId || isRefreshing}
           >
-            {isRefreshing ? 'Refreshing…' : 'Refresh'}
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
           </Button>
         </div>
       }
@@ -456,16 +457,10 @@ export default function BroadcastPage() {
             <section>
               <div className="flex items-end justify-between">
                 <div>
-                  <h2
-                    className="text-[22px] leading-none tracking-tight"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <h2 className="text-[22px] leading-none tracking-tight text-[var(--st-text)]">
                     New campaign
                   </h2>
-                  <p
-                    className="mt-1.5 text-[12.5px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
                     Choose a template or flow, upload your audience, and queue
                     the broadcast.
                   </p>
@@ -473,13 +468,7 @@ export default function BroadcastPage() {
               </div>
               <Card className="mt-5" padding="lg">
                 {isRefreshing && !activeProject ? (
-                  <div
-                    className="h-40 w-full animate-pulse"
-                    style={{
-                      borderRadius: 'var(--st-radius)',
-                      background: 'var(--st-bg-secondary)',
-                    }}
-                  />
+                  <Skeleton className="h-40 w-full" />
                 ) : (
                   <BroadcastForm
                     templates={templates}
@@ -494,16 +483,10 @@ export default function BroadcastPage() {
             <section>
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                  <h2
-                    className="text-[22px] leading-none tracking-tight"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <h2 className="text-[22px] leading-none tracking-tight text-[var(--st-text)]">
                     Broadcast history
                   </h2>
-                  <p
-                    className="mt-1.5 text-[12.5px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
+                  <p className="mt-1.5 text-[12.5px] text-[var(--st-text-secondary)]">
                     A log of every broadcast campaign for{' '}
                     {activeProject?.name || 'this project'}.
                   </p>
@@ -566,10 +549,7 @@ export default function BroadcastPage() {
               <Card className="mt-5" padding="lg">
                 {/* ── Filter bar ── */}
                 {hasLoaded && history.length > 0 && (
-                  <div
-                    className="mb-4 flex flex-wrap items-center gap-2 pb-4"
-                    style={{ borderBottom: '1px solid var(--st-border)' }}
-                  >
+                  <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-[var(--st-border)] pb-4">
                     <div className="min-w-[240px] flex-1">
                       <Input
                         type="text"
@@ -605,10 +585,7 @@ export default function BroadcastPage() {
                         Clear
                       </Button>
                     )}
-                    <span
-                      className="ml-auto text-[11px] tabular-nums"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                    <span className="ml-auto text-[11px] tabular-nums text-[var(--st-text-secondary)]">
                       {filteredHistory.length} of {history.length}
                     </span>
                   </div>
@@ -637,7 +614,7 @@ export default function BroadcastPage() {
                   <EmptyState
                     icon={FileText}
                     title="No broadcasts yet"
-                    description="Use the composer above to send your first WhatsApp broadcast — it'll appear here with live delivery and read analytics."
+                    description="Use the composer above to send your first WhatsApp broadcast -- it'll appear here with live delivery and read analytics."
                   />
                 ) : filteredHistory.length === 0 ? (
                   <EmptyState
@@ -661,31 +638,19 @@ export default function BroadcastPage() {
                       const index =
                         (currentPage - 1) * BROADCASTS_PER_PAGE + i + 1;
                       return (
-                        <div
+                        <Card
                           key={item._id.toString()}
-                          className="p-4 transition-colors"
-                          style={{
-                            borderRadius: 'var(--st-radius)',
-                            border: '1px solid var(--st-border)',
-                            background: 'var(--st-bg)',
-                          }}
+                          variant="outlined"
+                          padding="sm"
+                          className="transition-colors"
                         >
-                          <div className="flex items-start gap-3">
-                            <span
-                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] tabular-nums"
-                              style={{
-                                background: 'var(--st-bg-secondary)',
-                                color: 'var(--st-text-secondary)',
-                              }}
-                            >
+                          <div className="flex items-start gap-3 p-2">
+                            <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--st-bg-secondary)] text-[11px] tabular-nums text-[var(--st-text-secondary)]">
                               {index}
                             </span>
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <p
-                                  className="truncate text-sm"
-                                  style={{ color: 'var(--st-text)' }}
-                                >
+                                <p className="truncate text-sm text-[var(--st-text)]">
                                   {item.name ||
                                     item.templateName ||
                                     item.fileName ||
@@ -695,17 +660,14 @@ export default function BroadcastPage() {
                                   {tone.label}
                                 </Badge>
                               </div>
-                              <div
-                                className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px]"
-                                style={{ color: 'var(--st-text-secondary)' }}
-                              >
+                              <div className="mt-1 flex flex-wrap items-center gap-2 text-[11.5px] text-[var(--st-text-secondary)]">
                                 {item.templateName ? (
-                                  <span style={{ color: 'var(--st-text)' }}>
+                                  <span className="text-[var(--st-text)]">
                                     {item.templateName}
                                   </span>
                                 ) : null}
                                 {item.templateName ? (
-                                  <span style={{ color: 'var(--st-text-tertiary)' }}>
+                                  <span className="text-[var(--st-text-tertiary)]">
                                     ·
                                   </span>
                                 ) : null}
@@ -714,9 +676,9 @@ export default function BroadcastPage() {
                                     ? formatDistanceToNow(date, {
                                         addSuffix: true,
                                       })
-                                    : '—'}
+                                    : '--'}
                                 </span>
-                                <span style={{ color: 'var(--st-text-tertiary)' }}>
+                                <span className="text-[var(--st-text-tertiary)]">
                                   ·
                                 </span>
                                 <span>
@@ -726,17 +688,14 @@ export default function BroadcastPage() {
                               </div>
                             </div>
                             <div className="hidden flex-col items-end pr-1 text-[11.5px] sm:flex">
-                              <div style={{ color: 'var(--st-text)' }}>
+                              <div className="text-[var(--st-text)]">
                                 {pct(
                                   item.deliveredCount ?? 0,
                                   item.contactCount ?? 0,
                                 )}
                                 %
                               </div>
-                              <div
-                                className="text-[10.5px]"
-                                style={{ color: 'var(--st-text-secondary)' }}
-                              >
+                              <div className="text-[10.5px] text-[var(--st-text-secondary)]">
                                 {compact(item.deliveredCount ?? 0)} /{' '}
                                 {compact(item.contactCount ?? 0)}
                               </div>
@@ -777,21 +736,15 @@ export default function BroadcastPage() {
                           {processing ? (
                             <Progress value={progress} size="sm" className="mt-3" />
                           ) : null}
-                        </div>
+                        </Card>
                       );
                     })}
                   </div>
                 )}
 
                 {totalPages > 1 ? (
-                  <div
-                    className="mt-5 flex items-center justify-between gap-3 pt-4"
-                    style={{ borderTop: '1px solid var(--st-border)' }}
-                  >
-                    <span
-                      className="text-[11.5px] tabular-nums"
-                      style={{ color: 'var(--st-text-secondary)' }}
-                    >
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-[var(--st-border)] pt-4">
+                    <span className="text-[11.5px] tabular-nums text-[var(--st-text-secondary)]">
                       Page {currentPage} of {totalPages} ·{' '}
                       {compact(totalCampaigns)} campaigns
                     </span>
