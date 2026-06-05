@@ -4,9 +4,17 @@ import type { LucideIcon } from 'lucide-react';
 import '@/styles/sabcrm-twenty.css';
 // 20ui — SabCRM's design system (motion · interaction · accessibility layer).
 import '@/styles/20ui.css';
+import { Button } from '../20ui/button';
 
 /* =========================================================================
    TwentyButton
+
+   Thin compatibility shim over the 20ui <Button>. The CRM's `.sabcrm-twenty`
+   frame is one of 20ui's two scoped roots, so the 20ui button renders natively
+   here with the same `--st-*` tokens. The public prop API (variant + icon +
+   native button props) is preserved, so all existing consumers are unchanged
+   while the whole CRM inherits the 20ui button (motion, focus ring, press
+   feedback). `icon` maps to 20ui's `iconLeft`; primary/secondary/ghost map 1:1.
    ========================================================================= */
 export type TwentyButtonVariant = 'primary' | 'secondary' | 'ghost';
 
@@ -23,14 +31,10 @@ export function TwentyButton({
   type = 'button',
   ...rest
 }: TwentyButtonProps): React.JSX.Element {
-  const classes = ['st-btn', `st-btn--${variant}`, className]
-    .filter(Boolean)
-    .join(' ');
   return (
-    <button type={type} className={classes} {...rest}>
-      {Icon ? <Icon size={14} aria-hidden="true" /> : null}
+    <Button variant={variant} iconLeft={Icon} type={type} className={className} {...rest}>
       {children}
-    </button>
+    </Button>
   );
 }
 
