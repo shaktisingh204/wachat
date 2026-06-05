@@ -1,0 +1,182 @@
+/* =========================================================================
+   ui20 tokens — promoted to :root (app-wide)
+   =========================================================================
+
+   The ui20 design tokens normally live under `.ui20` (and `.sabcrm-twenty`).
+   This file mirrors them at the document `:root` (light) and `.dark` (dark) so
+   that `var(--st-*)` / `var(--u-*)` resolve ANYWHERE in SabNode — enabling
+   hardcoded colours across the app to be replaced with central ui20 tokens.
+
+   - Tokens only (no base font/color), so promoting them to :root never restyles
+     existing markup; values are inert until something references them.
+   - Dark values follow the app's existing `.dark` class (Tailwind convention).
+   - `.ui20` and `.sabcrm-twenty` keep their own scoped definitions, which still
+     win inside those subtrees — this is purely the global fallback layer.
+   - Values mirror src/styles/ui20.css; keep them in sync.
+   ========================================================================= */
+
+:root {
+  /* Surfaces */
+  --st-bg: #ffffff;
+  --st-bg-secondary: #fafafa;
+  --st-bg-muted: #f4f4f4;
+  --st-sidebar-bg: #fbfbfb;
+  --st-sidebar-bg-alt: #f7f7f7;
+
+  /* Borders */
+  --st-border: #ebebeb;
+  --st-border-light: #f1f1f1;
+  --st-border-strong: #d9d9d9;
+
+  /* Text */
+  --st-text: #1b1b18;
+  --st-text-primary: var(--st-text);
+  --st-text-secondary: #666666;
+  --st-text-tertiary: #b3b3b3;
+  --st-text-inverted: #ffffff;
+
+  /* Accent */
+  --st-accent: #2b6ef2;
+  --st-accent-hover: #1f5ad6;
+  --st-accent-soft: #eaf1fe;
+  --st-accent-grad: linear-gradient(180deg, #3b7af5 0%, #2563eb 100%);
+  --st-accent-ring: rgba(43, 110, 242, 0.18);
+
+  /* Danger */
+  --st-danger: #c13c2c;
+  --st-danger-hover: #a8311f;
+  --st-danger-strong: #9b1c1c;
+  --st-danger-soft: #fdf3f3;
+
+  /* Warning / status */
+  --st-warn: #c77700;
+  --st-status-ok: #2e7d32;
+  --st-status-err: #b3261e;
+
+  /* Interaction */
+  --st-hover: #f3f6fd;
+  --st-active: #e7eefc;
+
+  /* Aliases */
+  --st-surface: var(--st-bg);
+  --st-surface-hover: var(--st-hover);
+  --st-surface-muted: var(--st-bg-muted);
+  --st-bg-subtle: var(--st-bg-secondary);
+  --st-text-muted: var(--st-text-secondary);
+  --st-text-soft: var(--st-text-tertiary);
+  --st-text-light: var(--st-text-tertiary);
+  --st-red: var(--st-danger);
+  --st-green: var(--st-status-ok);
+  --st-success: var(--st-status-ok);
+
+  /* Shape */
+  --st-radius: 6px;
+  --st-radius-sm: 4px;
+  --st-radius-lg: 10px;
+  --st-radius-pill: 999px;
+
+  /* Type */
+  --st-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --st-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --st-font-size: 13px;
+  --st-font-size-sm: 12px;
+  --st-font-size-xs: 11px;
+  --st-font-size-lg: 14px;
+  --st-font-size-xl: 16px;
+  --st-fw-regular: 400;
+  --st-fw-medium: 500;
+  --st-fw-semibold: 600;
+
+  /* Spacing */
+  --st-space-1: 4px;
+  --st-space-2: 8px;
+  --st-space-3: 12px;
+  --st-space-4: 16px;
+  --st-space-5: 24px;
+  --st-space-6: 32px;
+
+  /* Shadows */
+  --st-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --st-shadow-md: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --st-shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.16);
+  --st-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 10px 28px rgba(16, 24, 40, 0.14);
+
+  /* Motion */
+  --u-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --u-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --u-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --u-ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --u-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --u-dur-fast: 120ms;
+  --u-dur: 180ms;
+  --u-dur-slow: 240ms;
+
+  /* Elevation */
+  --u-elev-1: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --u-elev-2: 0 4px 14px rgba(16, 24, 40, 0.08);
+  --u-elev-3: 0 12px 32px rgba(16, 24, 40, 0.14);
+  --u-elev-pop: 0 10px 28px rgba(16, 24, 40, 0.14);
+
+  /* Focus ring */
+  --u-focus-ring:
+    0 0 0 2px var(--st-bg),
+    0 0 0 4px var(--st-accent);
+
+  /* Premium brand layer */
+  --u-brand-amber: #fbbf24;
+  --u-brand-orange: #f97316;
+  --u-brand-rose: #f43f5e;
+  --u-brand-violet: #8b5cf6;
+  --u-brand-grad: linear-gradient(90deg, #fbbf24 0%, #f97316 50%, #f43f5e 100%);
+  --u-brand-grad-br: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #f43f5e 100%);
+  --u-glow-amber: rgba(251, 191, 36, 0.42);
+  --u-glow-rose: rgba(244, 63, 94, 0.32);
+  --u-glow-violet: rgba(139, 92, 246, 0.34);
+  --u-glow-orange: rgba(249, 115, 22, 0.3);
+  --u-shadow-brand: 0 10px 30px -6px var(--u-glow-orange);
+}
+
+/* Dark — follows the app's existing `.dark` class. */
+.dark {
+  --st-bg: #181818;
+  --st-bg-secondary: #1d1d1d;
+  --st-bg-muted: #222222;
+  --st-sidebar-bg: #1a1a1a;
+  --st-sidebar-bg-alt: #202020;
+
+  --st-border: #2a2a2a;
+  --st-border-light: #242424;
+  --st-border-strong: #3a3a3a;
+
+  --st-text: #e8e8e8;
+  --st-text-secondary: #9a9a9a;
+  --st-text-tertiary: #6b6b6b;
+  --st-text-inverted: #ffffff;
+
+  --st-accent: #3b7bff;
+  --st-accent-hover: #5a90ff;
+  --st-accent-soft: #1b2640;
+  --st-accent-ring: rgba(91, 144, 255, 0.24);
+
+  --st-danger: #f3777a;
+  --st-danger-hover: #ff9395;
+  --st-danger-strong: #ff9b9d;
+  --st-danger-soft: #2a1818;
+  --st-warn: #e0974a;
+  --st-status-ok: #6cc06f;
+  --st-status-err: #f3777a;
+
+  --st-hover: #242424;
+  --st-active: #313131;
+
+  --st-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --st-shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --st-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --st-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--st-border);
+  --st-shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --u-elev-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --u-elev-2: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --u-elev-3: 0 12px 32px rgba(0, 0, 0, 0.55);
+}
