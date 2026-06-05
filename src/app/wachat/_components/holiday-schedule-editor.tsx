@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, DatePicker, Field, IconButton, Input } from '@/components/sabcrm/20ui';
+import { Button, Card, DatePicker, Field, IconButton, Input } from '@/components/sabcrm/20ui';
 import {
   format } from 'date-fns';
 import { Plus,
@@ -58,22 +58,16 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <h4
-        className="text-[14px]"
-        style={{ color: 'var(--st-text)' }}
-      >
+      <h4 className="text-[14px] text-[var(--st-text)]">
         Holiday Schedule (Overrides)
       </h4>
       <div className="flex flex-col gap-3">
         {schedule.map((entry, index) => (
-          <div
+          <Card
             key={index}
-            className="relative p-3"
-            style={{
-              borderRadius: 'var(--st-radius-lg)',
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-bg)',
-            }}
+            variant="outlined"
+            padding="sm"
+            className="relative"
           >
             <div className="absolute right-1 top-1">
               <IconButton
@@ -116,7 +110,7 @@ export const HolidayScheduleEditor: React.FC<HolidayScheduleEditorProps> = ({
                 />
               </Field>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
       <Button

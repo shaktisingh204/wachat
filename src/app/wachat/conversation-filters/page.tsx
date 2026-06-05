@@ -154,10 +154,7 @@ export default function ConversationFiltersPage() {
             return (
               <Card key={f._id} padding="lg">
                 <div className="flex items-start justify-between gap-2">
-                  <h3
-                    className="text-[15px]"
-                    style={{ color: 'var(--st-text)' }}
-                  >
+                  <h3 className="text-[15px] [color:var(--st-text)]">
                     {f.name}
                   </h3>
                   <IconButton

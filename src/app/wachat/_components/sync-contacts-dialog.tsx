@@ -9,14 +9,10 @@ import {
   type SelectOption,
 } from '@/components/sabcrm/20ui';
 import { useState, useTransition } from 'react';
-import { Loader2, RefreshCw, Smartphone, Store, Mail } from 'lucide-react';
+import { RefreshCw, Smartphone, Store, Mail } from 'lucide-react';
 
 import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-
-function cx(...a: Array<string | false | null | undefined>) {
-  return a.filter(Boolean).join(' ');
-}
 
 interface SyncContactsDialogProps {
   project: WithId<Project>;
@@ -67,15 +63,13 @@ export function SyncContactsDialog({ project, onSynced }: SyncContactsDialogProp
             <Button variant="ghost" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleSync} disabled={isPending || !source}>
-              {isPending ? (
-                <span className={cx('inline-flex', 'items-center')}>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Syncing...
-                </span>
-              ) : (
-                'Start Sync'
-              )}
+            <Button
+              variant="primary"
+              onClick={handleSync}
+              disabled={isPending || !source}
+              loading={isPending}
+            >
+              {isPending ? 'Syncing...' : 'Start Sync'}
             </Button>
           </>
         }
@@ -91,13 +85,13 @@ export function SyncContactsDialog({ project, onSynced }: SyncContactsDialogProp
           </Field>
 
           {source === 'google' && (
-            <p className="text-[12px]" style={{ color: 'var(--st-text-tertiary)' }}>
+            <p className="text-[12px] text-[var(--st-text-tertiary)]">
               We will require access to your Google account to fetch your contacts. You will be
               redirected to authenticate.
             </p>
           )}
           {source === 'shopify' && (
-            <p className="text-[12px]" style={{ color: 'var(--st-text-tertiary)' }}>
+            <p className="text-[12px] text-[var(--st-text-tertiary)]">
               Make sure your Shopify store is connected in Settings {'>'} Integrations.
             </p>
           )}

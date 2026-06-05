@@ -4,6 +4,7 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  EmptyState,
   type ChartConfig,
 } from '@/components/sabcrm/20ui';
 import {
@@ -25,10 +26,6 @@ import { DateRange } from 'react-day-picker';
 
 import * as React from 'react';
 import * as Recharts from 'recharts';
-
-function cx(...a: Array<string | false | null | undefined>) {
-  return a.filter(Boolean).join(' ');
-}
 
 const CHART_CONFIG: ChartConfig = {
   revenue: { label: 'Revenue', color: 'var(--st-accent)' },
@@ -77,14 +74,12 @@ export function TransactionChart({
 
   if (chartData.length === 0) {
     return (
-      <div
-        className={cx(
-          'flex h-[300px] w-full items-center justify-center text-[13px]',
-        )}
-        style={{ color: 'var(--st-text-secondary)' }}
-      >
-        No data available for the selected period
-      </div>
+      <EmptyState
+        title="No data available for the selected period"
+        tone="neutral"
+        size="sm"
+        className="h-[300px] w-full"
+      />
     );
   }
 

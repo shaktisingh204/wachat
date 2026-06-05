@@ -86,12 +86,7 @@ export function MultiSelectCombobox({
                     <button
                       type="button"
                       aria-label={`Remove ${option.label}`}
-                      className="ml-1 inline-flex items-center justify-center rounded-full outline-none focus-visible:ring-2"
-                      style={{
-                        color: 'var(--st-text-secondary)',
-                        // @ts-expect-error -- CSS custom property for the focus ring colour
-                        '--tw-ring-color': 'var(--st-text)',
-                      }}
+                      className="ml-1 inline-flex items-center justify-center rounded-full text-[var(--st-text-secondary)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--st-text)]"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleSelect(option.value);
                       }}
@@ -109,7 +104,7 @@ export function MultiSelectCombobox({
                   </Badge>
                 ))
             ) : (
-              <span style={{ color: 'var(--st-text-secondary)' }}>
+              <span className="text-[var(--st-text-secondary)]">
                 {placeholder}
               </span>
             )}

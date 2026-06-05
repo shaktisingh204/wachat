@@ -55,7 +55,7 @@ export function AiSuggestionsDialog({
       <AlertDialogContent className="sm:max-w-[500px]">
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5" style={{ color: 'var(--st-text)' }} aria-hidden="true" />
+            <Wand2 className="h-5 w-5 text-[color:var(--st-text)]" aria-hidden="true" />
             AI Rule Suggestions
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -72,7 +72,7 @@ export function AiSuggestionsDialog({
               className="flex items-center justify-between gap-4"
             >
               <div className="grid gap-1">
-                <p className="text-sm" style={{ color: 'var(--st-text)', fontWeight: 'var(--st-fw-medium)' }}>
+                <p className="text-sm font-medium text-[color:var(--st-text)]">
                   {suggestion.name}
                 </p>
                 <div className="flex flex-wrap gap-1">

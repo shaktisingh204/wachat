@@ -97,7 +97,7 @@ export default function WhatsappWidgetGeneratorPage() {
         ) : (
           <>
             <div className="flex items-center justify-between">
-              <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
+              <h2 className="text-[15px] [color:var(--st-text)]">
                 Widget analytics
               </h2>
               <Button

@@ -134,12 +134,7 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           title={
             <span className="flex flex-row items-center gap-3">
               <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center"
-                style={{
-                  borderRadius: 'var(--st-radius-sm)',
-                  background: 'var(--st-surface-muted)',
-                  color: 'var(--st-text)',
-                }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--st-radius-sm)] bg-[var(--st-surface-muted)] text-[var(--st-text)]"
               >
                 <UserPlus className="h-5 w-5" aria-hidden="true" />
               </span>

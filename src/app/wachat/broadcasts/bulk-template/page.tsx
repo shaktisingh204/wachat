@@ -87,7 +87,7 @@ function BulkTemplatePageContent() {
           <ChevronLeft size={14} aria-hidden="true" />
           <span className="u-btn__label">Back to campaigns</span>
         </Link>
-        <p className="text-[13px]" style={{ color: 'var(--st-text-secondary)' }}>
+        <p className="text-[13px] text-[var(--st-text-secondary)]">
           This template will be created for all {projects.length} selected
           projects.
         </p>
@@ -98,7 +98,7 @@ function BulkTemplatePageContent() {
             <Database
               size={14}
               aria-hidden="true"
-              style={{ color: 'var(--st-text-tertiary)' }}
+              className="text-[var(--st-text-tertiary)]"
             />
             {p.name}
           </Badge>

@@ -196,7 +196,7 @@ export default function QuickReplyCategoriesPage() {
         header: 'Name',
         sortable: true,
         render: (row) => (
-          <span style={{ color: 'var(--st-text)' }}>{row.displayName}</span>
+          <span className="st-text">{row.displayName}</span>
         ),
       },
       {

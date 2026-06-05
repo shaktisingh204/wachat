@@ -2,6 +2,7 @@
 
 import {
   Button,
+  Card,
   IconButton,
   Field,
   Input,
@@ -71,20 +72,12 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-[14px]" style={{ color: 'var(--st-text)' }}>
+      <h4 className="text-[14px] [color:var(--st-text)]">
         Weekly Operating Hours
       </h4>
       <div className="flex flex-col gap-3">
         {hours.map((entry, index) => (
-          <div
-            key={index}
-            className="relative p-3"
-            style={{
-              borderRadius: 'var(--st-radius-lg)',
-              border: '1px solid var(--st-border)',
-              background: 'var(--st-surface)',
-            }}
-          >
+          <Card key={index} variant="outlined" padding="sm" className="relative">
             <div className="absolute right-1 top-1">
               <IconButton
                 label="Remove time slot"
@@ -130,7 +123,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({
                 />
               </Field>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
       <Button

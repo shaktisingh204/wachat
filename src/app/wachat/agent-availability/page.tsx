@@ -145,7 +145,7 @@ export default function AgentAvailabilityPage() {
               <TBody>
                 {agents.map((agent) => (
                   <Tr key={agent._id}>
-                    <Td style={{ color: 'var(--st-text)' }}>
+                    <Td className="[color:var(--st-text)]">
                       {agent.name || 'Agent'}
                     </Td>
                     <Td>
@@ -153,7 +153,7 @@ export default function AgentAvailabilityPage() {
                         {agent.status || 'offline'}
                       </Badge>
                     </Td>
-                    <Td style={{ color: 'var(--st-text-secondary)' }}>
+                    <Td className="[color:var(--st-text-secondary)]">
                       {agent.email || '--'}
                     </Td>
                     <Td align="right">

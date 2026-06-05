@@ -17,8 +17,7 @@ import {
   useEffect,
   useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Loader2,
-  Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 import { handleUpdateOptInOutSettings } from '@/app/actions/index.ts';
 import type { Project,
@@ -46,8 +45,13 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" variant="primary" disabled={pending}>
-      {pending ? <Loader2 className="animate-spin" /> : <Save />}
+    <Button
+      type="submit"
+      variant="primary"
+      disabled={pending}
+      loading={pending}
+      iconLeft={pending ? undefined : Save}
+    >
       Save Opt-in/Out Settings
     </Button>
   );
@@ -99,10 +103,7 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
       </CardHeader>
       <CardBody className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <h4
-            className="text-[14px]"
-            style={{ color: 'var(--st-text)' }}
-          >
+          <h4 className="text-[14px] [color:var(--st-text)]">
             Opt-in Settings
           </h4>
           <Field label="Opt-in Keywords" id="optInKeywords">
@@ -123,10 +124,7 @@ export function OptInOutForm({ project }: OptInOutFormProps) {
           </Field>
         </div>
         <div className="flex flex-col gap-4">
-          <h4
-            className="text-[14px]"
-            style={{ color: 'var(--st-danger)' }}
-          >
+          <h4 className="text-[14px] [color:var(--st-danger)]">
             Opt-out Settings
           </h4>
           <Field label="Opt-out Keywords" id="optOutKeywords">

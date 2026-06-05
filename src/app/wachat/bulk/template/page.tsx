@@ -91,8 +91,7 @@ function BulkTemplatePageContent() {
           Back to bulk actions
         </Button>
         <p
-          className="text-[13px]"
-          style={{ color: 'var(--st-text-secondary)' }}
+          className="text-[13px] [color:var(--st-text-secondary)]"
         >
           This template will be created for all {projects.length} selected
           projects.
@@ -102,8 +101,7 @@ function BulkTemplatePageContent() {
         {projects.map((p) => (
           <Badge key={p._id.toString()} tone="neutral" kind="outline">
             <Database
-              className="h-3.5 w-3.5"
-              style={{ color: 'var(--st-text-tertiary)' }}
+              className="h-3.5 w-3.5 [color:var(--st-text-tertiary)]"
               aria-hidden="true"
             />
             {p.name}
