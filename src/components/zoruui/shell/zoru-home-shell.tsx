@@ -12,9 +12,14 @@ import {
   Sparkles,
   Workflow,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { cn } from "../lib/cn";
-import { ZoruAppRail, type ZoruAppRailItem } from "./zoru-app-rail";
+// The app rail + header are now the 20ui primitives (dark-mode capable),
+// scoped to their own `.ui20 light|dark` root and kept in lock-step with the
+// app theme via useHtmlDark(). The grouped module sidebar stays ZoruUI.
+import { AppRail, AppHeader, type AppRailItem } from "@/components/sabcrm/20ui";
+import { useHtmlDark, AppThemeToggle } from "./app-theme";
 import {
   ZoruAppSidebar,
   type ZoruSidebarGroup,
@@ -24,7 +29,6 @@ import { ZORU_APPS } from "./zoru-apps";
 import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { useProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
-import { ZoruHeader } from "./zoru-header";
 import { Button } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruUserDropdown } from "../user-dropdown";
@@ -156,17 +160,21 @@ function ZoruHomeShellContent({
 
   // Build the app rail's items from the central app registry — every
   // app that lived in the dock is now an icon in the vertical rail.
-  const railItems: ZoruAppRailItem[] = React.useMemo(
+  const railItems: AppRailItem[] = React.useMemo(
     () =>
       ZORU_APPS.map((app) => ({
         id: app.id,
         label: app.name,
         href: app.href,
         active: app.isActive(pathname),
-        icon: <app.Icon />,
+        icon: app.Icon as LucideIcon,
       })),
     [pathname],
   );
+
+  // The 20ui rail + header follow the app's light/dark setting (the class on
+  // <html>), so they flip in lock-step with the ZoruUI chrome around them.
+  const appDark = useHtmlDark();
 
   // Auto-select per-app sidebar groups from the central registry based on
   // the current pathname. Each app declares its own grouped menu in
@@ -262,7 +270,10 @@ function ZoruHomeShellContent({
 
   return (
     <div className="zoruui flex h-[100dvh] w-full overflow-hidden bg-zoru-bg text-zoru-ink">
-      <ZoruAppRail items={railItems} />
+      {/* App rail — 20ui, in its own theme-synced design-system root. */}
+      <div className={`ui20 ${appDark ? "dark" : "light"}`} style={{ display: "flex" }}>
+        <AppRail items={railItems} label="SabNode apps" />
+      </div>
       {!fullBleed && !sidebarless && (
         <ZoruAppSidebar
           heading={resolvedHeading}
@@ -273,54 +284,61 @@ function ZoruHomeShellContent({
       )}
 
       <div className="relative flex min-w-0 flex-1 flex-col">
-        <ZoruHeader
-          leading={
-            <a
-              href="/dashboard"
-              aria-label="SabNode home"
-              className="inline-flex items-center gap-2"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
-                S
-              </span>
-              <span className="hidden text-sm text-zoru-ink sm:inline">
-                SabNode
-              </span>
-            </a>
-          }
-          center={<UniversalSearch />}
-          trailing={
-            <>
-              <ZoruNotificationPopover />
-              <ZoruUserDropdown
-                name={user?.name ?? "Account"}
-                email={user?.email ?? undefined}
-                avatarUrl={user?.avatar ?? undefined}
-                items={
-                  user?.role === "client"
-                    ? [
-                        {
-                          id: "client-portal",
-                          label: "Open Client Portal",
-                          icon: <LayoutDashboard />,
-                          href: "/portal/client",
-                        },
-                      ]
-                    : undefined
-                }
-                footerItems={[
-                  {
-                    id: "sign-out",
-                    label: "Sign out",
-                    icon: <LogOut />,
-                    href: "/api/auth/logout",
-                    destructive: true,
-                  },
-                ]}
-              />
-            </>
-          }
-        />
+        {/* Header — 20ui AppHeader, theme-synced. The brand + search +
+            notifications + user menu keep their ZoruUI widgets (they re-theme
+            via the ZoruUI dark tokens), with a quick light/dark toggle added. */}
+        <div className={`ui20 ${appDark ? "dark" : "light"}`}>
+          <AppHeader
+            sticky={false}
+            leading={
+              <a
+                href="/dashboard"
+                aria-label="SabNode home"
+                className="inline-flex items-center gap-2"
+              >
+                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
+                  S
+                </span>
+                <span className="hidden text-sm text-zoru-ink sm:inline">
+                  SabNode
+                </span>
+              </a>
+            }
+            center={<UniversalSearch />}
+            trailing={
+              <>
+                <AppThemeToggle />
+                <ZoruNotificationPopover />
+                <ZoruUserDropdown
+                  name={user?.name ?? "Account"}
+                  email={user?.email ?? undefined}
+                  avatarUrl={user?.avatar ?? undefined}
+                  items={
+                    user?.role === "client"
+                      ? [
+                          {
+                            id: "client-portal",
+                            label: "Open Client Portal",
+                            icon: <LayoutDashboard />,
+                            href: "/portal/client",
+                          },
+                        ]
+                      : undefined
+                  }
+                  footerItems={[
+                    {
+                      id: "sign-out",
+                      label: "Sign out",
+                      icon: <LogOut />,
+                      href: "/api/auth/logout",
+                      destructive: true,
+                    },
+                  ]}
+                />
+              </>
+            }
+          />
+        </div>
 
         <main
           className={cn(

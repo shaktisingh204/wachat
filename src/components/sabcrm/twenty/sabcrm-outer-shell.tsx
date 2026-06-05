@@ -20,9 +20,9 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, LogOut } from 'lucide-react';
 
 import { ZORU_APPS } from '@/components/zoruui/shell/zoru-apps';
-import { AppRail, type AppRailItem } from '@/components/sabcrm/20ui';
+import { AppRail, AppHeader, type AppRailItem } from '@/components/sabcrm/20ui';
 import type { LucideIcon } from 'lucide-react';
-import { ZoruHeader } from '@/components/zoruui/shell/zoru-header';
+import { useHtmlDark, AppThemeToggle } from '@/components/zoruui/shell/app-theme';
 import { ZoruNotificationPopover } from '@/components/zoruui/notification-popover';
 import { ZoruUserDropdown } from '@/components/zoruui/user-dropdown';
 import { CommandPaletteProvider } from '@/components/crm/command-palette';
@@ -56,18 +56,10 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
     [pathname],
   );
 
-  // The 20ui rail follows the APP theme (the outer shell is the SabNode chrome).
-  // Mirror whatever theme class the app sets on <html> so the rail is never out
-  // of sync (light by default; flips with the app's dark mode).
-  const [appDark, setAppDark] = React.useState(false);
-  React.useEffect(() => {
-    const html = document.documentElement;
-    const sync = () => setAppDark(html.classList.contains('dark'));
-    sync();
-    const obs = new MutationObserver(sync);
-    obs.observe(html, { attributes: true, attributeFilter: ['class'] });
-    return () => obs.disconnect();
-  }, []);
+  // The 20ui rail + header follow the APP theme (the outer shell is the SabNode
+  // chrome). Shared with ZoruHomeShell via useHtmlDark() so the whole workspace
+  // flips light/dark together (the rail is never out of sync).
+  const appDark = useHtmlDark();
 
   return (
     <CommandPaletteProvider>
@@ -79,54 +71,59 @@ export function SabcrmOuterShell({ user, children }: SabcrmOuterShellProps) {
         </div>
 
         <div className="relative flex min-w-0 flex-1 flex-col">
-          <ZoruHeader
-            leading={
-              <a
-                href="/dashboard"
-                aria-label="SabNode home"
-                className="inline-flex items-center gap-2"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
-                  S
-                </span>
-                <span className="hidden text-sm text-zoru-ink sm:inline">
-                  SabNode
-                </span>
-              </a>
-            }
-            center={<UniversalSearch />}
-            trailing={
-              <>
-                <ZoruNotificationPopover />
-                <ZoruUserDropdown
-                  name={user?.name ?? 'Account'}
-                  email={user?.email ?? undefined}
-                  avatarUrl={user?.avatar ?? undefined}
-                  items={
-                    user?.role === 'client'
-                      ? [
-                          {
-                            id: 'client-portal',
-                            label: 'Open Client Portal',
-                            icon: <LayoutDashboard />,
-                            href: '/portal/client',
-                          },
-                        ]
-                      : undefined
-                  }
-                  footerItems={[
-                    {
-                      id: 'sign-out',
-                      label: 'Sign out',
-                      icon: <LogOut />,
-                      href: '/api/auth/logout',
-                      destructive: true,
-                    },
-                  ]}
-                />
-              </>
-            }
-          />
+          {/* Header — 20ui AppHeader, theme-synced (mirrors ZoruHomeShell). */}
+          <div className={`ui20 ${appDark ? 'dark' : 'light'}`}>
+            <AppHeader
+              sticky={false}
+              leading={
+                <a
+                  href="/dashboard"
+                  aria-label="SabNode home"
+                  className="inline-flex items-center gap-2"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-[var(--zoru-radius-sm)] bg-zoru-ink text-xs text-zoru-on-primary">
+                    S
+                  </span>
+                  <span className="hidden text-sm text-zoru-ink sm:inline">
+                    SabNode
+                  </span>
+                </a>
+              }
+              center={<UniversalSearch />}
+              trailing={
+                <>
+                  <AppThemeToggle />
+                  <ZoruNotificationPopover />
+                  <ZoruUserDropdown
+                    name={user?.name ?? 'Account'}
+                    email={user?.email ?? undefined}
+                    avatarUrl={user?.avatar ?? undefined}
+                    items={
+                      user?.role === 'client'
+                        ? [
+                            {
+                              id: 'client-portal',
+                              label: 'Open Client Portal',
+                              icon: <LayoutDashboard />,
+                              href: '/portal/client',
+                            },
+                          ]
+                        : undefined
+                    }
+                    footerItems={[
+                      {
+                        id: 'sign-out',
+                        label: 'Sign out',
+                        icon: <LogOut />,
+                        href: '/api/auth/logout',
+                        destructive: true,
+                      },
+                    ]}
+                  />
+                </>
+              }
+            />
+          </div>
 
           {/* The Twenty `.sabcrm-twenty` frame fills the remaining column. */}
           <div className="min-h-0 flex-1 overflow-hidden">{children}</div>

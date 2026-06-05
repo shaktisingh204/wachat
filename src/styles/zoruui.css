@@ -128,6 +128,78 @@
   color: hsl(var(--zoru-on-primary));
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+ * ZoruUI — dark theme
+ *
+ * ZoruUI was a light-only palette, so the shell chrome (rail, sidebar,
+ * header widgets) and every ZoruUI surface stayed white even when the user
+ * picked Dark in Settings → Appearance (which adds `.dark` to <html>). This
+ * block flips the `--zoru-*` token VALUES under the dark trigger; because the
+ * components read those variables (and the shadcn `--background`/`--border`
+ * remaps above also reference them), the whole system re-themes with no
+ * component changes.
+ *
+ * The values mirror the 20ui dark palette (.ui20.dark in ui20.css —
+ * bg #181818, sidebar #1a1a1a, border #2a2a2a, text #e8e8e8) so the seam
+ * between the 20ui app rail / header and the ZoruUI sidebar / content is
+ * invisible. Primary flips to light-on-dark so "primary" controls still pop.
+ *
+ * Trigger: `<html class="dark">` (set by the theme bootstrap + Settings).
+ * Explicit only — no prefers-color-scheme query — because the bootstrap
+ * resolves "system" to an explicit `.dark`/`.light` class on <html>.
+ * ═══════════════════════════════════════════════════════════════════════ */
+html.dark .zoruui,
+.dark .zoruui,
+.zoruui.dark {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --zoru-bg:           0 0% 9%;          /* #181818 — matches --st-bg */
+  --zoru-surface:      0 0% 11%;         /* #1d1d1d */
+  --zoru-surface-2:    0 0% 13%;         /* #222222 */
+  --zoru-surface-3:    0 0% 16%;         /* #2a2a2a */
+
+  /* Ink */
+  --zoru-ink:          0 0% 91%;         /* #e8e8e8 — matches --st-text */
+  --zoru-ink-strong:   0 0% 100%;        /* pure white */
+  --zoru-ink-muted:    0 0% 60%;         /* #9a9a9a */
+  --zoru-ink-subtle:   0 0% 42%;         /* #6b6b6b */
+
+  /* Lines */
+  --zoru-line:         0 0% 16%;         /* #2a2a2a */
+  --zoru-line-strong:  0 0% 23%;         /* #3a3a3a */
+
+  /* Brand — flips to light-on-dark so primary controls stay prominent. */
+  --zoru-primary:      0 0% 91%;
+  --zoru-primary-hover:0 0% 84%;
+  --zoru-primary-active:0 0% 78%;
+  --zoru-on-primary:   0 0% 9%;
+
+  /* States — base hues stay vivid; the "-ink" text variants brighten so
+   * they read on the dark tints they sit on. */
+  --zoru-danger:       0 80% 63%;
+  --zoru-on-danger:    0 0% 100%;
+  --zoru-danger-ink:   0 85% 74%;
+  --zoru-success:      152 52% 48%;
+  --zoru-on-success:   0 0% 8%;
+  --zoru-success-ink:  152 50% 62%;
+  --zoru-warning:      38 92% 55%;
+  --zoru-on-warning:   0 0% 8%;
+  --zoru-warning-ink:  38 90% 64%;
+  --zoru-info:         215 24% 62%;
+  --zoru-on-info:      0 0% 8%;
+  --zoru-info-ink:     215 30% 72%;
+
+  /* Focus — light ring on dark. */
+  --zoru-ring:         0 0% 80%;
+
+  /* Shadows — black-based + deeper so elevation reads on dark surfaces. */
+  --zoru-shadow-sm:    0 1px 2px 0 hsl(0 0% 0% / 0.5), 0 1px 1px -1px hsl(0 0% 0% / 0.6);
+  --zoru-shadow-md:    0 10px 24px -18px hsl(0 0% 0% / 0.7), 0 4px 12px -8px hsl(0 0% 0% / 0.5);
+  --zoru-shadow-lg:    0 20px 44px -24px hsl(0 0% 0% / 0.72), 0 8px 18px -12px hsl(0 0% 0% / 0.5);
+  --zoru-shadow-xl:    0 28px 68px -30px hsl(0 0% 0% / 0.78), 0 16px 30px -22px hsl(0 0% 0% / 0.55);
+}
+
 .zoruui-gallery {
   background:
     linear-gradient(hsl(var(--zoru-line) / 0.34) 1px, transparent 1px),

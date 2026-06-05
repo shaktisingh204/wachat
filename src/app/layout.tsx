@@ -86,6 +86,17 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${geistSans.variable} ${geistMono.variable} ${hankenGrotesk.variable} ${onest.variable}`}
     >
       <body className="antialiased font-sans min-h-screen bg-zoru-surface text-zoru-ink">
+        {/* Theme bootstrap — resolve the saved light/dark preference and stamp
+            an explicit class on <html> BEFORE first paint, so the app rail,
+            header, and every ZoruUI / 20ui surface render in the chosen theme
+            with no flash. "system" is resolved to an explicit class so the
+            20ui prefers-color-scheme fallback can't override the choice. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('sabnode-theme')||'system';var d=document.documentElement;d.classList.remove('light','dark');var dark=t==='dark'||(t==='system'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);d.classList.add(dark?'dark':'light');}catch(e){}})();",
+          }}
+        />
         <MotionProvider>
           <SessionProvider>
             <ZoruTooltipProvider>

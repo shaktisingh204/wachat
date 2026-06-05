@@ -153,9 +153,16 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* ----- Dark theme (explicit) ----- */
+/* ----- Dark theme (explicit) -----
+   `html.dark .ui20` lets the no-FOUC theme bootstrap (which stamps `html.dark`
+   before first paint) theme every .ui20 surface immediately — same as the
+   `html.dark .zoruui` hook in zoruui.css. Without it, .ui20 chrome (the app
+   rail + header) would paint light until the React `appDark` className caught
+   up post-hydration, flashing white inside an already-dark shell. The app
+   theme is authoritative on <html>, so when it is dark every .ui20 is dark. */
 .ui20.dark,
-.ui20[data-theme="dark"] {
+.ui20[data-theme="dark"],
+html.dark .ui20 {
   --st-bg: #181818;
   --st-bg-secondary: #1d1d1d;
   --st-bg-muted: #222222;

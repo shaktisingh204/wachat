@@ -34,6 +34,7 @@ import {
     type AppearancePrefs,
 } from '@/app/actions/account.actions';
 import { useT } from '@/lib/i18n/client';
+import { applyTheme } from '@/components/zoruui/shell/app-theme';
 
 type Appearance = AppearancePrefs;
 
@@ -55,7 +56,11 @@ export default function AppearanceSettingsPage() {
         getAppearancePrefs()
             .then((server) => {
                 if (cancelled) return;
-                setPrefs({ ...DEFAULTS, ...server });
+                const merged = { ...DEFAULTS, ...server };
+                setPrefs(merged);
+                // Seed localStorage + apply the server-stored theme so the
+                // no-FOUC bootstrap and the header toggle match it next load.
+                applyTheme(merged.theme);
             })
             .catch(() => {
                 /* fall through to defaults */
@@ -69,13 +74,9 @@ export default function AppearanceSettingsPage() {
         setSaving(true);
         try {
             await setAppearancePrefs(prefs);
-            // Apply theme immediately so the user sees the effect.
-            if (typeof document !== 'undefined') {
-                const root = document.documentElement;
-                root.classList.remove('light', 'dark');
-                if (prefs.theme === 'dark') root.classList.add('dark');
-                else if (prefs.theme === 'light') root.classList.add('light');
-            }
+            // Apply + persist the theme immediately (also writes localStorage so
+            // the no-FOUC bootstrap and header toggle stay in sync).
+            applyTheme(prefs.theme);
             toast({ title: t('settings.appearance.toast.saved') });
         } catch (e: any) {
             toast({
