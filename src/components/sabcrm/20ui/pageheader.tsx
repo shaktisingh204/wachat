@@ -12,7 +12,7 @@
  * Taste: one heading level (h1 — never skip levels), one accent, one radius.
  * Emil: the bottom hairline + spacing are static; nothing here animates on
  * every paint, so motion is intentionally minimal (the system's reduced-motion
- * block in 20ui.css still applies to any composed pressables).
+ * block in tokens-motion.css still applies to any composed pressables).
  * A11y: the eyebrow is purely decorative kicker text; the h1 carries the page
  * name; actions live in their own group with their own accessible names.
  *

@@ -28,7 +28,7 @@ import { Loader2, Check, CalendarClock } from 'lucide-react';
 import { updateSabcrmRecordTw } from '@/app/actions/sabcrm-twenty.actions';
 import { useProject } from '@/context/project-context';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../tasks-notes.css';
 
 /** The three task statuses (kept local — no server-module import in a client). */

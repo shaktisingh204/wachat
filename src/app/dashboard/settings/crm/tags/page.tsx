@@ -43,7 +43,7 @@ import {
   deleteTagTw,
 } from '@/app/actions/sabcrm-tags.actions';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './tags.css';
 
 // ---------------------------------------------------------------------------

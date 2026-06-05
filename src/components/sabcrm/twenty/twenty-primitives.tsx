@@ -1,21 +1,21 @@
 import * as React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 // 20ui — SabCRM's design system (motion · interaction · accessibility layer).
-import '@/styles/20ui.css';
+import '@/components/sabcrm/20ui/tokens-motion.css';
 // ui20 CRM theme — re-skins the whole CRM (tokens + chrome) to the new look.
 // Imported AFTER the base sheets so its token + chrome overrides win, then the
 // per-surface polish layers (each wins by source order + specificity).
-import '@/styles/sabcrm-ui20-theme.css';
-import '@/styles/sabcrm-ui20-shell.css';
-import '@/styles/sabcrm-ui20-list.css';
-import '@/styles/sabcrm-ui20-forms.css';
-import '@/styles/sabcrm-ui20-chips.css';
-import '@/styles/sabcrm-ui20-detail.css';
-import '@/styles/sabcrm-ui20-board.css';
-import '@/styles/sabcrm-ui20-overlays.css';
-import '@/styles/sabcrm-ui20-pages.css';
+import '@/components/sabcrm/20ui/tokens-crm.css';
+import '@/components/sabcrm/20ui/surface-shell.css';
+import '@/components/sabcrm/20ui/surface-list.css';
+import '@/components/sabcrm/20ui/surface-forms.css';
+import '@/components/sabcrm/20ui/surface-chips.css';
+import '@/components/sabcrm/20ui/surface-detail.css';
+import '@/components/sabcrm/20ui/surface-board.css';
+import '@/components/sabcrm/20ui/surface-overlays.css';
+import '@/components/sabcrm/20ui/surface-pages.css';
 import { Button } from '../20ui/button';
 
 /* =========================================================================

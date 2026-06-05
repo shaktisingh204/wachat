@@ -62,7 +62,7 @@ import {
 } from '@/components/sabcrm/20ui';
 import { useProject } from '@/context/project-context';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './ai.css';
 
 // ---------------------------------------------------------------------------

@@ -139,7 +139,7 @@
  * remaps above also reference them), the whole system re-themes with no
  * component changes.
  *
- * The values mirror the 20ui dark palette (.ui20.dark in ui20.css —
+ * The values mirror the 20ui dark palette (.ui20.dark in tokens.css —
  * bg #181818, sidebar #1a1a1a, border #2a2a2a, text #e8e8e8) so the seam
  * between the 20ui app rail / header and the ZoruUI sidebar / content is
  * invisible. Primary flips to light-on-dark so "primary" controls still pop.

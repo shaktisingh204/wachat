@@ -55,7 +55,7 @@ import { listMembersAction } from '@/app/actions/sabcrm.actions';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './billing.css';
 

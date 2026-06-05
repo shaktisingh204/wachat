@@ -1,4 +1,4 @@
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 
 /**
  * SabCRM root loading skeleton — Twenty design system (`.st-*`), NOT ZoruUI.

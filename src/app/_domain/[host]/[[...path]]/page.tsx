@@ -16,7 +16,7 @@ import type { Metadata } from 'next';
 import { getDomainByName } from '@/lib/sabflow/domains/db';
 import { getSabFlowById, getSabFlowsByUserId } from '@/lib/sabflow/db';
 import { ChatWindow } from '@/components/sabflow/chat/ChatWindow';
-import '@/styles/sabflow.css';
+import '@/components/sabflow/sabflow.css';
 import { unstable_cache } from 'next/cache';
 
 export const dynamic = 'force-dynamic';

@@ -63,7 +63,7 @@ import {
 import { listRolesTw, setRoleMemberTw } from '@/app/actions/sabcrm-roles.actions';
 import type { SabcrmRustRole } from '@/lib/rust-client/sabcrm-roles';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './invites.css';
 

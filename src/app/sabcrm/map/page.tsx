@@ -59,7 +59,7 @@ import type {
 import type { ObjectMetadata, FieldMetadata } from '@/lib/sabcrm/types';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './map.css';
 
 // ---------------------------------------------------------------------------

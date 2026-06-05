@@ -64,7 +64,7 @@ import type {
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import type { FieldMetadata } from '@/lib/sabcrm/types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../tasks-notes.css';
 
 // ---------------------------------------------------------------------------

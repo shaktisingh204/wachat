@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import { getSabFlow } from '@/app/actions/sabflow';
 import { EditorPage } from '@/components/sabflow/editor/EditorPage';
 
-import '@/styles/sabflow.css';
+import '@/components/sabflow/sabflow.css';
 
 type Props = {
   params: Promise<{ flowId: string }>;

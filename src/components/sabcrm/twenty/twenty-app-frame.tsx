@@ -26,7 +26,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './twenty-activity.css';
 import './notifications.css';
 
@@ -344,7 +344,7 @@ export function TwentyAppFrame({ children }: TwentyAppFrameProps): React.JSX.Ele
 
   // `ui20` makes the CRM frame an explicit ui20 design-system root (it already
   // qualified via `.sabcrm-twenty`); both classes share the new ui20 theme.
-  // The explicit `light`/`dark` class is REQUIRED: ui20.css carries an
+  // The explicit `light`/`dark` class is REQUIRED: tokens.css carries an
   // auto-dark `@media (prefers-color-scheme: dark) .ui20:not(.light)` rule, so
   // without `light` the CRM would follow the OS instead of its resolved setting
   // (a light app under a dark OS would render the CRM dark — the half-dark bug).

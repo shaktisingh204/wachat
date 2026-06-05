@@ -32,7 +32,7 @@ import {
   updateCrmSectionTw,
 } from '@/app/actions/sabcrm-settings.actions';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './general.css';
 

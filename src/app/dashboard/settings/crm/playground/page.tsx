@@ -44,7 +44,7 @@ import {
 } from '@/app/actions/sabcrm-twenty.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './playground.css';
 

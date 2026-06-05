@@ -45,7 +45,7 @@ import {
   type CrmFunctionDraft,
 } from './use-functions';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './functions.css';
 

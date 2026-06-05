@@ -4,7 +4,7 @@
  * This route lives outside the CRM (no `.sabcrm-twenty`, no Twenty styles). It
  * renders the same {@link Ui20Showcase} wrapped only in 20ui's own `.ui20` root,
  * which proves the system is genuinely app-wide: every component resolves its
- * tokens from `ui20.css` alone, anywhere in SabNode.
+ * tokens from `tokens.css` alone, anywhere in SabNode.
  *
  * Public route (the proxy only gates /dashboard + /wachat), so it doubles as a
  * shareable component reference.

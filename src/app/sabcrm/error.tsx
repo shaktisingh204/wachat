@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import { TwentyButton } from '@/components/sabcrm/twenty/twenty-primitives';
 
 /**

@@ -2,7 +2,7 @@
 
 /* The anchor wraps the caller's trigger node; it is layout-transparent so the
    trigger keeps its own box. The portal panel (.u-menu) inherits the shared
-   .st-popover entrance + elevation from 20ui.css. */
+   .st-popover entrance + elevation from tokens-motion.css. */
 :is(.ui20, .sabcrm-twenty) .u-menu__anchor {
   display: inline-flex;
 }

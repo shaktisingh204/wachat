@@ -82,7 +82,7 @@ import {
 import { handleChangePassword } from '@/app/actions/user.actions';
 import { useSettingsSync } from '../use-settings-sync';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './security.css';
 

@@ -20,7 +20,7 @@ import { TwentyPageHeader, TwentyButton } from '@/components/sabcrm/twenty';
 import { useToast } from '@/hooks/use-toast';
 import { LAB_FLAGS, useLabFlags, type LabFlagId } from './use-lab-flags';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import '../profile/profile.css';
 import './lab.css';

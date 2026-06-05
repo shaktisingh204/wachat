@@ -51,7 +51,7 @@ import {
 } from '@/app/actions/sabcrm-twenty.actions';
 import type { SabcrmRustRecord } from '@/app/actions/sabcrm-twenty.actions.types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../tasks-notes.css';
 
 // ---------------------------------------------------------------------------

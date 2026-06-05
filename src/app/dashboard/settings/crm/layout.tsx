@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import { CrmSettingsShell } from './_components/crm-settings-shell';
 
 export const metadata: Metadata = {

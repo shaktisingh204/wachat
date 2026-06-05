@@ -6,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '@/components/sabcrm/20ui';
 // Pull the new ui20 CRM theme so settings pages match the rest of the CRM.
-import '@/styles/sabcrm-ui20-theme.css';
+import '@/components/sabcrm/20ui/tokens-crm.css';
 import './crm-settings-shell.css';
 
 /**

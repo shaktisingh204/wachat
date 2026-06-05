@@ -77,7 +77,7 @@ import type {
 } from '@/app/actions/sabcrm-twenty.actions.types';
 import { sabcrmRecordLabel } from '@/lib/sabcrm/record-label';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import './activity.css';
 
 // ---------------------------------------------------------------------------

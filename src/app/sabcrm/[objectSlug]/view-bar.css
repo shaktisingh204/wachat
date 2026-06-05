@@ -4,7 +4,7 @@
    The strip above the record table that mirrors Twenty's view bar: saved-view
    tabs on the left, and Filter / Sort / Group-by / Fields controls + their
    active chips on the right. Uses ONLY the shared `--st-*` design tokens from
-   `@/styles/sabcrm-twenty.css` (already loaded by the twenty kit), so it reads
+   `@/components/sabcrm/20ui/surface-crm-base.css` (already loaded by the twenty kit), so it reads
    identically to the rest of the Twenty surface.
 
    New, self-contained classes are namespaced `.stv-*` to avoid colliding with

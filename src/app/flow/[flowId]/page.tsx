@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { getSabFlowById } from '@/lib/sabflow/db';
 import { ChatWindow } from '@/components/sabflow/chat/ChatWindow';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
-import '@/styles/sabflow.css';
+import '@/components/sabflow/sabflow.css';
 
 type Props = {
   params: Promise<{ flowId: string }>;

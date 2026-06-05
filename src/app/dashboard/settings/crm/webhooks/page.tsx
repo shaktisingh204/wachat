@@ -51,7 +51,7 @@ import type {
   UpdateWebhookPatch,
 } from '@/app/actions/sabcrm.actions.types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './webhooks-log.css';
 import './webhook-events.css';

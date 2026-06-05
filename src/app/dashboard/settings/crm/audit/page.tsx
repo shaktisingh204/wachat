@@ -34,7 +34,7 @@ import { TwentyPageHeader, TwentyAvatar } from '@/components/sabcrm/twenty';
 import { useProject } from '@/context/project-context';
 import { listAuditTw, type SabcrmRustAuditEntry } from '@/app/actions/sabcrm-audit.actions';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './audit.css';
 

@@ -12,7 +12,7 @@
    - Dark values follow the app's existing `.dark` class (Tailwind convention).
    - `.ui20` and `.sabcrm-twenty` keep their own scoped definitions, which still
      win inside those subtrees — this is purely the global fallback layer.
-   - Values mirror src/styles/ui20.css; keep them in sync.
+   - Values mirror ./tokens.css; keep them in sync.
    ========================================================================= */
 
 :root {

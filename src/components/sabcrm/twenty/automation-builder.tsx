@@ -20,7 +20,7 @@
  * those actions are unavailable.
  *
  * Twenty visual language only: shared `.st-*` primitives from
- * `@/styles/sabcrm-twenty.css` (st-input / st-select / st-textarea / st-field /
+ * `@/components/sabcrm/20ui/surface-crm-base.css` (st-input / st-select / st-textarea / st-field /
  * st-switch) plus an `ab-*` class layer in `./automation-builder.css`. No
  * ZoruUI, no Tailwind, no `--zoru-*`. The `.sabcrm-twenty` scope is applied by
  * the surrounding TwentyAppFrame.

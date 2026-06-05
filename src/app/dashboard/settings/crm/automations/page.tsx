@@ -85,7 +85,7 @@ import { listWorkflowRunsTw } from '@/app/actions/sabcrm-workflow-runs.actions';
 import { listObjectsTw } from '@/app/actions/sabcrm-objects.actions';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './workflows.css';
 import './run-now.css';

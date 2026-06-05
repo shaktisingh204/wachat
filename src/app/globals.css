@@ -1126,4 +1126,4 @@
     animation: none !important;
   }
 }
-@import '../styles/sabflow.css';
+@import '../components/sabflow/sabflow.css';

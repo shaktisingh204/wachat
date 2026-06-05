@@ -46,7 +46,7 @@ import {
 import type { SavedView } from '@/app/actions/sabcrm.actions.types';
 import type { ObjectMetadata } from '@/lib/sabcrm/types';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import '../views-automations.css';
 

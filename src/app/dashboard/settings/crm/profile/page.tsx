@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCrmPrefs } from '../use-crm-prefs';
 import { useSettingsSync, type SyncOutcome } from '../use-settings-sync';
 
-import '@/styles/sabcrm-twenty.css';
+import '@/components/sabcrm/20ui/surface-crm-base.css';
 import '../settings-twenty.css';
 import './profile.css';
 

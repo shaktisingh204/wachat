@@ -12,7 +12,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 // ui20 design tokens promoted to :root so `var(--st-*)`/`var(--u-*)` resolve
 // app-wide (enables the central-token migration outside the CRM/HRM surfaces).
-import '@/styles/ui20-global.css';
+import '@/components/sabcrm/20ui/tokens-global.css';
 
 import SessionProvider from '@/components/zoruui-domain/session-provider';
 import { MotionProvider } from '@/components/motion';
