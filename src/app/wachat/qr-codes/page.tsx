@@ -426,8 +426,10 @@ export default function QrCodesPage() {
                   className="mt-1 pt-3 flex items-center gap-3"
                   style={{ borderTop: '1px solid var(--st-border)' }}
                 >
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    iconLeft={Copy}
                     onClick={() => {
                       navigator.clipboard.writeText(getTrackingUrl(qr));
                       toast({
@@ -436,12 +438,9 @@ export default function QrCodesPage() {
                         tone: 'success',
                       });
                     }}
-                    className="inline-flex items-center gap-1.5 text-[11px] transition-colors hover:underline"
-                    style={{ color: 'var(--st-text-tertiary)' }}
                   >
-                    <Copy className="h-3 w-3" aria-hidden="true" />
                     Copy tracking link
-                  </button>
+                  </Button>
                   <span className="text-[10px]" style={{ color: 'var(--st-text-tertiary)' }} aria-hidden="true">•</span>
                   <a
                     href={getTrackingUrl(qr)}

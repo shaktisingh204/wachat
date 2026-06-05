@@ -6,32 +6,27 @@ import {
   Button,
   IconButton,
   Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardBody,
   Checkbox,
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
   EmptyState,
   Alert,
   Field,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  RadioGroup,
-  Radio,
+  RadioCardGroup,
+  RadioCard,
   Select,
   Spinner,
-  Tag,
   Table,
   THead,
   TBody,
   Tr,
   Th,
   Td,
+  TagPicker,
 } from '@/components/sabcrm/20ui';
-import type { BadgeTone } from '@/components/sabcrm/20ui';
+import type { BadgeTone, TagOption } from '@/components/sabcrm/20ui';
 import {
   useCallback,
   useEffect,
@@ -39,11 +34,8 @@ import {
   useState,
   useTransition } from 'react';
 import {
-  Check,
-  ChevronsUpDown,
   FileText,
   Play,
-  Tag as TagIcon,
   Timer,
   Trash2,
   Upload,
@@ -75,10 +67,6 @@ import { WachatPage } from '@/app/wachat/_components/wachat-page';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 import { TemplateInputRenderer } from '../_components/template-input-renderer';
-
-function cx(...a: Array<string | false | null | undefined>): string {
-  return a.filter(Boolean).join(' ');
-}
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -112,7 +100,7 @@ function statusTone(s: EntryStatus): BadgeTone {
 
 function statusLabel(s: EntryStatus) {
   if (s === 'pending') return 'Pending';
-  if (s === 'starting') return 'Starting…';
+  if (s === 'starting') return 'Starting...';
   if (s === 'started') return 'Queued';
   return 'Failed';
 }
@@ -150,7 +138,6 @@ export default function BroadcastCronPage() {
   const [audienceType, setAudienceType] = useState<AudienceKind>('tags');
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
   const [addError, setAddError] = useState('');
 
   const approvedTemplates = templates.filter(
@@ -180,6 +167,15 @@ export default function BroadcastCronPage() {
     setAddError('');
   }, [activeProjectId]);
 
+  const projectTags = (activeProject?.tags || []) as TagType[];
+
+  // Build TagOption[] from the project's tag list for TagPicker
+  const tagOptions: TagOption[] = projectTags.map((t) => ({
+    id: t._id,
+    label: t.name,
+    color: t.color,
+  }));
+
   /* Add an entry to the queue */
   const handleAdd = () => {
     setAddError('');
@@ -203,7 +199,6 @@ export default function BroadcastCronPage() {
     const phone = (activeProject?.phoneNumbers || []).find(
       (p) => p.id === phoneNumberId,
     );
-    const tags = (activeProject?.tags || []) as TagType[];
 
     setQueue((prev) => [
       ...prev,
@@ -218,7 +213,7 @@ export default function BroadcastCronPage() {
         tagNames:
           audienceType === 'tags'
             ? selectedTagIds.map(
-                (id) => tags.find((t) => t._id === id)?.name ?? id,
+                (id) => projectTags.find((t) => t._id === id)?.name ?? id,
               )
             : [],
         csvFile: audienceType === 'file' ? csvFile : null,
@@ -338,7 +333,6 @@ export default function BroadcastCronPage() {
   };
 
   const pendingCount = queue.filter((e) => e.status === 'pending').length;
-  const tags = (activeProject?.tags || []) as TagType[];
 
   const templateLocked = queue.length > 0;
 
@@ -382,7 +376,7 @@ export default function BroadcastCronPage() {
             disabled={isStarting || pendingCount === 0 || !selectedTemplate}
           >
             {isStarting
-              ? 'Starting…'
+              ? 'Starting...'
               : `Start Cron${pendingCount > 0 ? ` (${pendingCount})` : ''}`}
           </Button>
         </div>
@@ -405,7 +399,7 @@ export default function BroadcastCronPage() {
               Pick a phone number, then the template, then this entry's audience.
             </p>
           </div>
-          <Card padding="lg">
+          <Card variant="outlined" padding="lg">
             <div className="grid gap-5 sm:grid-cols-2">
               {/* Phone number */}
               <Field label="Phone Number" required>
@@ -416,7 +410,7 @@ export default function BroadcastCronPage() {
                   placeholder={
                     phoneOptions.length === 0
                       ? 'No phone numbers on this project'
-                      : 'Choose a number…'
+                      : 'Choose a number...'
                   }
                   disabled={phoneOptions.length === 0}
                   aria-label="Phone Number"
@@ -442,10 +436,10 @@ export default function BroadcastCronPage() {
                     options={templateOptions}
                     placeholder={
                       isLoadingTemplates
-                        ? 'Loading templates…'
+                        ? 'Loading templates...'
                         : templateOptions.length === 0
                           ? 'No approved templates'
-                          : 'Choose an approved template…'
+                          : 'Choose an approved template...'
                     }
                     disabled={
                       isLoadingTemplates ||
@@ -462,26 +456,23 @@ export default function BroadcastCronPage() {
             {/* Audience type */}
             <div className="mt-5">
               <Field label="Audience" required>
-                <RadioGroup
+                <RadioCardGroup
                   value={audienceType}
-                  onValueChange={(v) => setAudienceType(v as AudienceKind)}
-                  orientation="horizontal"
+                  onChange={(v) => setAudienceType(v as AudienceKind)}
+                  label="Audience"
                   className="flex gap-2"
-                  aria-label="Audience"
                 >
-                  <AudienceOption
+                  <RadioCard
                     value="tags"
                     label="From tags"
                     description="Existing segments"
-                    active={audienceType === 'tags'}
                   />
-                  <AudienceOption
+                  <RadioCard
                     value="file"
                     label="Upload file"
                     description="CSV or XLSX"
-                    active={audienceType === 'file'}
                   />
-                </RadioGroup>
+                </RadioCardGroup>
               </Field>
             </div>
 
@@ -489,116 +480,14 @@ export default function BroadcastCronPage() {
             <div className="mt-5">
               {audienceType === 'tags' ? (
                 <Field label="Audience Tags" required>
-                  <Popover
-                    open={tagPopoverOpen}
-                    onOpenChange={setTagPopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        role="combobox"
-                        aria-expanded={tagPopoverOpen}
-                        aria-label="Select audience tags"
-                        className="inline-flex h-10 w-full items-center justify-between gap-2 px-3 text-[13px] transition-colors"
-                        style={{
-                          borderRadius: 'var(--st-radius)',
-                          border: '1px solid var(--st-border)',
-                          background: 'var(--st-bg)',
-                          color:
-                            selectedTagIds.length === 0
-                              ? 'var(--st-text-tertiary)'
-                              : 'var(--st-text)',
-                        }}
-                      >
-                        <span className="inline-flex items-center gap-1.5 truncate">
-                          <TagIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                          {selectedTagIds.length > 0
-                            ? `${selectedTagIds.length} tag${selectedTagIds.length === 1 ? '' : 's'} selected`
-                            : 'Select tags…'}
-                        </span>
-                        <ChevronsUpDown
-                          className="h-4 w-4 shrink-0 opacity-50"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-[--radix-popover-trigger-width] p-0"
-                      align="start"
-                    >
-                      <Command>
-                        <CommandInput placeholder="Search tags…" />
-                        <CommandList>
-                          <CommandEmpty>No tags found.</CommandEmpty>
-                          <CommandGroup>
-                            {tags.map((tag) => {
-                              const isSelected = selectedTagIds.includes(tag._id);
-                              return (
-                                <CommandItem
-                                  key={tag._id}
-                                  value={tag.name}
-                                  onSelect={() => {
-                                    const next = isSelected
-                                      ? selectedTagIds.filter(
-                                          (id) => id !== tag._id,
-                                        )
-                                      : [...selectedTagIds, tag._id];
-                                    setSelectedTagIds(next);
-                                  }}
-                                >
-                                  <span
-                                    className="mr-2 flex h-4 w-4 items-center justify-center"
-                                    style={{
-                                      borderRadius: '3px',
-                                      border: isSelected
-                                        ? '1px solid var(--st-accent)'
-                                        : '1px solid var(--st-border)',
-                                      background: isSelected
-                                        ? 'var(--st-accent)'
-                                        : 'transparent',
-                                      color: isSelected ? '#fff' : 'transparent',
-                                    }}
-                                    aria-hidden="true"
-                                  >
-                                    {isSelected ? (
-                                      <Check className="h-3 w-3" />
-                                    ) : null}
-                                  </span>
-                                  <span
-                                    className="mr-2 h-2 w-2 shrink-0 rounded-full"
-                                    style={{ backgroundColor: tag.color }}
-                                    aria-hidden="true"
-                                  />
-                                  <span>{tag.name}</span>
-                                </CommandItem>
-                              );
-                            })}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  {selectedTagIds.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {selectedTagIds.map((id) => {
-                        const tag = tags.find((t) => t._id === id);
-                        return (
-                          <Tag
-                            key={id}
-                            color={tag?.color}
-                            onRemove={() =>
-                              setSelectedTagIds((prev) =>
-                                prev.filter((x) => x !== id),
-                              )
-                            }
-                            removeLabel={`Remove ${tag?.name ?? id}`}
-                          >
-                            {tag?.name ?? id}
-                          </Tag>
-                        );
-                      })}
-                    </div>
-                  )}
+                  <TagPicker
+                    options={tagOptions}
+                    value={selectedTagIds}
+                    onChange={(ids) => setSelectedTagIds(ids)}
+                    placeholder="Select tags..."
+                    searchPlaceholder="Search tags..."
+                    aria-label="Select audience tags"
+                  />
                 </Field>
               ) : (
                 <Field
@@ -726,7 +615,7 @@ export default function BroadcastCronPage() {
               description="Use the form above to add phone + audience pairs, then hit Start Cron."
             />
           ) : (
-            <Card padding="none" className="overflow-x-auto">
+            <Card variant="outlined" padding="none" className="overflow-x-auto">
               <Table>
                 <THead>
                   <Tr>
@@ -745,10 +634,6 @@ export default function BroadcastCronPage() {
                           <div className="flex flex-wrap gap-1">
                             {entry.tagNames.map((name) => (
                               <Badge key={name} tone="neutral">
-                                <TagIcon
-                                  className="h-2.5 w-2.5"
-                                  aria-hidden="true"
-                                />
                                 {name}
                               </Badge>
                             ))}
@@ -824,104 +709,53 @@ export default function BroadcastCronPage() {
 
           {/* Template variables — visible once a template is picked above. */}
           {selectedTemplate && (
-            <Card padding="lg">
-              <div className="flex flex-col gap-4">
-                <div>
-                  <h2
-                    className="text-[16px] font-medium leading-none"
-                    style={{ color: 'var(--st-text)' }}
-                  >
-                    Template variables
-                  </h2>
-                  <p
-                    className="mt-1.5 text-[12px]"
-                    style={{ color: 'var(--st-text-secondary)' }}
-                  >
-                    These values apply to every entry queued above.
-                  </p>
-                </div>
+            <Card variant="outlined" padding="lg">
+              <CardHeader>
+                <CardTitle>Template variables</CardTitle>
+                <CardDescription>
+                  These values apply to every entry queued above.
+                </CardDescription>
+              </CardHeader>
+              <CardBody>
                 <TemplateInputRenderer
                   template={selectedTemplate}
                   variableOptions={TAG_VARIABLE_HINTS}
                 />
-              </div>
+              </CardBody>
             </Card>
           )}
 
           {/* Options */}
-          <Card padding="md">
-            <label className="flex items-start gap-3 cursor-pointer select-none">
+          <Card variant="outlined" padding="md">
+            <div className="flex items-start gap-3 cursor-pointer select-none">
               <Checkbox
                 checked={createContacts}
                 onChange={(e) => setCreateContacts(e.target.checked)}
                 className="mt-0.5"
                 aria-label="Create contacts in CRM"
+                id="create-contacts-checkbox"
               />
               <div className="flex flex-col">
-                <span
-                  className="text-[13px] font-medium"
+                <label
+                  htmlFor="create-contacts-checkbox"
+                  className="text-[13px] font-medium cursor-pointer"
                   style={{ color: 'var(--st-text)' }}
                 >
                   Create contacts in CRM
-                </span>
+                </label>
                 <span
                   className="mt-0.5 text-[11.5px]"
                   style={{ color: 'var(--st-text-secondary)' }}
                 >
                   {createContacts
                     ? 'New recipients will be added to your CRM as they receive this broadcast.'
-                    : 'Off — only existing contacts will be updated.'}
+                    : 'Off - only existing contacts will be updated.'}
                 </span>
               </div>
-            </label>
+            </div>
           </Card>
         </form>
       </div>
     </WachatPage>
-  );
-}
-
-/* ── Local UI helpers ──────────────────────────────────────────────── */
-
-function AudienceOption({
-  value,
-  label,
-  description,
-  active,
-}: {
-  value: string;
-  label: string;
-  description: string;
-  active: boolean;
-}) {
-  return (
-    <label
-      className={cx(
-        'flex flex-1 cursor-pointer items-start gap-2.5 px-3 py-2.5 transition-colors',
-      )}
-      style={{
-        borderRadius: 'var(--st-radius)',
-        border: active
-          ? '1px solid var(--st-accent)'
-          : '1px solid var(--st-border)',
-        background: active ? 'var(--st-bg-secondary)' : 'var(--st-bg)',
-      }}
-    >
-      <Radio value={value} className="mt-0.5" />
-      <div className="flex flex-col">
-        <span
-          className="text-[13px] font-medium leading-tight"
-          style={{ color: 'var(--st-text)' }}
-        >
-          {label}
-        </span>
-        <span
-          className="mt-0.5 text-[11px] leading-tight"
-          style={{ color: 'var(--st-text-secondary)' }}
-        >
-          {description}
-        </span>
-      </div>
-    </label>
   );
 }

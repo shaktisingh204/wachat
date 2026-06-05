@@ -12,6 +12,11 @@ import {
   Badge,
   Button,
   Card,
+  CardBody,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   EmptyState,
   Field,
   Input,
@@ -227,10 +232,8 @@ export default function ChatbotPage() {
       {/* Two-pane: responses table + test chat */}
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <Card padding="lg">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[15px]" style={{ color: 'var(--st-text)' }}>
-              Responses
-            </h2>
+          <CardHeader className="mb-4 flex items-center justify-between">
+            <CardTitle>Responses</CardTitle>
             {isPending && (
               <Loader
                 className="h-4 w-4 animate-spin"
@@ -238,7 +241,7 @@ export default function ChatbotPage() {
                 aria-hidden="true"
               />
             )}
-          </div>
+          </CardHeader>
 
           {!isPending && responses.length === 0 ? (
             <EmptyState
@@ -306,22 +309,14 @@ export default function ChatbotPage() {
 
         {/* Test chat panel */}
         <Card padding="none" className="flex h-fit flex-col">
-          <div
-            className="px-4 py-3"
-            style={{ borderBottom: '1px solid var(--st-border)' }}
-          >
-            <h3 className="text-[14px] leading-tight" style={{ color: 'var(--st-text)' }}>
-              Test chat
-            </h3>
-            <p
-              className="mt-0.5 text-[11.5px] leading-tight"
-              style={{ color: 'var(--st-text-secondary)' }}
-            >
-              Try a message — the bot replies using your active rules.
-            </p>
-          </div>
-          <div
-            className="flex h-[360px] flex-col gap-2 overflow-y-auto px-4 py-3"
+          <CardHeader>
+            <CardTitle>Test chat</CardTitle>
+            <CardDescription>
+              Try a message. The bot replies using your active rules.
+            </CardDescription>
+          </CardHeader>
+          <CardBody
+            className="flex h-[360px] flex-col gap-2 overflow-y-auto"
             style={{ background: 'var(--st-bg-secondary)' }}
           >
             {testThread.length === 0 ? (
@@ -354,7 +349,7 @@ export default function ChatbotPage() {
                         ? {
                             borderRadius: 'var(--st-radius)',
                             background: 'var(--st-accent)',
-                            color: '#fff',
+                            color: 'var(--st-text-inverted)',
                           }
                         : {
                             borderRadius: 'var(--st-radius)',
@@ -369,11 +364,8 @@ export default function ChatbotPage() {
                 </div>
               ))
             )}
-          </div>
-          <div
-            className="flex gap-2 px-3 py-3"
-            style={{ borderTop: '1px solid var(--st-border)' }}
-          >
+          </CardBody>
+          <CardFooter className="flex gap-2">
             <Input
               value={testInput}
               onChange={(e) => setTestInput(e.target.value)}
@@ -393,7 +385,7 @@ export default function ChatbotPage() {
               disabled={!testInput.trim()}
               aria-label="Send"
             />
-          </div>
+          </CardFooter>
         </Card>
       </div>
 
